@@ -188,5 +188,5 @@ void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicl
 
 void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck)
 {
-    GetPlayer()->ValidateMovementInfo(&setVehicleRecIdAck.Data.movementInfo);
+    GetPlayer()->ValidateMovementInfo(&setVehicleRecIdAck.Data.Status);
 }

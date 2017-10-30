@@ -33,6 +33,7 @@
 #include "QuestDef.h"
 #include "SceneMgr.h"
 #include <queue>
+#include "GarrisonMgr.h"
 
 struct AccessRequirement;
 struct AchievementEntry;
@@ -77,6 +78,7 @@ class PlayerAI;
 class PlayerAchievementMgr;
 class PlayerMenu;
 class PlayerSocial;
+class QuestObjectiveCriteriaMgr;
 class ReputationMgr;
 class RestMgr;
 class SpellCastTargets;
@@ -113,7 +115,7 @@ enum SkillFieldOffset
 #define PLAYER_EXPLORED_ZONES_SIZE  256
 
 // Note: SPELLMOD_* values is aura types in fact
-enum SpellModType
+enum SpellModType : uint8
 {
     SPELLMOD_FLAT         = 0,                            // SPELL_AURA_ADD_FLAT_MODIFIER
     SPELLMOD_PCT          = 1,                            // SPELL_AURA_ADD_PCT_MODIFIER
@@ -156,6 +158,7 @@ struct PlayerSpell
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
 };
+
 
 enum TalentSpecialization // talent tabs
 {
@@ -208,10 +211,11 @@ enum SpecResetType
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
-    SpellModifier(Aura* _ownerAura = nullptr) : op(SPELLMOD_DAMAGE), type(SPELLMOD_FLAT), charges(0), value(0), mask(), spellId(0), ownerAura(_ownerAura) { }
-    SpellModOp   op   : 8;
-    SpellModType type : 8;
-    int16 charges     : 16;
+    SpellModifier(Aura* _ownerAura) : op(SPELLMOD_DAMAGE), type(SPELLMOD_FLAT), value(0), mask(), spellId(0), ownerAura(_ownerAura) { }
+
+    SpellModOp op;
+    SpellModType type;
+
     int32 value;
     flag128 mask;
     uint32 spellId;
@@ -237,18 +241,10 @@ struct PlayerCurrency
 
 typedef std::unordered_map<uint32, PlayerSpellState> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
-typedef std::list<SpellModifier*> SpellModList;
+typedef std::unordered_set<SpellModifier*> SpellModContainer;
 typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
 
 typedef std::unordered_map<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTimeMap;
-
-enum TrainerSpellState
-{
-    TRAINER_SPELL_GRAY  = 0,
-    TRAINER_SPELL_GREEN = 1,
-    TRAINER_SPELL_RED   = 2,
-    TRAINER_SPELL_GREEN_DISABLED = 10                       // custom value, not send to client: formally green but learn not allowed
-};
 
 enum ActionButtonUpdateState
 {
@@ -486,6 +482,14 @@ enum PlayerFieldBytes2Offsets
 enum PlayerFieldBytes3Offsets
 {
     PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID                  = 0     // uint16!
+};
+
+enum PlayerAvgItemLevelOffsets
+{
+    PLAYER_AVG_ITEM_LEVEL_EQUIPPED_AND_BAG  = 0,
+    PLAYER_AVG_ITEM_LEVEL_EQUIPPED          = 1,
+    PLAYER_AVG_ITEM_LEVEL_UNK3              = 2,
+    PLAYER_AVG_ITEM_LEVEL_UNK4              = 3
 };
 
 static_assert((PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
@@ -792,6 +796,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_SPELLS,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA_PROGRESS,
     PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS,
     PLAYER_LOGIN_QUERY_LOAD_REPUTATION,
     PLAYER_LOGIN_QUERY_LOAD_INVENTORY,
@@ -826,11 +832,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CURRENCY,
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS,
-    PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -847,7 +848,7 @@ enum PlayerDelayedOperations
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
-// Maximum money amount : 2^31 - 1
+// Maximum money amount : 2^63 - 1
 TC_GAME_API extern uint64 const MAX_MONEY_AMOUNT;
 
 enum BindExtensionState
@@ -907,7 +908,9 @@ enum PlayerCommandStates
     CHEAT_CASTTIME  = 0x02,
     CHEAT_COOLDOWN  = 0x04,
     CHEAT_POWER     = 0x08,
-    CHEAT_WATERWALK = 0x10
+    CHEAT_WATERWALK = 0x10,
+
+    CHEAT_ALL       = CHEAT_GOD | CHEAT_CASTTIME | CHEAT_COOLDOWN | CHEAT_POWER
 };
 
 enum PlayerLogXPReason : uint8
@@ -1052,7 +1055,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetObjectScale(float scale) override;
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
+        bool TeleportTo(uint32 mapid, Position const &pos, uint32 options = 0);
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
+        bool SeamlessTeleportToMap(uint32 mapid, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -1114,6 +1119,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetGMVisible(bool on);
         void SetPvPDeath(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_PVP_DEATH; else m_ExtraFlags &= ~PLAYER_EXTRA_PVP_DEATH; }
 
+        void SetXP(uint32 xp);
         void GiveXP(uint32 xp, Unit* victim, float group_rate=1.0f);
         void GiveLevel(uint8 level);
 
@@ -1163,6 +1169,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<Item*> GetItemListByEntry(uint32 entry, bool inBankAlso = false) const;
         Item* GetItemByPos(uint16 pos) const;
         Item* GetItemByPos(uint8 bag, uint8 slot) const;
+        Item* GetEquippedItem(EquipmentSlots slot) const;
         Item* GetUseableItemByPos(uint8 bag, uint8 slot) const;
         Bag*  GetBagByPos(uint8 slot) const;
         Item* GetWeaponForAttack(WeaponAttackType attackType, bool useable = false) const;
@@ -1187,7 +1194,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = nullptr) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
-        bool HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
+        bool HasItemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
+        bool HasGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
         InventoryResult CanTakeMoreSimilarItems(Item* pItem, uint32* offendingItemId = nullptr) const;
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, uint32* offendingItemId = nullptr) const { return CanTakeMoreSimilarItems(entry, count, nullptr, nullptr, offendingItemId); }
         InventoryResult CanStoreNewItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = nullptr) const;
@@ -1289,9 +1297,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendNewItem(Item* item, uint32 quantity, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
-        bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
+        bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
         float GetReputationPriceDiscount(Creature const* creature) const;
+        float GetReputationPriceDiscount(FactionTemplateEntry const* factionTemplate) const;
 
         Player* GetTrader() const;
         TradeData* GetTradeData() const { return m_trade; }
@@ -1384,7 +1393,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
         void SetQuestStatus(uint32 questId, QuestStatus status, bool update = true);
-        void RemoveActiveQuest(uint32 questId, bool update = true);
+        void RemoveActiveQuest(Quest const* quest, bool update = true);
         void RemoveRewardedQuest(uint32 questId, bool update = true);
         void SendQuestUpdate(uint32 questId);
         QuestGiverStatus GetQuestDialogStatus(Object* questGiver);
@@ -1421,26 +1430,31 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void KilledPlayerCredit();
         void KillCreditGO(uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
         void TalkedToCreature(uint32 entry, ObjectGuid guid);
+        void KillCreditCriteriaTreeObjective(QuestObjective const& questObjective);
         void MoneyChanged(uint64 value);
         void ReputationChanged(FactionEntry const* factionEntry);
         void CurrencyChanged(uint32 currencyId, int32 change);
         bool HasQuestForItem(uint32 itemId) const;
         bool HasQuestForGO(int32 goId) const;
+        bool HasQuest(uint32 questID) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 questId) const;
 
         int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
+        int32 GetQuestObjectiveData(uint32 questId, int8 storageIndex) const;
+        int32 GetQuestObjectiveCounter(uint32 objectiveId) const;
         bool IsQuestObjectiveComplete(QuestObjective const& objective) const;
-        void SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data);
+        void SetQuestObjectiveData(QuestObjective const& objective, int32 data);
         bool IsQuestObjectiveProgressComplete(Quest const* quest) const;
         void SendQuestComplete(Quest const* quest) const;
-        void SendQuestReward(Quest const* quest, uint32 XP) const;
+        void SendQuestReward(Quest const* quest, Creature const* questGiver, uint32 xp, bool hideChatMessage) const;
         void SendQuestFailed(uint32 questID, InventoryResult reason = EQUIP_ERR_OK) const;
         void SendQuestTimerFailed(uint32 questID) const;
         void SendCanTakeQuestResponse(QuestFailedReason reason, bool sendErrorMessage = true, std::string reasonText = "") const;
         void SendQuestConfirmAccept(Quest const* quest, Player* receiver) const;
         void SendPushToPartyResponse(Player* player, QuestPushReason reason) const;
         void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count) const;
+        void SendQuestUpdateAddCreditSimple(QuestObjective const& obj) const;
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const;
         void SendQuestGiverStatusMultiple();
 
@@ -1505,9 +1519,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetBindPoint(ObjectGuid guid) const;
         void SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost) const;
-        void ResetPetTalents();
         void RegenerateAll();
         void Regenerate(Powers power);
+        void SendPowerUpdate(Powers power, int32 amount);
         void RegenerateHealth();
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
@@ -1575,7 +1589,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasSpell(uint32 spell) const override;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const override;
-        TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;
@@ -1618,6 +1631,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetDefaultSpecId() const;
+        TalentSpecialization GetSpecializationId() const { return (TalentSpecialization)GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID); }
+        uint32 GetRoleForGroup() const;
+        static uint32 GetRoleBySpecializationId(uint32 specializationId);
 
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
@@ -1647,13 +1663,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
-        bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = nullptr) const;
+        static bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = nullptr);
         template <class T>
-        void ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell = nullptr);
-        void RemoveSpellMods(Spell* spell);
+        void ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell = nullptr) const;
         void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = nullptr);
         void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = nullptr);
-        void DropModCharge(SpellModifier* mod, Spell* spell);
+        static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
         void SendSpellModifiers() const;
 
@@ -1783,6 +1798,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateAllRatings();
         void UpdateMastery();
         bool CanUseMastery() const;
+        void UpdateVersatility();
+        void UpdateAverageItemLevel();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 
@@ -1850,11 +1867,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
         bool UpdatePosition(const Position &pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
+        void UpdateWorldQuestPosition(float x, float y);
 
-        void SendMessageToSet(WorldPacket const* data, bool self) override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
-        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) override;
-        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only);
-        void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) override;
+        void SendMessageToSet(WorldPacket const* data, bool self) const override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const override;
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only) const;
+        void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) const override;
 
         Corpse* GetCorpse() const;
         void SpawnCorpseBones(bool triggerSave = true);
@@ -1917,6 +1935,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static uint32 TeamForRace(uint8 race);
         static TeamId TeamIdForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
+        bool IsInAlliance() const { return m_team == ALLIANCE; }
+        bool IsInHorde() const { return m_team == HORDE; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void setFactionForRace(uint8 race);
 
@@ -2024,9 +2044,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ApplyArtifactPowers(Item* item, bool apply);
         void ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const* artifactPowerRank, bool apply);
 
-        void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx);
+        void CastItemCombatSpell(DamageInfo const& damageInfo);
+        void CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemTemplate const* proto);
         void CastItemUseSpell(Item* item, SpellCastTargets const& targets, ObjectGuid castCount, int32* misc);
-        void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item* item, ItemTemplate const* proto);
 
         void SendEquipmentSetList();
         void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet);
@@ -2288,6 +2308,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
         void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
+        void CompletedAchievement(uint32 achievementId);
         void CompletedAchievement(AchievementEntry const* entry);
         bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
@@ -2302,7 +2323,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
         Spell* m_spellModTakingSpell;
 
-        float GetAverageItemLevel() const;
+        float GetAverageItemLevelEquipped() const;
+        float GetAverageItemLevelEquippedAndBag() const;
+        uint8 GetSlotEquipmentFromInventory(ItemTemplate const* proto) const;
+
         bool isDebugAreaTriggers;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
@@ -2334,17 +2358,56 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
 
+        uint32 GetLastTargetedGO() { return _lastTargetedGO; }
+        void SetLastTargetedGO(uint32 lastTargetedGO) { _lastTargetedGO = lastTargetedGO; }
+        void ShowNeutralPlayerFactionSelectUI();
+
+        float GetPersonnalXpRate() { return _PersonnalXpRate; }
+        void SetPersonnalXpRate(float PersonnalXpRate);
+
         void OnCombatExit();
 
+        /*
+         * Garrisons
+         */
+
         void CreateGarrison(uint32 garrSiteId);
-        void DeleteGarrison();
-        Garrison* GetGarrison() const { return _garrison.get(); }
+        void DeleteGarrison(GarrisonType type);
+        PlayerGarrisonMap& GetGarrisons() { return _garrisons; }
+        Garrison* GetGarrison(GarrisonType type) const { auto garItr = _garrisons.find(type); return (garItr != _garrisons.end()) ? garItr->second.get() : nullptr; }
+
+        void AddGarrisonFollower(uint32 garrFollowerId);
+
+        void SendGarrisonInfo() const;
+        void SendGarrisonRemoteInfo() const;
+        void SendGarrisonBlueprintAndSpecializationData() const;
+
+        // End Garrisons
 
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
+        PlayerAchievementMgr* GetAchievementMgr() { return m_achievementMgr; }
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
+
+        struct MovieDelayedTeleport
+        {
+            uint32 movieId;
+            WorldLocation loc;
+        };
+
+        std::vector<MovieDelayedTeleport> MovieDelayedTeleports;
+
+        void AddMovieDelayedTeleport(uint32 movieId, uint32 mapID, float x, float y, float z, float o)
+        {
+            MovieDelayedTeleport data;
+            data.movieId = movieId;
+            data.loc = WorldLocation(mapID);
+            data.loc.Relocate(x, y, z, o);
+
+            MovieDelayedTeleports.push_back(data);
+        }
 
     protected:
         // Gamemaster whisper whitelist
@@ -2353,6 +2416,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_regenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
+        uint32 m_areaQuestTimer;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -2532,7 +2596,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_baseHealthRegen;
         int32 m_spellPenetrationItemMod;
 
-        SpellModList m_spellMods[MAX_SPELLMOD][SPELLMOD_END];
+        SpellModContainer m_spellMods[MAX_SPELLMOD][SPELLMOD_END];
 
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;
@@ -2667,6 +2731,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         PlayerAchievementMgr* m_achievementMgr;
         ReputationMgr*  m_reputationMgr;
+        std::unique_ptr<QuestObjectiveCriteriaMgr> m_questObjectiveCriteriaMgr;
 
         uint32 m_ChampioningFaction;
 
@@ -2679,9 +2744,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
 
+        uint32 _lastTargetedGO;
+        float _PersonnalXpRate;
+
         uint32 _activeCheats;
 
-        std::unique_ptr<Garrison> _garrison;
+        PlayerGarrisonMap _garrisons;
 
         bool _advancedCombatLoggingEnabled;
 

@@ -26,6 +26,7 @@
 #include "PacketUtilities.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "ItemPackets.h"
 #include <array>
 #include <map>
 #include <set>
@@ -152,6 +153,23 @@ namespace WorldPackets
             void Read() override;
 
             int8 ViolenceLvl = -1; ///< 0 - no combat effects, 1 - display some combat effects, 2 - blood, 3 - bloody, 4 - bloodier, 5 - bloodiest
+        };
+
+        class PlayerSelectFaction final : public ClientPacket
+        {
+        public:
+            PlayerSelectFaction(WorldPacket&& packet) : ClientPacket(CMSG_NEUTRAL_PLAYER_SELECT_FACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            // DestrinyFrame.xml : lua function NeutralPlayerSelectFaction
+            enum Values
+            {
+                Horde       = 0,
+                Alliance    = 1
+            };
+
+            uint32 SelectedFaction = -1; ///< 0 - horde, 1 - alliance
         };
 
         class TimeSyncRequest final : public ServerPacket
@@ -479,8 +497,8 @@ namespace WorldPackets
 
             int32 Level = 0;
             int32 HealthDelta = 0;
-            std::array<int32, 6> PowerDelta;
-            std::array<int32, MAX_STATS> StatDelta;
+            std::array<int32, 6> PowerDelta = { };
+            std::array<int32, MAX_STATS> StatDelta = { };
             int32 Cp = 0;
         };
 
@@ -767,20 +785,6 @@ namespace WorldPackets
             bool EnablePVP = false;
         };
 
-        class WorldTeleport final : public ClientPacket
-        {
-        public:
-            WorldTeleport(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_TELEPORT, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 MapID = 0;
-            ObjectGuid TransportGUID;
-            TaggedPosition<Position::XYZ> Pos;
-            float Facing = 0.0f;
-            int32 LfgDungeonID = 0;
-        };
-
         class AccountHeirloomUpdate final : public ServerPacket
         {
         public:
@@ -887,6 +891,34 @@ namespace WorldPackets
             PvpPrestigeRankUp(WorldPacket&& packet) : ClientPacket(CMSG_PVP_PRESTIGE_RANK_UP, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class DisplayToast final : public ServerPacket
+        {
+        public:
+            DisplayToast() : ServerPacket(SMSG_DISPLAY_TOAST) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 EntityId = 0;
+            uint32 ToastType = 0;
+            uint64 Quantity = 1;
+            int32 RandomPropertiesID = 0;
+            uint32 QuestID = 0;
+            uint8 ToastMethod = 1; // TOAST_METHOD_POPUP
+            bool IsBonusRoll = false;
+            bool Mailed = false;
+            std::vector<int32> bonusListIDs;
+        };
+
+        class CloseInteraction final : public ClientPacket
+        {
+        public:
+            CloseInteraction(WorldPacket&& packet) : ClientPacket(CMSG_CLOSE_INTERACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SourceGuid;
         };
     }
 }

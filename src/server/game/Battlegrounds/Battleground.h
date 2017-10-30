@@ -19,7 +19,6 @@
 #ifndef __BATTLEGROUND_H
 #define __BATTLEGROUND_H
 
-#include "ArenaScore.h"
 #include "DBCEnums.h"
 #include "ObjectGuid.h"
 #include "Position.h"
@@ -364,7 +363,7 @@ class TC_GAME_API Battleground
 
         // Map pointers
         void SetBgMap(BattlegroundMap* map) { m_Map = map; }
-        BattlegroundMap* GetBgMap() const { ASSERT(m_Map); return m_Map; }
+        BattlegroundMap* GetBgMap() const;
         BattlegroundMap* FindBgMap() const { return m_Map; }
 
         void SetTeamStartPosition(TeamId teamId, Position const& pos);
@@ -404,7 +403,7 @@ class TC_GAME_API Battleground
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }
         void SetBgRaid(uint32 TeamID, Group* bg_raid);
 
-        void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData);
+        virtual void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const;
         virtual bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
 
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
@@ -575,8 +574,6 @@ class TC_GAME_API Battleground
 
         BGHonorMode m_HonorMode;
         int32 m_TeamScores[BG_TEAMS_COUNT];
-
-        ArenaTeamScore _arenaTeamScores[BG_TEAMS_COUNT];
 
     private:
         // Battleground

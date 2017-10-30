@@ -25,13 +25,14 @@
 #include "UnitEvents.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 //==============================================================
 //================= ThreatCalcHelper ===========================
 //==============================================================
 
 // The hatingUnit is not used yet
-float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float threat, SpellSchoolMask schoolMask, SpellInfo const* threatSpell)
+float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float threat, SpellSchoolMask schoolMask, SpellInfo const* threatSpell /*= nullptr*/)
 {
     if (threatSpell)
     {
@@ -40,7 +41,7 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
                 threat *= threatEntry->pctMod;
 
         // Energize is not affected by Mods
-            for (SpellEffectInfo const* effect : threatSpell->GetEffectsForDifficulty(hatedUnit->GetMap()->GetDifficultyID()))
+        for (SpellEffectInfo const* effect : threatSpell->GetEffectsForDifficulty(hatedUnit->GetMap()->GetDifficultyID()))
             if (effect && (effect->Effect == SPELL_EFFECT_ENERGIZE || effect->ApplyAuraName == SPELL_AURA_PERIODIC_ENERGIZE))
                 return threat;
 
@@ -51,7 +52,7 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
     return hatedUnit->ApplyTotalThreatModifier(threat, schoolMask);
 }
 
-bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* threatSpell)
+bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* threatSpell /*= nullptr*/)
 {
     //function deals with adding threat and adding players and pets into ThreatList
     //mobs, NPCs, guards have ThreatList and HateOfflineList
@@ -135,18 +136,20 @@ void HostileReference::fireStatusChanged(ThreatRefStatusChangeEvent& threatRefSt
 
 void HostileReference::addThreat(float modThreat)
 {
+    if (!modThreat)
+        return;
+
     iThreat += modThreat;
+
     // the threat is changed. Source and target unit have to be available
     // if the link was cut before relink it again
     if (!isOnline())
         updateOnlineStatus();
-    if (modThreat != 0.0f)
-    {
-        ThreatRefStatusChangeEvent event(UEV_THREAT_REF_THREAT_CHANGE, this, modThreat);
-        fireStatusChanged(event);
-    }
 
-    if (isValid() && modThreat >= 0.0f)
+    ThreatRefStatusChangeEvent event(UEV_THREAT_REF_THREAT_CHANGE, this, modThreat);
+    fireStatusChanged(event);
+
+    if (isValid() && modThreat > 0.0f)
     {
         Unit* victimOwner = getTarget()->GetCharmerOrOwner();
         if (victimOwner && victimOwner->IsAlive())
@@ -156,9 +159,7 @@ void HostileReference::addThreat(float modThreat)
 
 void HostileReference::addThreatPercent(int32 percent)
 {
-    float tmpThreat = iThreat;
-    AddPct(tmpThreat, percent);
-    addThreat(tmpThreat - iThreat);
+    addThreat(CalculatePct(iThreat, percent));
 }
 
 //============================================================
@@ -194,6 +195,7 @@ void HostileReference::updateOnlineStatus()
         else
             accessible = true;
     }
+
     setAccessibleState(accessible);
     setOnlineOfflineState(online);
 }
@@ -222,7 +224,7 @@ void HostileReference::setAccessibleState(bool isAccessible)
     {
         iAccessible = isAccessible;
 
-        ThreatRefStatusChangeEvent event(UEV_THREAT_REF_ASSECCIBLE_STATUS, this);
+        ThreatRefStatusChangeEvent event(UEV_THREAT_REF_ACCESSIBLE_STATUS, this);
         fireStatusChanged(event);
     }
 }
@@ -414,11 +416,28 @@ void ThreatManager::addThreat(Unit* victim, float threat, SpellSchoolMask school
 void ThreatManager::doAddThreat(Unit* victim, float threat)
 {
     uint32 redirectThreadPct = victim->GetRedirectThreatPercent();
+    Unit* redirectTarget = victim->GetRedirectThreatTarget();
+
+    // If victim is personnal spawn, redirect all aggro to summoner
+    if (TempSummon* tempSummonVictim = victim->ToTempSummon())
+    {
+        if (tempSummonVictim->IsVisibleBySummonerOnly())
+        {
+            // Personnal Spawns from same summoner can aggro each other
+            if (!GetOwner()->ToTempSummon() ||
+                !GetOwner()->ToTempSummon()->IsVisibleBySummonerOnly() ||
+                tempSummonVictim->GetSummonerGUID() != GetOwner()->ToTempSummon()->GetSummonerGUID())
+            {
+                redirectThreadPct = 100;
+                redirectTarget = tempSummonVictim->GetSummoner();
+            }
+        }
+    }
 
     // must check > 0.0f, otherwise dead loop
     if (threat > 0.0f && redirectThreadPct)
     {
-        if (Unit* redirectTarget = victim->GetRedirectThreatTarget())
+        if (redirectTarget)
         {
             float redirectThreat = CalculatePct(threat, redirectThreadPct);
             threat -= redirectThreat;

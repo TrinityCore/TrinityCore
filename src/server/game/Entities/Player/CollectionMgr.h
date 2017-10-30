@@ -34,7 +34,8 @@ enum HeirloomPlayerFlags
 {
     HEIRLOOM_FLAG_NONE                    = 0x00,
     HEIRLOOM_FLAG_BONUS_LEVEL_90          = 0x01,
-    HEIRLOOM_FLAG_BONUS_LEVEL_100         = 0x02
+    HEIRLOOM_FLAG_BONUS_LEVEL_100         = 0x02,
+    HEIRLOOM_FLAG_BONUS_LEVEL_110         = 0x04
 };
 
 enum HeirloomItemFlags
@@ -115,6 +116,8 @@ public:
     void SaveAccountItemAppearances(SQLTransaction& trans);
     void AddItemAppearance(Item* item);
     void AddItemAppearance(uint32 itemId, uint32 appearanceModId = 0);
+    void AddTransmogSet(uint32 transmogSetId);
+    bool IsSetCompleted(uint32 transmogSetId) const;
     void RemoveTemporaryAppearance(Item* item);
     // returns pair<hasAppearance, isTemporary>
     std::pair<bool, bool> HasItemAppearance(uint32 itemModifiedAppearanceId) const;

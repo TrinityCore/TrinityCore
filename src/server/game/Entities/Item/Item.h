@@ -70,6 +70,7 @@ enum ItemUpdateState
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 extern ItemModifier const AppearanceModifierSlotBySpec[MAX_SPECIALIZATIONS];
 extern ItemModifier const IllusionModifierSlotBySpec[MAX_SPECIALIZATIONS];
+extern int32 const ItemTransmogrificationSlots[MAX_INVTYPE];
 
 struct BonusData
 {
@@ -85,7 +86,6 @@ struct BonusData
     uint32 AppearanceModID;
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
-    uint32 ItemLevelOverride;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
     uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
@@ -101,7 +101,6 @@ private:
     {
         int32 AppearanceModPriority;
         int32 ScalingStatDistributionPriority;
-        int32 ItemLevelOverridePriority;
         bool HasQualityBonus;
     } _state;
 };
@@ -129,12 +128,12 @@ class TC_GAME_API Item : public Object
     friend void AddItemToUpdateQueueOf(Item* item, Player* player);
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
-        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
-        Item* CloneItem(uint32 count, Player const* player = NULL) const;
+        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = nullptr);
+        Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
         Item();
 
-        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
         BonusData const* GetBonus() const { return &_bonusData; }
@@ -277,11 +276,11 @@ class TC_GAME_API Item : public Object
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = nullptr, bool addToCollection = true);
         void SetRefundRecipient(ObjectGuid const& guid) { m_refundRecipient = guid; }
-        void SetPaidMoney(uint32 money) { m_paidMoney = money; }
+        void SetPaidMoney(uint64 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
 
         ObjectGuid const& GetRefundRecipient() const { return m_refundRecipient; }
-        uint32 GetPaidMoney() const { return m_paidMoney; }
+        uint64 GetPaidMoney() const { return m_paidMoney; }
         uint32 GetPaidExtendedCost() const { return m_paidExtendedCost; }
 
         void UpdatePlayedTime(Player* owner);
@@ -342,7 +341,7 @@ class TC_GAME_API Item : public Object
         bool mb_in_trade;                                   // true if item is currently in trade-window
         time_t m_lastPlayedTimeUpdate;
         ObjectGuid m_refundRecipient;
-        uint32 m_paidMoney;
+        uint64 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
         ItemRandomEnchantmentId m_randomEnchantment;        // store separately to easily find which bonus list is the one randomly given for stat rerolling

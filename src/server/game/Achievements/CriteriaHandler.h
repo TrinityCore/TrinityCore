@@ -34,6 +34,7 @@ struct AchievementEntry;
 struct CriteriaEntry;
 struct CriteriaTreeEntry;
 struct ModifierTreeEntry;
+struct QuestObjective;
 struct ScenarioStepEntry;
 
 struct ModifierTreeNode
@@ -44,10 +45,11 @@ struct ModifierTreeNode
 
 enum CriteriaFlagsCu
 {
-    CRITERIA_FLAG_CU_PLAYER     = 0x1,
-    CRITERIA_FLAG_CU_ACCOUNT    = 0x2,
-    CRITERIA_FLAG_CU_GUILD      = 0x4,
-    CRITERIA_FLAG_CU_SCENARIO   = 0x8
+    CRITERIA_FLAG_CU_PLAYER             = 0x1,
+    CRITERIA_FLAG_CU_ACCOUNT            = 0x2,
+    CRITERIA_FLAG_CU_GUILD              = 0x4,
+    CRITERIA_FLAG_CU_SCENARIO           = 0x8,
+    CRITERIA_FLAG_CU_QUEST_OBJECTIVE    = 0x10
 };
 
 struct Criteria
@@ -66,6 +68,7 @@ struct CriteriaTree
     CriteriaTreeEntry const* Entry = nullptr;
     AchievementEntry const* Achievement = nullptr;
     ScenarioStepEntry const* ScenarioStep = nullptr;
+    struct QuestObjective const* QuestObjective = nullptr;
     struct Criteria const* Criteria = nullptr;
     std::vector<CriteriaTree const*> Children;
 };
@@ -261,6 +264,8 @@ enum ProgressType
 class TC_GAME_API CriteriaHandler
 {
 public:
+    Ashamane::VariablesSafe Variables;
+
     CriteriaHandler();
     virtual ~CriteriaHandler();
 
@@ -274,6 +279,9 @@ public:
     void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
     void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed s
 
+    bool IsCompletedCriteria(Criteria const* criteria, uint64 requiredAmount);
+    bool IsCompletedCriteriaTree(CriteriaTree const* tree);
+
 protected:
     virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const = 0;
 
@@ -282,13 +290,11 @@ protected:
     void RemoveCriteriaProgress(Criteria const* criteria);
     virtual void SendCriteriaProgressRemoved(uint32 criteriaId) = 0;
 
-    bool IsCompletedCriteriaTree(CriteriaTree const* tree);
     virtual bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const;
     virtual bool CanCompleteCriteriaTree(CriteriaTree const* tree);
     virtual void CompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer) = 0;
     virtual void AfterCriteriaTreeUpdate(CriteriaTree const* /*tree*/, Player* /*referencePlayer*/) { }
 
-    bool IsCompletedCriteria(Criteria const* criteria, uint64 requiredAmount);
     bool CanUpdateCriteria(Criteria const* criteria, CriteriaTreeList const* trees, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
 
     virtual void SendPacket(WorldPacket const* data) const = 0;
@@ -329,6 +335,11 @@ public:
     CriteriaList const& GetScenarioCriteriaByType(CriteriaTypes type) const
     {
         return _scenarioCriteriasByType[type];
+    }
+
+    CriteriaList const& GetQuestObjectiveCriteriaByType(CriteriaTypes type) const
+    {
+        return _questObjectiveCriteriasByType[type];
     }
 
     CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const
@@ -395,6 +406,7 @@ private:
     CriteriaList _criteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _guildCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _scenarioCriteriasByType[CRITERIA_TYPE_TOTAL];
+    CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];
 
     CriteriaList _criteriasByTimedType[CRITERIA_TIMED_TYPE_MAX];
 };

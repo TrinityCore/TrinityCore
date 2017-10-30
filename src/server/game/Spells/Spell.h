@@ -328,6 +328,7 @@ class TC_GAME_API Spell
     friend void SetUnitCurrentCastSpell(Unit* unit, Spell* spell);
     friend class SpellScript;
     public:
+        Ashamane::VariablesSafe Variables;
 
         void EffectNULL(SpellEffIndex effIndex);
         void EffectUnused(SpellEffIndex effIndex);
@@ -454,7 +455,7 @@ class TC_GAME_API Spell
         void EffectRemoveAura(SpellEffIndex effIndex);
         void EffectDamageFromMaxHealthPCT(SpellEffIndex effIndex);
         void EffectCastButtons(SpellEffIndex effIndex);
-        void EffectRechargeManaGem(SpellEffIndex effIndex);
+        void EffectRechargeItem(SpellEffIndex effIndex);
         void EffectGiveCurrency(SpellEffIndex effIndex);
         void EffectResurrectWithAura(SpellEffIndex effIndex);
         void EffectCreateAreaTrigger(SpellEffIndex effIndex);
@@ -477,8 +478,10 @@ class TC_GAME_API Spell
         void EffectGiveArtifactPowerNoBonus(SpellEffIndex effIndex);
         void EffectPlayScene(SpellEffIndex effIndex);
         void EffectGiveHonor(SpellEffIndex effIndex);
+        void EffectDash(SpellEffIndex effIndex);
+        void EffectLearnTransmogSet(SpellEffIndex effIndex);
 
-        typedef std::set<Aura*> UsedSpellMods;
+        typedef std::unordered_set<Aura*> UsedSpellMods;
 
         Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, bool skipCheck = false);
         ~Spell();
@@ -491,6 +494,7 @@ class TC_GAME_API Spell
         void SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
+        void SelectImplicitLineTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
@@ -511,7 +515,7 @@ class TC_GAME_API Spell
 
         GameObject* SearchSpellFocus();
 
-        void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = NULL);
+        bool prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = NULL);
         void cancel();
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
@@ -742,10 +746,6 @@ class TC_GAME_API Spell
         // used in effects handlers
         Aura* m_spellAura;
 
-        // this is set in Spell Hit, but used in Apply Aura handler
-        DiminishingLevels m_diminishLevel;
-        DiminishingGroup m_diminishGroup;
-
         // -------------------------------------------
         GameObject* focusObject;
 
@@ -758,8 +758,8 @@ class TC_GAME_API Spell
         // ******************************************
         uint32 m_procAttacker;                // Attacker trigger flags
         uint32 m_procVictim;                  // Victim   trigger flags
-        uint32 m_procEx;
-        void   prepareDataForTriggerSystem(AuraEffect const* triggeredByAura);
+        uint32 m_hitMask;
+        void   prepareDataForTriggerSystem();
 
         // *****************************************
         // Spell target subsystem
@@ -821,6 +821,7 @@ class TC_GAME_API Spell
 
         // Scripting system
         void LoadScripts();
+        void CallScriptOnPrepareHandlers();
         void CallScriptBeforeCastHandlers();
         void CallScriptOnCastHandlers();
         void CallScriptAfterCastHandlers();
@@ -833,6 +834,7 @@ class TC_GAME_API Spell
         void CallScriptAfterHitHandlers();
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void CallScriptOnSummonHandlers(Creature* creature);
         void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
         std::vector<SpellScript*> m_loadedScripts;
@@ -927,6 +929,13 @@ namespace Trinity
         float _coneAngle;
         WorldObjectSpellConeTargetCheck(float coneAngle, float range, Unit* caster,
             SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
+        bool operator()(WorldObject* target);
+    };
+
+    struct TC_GAME_API WorldObjectSpellLineTargetCheck : public WorldObjectSpellAreaTargetCheck
+    {
+        WorldObjectSpellLineTargetCheck(float range, Unit* caster,
+            SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, std::vector<Condition*>* condList);
         bool operator()(WorldObject* target);
     };
 

@@ -19,6 +19,7 @@
 #define ZONE_SCRIPT_H_
 
 #include "Define.h"
+#include "Common.h"
 #include "ObjectGuid.h"
 
 class Creature;
@@ -30,6 +31,8 @@ struct CreatureData;
 class TC_GAME_API ZoneScript
 {
     public:
+        Ashamane::VariablesSafe Variables;
+
         ZoneScript() { }
         virtual ~ZoneScript() { }
 

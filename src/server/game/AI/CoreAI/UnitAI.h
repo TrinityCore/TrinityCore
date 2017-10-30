@@ -110,6 +110,7 @@ class TC_GAME_API UnitAI
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
         virtual void AttackStart(Unit* /*target*/);
         virtual void UpdateAI(uint32 diff) = 0;
+        void UpdateOperations(uint32 diff);
 
         virtual void InitializeAI();
 
@@ -253,6 +254,28 @@ class TC_GAME_API UnitAI
         virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
         virtual bool sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
         virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
+
+        /// Add timed delayed operation
+        /// @p_Timeout  : Delay time
+        /// @p_Function : Callback function
+        void AddTimedDelayedOperation(uint32 p_Timeout, std::function<void()> && p_Function)
+        {
+            m_EmptyWarned = false;
+            m_TimedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(p_Timeout, p_Function));
+        }
+
+        /// Called after last delayed operation was deleted
+        /// Do whatever you want
+        virtual void LastOperationCalled() { }
+
+        void ClearDelayedOperations()
+        {
+            m_TimedDelayedOperations.clear();
+            m_EmptyWarned = false;
+        }
+
+        std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations
+        bool                                                    m_EmptyWarned;              ///< Warning when there are no more delayed operations
 
     private:
         UnitAI(UnitAI const& right) = delete;

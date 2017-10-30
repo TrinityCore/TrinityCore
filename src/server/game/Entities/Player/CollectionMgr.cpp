@@ -162,10 +162,12 @@ void CollectionMgr::LoadAccountHeirlooms(PreparedQueryResult result)
 
         uint32 bonusId = 0;
 
-        if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_90)
-            bonusId = heirloom->ItemBonusListID[0];
-        if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_100)
+        if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_110)
+            bonusId = heirloom->ItemBonusListID[2];
+        else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_100)
             bonusId = heirloom->ItemBonusListID[1];
+        else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_90)
+            bonusId = heirloom->ItemBonusListID[0];
 
         _heirlooms[itemId] = HeirloomData(flags, bonusId);
     } while (result->NextRow());
@@ -242,6 +244,11 @@ void CollectionMgr::UpgradeHeirloom(uint32 itemId, uint32 castItem)
     {
         flags |= HEIRLOOM_FLAG_BONUS_LEVEL_100;
         bonusId = heirloom->ItemBonusListID[1];
+    }
+    if (heirloom->UpgradeItemID[2] == castItem)
+    {
+        flags |= HEIRLOOM_FLAG_BONUS_LEVEL_110;
+        bonusId = heirloom->ItemBonusListID[2];
     }
 
     for (Item* item : player->GetItemListByEntry(itemId, true))
@@ -320,6 +327,8 @@ bool CollectionMgr::CanApplyHeirloomXpBonus(uint32 itemId, uint32 level)
     if (itr == _heirlooms.end())
         return false;
 
+    if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_110)
+        return level <= 110;
     if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_100)
         return level <= 100;
     if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_90)
@@ -594,6 +603,53 @@ void CollectionMgr::AddItemAppearance(uint32 itemId, uint32 appearanceModId /*= 
     AddItemAppearance(itemModifiedAppearance);
 }
 
+void CollectionMgr::AddTransmogSet(uint32 transmogSetId)
+{
+    std::vector<TransmogSetItemEntry const*> const* items = sDB2Manager.GetTransmogSetItems(transmogSetId);
+    if (!items)
+        return;
+
+    for (TransmogSetItemEntry const* item : *items)
+    {
+        ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(item->ItemModifiedAppearanceID);
+        if (!itemModifiedAppearance)
+            continue;
+
+        AddItemAppearance(itemModifiedAppearance);
+    }
+}
+
+bool CollectionMgr::IsSetCompleted(uint32 transmogSetId) const
+{
+    std::vector<TransmogSetItemEntry const*> const* transmogSetItems = sDB2Manager.GetTransmogSetItems(transmogSetId);
+    if (!transmogSetItems)
+        return false;
+
+    std::array<int8, EQUIPMENT_SLOT_END> knownPieces;
+    knownPieces.fill(-1);
+    for (TransmogSetItemEntry const* transmogSetItem : *transmogSetItems)
+    {
+        ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(transmogSetItem->ItemModifiedAppearanceID);
+        if (!itemModifiedAppearance)
+            continue;
+
+        ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID);
+        if (!item)
+            continue;
+
+        int32 transmogSlot = ItemTransmogrificationSlots[item->InventoryType];
+        if (transmogSlot < 0 || knownPieces[transmogSlot] == 1)
+            continue;
+
+        bool hasAppearance, isTemporary;
+        std::tie(hasAppearance, isTemporary) = HasItemAppearance(transmogSetItem->ItemModifiedAppearanceID);
+
+        knownPieces[transmogSlot] = (hasAppearance && !isTemporary) ? 1 : 0;
+    }
+
+    return std::find(knownPieces.begin(), knownPieces.end(), 0) == knownPieces.end();
+}
+
 bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance) const
 {
     if (!itemModifiedAppearance)
@@ -696,6 +752,18 @@ void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemMod
         _owner->GetPlayer()->RemoveDynamicValue(PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG, itemModifiedAppearance->ID);
         _temporaryAppearances.erase(temporaryAppearance);
     }
+
+    if (ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
+    {
+        int32 transmogSlot = ItemTransmogrificationSlots[item->InventoryType];
+        if (transmogSlot >= 0)
+            _owner->GetPlayer()->UpdateCriteria(CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT, transmogSlot, 1);
+    }
+
+    if (std::vector<TransmogSetEntry const*> const* sets = sDB2Manager.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance->ID))
+        for (TransmogSetEntry const* set : *sets)
+            if (IsSetCompleted(set->ID))
+                _owner->GetPlayer()->UpdateCriteria(CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED, set->TransmogSetGroupID);
 }
 
 void CollectionMgr::AddTemporaryAppearance(ObjectGuid const& itemGuid, ItemModifiedAppearanceEntry const* itemModifiedAppearance)

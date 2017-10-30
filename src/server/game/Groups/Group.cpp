@@ -1371,8 +1371,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
 
         // remove is_blocked so that the item is lootable by all players
         LootItem* item = &(roll->itemSlot >= roll->getLoot()->items.size() ? roll->getLoot()->quest_items[roll->itemSlot - roll->getLoot()->items.size()] : roll->getLoot()->items[roll->itemSlot]);
-        if (item)
-            item->is_blocked = false;
+        item->is_blocked = false;
     }
 
     SendLootRollsComplete(*roll);
@@ -1496,7 +1495,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     {
         partyUpdate.LfgInfos = boost::in_place();
 
-        partyUpdate.LfgInfos->Slot = sLFGMgr->GetDungeon(m_guid);
+        partyUpdate.LfgInfos->Slot = sLFGMgr->GetLFGDungeonEntry(sLFGMgr->GetDungeon(m_guid));
         partyUpdate.LfgInfos->BootCount = 0;
         partyUpdate.LfgInfos->Aborted = false;
 

@@ -142,7 +142,6 @@ namespace WorldPackets
             uint32 GarrSiteLevelID = 0;
             uint32 NumFollowerActivationsRemaining = 0;
             uint32 NumMissionsStartedToday = 0;   // might mean something else, but sending 0 here enables follower abilities "Increase success chance of the first mission of the day by %."
-            int32 FollowerSoftCap = 0;
             std::vector<GarrisonPlotInfo*> Plots;
             std::vector<GarrisonBuildingInfo const*> Buildings;
             std::vector<GarrisonFollower const*> Followers;
@@ -155,6 +154,12 @@ namespace WorldPackets
             std::vector<int32> ArchivedMissions;
         };
 
+        struct FollowerSoftCapInfo
+        {
+            int32 GarrFollowerTypeID;
+            uint32 Count;
+        };
+
         class GetGarrisonInfoResult final : public ServerPacket
         {
         public:
@@ -164,6 +169,7 @@ namespace WorldPackets
 
             uint32 FactionIndex = 0;
             std::vector<GarrisonInfo> Garrisons;
+            std::vector<FollowerSoftCapInfo> FollowerSoftCaps;
         };
 
         struct GarrisonRemoteBuildingInfo
@@ -292,6 +298,58 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class GarrisonOpenMissionNpcClient final : public ClientPacket
+        {
+        public:
+            GarrisonOpenMissionNpcClient(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_MISSION_NPC, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            int32 GarrTypeID = 0;
+        };
+
+        class ShowAdventureMap final : public ServerPacket
+        {
+        public:
+            ShowAdventureMap(ObjectGuid guid) : ServerPacket(SMSG_SHOW_ADVENTURE_MAP, 4), Unit(guid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+        };
+
+        class GarrisonRequestScoutingMap final : public ClientPacket
+        {
+        public:
+            GarrisonRequestScoutingMap(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_REQUEST_SCOUTING_MAP, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ID;
+        };
+
+        class GarrisonScoutingMapResult final : public ServerPacket
+        {
+        public:
+            GarrisonScoutingMapResult() : ServerPacket(SMSG_GARRISON_SCOUTING_MAP_RESULT, 5) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 ID = 0;
+            bool Active = true;
+        };
+
+        class AdventureJournalStartQuest final : public ClientPacket
+        {
+        public:
+            AdventureJournalStartQuest(WorldPacket&& packet) : ClientPacket(CMSG_ADVENTURE_JOURNAL_START_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 QuestID;
+        };
+
         struct GarrisonBuildingLandmark
         {
             GarrisonBuildingLandmark() : GarrBuildingPlotInstID(0), Pos() { }
@@ -365,6 +423,20 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 GarrPlotInstanceID = 0;
+        };
+
+        class GarrisonOpenMissionNpc final : public ServerPacket
+        {
+        public:
+            GarrisonOpenMissionNpc() : ServerPacket(SMSG_GARRISON_OPEN_MISSION_NPC, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 garrType = 3;
+            uint32 result = 0;
+            std::vector<uint32 /* dbID */> Missions;
+            bool   unk4 = false;
+            bool   preventXmlOpenMissionEvent = false;
         };
     }
 }

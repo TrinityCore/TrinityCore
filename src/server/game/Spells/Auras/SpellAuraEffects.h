@@ -29,11 +29,13 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 
 class TC_GAME_API AuraEffect
 {
-    friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+    friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32* baseAmount);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer, int32 castItemLevel);
     friend Aura::~Aura();
 
     public:
+        Ashamane::VariablesSafe Variables;
+
         ~AuraEffect();
         AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster);
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
@@ -41,7 +43,6 @@ class TC_GAME_API AuraEffect
         Aura* GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
-        SpellModifier* GetSpellModifier() const { return m_spellmod; }
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const { return m_spellInfo->Id; }
@@ -90,8 +91,9 @@ class TC_GAME_API AuraEffect
         bool HasSpellClassMask() const { return GetSpellEffectInfo()->SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
-        void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
+        void PeriodicTick(AuraApplication* aurApp, Unit* caster) const;
 
+        bool CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventInfo) const;
         void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
@@ -236,6 +238,7 @@ class TC_GAME_API AuraEffect
         void HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideAttackPowerBySpellPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -249,6 +252,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModMaxPowerPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   fight
         void HandleAuraModParryPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDodgePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -325,12 +329,10 @@ class TC_GAME_API AuraEffect
         void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
 
         // aura effect proc handlers
+        void HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
-        void HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
-        void HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
-        void HandleProcTriggerSpellOnPowerAmountAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 };
 
 namespace Trinity
@@ -362,6 +364,18 @@ namespace Trinity
                     return true;
                 if (spellProtoB->Id == 7812)
                     return false;
+
+                // Cauterize (must be last)
+                if (spellProtoA->Id == 86949)
+                    return false;
+                if (spellProtoB->Id == 86949)
+                    return true;
+
+                // Spirit of Redemption (must be last)
+                if (spellProtoA->Id == 20711)
+                    return false;
+                if (spellProtoB->Id == 20711)
+                    return true;
 
                 return false;
             }

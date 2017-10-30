@@ -148,7 +148,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
     data << uint32(garrison.ArchivedMissions.size());
     data << int32(garrison.NumFollowerActivationsRemaining);
     data << uint32(garrison.NumMissionsStartedToday);
-    data << int32(garrison.FollowerSoftCap);
 
     for (WorldPackets::Garrison::GarrisonPlotInfo* plot : garrison.Plots)
         data << *plot;
@@ -193,10 +192,21 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::FollowerSoftCapInfo const& followerSoftCapInfo)
+{
+    data << int32(followerSoftCapInfo.GarrFollowerTypeID);
+    data << uint32(followerSoftCapInfo.Count);
+    return data;
+}
+
 WorldPacket const* WorldPackets::Garrison::GetGarrisonInfoResult::Write()
 {
     _worldPacket << int32(FactionIndex);
     _worldPacket << uint32(Garrisons.size());
+    _worldPacket << uint32(FollowerSoftCaps.size());
+    for (FollowerSoftCapInfo const& followerSoftCapInfo : FollowerSoftCaps)
+        _worldPacket << followerSoftCapInfo;
+
     for (GarrisonInfo const& garrison : Garrisons)
         _worldPacket << garrison;
 
@@ -354,4 +364,54 @@ WorldPacket const* WorldPackets::Garrison::GarrisonBuildingActivated::Write()
     _worldPacket << uint32(GarrPlotInstanceID);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Garrison::GarrisonOpenMissionNpcClient::Read()
+{
+    _worldPacket >> NpcGUID;
+    _worldPacket >> GarrTypeID;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonOpenMissionNpc::Write()
+{
+    // Shauren> ... Traesh: int32, int32, uint32(loop counter), loop:{ int32 }, bit, bit
+
+    _worldPacket << int32(garrType);
+    _worldPacket << int32(result);
+    _worldPacket << uint32(Missions.size());
+
+    for (auto const& missionId : Missions)
+        _worldPacket << int32(missionId);
+
+    _worldPacket.WriteBit(unk4);
+    _worldPacket.WriteBit(preventXmlOpenMissionEvent);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::ShowAdventureMap::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Garrison::GarrisonRequestScoutingMap::Read()
+{
+    _worldPacket >> ID;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonScoutingMapResult::Write()
+{
+    _worldPacket << ID;
+    _worldPacket.WriteBit(Active);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Garrison::AdventureJournalStartQuest::Read()
+{
+    _worldPacket >> QuestID;
 }

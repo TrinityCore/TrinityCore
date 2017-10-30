@@ -202,6 +202,26 @@ SpellCastResult SpellScript::CheckCastHandler::Call(SpellScript* spellScript)
     return (spellScript->*_checkCastHandlerScript)();
 }
 
+void SpellScript::OnPrepareHandler::Call(SpellScript* spellScript)
+{
+    (spellScript->*_onPrepareHandlerScript)();
+}
+
+SpellScript::OnPrepareHandler::OnPrepareHandler(SpellOnPrepareFnType OnPrepareHandlerScript)
+{
+    _onPrepareHandlerScript = OnPrepareHandlerScript;
+}
+
+void SpellScript::OnSummonHandler::Call(SpellScript* spellScript, Creature* creature)
+{
+    (spellScript->*_onSummonHandlerScript)(creature);
+}
+
+SpellScript::OnSummonHandler::OnSummonHandler(SpellOnSummonFnType OnSummonHandlerScript)
+{
+    _onSummonHandlerScript = OnSummonHandlerScript;
+}
+
 SpellScript::EffectHandler::EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
 {
@@ -275,6 +295,7 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
             return true;
         case TARGET_SELECT_CATEGORY_CONE: // AREA
         case TARGET_SELECT_CATEGORY_AREA: // AREA
+        case TARGET_SELECT_CATEGORY_LINE: //LINE
             return area;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetInfo.GetObjectType())
@@ -769,6 +790,10 @@ bool AuraScript::_Validate(SpellInfo const* entry)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
             TC_LOG_ERROR("scripts", "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `DoCheckProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
+    for (auto itr = DoCheckEffectProc.begin(); itr != DoCheckEffectProc.end(); ++itr)
+        if (!itr->GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoCheckEffectProc` of AuraScript won't be executed", entry->Id, itr->ToString().c_str(), m_scriptName->c_str());
+
     for (auto itr = DoPrepareProc.begin(); itr != DoPrepareProc.end(); ++itr)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
             TC_LOG_ERROR("scripts", "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `DoPrepareProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
@@ -834,6 +859,16 @@ AuraScript::EffectPeriodicHandler::EffectPeriodicHandler(AuraEffectPeriodicFnTyp
 void AuraScript::EffectPeriodicHandler::Call(AuraScript* auraScript, AuraEffect const* _aurEff)
 {
     (auraScript->*pEffectHandlerScript)(_aurEff);
+}
+
+AuraScript::AuraUpdateHandler::AuraUpdateHandler(AuraUpdateFnType _pEffectHandlerScript)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::AuraUpdateHandler::Call(AuraScript* auraScript, uint32 diff)
+{
+    (auraScript->*pEffectHandlerScript)(diff);
 }
 
 AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
@@ -934,6 +969,17 @@ AuraScript::CheckProcHandler::CheckProcHandler(AuraCheckProcFnType handlerScript
 bool AuraScript::CheckProcHandler::Call(AuraScript* auraScript, ProcEventInfo& eventInfo)
 {
     return (auraScript->*_HandlerScript)(eventInfo);
+}
+
+AuraScript::CheckEffectProcHandler::CheckEffectProcHandler(AuraCheckEffectProcFnType handlerScript, uint8 effIndex, uint16 effName)
+    : AuraScript::EffectBase(effIndex, effName)
+{
+    _HandlerScript = handlerScript;
+}
+
+bool AuraScript::CheckEffectProcHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+{
+    return (auraScript->*_HandlerScript)(aurEff, eventInfo);
 }
 
 AuraScript::AuraProcHandler::AuraProcHandler(AuraProcFnType handlerScript)
@@ -1197,6 +1243,7 @@ Unit* AuraScript::GetTarget() const
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD:
         case AURA_SCRIPT_HOOK_EFFECT_SPLIT:
         case AURA_SCRIPT_HOOK_CHECK_PROC:
+        case AURA_SCRIPT_HOOK_CHECK_EFFECT_PROC:
         case AURA_SCRIPT_HOOK_PREPARE_PROC:
         case AURA_SCRIPT_HOOK_PROC:
         case AURA_SCRIPT_HOOK_AFTER_PROC:

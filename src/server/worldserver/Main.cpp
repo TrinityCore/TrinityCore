@@ -45,6 +45,7 @@
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
 #include "TCSoap.h"
+#include "RESTService.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
@@ -281,6 +282,8 @@ extern int main(int argc, char** argv)
         });
     }
 
+    std::shared_ptr<void> sLoginServiceHandle(nullptr, [](void*) { sRestService.Stop(); });
+
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     uint16 instancePort = uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
@@ -298,6 +301,15 @@ extern int main(int argc, char** argv)
     {
         TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
         return 1;
+    }
+
+    if (sConfigMgr->GetBoolDefault("WorldREST.Enabled", false))
+    {
+        if (!sRestService.Start())
+        {
+            TC_LOG_ERROR("server.worldserver", "Failed to initialize Rest service");
+            return 1;
+        }
     }
 
     std::shared_ptr<void> sWorldSocketMgrHandle(nullptr, [](void*)
@@ -347,6 +359,8 @@ extern int main(int argc, char** argv)
 
     sLog->SetSynchronous();
 
+    sRestService.Stop();
+
     sScriptMgr->OnShutdown();
 
     // set server offline
@@ -371,50 +385,54 @@ void ShutdownCLIThread(std::thread* cliThread)
         {
             // if CancelSynchronousIo() fails, print the error and try with old way
             DWORD errorCode = GetLastError();
-            LPSTR errorBuffer;
 
-            DWORD formatReturnCode = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                                   nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
-            if (!formatReturnCode)
-                errorBuffer = "Unknown error";
+            // if CancelSynchronousIo fails with ERROR_NOT_FOUND then there was nothing to cancel, proceed with shutdown
+            if (errorCode != ERROR_NOT_FOUND)
+            {
+                LPSTR errorBuffer;
+                DWORD numCharsWritten = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+                    nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
+                if (!numCharsWritten)
+                    errorBuffer = "Unknown error";
 
-            TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
+                TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
 
-            if (!formatReturnCode)
-                LocalFree(errorBuffer);
+                if (numCharsWritten)
+                    LocalFree(errorBuffer);
 
-            // send keyboard input to safely unblock the CLI thread
-            INPUT_RECORD b[4];
-            HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
-            b[0].EventType = KEY_EVENT;
-            b[0].Event.KeyEvent.bKeyDown = TRUE;
-            b[0].Event.KeyEvent.uChar.AsciiChar = 'X';
-            b[0].Event.KeyEvent.wVirtualKeyCode = 'X';
-            b[0].Event.KeyEvent.wRepeatCount = 1;
+                // send keyboard input to safely unblock the CLI thread
+                INPUT_RECORD b[4];
+                HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
+                b[0].EventType = KEY_EVENT;
+                b[0].Event.KeyEvent.bKeyDown = TRUE;
+                b[0].Event.KeyEvent.uChar.AsciiChar = 'X';
+                b[0].Event.KeyEvent.wVirtualKeyCode = 'X';
+                b[0].Event.KeyEvent.wRepeatCount = 1;
 
-            b[1].EventType = KEY_EVENT;
-            b[1].Event.KeyEvent.bKeyDown = FALSE;
-            b[1].Event.KeyEvent.uChar.AsciiChar = 'X';
-            b[1].Event.KeyEvent.wVirtualKeyCode = 'X';
-            b[1].Event.KeyEvent.wRepeatCount = 1;
+                b[1].EventType = KEY_EVENT;
+                b[1].Event.KeyEvent.bKeyDown = FALSE;
+                b[1].Event.KeyEvent.uChar.AsciiChar = 'X';
+                b[1].Event.KeyEvent.wVirtualKeyCode = 'X';
+                b[1].Event.KeyEvent.wRepeatCount = 1;
 
-            b[2].EventType = KEY_EVENT;
-            b[2].Event.KeyEvent.bKeyDown = TRUE;
-            b[2].Event.KeyEvent.dwControlKeyState = 0;
-            b[2].Event.KeyEvent.uChar.AsciiChar = '\r';
-            b[2].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
-            b[2].Event.KeyEvent.wRepeatCount = 1;
-            b[2].Event.KeyEvent.wVirtualScanCode = 0x1c;
+                b[2].EventType = KEY_EVENT;
+                b[2].Event.KeyEvent.bKeyDown = TRUE;
+                b[2].Event.KeyEvent.dwControlKeyState = 0;
+                b[2].Event.KeyEvent.uChar.AsciiChar = '\r';
+                b[2].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
+                b[2].Event.KeyEvent.wRepeatCount = 1;
+                b[2].Event.KeyEvent.wVirtualScanCode = 0x1c;
 
-            b[3].EventType = KEY_EVENT;
-            b[3].Event.KeyEvent.bKeyDown = FALSE;
-            b[3].Event.KeyEvent.dwControlKeyState = 0;
-            b[3].Event.KeyEvent.uChar.AsciiChar = '\r';
-            b[3].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
-            b[3].Event.KeyEvent.wVirtualScanCode = 0x1c;
-            b[3].Event.KeyEvent.wRepeatCount = 1;
-            DWORD numb;
-            WriteConsoleInput(hStdIn, b, 4, &numb);
+                b[3].EventType = KEY_EVENT;
+                b[3].Event.KeyEvent.bKeyDown = FALSE;
+                b[3].Event.KeyEvent.dwControlKeyState = 0;
+                b[3].Event.KeyEvent.uChar.AsciiChar = '\r';
+                b[3].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
+                b[3].Event.KeyEvent.wVirtualScanCode = 0x1c;
+                b[3].Event.KeyEvent.wRepeatCount = 1;
+                DWORD numb;
+                WriteConsoleInput(hStdIn, b, 4, &numb);
+            }
         }
 #endif
         cliThread->join();

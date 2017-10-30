@@ -201,6 +201,15 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateAddCredit::Write()
     return &_worldPacket;
 };
 
+WorldPacket const* WorldPackets::Quest::QuestUpdateAddCreditSimple::Write()
+{
+    _worldPacket << int32(QuestID);
+    _worldPacket << int32(ObjectID);
+    _worldPacket << uint8(ObjectiveType);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Quest::QuestUpdateAddPvPCredit::Write()
 {
     _worldPacket << int32(QuestID);
@@ -291,8 +300,8 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 {
     _worldPacket << QuestData; // WorldPackets::Quest::QuestGiverOfferReward
     _worldPacket << int32(QuestPackageID);
-    _worldPacket << int32(PortraitTurnIn);
     _worldPacket << int32(PortraitGiver);
+    _worldPacket << int32(PortraitTurnIn);
 
     _worldPacket.WriteBits(QuestTitle.size(), 9);
     _worldPacket.WriteBits(RewardText.size(), 12);
@@ -350,13 +359,13 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << int32(QuestID);
     _worldPacket << int32(QuestPackageID);
     _worldPacket << int32(PortraitGiver);
-    _worldPacket << int32(SuggestedPartyMembers);
+    _worldPacket << int32(PortraitTurnIn);
     _worldPacket << uint32(QuestFlags[0]); // Flags
     _worldPacket << uint32(QuestFlags[1]); // FlagsEx
-    _worldPacket << int32(PortraitTurnIn);
+    _worldPacket << int32(SuggestedPartyMembers);
     _worldPacket << uint32(LearnSpells.size());
-    _worldPacket << int32(DescEmotes.size());
-    _worldPacket << int32(Objectives.size());
+    _worldPacket << uint32(DescEmotes.size());
+    _worldPacket << uint32(Objectives.size());
     _worldPacket << int32(QuestStartItemID);
 
     for (int32 spell : LearnSpells)
@@ -383,9 +392,9 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket.WriteBits(PortraitGiverName.size(), 8);
     _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
     _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
-    _worldPacket.WriteBit(DisplayPopup);
-    _worldPacket.WriteBit(StartCheat);
     _worldPacket.WriteBit(AutoLaunched);
+    _worldPacket.WriteBit(StartCheat);
+    _worldPacket.WriteBit(DisplayPopup);
     _worldPacket.FlushBits();
 
     _worldPacket << Rewards; // WorldPackets::Quest::QuestRewards
@@ -466,20 +475,20 @@ void WorldPackets::Quest::QuestLogRemoveQuest::Read()
     _worldPacket >> Entry;
 }
 
-WorldPacket const* WorldPackets::Quest::QuestGiverQuestList::Write()
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestListMessage::Write()
 {
     _worldPacket << QuestGiverGUID;
     _worldPacket << uint32(GreetEmoteDelay);
     _worldPacket << uint32(GreetEmoteType);
-    _worldPacket << uint32(GossipTexts.size());
+    _worldPacket << uint32(QuestDataText.size());
     _worldPacket.WriteBits(Greeting.size(), 11);
     _worldPacket.FlushBits();
 
-    for (GossipTextData const& gossip : GossipTexts)
+    for (GossipText const& gossip : QuestDataText)
     {
         _worldPacket << uint32(gossip.QuestID);
         _worldPacket << uint32(gossip.QuestType);
-        _worldPacket << uint32(gossip.QuestLevel);
+        _worldPacket << int32(gossip.QuestLevel);
         _worldPacket << uint32(gossip.QuestFlags);
         _worldPacket << uint32(gossip.QuestFlagsEx);
         _worldPacket.WriteBit(gossip.Repeatable);
@@ -579,13 +588,42 @@ WorldPacket const* WorldPackets::Quest::WorldQuestUpdate::Write()
 {
     _worldPacket << uint32(WorldQuestUpdates.size());
 
-    for (WorldQuestUpdateInfo const& worldQuestUpdate : WorldQuestUpdates)
+    for (WorldPackets::Quest::WorldQuestUpdateInfo const& worldQuestUpdate : WorldQuestUpdates)
     {
         _worldPacket << int32(worldQuestUpdate.LastUpdate);
         _worldPacket << uint32(worldQuestUpdate.QuestID);
         _worldPacket << uint32(worldQuestUpdate.Timer);
         _worldPacket << int32(worldQuestUpdate.VariableID);
         _worldPacket << int32(worldQuestUpdate.Value);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Quest::QueryQuestReward::Read()
+{
+    _worldPacket >> QuestID;
+    _worldPacket >> Unk;
+}
+
+WorldPacket const* WorldPackets::Quest::QueryQuestRewardResponse::Write()
+{
+    _worldPacket << QuestID;
+    _worldPacket << Unk1;
+    _worldPacket << uint32(CurrencyRewards.size());
+    _worldPacket << uint32(ItemRewards.size());
+    _worldPacket << Money;
+
+    for (auto const& currency : CurrencyRewards)
+    {
+        _worldPacket << currency.CurrencyID;
+        _worldPacket << currency.Quantity;
+    }
+
+    for (auto const& item : ItemRewards)
+    {
+        _worldPacket << item.Item;
+        _worldPacket << item.Quantity;
     }
 
     return &_worldPacket;

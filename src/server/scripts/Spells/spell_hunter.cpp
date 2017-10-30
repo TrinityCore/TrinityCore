@@ -32,18 +32,22 @@
 
 enum HunterSpells
 {
+    SPELL_HUNTER_ARCANE_SHOT_FOCUS                  = 187675,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
+    SPELL_HUNTER_EXHILARATION_R2                    = 231546,
     SPELL_HUNTER_FIRE                               = 82926,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
     SPELL_HUNTER_INSANITY                           = 95809,
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
+    SPELL_HUNTER_LONE_WOLF                          = 155228,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
+    SPELL_HUNTER_MULTI_SHOT_FOCUS                   = 213363,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX           = 55709,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
@@ -111,6 +115,38 @@ class spell_hun_ancient_hysteria : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_hun_ancient_hysteria_SpellScript();
+        }
+};
+
+// 185358 - Arcane Shot
+class spell_hun_arcane_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_arcane_shot() : SpellScriptLoader("spell_hun_arcane_shot") { }
+
+        class spell_hun_arcane_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_arcane_shot_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_HUNTER_ARCANE_SHOT_FOCUS });
+            }
+
+            void HandleOnHit()
+            {
+                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_ARCANE_SHOT_FOCUS, true);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_hun_arcane_shot_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_arcane_shot_SpellScript();
         }
 };
 
@@ -264,6 +300,39 @@ class spell_hun_disengage : public SpellScriptLoader
         }
 };
 
+// 109304 - Exhilaration
+class spell_hun_exhilaration : public SpellScriptLoader
+{
+    public:
+        spell_hun_exhilaration() : SpellScriptLoader("spell_hun_exhilaration") { }
+
+        class spell_hun_exhilaration_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_exhilaration_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_HUNTER_EXHILARATION_R2, SPELL_HUNTER_LONE_WOLF });
+            }
+
+            void HandleOnHit()
+            {
+                if (GetCaster()->HasAura(SPELL_HUNTER_EXHILARATION_R2) && !GetCaster()->HasAura(SPELL_HUNTER_LONE_WOLF))
+                    GetCaster()->CastSpell((Unit*)nullptr, SPELL_HUNTER_EXHILARATION_PET, true);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_hun_exhilaration_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_exhilaration_SpellScript();
+        }
+};
+
 // 212658 - Hunting Party
 class spell_hun_hunting_party : public SpellScriptLoader
 {
@@ -286,8 +355,8 @@ class spell_hun_hunting_party : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_EXHILARATION, Seconds(aurEff->GetAmount()));
-                GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_EXHILARATION_PET, Seconds(aurEff->GetAmount()));
+                GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_EXHILARATION, -Seconds(aurEff->GetAmount()));
+                GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_EXHILARATION_PET, -Seconds(aurEff->GetAmount()));
             }
 
             void Register() override
@@ -497,6 +566,45 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
         }
 };
 
+// 2643 - Multi-Shot
+class spell_hun_multi_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_multi_shot() : SpellScriptLoader("spell_hun_multi_shot") { }
+
+        class spell_hun_multi_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_multi_shot_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_HUNTER_MULTI_SHOT_FOCUS });
+            }
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleOnHit()
+            {
+                // We need to check hunter's spec because it doesn't generate focus on other specs than MM
+                if (GetCaster()->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_HUNTER_MARKSMAN)
+                    GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_hun_multi_shot_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_multi_shot_SpellScript();
+        }
+};
+
 // 54044 - Pet Carrion Feeder
 class spell_hun_pet_carrion_feeder : public SpellScriptLoader
 {
@@ -697,9 +805,16 @@ class spell_hun_roar_of_sacrifice : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_ROAR_OF_SACRIFICE_TRIGGERED });
             }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
+            bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                return GetCaster() && (eventInfo.GetDamageInfo()->GetSchoolMask() & GetEffect(EFFECT_1)->GetMiscValue()) != 0;
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !(damageInfo->GetSchoolMask() & aurEff->GetMiscValue()))
+                    return false;
+
+                if (!GetCaster())
+                    return false;
+
+                return true;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -712,7 +827,7 @@ class spell_hun_roar_of_sacrifice : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_hun_roar_of_sacrifice_AuraScript::CheckProc);
+                DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_roar_of_sacrifice_AuraScript::CheckProc, EFFECT_1, SPELL_AURA_DUMMY);
                 OnEffectProc += AuraEffectProcFn(spell_hun_roar_of_sacrifice_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
@@ -1022,16 +1137,19 @@ class spell_hun_tnt : public SpellScriptLoader
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
+    new spell_hun_arcane_shot();
     new spell_hun_aspect_cheetah();
     new spell_hun_chimera_shot();
     new spell_hun_cobra_shot();
     new spell_hun_disengage();
+    new spell_hun_exhilaration();
     new spell_hun_hunting_party();
     new spell_hun_improved_mend_pet();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
+    new spell_hun_multi_shot();
     new spell_hun_pet_carrion_feeder();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_readiness();

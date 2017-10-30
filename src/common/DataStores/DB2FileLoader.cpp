@@ -1125,7 +1125,7 @@ uint32 DB2FileLoaderSparseImpl::RecordGetVarInt(unsigned char const* record, uin
 
 uint16 DB2FileLoaderSparseImpl::GetFieldOffset(uint32 field, uint32 arrayIndex) const
 {
-    return _fieldAndArrayOffsets[_fieldAndArrayOffsets[field] + arrayIndex];
+    return uint16(_fieldAndArrayOffsets[_fieldAndArrayOffsets[field] + arrayIndex]);
 }
 
 uint16 DB2FileLoaderSparseImpl::GetFieldSize(uint32 field) const
@@ -1139,7 +1139,7 @@ std::size_t* DB2FileLoaderSparseImpl::RecordCreateDetachedFieldOffsets(std::size
     if (oldOffsets != _fieldAndArrayOffsets)
         return oldOffsets;
 
-    uint32 size = _loadInfo->Meta->FieldCount + _loadInfo->FieldCount - (!_loadInfo->Meta->HasIndexFieldInData() ? 1 : 0);
+    std::size_t size = _loadInfo->Meta->FieldCount + _loadInfo->FieldCount - (!_loadInfo->Meta->HasIndexFieldInData() ? 1 : 0);
     std::size_t* newOffsets = new std::size_t[size];
     memcpy(newOffsets, _fieldAndArrayOffsets, size * sizeof(std::size_t));
     return newOffsets;

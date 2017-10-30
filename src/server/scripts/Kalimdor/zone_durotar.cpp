@@ -25,7 +25,7 @@
 #include "SpellScript.h"
 
 /*######
-## Quest 25134: Lazy Peons
+## Quest 37446: Lazy Peons
 ## npc_lazy_peon
 ######*/
 
@@ -36,7 +36,7 @@ enum LazyPeonYells
 
 enum LazyPeon
 {
-    QUEST_LAZY_PEONS    = 25134,
+    QUEST_LAZY_PEONS    = 37446,
     GO_LUMBERPILE       = 175784,
     SPELL_BUFF_SLEEP    = 17743,
     SPELL_AWAKEN_PEON   = 19938

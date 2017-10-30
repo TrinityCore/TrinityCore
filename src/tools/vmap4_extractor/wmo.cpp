@@ -377,9 +377,13 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
         for (int i=0; i<nTriangles; ++i)
         {
             // Skip no collision triangles
-            if (MOPY[2*i]&WMO_MATERIAL_NO_COLLISION ||
-              !(MOPY[2*i]&(WMO_MATERIAL_HINT|WMO_MATERIAL_COLLIDE_HIT)) )
+            bool isRenderFace = (MOPY[2 * i] & WMO_MATERIAL_RENDER) && !(MOPY[2 * i] & WMO_MATERIAL_DETAIL);
+            bool isDetail = (MOPY[2 * i] & WMO_MATERIAL_DETAIL) != 0;
+            bool isCollision = (MOPY[2 * i] & WMO_MATERIAL_COLLISION) != 0;
+
+            if (!isRenderFace && !isDetail && !isCollision)
                 continue;
+
             // Use this triangle
             for (int j=0; j<3; ++j)
             {
@@ -511,7 +515,7 @@ WMOGroup::~WMOGroup()
 }
 
 WMOInstance::WMOInstance(CASCFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
-    : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), id(0), d2(0), d3(0)
+    : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), id(0)
 {
     float ff[3];
     f.read(&id, 4);
@@ -520,14 +524,24 @@ WMOInstance::WMOInstance(CASCFile& f, char const* WmoInstName, uint32 mapID, uin
     f.read(ff,12);
     rot = Vec3D(ff[0],ff[1],ff[2]);
     f.read(ff,12);
-    pos2 = Vec3D(ff[0],ff[1],ff[2]);
+    pos2 = Vec3D(ff[0],ff[1],ff[2]); // bounding box corners
     f.read(ff,12);
-    pos3 = Vec3D(ff[0],ff[1],ff[2]);
-    f.read(&d2,4);
+    pos3 = Vec3D(ff[0],ff[1],ff[2]); // bounding box corners
+
+    uint16 fflags;
+    f.read(&fflags, 2);
+
+    uint16 doodadSet;
+    f.read(&doodadSet, 2);
 
     uint16 trash,adtId;
     f.read(&adtId,2);
     f.read(&trash,2);
+
+    // destructible wmo, do not dump. we can handle the vmap for these
+    // in dynamic tree (gameobject vmaps)
+    if ((fflags & 0x01) != 0)
+        return;
 
     //-----------add_in _dir_file----------------
 

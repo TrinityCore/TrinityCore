@@ -31,6 +31,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "Spline.h"
 #include "Transport.h"
 #include "Unit.h"
@@ -40,7 +41,7 @@
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
-    _areaTriggerMiscTemplate(nullptr), _ai()
+    _areaTriggerTemplate(nullptr), _areaTriggerMiscTemplate(nullptr), _ai()
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -85,6 +86,24 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
+bool AreaTrigger::LoadFromDB(ObjectGuid::LowType guidLow, Map* map)
+{
+    AreaTriggerDataStore::AreaTriggerDataList const* areaTriggerList = sAreaTriggerDataStore->GetStaticAreaTriggersByMap(map->GetId());
+    if (!areaTriggerList)
+        return false;
+
+    for (AreaTriggerData trigger : *areaTriggerList)
+    {
+        if (trigger.guid == guidLow)
+        {
+            Position pos(trigger.position_x, trigger.position_y, trigger.position_z);
+            return CreateStaticAreaTrigger(trigger.id, guidLow,pos, map);
+        }
+    }
+
+    return false;
+}
+
 bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId /*= ObjectGuid::Empty*/, AuraEffect const* aurEff)
 {
     _targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
@@ -104,6 +123,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
         TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (spellMiscId %u) not created. Invalid areatrigger miscid (%u)", spellMiscId, spellMiscId);
         return false;
     }
+
+    _areaTriggerTemplate = _areaTriggerMiscTemplate->Template;
 
     Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id, caster->GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
     SetPhaseMask(caster->GetPhaseMask(), false);
@@ -166,6 +187,46 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     }
 
     caster->_RegisterAreaTrigger(this);
+
+    _ai->OnCreate();
+
+    return true;
+}
+
+bool AreaTrigger::CreateStaticAreaTrigger(uint32 entry, ObjectGuid::LowType guidLow, Position const& pos, Map* map)
+{
+    ASSERT(map != nullptr);
+
+    _targetGuid = ObjectGuid::Empty;
+    _aurEff = nullptr;
+
+    SetMap(map);
+    Relocate(pos);
+    if (!IsPositionValid())
+    {
+        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (entry %u) not staticaly created. Invalid coordinates (X: %f Y: %f)", entry, GetPositionX(), GetPositionY());
+        return false;
+    }
+
+    _areaTriggerTemplate = sAreaTriggerDataStore->GetAreaTriggerTemplate(entry);
+    if (!_areaTriggerTemplate)
+    {
+        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger not created. Invalid areatrigger entry (%u)", entry);
+        return false;
+    }
+
+    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id, guidLow));
+
+    SetEntry(GetTemplate()->Id);
+    SetDuration(-1);
+
+    SetObjectScale(1.0f);
+
+    SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
+
+    UpdateShape();
+
+    AI_Initialize();
 
     _ai->OnCreate();
 
@@ -384,7 +445,7 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
 
 AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
 {
-    return _areaTriggerMiscTemplate->Template;
+    return _areaTriggerTemplate;
 }
 
 uint32 AreaTrigger::GetScriptId() const
@@ -501,17 +562,17 @@ void AreaTrigger::UpdateShape()
         UpdatePolygonOrientation();
 }
 
-bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerActionUserTypes targetType)
+bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerAction const& action)
 {
-    switch (targetType)
+    switch (action.TargetType)
     {
         case AREATRIGGER_ACTION_USER_FRIEND:
         {
-            return caster->IsFriendlyTo(unit);
+            return caster->_IsValidAssistTarget(unit, sSpellMgr->GetSpellInfo(action.Param));
         }
         case AREATRIGGER_ACTION_USER_ENEMY:
         {
-            return !caster->IsFriendlyTo(unit);
+            return caster->_IsValidAttackTarget(unit, sSpellMgr->GetSpellInfo(action.Param));
         }
         case AREATRIGGER_ACTION_USER_RAID:
         {
@@ -539,7 +600,7 @@ void AreaTrigger::DoActions(Unit* unit)
     {
         for (AreaTriggerAction const& action : GetTemplate()->Actions)
         {
-            if (UnitFitToActionRequirement(unit, caster, action.TargetType))
+            if (UnitFitToActionRequirement(unit, caster, action))
             {
                 switch (action.ActionType)
                 {

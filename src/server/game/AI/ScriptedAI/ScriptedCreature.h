@@ -175,6 +175,9 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     //For fleeing
     bool IsFleeing;
 
+    SummonList summons;
+    EventMap events;
+
     // *************
     //Pure virtual functions
     // *************
@@ -322,6 +325,15 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         bool _isHeroic;
 };
 
+struct TC_GAME_API Scripted_NoMovementAI : public ScriptedAI
+{
+    Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
+    virtual ~Scripted_NoMovementAI() {}
+
+    //Called at each attack of me by any victim
+    void AttackStart(Unit* target);
+};
+
 class TC_GAME_API BossAI : public ScriptedAI
 {
     public:
@@ -399,10 +411,40 @@ class TC_GAME_API WorldBossAI : public ScriptedAI
 };
 
 // SD2 grid searchers.
-TC_GAME_API Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive = true);
-TC_GAME_API GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange);
-TC_GAME_API void GetCreatureListWithEntryInGrid(std::list<Creature*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
-TC_GAME_API void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
-TC_GAME_API void GetPlayerListInGrid(std::list<Player*>& list, WorldObject* source, float maxSearchRange);
+inline Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive = true)
+{
+    return source->FindNearestCreature(entry, maxSearchRange, alive);
+}
+
+inline GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange)
+{
+    return source->FindNearestGameObject(entry, maxSearchRange);
+}
+
+template <typename Container>
+inline void GetCreatureListWithEntryInGrid(Container& container, WorldObject* source, uint32 entry, float maxSearchRange)
+{
+    source->GetCreatureListWithEntryInGrid(container, entry, maxSearchRange);
+}
+
+template <typename Container>
+inline void GetGameObjectListWithEntryInGrid(Container& container, WorldObject* source, uint32 entry, float maxSearchRange)
+{
+    source->GetGameObjectListWithEntryInGrid(container, entry, maxSearchRange);
+}
+
+template <typename Container>
+inline void GetPlayerListInGrid(Container& container, WorldObject* source, float maxSearchRange)
+{
+    source->GetPlayerListInGrid(container, maxSearchRange);
+}
+
+TC_GAME_API void GetPositionWithDistInOrientation(Position* pUnit, float dist, float orientation, float& x, float& y);
+TC_GAME_API void GetPositionWithDistInOrientation(Position* fromPos, float dist, float orientation, Position& movePosition);
+
+TC_GAME_API void GetRandPosFromCenterInDist(float centerX, float centerY, float dist, float& x, float& y);
+TC_GAME_API void GetRandPosFromCenterInDist(Position* centerPos, float dist, Position& movePosition);
+
+TC_GAME_API void GetPositionWithDistInFront(Position* centerPos, float dist, Position& movePosition);
 
 #endif // SCRIPTEDCREATURE_H_

@@ -223,8 +223,8 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
     uint32 auctionTime = uint32(packet.RunTime * sWorld->getRate(RATE_AUCTION_TIME));
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    uint32 deposit = sAuctionMgr->GetAuctionDeposit(auctionHouseEntry, packet.RunTime, item, finalCount);
-    if (!_player->HasEnoughMoney((uint64)deposit))
+    uint64 deposit = sAuctionMgr->GetAuctionDeposit(auctionHouseEntry, packet.RunTime, item, finalCount);
+    if (!_player->HasEnoughMoney(deposit))
     {
         SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
         return;
@@ -440,7 +440,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
         stmt->setUInt64(0, auction->bidder);
-        stmt->setUInt32(1, auction->bid);
+        stmt->setUInt64(1, auction->bid);
         stmt->setUInt32(2, auction->Id);
         trans->Append(stmt);
 
@@ -511,8 +511,8 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
         {
             if (auction->bidder)                            // If we have a bidder, we have to send him the money he paid
             {
-                uint32 auctionCut = auction->GetAuctionCut();
-                if (!player->HasEnoughMoney((uint64)auctionCut))          //player doesn't have enough money, maybe message needed
+                uint64 auctionCut = auction->GetAuctionCut();
+                if (!player->HasEnoughMoney(auctionCut))          //player doesn't have enough money, maybe message needed
                     return;
                 sAuctionMgr->SendAuctionCancelledToBidderMail(auction, trans);
                 player->ModifyMoney(-int64(auctionCut));
@@ -637,8 +637,12 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
             {
                 for (auto const& subClassFilter : classFilter.SubClassFilters)
                 {
-                    filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
-                    filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                    if (classFilter.ItemClass < MAX_ITEM_CLASS)
+                    {
+                        filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
+                        if (subClassFilter.ItemSubclass < MAX_ITEM_SUBCLASS_TOTAL)
+                            filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                    }
                 }
             }
             else

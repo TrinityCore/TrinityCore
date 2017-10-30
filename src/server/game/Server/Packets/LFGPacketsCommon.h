@@ -25,12 +25,19 @@ namespace WorldPackets
 {
     namespace LFG
     {
+        enum class RideType : uint32
+        {
+            None = 0,
+            Battlegrounds = 1,
+            Lfg = 2
+        };
+
         struct RideTicket
         {
             ObjectGuid RequesterGuid;
-            int32 Id = 0;
-            int32 Type = 0;
-            uint32 Time = 0;
+            uint32 Id = 0;
+            RideType Type = RideType::None;
+            int32 Time = 0;
         };
     }
 }

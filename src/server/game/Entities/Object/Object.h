@@ -116,6 +116,7 @@ private:
 class TC_GAME_API Object
 {
     public:
+        Ashamane::VariablesSafe Variables;
         virtual ~Object();
 
         bool IsInWorld() const { return m_inWorld; }
@@ -255,29 +256,37 @@ class TC_GAME_API Object
         // FG: some hacky helpers
         void ForceValuesUpdateAtIndex(uint32);
 
-        Player* ToPlayer() { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player*>(this); else return NULL; }
-        Player const* ToPlayer() const { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player const*>(this); else return NULL; }
+        inline bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
+        Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }
+        Player const* ToPlayer() const { if (IsPlayer()) return reinterpret_cast<Player const*>(this); else return nullptr; }
 
-        Creature* ToCreature() { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return NULL; }
-        Creature const* ToCreature() const { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature const*>(this); else return NULL; }
+        inline bool IsCreature() const { return GetTypeId() == TYPEID_UNIT; }
+        Creature* ToCreature() { if (IsCreature()) return reinterpret_cast<Creature*>(this); else return nullptr; }
+        Creature const* ToCreature() const { if (IsCreature()) return reinterpret_cast<Creature const*>(this); else return nullptr; }
 
-        Unit* ToUnit() { if (isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit*>(this); else return NULL; }
-        Unit const* ToUnit() const { if (isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit const*>(this); else return NULL; }
+        inline bool IsUnit() const { return isType(TYPEMASK_UNIT); }
+        Unit* ToUnit() { if (IsUnit()) return reinterpret_cast<Unit*>(this); else return nullptr; }
+        Unit const* ToUnit() const { if (IsUnit()) return reinterpret_cast<Unit const*>(this); else return nullptr; }
 
-        GameObject* ToGameObject() { if (GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject*>(this); else return NULL; }
-        GameObject const* ToGameObject() const { if (GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject const*>(this); else return NULL; }
+        inline bool IsGameObject() const { return GetTypeId() == TYPEID_GAMEOBJECT; }
+        GameObject* ToGameObject() { if (IsGameObject()) return reinterpret_cast<GameObject*>(this); else return nullptr; }
+        GameObject const* ToGameObject() const { if (IsGameObject()) return reinterpret_cast<GameObject const*>(this); else return nullptr; }
 
-        Corpse* ToCorpse() { if (GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse*>(this); else return NULL; }
-        Corpse const* ToCorpse() const { if (GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse const*>(this); else return NULL; }
+        inline bool IsCorpse() const { return GetTypeId() == TYPEID_CORPSE; }
+        Corpse* ToCorpse() { if (IsCorpse()) return reinterpret_cast<Corpse*>(this); else return nullptr; }
+        Corpse const* ToCorpse() const { if (IsCorpse()) return reinterpret_cast<Corpse const*>(this); else return nullptr; }
 
-        DynamicObject* ToDynObject() { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return NULL; }
-        DynamicObject const* ToDynObject() const { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return NULL; }
+        inline bool IsDynObject() const { return GetTypeId() == TYPEID_DYNAMICOBJECT; }
+        DynamicObject* ToDynObject() { if (IsDynObject()) return reinterpret_cast<DynamicObject*>(this); else return nullptr; }
+        DynamicObject const* ToDynObject() const { if (IsDynObject()) return reinterpret_cast<DynamicObject const*>(this); else return nullptr; }
 
-        AreaTrigger* ToAreaTrigger() { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger*>(this); else return NULL; }
-        AreaTrigger const* ToAreaTrigger() const { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger const*>(this); else return NULL; }
+        inline bool IsAreaTrigger() const { return GetTypeId() == TYPEID_AREATRIGGER; }
+        AreaTrigger* ToAreaTrigger() { if (IsAreaTrigger()) return reinterpret_cast<AreaTrigger*>(this); else return nullptr; }
+        AreaTrigger const* ToAreaTrigger() const { if (IsAreaTrigger()) return reinterpret_cast<AreaTrigger const*>(this); else return nullptr; }
 
-        Conversation* ToConversation() { if (GetTypeId() == TYPEID_CONVERSATION) return reinterpret_cast<Conversation*>(this); else return NULL; }
-        Conversation const* ToConversation() const { if (GetTypeId() == TYPEID_CONVERSATION) return reinterpret_cast<Conversation const*>(this); else return NULL; }
+        inline bool IsConversation() const { return GetTypeId() == TYPEID_CONVERSATION; }
+        Conversation* ToConversation() { if (GetTypeId() == TYPEID_CONVERSATION) return reinterpret_cast<Conversation*>(this); else return nullptr; }
+        Conversation const* ToConversation() const { if (GetTypeId() == TYPEID_CONVERSATION) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
 
     protected:
         Object();
@@ -402,6 +411,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         virtual bool SetInPhase(uint32 id, bool update, bool apply);
+        bool AddPhase(uint32 id, bool update = true) { return SetInPhase(id, update, true); }
+        bool RemovePhase(uint32 id, bool update = true) { return SetInPhase(id, update, false); }
         void CopyPhaseFrom(WorldObject* obj, bool update = false);
         void UpdateAreaAndZonePhase();
         void ClearPhases(bool update = false);
@@ -464,14 +475,15 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
-        virtual void SendMessageToSet(WorldPacket const* data, bool self);
-        virtual void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self);
-        virtual void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr);
+        virtual void SendMessageToSet(WorldPacket const* data, bool self) const;
+        virtual void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const;
+        virtual void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) const;
 
-        virtual uint8 getLevelForTarget(WorldObject const* /*target*/) const { return 1; }
+        virtual uint8 GetLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
         void PlayDistanceSound(uint32 soundId, Player* target = nullptr);
         void PlayDirectSound(uint32 soundId, Player* target = nullptr);
+        void PlayDirectMusic(uint32 musicId, Player* target = nullptr);
 
         virtual void SaveRespawnTime() { }
         void AddObjectToRemoveList();
@@ -504,8 +516,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         Scenario* GetScenario() const;
 
-        TempSummon* SummonCreature(uint32 id, Position const& pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0) const;
+        TempSummon* SummonCreature(uint32 id, Position const& pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0, bool visibleBySummonerOnly = false) const;
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, bool visibleBySummonerOnly = false) const;
         GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime /* s */);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime /* s */);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
@@ -515,9 +527,21 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
 
-        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry = 0, float fMaxSearchRange = 250.0f) const;
-        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry = 0, float fMaxSearchRange = 250.0f) const;
-        void GetPlayerListInGrid(std::list<Player*>& lList, float fMaxSearchRange) const;
+        template <typename Container>
+        void GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        void GetGameObjectListWithEntryInGridAppend(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        void GetCreatureListWithEntryInGridAppend(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetCreatureListInGrid(Container& creatureContainer, float maxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange) const;
 
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);

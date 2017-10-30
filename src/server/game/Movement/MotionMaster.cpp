@@ -465,6 +465,7 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
     {
         init.SetFly();
         init.SetUncompressed();
+        init.SetSmooth();
     }
 
     Movement::PointsArray path;
@@ -474,7 +475,6 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
         return G3D::Vector3(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
     });
     init.MovebyPath(path);
-    init.SetSmooth();
     init.SetWalk(walk);
     init.Launch();
 
@@ -727,6 +727,20 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
 
     TC_LOG_DEBUG("misc", "%s starts moving over path (Id:%u, repeatable: %s).",
         _owner->GetGUID().ToString().c_str(), path_id, repeatable ? "YES" : "NO");
+}
+
+void MotionMaster::MoveBackward(uint32 id, float x, float y, float z, float speed)
+{
+    if (_owner->GetTypeId() == TYPEID_PLAYER)
+        _owner->AddUnitMovementFlag(MOVEMENTFLAG_BACKWARD);
+
+    Movement::MoveSplineInit init(_owner);
+    init.MoveTo(x, y, z);
+    init.SetBackward();
+    init.Launch();
+    if (speed > 0.0f)
+        init.SetVelocity(speed);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)

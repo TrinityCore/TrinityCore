@@ -183,16 +183,18 @@ struct MapLoadInfo
 // **************************************************
 // Extractor options
 // **************************************************
-enum Extract
+enum Extract : uint8
 {
-    EXTRACT_MAP = 1,
-    EXTRACT_DBC = 2,
-    EXTRACT_CAMERA = 4,
-    EXTRACT_GT  = 8
+    EXTRACT_MAP     = 0x1,
+    EXTRACT_DBC     = 0x2,
+    EXTRACT_CAMERA  = 0x4,
+    EXTRACT_GT      = 0x8,
+
+    EXTRACT_ALL = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA | EXTRACT_GT
 };
 
 // Select data for extract
-int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA | EXTRACT_GT;
+int   CONF_extract = EXTRACT_ALL;
 
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
@@ -255,7 +257,7 @@ void Usage(char const* prg)
         "%s -[var] [value]\n"\
         "-i set input path\n"\
         "-o set output path\n"\
-        "-e extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(11)\n"\
+        "-e extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(15)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
@@ -299,7 +301,7 @@ void HandleArgs(int argc, char* arg[])
                 if (c + 1 < argc)                            // all ok
                 {
                     CONF_extract = atoi(arg[c++ + 1]);
-                    if (!(CONF_extract > 0 && CONF_extract < 12))
+                    if (!(CONF_extract > 0 && CONF_extract <= EXTRACT_ALL))
                         Usage(arg[0]);
                 }
                 else
@@ -323,51 +325,6 @@ void HandleArgs(int argc, char* arg[])
                 break;
         }
     }
-}
-
-uint32 ReadBuild(int locale)
-{
-    // include build info file also
-    std::string filename = Trinity::StringFormat("component.wow-%s.txt", localeNames[locale]);
-    //printf("Read %s file... ", filename.c_str());
-
-    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, filename.c_str(), CASC_LOCALE_ALL);
-    if (!dbcFile)
-    {
-        printf("Locale %s not installed.\n", localeNames[locale]);
-        return 0;
-    }
-
-    char buff[512];
-    DWORD readBytes = 0;
-    CASC::ReadFile(dbcFile, buff, 512, &readBytes);
-    if (!readBytes)
-    {
-        printf("Fatal error: Not found %s file!\n", filename.c_str());
-        exit(1);
-    }
-
-    std::string text = std::string(buff, readBytes);
-
-    size_t pos = text.find("version=\"");
-    size_t pos1 = pos + strlen("version=\"");
-    size_t pos2 = text.find("\"", pos1);
-    if (pos == text.npos || pos2 == text.npos || pos1 >= pos2)
-    {
-        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
-        exit(1);
-    }
-
-    std::string build_str = text.substr(pos1,pos2-pos1);
-
-    int build = atoi(build_str.c_str());
-    if (build <= 0)
-    {
-        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
-        exit(1);
-    }
-
-    return build;
 }
 
 void ReadMapDBC()
@@ -1174,6 +1131,14 @@ void ExtractMaps(uint32 build)
 
 bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filename)
 {
+    DWORD fileSize, fileSizeHigh;
+    fileSize = CASC::GetFileSize(fileInArchive, &fileSizeHigh);
+    if (fileSize == CASC_INVALID_SIZE)
+    {
+        printf("Can't read file size of '%s'\n", filename.c_str());
+        return false;
+    }
+
     FILE* output = fopen(filename.c_str(), "wb");
     if (!output)
     {
@@ -1182,14 +1147,28 @@ bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filen
     }
 
     char  buffer[0x10000];
-    DWORD readBytes = 1;
+    DWORD readBytes;
 
-    while (readBytes > 0)
+    do
     {
-        CASC::ReadFile(fileInArchive, buffer, sizeof(buffer), &readBytes);
-        if (readBytes > 0)
-            fwrite(buffer, 1, readBytes, output);
-    }
+        readBytes = 0;
+        if (!CASC::ReadFile(fileInArchive, buffer, std::min<DWORD>(fileSize, sizeof(buffer)), &readBytes))
+        {
+            printf("Can't read file '%s'\n", filename.c_str());
+            fclose(output);
+            boost::filesystem::remove(filename);
+            return false;
+        }
+
+        if (!readBytes)
+            break;
+
+        fwrite(buffer, 1, readBytes, output);
+        fileSize -= readBytes;
+        if (!fileSize) // now we have read entire file
+            break;
+
+    } while (true);
 
     fclose(output);
     return true;
@@ -1351,11 +1330,59 @@ bool OpenCascStorage(int locale)
 
         return true;
     }
-    catch (boost::filesystem::filesystem_error& error)
+    catch (boost::filesystem::filesystem_error const& error)
     {
-        printf("error opening casc storage : %s\n", error.what());
+        printf("Error opening CASC storage: %s\n", error.what());
         return false;
     }
+}
+
+uint32 GetInstalledLocalesMask()
+{
+    try
+    {
+        boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0);
+        if (!storage)
+            return false;
+
+        return CASC::GetInstalledLocalesMask(storage);
+    }
+    catch (boost::filesystem::filesystem_error const& error)
+    {
+        printf("Unable to determine installed locales mask: %s\n", error.what());
+    }
+
+    return 0;
+}
+
+static bool RetardCheck()
+{
+    try
+    {
+        boost::filesystem::path storageDir(boost::filesystem::canonical(input_path) / "Data");
+        boost::filesystem::directory_iterator end;
+        for (boost::filesystem::directory_iterator itr(storageDir); itr != end; ++itr)
+        {
+            if (itr->path().extension() == ".MPQ")
+            {
+                printf("MPQ files found in Data directory!\n");
+                printf("This tool works only with World of Warcraft: Legion\n");
+                printf("\n");
+                printf("To extract maps for Wrath of the Lich King, rebuild tools using 3.3.5 branch!\n");
+                printf("\n");
+                printf("Press ENTER to exit...\n");
+                getchar();
+                return false;
+            }
+        }
+    }
+    catch (std::exception const& error)
+    {
+        printf("Error checking client version: %s\n", error.what());
+    }
+
+    return true;
 }
 
 int main(int argc, char * arg[])
@@ -1367,7 +1394,12 @@ int main(int argc, char * arg[])
 
     HandleArgs(argc, arg);
 
-    int FirstLocale = -1;
+    if (!RetardCheck())
+        return 1;
+
+
+    uint32 installedLocalesMask = GetInstalledLocalesMask();
+    int32 firstInstalledLocale = -1;
     uint32 build = 0;
 
     for (int i = 0; i < TOTAL_LOCALES; ++i)
@@ -1378,13 +1410,16 @@ int main(int argc, char * arg[])
         if (i == LOCALE_none)
             continue;
 
+        if (!(installedLocalesMask & WowLocaleToCascLocaleFlags[i]))
+            continue;
+
         if (!OpenCascStorage(i))
             continue;
 
         if ((CONF_extract & EXTRACT_DBC) == 0)
         {
-            FirstLocale = i;
-            build = ReadBuild(i);
+            firstInstalledLocale = i;
+            build = CASC::GetBuildNumber(CascStorage);
             if (!build)
             {
                 CascStorage.reset();
@@ -1396,7 +1431,7 @@ int main(int argc, char * arg[])
         }
 
         //Extract DBC files
-        uint32 tempBuild = ReadBuild(i);
+        uint32 tempBuild = CASC::GetBuildNumber(CascStorage);
         if (!tempBuild)
         {
             CascStorage.reset();
@@ -1407,14 +1442,14 @@ int main(int argc, char * arg[])
         ExtractDBFilesClient(i);
         CascStorage.reset();
 
-        if (FirstLocale < 0)
+        if (firstInstalledLocale < 0)
         {
-            FirstLocale = i;
+            firstInstalledLocale = i;
             build = tempBuild;
         }
     }
 
-    if (FirstLocale < 0)
+    if (firstInstalledLocale < 0)
     {
         printf("No locales detected\n");
         return 0;
@@ -1422,21 +1457,21 @@ int main(int argc, char * arg[])
 
     if (CONF_extract & EXTRACT_CAMERA)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(firstInstalledLocale);
         ExtractCameraFiles();
         CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_GT)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(firstInstalledLocale);
         ExtractGameTables();
         CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_MAP)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(firstInstalledLocale);
         ExtractMaps(build);
         CascStorage.reset();
     }

@@ -1788,7 +1788,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
-        case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
+        case CONDITION_SOURCE_TYPE_QUEST_AVAILABLE:
             if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry specifies non-existing quest, skipped.", cond->ToString().c_str());

@@ -125,6 +125,7 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
 
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     IsFleeing(false),
+    summons(creature),
     _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
@@ -470,6 +471,15 @@ enum NPCs
     return true;
 }*/
 
+void Scripted_NoMovementAI::AttackStart(Unit* target)
+{
+    if (!target)
+        return;
+
+    if (me->Attack(target, true))
+        DoStartNoMovement(target);
+}
+
 // BossAI - for instanced bosses
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
     instance(creature->GetInstanceScript()),
@@ -598,7 +608,7 @@ void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
         return;
     }
 
-    me->DespawnOrUnsummon(0, Seconds(delayToRespawn));
+    who->DespawnOrUnsummon(0, Seconds(delayToRespawn));
 
     if (instance && who == me)
         instance->SetBossState(_bossId, FAIL);
@@ -665,28 +675,37 @@ void WorldBossAI::UpdateAI(uint32 diff)
     DoMeleeAttackIfReady();
 }
 
-// SD2 grid searchers.
-Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive /*= true*/)
+void GetPositionWithDistInOrientation(Position* pUnit, float dist, float orientation, float& x, float& y)
 {
-    return source->FindNearestCreature(entry, maxSearchRange, alive);
+    x = pUnit->GetPositionX() + (dist * cos(orientation));
+    y = pUnit->GetPositionY() + (dist * sin(orientation));
 }
 
-GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange)
+void GetPositionWithDistInOrientation(Position* fromPos, float dist, float orientation, Position& movePosition)
 {
-    return source->FindNearestGameObject(entry, maxSearchRange);
+    float x = 0.0f;
+    float y = 0.0f;
+
+    GetPositionWithDistInOrientation(fromPos, dist, orientation, x, y);
+
+    movePosition.m_positionX = x;
+    movePosition.m_positionY = y;
 }
 
-void GetCreatureListWithEntryInGrid(std::list<Creature*>& list, WorldObject* source, uint32 entry, float maxSearchRange)
+void GetRandPosFromCenterInDist(float centerX, float centerY, float dist, float& x, float& y)
 {
-    source->GetCreatureListWithEntryInGrid(list, entry, maxSearchRange);
+    float randOrientation = frand(0.0f, 2.0f * (float)M_PI);
+
+    x = centerX + (dist * cos(randOrientation));
+    y = centerY + (dist * sin(randOrientation));
 }
 
-void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject* source, uint32 entry, float maxSearchRange)
+void GetRandPosFromCenterInDist(Position* centerPos, float dist, Position& movePosition)
 {
-    source->GetGameObjectListWithEntryInGrid(list, entry, maxSearchRange);
+    GetPositionWithDistInOrientation(centerPos, dist, frand(0, 2 * float(M_PI)), movePosition);
 }
 
-void GetPlayerListInGrid(std::list<Player*>& list, WorldObject* source, float maxSearchRange)
+void GetPositionWithDistInFront(Position* centerPos, float dist, Position& movePosition)
 {
-    source->GetPlayerListInGrid(list, maxSearchRange);
+    GetPositionWithDistInOrientation(centerPos, dist, centerPos->GetOrientation(), movePosition);
 }

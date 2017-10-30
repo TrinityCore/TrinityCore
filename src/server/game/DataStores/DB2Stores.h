@@ -88,6 +88,7 @@ TC_GAME_API extern DB2Storage<GarrBuildingPlotInstEntry>            sGarrBuildin
 TC_GAME_API extern DB2Storage<GarrClassSpecEntry>                   sGarrClassSpecStore;
 TC_GAME_API extern DB2Storage<GarrFollowerEntry>                    sGarrFollowerStore;
 TC_GAME_API extern DB2Storage<GarrFollowerXAbilityEntry>            sGarrFollowerXAbilityStore;
+TC_GAME_API extern DB2Storage<GarrMissionEntry>                     sGarrMissionStore;
 TC_GAME_API extern DB2Storage<GarrPlotBuildingEntry>                sGarrPlotBuildingStore;
 TC_GAME_API extern DB2Storage<GarrPlotEntry>                        sGarrPlotStore;
 TC_GAME_API extern DB2Storage<GarrPlotInstanceEntry>                sGarrPlotInstanceStore;
@@ -144,6 +145,7 @@ TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
 TC_GAME_API extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
 TC_GAME_API extern DB2Storage<PowerDisplayEntry>                    sPowerDisplayStore;
 TC_GAME_API extern DB2Storage<QuestFactionRewardEntry>              sQuestFactionRewardStore;
+TC_GAME_API extern DB2Storage<QuestV2CliTaskEntry>                  sQuestV2CliTaskStore;
 TC_GAME_API extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
 TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
@@ -193,6 +195,10 @@ TC_GAME_API extern DB2Storage<SummonPropertiesEntry>                sSummonPrope
 TC_GAME_API extern DB2Storage<TalentEntry>                          sTalentStore;
 TC_GAME_API extern DB2Storage<TaxiNodesEntry>                       sTaxiNodesStore;
 TC_GAME_API extern DB2Storage<TaxiPathEntry>                        sTaxiPathStore;
+TC_GAME_API extern DB2Storage<TransmogHolidayEntry>                 sTransmogHolidayStore;
+TC_GAME_API extern DB2Storage<TransmogSetEntry>                     sTransmogSetStore;
+TC_GAME_API extern DB2Storage<TransmogSetGroupEntry>                sTransmogSetGroupStore;
+TC_GAME_API extern DB2Storage<TransmogSetItemEntry>                 sTransmogSetItemStore;
 TC_GAME_API extern DB2Storage<TransportAnimationEntry>              sTransportAnimationStore;
 TC_GAME_API extern DB2Storage<TransportRotationEntry>               sTransportRotationStore;
 TC_GAME_API extern DB2Storage<UnitPowerBarEntry>                    sUnitPowerBarStore;
@@ -223,20 +229,6 @@ TC_GAME_API extern TaxiMask                                         sAllianceTax
 TC_GAME_API extern TaxiPathSetBySource                              sTaxiPathSetBySource;
 TC_GAME_API extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
 
-struct HotfixRecord
-{
-    HotfixRecord(uint32 tableHash, int32 recordId) : TableHash(tableHash), RecordId(recordId) { }
-
-    uint32 TableHash;
-    int32 RecordId;
-};
-
-struct HotfixData
-{
-    int32 Id;
-    std::vector<HotfixRecord> Records;
-};
-
 #define DEFINE_DB2_SET_COMPARATOR(structure) \
     struct structure ## Comparator \
     { \
@@ -260,14 +252,16 @@ public:
     DB2StorageBase const* GetStorage(uint32 type) const;
 
     void LoadHotfixData();
-    std::map<int32, HotfixData> const& GetHotfixData() const;
+    std::map<uint64, int32> const& GetHotfixData() const;
 
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
     std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
     std::unordered_set<uint32> const* GetArtifactPowerLinks(uint32 artifactPowerId) const;
     ArtifactPowerRankEntry const* GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const;
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
-    CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color) const;
+    bool HasCharacterFacialHairStyle(uint8 race, uint8 gender, uint8 variationId) const;
+    bool HasCharSections(uint8 race, uint8 gender, CharBaseSectionVariation variation) const;
+    CharSectionsEntry const* GetCharSectionEntry(uint8 race, uint8 gender, CharBaseSectionVariation variation, uint8 variationIndex, uint8 color) const;
     CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender) const;
     static char const* GetClassName(uint8 class_, LocaleConstant locale = DEFAULT_LOCALE);
     uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId) const;
@@ -318,11 +312,14 @@ public:
     uint32 GetRulesetItemUpgrade(uint32 itemId) const;
     SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
     std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
+    static bool IsValidSpellFamiliyName(SpellFamilyNames family);
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
     std::vector<SpellProcsPerMinuteModEntry const*> GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId) const;
     std::vector<TalentEntry const*> const& GetTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const;
     static bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
     bool IsToyItem(uint32 toy) const;
+    std::vector<TransmogSetEntry const*> const* GetTransmogSetsForItemModifiedAppearance(uint32 itemModifiedAppearanceId) const;
+    std::vector<TransmogSetItemEntry const*> const* GetTransmogSetItems(uint32 transmogSetId) const;
     WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
     uint32 GetVirtualMapForMapAndZone(uint32 mapId, uint32 zoneId) const;
     void Zone2MapCoordinates(uint32 areaId, float& x, float& y) const;

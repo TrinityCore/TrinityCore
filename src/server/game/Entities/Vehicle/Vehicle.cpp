@@ -33,9 +33,10 @@
 #include "Util.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
-UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
+UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE),
+_lastShootPos(), _passengersSpawnedByAI(false), _canBeCastedByPassengers(false)
 {
-    for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
+    for (int8 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
         if (uint32 seatId = _vehicleInfo->SeatID[i])
             if (VehicleSeatEntry const* veSeat = sVehicleSeatStore.LookupEntry(seatId))
@@ -89,6 +90,9 @@ void Vehicle::Install()
 
 void Vehicle::InstallAllAccessories(bool evading)
 {
+    if (ArePassengersSpawnedByAI())
+        return;
+
     if (GetBase()->GetTypeId() == TYPEID_PLAYER || !evading)
         RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
 

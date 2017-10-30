@@ -17,6 +17,7 @@
 
 #include "MiscPackets.h"
 #include "Common.h"
+#include "Player.h"
 
 WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
 {
@@ -105,6 +106,11 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
 void WorldPackets::Misc::ViolenceLevel::Read()
 {
     _worldPacket >> ViolenceLvl;
+}
+
+void WorldPackets::Misc::PlayerSelectFaction::Read()
+{
+    _worldPacket >> SelectedFaction;
 }
 
 WorldPacket const* WorldPackets::Misc::TimeSyncRequest::Write()
@@ -576,15 +582,6 @@ void WorldPackets::Misc::SetPvP::Read()
     EnablePVP = _worldPacket.ReadBit();
 }
 
-void WorldPackets::Misc::WorldTeleport::Read()
-{
-    _worldPacket >> MapID;
-    _worldPacket >> TransportGUID;
-    _worldPacket >> Pos;
-    _worldPacket >> Facing;
-    _worldPacket >> LfgDungeonID;
-}
-
 WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
 {
     _worldPacket.WriteBit(IsFullUpdate);
@@ -670,4 +667,9 @@ void WorldPackets::Misc::MountSetFavorite::Read()
 {
     _worldPacket >> MountSpellID;
     IsFavorite = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Misc::CloseInteraction::Read()
+{
+    _worldPacket >> SourceGuid;
 }

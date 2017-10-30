@@ -554,6 +554,43 @@ struct BroadcastTextLoadInfo
     }
 };
 
+struct CharacterFacialHairStylesLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "Geoset1" },
+            { false, FT_INT, "Geoset2" },
+            { false, FT_INT, "Geoset3" },
+            { false, FT_INT, "Geoset4" },
+            { false, FT_INT, "Geoset5" },
+            { false, FT_BYTE, "RaceID" },
+            { false, FT_BYTE, "SexID" },
+            { false, FT_BYTE, "VariationID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharacterFacialHairStylesMeta::Instance(), HOTFIX_SEL_CHARACTER_FACIAL_HAIR_STYLES);
+        return &loadInfo;
+    }
+};
+
+struct CharBaseSectionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_BYTE, "Variation" },
+            { false, FT_BYTE, "ResolutionVariation" },
+            { false, FT_BYTE, "Resolution" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharBaseSectionMeta::Instance(), HOTFIX_SEL_CHAR_BASE_SECTION);
+        return &loadInfo;
+    }
+};
+
 struct CharSectionsLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -565,11 +602,11 @@ struct CharSectionsLoadInfo
             { false, FT_INT, "TextureFileDataID2" },
             { false, FT_INT, "TextureFileDataID3" },
             { false, FT_SHORT, "Flags" },
-            { false, FT_BYTE, "Race" },
-            { false, FT_BYTE, "Gender" },
-            { false, FT_BYTE, "GenType" },
-            { false, FT_BYTE, "Type" },
-            { false, FT_BYTE, "Color" },
+            { false, FT_BYTE, "RaceID" },
+            { false, FT_BYTE, "SexID" },
+            { false, FT_BYTE, "BaseSection" },
+            { false, FT_BYTE, "VariationIndex" },
+            { false, FT_BYTE, "ColorIndex" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharSectionsMeta::Instance(), HOTFIX_SEL_CHAR_SECTIONS);
         return &loadInfo;
@@ -1039,8 +1076,6 @@ struct CurrencyTypesLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING, "Name" },
-            { false, FT_STRING_NOT_LOCALIZED, "InventoryIcon1" },
-            { false, FT_STRING_NOT_LOCALIZED, "InventoryIcon2" },
             { false, FT_INT, "MaxQty" },
             { false, FT_INT, "MaxEarnablePerWeek" },
             { false, FT_INT, "Flags" },
@@ -1048,6 +1083,7 @@ struct CurrencyTypesLoadInfo
             { false, FT_BYTE, "CategoryID" },
             { false, FT_BYTE, "SpellCategory" },
             { false, FT_BYTE, "Quality" },
+            { false, FT_INT, "InventoryIconFileDataID" },
             { false, FT_INT, "SpellWeight" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CurrencyTypesMeta::Instance(), HOTFIX_SEL_CURRENCY_TYPES);
@@ -1235,12 +1271,12 @@ struct EmotesLoadInfo
             { false, FT_STRING_NOT_LOCALIZED, "EmoteSlashCommand" },
             { false, FT_INT, "SpellVisualKitID" },
             { false, FT_INT, "EmoteFlags" },
+            { true, FT_INT, "RaceMask" },
             { false, FT_SHORT, "AnimID" },
             { false, FT_BYTE, "EmoteSpecProc" },
             { false, FT_INT, "EmoteSpecProcParam" },
             { false, FT_INT, "EmoteSoundID" },
             { true, FT_INT, "ClassMask" },
-            { true, FT_INT, "RaceMask" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, EmotesMeta::Instance(), HOTFIX_SEL_EMOTES);
         return &loadInfo;
@@ -1565,6 +1601,49 @@ struct GarrFollowerXAbilityLoadInfo
     }
 };
 
+struct GarrMissionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "Duration" },
+            { false, FT_INT, "OfferTime" },
+            { false, FT_STRING, "Name" },
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "Location" },
+            { false, FT_FLOAT, "Map1X" },
+            { false, FT_FLOAT, "Map1Y" },
+            { false, FT_FLOAT, "Map2X" },
+            { false, FT_FLOAT, "Map2Y" },
+            { false, FT_SHORT, "RequiredItemLevel" },
+            { false, FT_SHORT, "LocPrefixID" },
+            { false, FT_SHORT, "CurrencyID" },
+            { false, FT_BYTE, "RequiredLevel" },
+            { false, FT_BYTE, "GarrMechanicTypeRecID" },
+            { false, FT_BYTE, "RequiredFollowersCount" },
+            { false, FT_BYTE, "Category" },
+            { false, FT_BYTE, "MissionType" },
+            { false, FT_BYTE, "FollowerType" },
+            { false, FT_BYTE, "BaseBonusChance" },
+            { false, FT_BYTE, "LostChance" },
+            { false, FT_BYTE, "unk1" },
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TravelTime" },
+            { false, FT_INT, "SubCategory2" },
+            { false, FT_INT, "SubCategory1" },
+            { false, FT_INT, "CurrencyCost" },
+            { false, FT_INT, "Flags" },
+            { false, FT_INT, "RewardFollowerExperience" },
+            { false, FT_INT, "unk2" },
+            { false, FT_INT, "unk3" },
+            { false, FT_INT, "unk4" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrMissionMeta::Instance(), HOTFIX_SEL_GARR_MISSION);
+        return &loadInfo;
+    }
+};
+
 struct GarrPlotLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -1795,8 +1874,10 @@ struct HeirloomLoadInfo
             { false, FT_INT, "NextDifficultyItemID" },
             { false, FT_INT, "UpgradeItemID1" },
             { false, FT_INT, "UpgradeItemID2" },
+            { false, FT_INT, "UpgradeItemID3" },
             { false, FT_SHORT, "ItemBonusListID1" },
             { false, FT_SHORT, "ItemBonusListID2" },
+            { false, FT_SHORT, "ItemBonusListID3" },
             { false, FT_BYTE, "Flags" },
             { false, FT_BYTE, "Source" },
             { false, FT_INT, "ID" },
@@ -1829,7 +1910,6 @@ struct HolidaysLoadInfo
             { false, FT_INT, "Date14" },
             { false, FT_INT, "Date15" },
             { false, FT_INT, "Date16" },
-            { false, FT_STRING_NOT_LOCALIZED, "TextureFilename" },
             { false, FT_SHORT, "Duration1" },
             { false, FT_SHORT, "Duration2" },
             { false, FT_SHORT, "Duration3" },
@@ -1857,6 +1937,9 @@ struct HolidaysLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_INT, "HolidayNameID" },
             { false, FT_INT, "HolidayDescriptionID" },
+            { true, FT_INT, "TextureFileDataID1" },
+            { true, FT_INT, "TextureFileDataID2" },
+            { true, FT_INT, "TextureFileDataID3" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, HolidaysMeta::Instance(), HOTFIX_SEL_HOLIDAYS);
         return &loadInfo;
@@ -2316,6 +2399,20 @@ struct ItemExtendedCostLoadInfo
     }
 };
 
+struct ItemLevelSelectorLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "ItemLevel" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemLevelSelectorMeta::Instance(), HOTFIX_SEL_ITEM_LEVEL_SELECTOR);
+        return &loadInfo;
+    }
+};
+
 struct ItemLimitCategoryLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -2723,9 +2820,9 @@ struct LfgDungeonsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
+            { false, FT_INT, "ID" },
             { false, FT_STRING, "Name" },
             { false, FT_INT, "Flags" },
-            { false, FT_STRING_NOT_LOCALIZED, "TextureFilename" },
             { false, FT_STRING, "Description" },
             { false, FT_FLOAT, "MinItemLevel" },
             { false, FT_SHORT, "MaxLevel" },
@@ -2754,7 +2851,9 @@ struct LfgDungeonsLoadInfo
             { false, FT_BYTE, "MinCountDamage" },
             { false, FT_BYTE, "SubType" },
             { false, FT_BYTE, "MentorCharLevel" },
-            { false, FT_INT, "ID" },
+            { true, FT_INT, "TextureFileDataID" },
+            { true, FT_INT, "RewardIconFileDataID" },
+            { true, FT_INT, "ProposalTextureFileDataID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, LfgDungeonsMeta::Instance(), HOTFIX_SEL_LFG_DUNGEONS);
         return &loadInfo;
@@ -2959,6 +3058,7 @@ struct MapDifficultyLoadInfo
             { false, FT_BYTE, "RaidDurationType" },
             { false, FT_BYTE, "MaxPlayers" },
             { false, FT_BYTE, "LockID" },
+            { false, FT_BYTE, "Flags" },
             { false, FT_BYTE, "ItemBonusTreeModID" },
             { false, FT_INT, "Context" },
         };
@@ -3464,6 +3564,44 @@ struct QuestFactionRewardLoadInfo
             { true, FT_SHORT, "QuestRewFactionValue10" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestFactionRewardMeta::Instance(), HOTFIX_SEL_QUEST_FACTION_REWARD);
+        return &loadInfo;
+    }
+};
+
+struct QuestV2CliTaskLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        // issihhhhhhbbbbbbbbbbiii
+        static DB2FieldMeta const fields[] =
+        {
+            { true,  FT_INT,    "Unk1"          },
+            { false, FT_STRING_NOT_LOCALIZED, "Name"        },
+            { false, FT_STRING_NOT_LOCALIZED, "Description" },
+            { true,  FT_INT,    "Unk2"          },
+            { false, FT_SHORT,  "Unk3"          },
+            { false, FT_SHORT,  "Unk4"          },
+            { false, FT_SHORT,  "Unk5"          },
+            { false, FT_SHORT,  "QuestID0"      },
+            { false, FT_SHORT,  "QuestID1"      },
+            { false, FT_SHORT,  "QuestID2"      },
+            { false, FT_SHORT,  "Unk7"          },
+            { false, FT_SHORT,  "Unk8"          },
+            { false, FT_BYTE,   "Unk9"          },
+            { false, FT_BYTE,   "Unk10"         },
+            { false, FT_BYTE,   "Unk11"         },
+            { false, FT_BYTE,   "Unk12"         },
+            { false, FT_BYTE,   "Unk13"         },
+            { false, FT_BYTE,   "Unk14"         },
+            { false, FT_BYTE,   "Unk15"         },
+            { false, FT_BYTE,   "Unk16"         },
+            { false, FT_BYTE,   "RequiredLevel" },
+            { false, FT_BYTE,   "Unk18"         },
+            { false, FT_INT,    "ID"            },
+            { false, FT_INT,    "Unk19"         },
+            { false, FT_INT,    "QuestInfoID"   },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestV2CliTaskMeta::Instance(), HOTFIX_SEL_QUEST_V2_CLI_TASK);
         return &loadInfo;
     }
 };
@@ -4304,7 +4442,7 @@ struct SpellPowerLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "SpellID" },
-            { false, FT_INT, "ManaCost" },
+            { true, FT_INT, "ManaCost" },
             { false, FT_FLOAT, "ManaCostPercentage" },
             { false, FT_FLOAT, "ManaCostPercentagePerSecond" },
             { false, FT_INT, "RequiredAura" },
@@ -4314,7 +4452,7 @@ struct SpellPowerLoadInfo
             { false, FT_INT, "ID" },
             { true, FT_INT, "ManaCostPerLevel" },
             { true, FT_INT, "ManaCostPerSecond" },
-            { false, FT_INT, "ManaCostAdditional" },
+            { true, FT_INT, "ManaCostAdditional" },
             { false, FT_INT, "PowerDisplayID" },
             { false, FT_INT, "UnitPowerBarID" },
         };
@@ -4734,6 +4872,72 @@ struct ToyLoadInfo
             { false, FT_INT, "ID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ToyMeta::Instance(), HOTFIX_SEL_TOY);
+        return &loadInfo;
+    }
+};
+
+struct TransmogHolidayLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "HolidayID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogHolidayMeta::Instance(), HOTFIX_SEL_TRANSMOG_HOLIDAY);
+        return &loadInfo;
+    }
+};
+
+struct TransmogSetLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_STRING, "Name" },
+            { false, FT_SHORT, "BaseSetID" },
+            { false, FT_SHORT, "UIOrder" },
+            { false, FT_BYTE, "ExpansionID" },
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "Flags" },
+            { true, FT_INT, "QuestID" },
+            { true, FT_INT, "ClassMask" },
+            { true, FT_INT, "ItemNameDescriptionID" },
+            { false, FT_INT, "TransmogSetGroupID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogSetMeta::Instance(), HOTFIX_SEL_TRANSMOG_SET);
+        return &loadInfo;
+    }
+};
+
+struct TransmogSetGroupLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_STRING, "Label" },
+            { false, FT_INT, "ID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogSetGroupMeta::Instance(), HOTFIX_SEL_TRANSMOG_SET_GROUP);
+        return &loadInfo;
+    }
+};
+
+struct TransmogSetItemLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TransmogSetID" },
+            { false, FT_INT, "ItemModifiedAppearanceID" },
+            { true, FT_INT, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogSetItemMeta::Instance(), HOTFIX_SEL_TRANSMOG_SET_ITEM);
         return &loadInfo;
     }
 };

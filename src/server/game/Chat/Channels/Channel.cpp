@@ -992,8 +992,22 @@ void Channel::SetMute(ObjectGuid const& guid, bool set)
     }
 }
 
+void Channel::SendToAllInChannel(std::string senderName, std::string message)
+{
+    auto builder = [&](LocaleConstant /*locale*/)
+    {
+        WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
+        packet->Initialize(CHAT_MSG_CHANNEL, LANG_UNIVERSAL, nullptr, nullptr, message, 0, GetName());
+        packet->SenderName = senderName;
+
+        return packet;
+    };
+
+    SendToAll(builder);
+}
+
 template <class Builder>
-void Channel::SendToAll(Builder& builder, ObjectGuid const& guid) const
+void Channel::SendToAll(Builder& builder, ObjectGuid const& guid /*= ObjectGuid::Empty*/) const
 {
     Trinity::LocalizedPacketDo<Builder> localizer(builder);
 

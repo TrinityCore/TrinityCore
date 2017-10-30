@@ -84,10 +84,6 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         return false;
 
-    // Don't show bind-when-picked-up unique items if player already has the maximum allowed quantity.
-    if (pProto->GetBonding() == BIND_ON_ACQUIRE && pProto->GetMaxCount() && player->GetItemCount(itemid, true) >= pProto->GetMaxCount())
-        return false;
-
     return true;
 }
 
@@ -343,7 +339,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
         QuestItemMap::const_iterator itr = PlayerQuestItems.find(player->GetGUID());
         if (itr != PlayerQuestItems.end() && questSlot < itr->second->size())
         {
-            QuestItem* qitem2 = &itr->second->at(questSlot);
+            QuestItem* qitem2 = &(*itr->second)[questSlot];
             if (qitem)
                 *qitem = qitem2;
             item = &quest_items[qitem2->index];
@@ -562,14 +558,15 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
     QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(viewer->GetGUID());
     if (q_itr != lootPlayerQuestItems.end())
     {
-        QuestItemList* q_list = q_itr->second;
-        for (QuestItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
+        QuestItemList const& q_list = *q_itr->second;
+        for (std::size_t i = 0; i < q_list.size(); ++i)
         {
-            LootItem const& item = quest_items[qi->index];
-            if (!qi->is_looted && !item.is_looted)
+            QuestItem const& qi = q_list[i];
+            LootItem const& item = quest_items[qi.index];
+            if (!qi.is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = items.size() + qi->index + 1;
+                lootItem.LootListID = items.size() + i + 1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
 
@@ -613,7 +610,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!fi->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = items.size() + fi->index + 1;
+                lootItem.LootListID = fi->index + 1;
                 lootItem.UIType = slotType;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
@@ -633,7 +630,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!ci->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = items.size() + ci->index + 1;
+                lootItem.LootListID = ci->index + 1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
 

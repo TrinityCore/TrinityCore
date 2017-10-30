@@ -130,6 +130,28 @@ enum LootSlotType
     LOOT_SLOT_TYPE_OWNER        = 4                         // ignore binding confirmation and etc, for single player looting
 };
 
+enum ToastType
+{
+    TOAST_ITEM           = 0,
+    TOAST_CURRENCY       = 1,
+    TOAST_GOLD           = 2,
+};
+
+enum ToastDisplayMethod
+{
+    TOAST_METHOD_NONE                   = 0,
+    TOAST_METHOD_POPUP                  = 1,
+    TOAST_METHOD_NOTIFICATION           = 2,
+    TOAST_METHOD_POPUP_2                = 3,
+    TOAST_METHOD_ROLL_UPGRADE           = 5,
+    TOAST_METHOD_ROLL_UPGRADE_2         = 6,
+    TOAST_METHOD_PVP_FACTION            = 9,
+    TOAST_METHOD_GARRISON_CACHE         = 10,
+    TOAST_METHOD_UPGRADE                = 12,
+    TOAST_METHOD_LEGENDARY              = 13,
+    TOAST_METHOD_WORLD_QUEST_REWARD     = 16,
+};
+
 struct TC_GAME_API LootItem
 {
     uint32  itemid;
@@ -199,12 +221,9 @@ public:
     typedef LinkedListHead::Iterator<LootValidatorRef> iterator;
 
     LootValidatorRef* getFirst() { return (LootValidatorRef*)RefManager<Loot, LootValidatorRef>::getFirst(); }
-    LootValidatorRef* getLast() { return (LootValidatorRef*)RefManager<Loot, LootValidatorRef>::getLast(); }
 
     iterator begin() { return iterator(getFirst()); }
-    iterator end() { return iterator(NULL); }
-    iterator rbegin() { return iterator(getLast()); }
-    iterator rend() { return iterator(NULL); }
+    iterator end() { return iterator(nullptr); }
 };
 
 //=====================================================

@@ -693,7 +693,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         /// @todo Rename these properly
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
-        bool isCanTrainingAndResetTalentsOf(Player* player) const;
+        bool CanResetTalents(Player* player) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
         bool IsImmunedToSpell(SpellInfo const* spellInfo) const override;                     // override Unit::IsImmunedToSpell
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const override; // override Unit::IsImmunedToSpellEffect
@@ -702,7 +702,17 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool IsDungeonBoss() const;
 
-        uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
+        bool HasScalableLevels() const;
+        uint8 GetLevelForTarget(WorldObject const* target) const override;
+
+        uint64 GetMaxHealthByLevel(uint8 level) const;
+        float GetHealthMultiplierForTarget(WorldObject const* target) const override;
+
+        float GetBaseDamageForLevel(uint8 level) const;
+        float GetDamageMultiplierForTarget(WorldObject const* target) const override;
+
+        float GetBaseArmorForLevel(uint8 level) const;
+        float GetArmorMultiplierForTarget(WorldObject const* target) const override;
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
@@ -741,8 +751,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         VendorItemData const* GetVendorItems() const;
         uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
         uint32 UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 used_count);
-
-        TrainerSpellData const* GetTrainerSpells() const;
 
         CreatureTemplate const* GetCreatureTemplate() const { return m_creatureInfo; }
         CreatureData const* GetCreatureData() const { return m_creatureData; }
@@ -886,9 +894,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
         bool IsReputationGainDisabled() const { return DisableReputationGain; }
         bool IsDamageEnoughForLootingAndReward() const { return (m_creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ) || (m_PlayerDamageReq == 0); }
-        void LowerPlayerDamageReq(uint32 unDamage);
+        void LowerPlayerDamageReq(uint64 unDamage);
         void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }
-        uint32 m_PlayerDamageReq;
+        uint64 m_PlayerDamageReq;
 
         uint32 GetOriginalEntry() const { return m_originalEntry; }
         void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
@@ -902,6 +910,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid const& guid) override;
         void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Creature for forced (client displayed) target reacquisition in the next ::Update call
+        void DoNotReacquireTarget() { m_shouldReacquireTarget = false; m_suppressedTarget = ObjectGuid::Empty; m_suppressedOrientation = 0.0f; }
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
         void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
@@ -911,6 +920,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void ClearTextRepeatGroup(uint8 textGroup);
 
         bool CanGiveExperience() const;
+
+        void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
+
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
@@ -969,7 +981,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
     private:
-        void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
         bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
 
         //WaypointMovementGenerator vars

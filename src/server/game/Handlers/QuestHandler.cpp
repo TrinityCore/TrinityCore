@@ -36,6 +36,7 @@
 #include "UnitAI.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "WorldQuestMgr.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
 {
@@ -425,11 +426,6 @@ void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPackets::Quest::Ques
         _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
 }
 
-void WorldSession::HandleQuestgiverCancel(WorldPacket& /*recvData*/)
-{
-    _player->PlayerTalkClass->SendCloseGossip();
-}
-
 void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemoveQuest& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = %u", packet.Entry);
@@ -441,21 +437,22 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
             if (!_player->TakeQuestSourceItem(questId, true))
                 return;                                     // can't un-equip some items, reject quest cancel
 
-            if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
-            {
-                if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
-                    _player->RemoveTimedQuest(questId);
+            Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+            if (!quest)
+                return;
 
-                if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-                {
-                    _player->pvpInfo.IsHostile = _player->pvpInfo.IsInHostileArea || _player->HasPvPForcingQuest();
-                    _player->UpdatePvPState();
-                }
+            if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
+                _player->RemoveTimedQuest(questId);
+
+            if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+            {
+                _player->pvpInfo.IsHostile = _player->pvpInfo.IsInHostileArea || _player->HasPvPForcingQuest();
+                _player->UpdatePvPState();
             }
 
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player
             _player->AbandonQuest(questId); // remove all quest items player received before abandoning quest. Note, this does not remove normal drop items that happen to be quest requirements.
-            _player->RemoveActiveQuest(questId);
+            _player->RemoveActiveQuest(quest);
             _player->RemoveCriteriaTimer(CRITERIA_TIMED_TYPE_QUEST, questId);
 
             TC_LOG_INFO("network", "%s abandoned quest %u", _player->GetGUID().ToString().c_str(), questId);
@@ -536,7 +533,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiver
     if (!object)
         return;
 
-    if (autoCompleteMode == 0)
+    if (!autoCompleteMode)
     {
         if (!object->hasInvolvedQuest(packet.QuestID))
             return;
@@ -576,10 +573,6 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiver
         else                                            // no items required
             _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
     }
-}
-
-void WorldSession::HandleQuestgiverQuestAutoLaunch(WorldPacket& /*recvPacket*/)
-{
 }
 
 void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet)
@@ -668,10 +661,22 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
 
 void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& /*packet*/)
 {
+    if (!GetPlayer())
+        return;
+
     WorldPackets::Quest::WorldQuestUpdate response;
+    sWorldQuestMgr->BuildPacket(response);
+    SendPacket(response.Write());
+}
 
-    /// @todo: 7.x Has to be implemented
-    //response.WorldQuestUpdates.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(lastUpdate, questID, timer, variableID, value));
-
+void WorldSession::HandleQueryQuestRewards(WorldPackets::Quest::QueryQuestReward& packet)
+{
+    WorldPackets::Quest::QueryQuestRewardResponse response;
+    response.QuestID = packet.QuestID;
+    response.Unk1 = packet.Unk;
+    /* WorldPackets::Quest::QueryQuestRewardResponse::ItemReward item;
+    item.Item.ItemID = packet.ItemID;
+    item.Quantity = packet.Quantity;
+    response.ItemRewards.push_back(item); */
     SendPacket(response.Write());
 }

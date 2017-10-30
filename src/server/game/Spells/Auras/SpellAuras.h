@@ -115,14 +115,16 @@ struct AuraLoadEffectInfo
 
 class TC_GAME_API Aura
 {
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer, int32 castItemLevel);
     public:
+        Ashamane::VariablesSafe Variables;
+
         typedef std::map<ObjectGuid, AuraApplication*> ApplicationMap;
 
-        static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibleEffectMask, WorldObject* owner);
-        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount = NULL, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = NULL, int32 castItemLevel = -1);
-        static Aura* TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, int32 castItemLevel = -1);
-        static Aura* Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+        static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availableEffectMask, WorldObject* owner);
+        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = nullptr, bool resetPeriodicTimer = true, int32 castItemLevel = -1);
+        static Aura* TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, int32 castItemLevel = -1);
+        static Aura* Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
         Aura(SpellInfo const* spellproto, ObjectGuid castId, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
         void _InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
         virtual ~Aura();
@@ -147,7 +149,7 @@ class TC_GAME_API Aura
         void _Remove(AuraRemoveMode removeMode);
         virtual void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) = 0;
 
-        virtual void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) = 0;
+        virtual void FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* caster) = 0;
         void UpdateTargetMap(Unit* caster, bool apply = true);
 
         void _RegisterForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, false);}
@@ -165,7 +167,7 @@ class TC_GAME_API Aura
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
         void RefreshDuration(bool withMods = false);
-        void RefreshTimers();
+        void RefreshTimers(bool resetPeriodicTimer);
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
 
@@ -180,7 +182,7 @@ class TC_GAME_API Aura
 
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
-        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
 
         void RefreshSpellMods();
 
@@ -242,18 +244,14 @@ class TC_GAME_API Aura
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;
 
-        // Proc system
-        // this subsystem is not yet in use - the core of it is functional, but still some research has to be done
-        // and some dependant problems fixed before it can replace old proc system (for example cooldown handling)
-        // currently proc system functionality is implemented in Unit::ProcDamageAndSpell
         bool IsProcOnCooldown(std::chrono::steady_clock::time_point now) const;
         void AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd);
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
         void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now);
-        bool IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
+        uint32 IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
-        void TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo);
         float CalcPPMProcChance(Unit* actor) const;
         void SetLastProcAttemptTime(std::chrono::steady_clock::time_point lastProcAttemptTime) { m_lastProcAttemptTime = lastProcAttemptTime; }
         void SetLastProcSuccessTime(std::chrono::steady_clock::time_point lastProcSuccessTime) { m_lastProcSuccessTime = lastProcSuccessTime; }
@@ -269,6 +267,7 @@ class TC_GAME_API Aura
         void CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp);
         void CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff);
+        void CallScriptAuraUpdateHandlers(uint32 diff);
         void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated);
         void CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool & isPeriodic, int32 & amplitude);
         void CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier* & spellMod);
@@ -279,13 +278,18 @@ class TC_GAME_API Aura
         void CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & splitAmount);
         // Spell Proc Hooks
         bool CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+        bool CallScriptCheckEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         void CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         void CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
 
-        AuraScript* GetScriptByName(std::string const& scriptName) const;
+        template<class Script>
+        Script* GetScript(std::string const& scriptName) const
+        {
+            return dynamic_cast<Script*>(GetScriptByName(scriptName));
+        }
 
         std::vector<AuraScript*> m_loadedScripts;
 
@@ -294,6 +298,7 @@ class TC_GAME_API Aura
         SpellEffectInfoVector GetSpellEffectInfos() const { return _spelEffectInfos; }
         SpellEffectInfo const* GetSpellEffectInfo(uint32 index) const;
 
+        AuraScript* GetScriptByName(std::string const& scriptName) const;
     private:
         void _DeleteRemovedApplications();
 
@@ -347,14 +352,14 @@ class TC_GAME_API UnitAura : public Aura
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) override;
+        void FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* caster) override;
 
         // Allow Apply Aura Handler to modify and access m_AuraDRGroup
         void SetDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
         DiminishingGroup GetDiminishGroup() const { return m_AuraDRGroup; }
 
     private:
-        DiminishingGroup m_AuraDRGroup:8;               // Diminishing
+        DiminishingGroup m_AuraDRGroup;                 // Diminishing
 };
 
 class TC_GAME_API DynObjAura : public Aura
@@ -365,7 +370,7 @@ class TC_GAME_API DynObjAura : public Aura
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) override;
+        void FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* caster) override;
 };
 
 class TC_GAME_API ChargeDropEvent : public BasicEvent

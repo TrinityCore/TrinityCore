@@ -179,7 +179,12 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
     if (!groupAI)
         return;
 
-    if (groupAI == 1 && member != m_leader)
+    if (member == m_leader)
+    {
+        if (!(groupAI & FLAG_MEMBERS_ASSIST_LEADER))
+            return;
+    }
+    else if (!(groupAI & FLAG_LEADER_ASSISTS_MEMBER))
         return;
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
@@ -199,7 +204,7 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
         if (other->GetVictim())
             continue;
 
-        if (other->IsValidAttackTarget(target))
+        if (((other != m_leader && (groupAI & FLAG_MEMBERS_ASSIST_LEADER)) || (other == m_leader && (groupAI & FLAG_LEADER_ASSISTS_MEMBER))) && other->IsValidAttackTarget(target))
             other->AI()->AttackStart(target);
     }
 }
@@ -232,7 +237,7 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         Creature* member = itr->first;
-        if (member == m_leader || !member->IsAlive() || member->GetVictim())
+        if (member == m_leader || !member->IsAlive() || member->GetVictim() || !(itr->second->groupAI & FLAG_IDLE_IN_FORMATION))
             continue;
 
         if (itr->second->point_1)

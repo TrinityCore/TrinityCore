@@ -545,7 +545,7 @@ public:
     {
         // GM Level
         AccountTypes gmLevel = handler->GetSession()->GetSecurity();
-        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmLevel));
+        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, int32(gmLevel));
 
         // Security level required
         bool hasRBAC = (handler->HasPermission(rbac::RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE) ? true : false);
@@ -629,8 +629,8 @@ public:
             handler->HasLowerSecurityAccount(NULL, accountId, true))
             return false;
 
-        int expansion = atoi(exp); //get int anyway (0 if error)
-        if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
+        uint8 expansion = static_cast<uint8>(atoul(exp));
+        if (expansion > sWorld->getIntConfig(CONFIG_EXPANSION))
             return false;
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);

@@ -133,7 +133,7 @@ namespace WorldPackets
             int32 MoneyCost     = 0;
             int32 ReqSkillLine  = 0;
             int32 ReqSkillRank  = 0;
-            std::array<int32, 3> ReqAbility;
+            std::array<int32, 3> ReqAbility = { };
             uint8 Usable        = 0;
             uint8 ReqLevel      = 0;
         };
@@ -145,11 +145,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::string Greeting;
-            int32 TrainerType   = 0;
             ObjectGuid TrainerGUID;
+            int32 TrainerType   = 0;
             int32 TrainerID     = 1;
             std::vector<TrainerListSpell> Spells;
+            std::string Greeting;
         };
 
         class ShowBank final : public ServerPacket

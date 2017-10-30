@@ -90,7 +90,7 @@ namespace WorldPackets
         struct ThreatInfo
         {
             ObjectGuid UnitGUID;
-            int32 Threat = 0;
+            int64 Threat = 0;
         };
 
         class ThreatUpdate final : public ServerPacket

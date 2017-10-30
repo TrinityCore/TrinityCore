@@ -87,6 +87,7 @@
 #include "WardenCheckMgr.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
+#include "WorldQuestMgr.h"
 #include "WorldSession.h"
 #include "WorldSocket.h"
 
@@ -457,7 +458,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_defaultDbcLocale = LocaleConstant(sConfigMgr->GetIntDefault("DBC.Locale", 0));
 
-    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale < LOCALE_enUS || m_defaultDbcLocale == LOCALE_none)
+    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale == LOCALE_none)
     {
         TC_LOG_ERROR("server.loading", "Incorrect DBC.Locale! Must be >= 0 and < %d and not %d (set to 0)", TOTAL_LOCALES, LOCALE_none);
         m_defaultDbcLocale = LOCALE_enUS;
@@ -745,7 +746,6 @@ void World::LoadConfigSettings(bool reload)
     m_float_configs[CONFIG_GROUP_XP_DISTANCE] = sConfigMgr->GetFloatDefault("MaxGroupXPDistance", 74.0f);
     m_float_configs[CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE] = sConfigMgr->GetFloatDefault("MaxRecruitAFriendBonusDistance", 100.0f);
 
-    /// @todo Add MonsterSight (with meaning) in worldserver.conf or put them as define
     m_float_configs[CONFIG_SIGHT_MONSTER] = sConfigMgr->GetFloatDefault("MonsterSight", 50.0f);
 
     if (reload)
@@ -906,7 +906,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_START_PLAYER_MONEY] = sConfigMgr->GetIntDefault("StartPlayerMoney", 0);
     if (int32(m_int_configs[CONFIG_START_PLAYER_MONEY]) < 0)
     {
-        TC_LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0.." UI64FMTD ". Set to %u.", m_int_configs[CONFIG_START_PLAYER_MONEY], uint64(MAX_MONEY_AMOUNT), 0);
+        TC_LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0.." UI64FMTD ". Set to %u.", m_int_configs[CONFIG_START_PLAYER_MONEY], MAX_MONEY_AMOUNT, 0);
         m_int_configs[CONFIG_START_PLAYER_MONEY] = 0;
     }
     else if (m_int_configs[CONFIG_START_PLAYER_MONEY] > 0x7FFFFFFF-1) // TODO: (See MAX_MONEY_AMOUNT)
@@ -1604,6 +1604,12 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellInfo custom attributes...");
     sSpellMgr->LoadSpellInfoCustomAttributes();
 
+    TC_LOG_INFO("server.loading", "Loading SpellInfo SpellSpecific and AuraState...");
+    sSpellMgr->LoadSpellInfoSpellSpecificAndAuraState();
+
+    TC_LOG_INFO("server.loading", "Loading SpellInfo diminishing infos...");
+    sSpellMgr->LoadSpellInfoDiminishing();
+
     TC_LOG_INFO("server.loading", "Loading PetFamilySpellsStore Data...");
     sSpellMgr->LoadPetFamilySpellsStore();
 
@@ -1668,9 +1674,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Spell Learn Spells...");
     sSpellMgr->LoadSpellLearnSpells();
 
-    TC_LOG_INFO("server.loading", "Loading Spell Proc Event conditions...");
-    sSpellMgr->LoadSpellProcEvents();
-
     TC_LOG_INFO("server.loading", "Loading Spell Proc conditions and data...");
     sSpellMgr->LoadSpellProcs();
 
@@ -1712,6 +1715,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
+
+    TC_LOG_INFO("server.loading", "Loading Creature template scaling...");
+    sObjectMgr->LoadCreatureScalingData();
 
     TC_LOG_INFO("server.loading", "Loading Script Params...");
     sObjectMgr->LoadScriptParams();
@@ -1848,6 +1854,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
     sAreaTriggerDataStore->LoadAreaTriggerTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading AreaTriggers...");
+    sAreaTriggerDataStore->LoadAreaTriggers();
+
     TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
     sConversationDataStore->LoadConversationTemplates();
 
@@ -1940,17 +1949,20 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
 
+    TC_LOG_INFO("server.loading", "Loading Trainers...");
+    sObjectMgr->LoadTrainers();                                 // must be after load CreatureTemplate
+
+    TC_LOG_INFO("server.loading", "Loading Creature default trainers...");
+    sObjectMgr->LoadCreatureDefaultTrainers();
+
     TC_LOG_INFO("server.loading", "Loading Gossip menu...");
     sObjectMgr->LoadGossipMenu();
 
     TC_LOG_INFO("server.loading", "Loading Gossip menu options...");
-    sObjectMgr->LoadGossipMenuItems();
+    sObjectMgr->LoadGossipMenuItems();                          // must be after LoadTrainers
 
     TC_LOG_INFO("server.loading", "Loading Vendors...");
-    sObjectMgr->LoadVendors();                                   // must be after load CreatureTemplate and ItemTemplate
-
-    TC_LOG_INFO("server.loading", "Loading Trainers...");
-    sObjectMgr->LoadTrainerSpell();                              // must be after load CreatureTemplate
+    sObjectMgr->LoadVendors();                                  // must be after load CreatureTemplate and ItemTemplate
 
     TC_LOG_INFO("server.loading", "Loading Waypoints...");
     sWaypointMgr->Load();
@@ -2049,6 +2061,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
+    TC_LOG_INFO("server.loading", "Loading Quest task...");
+    sObjectMgr->LoadQuestTasks();
+
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -2057,7 +2072,6 @@ void World::SetInitialWorldSettings()
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
                             realm.Id.Realm, uint32(m_startTime), GitRevision::GetFullVersion());       // One-time query
 
-    m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS_PENDING].SetInterval(250);
     m_timers[WUPDATE_UPTIME].SetInterval(m_int_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
@@ -2077,6 +2091,8 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_GUILDSAVE].SetInterval(getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
     m_timers[WUPDATE_BLACKMARKET].SetInterval(10 * IN_MILLISECONDS);
+
+    m_timers[WUPDATE_WORLD_QUEST].SetInterval(0);
 
     blackmarket_timer = 0;
 
@@ -2184,6 +2200,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading scenario poi data");
     sScenarioMgr->LoadScenarioPOI();
+
+    TC_LOG_INFO("server.loading", "Loading world quests status...");
+    sWorldQuestMgr->LoadQuestsStatus();
 
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
@@ -2370,17 +2389,18 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
     }
 
+    if (m_timers[WUPDATE_WORLD_QUEST].Passed())
+    {
+        uint32 interval = MINUTE * IN_MILLISECONDS;
+        sWorldQuestMgr->Update(interval);
+        m_timers[WUPDATE_WORLD_QUEST].SetInterval(interval);
+        m_timers[WUPDATE_WORLD_QUEST].Reset();
+    }
+
     /// <li> Handle session updates when the timer has passed
     ResetTimeDiffRecord();
     UpdateSessions(diff);
     RecordTimeDiff("UpdateSessions");
-
-    /// <li> Handle weather updates when the timer has passed
-    if (m_timers[WUPDATE_WEATHERS].Passed())
-    {
-        m_timers[WUPDATE_WEATHERS].Reset();
-        WeatherMgr::Update(uint32(m_timers[WUPDATE_WEATHERS].GetInterval()));
-    }
 
     /// <li> Update uptime table
     if (m_timers[WUPDATE_UPTIME].Passed())

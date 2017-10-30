@@ -51,6 +51,7 @@ class Object;
 class Player;
 class TempSummon;
 class Unit;
+class Weather;
 class WorldObject;
 class WorldPacket;
 struct MapDifficultyEntry;
@@ -231,6 +232,7 @@ struct ZoneDynamicInfo
     ZoneDynamicInfo();
 
     uint32 MusicId;
+    std::unique_ptr<Weather> DefaultWeather;
     WeatherState WeatherId;
     float WeatherGrade;
     uint32 OverrideLightId;
@@ -255,6 +257,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
     public:
+        Ashamane::VariablesSafe Variables;
+
         Map(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent = NULL);
         virtual ~Map();
 
@@ -439,7 +443,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void UpdateIteratorBack(Player* player);
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = NULL, uint32 duration = 0, Unit* summoner = NULL, uint32 spellId = 0, uint32 vehId = 0);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = NULL, uint32 duration = 0, Unit* summoner = NULL, uint32 spellId = 0, uint32 vehId = 0, bool visibleBySummonerOnly = false);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
         AreaTrigger* GetAreaTrigger(ObjectGuid const& guid);
         Conversation* GetConversation(ObjectGuid const& guid);
@@ -536,9 +540,12 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
         void SendUpdateTransportVisibility(Player* player, std::set<uint32> const& previousPhases);
-        void SendZoneDynamicInfo(Player* player);
+        void SendZoneDynamicInfo(uint32 zoneId, Player* player) const;
+        void SendZoneWeather(uint32 zoneId, Player* player) const;
+        void SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player) const;
 
         void SetZoneMusic(uint32 zoneId, uint32 musicId);
+        Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
         void SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade);
         void SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime);
 
@@ -715,6 +722,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t> _goRespawnTimes;
 
         ZoneDynamicInfoMap _zoneDynamicInfo;
+        IntervalTimer _weatherUpdateTimer;
         uint32 _defaultLight;
 
         template<HighGuid high>
