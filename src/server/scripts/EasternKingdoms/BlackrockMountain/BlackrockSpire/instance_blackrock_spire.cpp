@@ -23,10 +23,13 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 //uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
 
 uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
+
+const Position finkleSpawnPosition = { 58.259682f, -535.346008f, 110.935753f, 3.247705f };
 
 enum EventIds
 {
@@ -51,6 +54,8 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+
+            finkleSpawned = false;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -283,6 +288,11 @@ public:
                         if (GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE)
                             Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1000);
                     }
+                    break;
+                case DATA_SPAWN_FINKLE_EINHORN:
+                    if (TempSummon* finkle = instance->SummonCreature(NPC_FINKLE_EINHORN, finkleSpawnPosition))
+                        finkle->AI()->Talk(SAY_FINKLE_GANG);
+                    break;
                 default:
                     break;
             }
@@ -510,6 +520,8 @@ public:
             ObjectGuid runecreaturelist[7][5];
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
+
+            bool finkleSpawned;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
