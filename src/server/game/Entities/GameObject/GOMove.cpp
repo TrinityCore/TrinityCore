@@ -146,7 +146,7 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     return object;
 }
 
-GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, float o, uint32 p, ObjectGuid::LowType lowguid)
+GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, float o, uint32 /*p*/, ObjectGuid::LowType lowguid)
 {
     if (!player)
         return nullptr;
