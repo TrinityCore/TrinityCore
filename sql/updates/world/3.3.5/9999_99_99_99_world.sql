@@ -1,5 +1,5 @@
-SET @CGUID:= 213818; -- 1 guid
-SET @GGUID:= 166016; -- 2 guids
+SET @CGUID:= XXX; -- 1 guid
+SET @GGUID:= XXX; -- 2 guids
 
 DELETE FROM `creature` WHERE `guid` = @CGUID;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
