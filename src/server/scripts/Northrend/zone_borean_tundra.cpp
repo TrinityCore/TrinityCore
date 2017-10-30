@@ -1764,7 +1764,7 @@ public:
                     Talk(SAY_BONKER_5);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateEscortAI(uint32 diff) override
         {
             _events.Update(diff);
 
@@ -1789,8 +1789,6 @@ public:
                         break;
                 }
             }
-
-            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
