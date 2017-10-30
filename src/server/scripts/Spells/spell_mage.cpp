@@ -123,7 +123,7 @@ public:
     {
         PrepareSpellScript(spell_mage_living_bomb_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_LIVING_BOMB_DAMAGE) ||
                 !sSpellMgr->GetSpellInfo(SPELL_MAGE_LIVING_BOMB_DOT))
@@ -1398,7 +1398,7 @@ public:
     {
         PrepareSpellScript(spell_mage_meteor_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_METEOR_DAMAGE))
                 return false;
