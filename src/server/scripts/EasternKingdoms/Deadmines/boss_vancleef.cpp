@@ -120,7 +120,7 @@ struct boss_vancleef : public BossAI
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             if (_phase == PHASE_ONE && HealthBelowPct(66))
                 SwitchPhase(PHASE_66_PCT);
