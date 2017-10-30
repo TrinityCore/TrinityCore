@@ -82,6 +82,7 @@ bool PlayerbotAIConfig::Initialize()
     randomBotAutologin = sWorld->getBoolConfig(CONFIG_AIPLYERBOT_RANDOMBOTAUTOLOGIN);
     minRandomBots = sWorld->getIntConfig(CONFIG_AIPLYERBOT_MINRANDOMBOTS);
     maxRandomBots = sWorld->getIntConfig(CONFIG_AIPLYERBOT_MAXRANDOMBOTS);
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Reading min/max bots of %u - %u", minRandomBots, maxRandomBots);
     randomBotUpdateInterval = sWorld->getIntConfig(CONFIG_AIPLYERBOT_RANDOMBOTUPDATEINTERVAL);
     randomBotCountChangeMinInterval = sWorld->getIntConfig(CONFIG_AIPLYERBOT_RANDOMBOTCOUNTCHANGEMININTERVAL);
     randomBotCountChangeMaxInterval = sWorld->getIntConfig(CONFIG_AIPLYERBOT_RANDOMBOTCOUNTCHANGEMAXINTERVAL);
@@ -136,6 +137,8 @@ bool PlayerbotAIConfig::Initialize()
     maxGuildTaskAdvertisementTime = sWorld->getIntConfig(CONFIG_AIPLYERBOT_MAXGUILDTASKADVERTISEMENTTIME);
     minGuildTaskRewardTime = sWorld->getIntConfig(CONFIG_AIPLYERBOT_MINGUILDTASKREWARDTIME);
     maxGuildTaskRewardTime = sWorld->getIntConfig(CONFIG_AIPLYERBOT_MAXGUILDTASKREWARDTIME);
+
+    CharacterDatabase.Execute("delete from ai_playerbot_random_bots");
 
     RandomPlayerbotFactory::CreateRandomBots();
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "AI Playerbot configuration loaded");

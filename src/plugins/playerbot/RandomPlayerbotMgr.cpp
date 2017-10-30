@@ -479,7 +479,7 @@ list<uint32> RandomPlayerbotMgr::GetBots()
         do
         {
             Field* fields = results->Fetch();
-            uint32 bot = fields[0].GetUInt32();
+            uint32 bot = (uint32)fields[0].GetInt64();
             bots.push_back(bot);
         } while (results->NextRow());
     }
@@ -499,7 +499,7 @@ vector<uint32> RandomPlayerbotMgr::GetFreeBots(bool alliance)
         do
         {
             Field* fields = results->Fetch();
-            uint32 bot = fields[0].GetUInt32();
+            uint32 bot = (uint32)fields[0].GetInt64();
             bots.insert(bot);
         } while (results->NextRow());
     }
@@ -542,9 +542,9 @@ uint32 RandomPlayerbotMgr::GetEventValue(uint32 bot, string event)
     if (results)
     {
         Field* fields = results->Fetch();
-        value = fields[0].GetUInt32();
-        uint32 lastChangeTime = fields[1].GetUInt32();
-        uint32 validIn = fields[2].GetUInt32();
+        value = (uint32)fields[0].GetInt64();
+        uint32 lastChangeTime = (uint32)fields[1].GetInt64();
+        uint32 validIn = (uint32)fields[2].GetInt64();
         if ((time(0) - lastChangeTime) >= validIn)
             value = 0;
     }
