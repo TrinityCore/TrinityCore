@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,15 +17,17 @@
  */
 
 #include "BattlegroundAV.h"
-
-#include "ObjectMgr.h"
-#include "WorldPacket.h"
-
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
 #include "Language.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 
 BattlegroundAV::BattlegroundAV()
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,7 @@
  */
 
 #include "MiscPackets.h"
-#include "PacketUtilities.h"
+#include "Common.h"
 
 WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
 {
@@ -176,13 +176,6 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket.FlushBits();
 
     return &_worldPacket;
-}
-
-void WorldPackets::Misc::AreaTrigger::Read()
-{
-    _worldPacket >> AreaTriggerID;
-    Entered = _worldPacket.ReadBit();
-    FromClient = _worldPacket.ReadBit();
 }
 
 void WorldPackets::Misc::SetDungeonDifficulty::Read()
@@ -434,10 +427,28 @@ void WorldPackets::Misc::ObjectUpdateRescued::Read()
     _worldPacket >> ObjectGUID;
 }
 
+WorldPacket const* WorldPackets::Misc::PlayObjectSound::Write()
+{
+    _worldPacket << int32(SoundKitID);
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << TargetObjectGUID;
+    _worldPacket << Position;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::PlaySound::Write()
 {
     _worldPacket << int32(SoundKitID);
     _worldPacket << SourceObjectGuid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlaySpeakerbotSound::Write()
+{
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << int32(SoundKitID);
 
     return &_worldPacket;
 }
@@ -456,12 +467,10 @@ WorldPacket const* WorldPackets::Misc::Dismount::Write()
 
 void WorldPackets::Misc::SaveCUFProfiles::Read()
 {
-    uint32 count;
-    _worldPacket >> count;
-
-    for (uint8 i = 0; i < count && i < MAX_CUF_PROFILES; i++)
+    CUFProfiles.resize(_worldPacket.read<uint32>());
+    for (std::unique_ptr<CUFProfile>& cufProfile : CUFProfiles)
     {
-        std::unique_ptr<CUFProfile> cufProfile = Trinity::make_unique<CUFProfile>();
+        cufProfile = Trinity::make_unique<CUFProfile>();
 
         uint8 strLen = _worldPacket.ReadBits(7);
 
@@ -485,8 +494,6 @@ void WorldPackets::Misc::SaveCUFProfiles::Read()
         _worldPacket >> cufProfile->LeftOffset;
 
         cufProfile->ProfileName = _worldPacket.ReadString(strLen);
-
-        CUFProfiles.push_back(std::move(cufProfile));
     }
 }
 
@@ -567,15 +574,6 @@ WorldPacket const* WorldPackets::Misc::SetPlayHoverAnim::Write()
 void WorldPackets::Misc::SetPvP::Read()
 {
     EnablePVP = _worldPacket.ReadBit();
-}
-
-void WorldPackets::Misc::WorldTeleport::Read()
-{
-    _worldPacket >> MapID;
-    _worldPacket >> TransportGUID;
-    _worldPacket >> Pos;
-    _worldPacket >> Facing;
-    _worldPacket >> LfgDungeonID;
 }
 
 WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
@@ -663,4 +661,9 @@ void WorldPackets::Misc::MountSetFavorite::Read()
 {
     _worldPacket >> MountSpellID;
     IsFavorite = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Misc::CloseInteraction::Read()
+{
+    _worldPacket >> SourceGuid;
 }

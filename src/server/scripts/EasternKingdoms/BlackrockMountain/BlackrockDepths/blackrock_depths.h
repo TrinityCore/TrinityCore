@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,16 +19,19 @@
 #ifndef DEF_BRD_H
 #define DEF_BRD_H
 
-#define DataHeader "BRD"
+#include "CreatureAIImpl.h"
 
-enum FactionIds
+#define DataHeader "BRD"
+#define BRDScriptName "instance_blackrock_depths"
+
+enum BRDFactionIds
 {
     FACTION_NEUTRAL            = 734,
     FACTION_HOSTILE            = 754,
     FACTION_FRIEND             = 35
 };
 
-enum DataTypes
+enum BRDDataTypes
 {
     TYPE_RING_OF_LAW        = 1,
     TYPE_VAULT              = 2,
@@ -62,5 +65,11 @@ enum DataTypes
     DATA_SF_BRAZIER_S       = 26,
     DATA_MOIRA              = 27,
 };
+
+template<typename AI>
+inline AI* GetBlackrockDepthsAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, BRDScriptName);
+}
 
 #endif

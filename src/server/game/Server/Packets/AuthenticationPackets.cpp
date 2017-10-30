@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,33 @@
  */
 
 #include "AuthenticationPackets.h"
+#include "BigNumber.h"
+#include "CharacterTemplateDataStore.h"
 #include "HmacHash.h"
+#include "ObjectMgr.h"
+#include "Util.h"
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& virtualRealmInfo)
+{
+    data.WriteBit(virtualRealmInfo.IsLocal);
+    data.WriteBit(virtualRealmInfo.IsInternalRealm);
+    data.WriteBits(virtualRealmInfo.RealmNameActual.length(), 8);
+    data.WriteBits(virtualRealmInfo.RealmNameNormalized.length(), 8);
+    data.FlushBits();
+
+    data.WriteString(virtualRealmInfo.RealmNameActual);
+    data.WriteString(virtualRealmInfo.RealmNameNormalized);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmInfo const& virtualRealmInfo)
+{
+    data << uint32(virtualRealmInfo.RealmAddress);
+    data << virtualRealmInfo.RealmNameInfo;
+
+    return data;
+}
 
 bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
 {
@@ -73,6 +99,16 @@ void WorldPackets::Auth::AuthSession::Read()
     }
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const& waitInfo)
+{
+    data << uint32(waitInfo.WaitCount);
+    data << uint32(waitInfo.WaitTime);
+    data.WriteBit(waitInfo.HasFCM);
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPackets::Auth::AuthResponse::AuthResponse()
     : ServerPacket(SMSG_AUTH_RESPONSE, 132)
 {
@@ -99,13 +135,13 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->CurrencyID);
         _worldPacket << int32(SuccessInfo->Time);
 
-        for (auto& race : *SuccessInfo->AvailableRaces)
+        for (auto const& race : *SuccessInfo->AvailableRaces)
         {
             _worldPacket << uint8(race.first); /// the current race
             _worldPacket << uint8(race.second); /// the required Expansion
         }
 
-        for (auto& klass : *SuccessInfo->AvailableClasses)
+        for (auto const& klass : *SuccessInfo->AvailableClasses)
         {
             _worldPacket << uint8(klass.first); /// the current class
             _worldPacket << uint8(klass.second); /// the required Expansion
@@ -133,45 +169,37 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         if (SuccessInfo->NumPlayersAlliance)
             _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
 
-        for (auto& virtualRealm : SuccessInfo->VirtualRealms)
-        {
-            _worldPacket << uint32(virtualRealm.RealmAddress);
-            _worldPacket.WriteBit(virtualRealm.IsLocal);
-            _worldPacket.WriteBit(virtualRealm.IsInternalRealm);
-            _worldPacket.WriteBits(virtualRealm.RealmNameActual.length(), 8);
-            _worldPacket.WriteBits(virtualRealm.RealmNameNormalized.length(), 8);
-            _worldPacket.FlushBits();
+        for (VirtualRealmInfo const& virtualRealm : SuccessInfo->VirtualRealms)
+            _worldPacket << virtualRealm;
 
-            _worldPacket.WriteString(virtualRealm.RealmNameActual);
-            _worldPacket.WriteString(virtualRealm.RealmNameNormalized);
-        }
-
-        for (auto& templat : SuccessInfo->Templates)
+        for (CharacterTemplate const* templat : SuccessInfo->Templates)
         {
-            _worldPacket << uint32(templat.TemplateSetId);
-            _worldPacket << uint32(templat.Classes.size());
-            for (auto& templateClass : templat.Classes)
+            _worldPacket << uint32(templat->TemplateSetId);
+            _worldPacket << uint32(templat->Classes.size());
+            for (CharacterTemplateClass const& templateClass : templat->Classes)
             {
                 _worldPacket << uint8(templateClass.ClassID);
                 _worldPacket << uint8(templateClass.FactionGroup);
             }
 
-            _worldPacket.WriteBits(templat.Name.length(), 7);
-            _worldPacket.WriteBits(templat.Description.length(), 10);
+            _worldPacket.WriteBits(templat->Name.length(), 7);
+            _worldPacket.WriteBits(templat->Description.length(), 10);
             _worldPacket.FlushBits();
 
-            _worldPacket.WriteString(templat.Name);
-            _worldPacket.WriteString(templat.Description);
+            _worldPacket.WriteString(templat->Name);
+            _worldPacket.WriteString(templat->Description);
         }
     }
 
     if (WaitInfo)
-    {
-        _worldPacket << uint32(WaitInfo->WaitCount);
-        _worldPacket << uint32(WaitInfo->WaitTime);
-        _worldPacket.WriteBit(WaitInfo->HasFCM);
-        _worldPacket.FlushBits();
-    }
+        _worldPacket << *WaitInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Auth::WaitQueueUpdate::Write()
+{
+    _worldPacket << WaitInfo;
 
     return &_worldPacket;
 }
@@ -311,47 +339,29 @@ uint8 const WherePacketHmac[] =
 
 WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 8 + 4 + 256 + 1)
 {
+    Payload.Where.fill(0);
     HexStrToByteArray("F41DCB2D728CF3337A4FF338FA89DB01BBBE9C3B65E9DA96268687353E48B94C", Payload.PanamaKey);
     Payload.Adler32 = 0xA0A66C10;
 
-    p.SetBinary(P, 128);
-    q.SetBinary(Q, 128);
-    dmp1.SetBinary(DP, 128);
-    dmq1.SetBinary(DQ, 128);
-    iqmp.SetBinary(InverseQ, 128);
 }
 
 WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
 {
-    ByteBuffer payload;
-    uint16 port = Payload.Where.port();
-    uint8 address[16] = { 0 };
-    uint8 addressType = 3;
-    if (Payload.Where.address().is_v4())
-    {
-        memcpy(address, Payload.Where.address().to_v4().to_bytes().data(), 4);
-        addressType = 1;
-    }
-    else
-    {
-        memcpy(address, Payload.Where.address().to_v6().to_bytes().data(), 16);
-        addressType = 2;
-    }
-
     HmacSha1 hmacHash(64, WherePacketHmac);
-    hmacHash.UpdateData(address, 16);
-    hmacHash.UpdateData(&addressType, 1);
-    hmacHash.UpdateData((uint8* const)&port, 2);
+    hmacHash.UpdateData(Payload.Where.data(), 16);
+    hmacHash.UpdateData((uint8* const)&Payload.Type, 1);
+    hmacHash.UpdateData((uint8* const)&Payload.Port, 2);
     hmacHash.UpdateData((uint8* const)Haiku.c_str(), 71);
     hmacHash.UpdateData(Payload.PanamaKey, 32);
     hmacHash.UpdateData(PiDigits, 108);
     hmacHash.UpdateData(&Payload.XorMagic, 1);
     hmacHash.Finalize();
 
+    ByteBuffer payload;
     payload << uint32(Payload.Adler32);
-    payload << uint8(addressType);
-    payload.append(address, 16);
-    payload << uint16(port);
+    payload << uint8(Payload.Type);
+    payload.append(Payload.Where.data(), 16);
+    payload << uint16(Payload.Port);
     payload.append(Haiku.data(), 71);
     payload.append(Payload.PanamaKey, 32);
     payload.append(PiDigits, 108);
@@ -360,6 +370,18 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
 
     BigNumber bnData;
     bnData.SetBinary(payload.contents(), payload.size());
+
+    BigNumber p;
+    BigNumber q;
+    BigNumber dmp1;
+    BigNumber dmq1;
+    BigNumber iqmp;
+
+    p.SetBinary(P, 128);
+    q.SetBinary(Q, 128);
+    dmp1.SetBinary(DP, 128);
+    dmq1.SetBinary(DQ, 128);
+    iqmp.SetBinary(InverseQ, 128);
 
     BigNumber m1 = (bnData % p).ModExp(dmp1, p);
     BigNumber m2 = (bnData % q).ModExp(dmq1, q);

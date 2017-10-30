@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,9 +22,9 @@
 #include "PathCommon.h"
 #include "WorldModel.h"
 
-#include "G3D/Array.h"
-#include "G3D/Vector3.h"
-#include "G3D/Matrix3.h"
+#include <G3D/Array.h>
+#include <G3D/Vector3.h>
+#include <G3D/Matrix3.h>
 
 namespace MMAP
 {

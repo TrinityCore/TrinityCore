@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,8 +19,9 @@
 #define TalentPackets_h__
 
 #include "Packet.h"
+#include "DBCEnums.h"
+#include "ObjectGuid.h"
 #include "PacketUtilities.h"
-#include "Player.h"
 
 namespace WorldPackets
 {

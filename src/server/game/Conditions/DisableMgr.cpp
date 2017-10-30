@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,10 +18,14 @@
 
 #include "DisableMgr.h"
 #include "CriteriaHandler.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
-#include "SpellMgr.h"
 #include "Player.h"
+#include "SpellMgr.h"
+#include "VMapManager2.h"
 #include "World.h"
 
 namespace DisableMgr

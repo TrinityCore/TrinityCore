@@ -91,14 +91,6 @@ typedef struct _CASC_ROOT_ENTRY_MNDX
 } CASC_ROOT_ENTRY_MNDX, *PCASC_ROOT_ENTRY_MNDX;
 
 //-----------------------------------------------------------------------------
-// Testing functions prototypes
-
-#if defined(_DEBUG) && defined(_X86_) && defined(CASCLIB_TEST)
-extern "C" bool _cdecl sub_1958B00_x86(TFileNameDatabase * pDB, TMndxFindResult * pStruct1C);
-void TestMndxRootFile(PCASC_MNDX_INFO pMndxInfo);
-#endif
-
-//-----------------------------------------------------------------------------
 // Local variables
 
 unsigned char table_1BA1818[0x800] =
@@ -3045,7 +3037,7 @@ static int MndxHandler_Insert(TRootHandler_MNDX *, const char *, LPBYTE)
     return ERROR_NOT_SUPPORTED;
 }
 
-static LPBYTE MndxHandler_Search(TRootHandler_MNDX * pRootHandler, TCascSearch * pSearch, PDWORD PtrFileSize, PDWORD /* PtrLocaleFlags */)
+static LPBYTE MndxHandler_Search(TRootHandler_MNDX * pRootHandler, TCascSearch * pSearch, PDWORD PtrFileSize, PDWORD /* PtrLocaleFlags */, PDWORD /* PtrFileDataId */)
 {
     TMndxFindResult * pStruct1C = NULL;
     PCASC_MNDX_INFO pMndxInfo = &pRootHandler->MndxInfo;
@@ -3069,10 +3061,24 @@ static LPBYTE MndxHandler_Search(TRootHandler_MNDX * pRootHandler, TCascSearch *
     assert(pSearch->pRootContext != NULL);
     pStruct1C = (TMndxFindResult *)pSearch->pRootContext;
 
-    // Search the next file name (our code)
-    pMarFile->pDatabasePtr->sub_1956CE0(pStruct1C, &bFindResult);
-    if(bFindResult == false)
-        return NULL;
+    // Keep searching
+    for(;;)
+    {
+        // Search the next file name (our code)
+        pMarFile->pDatabasePtr->sub_1956CE0(pStruct1C, &bFindResult);
+        if (bFindResult == false)
+            return NULL;
+
+        // If we have no wild mask, we found it
+        if (pSearch->szMask == NULL || pSearch->szMask[0] == 0)
+            break;
+
+        // Copy the found name to the buffer
+        memcpy(pSearch->szFileName, pStruct1C->szFoundPath, pStruct1C->cchFoundPath);
+        pSearch->szFileName[pStruct1C->cchFoundPath] = 0;
+        if (CheckWildCard(pSearch->szFileName, pSearch->szMask))
+            break;
+    }
 
     // Give the file size and encoding key
     return FillFindData(pRootHandler, pSearch, pStruct1C, PtrFileSize);
@@ -3083,6 +3089,12 @@ static void MndxHandler_EndSearch(TRootHandler_MNDX * /* pRootHandler */, TCascS
     if(pSearch != NULL)
         delete (TMndxFindResult *)pSearch->pRootContext;
     pSearch->pRootContext = NULL;
+}
+
+static DWORD MndxHandler_GetFileId(TRootHandler_MNDX * /* pRootHandler */, const char * /* szFileName */)
+{
+  // Not implemented for HOTS
+  return 0;
 }
 
 static LPBYTE MndxHandler_GetKey(TRootHandler_MNDX * pRootHandler, const char * szFileName)
@@ -3164,7 +3176,9 @@ int RootHandler_CreateMNDX(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFil
     pRootHandler->Search      = (ROOT_SEARCH)MndxHandler_Search;
     pRootHandler->EndSearch   = (ROOT_ENDSEARCH)MndxHandler_EndSearch;
     pRootHandler->GetKey      = (ROOT_GETKEY)MndxHandler_GetKey;
-    pRootHandler->Close       = (ROOT_CLOSE) MndxHandler_Close;
+    pRootHandler->Close       = (ROOT_CLOSE)MndxHandler_Close;
+    pRootHandler->GetFileId   = (ROOT_GETFILEID)MndxHandler_GetFileId;
+
     pMndxInfo = &pRootHandler->MndxInfo;
 
     // Fill-in the flags
@@ -3323,8 +3337,9 @@ int RootHandler_CreateMNDX(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFil
 // Unit tests
 
 #if defined(_DEBUG) && defined(_X86_) && defined(CASCLIB_TEST)
-
+/*
 extern "C" {
+    bool  _cdecl sub_1958B00_x86(TFileNameDatabase * pDB, TMndxFindResult * pStruct1C);
     DWORD _cdecl sub_19573D0_x86(TFileNameDatabase * pDB, DWORD arg_0, DWORD arg_4);
     DWORD _cdecl sub_1957EF0_x86(TFileNameDatabase * pDB, TMndxFindResult * pStruct1C);
     bool  _cdecl sub_1959460_x86(TFileNameDatabase * pDB, TMndxFindResult * pStruct1C);
@@ -3368,7 +3383,7 @@ static int sub_1956CE0_x86(TFileNameDatabasePtr * pDatabasePtr, TMndxFindResult 
     *pbFindResult = sub_1959460_x86(pDatabasePtr->pDB, pStruct1C);
     return nError;
 }
-/*
+
 static void TestFileSearch_SubStrings(PMAR_FILE pMarFile, char * szFileName, size_t nLength)
 {
     TMndxFindResult Struct1C_1;
@@ -3415,7 +3430,6 @@ static void TestFileSearch_SubStrings(PMAR_FILE pMarFile, char * szFileName, siz
         nLength--;
     }
 }
-*/
 
 static void TestFindPackage(PMAR_FILE pMarFile, const char * szPackageName)
 {
@@ -3599,4 +3613,5 @@ void TestMndxRootFile(PCASC_MNDX_INFO pMndxInfo)
         ListFile_Free(pvListFile);
     }
 }
+*/
 #endif  // defined(_DEBUG) && defined(_X86_) && defined(CASCLIB_TEST)

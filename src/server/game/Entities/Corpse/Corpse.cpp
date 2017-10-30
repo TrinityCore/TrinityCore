@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,9 +18,14 @@
 
 #include "Common.h"
 #include "Corpse.h"
-#include "Player.h"
-#include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "UpdateData.h"
+#include "World.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {
@@ -77,7 +82,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
         return false;
     }
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(GetMapId(), 0, guidlow));
+    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(owner->GetMapId(), 0, guidlow));
     SetPhaseMask(owner->GetPhaseMask(), false);
 
     SetObjectScale(1.0f);
@@ -164,6 +169,8 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[9].GetUInt8());
     SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[10].GetUInt8());
     SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid::Create<HighGuid::Player>(fields[14].GetUInt64()));
+    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(GetGuidValue(CORPSE_FIELD_OWNER)))
+        SetUInt32Value(CORPSE_FIELD_FACTIONTEMPLATE, sChrRacesStore.AssertEntry(characterInfo->Race)->FactionID);
 
     m_time = time_t(fields[11].GetUInt32());
 

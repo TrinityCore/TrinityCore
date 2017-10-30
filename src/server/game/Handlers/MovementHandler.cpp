@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -236,7 +236,7 @@ void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTok
 
     WorldPackets::Movement::NewWorld packet;
     packet.MapID = loc.GetMapId();
-    packet.Pos.Relocate(loc);
+    packet.Pos = loc;
     packet.Reason = !_player->IsBeingTeleportedSeamlessly() ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
     SendPacket(packet.Write());
 
@@ -248,7 +248,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK: Guid: %s, Sequence: %u, Time: %u", packet.MoverGUID.ToString().c_str(), packet.AckIndex, packet.MoveTime);
 
-    Player* plMover = _player->m_mover->ToPlayer();
+    Player* plMover = _player->m_unitMovedByMe->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
         return;
@@ -289,9 +289,12 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
 
 void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet)
 {
-    OpcodeClient opcode = packet.GetOpcode();
+    HandleMovementOpcode(packet.GetOpcode(), packet.Status);
+}
 
-    Unit* mover = _player->m_mover;
+void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo)
+{
+    Unit* mover = _player->m_unitMovedByMe;
 
     ASSERT(mover != nullptr);                      // there must always be a mover
 
@@ -301,9 +304,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     if (plrMover && plrMover->IsBeingTeleported())
         return;
 
-    GetPlayer()->ValidateMovementInfo(&packet.movementInfo);
-
-    MovementInfo& movementInfo = packet.movementInfo;
+    GetPlayer()->ValidateMovementInfo(&movementInfo);
 
     // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID())
@@ -407,7 +408,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     mover->UpdatePosition(movementInfo.pos);
 
     WorldPackets::Movement::MoveUpdate moveUpdate;
-    moveUpdate.movementInfo = &mover->m_movementInfo;
+    moveUpdate.Status = &mover->m_movementInfo;
     mover->SendMessageToSet(moveUpdate.Write(), _player);
 
     if (plrMover)                                            // nothing is charmed, or player charmed
@@ -436,16 +437,18 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
                 }
             }
         }
+        else
+            plrMover->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
     }
 }
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet)
 {
 
-    GetPlayer()->ValidateMovementInfo(&packet.Ack.movementInfo);
+    GetPlayer()->ValidateMovementInfo(&packet.Ack.Status);
 
     // now can skip not our packet
-    if (_player->GetGUID() != packet.Ack.movementInfo.guid)
+    if (_player->GetGUID() != packet.Ack.Status.guid)
         return;
 
     /*----------------*/
@@ -515,27 +518,27 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpe
 void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
 {
     if (GetPlayer()->IsInWorld())
-        if (_player->m_mover->GetGUID() != packet.ActiveMover)
-            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , packet.ActiveMover.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
+        if (_player->m_unitMovedByMe->GetGUID() != packet.ActiveMover)
+            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , packet.ActiveMover.ToString().c_str(), _player->m_unitMovedByMe->GetGUID().ToString().c_str());
 }
 
-void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck)
+void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackAck& movementAck)
 {
-    GetPlayer()->ValidateMovementInfo(&movementAck.Ack.movementInfo);
+    GetPlayer()->ValidateMovementInfo(&movementAck.Ack.Status);
 
-    if (_player->m_mover->GetGUID() != movementAck.Ack.movementInfo.guid)
+    if (_player->m_unitMovedByMe->GetGUID() != movementAck.Ack.Status.guid)
         return;
 
-    _player->m_movementInfo = movementAck.Ack.movementInfo;
+    _player->m_movementInfo = movementAck.Ack.Status;
 
     WorldPackets::Movement::MoveUpdateKnockBack updateKnockBack;
-    updateKnockBack.movementInfo = &_player->m_movementInfo;
+    updateKnockBack.Status = &_player->m_movementInfo;
     _player->SendMessageToSet(updateKnockBack.Write(), false);
 }
 
 void WorldSession::HandleMovementAckMessage(WorldPackets::Movement::MovementAckMessage& movementAck)
 {
-    GetPlayer()->ValidateMovementInfo(&movementAck.Ack.movementInfo);
+    GetPlayer()->ValidateMovementInfo(&movementAck.Ack.Status);
 }
 
 void WorldSession::HandleSummonResponseOpcode(WorldPackets::Movement::SummonResponse& packet)
@@ -548,7 +551,7 @@ void WorldSession::HandleSummonResponseOpcode(WorldPackets::Movement::SummonResp
 
 void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck)
 {
-    GetPlayer()->ValidateMovementInfo(&setCollisionHeightAck.Data.movementInfo);
+    GetPlayer()->ValidateMovementInfo(&setCollisionHeightAck.Data.Status);
 }
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& /*moveTimeSkipped*/)
@@ -557,7 +560,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeS
 
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& moveSplineDone)
 {
-    MovementInfo movementInfo = moveSplineDone.movementInfo;
+    MovementInfo movementInfo = moveSplineDone.Status;
     _player->ValidateMovementInfo(&movementInfo);
 
     // in taxi flight packet received in 2 case:

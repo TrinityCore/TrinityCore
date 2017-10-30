@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,11 @@
  */
 
 #include "WorldSession.h"
-#include "Player.h"
-#include "ObjectMgr.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ReferAFriendPackets.h"
+#include "World.h"
 
 inline uint32 GetMaxLevelForExpansion(uint32 expansion)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,22 +16,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "PlayerDump.h"
+#include "AccountMgr.h"
+#include "Common.h"
 #include "DatabaseEnv.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "AccountMgr.h"
 #include "World.h"
+#include <sstream>
 
-#define DUMP_TABLE_COUNT 30
+#define DUMP_TABLE_COUNT 35
 struct DumpTable
 {
     char const* name;
     DumpTableType type;
 };
 
-static DumpTable dumpTables[DUMP_TABLE_COUNT] =
+DumpTable const dumpTables[DUMP_TABLE_COUNT] =
 {
     { "characters",                       DTT_CHARACTER  },
     { "character_account_data",           DTT_CHAR_TABLE },
@@ -44,6 +46,7 @@ static DumpTable dumpTables[DUMP_TABLE_COUNT] =
     { "character_currency",               DTT_CURRENCY   },
     { "character_declinedname",           DTT_CHAR_TABLE },
     { "character_equipmentsets",          DTT_EQSET_TABLE},
+    { "character_fishingsteps",           DTT_CHAR_TABLE },
     { "character_glyphs",                 DTT_CHAR_TABLE },
     { "character_homebind",               DTT_CHAR_TABLE },
     { "character_inventory",              DTT_INVENTORY  },
@@ -51,6 +54,10 @@ static DumpTable dumpTables[DUMP_TABLE_COUNT] =
     { "character_pet_declinedname",       DTT_PET        },
     { "character_queststatus",            DTT_CHAR_TABLE },
     { "character_queststatus_objectives", DTT_CHAR_TABLE },
+    { "character_queststatus_daily",      DTT_CHAR_TABLE },
+    { "character_queststatus_weekly",     DTT_CHAR_TABLE },
+    { "character_queststatus_monthly",    DTT_CHAR_TABLE },
+    { "character_queststatus_seasonal",   DTT_CHAR_TABLE },
     { "character_queststatus_rewarded",   DTT_CHAR_TABLE },
     { "character_reputation",             DTT_CHAR_TABLE },
     { "character_skills",                 DTT_CHAR_TABLE },
@@ -126,7 +133,7 @@ bool FindNth(std::string const& str, uint32 n, std::string::size_type& s, std::s
 std::string GetTableName(std::string const& str)
 {
     static std::string::size_type const s = 13;
-    std::string::size_type e = str.find(_TABLE_SIM_, s);
+    std::string::size_type e = str.find('`', s);
     if (e == std::string::npos)
         return "";
 
@@ -204,7 +211,7 @@ std::string CreateDumpString(char const* tableName, QueryResult result)
 {
     if (!tableName || !result) return "";
     std::ostringstream ss;
-    ss << "INSERT INTO " << _TABLE_SIM_ << tableName << _TABLE_SIM_ << " VALUES (";
+    ss << "INSERT INTO `" << tableName << "` VALUES (";
     Field* fields = result->Fetch();
     for (uint32 i = 0; i < result->GetFieldCount(); ++i)
     {

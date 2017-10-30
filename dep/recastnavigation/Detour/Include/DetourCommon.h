@@ -20,6 +20,7 @@
 #define DETOURCOMMON_H
 
 #include "DetourMath.h"
+#include <stddef.h>
 
 /**
 @defgroup detour Detour
@@ -481,6 +482,23 @@ inline void dtSwapEndian(float* v)
 
 void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 							   const float s, const float t, float* out);
+
+template<typename TypeToRetrieveAs>
+TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(const unsigned char*& buffer, const size_t distanceToAdvance)
+{
+	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
+	buffer += distanceToAdvance;
+	return returnPointer;
+}
+
+template<typename TypeToRetrieveAs>
+TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(unsigned char*& buffer, const size_t distanceToAdvance)
+{
+	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
+	buffer += distanceToAdvance;
+	return returnPointer;
+}
+
 
 /// @}
 

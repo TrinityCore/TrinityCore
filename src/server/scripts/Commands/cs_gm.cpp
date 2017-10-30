@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,14 +22,19 @@ Comment: All gm related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ObjectMgr.h"
-#include "Chat.h"
 #include "AccountMgr.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
-#include "World.h"
-#include "Player.h"
+#include "ObjectAccessor.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "Realm.h"
+#include "ScriptMgr.h"
+#include "World.h"
+#include "WorldSession.h"
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 class gm_commandscript : public CommandScript
 {

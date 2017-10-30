@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -159,6 +159,9 @@ void AddSC_boss_ironaya();
 void AddSC_uldaman();
 void AddSC_instance_uldaman();
 void AddSC_instance_the_stockade();          //The Stockade
+void AddSC_boss_hogger();
+void AddSC_boss_randolph_moloch();
+void AddSC_boss_lord_overheat();
 void AddSC_boss_akilzon();                   //Zul'Aman
 void AddSC_boss_halazzi();
 void AddSC_boss_hex_lord_malacrass();
@@ -181,12 +184,13 @@ void AddSC_instance_zulgurub();
 void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
 void AddSC_burning_steppes();
+void AddSC_dun_morogh();
+void AddSC_dun_morogh_area_coldridge_valley();
 void AddSC_duskwood();
 void AddSC_eastern_plaguelands();
 void AddSC_ghostlands();
 void AddSC_hinterlands();
 void AddSC_isle_of_queldanas();
-void AddSC_loch_modan();
 void AddSC_redridge_mountains();
 void AddSC_silverpine_forest();
 void AddSC_stormwind_city();
@@ -341,6 +345,9 @@ void AddEasternKingdomsScripts()
     AddSC_boss_kiljaeden();
     AddSC_sunwell_plateau();
     AddSC_instance_the_stockade();          //The Stockade
+    AddSC_boss_hogger();
+    AddSC_boss_randolph_moloch();
+    AddSC_boss_lord_overheat();
     AddSC_boss_archaedas();                 //Uldaman
     AddSC_boss_ironaya();
     AddSC_uldaman();
@@ -368,12 +375,13 @@ void AddEasternKingdomsScripts()
     AddSC_arathi_highlands();
     AddSC_blasted_lands();
     AddSC_burning_steppes();
+    AddSC_dun_morogh();
+    AddSC_dun_morogh_area_coldridge_valley();
     AddSC_duskwood();
     AddSC_eastern_plaguelands();
     AddSC_ghostlands();
     AddSC_hinterlands();
     AddSC_isle_of_queldanas();
-    AddSC_loch_modan();
     AddSC_redridge_mountains();
     AddSC_silverpine_forest();
     AddSC_stormwind_city();

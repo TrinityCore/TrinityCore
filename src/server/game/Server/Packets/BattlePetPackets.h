@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,12 +20,20 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
-#include "Unit.h"
+#include "Optional.h"
+#include "UnitDefines.h"
 
 namespace WorldPackets
 {
     namespace BattlePet
     {
+        struct BattlePetOwnerInfo
+        {
+            ObjectGuid Guid;
+            uint32 PlayerVirtualRealm = 0;
+            uint32 PlayerNativeRealm = 0;
+        };
+
         struct BattlePet
         {
             ObjectGuid Guid;
@@ -41,7 +49,7 @@ namespace WorldPackets
             uint32 MaxHealth = 0;
             uint32 Speed = 0;
             uint8 Quality = 0;
-            ObjectGuid Owner; // for non-account wide pets only? (Guild Page, Guild Herald)
+            Optional<BattlePetOwnerInfo> OwnerInfo;
             std::string Name;
         };
 

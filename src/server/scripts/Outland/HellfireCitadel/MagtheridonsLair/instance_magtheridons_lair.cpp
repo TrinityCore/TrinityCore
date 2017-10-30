@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,12 @@ SDCategory: Hellfire Citadel, Magtheridon's lair
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
+#include "Map.h"
 
 enum Spells
 {
@@ -45,8 +48,7 @@ enum Spells
 class instance_magtheridons_lair : public InstanceMapScript
 {
     public:
-        instance_magtheridons_lair()
-            : InstanceMapScript("instance_magtheridons_lair", 544)
+        instance_magtheridons_lair() : InstanceMapScript(MLScriptName, 544)
         {
         }
 

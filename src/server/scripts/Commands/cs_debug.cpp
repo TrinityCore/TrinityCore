@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,21 +23,25 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
+#include "Bag.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
-#include "Chat.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "Chat.h"
+#include "ChatPackets.h"
+#include "Conversation.h"
 #include "GossipDef.h"
-#include "Transport.h"
+#include "GridNotifiersImpl.h"
 #include "Language.h"
+#include "Log.h"
+#include "M2Stores.h"
 #include "MapManager.h"
 #include "MovementPackets.h"
+#include "ObjectMgr.h"
+#include "RBAC.h"
 #include "SpellPackets.h"
-
+#include "Transport.h"
+#include "WorldSession.h"
 #include <fstream>
 #include <limits>
 
@@ -74,15 +78,15 @@ public:
             { "threat",        rbac::RBAC_PERM_COMMAND_DEBUG_THREAT,        false, &HandleDebugThreatListCommand,       "" },
             { "hostil",        rbac::RBAC_PERM_COMMAND_DEBUG_HOSTIL,        false, &HandleDebugHostileRefListCommand,   "" },
             { "anim",          rbac::RBAC_PERM_COMMAND_DEBUG_ANIM,          false, &HandleDebugAnimCommand,             "" },
-            { "arena",         rbac::RBAC_PERM_COMMAND_DEBUG_ARENA,         false, &HandleDebugArenaCommand,            "" },
-            { "bg",            rbac::RBAC_PERM_COMMAND_DEBUG_BG,            false, &HandleDebugBattlegroundCommand,     "" },
+            { "arena",         rbac::RBAC_PERM_COMMAND_DEBUG_ARENA,         true,  &HandleDebugArenaCommand,            "" },
+            { "bg",            rbac::RBAC_PERM_COMMAND_DEBUG_BG,            true,  &HandleDebugBattlegroundCommand,     "" },
             { "getitemstate",  rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMSTATE,  false, &HandleDebugGetItemStateCommand,     "" },
             { "lootrecipient", rbac::RBAC_PERM_COMMAND_DEBUG_LOOTRECIPIENT, false, &HandleDebugGetLootRecipientCommand, "" },
             { "getvalue",      rbac::RBAC_PERM_COMMAND_DEBUG_GETVALUE,      false, &HandleDebugGetValueCommand,         "" },
             { "getitemvalue",  rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMVALUE,  false, &HandleDebugGetItemValueCommand,     "" },
             { "Mod32Value",    rbac::RBAC_PERM_COMMAND_DEBUG_MOD32VALUE,    false, &HandleDebugMod32ValueCommand,       "" },
-            { "play",          rbac::RBAC_PERM_COMMAND_DEBUG_PLAY,          false, NULL,              "", debugPlayCommandTable },
-            { "send",          rbac::RBAC_PERM_COMMAND_DEBUG_SEND,          false, NULL,              "", debugSendCommandTable },
+            { "play",          rbac::RBAC_PERM_COMMAND_DEBUG_PLAY,          false, nullptr,                             "", debugPlayCommandTable },
+            { "send",          rbac::RBAC_PERM_COMMAND_DEBUG_SEND,          false, nullptr,                             "", debugSendCommandTable },
             { "setaurastate",  rbac::RBAC_PERM_COMMAND_DEBUG_SETAURASTATE,  false, &HandleDebugSetAuraStateCommand,     "" },
             { "setitemvalue",  rbac::RBAC_PERM_COMMAND_DEBUG_SETITEMVALUE,  false, &HandleDebugSetItemValueCommand,     "" },
             { "setvalue",      rbac::RBAC_PERM_COMMAND_DEBUG_SETVALUE,      false, &HandleDebugSetValueCommand,         "" },
@@ -101,11 +105,12 @@ public:
             { "boundary",      rbac::RBAC_PERM_COMMAND_DEBUG_BOUNDARY,      false, &HandleDebugBoundaryCommand,         "" },
             { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
             { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
+            { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "debug",         rbac::RBAC_PERM_COMMAND_DEBUG,   true,  NULL,               "", debugCommandTable },
-            { "wpgps",         rbac::RBAC_PERM_COMMAND_WPGPS,  false, &HandleWPGPSCommand, "" },
+            { "debug",         rbac::RBAC_PERM_COMMAND_DEBUG,               true,  nullptr,                             "", debugCommandTable },
+            { "wpgps",         rbac::RBAC_PERM_COMMAND_WPGPS,               false, &HandleWPGPSCommand,                 "" },
         };
         return commandTable;
     }
@@ -121,13 +126,27 @@ public:
             return false;
         }
 
-        uint32 id = atoi((char*)args);
+        uint32 id = atoul(args);
 
-        if (!sCinematicSequencesStore.LookupEntry(id))
+        CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(id);
+        if (!cineSeq)
         {
             handler->PSendSysMessage(LANG_CINEMATIC_NOT_EXIST, id);
             handler->SetSentErrorMessage(true);
             return false;
+        }
+
+        // Dump camera locations
+        if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(cineSeq->Camera[0]))
+        {
+            handler->PSendSysMessage("Waypoints for sequence %u, camera %u", id, cineSeq->Camera[0]);
+            uint32 count = 1;
+            for (FlyByCamera const& cam : *flyByCameras)
+            {
+                handler->PSendSysMessage("%02u - %7ums [%s (%f degrees)]", count, cam.timeStamp, cam.locations.ToString().c_str(), cam.locations.GetOrientation() * (180 / M_PI));
+                count++;
+            }
+            handler->PSendSysMessage(SZFMTD " waypoints dumped", flyByCameras->size());
         }
 
         handler->GetSession()->GetPlayer()->SendCinematicStart(id);
@@ -145,7 +164,7 @@ public:
             return false;
         }
 
-        uint32 id = atoi((char*)args);
+        uint32 id = atoul(args);
 
         if (!sMovieStore.LookupEntry(id))
         {
@@ -170,7 +189,7 @@ public:
             return false;
         }
 
-        uint32 soundId = atoi((char*)args);
+        uint32 soundId = atoul(args);
 
         if (!sSoundKitStore.LookupEntry(soundId))
         {
@@ -362,32 +381,12 @@ public:
                 parsedStream >> val6;
                 data << val6;
             }
-            else if (type == "appitsguid")
-            {
-                data << unit->GetPackGUID();
-            }
-            else if (type == "appmyguid")
-            {
-                data << player->GetPackGUID();
-            }
-            else if (type == "appgoguid")
-            {
-                GameObject* obj = handler->GetNearbyGameObject();
-                if (!obj)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, UI64LIT(0));
-                    handler->SetSentErrorMessage(true);
-                    ifs.close();
-                    return false;
-                }
-                data << obj->GetPackGUID();
-            }
             else if (type == "goguid")
             {
                 GameObject* obj = handler->GetNearbyGameObject();
                 if (!obj)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, UI64LIT(0));
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, "0");
                     handler->SetSentErrorMessage(true);
                     ifs.close();
                     return false;
@@ -435,8 +434,8 @@ public:
         if (!w || !s)
             return false;
 
-        uint32 world = (uint32)atoi(w);
-        uint32 state = (uint32)atoi(s);
+        uint32 world = atoul(w);
+        uint32 state = atoul(s);
         handler->GetSession()->GetPlayer()->SendUpdateWorldState(world, state);
         return true;
     }
@@ -502,8 +501,8 @@ public:
         if (!target)
             return false;
 
-        handler->PSendSysMessage("Loot recipient for creature %s (%s, DB GUID " UI64FMTD ") is %s",
-            target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetSpawnId(),
+        handler->PSendSysMessage("Loot recipient for creature %s (%s, DB GUID %s) is %s",
+            target->GetName().c_str(), target->GetGUID().ToString().c_str(), std::to_string(target->GetSpawnId()).c_str(),
             target->hasLootRecipient() ? (target->GetLootRecipient() ? target->GetLootRecipient()->GetName().c_str() : "offline") : "no loot recipient");
         return true;
     }
@@ -833,7 +832,7 @@ public:
             if (Unit* unit = ref->GetSource()->GetOwner())
             {
                 ++count;
-                handler->PSendSysMessage("   %u.   %s   (%s, SpawnId: %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().ToString().c_str(), unit->GetTypeId() == TYPEID_UNIT ? unit->ToCreature()->GetSpawnId() : 0, ref->getThreat());
+                handler->PSendSysMessage("   %u.   %s   (%s, SpawnId: %s)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().ToString().c_str(), unit->GetTypeId() == TYPEID_UNIT ? std::to_string(unit->ToCreature()->GetSpawnId()).c_str() : "0", ref->getThreat());
             }
             ref = ref->next();
         }
@@ -854,7 +853,7 @@ public:
         if (!i)
             return false;
 
-        uint32 id = (uint32)atoi(i);
+        uint32 id = atoul(i);
         //target->SetVehicleId(id);
         handler->PSendSysMessage("Vehicle id set to %u", id);
         return true;
@@ -875,7 +874,7 @@ public:
 
         char* j = strtok(NULL, " ");
 
-        uint32 entry = (uint32)atoi(i);
+        uint32 entry = atoul(i);
         int8 seatId = j ? (int8)atoi(j) : -1;
 
         if (!entry)
@@ -885,7 +884,7 @@ public:
             Creature* passenger = NULL;
             Trinity::AllCreaturesOfEntryInRange check(handler->GetSession()->GetPlayer(), entry, 20.0f);
             Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(handler->GetSession()->GetPlayer(), passenger, check);
-            handler->GetSession()->GetPlayer()->VisitNearbyObject(30.0f, searcher);
+            Cell::VisitAllObjects(handler->GetSession()->GetPlayer(), searcher, 30.0f);
             if (!passenger || passenger == target)
                 return false;
             passenger->EnterVehicle(target, seatId);
@@ -906,7 +905,7 @@ public:
         if (!e)
             return false;
 
-        uint32 entry = (uint32)atoi(e);
+        uint32 entry = atoul(e);
 
         float x, y, z, o = handler->GetSession()->GetPlayer()->GetOrientation();
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, handler->GetSession()->GetPlayer()->GetObjectSize());
@@ -914,7 +913,7 @@ public:
         if (!i)
             return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o) != nullptr;
 
-        uint32 id = (uint32)atoi(i);
+        uint32 id = atoul(i);
 
         CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry);
 
@@ -996,7 +995,7 @@ public:
             return false;
 
         ObjectGuid::LowType guid = strtoull(e, nullptr, 10);
-        uint32 index = (uint32)atoi(f);
+        uint32 index = atoul(f);
 
         Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid::Create<HighGuid::Item>(guid));
 
@@ -1026,8 +1025,8 @@ public:
             return false;
 
         ObjectGuid::LowType guid = strtoull(e, nullptr, 10);
-        uint32 index = (uint32)atoi(f);
-        uint32 value = (uint32)atoi(g);
+        uint32 index = atoul(f);
+        uint32 value = atoul(g);
 
         Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid::Create<HighGuid::Item>(guid));
 
@@ -1135,7 +1134,7 @@ public:
 
         ObjectGuid guid = target->GetGUID();
 
-        uint32 field = (uint32)atoi(x);
+        uint32 field = atoul(x);
         if (field >= target->GetValuesCount())
         {
             handler->PSendSysMessage(LANG_TOO_BIG_INDEX, field, guid.ToString().c_str(), target->GetValuesCount());
@@ -1148,7 +1147,7 @@ public:
 
         if (isInt32)
         {
-            uint32 value = (uint32)atoi(y);
+            uint32 value = atoul(y);
             target->SetUInt32Value(field, value);
             handler->PSendSysMessage(LANG_SET_UINT_FIELD, guid.ToString().c_str(), field, value);
         }
@@ -1183,7 +1182,7 @@ public:
 
         ObjectGuid guid = target->GetGUID();
 
-        uint32 opcode = (uint32)atoi(x);
+        uint32 opcode = atoul(x);
         if (opcode >= target->GetValuesCount())
         {
             handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, guid.ToString().c_str(), target->GetValuesCount());
@@ -1219,7 +1218,7 @@ public:
         if (!x || !y)
             return false;
 
-        uint32 opcode = (uint32)atoi(x);
+        uint32 opcode = atoul(x);
         int value = atoi(y);
 
         if (opcode >= handler->GetSession()->GetPlayer()->GetValuesCount())
@@ -1228,10 +1227,10 @@ public:
             return false;
         }
 
-        int currentValue = (int)handler->GetSession()->GetPlayer()->GetUInt32Value(opcode);
+        uint32 currentValue = handler->GetSession()->GetPlayer()->GetUInt32Value(opcode);
 
         currentValue += value;
-        handler->GetSession()->GetPlayer()->SetUInt32Value(opcode, (uint32)currentValue);
+        handler->GetSession()->GetPlayer()->SetUInt32Value(opcode, currentValue);
 
         handler->PSendSysMessage(LANG_CHANGE_32BIT_FIELD, opcode, currentValue);
 
@@ -1306,8 +1305,8 @@ public:
         if (!x || !y)
             return false;
 
-        uint32 opcode = (uint32)atoi(x);
-        uint32 val = (uint32)atoi(y);
+        uint32 opcode = atoul(x);
+        uint32 val = atoul(y);
         if (val > 32)                                         //uint32 = 32 bits
             return false;
 
@@ -1353,7 +1352,7 @@ public:
             else
             {
                 WorldPackets::Movement::MoveUpdate moveUpdate;
-                moveUpdate.movementInfo = &target->m_movementInfo;
+                moveUpdate.Status = &target->m_movementInfo;
                 target->SendMessageToSet(moveUpdate.Write(), true);
             }
 
@@ -1551,6 +1550,29 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD_NOTFOUND);
 
         return true;
+    }
+
+    static bool HandleDebugConversationCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char const* conversationEntryStr = strtok((char*)args, " ");
+
+        if (!conversationEntryStr)
+            return false;
+
+        uint32 conversationEntry = atoi(conversationEntryStr);
+        Player* target = handler->getSelectedPlayerOrSelf();
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        return Conversation::CreateConversation(conversationEntry, target, *target, { target->GetGUID() }) != nullptr;
     }
 };
 

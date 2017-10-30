@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,13 +17,18 @@
  */
 
 #include "BattlegroundAB.h"
-#include "WorldPacket.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
+#include "DB2Stores.h"
+#include "GameObject.h"
 #include "Language.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "Random.h"
 #include "Util.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 
 BattlegroundAB::BattlegroundAB()
 {

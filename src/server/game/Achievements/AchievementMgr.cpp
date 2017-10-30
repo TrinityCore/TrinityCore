@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,13 +18,21 @@
 
 #include "AchievementMgr.h"
 #include "AchievementPackets.h"
+#include "DB2Stores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Item.h"
 #include "Language.h"
+#include "Log.h"
+#include "Mail.h"
 #include "ObjectMgr.h"
+#include "World.h"
+#include "WorldSession.h"
 
 struct VisibleAchievementCheck
 {
@@ -264,7 +272,7 @@ void PlayerAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Pre
                 TC_LOG_ERROR("criteria.achievement", "Non-existing achievement criteria %u data has been removed from the table `character_achievement_progress`.", id);
 
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
-                stmt->setUInt32(0, uint16(id));
+                stmt->setUInt32(0, id);
                 CharacterDatabase.Execute(stmt);
 
                 continue;
@@ -443,13 +451,17 @@ void PlayerAchievementMgr::SendAchievementInfo(Player* receiver, uint32 /*achiev
         inspectedAchievements.Data.Progress.push_back(progress);
     }
 
-    receiver->GetSession()->SendPacket(inspectedAchievements.Write());
+    receiver->SendDirectMessage(inspectedAchievements.Write());
 }
 
 void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
 {
     // disable for gamemasters with GM-mode enabled
     if (_owner->IsGameMaster())
+        return;
+
+    if ((achievement->Faction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
+        (achievement->Faction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
         return;
 
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
@@ -462,7 +474,7 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
     if (!_owner->GetSession()->PlayerLoading())
         SendAchievementEarned(achievement);
 
-    TC_LOG_DEBUG("criteria.achievement", "PlayerAchievementMgr::CompletedAchievement(%u). %s", achievement->ID, GetOwnerInfo().c_str());
+    TC_LOG_INFO("criteria.achievement", "PlayerAchievementMgr::CompletedAchievement(%u). %s", achievement->ID, GetOwnerInfo().c_str());
 
     CompletedAchievementData& ca = _completedAchievements[achievement->ID];
     ca.Date = time(NULL);
@@ -505,7 +517,7 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
             std::string text = reward->Body;
 
             LocaleConstant localeConstant = _owner->GetSession()->GetSessionDbLocaleIndex();
-            if (localeConstant >= LOCALE_enUS)
+            if (localeConstant != LOCALE_enUS)
             {
                 if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
                 {
@@ -595,8 +607,8 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         {
             Trinity::BroadcastTextBuilder _builder(_owner, CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, _owner, achievement->ID);
             Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> _localizer(_builder);
-            Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> > _worker(_owner, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _localizer);
-            _owner->VisitNearbyWorldObject(sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _worker);
+            Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder>> _worker(_owner, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _localizer);
+            Cell::VisitWorldObjects(_owner, _worker, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
         }
     }
 
@@ -704,7 +716,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
                 TC_LOG_ERROR("criteria.achievement", "Non-existing achievement criteria %u data removed from table `guild_achievement_progress`.", id);
 
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
-                stmt->setUInt32(0, uint16(id));
+                stmt->setUInt32(0, id);
                 CharacterDatabase.Execute(stmt);
                 continue;
             }
@@ -786,7 +798,7 @@ void GuildAchievementMgr::SendAllData(Player const* receiver) const
         allGuildAchievements.Earned.push_back(earned);
     }
 
-    receiver->GetSession()->SendPacket(allGuildAchievements.Write());
+    receiver->SendDirectMessage(allGuildAchievements.Write());
 }
 
 void GuildAchievementMgr::SendAchievementInfo(Player* receiver, uint32 achievementId /*= 0*/) const
@@ -819,7 +831,7 @@ void GuildAchievementMgr::SendAchievementInfo(Player* receiver, uint32 achieveme
         }
     }
 
-    receiver->GetSession()->SendPacket(guildCriteriaUpdate.Write());
+    receiver->SendDirectMessage(guildCriteriaUpdate.Write());
 }
 
 void GuildAchievementMgr::SendAllTrackedCriterias(Player* receiver, std::set<uint32> const& trackedCriterias) const
@@ -845,7 +857,23 @@ void GuildAchievementMgr::SendAllTrackedCriterias(Player* receiver, std::set<uin
         guildCriteriaUpdate.Progress.push_back(guildCriteriaProgress);
     }
 
-    receiver->GetSession()->SendPacket(guildCriteriaUpdate.Write());
+    receiver->SendDirectMessage(guildCriteriaUpdate.Write());
+}
+
+void GuildAchievementMgr::SendAchievementMembers(Player* receiver, uint32 achievementId) const
+{
+    auto itr = _completedAchievements.find(achievementId);
+    if (itr != _completedAchievements.end())
+    {
+        WorldPackets::Achievement::GuildAchievementMembers guildAchievementMembers;
+        guildAchievementMembers.GuildGUID = _owner->GetGUID();
+        guildAchievementMembers.AchievementID = achievementId;
+        guildAchievementMembers.Member.reserve(itr->second.CompletingPlayers.size());
+        for (ObjectGuid const& member : itr->second.CompletingPlayers)
+            guildAchievementMembers.Member.emplace_back(member);
+
+        receiver->SendDirectMessage(guildAchievementMembers.Write());
+    }
 }
 
 void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)

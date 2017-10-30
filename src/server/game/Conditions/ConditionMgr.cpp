@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,16 +18,26 @@
 
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Item.h"
+#include "Log.h"
+#include "LootMgr.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Pet.h"
 #include "ReputationMgr.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "World.h"
+#include "WorldSession.h"
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -104,7 +114,13 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Realm Achievement",    true, false, false },
     { "In Water",            false, false, false },
     { "Terrain Swap",         true, false, false },
-    { "Sit/stand state",      true,  true, false }
+    { "Sit/stand state",      true,  true, false },
+    { "Daily Quest Completed",true, false, false },
+    { "Charmed",             false, false, false },
+    { "Pet type",             true, false, false },
+    { "On Taxi",             false, false, false },
+    { "Quest state mask",     true,  true, false },
+    { "Objective Complete",   true,  false, false }
 };
 
 // Checks if object meets the condition
@@ -284,12 +300,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_NEAR_CREATURE:
         {
-            condMeets = GetClosestCreatureWithEntry(object, ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) ? true : false;
+            condMeets = object->FindNearestCreature(ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) != nullptr;
             break;
         }
         case CONDITION_NEAR_GAMEOBJECT:
         {
-            condMeets = GetClosestGameObjectWithEntry(object, ConditionValue1, (float)ConditionValue2) ? true : false;
+            condMeets = object->FindNearestGameObject(ConditionValue1, (float)ConditionValue2) != nullptr;
             break;
         }
         case CONDITION_OBJECT_ENTRY_GUID:
@@ -451,6 +467,58 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                     condMeets = unit->IsStandState();
                 else if (ConditionValue2 == 1)
                     condMeets = unit->IsSitState();
+            }
+            break;
+        }
+        case CONDITION_DAILY_QUEST_DONE:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->IsDailyQuestDone(ConditionValue1);
+            break;
+        }
+        case CONDITION_CHARMED:
+        {
+            if (Unit* unit = object->ToUnit())
+                condMeets = unit->IsCharmed();
+            break;
+        }
+        case CONDITION_PET_TYPE:
+        {
+            if (Player* player = object->ToPlayer())
+                if (Pet* pet = player->GetPet())
+                    condMeets = (((1 << pet->getPetType()) & ConditionValue1) != 0);
+            break;
+        }
+        case CONDITION_TAXI:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->IsInFlight();
+            break;
+        }
+        case CONDITION_QUESTSTATE:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                if (
+                    ((ConditionValue2 & (1 << QUEST_STATUS_NONE)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_NONE)) ||
+                    ((ConditionValue2 & (1 << QUEST_STATUS_COMPLETE)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_COMPLETE)) ||
+                    ((ConditionValue2 & (1 << QUEST_STATUS_INCOMPLETE)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_INCOMPLETE)) ||
+                    ((ConditionValue2 & (1 << QUEST_STATUS_FAILED)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_FAILED)) ||
+                    ((ConditionValue2 & (1 << QUEST_STATUS_REWARDED)) && player->GetQuestRewardStatus(ConditionValue1))
+                )
+                    condMeets = true;
+            }
+            break;
+        }
+        case CONDITION_QUEST_OBJECTIVE_COMPLETE:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                QuestObjective const* obj = sObjectMgr->GetQuestObjective(ConditionValue1);
+                if (!obj)
+                    break;
+
+                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(*obj));
             }
             break;
         }
@@ -635,6 +703,24 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
         case CONDITION_STAND_STATE:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
             break;
+        case CONDITION_DAILY_QUEST_DONE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_CHARMED:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_PET_TYPE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_TAXI:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_QUESTSTATE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_QUEST_OBJECTIVE_COMPLETE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
             break;
@@ -752,7 +838,7 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
             //! If not found, add an entry in the store and set to true (placeholder)
             if (itr == elseGroupStore.end())
                 elseGroupStore[condition->ElseGroup] = true;
-            else if (!(*itr).second)
+            else if (!(*itr).second) //! If another condition in this group was unmatched before this, don't bother checking (the group is false anyway)
                 continue;
 
             if (condition->ReferenceId)//handle reference
@@ -1630,7 +1716,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "%s in `condition` table, SourceEntry does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
 
@@ -1697,13 +1783,12 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellProto)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
         }
-        case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
-        case CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK:
+        case CONDITION_SOURCE_TYPE_QUEST_AVAILABLE:
             if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry specifies non-existing quest, skipped.", cond->ToString().c_str());
@@ -1719,7 +1804,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1732,7 +1817,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1888,10 +1973,18 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_QUESTSTATE:
+            if (cond->ConditionValue2 >= (1 << MAX_QUEST_STATUS))
+            {
+                TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                return false;
+            }
+            // intentional missing break
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_NONE:
         case CONDITION_QUEST_COMPLETE:
+        case CONDITION_DAILY_QUEST_DONE:
         {
             if (!sObjectMgr->GetQuestTemplate(cond->ConditionValue1))
             {
@@ -2223,8 +2316,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
-        case CONDITION_IN_WATER:
-            break;
         case CONDITION_STAND_STATE:
         {
             bool valid = false;
@@ -2247,6 +2338,26 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_QUEST_OBJECTIVE_COMPLETE:
+        {
+            QuestObjective const* obj = sObjectMgr->GetQuestObjective(cond->ConditionValue1);
+            if (!obj)
+            {
+                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest objective (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
+        case CONDITION_PET_TYPE:
+            if (cond->ConditionValue1 >= (1 << MAX_PET_TYPE))
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non-existing pet type %u, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
+        case CONDITION_IN_WATER:
+        case CONDITION_CHARMED:
+        case CONDITION_TAXI:
         default:
             break;
     }
@@ -2486,6 +2597,19 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->LifetimeMaxPVPRank && player->GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK) != condition->LifetimeMaxPVPRank)
         return false;
+
+    if (condition->MovementFlags[0] && !(player->GetUnitMovementFlags() & condition->MovementFlags[0]))
+        return false;
+
+    if (condition->MovementFlags[1] && !(player->GetExtraUnitMovementFlags() & condition->MovementFlags[1]))
+        return false;
+
+    if (condition->MainHandItemSubclassMask)
+    {
+        Item* mainHand = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        if (!mainHand || !((1 << mainHand->GetTemplate()->GetSubClass()) & condition->MainHandItemSubclassMask))
+            return false;
+    }
 
     if (condition->PartyStatus)
     {

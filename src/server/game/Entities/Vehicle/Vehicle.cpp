@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,24 +16,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Log.h"
-#include "ObjectMgr.h"
 #include "Vehicle.h"
+#include "Battleground.h"
+#include "Common.h"
+#include "CreatureAI.h"
+#include "DB2Stores.h"
+#include "EventProcessor.h"
+#include "Log.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "TemporarySummon.h"
 #include "Unit.h"
 #include "Util.h"
-#include "ScriptMgr.h"
-#include "CreatureAI.h"
-#include "MoveSplineInit.h"
-#include "TemporarySummon.h"
-#include "EventProcessor.h"
-#include "Player.h"
-#include "Battleground.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
 {
-    for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
+    for (int8 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
         if (uint32 seatId = _vehicleInfo->SeatID[i])
             if (VehicleSeatEntry const* veSeat = sVehicleSeatStore.LookupEntry(seatId))
@@ -521,6 +523,9 @@ void Vehicle::RelocatePassengers()
 {
     ASSERT(_me->GetMap());
 
+    std::vector<std::pair<Unit*, Position>> seatRelocation;
+    seatRelocation.reserve(Seats.size());
+
     // not sure that absolute position calculation is correct, it must depend on vehicle pitch angle
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
     {
@@ -532,9 +537,12 @@ void Vehicle::RelocatePassengers()
             passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
             CalculatePassengerPosition(px, py, pz, &po);
 
-            passenger->UpdatePosition(px, py, pz, po);
+            seatRelocation.emplace_back(passenger, Position(px, py, pz, po));
         }
     }
+
+    for (auto const& pair : seatRelocation)
+        pair.first->UpdatePosition(pair.second);
 }
 
 /**

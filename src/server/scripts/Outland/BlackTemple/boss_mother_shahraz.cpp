@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,8 +23,10 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "Containers.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Texts
 {
@@ -82,7 +84,7 @@ uint32 PrismaticAuras[]=
     40897,                                                  // Holy
 };
 
-G3D::Vector3 const TeleportPoint[]=
+Position const TeleportPoint[]=
 {
     {959.996f, 212.576f, 193.843f},
     {932.537f, 231.813f, 193.838f},
@@ -149,10 +151,10 @@ public:
 
         void TeleportPlayers()
         {
-            uint32 random = urand(0, 7);
-            float X = TeleportPoint[random].x;
-            float Y = TeleportPoint[random].y;
-            float Z = TeleportPoint[random].z;
+            Position const& random = Trinity::Containers::SelectRandomContainerElement(TeleportPoint);
+            float X = random.GetPositionX();
+            float Y = random.GetPositionY();
+            float Z = random.GetPositionZ();
             for (uint8 i = 0; i < 3; ++i)
             {
                 if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 1))
@@ -210,7 +212,7 @@ public:
                     break;
                 case EVENT_PRISMATIC_SHIELD:
                     // Random Prismatic Shield every 15 seconds.
-                    DoCast(me, PrismaticAuras[urand(0, 6)]);
+                    DoCast(me, PrismaticAuras[urand(0, 5)]);
                     events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, 15000);
                     break;
                 case EVENT_FATAL_ATTRACTION:

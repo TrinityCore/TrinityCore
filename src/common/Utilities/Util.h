@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,24 +21,9 @@
 
 #include "Define.h"
 #include "Errors.h"
-#include "Random.h"
-
-#include <algorithm>
 #include <string>
+#include <sstream>
 #include <vector>
-#include <list>
-#include <map>
-#include <ctime>
-
-// Searcher for map of structs
-template<typename T, class S> struct Finder
-{
-    T val_;
-    T S::* idMember_;
-
-    Finder(T val, T S::* idMember) : val_(val), idMember_(idMember) {}
-    bool operator()(const std::pair<int, S> &obj) { return obj.second.*idMember_ == val_; }
-};
 
 class TC_COMMON_API Tokenizer
 {
@@ -296,15 +281,8 @@ inline wchar_t wcharToLower(wchar_t wchar)
     return wchar;
 }
 
-inline void wstrToUpper(std::wstring& str)
-{
-    std::transform( str.begin(), str.end(), str.begin(), wcharToUpper );
-}
-
-inline void wstrToLower(std::wstring& str)
-{
-    std::transform( str.begin(), str.end(), str.begin(), wcharToLower );
-}
+TC_COMMON_API void wstrToUpper(std::wstring& str);
+TC_COMMON_API void wstrToLower(std::wstring& str);
 
 TC_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
 
@@ -324,6 +302,23 @@ TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, b
 TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
 
 TC_COMMON_API bool StringToBool(std::string const& str);
+TC_COMMON_API float DegToRad(float degrees);
+
+template<class Container>
+std::string StringJoin(Container const& c, std::string delimiter)
+{
+    if (c.empty())
+        return "";
+
+    std::ostringstream os;
+    auto itr = c.begin();
+    os << *itr++;
+
+    for (; itr != c.end(); ++itr)
+        os << delimiter << *itr;
+
+    return os.str();
+}
 
 // simple class for not-modifyable list
 template <typename T>
@@ -335,6 +330,7 @@ class HookList final
         ContainerType _container;
 
     public:
+        typedef typename ContainerType::const_iterator const_iterator;
         typedef typename ContainerType::iterator iterator;
 
         HookList<T>& operator+=(T t)
@@ -343,7 +339,7 @@ class HookList final
             return *this;
         }
 
-        size_t size()
+        size_t size() const
         {
             return _container.size();
         }
@@ -354,6 +350,16 @@ class HookList final
         }
 
         iterator end()
+        {
+            return _container.end();
+        }
+
+        const_iterator begin() const
+        {
+            return _container.begin();
+        }
+
+        const_iterator end() const
         {
             return _container.end();
         }
@@ -529,6 +535,13 @@ bool CompareValues(ComparisionType type, T val1, T val2)
             ABORT();
             return false;
     }
+}
+
+template<typename E>
+typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
+{
+    static_assert(std::is_enum<E>::value, "AsUnderlyingType can only be used with enums");
+    return static_cast<typename std::underlying_type<E>::type>(enumValue);
 }
 
 #endif

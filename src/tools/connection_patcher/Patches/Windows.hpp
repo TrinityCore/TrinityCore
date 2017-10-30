@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,16 +27,24 @@ namespace Connection_Patcher
     {
         namespace Windows
         {
+            static std::vector<unsigned char> LauncherLoginParametersLocation()
+            {
+                char const path[] = R"(Software\TrinityCore Developers\Battle.net\Launch Options\)";
+                return std::vector<unsigned char>(std::begin(path), std::end(path));
+            }
+
             struct x86
             {
-                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x6A, 0x01 }; }
-                static const std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0x59, 0x59, 0x84, 0xC0, 0xEB }; }
+                static std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x6A, 0x01 }; }
+                static std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0x59, 0x59, 0x84, 0xC0, 0xEB }; }
+                static std::vector<unsigned char> LauncherLoginParametersLocation() { return ::Connection_Patcher::Patches::Windows::LauncherLoginParametersLocation(); }
             };
 
             struct x64
             {
-                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x41, 0xB1, 0x01 }; }
-                static const std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0xEB }; }
+                static std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x41, 0xB1, 0x01 }; }
+                static std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0xEB }; }
+                static std::vector<unsigned char> LauncherLoginParametersLocation() { return ::Connection_Patcher::Patches::Windows::LauncherLoginParametersLocation(); }
             };
         };
     }

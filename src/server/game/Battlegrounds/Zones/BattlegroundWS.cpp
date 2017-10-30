@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,18 @@
  */
 
 #include "BattlegroundWS.h"
+#include "BattlegroundMgr.h"
+#include "BattlegroundPackets.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
 #include "Language.h"
+#include "Log.h"
+#include "Map.h"
 #include "Object.h"
-#include "BattlegroundMgr.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 // these variables aren't used outside of this file, so declare them only here
 enum BG_WSG_Rewards
@@ -196,8 +202,7 @@ void BattlegroundWS::GetPlayerPositionData(std::vector<WorldPackets::Battlegroun
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();
-        position.Pos.x = player->GetPositionX();
-        position.Pos.y = player->GetPositionY();
+        position.Pos = player->GetPosition();
         position.IconID = PLAYER_POSITION_ICON_ALLIANCE_FLAG;
         position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
         positions->push_back(position);
@@ -207,8 +212,7 @@ void BattlegroundWS::GetPlayerPositionData(std::vector<WorldPackets::Battlegroun
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();
-        position.Pos.x = player->GetPositionX();
-        position.Pos.y = player->GetPositionY();
+        position.Pos = player->GetPosition();
         position.IconID = PLAYER_POSITION_ICON_HORDE_FLAG;
         position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
         positions->push_back(position);

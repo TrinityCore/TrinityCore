@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,18 +19,19 @@
 #ifndef _MMAP_COMMON_H
 #define _MMAP_COMMON_H
 
+#include "Common.h"
 #include <string>
 #include <vector>
 
-#include "Common.h"
-
 #ifndef _WIN32
-    #include <stddef.h>
+    #include <cstddef>
     #include <dirent.h>
+#else
+    #include <Windows.h>
 #endif
 
-#ifdef __linux__
-    #include <errno.h>
+#ifndef WIN32
+    #include <cerrno>
 #endif
 
 enum NavTerrain

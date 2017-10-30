@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Vehicle.h"
-#include "Player.h"
+#include "DB2Structure.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
+#include "Vehicle.h"
 #include "VehiclePackets.h"
 
 void WorldSession::HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle)
@@ -188,5 +188,5 @@ void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicl
 
 void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck)
 {
-    GetPlayer()->ValidateMovementInfo(&setVehicleRecIdAck.Data.movementInfo);
+    GetPlayer()->ValidateMovementInfo(&setVehicleRecIdAck.Data.Status);
 }

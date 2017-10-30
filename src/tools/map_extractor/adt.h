@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "loadlib.h"
+#include "Define.h"
 
 #define TILESIZE (533.33333f)
 #define CHUNKSIZE ((TILESIZE) / 16.0f)

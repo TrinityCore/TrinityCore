@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,16 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "PassiveAI.h"
+#include "DB2Stores.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "MapManager.h"
+#include "MotionMaster.h"
 #include "MoveSplineInit.h"
-#include "ulduar.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "ulduar.h"
 
 enum Texts
 {
@@ -437,7 +444,7 @@ class boss_algalon_the_observer : public CreatureScript
                     me->SetDisableGravity(false);
                 else if (pointId == POINT_ALGALON_OUTRO)
                 {
-                    me->SetFacingTo(1.605703f);
+                    me->SetFacingTo(1.605703f, true);
                     events.ScheduleEvent(EVENT_OUTRO_3, 1200);
                     events.ScheduleEvent(EVENT_OUTRO_4, 2400);
                     events.ScheduleEvent(EVENT_OUTRO_5, 8500);
@@ -693,6 +700,9 @@ class boss_algalon_the_observer : public CreatureScript
                             me->DespawnOrUnsummon(1500);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING) && !events.IsInPhase(PHASE_ROLE_PLAY))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

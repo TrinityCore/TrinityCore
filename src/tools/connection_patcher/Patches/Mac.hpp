@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,13 @@ namespace Connection_Patcher
         {
             struct x64
             {
-                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x48, 0x8D, 0x55, 0xC4, 0x31, 0xDB, 0xB1, 0x01 }; }
-                static const std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0x45, 0x84, 0xED, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }; }
+                static std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x48, 0x8D, 0x55, 0xDC, 0x31, 0xDB, 0xB1, 0x01 }; }
+                static std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0x45, 0x84, 0xFF, 0xB0, 0x01, 0xEB, 0x03, 0x44, 0x89 }; }
+                static std::vector<unsigned char> LauncherLoginParametersLocation()
+                {
+                    char const path[] = "org.trnity"; // not a typo, length must match original
+                    return std::vector<unsigned char>(std::begin(path), std::end(path));
+                }
             };
         };
     }

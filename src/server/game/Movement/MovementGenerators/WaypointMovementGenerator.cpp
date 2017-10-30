@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -15,21 +15,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-//Basic headers
+
 #include "WaypointMovementGenerator.h"
-//Extended headers
-#include "ObjectMgr.h"
-#include "Transport.h"
-//Flightmaster grid preloading
-#include "MapManager.h"
-//Creature-specific headers
-#include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
-//Player-specific
-#include "Player.h"
-#include "MoveSplineInit.h"
+#include "Log.h"
+#include "MapManager.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "ObjectMgr.h"
+#include "Transport.h"
+#include "World.h"
 
 void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
 {
@@ -269,6 +265,7 @@ void FlightPathMovementGenerator::LoadPath(Player* player, uint32 startNode /*= 
     i_currentNode = startNode;
     _pointsForPathSwitch.clear();
     std::deque<uint32> const& taxi = player->m_taxi.GetPath();
+    float discount = player->GetReputationPriceDiscount(player->m_taxi.GetFlightMasterFactionTemplate());
     for (uint32 src = 0, dst = 1; dst < taxi.size(); src = dst++)
     {
         uint32 path, cost;
@@ -301,7 +298,7 @@ void FlightPathMovementGenerator::LoadPath(Player* player, uint32 startNode /*= 
             }
         }
 
-        _pointsForPathSwitch.push_back({ uint32(i_path.size() - 1), int32(cost) });
+        _pointsForPathSwitch.push_back({ uint32(i_path.size() - 1), int64(ceil(cost * discount)) });
     }
 }
 
@@ -317,7 +314,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
     player->ClearUnitState(UNIT_STATE_IN_FLIGHT);
 
     player->Dismount();
-    player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
+    player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
 
     if (player->m_taxi.empty())
     {
@@ -337,7 +334,7 @@ void FlightPathMovementGenerator::DoReset(Player* player)
 {
     player->getHostileRefManager().setOnlineOfflineState(false);
     player->AddUnitState(UNIT_STATE_IN_FLIGHT);
-    player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
+    player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
 
     Movement::MoveSplineInit init(player);
     uint32 end = GetPathAtMapEnd();

@@ -50,6 +50,8 @@ class UpdateRequest;
 class QueryRequest;
 class QueryResponse;
 class OwnershipRequest;
+class MigrateOlympusCustomMessageRequest;
+class MigrateOlympusCustomMessageResponse;
 
 // ===================================================================
 
@@ -756,6 +758,181 @@ class TC_PROTO_API OwnershipRequest : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static OwnershipRequest* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API MigrateOlympusCustomMessageRequest : public ::google::protobuf::Message {
+ public:
+  MigrateOlympusCustomMessageRequest();
+  virtual ~MigrateOlympusCustomMessageRequest();
+
+  MigrateOlympusCustomMessageRequest(const MigrateOlympusCustomMessageRequest& from);
+
+  inline MigrateOlympusCustomMessageRequest& operator=(const MigrateOlympusCustomMessageRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MigrateOlympusCustomMessageRequest& default_instance();
+
+  void Swap(MigrateOlympusCustomMessageRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  MigrateOlympusCustomMessageRequest* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const MigrateOlympusCustomMessageRequest& from);
+  void MergeFrom(const MigrateOlympusCustomMessageRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required .bgs.protocol.EntityId account = 1;
+  inline bool has_account() const;
+  inline void clear_account();
+  static const int kAccountFieldNumber = 1;
+  inline const ::bgs::protocol::EntityId& account() const;
+  inline ::bgs::protocol::EntityId* mutable_account();
+  inline ::bgs::protocol::EntityId* release_account();
+  inline void set_allocated_account(::bgs::protocol::EntityId* account);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.presence.v1.MigrateOlympusCustomMessageRequest)
+ private:
+  inline void set_has_account();
+  inline void clear_has_account();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::EntityId* account_;
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
+  friend void protobuf_AssignDesc_presence_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_presence_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static MigrateOlympusCustomMessageRequest* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API MigrateOlympusCustomMessageResponse : public ::google::protobuf::Message {
+ public:
+  MigrateOlympusCustomMessageResponse();
+  virtual ~MigrateOlympusCustomMessageResponse();
+
+  MigrateOlympusCustomMessageResponse(const MigrateOlympusCustomMessageResponse& from);
+
+  inline MigrateOlympusCustomMessageResponse& operator=(const MigrateOlympusCustomMessageResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MigrateOlympusCustomMessageResponse& default_instance();
+
+  void Swap(MigrateOlympusCustomMessageResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  MigrateOlympusCustomMessageResponse* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const MigrateOlympusCustomMessageResponse& from);
+  void MergeFrom(const MigrateOlympusCustomMessageResponse& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string custom_message = 1;
+  inline bool has_custom_message() const;
+  inline void clear_custom_message();
+  static const int kCustomMessageFieldNumber = 1;
+  inline const ::std::string& custom_message() const;
+  inline void set_custom_message(const ::std::string& value);
+  inline void set_custom_message(const char* value);
+  inline void set_custom_message(const char* value, size_t size);
+  inline ::std::string* mutable_custom_message();
+  inline ::std::string* release_custom_message();
+  inline void set_allocated_custom_message(::std::string* custom_message);
+
+  // optional uint32 custom_message_time_epoch = 2;
+  inline bool has_custom_message_time_epoch() const;
+  inline void clear_custom_message_time_epoch();
+  static const int kCustomMessageTimeEpochFieldNumber = 2;
+  inline ::google::protobuf::uint32 custom_message_time_epoch() const;
+  inline void set_custom_message_time_epoch(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.presence.v1.MigrateOlympusCustomMessageResponse)
+ private:
+  inline void set_has_custom_message();
+  inline void clear_has_custom_message();
+  inline void set_has_custom_message_time_epoch();
+  inline void clear_has_custom_message_time_epoch();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* custom_message_;
+  ::google::protobuf::uint32 custom_message_time_epoch_;
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
+  friend void protobuf_AssignDesc_presence_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_presence_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static MigrateOlympusCustomMessageResponse* default_instance_;
+};
 // ===================================================================
 
 class TC_PROTO_API PresenceService : public ServiceBase
@@ -778,17 +955,19 @@ class TC_PROTO_API PresenceService : public ServiceBase
   void Query(::bgs::protocol::presence::v1::QueryRequest const* request, std::function<void(::bgs::protocol::presence::v1::QueryResponse const*)> responseCallback);
   void Ownership(::bgs::protocol::presence::v1::OwnershipRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void SubscribeNotification(::bgs::protocol::presence::v1::SubscribeNotificationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
+  void MigrateOlympusCustomMessage(::bgs::protocol::presence::v1::MigrateOlympusCustomMessageRequest const* request, std::function<void(::bgs::protocol::presence::v1::MigrateOlympusCustomMessageResponse const*)> responseCallback);
   // server methods --------------------------------------------------
 
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleSubscribe(::bgs::protocol::presence::v1::SubscribeRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUnsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUpdate(::bgs::protocol::presence::v1::UpdateRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleQuery(::bgs::protocol::presence::v1::QueryRequest const* request, ::bgs::protocol::presence::v1::QueryResponse* response);
-  virtual uint32 HandleOwnership(::bgs::protocol::presence::v1::OwnershipRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleSubscribeNotification(::bgs::protocol::presence::v1::SubscribeNotificationRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleSubscribe(::bgs::protocol::presence::v1::SubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUnsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUpdate(::bgs::protocol::presence::v1::UpdateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleQuery(::bgs::protocol::presence::v1::QueryRequest const* request, ::bgs::protocol::presence::v1::QueryResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleOwnership(::bgs::protocol::presence::v1::OwnershipRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSubscribeNotification(::bgs::protocol::presence::v1::SubscribeNotificationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleMigrateOlympusCustomMessage(::bgs::protocol::presence::v1::MigrateOlympusCustomMessageRequest const* request, ::bgs::protocol::presence::v1::MigrateOlympusCustomMessageResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;
@@ -1475,6 +1654,155 @@ inline void OwnershipRequest::set_release_ownership(bool value) {
   set_has_release_ownership();
   release_ownership_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.OwnershipRequest.release_ownership)
+}
+
+// -------------------------------------------------------------------
+
+// MigrateOlympusCustomMessageRequest
+
+// required .bgs.protocol.EntityId account = 1;
+inline bool MigrateOlympusCustomMessageRequest::has_account() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void MigrateOlympusCustomMessageRequest::set_has_account() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void MigrateOlympusCustomMessageRequest::clear_has_account() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void MigrateOlympusCustomMessageRequest::clear_account() {
+  if (account_ != NULL) account_->::bgs::protocol::EntityId::Clear();
+  clear_has_account();
+}
+inline const ::bgs::protocol::EntityId& MigrateOlympusCustomMessageRequest::account() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.MigrateOlympusCustomMessageRequest.account)
+  return account_ != NULL ? *account_ : *default_instance_->account_;
+}
+inline ::bgs::protocol::EntityId* MigrateOlympusCustomMessageRequest::mutable_account() {
+  set_has_account();
+  if (account_ == NULL) account_ = new ::bgs::protocol::EntityId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.MigrateOlympusCustomMessageRequest.account)
+  return account_;
+}
+inline ::bgs::protocol::EntityId* MigrateOlympusCustomMessageRequest::release_account() {
+  clear_has_account();
+  ::bgs::protocol::EntityId* temp = account_;
+  account_ = NULL;
+  return temp;
+}
+inline void MigrateOlympusCustomMessageRequest::set_allocated_account(::bgs::protocol::EntityId* account) {
+  delete account_;
+  account_ = account;
+  if (account) {
+    set_has_account();
+  } else {
+    clear_has_account();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.MigrateOlympusCustomMessageRequest.account)
+}
+
+// -------------------------------------------------------------------
+
+// MigrateOlympusCustomMessageResponse
+
+// optional string custom_message = 1;
+inline bool MigrateOlympusCustomMessageResponse::has_custom_message() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void MigrateOlympusCustomMessageResponse::set_has_custom_message() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void MigrateOlympusCustomMessageResponse::clear_has_custom_message() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void MigrateOlympusCustomMessageResponse::clear_custom_message() {
+  if (custom_message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_message_->clear();
+  }
+  clear_has_custom_message();
+}
+inline const ::std::string& MigrateOlympusCustomMessageResponse::custom_message() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.MigrateOlympusCustomMessageResponse.custom_message)
+  return *custom_message_;
+}
+inline void MigrateOlympusCustomMessageResponse::set_custom_message(const ::std::string& value) {
+  set_has_custom_message();
+  if (custom_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_message_ = new ::std::string;
+  }
+  custom_message_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.MigrateOlympusCustomMessageResponse.custom_message)
+}
+inline void MigrateOlympusCustomMessageResponse::set_custom_message(const char* value) {
+  set_has_custom_message();
+  if (custom_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_message_ = new ::std::string;
+  }
+  custom_message_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.presence.v1.MigrateOlympusCustomMessageResponse.custom_message)
+}
+inline void MigrateOlympusCustomMessageResponse::set_custom_message(const char* value, size_t size) {
+  set_has_custom_message();
+  if (custom_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_message_ = new ::std::string;
+  }
+  custom_message_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.presence.v1.MigrateOlympusCustomMessageResponse.custom_message)
+}
+inline ::std::string* MigrateOlympusCustomMessageResponse::mutable_custom_message() {
+  set_has_custom_message();
+  if (custom_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_message_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.MigrateOlympusCustomMessageResponse.custom_message)
+  return custom_message_;
+}
+inline ::std::string* MigrateOlympusCustomMessageResponse::release_custom_message() {
+  clear_has_custom_message();
+  if (custom_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = custom_message_;
+    custom_message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void MigrateOlympusCustomMessageResponse::set_allocated_custom_message(::std::string* custom_message) {
+  if (custom_message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete custom_message_;
+  }
+  if (custom_message) {
+    set_has_custom_message();
+    custom_message_ = custom_message;
+  } else {
+    clear_has_custom_message();
+    custom_message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.MigrateOlympusCustomMessageResponse.custom_message)
+}
+
+// optional uint32 custom_message_time_epoch = 2;
+inline bool MigrateOlympusCustomMessageResponse::has_custom_message_time_epoch() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void MigrateOlympusCustomMessageResponse::set_has_custom_message_time_epoch() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void MigrateOlympusCustomMessageResponse::clear_has_custom_message_time_epoch() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void MigrateOlympusCustomMessageResponse::clear_custom_message_time_epoch() {
+  custom_message_time_epoch_ = 0u;
+  clear_has_custom_message_time_epoch();
+}
+inline ::google::protobuf::uint32 MigrateOlympusCustomMessageResponse::custom_message_time_epoch() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.MigrateOlympusCustomMessageResponse.custom_message_time_epoch)
+  return custom_message_time_epoch_;
+}
+inline void MigrateOlympusCustomMessageResponse::set_custom_message_time_epoch(::google::protobuf::uint32 value) {
+  set_has_custom_message_time_epoch();
+  custom_message_time_epoch_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.MigrateOlympusCustomMessageResponse.custom_message_time_epoch)
 }
 
 

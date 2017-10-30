@@ -16,13 +16,9 @@
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
 #include "Log.h"
+#include "Errors.h"
 #include "BattlenetRpcErrorCodes.h"
 // @@protoc_insertion_point(includes)
-
-// Fix stupid windows.h included from Log.h->Common.h
-#ifdef SendMessage
-#undef SendMessage
-#endif
 
 namespace bgs {
 namespace protocol {
@@ -31,15 +27,9 @@ namespace v1 {
 
 namespace {
 
-const ::google::protobuf::Descriptor* AddMemberRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  AddMemberRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* RemoveMemberRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RemoveMemberRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* UnsubscribeMemberRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  UnsubscribeMemberRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* SendMessageRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   SendMessageRequest_reflection_ = NULL;
@@ -52,9 +42,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* DissolveRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   DissolveRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* SetRolesRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  SetRolesRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* JoinNotification_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   JoinNotification_reflection_ = NULL;
@@ -88,26 +75,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "channel_service.proto");
   GOOGLE_CHECK(file != NULL);
-  AddMemberRequest_descriptor_ = file->message_type(0);
-  static const int AddMemberRequest_offsets_[5] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, member_identity_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, member_state_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, object_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, subscribe_),
-  };
-  AddMemberRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      AddMemberRequest_descriptor_,
-      AddMemberRequest::default_instance_,
-      AddMemberRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(AddMemberRequest));
-  RemoveMemberRequest_descriptor_ = file->message_type(1);
+  RemoveMemberRequest_descriptor_ = file->message_type(0);
   static const int RemoveMemberRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RemoveMemberRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RemoveMemberRequest, member_id_),
@@ -124,23 +92,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RemoveMemberRequest));
-  UnsubscribeMemberRequest_descriptor_ = file->message_type(2);
-  static const int UnsubscribeMemberRequest_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnsubscribeMemberRequest, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnsubscribeMemberRequest, member_id_),
-  };
-  UnsubscribeMemberRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      UnsubscribeMemberRequest_descriptor_,
-      UnsubscribeMemberRequest::default_instance_,
-      UnsubscribeMemberRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnsubscribeMemberRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnsubscribeMemberRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(UnsubscribeMemberRequest));
-  SendMessageRequest_descriptor_ = file->message_type(3);
+  SendMessageRequest_descriptor_ = file->message_type(1);
   static const int SendMessageRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendMessageRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendMessageRequest, message_),
@@ -157,7 +109,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SendMessageRequest));
-  UpdateChannelStateRequest_descriptor_ = file->message_type(4);
+  UpdateChannelStateRequest_descriptor_ = file->message_type(2);
   static const int UpdateChannelStateRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateChannelStateRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateChannelStateRequest, state_change_),
@@ -173,7 +125,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateChannelStateRequest));
-  UpdateMemberStateRequest_descriptor_ = file->message_type(5);
+  UpdateMemberStateRequest_descriptor_ = file->message_type(3);
   static const int UpdateMemberStateRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateMemberStateRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateMemberStateRequest, state_change_),
@@ -190,7 +142,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateMemberStateRequest));
-  DissolveRequest_descriptor_ = file->message_type(6);
+  DissolveRequest_descriptor_ = file->message_type(4);
   static const int DissolveRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DissolveRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DissolveRequest, reason_),
@@ -206,24 +158,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DissolveRequest));
-  SetRolesRequest_descriptor_ = file->message_type(7);
-  static const int SetRolesRequest_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetRolesRequest, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetRolesRequest, role_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetRolesRequest, member_id_),
-  };
-  SetRolesRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      SetRolesRequest_descriptor_,
-      SetRolesRequest::default_instance_,
-      SetRolesRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetRolesRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetRolesRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(SetRolesRequest));
-  JoinNotification_descriptor_ = file->message_type(8);
+  JoinNotification_descriptor_ = file->message_type(5);
   static const int JoinNotification_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JoinNotification, self_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JoinNotification, member_),
@@ -242,7 +177,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(JoinNotification));
-  MemberAddedNotification_descriptor_ = file->message_type(9);
+  MemberAddedNotification_descriptor_ = file->message_type(6);
   static const int MemberAddedNotification_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberAddedNotification, member_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberAddedNotification, channel_id_),
@@ -259,7 +194,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MemberAddedNotification));
-  LeaveNotification_descriptor_ = file->message_type(10);
+  LeaveNotification_descriptor_ = file->message_type(7);
   static const int LeaveNotification_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LeaveNotification, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LeaveNotification, member_id_),
@@ -278,7 +213,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LeaveNotification));
-  MemberRemovedNotification_descriptor_ = file->message_type(11);
+  MemberRemovedNotification_descriptor_ = file->message_type(8);
   static const int MemberRemovedNotification_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberRemovedNotification, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberRemovedNotification, member_id_),
@@ -297,12 +232,12 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MemberRemovedNotification));
-  SendMessageNotification_descriptor_ = file->message_type(12);
+  SendMessageNotification_descriptor_ = file->message_type(9);
   static const int SendMessageNotification_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendMessageNotification, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendMessageNotification, message_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendMessageNotification, required_privileges_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendMessageNotification, identity_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendMessageNotification, battle_tag_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendMessageNotification, channel_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendMessageNotification, subscriber_),
   };
@@ -317,7 +252,7 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SendMessageNotification));
-  UpdateChannelStateNotification_descriptor_ = file->message_type(13);
+  UpdateChannelStateNotification_descriptor_ = file->message_type(10);
   static const int UpdateChannelStateNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateChannelStateNotification, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateChannelStateNotification, state_change_),
@@ -335,11 +270,10 @@ void protobuf_AssignDesc_channel_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateChannelStateNotification));
-  UpdateMemberStateNotification_descriptor_ = file->message_type(14);
-  static const int UpdateMemberStateNotification_offsets_[5] = {
+  UpdateMemberStateNotification_descriptor_ = file->message_type(11);
+  static const int UpdateMemberStateNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateMemberStateNotification, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateMemberStateNotification, state_change_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateMemberStateNotification, removed_role_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateMemberStateNotification, channel_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateMemberStateNotification, subscriber_),
   };
@@ -369,11 +303,7 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    AddMemberRequest_descriptor_, &AddMemberRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RemoveMemberRequest_descriptor_, &RemoveMemberRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    UnsubscribeMemberRequest_descriptor_, &UnsubscribeMemberRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     SendMessageRequest_descriptor_, &SendMessageRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -382,8 +312,6 @@ void protobuf_RegisterTypes(const ::std::string&) {
     UpdateMemberStateRequest_descriptor_, &UpdateMemberStateRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     DissolveRequest_descriptor_, &DissolveRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    SetRolesRequest_descriptor_, &SetRolesRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     JoinNotification_descriptor_, &JoinNotification::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -403,12 +331,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
 }  // namespace
 
 void protobuf_ShutdownFile_channel_5fservice_2eproto() {
-  delete AddMemberRequest::default_instance_;
-  delete AddMemberRequest_reflection_;
   delete RemoveMemberRequest::default_instance_;
   delete RemoveMemberRequest_reflection_;
-  delete UnsubscribeMemberRequest::default_instance_;
-  delete UnsubscribeMemberRequest_reflection_;
   delete SendMessageRequest::default_instance_;
   delete SendMessageRequest_reflection_;
   delete UpdateChannelStateRequest::default_instance_;
@@ -417,8 +341,6 @@ void protobuf_ShutdownFile_channel_5fservice_2eproto() {
   delete UpdateMemberStateRequest_reflection_;
   delete DissolveRequest::default_instance_;
   delete DissolveRequest_reflection_;
-  delete SetRolesRequest::default_instance_;
-  delete SetRolesRequest_reflection_;
   delete JoinNotification::default_instance_;
   delete JoinNotification_reflection_;
   delete MemberAddedNotification::default_instance_;
@@ -449,127 +371,105 @@ void protobuf_AddDesc_channel_5fservice_2eproto() {
     "\n\025channel_service.proto\022\027bgs.protocol.ch"
     "annel.v1\032\023account_types.proto\032\022entity_ty"
     "pes.proto\032\023channel_types.proto\032\017rpc_type"
-    "s.proto\"\325\001\n\020AddMemberRequest\022(\n\010agent_id"
-    "\030\001 \001(\0132\026.bgs.protocol.EntityId\022/\n\017member"
-    "_identity\030\002 \002(\0132\026.bgs.protocol.Identity\022"
-    ":\n\014member_state\030\003 \002(\0132$.bgs.protocol.cha"
-    "nnel.v1.MemberState\022\021\n\tobject_id\030\004 \002(\004\022\027"
-    "\n\tsubscribe\030\005 \001(\010:\004true\"z\n\023RemoveMemberR"
-    "equest\022(\n\010agent_id\030\001 \001(\0132\026.bgs.protocol."
-    "EntityId\022)\n\tmember_id\030\002 \002(\0132\026.bgs.protoc"
-    "ol.EntityId\022\016\n\006reason\030\003 \001(\r\"o\n\030Unsubscri"
-    "beMemberRequest\022(\n\010agent_id\030\001 \001(\0132\026.bgs."
-    "protocol.EntityId\022)\n\tmember_id\030\002 \002(\0132\026.b"
-    "gs.protocol.EntityId\"\221\001\n\022SendMessageRequ"
-    "est\022(\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.Ent"
-    "ityId\0221\n\007message\030\002 \002(\0132 .bgs.protocol.ch"
-    "annel.v1.Message\022\036\n\023required_privileges\030"
-    "\003 \001(\004:\0010\"\202\001\n\031UpdateChannelStateRequest\022("
-    "\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.EntityId"
-    "\022;\n\014state_change\030\002 \002(\0132%.bgs.protocol.ch"
-    "annel.v1.ChannelState\"\225\001\n\030UpdateMemberSt"
-    "ateRequest\022(\n\010agent_id\030\001 \001(\0132\026.bgs.proto"
-    "col.EntityId\0225\n\014state_change\030\002 \003(\0132\037.bgs"
-    ".protocol.channel.v1.Member\022\030\n\014removed_r"
-    "ole\030\003 \003(\rB\002\020\001\"K\n\017DissolveRequest\022(\n\010agen"
-    "t_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022\016\n\006re"
-    "ason\030\002 \001(\r\"x\n\017SetRolesRequest\022(\n\010agent_i"
-    "d\030\001 \001(\0132\026.bgs.protocol.EntityId\022\020\n\004role\030"
-    "\002 \003(\rB\002\020\001\022)\n\tmember_id\030\003 \003(\0132\026.bgs.proto"
-    "col.EntityId\"\237\002\n\020JoinNotification\022-\n\004sel"
-    "f\030\001 \001(\0132\037.bgs.protocol.channel.v1.Member"
-    "\022/\n\006member\030\002 \003(\0132\037.bgs.protocol.channel."
-    "v1.Member\022<\n\rchannel_state\030\003 \002(\0132%.bgs.p"
-    "rotocol.channel.v1.ChannelState\0226\n\nchann"
-    "el_id\030\004 \001(\0132\".bgs.protocol.channel.v1.Ch"
-    "annelId\0225\n\nsubscriber\030\005 \001(\0132!.bgs.protoc"
-    "ol.account.v1.Identity\"\271\001\n\027MemberAddedNo"
-    "tification\022/\n\006member\030\001 \002(\0132\037.bgs.protoco"
-    "l.channel.v1.Member\0226\n\nchannel_id\030\002 \001(\0132"
-    "\".bgs.protocol.channel.v1.ChannelId\0225\n\ns"
-    "ubscriber\030\003 \001(\0132!.bgs.protocol.account.v"
-    "1.Identity\"\347\001\n\021LeaveNotification\022(\n\010agen"
-    "t_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022)\n\tme"
-    "mber_id\030\002 \002(\0132\026.bgs.protocol.EntityId\022\016\n"
-    "\006reason\030\003 \001(\r\0226\n\nchannel_id\030\004 \001(\0132\".bgs."
-    "protocol.channel.v1.ChannelId\0225\n\nsubscri"
-    "ber\030\005 \001(\0132!.bgs.protocol.account.v1.Iden"
-    "tity\"\357\001\n\031MemberRemovedNotification\022(\n\010ag"
-    "ent_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022)\n\t"
-    "member_id\030\002 \002(\0132\026.bgs.protocol.EntityId\022"
-    "\016\n\006reason\030\003 \001(\r\0226\n\nchannel_id\030\004 \001(\0132\".bg"
-    "s.protocol.channel.v1.ChannelId\0225\n\nsubsc"
-    "riber\030\005 \001(\0132!.bgs.protocol.account.v1.Id"
-    "entity\"\227\002\n\027SendMessageNotification\022(\n\010ag"
+    "s.proto\"z\n\023RemoveMemberRequest\022(\n\010agent_"
+    "id\030\001 \001(\0132\026.bgs.protocol.EntityId\022)\n\tmemb"
+    "er_id\030\002 \002(\0132\026.bgs.protocol.EntityId\022\016\n\006r"
+    "eason\030\003 \001(\r\"\221\001\n\022SendMessageRequest\022(\n\010ag"
     "ent_id\030\001 \001(\0132\026.bgs.protocol.EntityId\0221\n\007"
     "message\030\002 \002(\0132 .bgs.protocol.channel.v1."
-    "Message\022\036\n\023required_privileges\030\003 \001(\004:\0010\022"
-    "\020\n\010identity\030\004 \001(\t\0226\n\nchannel_id\030\005 \001(\0132\"."
-    "bgs.protocol.channel.v1.ChannelId\0225\n\nsub"
-    "scriber\030\006 \001(\0132!.bgs.protocol.account.v1."
-    "Identity\"\366\001\n\036UpdateChannelStateNotificat"
-    "ion\022(\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.Ent"
-    "ityId\022;\n\014state_change\030\002 \002(\0132%.bgs.protoc"
-    "ol.channel.v1.ChannelState\0226\n\nchannel_id"
-    "\030\003 \001(\0132\".bgs.protocol.channel.v1.Channel"
-    "Id\0225\n\nsubscriber\030\004 \001(\0132!.bgs.protocol.ac"
-    "count.v1.Identity\"\211\002\n\035UpdateMemberStateN"
-    "otification\022(\n\010agent_id\030\001 \001(\0132\026.bgs.prot"
-    "ocol.EntityId\0225\n\014state_change\030\002 \003(\0132\037.bg"
-    "s.protocol.channel.v1.Member\022\030\n\014removed_"
-    "role\030\003 \003(\rB\002\020\001\0226\n\nchannel_id\030\004 \001(\0132\".bgs"
-    ".protocol.channel.v1.ChannelId\0225\n\nsubscr"
-    "iber\030\005 \001(\0132!.bgs.protocol.account.v1.Ide"
-    "ntity2\212\006\n\016ChannelService\022R\n\tAddMember\022)."
-    "bgs.protocol.channel.v1.AddMemberRequest"
-    "\032\024.bgs.protocol.NoData\"\004\200\265\030\001\022X\n\014RemoveMe"
-    "mber\022,.bgs.protocol.channel.v1.RemoveMem"
-    "berRequest\032\024.bgs.protocol.NoData\"\004\200\265\030\002\022V"
-    "\n\013SendMessage\022+.bgs.protocol.channel.v1."
-    "SendMessageRequest\032\024.bgs.protocol.NoData"
-    "\"\004\200\265\030\003\022d\n\022UpdateChannelState\0222.bgs.proto"
-    "col.channel.v1.UpdateChannelStateRequest"
-    "\032\024.bgs.protocol.NoData\"\004\200\265\030\004\022b\n\021UpdateMe"
-    "mberState\0221.bgs.protocol.channel.v1.Upda"
-    "teMemberStateRequest\032\024.bgs.protocol.NoDa"
-    "ta\"\004\200\265\030\005\022P\n\010Dissolve\022(.bgs.protocol.chan"
-    "nel.v1.DissolveRequest\032\024.bgs.protocol.No"
-    "Data\"\004\200\265\030\006\022P\n\010SetRoles\022(.bgs.protocol.ch"
-    "annel.v1.SetRolesRequest\032\024.bgs.protocol."
-    "NoData\"\004\200\265\030\007\022b\n\021UnsubscribeMember\0221.bgs."
-    "protocol.channel.v1.UnsubscribeMemberReq"
-    "uest\032\024.bgs.protocol.NoData\"\004\200\265\030\010\032 \312>\035bne"
-    "t.protocol.channel.Channel2\375\005\n\017ChannelLi"
-    "stener\022T\n\006OnJoin\022).bgs.protocol.channel."
-    "v1.JoinNotification\032\031.bgs.protocol.NO_RE"
-    "SPONSE\"\004\200\265\030\001\022b\n\rOnMemberAdded\0220.bgs.prot"
-    "ocol.channel.v1.MemberAddedNotification\032"
-    "\031.bgs.protocol.NO_RESPONSE\"\004\200\265\030\002\022V\n\007OnLe"
-    "ave\022*.bgs.protocol.channel.v1.LeaveNotif"
-    "ication\032\031.bgs.protocol.NO_RESPONSE\"\004\200\265\030\003"
-    "\022f\n\017OnMemberRemoved\0222.bgs.protocol.chann"
-    "el.v1.MemberRemovedNotification\032\031.bgs.pr"
-    "otocol.NO_RESPONSE\"\004\200\265\030\004\022b\n\rOnSendMessag"
-    "e\0220.bgs.protocol.channel.v1.SendMessageN"
-    "otification\032\031.bgs.protocol.NO_RESPONSE\"\004"
-    "\200\265\030\005\022p\n\024OnUpdateChannelState\0227.bgs.proto"
-    "col.channel.v1.UpdateChannelStateNotific"
-    "ation\032\031.bgs.protocol.NO_RESPONSE\"\004\200\265\030\006\022n"
-    "\n\023OnUpdateMemberState\0226.bgs.protocol.cha"
-    "nnel.v1.UpdateMemberStateNotification\032\031."
-    "bgs.protocol.NO_RESPONSE\"\004\200\265\030\007\032*\312>\'bnet."
-    "protocol.channel.ChannelSubscriberB\005H\001\200\001"
-    "\000", 4521);
+    "Message\022\036\n\023required_privileges\030\003 \001(\004:\0010\""
+    "\202\001\n\031UpdateChannelStateRequest\022(\n\010agent_i"
+    "d\030\001 \001(\0132\026.bgs.protocol.EntityId\022;\n\014state"
+    "_change\030\002 \002(\0132%.bgs.protocol.channel.v1."
+    "ChannelState\"\225\001\n\030UpdateMemberStateReques"
+    "t\022(\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.Entit"
+    "yId\0225\n\014state_change\030\002 \003(\0132\037.bgs.protocol"
+    ".channel.v1.Member\022\030\n\014removed_role\030\003 \003(\r"
+    "B\002\020\001\"K\n\017DissolveRequest\022(\n\010agent_id\030\001 \001("
+    "\0132\026.bgs.protocol.EntityId\022\016\n\006reason\030\002 \001("
+    "\r\"\237\002\n\020JoinNotification\022-\n\004self\030\001 \001(\0132\037.b"
+    "gs.protocol.channel.v1.Member\022/\n\006member\030"
+    "\002 \003(\0132\037.bgs.protocol.channel.v1.Member\022<"
+    "\n\rchannel_state\030\003 \002(\0132%.bgs.protocol.cha"
+    "nnel.v1.ChannelState\0226\n\nchannel_id\030\004 \001(\013"
+    "2\".bgs.protocol.channel.v1.ChannelId\0225\n\n"
+    "subscriber\030\005 \001(\0132!.bgs.protocol.account."
+    "v1.Identity\"\271\001\n\027MemberAddedNotification\022"
+    "/\n\006member\030\001 \002(\0132\037.bgs.protocol.channel.v"
+    "1.Member\0226\n\nchannel_id\030\002 \001(\0132\".bgs.proto"
+    "col.channel.v1.ChannelId\0225\n\nsubscriber\030\003"
+    " \001(\0132!.bgs.protocol.account.v1.Identity\""
+    "\353\001\n\021LeaveNotification\022(\n\010agent_id\030\001 \001(\0132"
+    "\026.bgs.protocol.EntityId\022-\n\tmember_id\030\002 \002"
+    "(\0132\026.bgs.protocol.EntityIdB\002\030\001\022\016\n\006reason"
+    "\030\003 \001(\r\0226\n\nchannel_id\030\004 \001(\0132\".bgs.protoco"
+    "l.channel.v1.ChannelId\0225\n\nsubscriber\030\005 \001"
+    "(\0132!.bgs.protocol.account.v1.Identity\"\357\001"
+    "\n\031MemberRemovedNotification\022(\n\010agent_id\030"
+    "\001 \001(\0132\026.bgs.protocol.EntityId\022)\n\tmember_"
+    "id\030\002 \002(\0132\026.bgs.protocol.EntityId\022\016\n\006reas"
+    "on\030\003 \001(\r\0226\n\nchannel_id\030\004 \001(\0132\".bgs.proto"
+    "col.channel.v1.ChannelId\0225\n\nsubscriber\030\005"
+    " \001(\0132!.bgs.protocol.account.v1.Identity\""
+    "\231\002\n\027SendMessageNotification\022(\n\010agent_id\030"
+    "\001 \001(\0132\026.bgs.protocol.EntityId\0221\n\007message"
+    "\030\002 \002(\0132 .bgs.protocol.channel.v1.Message"
+    "\022\036\n\023required_privileges\030\003 \001(\004:\0010\022\022\n\nbatt"
+    "le_tag\030\004 \001(\t\0226\n\nchannel_id\030\005 \001(\0132\".bgs.p"
+    "rotocol.channel.v1.ChannelId\0225\n\nsubscrib"
+    "er\030\006 \001(\0132!.bgs.protocol.account.v1.Ident"
+    "ity\"\366\001\n\036UpdateChannelStateNotification\022("
+    "\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.EntityId"
+    "\022;\n\014state_change\030\002 \002(\0132%.bgs.protocol.ch"
+    "annel.v1.ChannelState\0226\n\nchannel_id\030\003 \001("
+    "\0132\".bgs.protocol.channel.v1.ChannelId\0225\n"
+    "\nsubscriber\030\004 \001(\0132!.bgs.protocol.account"
+    ".v1.Identity\"\357\001\n\035UpdateMemberStateNotifi"
+    "cation\022(\n\010agent_id\030\001 \001(\0132\026.bgs.protocol."
+    "EntityId\0225\n\014state_change\030\002 \003(\0132\037.bgs.pro"
+    "tocol.channel.v1.Member\0226\n\nchannel_id\030\004 "
+    "\001(\0132\".bgs.protocol.channel.v1.ChannelId\022"
+    "5\n\nsubscriber\030\005 \001(\0132!.bgs.protocol.accou"
+    "nt.v1.Identity2\200\004\n\016ChannelService\022X\n\014Rem"
+    "oveMember\022,.bgs.protocol.channel.v1.Remo"
+    "veMemberRequest\032\024.bgs.protocol.NoData\"\004\200"
+    "\265\030\002\022V\n\013SendMessage\022+.bgs.protocol.channe"
+    "l.v1.SendMessageRequest\032\024.bgs.protocol.N"
+    "oData\"\004\200\265\030\003\022d\n\022UpdateChannelState\0222.bgs."
+    "protocol.channel.v1.UpdateChannelStateRe"
+    "quest\032\024.bgs.protocol.NoData\"\004\200\265\030\004\022b\n\021Upd"
+    "ateMemberState\0221.bgs.protocol.channel.v1"
+    ".UpdateMemberStateRequest\032\024.bgs.protocol"
+    ".NoData\"\004\200\265\030\005\022P\n\010Dissolve\022(.bgs.protocol"
+    ".channel.v1.DissolveRequest\032\024.bgs.protoc"
+    "ol.NoData\"\004\200\265\030\006\032 \312>\035bnet.protocol.channe"
+    "l.Channel2\375\005\n\017ChannelListener\022T\n\006OnJoin\022"
+    ").bgs.protocol.channel.v1.JoinNotificati"
+    "on\032\031.bgs.protocol.NO_RESPONSE\"\004\200\265\030\001\022b\n\rO"
+    "nMemberAdded\0220.bgs.protocol.channel.v1.M"
+    "emberAddedNotification\032\031.bgs.protocol.NO"
+    "_RESPONSE\"\004\200\265\030\002\022V\n\007OnLeave\022*.bgs.protoco"
+    "l.channel.v1.LeaveNotification\032\031.bgs.pro"
+    "tocol.NO_RESPONSE\"\004\200\265\030\003\022f\n\017OnMemberRemov"
+    "ed\0222.bgs.protocol.channel.v1.MemberRemov"
+    "edNotification\032\031.bgs.protocol.NO_RESPONS"
+    "E\"\004\200\265\030\004\022b\n\rOnSendMessage\0220.bgs.protocol."
+    "channel.v1.SendMessageNotification\032\031.bgs"
+    ".protocol.NO_RESPONSE\"\004\200\265\030\005\022p\n\024OnUpdateC"
+    "hannelState\0227.bgs.protocol.channel.v1.Up"
+    "dateChannelStateNotification\032\031.bgs.proto"
+    "col.NO_RESPONSE\"\004\200\265\030\006\022n\n\023OnUpdateMemberS"
+    "tate\0226.bgs.protocol.channel.v1.UpdateMem"
+    "berStateNotification\032\031.bgs.protocol.NO_R"
+    "ESPONSE\"\004\200\265\030\007\032*\312>\'bnet.protocol.channel."
+    "ChannelSubscriberB\005H\001\200\001\000", 3784);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "channel_service.proto", &protobuf_RegisterTypes);
-  AddMemberRequest::default_instance_ = new AddMemberRequest();
   RemoveMemberRequest::default_instance_ = new RemoveMemberRequest();
-  UnsubscribeMemberRequest::default_instance_ = new UnsubscribeMemberRequest();
   SendMessageRequest::default_instance_ = new SendMessageRequest();
   UpdateChannelStateRequest::default_instance_ = new UpdateChannelStateRequest();
   UpdateMemberStateRequest::default_instance_ = new UpdateMemberStateRequest();
   DissolveRequest::default_instance_ = new DissolveRequest();
-  SetRolesRequest::default_instance_ = new SetRolesRequest();
   JoinNotification::default_instance_ = new JoinNotification();
   MemberAddedNotification::default_instance_ = new MemberAddedNotification();
   LeaveNotification::default_instance_ = new LeaveNotification();
@@ -577,14 +477,11 @@ void protobuf_AddDesc_channel_5fservice_2eproto() {
   SendMessageNotification::default_instance_ = new SendMessageNotification();
   UpdateChannelStateNotification::default_instance_ = new UpdateChannelStateNotification();
   UpdateMemberStateNotification::default_instance_ = new UpdateMemberStateNotification();
-  AddMemberRequest::default_instance_->InitAsDefaultInstance();
   RemoveMemberRequest::default_instance_->InitAsDefaultInstance();
-  UnsubscribeMemberRequest::default_instance_->InitAsDefaultInstance();
   SendMessageRequest::default_instance_->InitAsDefaultInstance();
   UpdateChannelStateRequest::default_instance_->InitAsDefaultInstance();
   UpdateMemberStateRequest::default_instance_->InitAsDefaultInstance();
   DissolveRequest::default_instance_->InitAsDefaultInstance();
-  SetRolesRequest::default_instance_->InitAsDefaultInstance();
   JoinNotification::default_instance_->InitAsDefaultInstance();
   MemberAddedNotification::default_instance_->InitAsDefaultInstance();
   LeaveNotification::default_instance_->InitAsDefaultInstance();
@@ -601,409 +498,6 @@ struct StaticDescriptorInitializer_channel_5fservice_2eproto {
     protobuf_AddDesc_channel_5fservice_2eproto();
   }
 } static_descriptor_initializer_channel_5fservice_2eproto_;
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int AddMemberRequest::kAgentIdFieldNumber;
-const int AddMemberRequest::kMemberIdentityFieldNumber;
-const int AddMemberRequest::kMemberStateFieldNumber;
-const int AddMemberRequest::kObjectIdFieldNumber;
-const int AddMemberRequest::kSubscribeFieldNumber;
-#endif  // !_MSC_VER
-
-AddMemberRequest::AddMemberRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.channel.v1.AddMemberRequest)
-}
-
-void AddMemberRequest::InitAsDefaultInstance() {
-  agent_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-  member_identity_ = const_cast< ::bgs::protocol::Identity*>(&::bgs::protocol::Identity::default_instance());
-  member_state_ = const_cast< ::bgs::protocol::channel::v1::MemberState*>(&::bgs::protocol::channel::v1::MemberState::default_instance());
-}
-
-AddMemberRequest::AddMemberRequest(const AddMemberRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.channel.v1.AddMemberRequest)
-}
-
-void AddMemberRequest::SharedCtor() {
-  _cached_size_ = 0;
-  agent_id_ = NULL;
-  member_identity_ = NULL;
-  member_state_ = NULL;
-  object_id_ = GOOGLE_ULONGLONG(0);
-  subscribe_ = true;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-AddMemberRequest::~AddMemberRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.channel.v1.AddMemberRequest)
-  SharedDtor();
-}
-
-void AddMemberRequest::SharedDtor() {
-  if (this != default_instance_) {
-    delete agent_id_;
-    delete member_identity_;
-    delete member_state_;
-  }
-}
-
-void AddMemberRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* AddMemberRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return AddMemberRequest_descriptor_;
-}
-
-const AddMemberRequest& AddMemberRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_channel_5fservice_2eproto();
-  return *default_instance_;
-}
-
-AddMemberRequest* AddMemberRequest::default_instance_ = NULL;
-
-AddMemberRequest* AddMemberRequest::New() const {
-  return new AddMemberRequest;
-}
-
-void AddMemberRequest::Clear() {
-  if (_has_bits_[0 / 32] & 31) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_member_identity()) {
-      if (member_identity_ != NULL) member_identity_->::bgs::protocol::Identity::Clear();
-    }
-    if (has_member_state()) {
-      if (member_state_ != NULL) member_state_->::bgs::protocol::channel::v1::MemberState::Clear();
-    }
-    object_id_ = GOOGLE_ULONGLONG(0);
-    subscribe_ = true;
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool AddMemberRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.channel.v1.AddMemberRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_member_identity;
-        break;
-      }
-
-      // required .bgs.protocol.Identity member_identity = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_member_identity:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_member_identity()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_member_state;
-        break;
-      }
-
-      // required .bgs.protocol.channel.v1.MemberState member_state = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_member_state:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_member_state()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(32)) goto parse_object_id;
-        break;
-      }
-
-      // required uint64 object_id = 4;
-      case 4: {
-        if (tag == 32) {
-         parse_object_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &object_id_)));
-          set_has_object_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(40)) goto parse_subscribe;
-        break;
-      }
-
-      // optional bool subscribe = 5 [default = true];
-      case 5: {
-        if (tag == 40) {
-         parse_subscribe:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &subscribe_)));
-          set_has_subscribe();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.channel.v1.AddMemberRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.channel.v1.AddMemberRequest)
-  return false;
-#undef DO_
-}
-
-void AddMemberRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.channel.v1.AddMemberRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required .bgs.protocol.Identity member_identity = 2;
-  if (has_member_identity()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->member_identity(), output);
-  }
-
-  // required .bgs.protocol.channel.v1.MemberState member_state = 3;
-  if (has_member_state()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->member_state(), output);
-  }
-
-  // required uint64 object_id = 4;
-  if (has_object_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->object_id(), output);
-  }
-
-  // optional bool subscribe = 5 [default = true];
-  if (has_subscribe()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(5, this->subscribe(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.channel.v1.AddMemberRequest)
-}
-
-::google::protobuf::uint8* AddMemberRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.channel.v1.AddMemberRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required .bgs.protocol.Identity member_identity = 2;
-  if (has_member_identity()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->member_identity(), target);
-  }
-
-  // required .bgs.protocol.channel.v1.MemberState member_state = 3;
-  if (has_member_state()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->member_state(), target);
-  }
-
-  // required uint64 object_id = 4;
-  if (has_object_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->object_id(), target);
-  }
-
-  // optional bool subscribe = 5 [default = true];
-  if (has_subscribe()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(5, this->subscribe(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.channel.v1.AddMemberRequest)
-  return target;
-}
-
-int AddMemberRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required .bgs.protocol.Identity member_identity = 2;
-    if (has_member_identity()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->member_identity());
-    }
-
-    // required .bgs.protocol.channel.v1.MemberState member_state = 3;
-    if (has_member_state()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->member_state());
-    }
-
-    // required uint64 object_id = 4;
-    if (has_object_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->object_id());
-    }
-
-    // optional bool subscribe = 5 [default = true];
-    if (has_subscribe()) {
-      total_size += 1 + 1;
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void AddMemberRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const AddMemberRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const AddMemberRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void AddMemberRequest::MergeFrom(const AddMemberRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_member_identity()) {
-      mutable_member_identity()->::bgs::protocol::Identity::MergeFrom(from.member_identity());
-    }
-    if (from.has_member_state()) {
-      mutable_member_state()->::bgs::protocol::channel::v1::MemberState::MergeFrom(from.member_state());
-    }
-    if (from.has_object_id()) {
-      set_object_id(from.object_id());
-    }
-    if (from.has_subscribe()) {
-      set_subscribe(from.subscribe());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void AddMemberRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void AddMemberRequest::CopyFrom(const AddMemberRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool AddMemberRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000000e) != 0x0000000e) return false;
-
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_member_identity()) {
-    if (!this->member_identity().IsInitialized()) return false;
-  }
-  if (has_member_state()) {
-    if (!this->member_state().IsInitialized()) return false;
-  }
-  return true;
-}
-
-void AddMemberRequest::Swap(AddMemberRequest* other) {
-  if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(member_identity_, other->member_identity_);
-    std::swap(member_state_, other->member_state_);
-    std::swap(object_id_, other->object_id_);
-    std::swap(subscribe_, other->subscribe_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata AddMemberRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = AddMemberRequest_descriptor_;
-  metadata.reflection = AddMemberRequest_reflection_;
-  return metadata;
-}
-
 
 // ===================================================================
 
@@ -1320,286 +814,6 @@ void RemoveMemberRequest::Swap(RemoveMemberRequest* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = RemoveMemberRequest_descriptor_;
   metadata.reflection = RemoveMemberRequest_reflection_;
-  return metadata;
-}
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int UnsubscribeMemberRequest::kAgentIdFieldNumber;
-const int UnsubscribeMemberRequest::kMemberIdFieldNumber;
-#endif  // !_MSC_VER
-
-UnsubscribeMemberRequest::UnsubscribeMemberRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-}
-
-void UnsubscribeMemberRequest::InitAsDefaultInstance() {
-  agent_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-  member_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-}
-
-UnsubscribeMemberRequest::UnsubscribeMemberRequest(const UnsubscribeMemberRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-}
-
-void UnsubscribeMemberRequest::SharedCtor() {
-  _cached_size_ = 0;
-  agent_id_ = NULL;
-  member_id_ = NULL;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-UnsubscribeMemberRequest::~UnsubscribeMemberRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-  SharedDtor();
-}
-
-void UnsubscribeMemberRequest::SharedDtor() {
-  if (this != default_instance_) {
-    delete agent_id_;
-    delete member_id_;
-  }
-}
-
-void UnsubscribeMemberRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* UnsubscribeMemberRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return UnsubscribeMemberRequest_descriptor_;
-}
-
-const UnsubscribeMemberRequest& UnsubscribeMemberRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_channel_5fservice_2eproto();
-  return *default_instance_;
-}
-
-UnsubscribeMemberRequest* UnsubscribeMemberRequest::default_instance_ = NULL;
-
-UnsubscribeMemberRequest* UnsubscribeMemberRequest::New() const {
-  return new UnsubscribeMemberRequest;
-}
-
-void UnsubscribeMemberRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_member_id()) {
-      if (member_id_ != NULL) member_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UnsubscribeMemberRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_member_id;
-        break;
-      }
-
-      // required .bgs.protocol.EntityId member_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_member_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_member_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-  return false;
-#undef DO_
-}
-
-void UnsubscribeMemberRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required .bgs.protocol.EntityId member_id = 2;
-  if (has_member_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->member_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-}
-
-::google::protobuf::uint8* UnsubscribeMemberRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required .bgs.protocol.EntityId member_id = 2;
-  if (has_member_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->member_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.channel.v1.UnsubscribeMemberRequest)
-  return target;
-}
-
-int UnsubscribeMemberRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required .bgs.protocol.EntityId member_id = 2;
-    if (has_member_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->member_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UnsubscribeMemberRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UnsubscribeMemberRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UnsubscribeMemberRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UnsubscribeMemberRequest::MergeFrom(const UnsubscribeMemberRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_member_id()) {
-      mutable_member_id()->::bgs::protocol::EntityId::MergeFrom(from.member_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UnsubscribeMemberRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UnsubscribeMemberRequest::CopyFrom(const UnsubscribeMemberRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UnsubscribeMemberRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_member_id()) {
-    if (!this->member_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
-void UnsubscribeMemberRequest::Swap(UnsubscribeMemberRequest* other) {
-  if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(member_id_, other->member_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata UnsubscribeMemberRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = UnsubscribeMemberRequest_descriptor_;
-  metadata.reflection = UnsubscribeMemberRequest_reflection_;
   return metadata;
 }
 
@@ -2231,6 +1445,7 @@ UpdateMemberStateRequest::UpdateMemberStateRequest(const UpdateMemberStateReques
 void UpdateMemberStateRequest::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
+  _removed_role_cached_byte_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -2803,339 +2018,6 @@ void DissolveRequest::Swap(DissolveRequest* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = DissolveRequest_descriptor_;
   metadata.reflection = DissolveRequest_reflection_;
-  return metadata;
-}
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int SetRolesRequest::kAgentIdFieldNumber;
-const int SetRolesRequest::kRoleFieldNumber;
-const int SetRolesRequest::kMemberIdFieldNumber;
-#endif  // !_MSC_VER
-
-SetRolesRequest::SetRolesRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.channel.v1.SetRolesRequest)
-}
-
-void SetRolesRequest::InitAsDefaultInstance() {
-  agent_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-}
-
-SetRolesRequest::SetRolesRequest(const SetRolesRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.channel.v1.SetRolesRequest)
-}
-
-void SetRolesRequest::SharedCtor() {
-  _cached_size_ = 0;
-  agent_id_ = NULL;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-SetRolesRequest::~SetRolesRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.channel.v1.SetRolesRequest)
-  SharedDtor();
-}
-
-void SetRolesRequest::SharedDtor() {
-  if (this != default_instance_) {
-    delete agent_id_;
-  }
-}
-
-void SetRolesRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* SetRolesRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return SetRolesRequest_descriptor_;
-}
-
-const SetRolesRequest& SetRolesRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_channel_5fservice_2eproto();
-  return *default_instance_;
-}
-
-SetRolesRequest* SetRolesRequest::default_instance_ = NULL;
-
-SetRolesRequest* SetRolesRequest::New() const {
-  return new SetRolesRequest;
-}
-
-void SetRolesRequest::Clear() {
-  if (has_agent_id()) {
-    if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-  }
-  role_.Clear();
-  member_id_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SetRolesRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.channel.v1.SetRolesRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_role;
-        break;
-      }
-
-      // repeated uint32 role = 2 [packed = true];
-      case 2: {
-        if (tag == 18) {
-         parse_role:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, this->mutable_role())));
-        } else if (tag == 16) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 1, 18, input, this->mutable_role())));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_member_id;
-        break;
-      }
-
-      // repeated .bgs.protocol.EntityId member_id = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_member_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_member_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_member_id;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.channel.v1.SetRolesRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.channel.v1.SetRolesRequest)
-  return false;
-#undef DO_
-}
-
-void SetRolesRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.channel.v1.SetRolesRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // repeated uint32 role = 2 [packed = true];
-  if (this->role_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(2, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_role_cached_byte_size_);
-  }
-  for (int i = 0; i < this->role_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32NoTag(
-      this->role(i), output);
-  }
-
-  // repeated .bgs.protocol.EntityId member_id = 3;
-  for (int i = 0; i < this->member_id_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->member_id(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.channel.v1.SetRolesRequest)
-}
-
-::google::protobuf::uint8* SetRolesRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.channel.v1.SetRolesRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // repeated uint32 role = 2 [packed = true];
-  if (this->role_size() > 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      2,
-      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
-      target);
-    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
-      _role_cached_byte_size_, target);
-  }
-  for (int i = 0; i < this->role_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteUInt32NoTagToArray(this->role(i), target);
-  }
-
-  // repeated .bgs.protocol.EntityId member_id = 3;
-  for (int i = 0; i < this->member_id_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->member_id(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.channel.v1.SetRolesRequest)
-  return target;
-}
-
-int SetRolesRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-  }
-  // repeated uint32 role = 2 [packed = true];
-  {
-    int data_size = 0;
-    for (int i = 0; i < this->role_size(); i++) {
-      data_size += ::google::protobuf::internal::WireFormatLite::
-        UInt32Size(this->role(i));
-    }
-    if (data_size > 0) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
-    }
-    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-    _role_cached_byte_size_ = data_size;
-    GOOGLE_SAFE_CONCURRENT_WRITES_END();
-    total_size += data_size;
-  }
-
-  // repeated .bgs.protocol.EntityId member_id = 3;
-  total_size += 1 * this->member_id_size();
-  for (int i = 0; i < this->member_id_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->member_id(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SetRolesRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SetRolesRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SetRolesRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SetRolesRequest::MergeFrom(const SetRolesRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  role_.MergeFrom(from.role_);
-  member_id_.MergeFrom(from.member_id_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SetRolesRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SetRolesRequest::CopyFrom(const SetRolesRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SetRolesRequest::IsInitialized() const {
-
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (!::google::protobuf::internal::AllAreInitialized(this->member_id())) return false;
-  return true;
-}
-
-void SetRolesRequest::Swap(SetRolesRequest* other) {
-  if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    role_.Swap(&other->role_);
-    member_id_.Swap(&other->member_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata SetRolesRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = SetRolesRequest_descriptor_;
-  metadata.reflection = SetRolesRequest_reflection_;
   return metadata;
 }
 
@@ -3998,7 +2880,7 @@ bool LeaveNotification::MergePartialFromCodedStream(
         break;
       }
 
-      // required .bgs.protocol.EntityId member_id = 2;
+      // required .bgs.protocol.EntityId member_id = 2 [deprecated = true];
       case 2: {
         if (tag == 18) {
          parse_member_id:
@@ -4083,7 +2965,7 @@ void LeaveNotification::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
-  // required .bgs.protocol.EntityId member_id = 2;
+  // required .bgs.protocol.EntityId member_id = 2 [deprecated = true];
   if (has_member_id()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       2, this->member_id(), output);
@@ -4123,7 +3005,7 @@ void LeaveNotification::SerializeWithCachedSizes(
         1, this->agent_id(), target);
   }
 
-  // required .bgs.protocol.EntityId member_id = 2;
+  // required .bgs.protocol.EntityId member_id = 2 [deprecated = true];
   if (has_member_id()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
@@ -4168,7 +3050,7 @@ int LeaveNotification::ByteSize() const {
           this->agent_id());
     }
 
-    // required .bgs.protocol.EntityId member_id = 2;
+    // required .bgs.protocol.EntityId member_id = 2 [deprecated = true];
     if (has_member_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -4713,7 +3595,7 @@ void MemberRemovedNotification::Swap(MemberRemovedNotification* other) {
 const int SendMessageNotification::kAgentIdFieldNumber;
 const int SendMessageNotification::kMessageFieldNumber;
 const int SendMessageNotification::kRequiredPrivilegesFieldNumber;
-const int SendMessageNotification::kIdentityFieldNumber;
+const int SendMessageNotification::kBattleTagFieldNumber;
 const int SendMessageNotification::kChannelIdFieldNumber;
 const int SendMessageNotification::kSubscriberFieldNumber;
 #endif  // !_MSC_VER
@@ -4744,7 +3626,7 @@ void SendMessageNotification::SharedCtor() {
   agent_id_ = NULL;
   message_ = NULL;
   required_privileges_ = GOOGLE_ULONGLONG(0);
-  identity_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   channel_id_ = NULL;
   subscriber_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -4756,8 +3638,8 @@ SendMessageNotification::~SendMessageNotification() {
 }
 
 void SendMessageNotification::SharedDtor() {
-  if (identity_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete identity_;
+  if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete battle_tag_;
   }
   if (this != default_instance_) {
     delete agent_id_;
@@ -4797,9 +3679,9 @@ void SendMessageNotification::Clear() {
       if (message_ != NULL) message_->::bgs::protocol::channel::v1::Message::Clear();
     }
     required_privileges_ = GOOGLE_ULONGLONG(0);
-    if (has_identity()) {
-      if (identity_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        identity_->clear();
+    if (has_battle_tag()) {
+      if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        battle_tag_->clear();
       }
     }
     if (has_channel_id()) {
@@ -4859,20 +3741,20 @@ bool SendMessageNotification::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(34)) goto parse_identity;
+        if (input->ExpectTag(34)) goto parse_battle_tag;
         break;
       }
 
-      // optional string identity = 4;
+      // optional string battle_tag = 4;
       case 4: {
         if (tag == 34) {
-         parse_identity:
+         parse_battle_tag:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_identity()));
+                input, this->mutable_battle_tag()));
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->identity().data(), this->identity().length(),
+            this->battle_tag().data(), this->battle_tag().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "identity");
+            "battle_tag");
         } else {
           goto handle_unusual;
         }
@@ -4948,14 +3830,14 @@ void SendMessageNotification::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->required_privileges(), output);
   }
 
-  // optional string identity = 4;
-  if (has_identity()) {
+  // optional string battle_tag = 4;
+  if (has_battle_tag()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->identity().data(), this->identity().length(),
+      this->battle_tag().data(), this->battle_tag().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "identity");
+      "battle_tag");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      4, this->identity(), output);
+      4, this->battle_tag(), output);
   }
 
   // optional .bgs.protocol.channel.v1.ChannelId channel_id = 5;
@@ -4999,15 +3881,15 @@ void SendMessageNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->required_privileges(), target);
   }
 
-  // optional string identity = 4;
-  if (has_identity()) {
+  // optional string battle_tag = 4;
+  if (has_battle_tag()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->identity().data(), this->identity().length(),
+      this->battle_tag().data(), this->battle_tag().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "identity");
+      "battle_tag");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        4, this->identity(), target);
+        4, this->battle_tag(), target);
   }
 
   // optional .bgs.protocol.channel.v1.ChannelId channel_id = 5;
@@ -5057,11 +3939,11 @@ int SendMessageNotification::ByteSize() const {
           this->required_privileges());
     }
 
-    // optional string identity = 4;
-    if (has_identity()) {
+    // optional string battle_tag = 4;
+    if (has_battle_tag()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->identity());
+          this->battle_tag());
     }
 
     // optional .bgs.protocol.channel.v1.ChannelId channel_id = 5;
@@ -5114,8 +3996,8 @@ void SendMessageNotification::MergeFrom(const SendMessageNotification& from) {
     if (from.has_required_privileges()) {
       set_required_privileges(from.required_privileges());
     }
-    if (from.has_identity()) {
-      set_identity(from.identity());
+    if (from.has_battle_tag()) {
+      set_battle_tag(from.battle_tag());
     }
     if (from.has_channel_id()) {
       mutable_channel_id()->::bgs::protocol::channel::v1::ChannelId::MergeFrom(from.channel_id());
@@ -5162,7 +4044,7 @@ void SendMessageNotification::Swap(SendMessageNotification* other) {
     std::swap(agent_id_, other->agent_id_);
     std::swap(message_, other->message_);
     std::swap(required_privileges_, other->required_privileges_);
-    std::swap(identity_, other->identity_);
+    std::swap(battle_tag_, other->battle_tag_);
     std::swap(channel_id_, other->channel_id_);
     std::swap(subscriber_, other->subscriber_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
@@ -5559,7 +4441,6 @@ void UpdateChannelStateNotification::Swap(UpdateChannelStateNotification* other)
 #ifndef _MSC_VER
 const int UpdateMemberStateNotification::kAgentIdFieldNumber;
 const int UpdateMemberStateNotification::kStateChangeFieldNumber;
-const int UpdateMemberStateNotification::kRemovedRoleFieldNumber;
 const int UpdateMemberStateNotification::kChannelIdFieldNumber;
 const int UpdateMemberStateNotification::kSubscriberFieldNumber;
 #endif  // !_MSC_VER
@@ -5626,7 +4507,7 @@ UpdateMemberStateNotification* UpdateMemberStateNotification::New() const {
 }
 
 void UpdateMemberStateNotification::Clear() {
-  if (_has_bits_[0 / 32] & 25) {
+  if (_has_bits_[0 / 32] & 13) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
     }
@@ -5638,7 +4519,6 @@ void UpdateMemberStateNotification::Clear() {
     }
   }
   state_change_.Clear();
-  removed_role_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -5675,24 +4555,6 @@ bool UpdateMemberStateNotification::MergePartialFromCodedStream(
           goto handle_unusual;
         }
         if (input->ExpectTag(18)) goto parse_state_change;
-        if (input->ExpectTag(26)) goto parse_removed_role;
-        break;
-      }
-
-      // repeated uint32 removed_role = 3 [packed = true];
-      case 3: {
-        if (tag == 26) {
-         parse_removed_role:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, this->mutable_removed_role())));
-        } else if (tag == 24) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 1, 26, input, this->mutable_removed_role())));
-        } else {
-          goto handle_unusual;
-        }
         if (input->ExpectTag(34)) goto parse_channel_id;
         break;
       }
@@ -5760,16 +4622,6 @@ void UpdateMemberStateNotification::SerializeWithCachedSizes(
       2, this->state_change(i), output);
   }
 
-  // repeated uint32 removed_role = 3 [packed = true];
-  if (this->removed_role_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_removed_role_cached_byte_size_);
-  }
-  for (int i = 0; i < this->removed_role_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32NoTag(
-      this->removed_role(i), output);
-  }
-
   // optional .bgs.protocol.channel.v1.ChannelId channel_id = 4;
   if (has_channel_id()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -5804,20 +4656,6 @@ void UpdateMemberStateNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         2, this->state_change(i), target);
-  }
-
-  // repeated uint32 removed_role = 3 [packed = true];
-  if (this->removed_role_size() > 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      3,
-      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
-      target);
-    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
-      _removed_role_cached_byte_size_, target);
-  }
-  for (int i = 0; i < this->removed_role_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteUInt32NoTagToArray(this->removed_role(i), target);
   }
 
   // optional .bgs.protocol.channel.v1.ChannelId channel_id = 4;
@@ -5876,23 +4714,6 @@ int UpdateMemberStateNotification::ByteSize() const {
         this->state_change(i));
   }
 
-  // repeated uint32 removed_role = 3 [packed = true];
-  {
-    int data_size = 0;
-    for (int i = 0; i < this->removed_role_size(); i++) {
-      data_size += ::google::protobuf::internal::WireFormatLite::
-        UInt32Size(this->removed_role(i));
-    }
-    if (data_size > 0) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
-    }
-    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-    _removed_role_cached_byte_size_ = data_size;
-    GOOGLE_SAFE_CONCURRENT_WRITES_END();
-    total_size += data_size;
-  }
-
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -5919,7 +4740,6 @@ void UpdateMemberStateNotification::MergeFrom(const ::google::protobuf::Message&
 void UpdateMemberStateNotification::MergeFrom(const UpdateMemberStateNotification& from) {
   GOOGLE_CHECK_NE(&from, this);
   state_change_.MergeFrom(from.state_change_);
-  removed_role_.MergeFrom(from.removed_role_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
@@ -5965,7 +4785,6 @@ void UpdateMemberStateNotification::Swap(UpdateMemberStateNotification* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
     state_change_.Swap(&other->state_change_);
-    removed_role_.Swap(&other->removed_role_);
     std::swap(channel_id_, other->channel_id_);
     std::swap(subscriber_, other->subscriber_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
@@ -5994,17 +4813,6 @@ ChannelService::~ChannelService() {
 google::protobuf::ServiceDescriptor const* ChannelService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return ChannelService_descriptor_;
-}
-
-void ChannelService::AddMember(::bgs::protocol::channel::v1::AddMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.AddMember(bgs.protocol.channel.v1.AddMemberRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::NoData response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
 void ChannelService::RemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
@@ -6062,48 +4870,8 @@ void ChannelService::Dissolve(::bgs::protocol::channel::v1::DissolveRequest cons
   SendRequest(service_hash_, 6, request, std::move(callback));
 }
 
-void ChannelService::SetRoles(::bgs::protocol::channel::v1::SetRolesRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.SetRoles(bgs.protocol.channel.v1.SetRolesRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::NoData response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 7, request, std::move(callback));
-}
-
-void ChannelService::UnsubscribeMember(::bgs::protocol::channel::v1::UnsubscribeMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.UnsubscribeMember(bgs.protocol.channel.v1.UnsubscribeMemberRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::NoData response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 8, request, std::move(callback));
-}
-
 void ChannelService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
   switch(methodId) {
-    case 1: {
-      ::bgs::protocol::channel::v1::AddMemberRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ChannelService.AddMember server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 1, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleAddMember(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.AddMember(bgs.protocol.channel.v1.AddMemberRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 1, token, &response);
-      else
-        SendResponse(service_hash_, 1, token, status);
-      break;
-    }
     case 2: {
       ::bgs::protocol::channel::v1::RemoveMemberRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
@@ -6111,15 +4879,23 @@ void ChannelService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 2, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.RemoveMember(bgs.protocol.channel.v1.RemoveMemberRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        ChannelService* self = static_cast<ChannelService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.RemoveMember() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 2, token, response);
+        else
+          self->SendResponse(self->service_hash_, 2, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleRemoveMember(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.RemoveMember(bgs.protocol.channel.v1.RemoveMemberRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 2, token, &response);
-      else
-        SendResponse(service_hash_, 2, token, status);
+      uint32 status = HandleRemoveMember(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 3: {
@@ -6129,15 +4905,23 @@ void ChannelService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 3, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.SendMessage(bgs.protocol.channel.v1.SendMessageRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        ChannelService* self = static_cast<ChannelService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.SendMessage() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 3, token, response);
+        else
+          self->SendResponse(self->service_hash_, 3, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleSendMessage(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.SendMessage(bgs.protocol.channel.v1.SendMessageRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 3, token, &response);
-      else
-        SendResponse(service_hash_, 3, token, status);
+      uint32 status = HandleSendMessage(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 4: {
@@ -6147,15 +4931,23 @@ void ChannelService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 4, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.UpdateChannelState(bgs.protocol.channel.v1.UpdateChannelStateRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        ChannelService* self = static_cast<ChannelService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.UpdateChannelState() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 4, token, response);
+        else
+          self->SendResponse(self->service_hash_, 4, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleUpdateChannelState(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.UpdateChannelState(bgs.protocol.channel.v1.UpdateChannelStateRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 4, token, &response);
-      else
-        SendResponse(service_hash_, 4, token, status);
+      uint32 status = HandleUpdateChannelState(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 5: {
@@ -6165,15 +4957,23 @@ void ChannelService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 5, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.UpdateMemberState(bgs.protocol.channel.v1.UpdateMemberStateRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        ChannelService* self = static_cast<ChannelService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.UpdateMemberState() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 5, token, response);
+        else
+          self->SendResponse(self->service_hash_, 5, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleUpdateMemberState(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.UpdateMemberState(bgs.protocol.channel.v1.UpdateMemberStateRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 5, token, &response);
-      else
-        SendResponse(service_hash_, 5, token, status);
+      uint32 status = HandleUpdateMemberState(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 6: {
@@ -6183,51 +4983,23 @@ void ChannelService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 6, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.Dissolve(bgs.protocol.channel.v1.DissolveRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        ChannelService* self = static_cast<ChannelService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.Dissolve() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 6, token, response);
+        else
+          self->SendResponse(self->service_hash_, 6, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleDissolve(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.Dissolve(bgs.protocol.channel.v1.DissolveRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 6, token, &response);
-      else
-        SendResponse(service_hash_, 6, token, status);
-      break;
-    }
-    case 7: {
-      ::bgs::protocol::channel::v1::SetRolesRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ChannelService.SetRoles server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 7, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleSetRoles(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.SetRoles(bgs.protocol.channel.v1.SetRolesRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 7, token, &response);
-      else
-        SendResponse(service_hash_, 7, token, status);
-      break;
-    }
-    case 8: {
-      ::bgs::protocol::channel::v1::UnsubscribeMemberRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ChannelService.UnsubscribeMember server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 8, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleUnsubscribeMember(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelService.UnsubscribeMember(bgs.protocol.channel.v1.UnsubscribeMemberRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 8, token, &response);
-      else
-        SendResponse(service_hash_, 8, token, status);
+      uint32 status = HandleDissolve(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     default:
@@ -6237,50 +5009,32 @@ void ChannelService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     }
 }
 
-uint32 ChannelService::HandleAddMember(::bgs::protocol::channel::v1::AddMemberRequest const* request, ::bgs::protocol::NoData* response) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChannelService.AddMember({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ChannelService::HandleRemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 ChannelService::HandleRemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChannelService.RemoveMember({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ChannelService::HandleSendMessage(::bgs::protocol::channel::v1::SendMessageRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 ChannelService::HandleSendMessage(::bgs::protocol::channel::v1::SendMessageRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChannelService.SendMessage({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ChannelService::HandleUpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 ChannelService::HandleUpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChannelService.UpdateChannelState({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ChannelService::HandleUpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 ChannelService::HandleUpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChannelService.UpdateMemberState({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ChannelService::HandleDissolve(::bgs::protocol::channel::v1::DissolveRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 ChannelService::HandleDissolve(::bgs::protocol::channel::v1::DissolveRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChannelService.Dissolve({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ChannelService::HandleSetRoles(::bgs::protocol::channel::v1::SetRolesRequest const* request, ::bgs::protocol::NoData* response) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChannelService.SetRoles({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ChannelService::HandleUnsubscribeMember(::bgs::protocol::channel::v1::UnsubscribeMemberRequest const* request, ::bgs::protocol::NoData* response) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChannelService.UnsubscribeMember({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
@@ -6298,43 +5052,43 @@ google::protobuf::ServiceDescriptor const* ChannelListener::descriptor() {
   return ChannelListener_descriptor_;
 }
 
-void ChannelListener::OnJoin(::bgs::protocol::channel::v1::JoinNotification const* request) { 
+void ChannelListener::OnJoin(::bgs::protocol::channel::v1::JoinNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelListener.OnJoin(bgs.protocol.channel.v1.JoinNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 1, request);
 }
 
-void ChannelListener::OnMemberAdded(::bgs::protocol::channel::v1::MemberAddedNotification const* request) { 
+void ChannelListener::OnMemberAdded(::bgs::protocol::channel::v1::MemberAddedNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelListener.OnMemberAdded(bgs.protocol.channel.v1.MemberAddedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 2, request);
 }
 
-void ChannelListener::OnLeave(::bgs::protocol::channel::v1::LeaveNotification const* request) { 
+void ChannelListener::OnLeave(::bgs::protocol::channel::v1::LeaveNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelListener.OnLeave(bgs.protocol.channel.v1.LeaveNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 3, request);
 }
 
-void ChannelListener::OnMemberRemoved(::bgs::protocol::channel::v1::MemberRemovedNotification const* request) { 
+void ChannelListener::OnMemberRemoved(::bgs::protocol::channel::v1::MemberRemovedNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelListener.OnMemberRemoved(bgs.protocol.channel.v1.MemberRemovedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 4, request);
 }
 
-void ChannelListener::OnSendMessage(::bgs::protocol::channel::v1::SendMessageNotification const* request) { 
+void ChannelListener::OnSendMessage(::bgs::protocol::channel::v1::SendMessageNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelListener.OnSendMessage(bgs.protocol.channel.v1.SendMessageNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 5, request);
 }
 
-void ChannelListener::OnUpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateNotification const* request) { 
+void ChannelListener::OnUpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelListener.OnUpdateChannelState(bgs.protocol.channel.v1.UpdateChannelStateNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 6, request);
 }
 
-void ChannelListener::OnUpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateNotification const* request) { 
+void ChannelListener::OnUpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelListener.OnUpdateMemberState(bgs.protocol.channel.v1.UpdateMemberStateNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 7, request);
@@ -6349,7 +5103,6 @@ void ChannelListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 1, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnJoin(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelListener.OnJoin(bgs.protocol.channel.v1.JoinNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -6364,7 +5117,6 @@ void ChannelListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 2, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnMemberAdded(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelListener.OnMemberAdded(bgs.protocol.channel.v1.MemberAddedNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -6379,7 +5131,6 @@ void ChannelListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 3, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnLeave(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelListener.OnLeave(bgs.protocol.channel.v1.LeaveNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -6394,7 +5145,6 @@ void ChannelListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 4, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnMemberRemoved(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelListener.OnMemberRemoved(bgs.protocol.channel.v1.MemberRemovedNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -6409,7 +5159,6 @@ void ChannelListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 5, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnSendMessage(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelListener.OnSendMessage(bgs.protocol.channel.v1.SendMessageNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -6424,7 +5173,6 @@ void ChannelListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 6, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnUpdateChannelState(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelListener.OnUpdateChannelState(bgs.protocol.channel.v1.UpdateChannelStateNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -6439,7 +5187,6 @@ void ChannelListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 7, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnUpdateMemberState(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChannelListener.OnUpdateMemberState(bgs.protocol.channel.v1.UpdateMemberStateNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);

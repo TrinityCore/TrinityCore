@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,12 +24,14 @@ Category: Caverns of Time, The Black Morass
 */
 
 #include "ScriptMgr.h"
+#include "EventMap.h"
 #include "InstanceScript.h"
-#include "the_black_morass.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
-#include "TemporarySummon.h"
 #include "SpellInfo.h"
-#include "ScriptedCreature.h"
+#include "the_black_morass.h"
+#include "TemporarySummon.h"
 
 enum Misc
 {
@@ -71,7 +73,7 @@ enum EventIds
 class instance_the_black_morass : public InstanceMapScript
 {
 public:
-    instance_the_black_morass() : InstanceMapScript("instance_the_black_morass", 269) { }
+    instance_the_black_morass() : InstanceMapScript(TBMScriptName, 269) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {

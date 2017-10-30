@@ -16,13 +16,9 @@
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
 #include "Log.h"
+#include "Errors.h"
 #include "BattlenetRpcErrorCodes.h"
 // @@protoc_insertion_point(includes)
-
-// Fix stupid windows.h included from Log.h->Common.h
-#ifdef SendMessage
-#undef SendMessage
-#endif
 
 namespace bgs {
 namespace protocol {
@@ -40,6 +36,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* CreateGameAccountRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   CreateGameAccountRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* CreateGameAccountResponse_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  CreateGameAccountResponse_reflection_ = NULL;
 const ::google::protobuf::Descriptor* CacheExpireRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   CacheExpireRequest_reflection_ = NULL;
@@ -115,6 +114,18 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* GetAuthorizedDataResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   GetAuthorizedDataResponse_reflection_ = NULL;
+const ::google::protobuf::Descriptor* UpdateParentalControlsAndCAISRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  UpdateParentalControlsAndCAISRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* QueueDeductRecordRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  QueueDeductRecordRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GetGameAccountRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GetGameAccountRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GetGameAccountResponse_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GetGameAccountResponse_reflection_ = NULL;
 const ::google::protobuf::Descriptor* AccountStateNotification_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   AccountStateNotification_reflection_ = NULL;
@@ -140,8 +151,9 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       "account_service.proto");
   GOOGLE_CHECK(file != NULL);
   GetAccountRequest_descriptor_ = file->message_type(0);
-  static const int GetAccountRequest_offsets_[9] = {
+  static const int GetAccountRequest_offsets_[11] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountRequest, ref_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountRequest, reload_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountRequest, fetch_all_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountRequest, fetch_blob_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountRequest, fetch_id_),
@@ -150,6 +162,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountRequest, fetch_full_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountRequest, fetch_links_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountRequest, fetch_parental_controls_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountRequest, fetch_cais_id_),
   };
   GetAccountRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -163,7 +176,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetAccountRequest));
   GetAccountResponse_descriptor_ = file->message_type(1);
-  static const int GetAccountResponse_offsets_[7] = {
+  static const int GetAccountResponse_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountResponse, blob_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountResponse, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountResponse, email_),
@@ -171,6 +184,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountResponse, full_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountResponse, links_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountResponse, parental_control_info_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountResponse, cais_id_),
   };
   GetAccountResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -184,11 +198,13 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetAccountResponse));
   CreateGameAccountRequest_descriptor_ = file->message_type(2);
-  static const int CreateGameAccountRequest_offsets_[4] = {
+  static const int CreateGameAccountRequest_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateGameAccountRequest, account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateGameAccountRequest, region_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateGameAccountRequest, program_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateGameAccountRequest, realm_permissions_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateGameAccountRequest, account_region_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateGameAccountRequest, platform_),
   };
   CreateGameAccountRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -201,7 +217,22 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CreateGameAccountRequest));
-  CacheExpireRequest_descriptor_ = file->message_type(3);
+  CreateGameAccountResponse_descriptor_ = file->message_type(3);
+  static const int CreateGameAccountResponse_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateGameAccountResponse, game_account_),
+  };
+  CreateGameAccountResponse_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      CreateGameAccountResponse_descriptor_,
+      CreateGameAccountResponse::default_instance_,
+      CreateGameAccountResponse_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateGameAccountResponse, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateGameAccountResponse, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(CreateGameAccountResponse));
+  CacheExpireRequest_descriptor_ = file->message_type(4);
   static const int CacheExpireRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CacheExpireRequest, account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CacheExpireRequest, game_account_),
@@ -218,7 +249,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CacheExpireRequest));
-  CredentialUpdateRequest_descriptor_ = file->message_type(4);
+  CredentialUpdateRequest_descriptor_ = file->message_type(5);
   static const int CredentialUpdateRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CredentialUpdateRequest, account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CredentialUpdateRequest, old_credentials_),
@@ -236,7 +267,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CredentialUpdateRequest));
-  CredentialUpdateResponse_descriptor_ = file->message_type(5);
+  CredentialUpdateResponse_descriptor_ = file->message_type(6);
   static const int CredentialUpdateResponse_offsets_[1] = {
   };
   CredentialUpdateResponse_reflection_ =
@@ -250,7 +281,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CredentialUpdateResponse));
-  AccountFlagUpdateRequest_descriptor_ = file->message_type(6);
+  AccountFlagUpdateRequest_descriptor_ = file->message_type(7);
   static const int AccountFlagUpdateRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountFlagUpdateRequest, account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountFlagUpdateRequest, region_),
@@ -268,7 +299,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AccountFlagUpdateRequest));
-  GameAccountFlagUpdateRequest_descriptor_ = file->message_type(7);
+  GameAccountFlagUpdateRequest_descriptor_ = file->message_type(8);
   static const int GameAccountFlagUpdateRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountFlagUpdateRequest, game_account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountFlagUpdateRequest, flag_),
@@ -285,7 +316,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GameAccountFlagUpdateRequest));
-  SubscriptionUpdateRequest_descriptor_ = file->message_type(8);
+  SubscriptionUpdateRequest_descriptor_ = file->message_type(9);
   static const int SubscriptionUpdateRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscriptionUpdateRequest, ref_),
   };
@@ -300,7 +331,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SubscriptionUpdateRequest));
-  SubscriptionUpdateResponse_descriptor_ = file->message_type(9);
+  SubscriptionUpdateResponse_descriptor_ = file->message_type(10);
   static const int SubscriptionUpdateResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscriptionUpdateResponse, ref_),
   };
@@ -315,7 +346,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SubscriptionUpdateResponse));
-  IsIgrAddressRequest_descriptor_ = file->message_type(10);
+  IsIgrAddressRequest_descriptor_ = file->message_type(11);
   static const int IsIgrAddressRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(IsIgrAddressRequest, client_address_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(IsIgrAddressRequest, region_),
@@ -331,7 +362,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(IsIgrAddressRequest));
-  AccountServiceRegion_descriptor_ = file->message_type(11);
+  AccountServiceRegion_descriptor_ = file->message_type(12);
   static const int AccountServiceRegion_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountServiceRegion, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountServiceRegion, shard_),
@@ -347,7 +378,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AccountServiceRegion));
-  AccountServiceConfig_descriptor_ = file->message_type(12);
+  AccountServiceConfig_descriptor_ = file->message_type(13);
   static const int AccountServiceConfig_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountServiceConfig, region_),
   };
@@ -362,7 +393,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AccountServiceConfig));
-  GetAccountStateRequest_descriptor_ = file->message_type(13);
+  GetAccountStateRequest_descriptor_ = file->message_type(14);
   static const int GetAccountStateRequest_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountStateRequest, entity_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountStateRequest, program_),
@@ -381,7 +412,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetAccountStateRequest));
-  GetAccountStateResponse_descriptor_ = file->message_type(14);
+  GetAccountStateResponse_descriptor_ = file->message_type(15);
   static const int GetAccountStateResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountStateResponse, state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAccountStateResponse, tags_),
@@ -397,7 +428,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetAccountStateResponse));
-  GetGameAccountStateRequest_descriptor_ = file->message_type(15);
+  GetGameAccountStateRequest_descriptor_ = file->message_type(16);
   static const int GetGameAccountStateRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountStateRequest, account_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountStateRequest, game_account_id_),
@@ -415,7 +446,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetGameAccountStateRequest));
-  GetGameAccountStateResponse_descriptor_ = file->message_type(16);
+  GetGameAccountStateResponse_descriptor_ = file->message_type(17);
   static const int GetGameAccountStateResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountStateResponse, state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountStateResponse, tags_),
@@ -431,7 +462,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetGameAccountStateResponse));
-  GetLicensesRequest_descriptor_ = file->message_type(17);
+  GetLicensesRequest_descriptor_ = file->message_type(18);
   static const int GetLicensesRequest_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetLicensesRequest, target_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetLicensesRequest, fetch_account_licenses_),
@@ -451,7 +482,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetLicensesRequest));
-  GetLicensesResponse_descriptor_ = file->message_type(18);
+  GetLicensesResponse_descriptor_ = file->message_type(19);
   static const int GetLicensesResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetLicensesResponse, licenses_),
   };
@@ -466,7 +497,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetLicensesResponse));
-  GetGameSessionInfoRequest_descriptor_ = file->message_type(19);
+  GetGameSessionInfoRequest_descriptor_ = file->message_type(20);
   static const int GetGameSessionInfoRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameSessionInfoRequest, entity_id_),
   };
@@ -481,7 +512,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetGameSessionInfoRequest));
-  GetGameSessionInfoResponse_descriptor_ = file->message_type(20);
+  GetGameSessionInfoResponse_descriptor_ = file->message_type(21);
   static const int GetGameSessionInfoResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameSessionInfoResponse, session_info_),
   };
@@ -496,7 +527,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetGameSessionInfoResponse));
-  GetGameTimeRemainingInfoRequest_descriptor_ = file->message_type(21);
+  GetGameTimeRemainingInfoRequest_descriptor_ = file->message_type(22);
   static const int GetGameTimeRemainingInfoRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameTimeRemainingInfoRequest, game_account_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameTimeRemainingInfoRequest, account_id_),
@@ -512,7 +543,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetGameTimeRemainingInfoRequest));
-  GetGameTimeRemainingInfoResponse_descriptor_ = file->message_type(22);
+  GetGameTimeRemainingInfoResponse_descriptor_ = file->message_type(23);
   static const int GetGameTimeRemainingInfoResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameTimeRemainingInfoResponse, game_time_remaining_info_),
   };
@@ -527,7 +558,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetGameTimeRemainingInfoResponse));
-  GetCAISInfoRequest_descriptor_ = file->message_type(23);
+  GetCAISInfoRequest_descriptor_ = file->message_type(24);
   static const int GetCAISInfoRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetCAISInfoRequest, entity_id_),
   };
@@ -542,7 +573,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetCAISInfoRequest));
-  GetCAISInfoResponse_descriptor_ = file->message_type(24);
+  GetCAISInfoResponse_descriptor_ = file->message_type(25);
   static const int GetCAISInfoResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetCAISInfoResponse, cais_info_),
   };
@@ -557,7 +588,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetCAISInfoResponse));
-  ForwardCacheExpireRequest_descriptor_ = file->message_type(25);
+  ForwardCacheExpireRequest_descriptor_ = file->message_type(26);
   static const int ForwardCacheExpireRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ForwardCacheExpireRequest, entity_id_),
   };
@@ -572,7 +603,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ForwardCacheExpireRequest));
-  GetAuthorizedDataRequest_descriptor_ = file->message_type(26);
+  GetAuthorizedDataRequest_descriptor_ = file->message_type(27);
   static const int GetAuthorizedDataRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAuthorizedDataRequest, entity_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAuthorizedDataRequest, tag_),
@@ -589,7 +620,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetAuthorizedDataRequest));
-  GetAuthorizedDataResponse_descriptor_ = file->message_type(27);
+  GetAuthorizedDataResponse_descriptor_ = file->message_type(28);
   static const int GetAuthorizedDataResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetAuthorizedDataResponse, data_),
   };
@@ -604,7 +635,73 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetAuthorizedDataResponse));
-  AccountStateNotification_descriptor_ = file->message_type(28);
+  UpdateParentalControlsAndCAISRequest_descriptor_ = file->message_type(29);
+  static const int UpdateParentalControlsAndCAISRequest_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, account_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, parental_control_info_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, cais_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, session_start_time_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, start_time_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, end_time_),
+  };
+  UpdateParentalControlsAndCAISRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      UpdateParentalControlsAndCAISRequest_descriptor_,
+      UpdateParentalControlsAndCAISRequest::default_instance_,
+      UpdateParentalControlsAndCAISRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(UpdateParentalControlsAndCAISRequest));
+  QueueDeductRecordRequest_descriptor_ = file->message_type(30);
+  static const int QueueDeductRecordRequest_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QueueDeductRecordRequest, deduct_record_),
+  };
+  QueueDeductRecordRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      QueueDeductRecordRequest_descriptor_,
+      QueueDeductRecordRequest::default_instance_,
+      QueueDeductRecordRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QueueDeductRecordRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QueueDeductRecordRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(QueueDeductRecordRequest));
+  GetGameAccountRequest_descriptor_ = file->message_type(31);
+  static const int GetGameAccountRequest_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountRequest, game_account_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountRequest, reload_),
+  };
+  GetGameAccountRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GetGameAccountRequest_descriptor_,
+      GetGameAccountRequest::default_instance_,
+      GetGameAccountRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GetGameAccountRequest));
+  GetGameAccountResponse_descriptor_ = file->message_type(32);
+  static const int GetGameAccountResponse_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountResponse, blob_),
+  };
+  GetGameAccountResponse_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GetGameAccountResponse_descriptor_,
+      GetGameAccountResponse::default_instance_,
+      GetGameAccountResponse_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountResponse, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetGameAccountResponse, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GetGameAccountResponse));
+  AccountStateNotification_descriptor_ = file->message_type(33);
   static const int AccountStateNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountStateNotification, account_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountStateNotification, subscriber_id_),
@@ -622,7 +719,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AccountStateNotification));
-  GameAccountStateNotification_descriptor_ = file->message_type(29);
+  GameAccountStateNotification_descriptor_ = file->message_type(34);
   static const int GameAccountStateNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountStateNotification, game_account_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountStateNotification, subscriber_id_),
@@ -640,7 +737,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GameAccountStateNotification));
-  GameAccountNotification_descriptor_ = file->message_type(30);
+  GameAccountNotification_descriptor_ = file->message_type(35);
   static const int GameAccountNotification_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountNotification, game_accounts_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountNotification, subscriber_id_),
@@ -657,7 +754,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GameAccountNotification));
-  GameAccountSessionNotification_descriptor_ = file->message_type(31);
+  GameAccountSessionNotification_descriptor_ = file->message_type(36);
   static const int GameAccountSessionNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSessionNotification, game_account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSessionNotification, session_info_),
@@ -693,6 +790,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     GetAccountResponse_descriptor_, &GetAccountResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     CreateGameAccountRequest_descriptor_, &CreateGameAccountRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    CreateGameAccountResponse_descriptor_, &CreateGameAccountResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     CacheExpireRequest_descriptor_, &CacheExpireRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -744,6 +843,14 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     GetAuthorizedDataResponse_descriptor_, &GetAuthorizedDataResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    UpdateParentalControlsAndCAISRequest_descriptor_, &UpdateParentalControlsAndCAISRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    QueueDeductRecordRequest_descriptor_, &QueueDeductRecordRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GetGameAccountRequest_descriptor_, &GetGameAccountRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GetGameAccountResponse_descriptor_, &GetGameAccountResponse::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     AccountStateNotification_descriptor_, &AccountStateNotification::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     GameAccountStateNotification_descriptor_, &GameAccountStateNotification::default_instance());
@@ -762,6 +869,8 @@ void protobuf_ShutdownFile_account_5fservice_2eproto() {
   delete GetAccountResponse_reflection_;
   delete CreateGameAccountRequest::default_instance_;
   delete CreateGameAccountRequest_reflection_;
+  delete CreateGameAccountResponse::default_instance_;
+  delete CreateGameAccountResponse_reflection_;
   delete CacheExpireRequest::default_instance_;
   delete CacheExpireRequest_reflection_;
   delete CredentialUpdateRequest::default_instance_;
@@ -812,6 +921,14 @@ void protobuf_ShutdownFile_account_5fservice_2eproto() {
   delete GetAuthorizedDataRequest_reflection_;
   delete GetAuthorizedDataResponse::default_instance_;
   delete GetAuthorizedDataResponse_reflection_;
+  delete UpdateParentalControlsAndCAISRequest::default_instance_;
+  delete UpdateParentalControlsAndCAISRequest_reflection_;
+  delete QueueDeductRecordRequest::default_instance_;
+  delete QueueDeductRecordRequest_reflection_;
+  delete GetGameAccountRequest::default_instance_;
+  delete GetGameAccountRequest_reflection_;
+  delete GetGameAccountResponse::default_instance_;
+  delete GetGameAccountResponse_reflection_;
   delete AccountStateNotification::default_instance_;
   delete AccountStateNotification_reflection_;
   delete GameAccountStateNotification::default_instance_;
@@ -834,192 +951,224 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\025account_service.proto\022\027bgs.protocol.ac"
     "count.v1\032\023account_types.proto\032\022entity_ty"
-    "pes.proto\032\017rpc_types.proto\"\272\002\n\021GetAccoun"
+    "pes.proto\032\017rpc_types.proto\"\357\002\n\021GetAccoun"
     "tRequest\0226\n\003ref\030\001 \001(\0132).bgs.protocol.acc"
-    "ount.v1.AccountReference\022\030\n\tfetch_all\030\n "
-    "\001(\010:\005false\022\031\n\nfetch_blob\030\013 \001(\010:\005false\022\027\n"
-    "\010fetch_id\030\014 \001(\010:\005false\022\032\n\013fetch_email\030\r "
-    "\001(\010:\005false\022\037\n\020fetch_battle_tag\030\016 \001(\010:\005fa"
-    "lse\022\036\n\017fetch_full_name\030\017 \001(\010:\005false\022\032\n\013f"
-    "etch_links\030\020 \001(\010:\005false\022&\n\027fetch_parenta"
-    "l_controls\030\021 \001(\010:\005false\"\264\002\n\022GetAccountRe"
-    "sponse\0222\n\004blob\030\013 \001(\0132$.bgs.protocol.acco"
-    "unt.v1.AccountBlob\022.\n\002id\030\014 \001(\0132\".bgs.pro"
-    "tocol.account.v1.AccountId\022\r\n\005email\030\r \003("
-    "\t\022\022\n\nbattle_tag\030\016 \001(\t\022\021\n\tfull_name\030\017 \001(\t"
-    "\0227\n\005links\030\020 \003(\0132(.bgs.protocol.account.v"
-    "1.GameAccountLink\022K\n\025parental_control_in"
-    "fo\030\021 \001(\0132,.bgs.protocol.account.v1.Paren"
-    "talControlInfo\"\216\001\n\030CreateGameAccountRequ"
-    "est\0223\n\007account\030\001 \001(\0132\".bgs.protocol.acco"
-    "unt.v1.AccountId\022\016\n\006region\030\002 \001(\r\022\017\n\007prog"
-    "ram\030\003 \001(\007\022\034\n\021realm_permissions\030\004 \001(\r:\0011\""
-    "\232\001\n\022CacheExpireRequest\0223\n\007account\030\001 \003(\0132"
-    "\".bgs.protocol.account.v1.AccountId\022@\n\014g"
-    "ame_account\030\002 \003(\0132*.bgs.protocol.account"
-    ".v1.GameAccountHandle\022\r\n\005email\030\003 \003(\t\"\350\001\n"
-    "\027CredentialUpdateRequest\0223\n\007account\030\001 \002("
-    "\0132\".bgs.protocol.account.v1.AccountId\022C\n"
-    "\017old_credentials\030\002 \003(\0132*.bgs.protocol.ac"
-    "count.v1.AccountCredential\022C\n\017new_creden"
-    "tials\030\003 \003(\0132*.bgs.protocol.account.v1.Ac"
-    "countCredential\022\016\n\006region\030\004 \001(\r\"\032\n\030Crede"
-    "ntialUpdateResponse\"}\n\030AccountFlagUpdate"
-    "Request\0223\n\007account\030\001 \001(\0132\".bgs.protocol."
-    "account.v1.AccountId\022\016\n\006region\030\002 \001(\r\022\014\n\004"
-    "flag\030\003 \001(\004\022\016\n\006active\030\004 \001(\010\"~\n\034GameAccoun"
-    "tFlagUpdateRequest\022@\n\014game_account\030\001 \001(\013"
-    "2*.bgs.protocol.account.v1.GameAccountHa"
-    "ndle\022\014\n\004flag\030\002 \001(\004\022\016\n\006active\030\003 \001(\010\"V\n\031Su"
-    "bscriptionUpdateRequest\0229\n\003ref\030\002 \003(\0132,.b"
-    "gs.protocol.account.v1.SubscriberReferen"
-    "ce\"W\n\032SubscriptionUpdateResponse\0229\n\003ref\030"
-    "\001 \003(\0132,.bgs.protocol.account.v1.Subscrib"
-    "erReference\"=\n\023IsIgrAddressRequest\022\026\n\016cl"
-    "ient_address\030\001 \001(\t\022\016\n\006region\030\002 \001(\r\"1\n\024Ac"
-    "countServiceRegion\022\n\n\002id\030\001 \002(\r\022\r\n\005shard\030"
-    "\002 \002(\t\"U\n\024AccountServiceConfig\022=\n\006region\030"
-    "\001 \003(\0132-.bgs.protocol.account.v1.AccountS"
-    "erviceRegion\"\334\001\n\026GetAccountStateRequest\022"
-    ")\n\tentity_id\030\001 \001(\0132\026.bgs.protocol.Entity"
-    "Id\022\017\n\007program\030\002 \001(\r\022\016\n\006region\030\003 \001(\r\022=\n\007o"
-    "ptions\030\n \001(\0132,.bgs.protocol.account.v1.A"
-    "ccountFieldOptions\0227\n\004tags\030\013 \001(\0132).bgs.p"
-    "rotocol.account.v1.AccountFieldTags\"\210\001\n\027"
-    "GetAccountStateResponse\0224\n\005state\030\001 \001(\0132%"
-    ".bgs.protocol.account.v1.AccountState\0227\n"
-    "\004tags\030\002 \001(\0132).bgs.protocol.account.v1.Ac"
-    "countFieldTags\"\375\001\n\032GetGameAccountStateRe"
-    "quest\022.\n\naccount_id\030\001 \001(\0132\026.bgs.protocol"
-    ".EntityIdB\002\030\001\022/\n\017game_account_id\030\002 \001(\0132\026"
-    ".bgs.protocol.EntityId\022A\n\007options\030\n \001(\0132"
-    "0.bgs.protocol.account.v1.GameAccountFie"
-    "ldOptions\022;\n\004tags\030\013 \001(\0132-.bgs.protocol.a"
-    "ccount.v1.GameAccountFieldTags\"\224\001\n\033GetGa"
-    "meAccountStateResponse\0228\n\005state\030\001 \001(\0132)."
-    "bgs.protocol.account.v1.GameAccountState"
-    "\022;\n\004tags\030\002 \001(\0132-.bgs.protocol.account.v1"
-    ".GameAccountFieldTags\"\345\001\n\022GetLicensesReq"
-    "uest\022)\n\ttarget_id\030\001 \001(\0132\026.bgs.protocol.E"
-    "ntityId\022\036\n\026fetch_account_licenses\030\002 \001(\010\022"
-    "#\n\033fetch_game_account_licenses\030\003 \001(\010\022&\n\036"
-    "fetch_dynamic_account_licenses\030\004 \001(\010\022\017\n\007"
-    "program\030\005 \001(\007\022&\n\027exclude_unknown_program"
-    "\030\006 \001(\010:\005false\"P\n\023GetLicensesResponse\0229\n\010"
-    "licenses\030\001 \003(\0132\'.bgs.protocol.account.v1"
-    ".AccountLicense\"F\n\031GetGameSessionInfoReq"
-    "uest\022)\n\tentity_id\030\001 \001(\0132\026.bgs.protocol.E"
-    "ntityId\"\\\n\032GetGameSessionInfoResponse\022>\n"
-    "\014session_info\030\002 \001(\0132(.bgs.protocol.accou"
-    "nt.v1.GameSessionInfo\"~\n\037GetGameTimeRema"
-    "iningInfoRequest\022/\n\017game_account_id\030\001 \001("
-    "\0132\026.bgs.protocol.EntityId\022*\n\naccount_id\030"
-    "\002 \001(\0132\026.bgs.protocol.EntityId\"t\n GetGame"
-    "TimeRemainingInfoResponse\022P\n\030game_time_r"
-    "emaining_info\030\001 \001(\0132..bgs.protocol.accou"
-    "nt.v1.GameTimeRemainingInfo\"\?\n\022GetCAISIn"
-    "foRequest\022)\n\tentity_id\030\001 \001(\0132\026.bgs.proto"
-    "col.EntityId\"G\n\023GetCAISInfoResponse\0220\n\tc"
-    "ais_info\030\001 \001(\0132\035.bgs.protocol.account.v1"
-    ".CAIS\"F\n\031ForwardCacheExpireRequest\022)\n\ten"
-    "tity_id\030\001 \001(\0132\026.bgs.protocol.EntityId\"n\n"
-    "\030GetAuthorizedDataRequest\022)\n\tentity_id\030\001"
-    " \001(\0132\026.bgs.protocol.EntityId\022\013\n\003tag\030\002 \003("
-    "\t\022\032\n\022privileged_network\030\003 \001(\010\"R\n\031GetAuth"
-    "orizedDataResponse\0225\n\004data\030\001 \003(\0132\'.bgs.p"
-    "rotocol.account.v1.AuthorizedData\"\320\001\n\030Ac"
-    "countStateNotification\022<\n\raccount_state\030"
+    "ount.v1.AccountReference\022\025\n\006reload\030\002 \001(\010"
+    ":\005false\022\030\n\tfetch_all\030\n \001(\010:\005false\022\031\n\nfet"
+    "ch_blob\030\013 \001(\010:\005false\022\027\n\010fetch_id\030\014 \001(\010:\005"
+    "false\022\032\n\013fetch_email\030\r \001(\010:\005false\022\037\n\020fet"
+    "ch_battle_tag\030\016 \001(\010:\005false\022\036\n\017fetch_full"
+    "_name\030\017 \001(\010:\005false\022\032\n\013fetch_links\030\020 \001(\010:"
+    "\005false\022&\n\027fetch_parental_controls\030\021 \001(\010:"
+    "\005false\022\034\n\rfetch_cais_id\030\022 \001(\010:\005false\"\305\002\n"
+    "\022GetAccountResponse\0222\n\004blob\030\013 \001(\0132$.bgs."
+    "protocol.account.v1.AccountBlob\022.\n\002id\030\014 "
+    "\001(\0132\".bgs.protocol.account.v1.AccountId\022"
+    "\r\n\005email\030\r \003(\t\022\022\n\nbattle_tag\030\016 \001(\t\022\021\n\tfu"
+    "ll_name\030\017 \001(\t\0227\n\005links\030\020 \003(\0132(.bgs.proto"
+    "col.account.v1.GameAccountLink\022K\n\025parent"
+    "al_control_info\030\021 \001(\0132,.bgs.protocol.acc"
+    "ount.v1.ParentalControlInfo\022\017\n\007cais_id\030\022"
+    " \001(\t\"\270\001\n\030CreateGameAccountRequest\0223\n\007acc"
+    "ount\030\001 \001(\0132\".bgs.protocol.account.v1.Acc"
+    "ountId\022\016\n\006region\030\002 \001(\r\022\017\n\007program\030\003 \001(\007\022"
+    "\034\n\021realm_permissions\030\004 \001(\r:\0010\022\026\n\016account"
+    "_region\030\005 \001(\r\022\020\n\010platform\030\006 \001(\007\"]\n\031Creat"
+    "eGameAccountResponse\022@\n\014game_account\030\001 \001"
+    "(\0132*.bgs.protocol.account.v1.GameAccount"
+    "Handle\"\232\001\n\022CacheExpireRequest\0223\n\007account"
+    "\030\001 \003(\0132\".bgs.protocol.account.v1.Account"
+    "Id\022@\n\014game_account\030\002 \003(\0132*.bgs.protocol."
+    "account.v1.GameAccountHandle\022\r\n\005email\030\003 "
+    "\003(\t\"\350\001\n\027CredentialUpdateRequest\0223\n\007accou"
+    "nt\030\001 \002(\0132\".bgs.protocol.account.v1.Accou"
+    "ntId\022C\n\017old_credentials\030\002 \003(\0132*.bgs.prot"
+    "ocol.account.v1.AccountCredential\022C\n\017new"
+    "_credentials\030\003 \003(\0132*.bgs.protocol.accoun"
+    "t.v1.AccountCredential\022\016\n\006region\030\004 \001(\r\"\032"
+    "\n\030CredentialUpdateResponse\"}\n\030AccountFla"
+    "gUpdateRequest\0223\n\007account\030\001 \001(\0132\".bgs.pr"
+    "otocol.account.v1.AccountId\022\016\n\006region\030\002 "
+    "\001(\r\022\014\n\004flag\030\003 \001(\004\022\016\n\006active\030\004 \001(\010\"~\n\034Gam"
+    "eAccountFlagUpdateRequest\022@\n\014game_accoun"
+    "t\030\001 \001(\0132*.bgs.protocol.account.v1.GameAc"
+    "countHandle\022\014\n\004flag\030\002 \001(\004\022\016\n\006active\030\003 \001("
+    "\010\"V\n\031SubscriptionUpdateRequest\0229\n\003ref\030\002 "
+    "\003(\0132,.bgs.protocol.account.v1.Subscriber"
+    "Reference\"W\n\032SubscriptionUpdateResponse\022"
+    "9\n\003ref\030\001 \003(\0132,.bgs.protocol.account.v1.S"
+    "ubscriberReference\"=\n\023IsIgrAddressReques"
+    "t\022\026\n\016client_address\030\001 \001(\t\022\016\n\006region\030\002 \001("
+    "\r\"1\n\024AccountServiceRegion\022\n\n\002id\030\001 \002(\r\022\r\n"
+    "\005shard\030\002 \002(\t\"U\n\024AccountServiceConfig\022=\n\006"
+    "region\030\001 \003(\0132-.bgs.protocol.account.v1.A"
+    "ccountServiceRegion\"\334\001\n\026GetAccountStateR"
+    "equest\022)\n\tentity_id\030\001 \001(\0132\026.bgs.protocol"
+    ".EntityId\022\017\n\007program\030\002 \001(\r\022\016\n\006region\030\003 \001"
+    "(\r\022=\n\007options\030\n \001(\0132,.bgs.protocol.accou"
+    "nt.v1.AccountFieldOptions\0227\n\004tags\030\013 \001(\0132"
+    ").bgs.protocol.account.v1.AccountFieldTa"
+    "gs\"\210\001\n\027GetAccountStateResponse\0224\n\005state\030"
     "\001 \001(\0132%.bgs.protocol.account.v1.AccountS"
-    "tate\022\025\n\rsubscriber_id\030\002 \001(\004\022\?\n\014account_t"
-    "ags\030\003 \001(\0132).bgs.protocol.account.v1.Acco"
-    "untFieldTags\022\036\n\026subscription_completed\030\004"
-    " \001(\010\"\346\001\n\034GameAccountStateNotification\022E\n"
-    "\022game_account_state\030\001 \001(\0132).bgs.protocol"
-    ".account.v1.GameAccountState\022\025\n\rsubscrib"
-    "er_id\030\002 \001(\004\022H\n\021game_account_tags\030\003 \001(\0132-"
-    ".bgs.protocol.account.v1.GameAccountFiel"
-    "dTags\022\036\n\026subscription_completed\030\004 \001(\010\"\262\001"
-    "\n\027GameAccountNotification\022\?\n\rgame_accoun"
-    "ts\030\001 \003(\0132(.bgs.protocol.account.v1.GameA"
-    "ccountList\022\025\n\rsubscriber_id\030\002 \001(\004\022\?\n\014acc"
-    "ount_tags\030\003 \001(\0132).bgs.protocol.account.v"
-    "1.AccountFieldTags\"\250\001\n\036GameAccountSessio"
-    "nNotification\022@\n\014game_account\030\001 \001(\0132*.bg"
-    "s.protocol.account.v1.GameAccountHandle\022"
-    "D\n\014session_info\030\002 \001(\0132..bgs.protocol.acc"
-    "ount.v1.GameSessionUpdateInfo2\345\020\n\016Accoun"
-    "tService\022l\n\016GetGameAccount\022*.bgs.protoco"
-    "l.account.v1.GameAccountHandle\032(.bgs.pro"
-    "tocol.account.v1.GameAccountBlob\"\004\200\265\030\014\022k"
-    "\n\nGetAccount\022*.bgs.protocol.account.v1.G"
-    "etAccountRequest\032+.bgs.protocol.account."
-    "v1.GetAccountResponse\"\004\200\265\030\r\022x\n\021CreateGam"
-    "eAccount\0221.bgs.protocol.account.v1.Creat"
-    "eGameAccountRequest\032*.bgs.protocol.accou"
-    "nt.v1.GameAccountHandle\"\004\200\265\030\016\022X\n\014IsIgrAd"
-    "dress\022,.bgs.protocol.account.v1.IsIgrAdd"
-    "ressRequest\032\024.bgs.protocol.NoData\"\004\200\265\030\017\022"
-    "[\n\013CacheExpire\022+.bgs.protocol.account.v1"
-    ".CacheExpireRequest\032\031.bgs.protocol.NO_RE"
-    "SPONSE\"\004\200\265\030\024\022}\n\020CredentialUpdate\0220.bgs.p"
-    "rotocol.account.v1.CredentialUpdateReque"
-    "st\0321.bgs.protocol.account.v1.CredentialU"
-    "pdateResponse\"\004\200\265\030\025\022z\n\tSubscribe\0222.bgs.p"
-    "rotocol.account.v1.SubscriptionUpdateReq"
-    "uest\0323.bgs.protocol.account.v1.Subscript"
-    "ionUpdateResponse\"\004\200\265\030\031\022]\n\013Unsubscribe\0222"
-    ".bgs.protocol.account.v1.SubscriptionUpd"
-    "ateRequest\032\024.bgs.protocol.NoData\"\004\200\265\030\032\022z"
-    "\n\017GetAccountState\022/.bgs.protocol.account"
-    ".v1.GetAccountStateRequest\0320.bgs.protoco"
-    "l.account.v1.GetAccountStateResponse\"\004\200\265"
-    "\030\036\022\206\001\n\023GetGameAccountState\0223.bgs.protoco"
-    "l.account.v1.GetGameAccountStateRequest\032"
-    "4.bgs.protocol.account.v1.GetGameAccount"
-    "StateResponse\"\004\200\265\030\037\022n\n\013GetLicenses\022+.bgs"
-    ".protocol.account.v1.GetLicensesRequest\032"
-    ",.bgs.protocol.account.v1.GetLicensesRes"
-    "ponse\"\004\200\265\030 \022\225\001\n\030GetGameTimeRemainingInfo"
-    "\0228.bgs.protocol.account.v1.GetGameTimeRe"
-    "mainingInfoRequest\0329.bgs.protocol.accoun"
-    "t.v1.GetGameTimeRemainingInfoResponse\"\004\200"
-    "\265\030!\022\203\001\n\022GetGameSessionInfo\0222.bgs.protoco"
-    "l.account.v1.GetGameSessionInfoRequest\0323"
-    ".bgs.protocol.account.v1.GetGameSessionI"
-    "nfoResponse\"\004\200\265\030\"\022n\n\013GetCAISInfo\022+.bgs.p"
-    "rotocol.account.v1.GetCAISInfoRequest\032,."
-    "bgs.protocol.account.v1.GetCAISInfoRespo"
-    "nse\"\004\200\265\030#\022d\n\022ForwardCacheExpire\0222.bgs.pr"
-    "otocol.account.v1.ForwardCacheExpireRequ"
-    "est\032\024.bgs.protocol.NoData\"\004\200\265\030$\022\200\001\n\021GetA"
-    "uthorizedData\0221.bgs.protocol.account.v1."
-    "GetAuthorizedDataRequest\0322.bgs.protocol."
-    "account.v1.GetAuthorizedDataResponse\"\004\200\265"
-    "\030%\022g\n\021AccountFlagUpdate\0221.bgs.protocol.a"
-    "ccount.v1.AccountFlagUpdateRequest\032\031.bgs"
-    ".protocol.NO_RESPONSE\"\004\200\265\030&\022o\n\025GameAccou"
-    "ntFlagUpdate\0225.bgs.protocol.account.v1.G"
-    "ameAccountFlagUpdateRequest\032\031.bgs.protoc"
-    "ol.NO_RESPONSE\"\004\200\265\030\'\032\'\312>$bnet.protocol.a"
-    "ccount.AccountService2\377\003\n\017AccountListene"
-    "r\022k\n\025OnAccountStateUpdated\0221.bgs.protoco"
-    "l.account.v1.AccountStateNotification\032\031."
-    "bgs.protocol.NO_RESPONSE\"\004\200\265\030\001\022s\n\031OnGame"
-    "AccountStateUpdated\0225.bgs.protocol.accou"
-    "nt.v1.GameAccountStateNotification\032\031.bgs"
-    ".protocol.NO_RESPONSE\"\004\200\265\030\002\022m\n\025OnGameAcc"
-    "ountsUpdated\0220.bgs.protocol.account.v1.G"
-    "ameAccountNotification\032\031.bgs.protocol.NO"
-    "_RESPONSE\"\007\210\002\001\200\265\030\003\022s\n\024OnGameSessionUpdat"
-    "ed\0227.bgs.protocol.account.v1.GameAccount"
-    "SessionNotification\032\031.bgs.protocol.NO_RE"
-    "SPONSE\"\007\210\002\001\200\265\030\004\032&\312>#bnet.protocol.accoun"
-    "t.AccountNotifyB\005H\001\200\001\000", 7302);
+    "tate\0227\n\004tags\030\002 \001(\0132).bgs.protocol.accoun"
+    "t.v1.AccountFieldTags\"\375\001\n\032GetGameAccount"
+    "StateRequest\022.\n\naccount_id\030\001 \001(\0132\026.bgs.p"
+    "rotocol.EntityIdB\002\030\001\022/\n\017game_account_id\030"
+    "\002 \001(\0132\026.bgs.protocol.EntityId\022A\n\007options"
+    "\030\n \001(\01320.bgs.protocol.account.v1.GameAcc"
+    "ountFieldOptions\022;\n\004tags\030\013 \001(\0132-.bgs.pro"
+    "tocol.account.v1.GameAccountFieldTags\"\224\001"
+    "\n\033GetGameAccountStateResponse\0228\n\005state\030\001"
+    " \001(\0132).bgs.protocol.account.v1.GameAccou"
+    "ntState\022;\n\004tags\030\002 \001(\0132-.bgs.protocol.acc"
+    "ount.v1.GameAccountFieldTags\"\345\001\n\022GetLice"
+    "nsesRequest\022)\n\ttarget_id\030\001 \001(\0132\026.bgs.pro"
+    "tocol.EntityId\022\036\n\026fetch_account_licenses"
+    "\030\002 \001(\010\022#\n\033fetch_game_account_licenses\030\003 "
+    "\001(\010\022&\n\036fetch_dynamic_account_licenses\030\004 "
+    "\001(\010\022\017\n\007program\030\005 \001(\007\022&\n\027exclude_unknown_"
+    "program\030\006 \001(\010:\005false\"P\n\023GetLicensesRespo"
+    "nse\0229\n\010licenses\030\001 \003(\0132\'.bgs.protocol.acc"
+    "ount.v1.AccountLicense\"F\n\031GetGameSession"
+    "InfoRequest\022)\n\tentity_id\030\001 \001(\0132\026.bgs.pro"
+    "tocol.EntityId\"\\\n\032GetGameSessionInfoResp"
+    "onse\022>\n\014session_info\030\002 \001(\0132(.bgs.protoco"
+    "l.account.v1.GameSessionInfo\"~\n\037GetGameT"
+    "imeRemainingInfoRequest\022/\n\017game_account_"
+    "id\030\001 \001(\0132\026.bgs.protocol.EntityId\022*\n\nacco"
+    "unt_id\030\002 \001(\0132\026.bgs.protocol.EntityId\"t\n "
+    "GetGameTimeRemainingInfoResponse\022P\n\030game"
+    "_time_remaining_info\030\001 \001(\0132..bgs.protoco"
+    "l.account.v1.GameTimeRemainingInfo\"\?\n\022Ge"
+    "tCAISInfoRequest\022)\n\tentity_id\030\001 \001(\0132\026.bg"
+    "s.protocol.EntityId\"G\n\023GetCAISInfoRespon"
+    "se\0220\n\tcais_info\030\001 \001(\0132\035.bgs.protocol.acc"
+    "ount.v1.CAIS\"F\n\031ForwardCacheExpireReques"
+    "t\022)\n\tentity_id\030\001 \001(\0132\026.bgs.protocol.Enti"
+    "tyId\"n\n\030GetAuthorizedDataRequest\022)\n\tenti"
+    "ty_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022\013\n\003t"
+    "ag\030\002 \003(\t\022\032\n\022privileged_network\030\003 \001(\010\"R\n\031"
+    "GetAuthorizedDataResponse\0225\n\004data\030\001 \003(\0132"
+    "\'.bgs.protocol.account.v1.AuthorizedData"
+    "\"\373\001\n$UpdateParentalControlsAndCAISReques"
+    "t\0223\n\007account\030\001 \001(\0132\".bgs.protocol.accoun"
+    "t.v1.AccountId\022K\n\025parental_control_info\030"
+    "\002 \001(\0132,.bgs.protocol.account.v1.Parental"
+    "ControlInfo\022\017\n\007cais_id\030\003 \001(\t\022\032\n\022session_"
+    "start_time\030\004 \001(\004\022\022\n\nstart_time\030\005 \001(\004\022\020\n\010"
+    "end_time\030\006 \001(\004\"X\n\030QueueDeductRecordReque"
+    "st\022<\n\rdeduct_record\030\001 \001(\0132%.bgs.protocol"
+    ".account.v1.DeductRecord\"p\n\025GetGameAccou"
+    "ntRequest\022@\n\014game_account\030\001 \001(\0132*.bgs.pr"
+    "otocol.account.v1.GameAccountHandle\022\025\n\006r"
+    "eload\030\002 \001(\010:\005false\"P\n\026GetGameAccountResp"
+    "onse\0226\n\004blob\030\001 \001(\0132(.bgs.protocol.accoun"
+    "t.v1.GameAccountBlob\"\320\001\n\030AccountStateNot"
+    "ification\022<\n\raccount_state\030\001 \001(\0132%.bgs.p"
+    "rotocol.account.v1.AccountState\022\025\n\rsubsc"
+    "riber_id\030\002 \001(\004\022\?\n\014account_tags\030\003 \001(\0132).b"
+    "gs.protocol.account.v1.AccountFieldTags\022"
+    "\036\n\026subscription_completed\030\004 \001(\010\"\346\001\n\034Game"
+    "AccountStateNotification\022E\n\022game_account"
+    "_state\030\001 \001(\0132).bgs.protocol.account.v1.G"
+    "ameAccountState\022\025\n\rsubscriber_id\030\002 \001(\004\022H"
+    "\n\021game_account_tags\030\003 \001(\0132-.bgs.protocol"
+    ".account.v1.GameAccountFieldTags\022\036\n\026subs"
+    "cription_completed\030\004 \001(\010\"\262\001\n\027GameAccount"
+    "Notification\022\?\n\rgame_accounts\030\001 \003(\0132(.bg"
+    "s.protocol.account.v1.GameAccountList\022\025\n"
+    "\rsubscriber_id\030\002 \001(\004\022\?\n\014account_tags\030\003 \001"
+    "(\0132).bgs.protocol.account.v1.AccountFiel"
+    "dTags\"\250\001\n\036GameAccountSessionNotification"
+    "\022@\n\014game_account\030\001 \001(\0132*.bgs.protocol.ac"
+    "count.v1.GameAccountHandle\022D\n\014session_in"
+    "fo\030\002 \001(\0132..bgs.protocol.account.v1.GameS"
+    "essionUpdateInfo2\312\024\n\016AccountService\022p\n\022G"
+    "etGameAccountBlob\022*.bgs.protocol.account"
+    ".v1.GameAccountHandle\032(.bgs.protocol.acc"
+    "ount.v1.GameAccountBlob\"\004\200\265\030\014\022k\n\nGetAcco"
+    "unt\022*.bgs.protocol.account.v1.GetAccount"
+    "Request\032+.bgs.protocol.account.v1.GetAcc"
+    "ountResponse\"\004\200\265\030\r\022x\n\021CreateGameAccount\022"
+    "1.bgs.protocol.account.v1.CreateGameAcco"
+    "untRequest\032*.bgs.protocol.account.v1.Gam"
+    "eAccountHandle\"\004\200\265\030\016\022X\n\014IsIgrAddress\022,.b"
+    "gs.protocol.account.v1.IsIgrAddressReque"
+    "st\032\024.bgs.protocol.NoData\"\004\200\265\030\017\022[\n\013CacheE"
+    "xpire\022+.bgs.protocol.account.v1.CacheExp"
+    "ireRequest\032\031.bgs.protocol.NO_RESPONSE\"\004\200"
+    "\265\030\024\022\200\001\n\020CredentialUpdate\0220.bgs.protocol."
+    "account.v1.CredentialUpdateRequest\0321.bgs"
+    ".protocol.account.v1.CredentialUpdateRes"
+    "ponse\"\007\210\002\001\200\265\030\025\022z\n\tSubscribe\0222.bgs.protoc"
+    "ol.account.v1.SubscriptionUpdateRequest\032"
+    "3.bgs.protocol.account.v1.SubscriptionUp"
+    "dateResponse\"\004\200\265\030\031\022]\n\013Unsubscribe\0222.bgs."
+    "protocol.account.v1.SubscriptionUpdateRe"
+    "quest\032\024.bgs.protocol.NoData\"\004\200\265\030\032\022z\n\017Get"
+    "AccountState\022/.bgs.protocol.account.v1.G"
+    "etAccountStateRequest\0320.bgs.protocol.acc"
+    "ount.v1.GetAccountStateResponse\"\004\200\265\030\036\022\206\001"
+    "\n\023GetGameAccountState\0223.bgs.protocol.acc"
+    "ount.v1.GetGameAccountStateRequest\0324.bgs"
+    ".protocol.account.v1.GetGameAccountState"
+    "Response\"\004\200\265\030\037\022n\n\013GetLicenses\022+.bgs.prot"
+    "ocol.account.v1.GetLicensesRequest\032,.bgs"
+    ".protocol.account.v1.GetLicensesResponse"
+    "\"\004\200\265\030 \022\225\001\n\030GetGameTimeRemainingInfo\0228.bg"
+    "s.protocol.account.v1.GetGameTimeRemaini"
+    "ngInfoRequest\0329.bgs.protocol.account.v1."
+    "GetGameTimeRemainingInfoResponse\"\004\200\265\030!\022\203"
+    "\001\n\022GetGameSessionInfo\0222.bgs.protocol.acc"
+    "ount.v1.GetGameSessionInfoRequest\0323.bgs."
+    "protocol.account.v1.GetGameSessionInfoRe"
+    "sponse\"\004\200\265\030\"\022n\n\013GetCAISInfo\022+.bgs.protoc"
+    "ol.account.v1.GetCAISInfoRequest\032,.bgs.p"
+    "rotocol.account.v1.GetCAISInfoResponse\"\004"
+    "\200\265\030#\022d\n\022ForwardCacheExpire\0222.bgs.protoco"
+    "l.account.v1.ForwardCacheExpireRequest\032\024"
+    ".bgs.protocol.NoData\"\004\200\265\030$\022\200\001\n\021GetAuthor"
+    "izedData\0221.bgs.protocol.account.v1.GetAu"
+    "thorizedDataRequest\0322.bgs.protocol.accou"
+    "nt.v1.GetAuthorizedDataResponse\"\004\200\265\030%\022g\n"
+    "\021AccountFlagUpdate\0221.bgs.protocol.accoun"
+    "t.v1.AccountFlagUpdateRequest\032\031.bgs.prot"
+    "ocol.NO_RESPONSE\"\004\200\265\030&\022o\n\025GameAccountFla"
+    "gUpdate\0225.bgs.protocol.account.v1.GameAc"
+    "countFlagUpdateRequest\032\031.bgs.protocol.NO"
+    "_RESPONSE\"\004\200\265\030\'\022z\n\035UpdateParentalControl"
+    "sAndCAIS\022=.bgs.protocol.account.v1.Updat"
+    "eParentalControlsAndCAISRequest\032\024.bgs.pr"
+    "otocol.NoData\"\004\200\265\030(\022\201\001\n\022CreateGameAccoun"
+    "t2\0221.bgs.protocol.account.v1.CreateGameA"
+    "ccountRequest\0322.bgs.protocol.account.v1."
+    "CreateGameAccountResponse\"\004\200\265\030)\022w\n\016GetGa"
+    "meAccount\022..bgs.protocol.account.v1.GetG"
+    "ameAccountRequest\032/.bgs.protocol.account"
+    ".v1.GetGameAccountResponse\"\004\200\265\030*\022b\n\021Queu"
+    "eDeductRecord\0221.bgs.protocol.account.v1."
+    "QueueDeductRecordRequest\032\024.bgs.protocol."
+    "NoData\"\004\200\265\030+\032\'\312>$bnet.protocol.account.A"
+    "ccountService2\377\003\n\017AccountListener\022k\n\025OnA"
+    "ccountStateUpdated\0221.bgs.protocol.accoun"
+    "t.v1.AccountStateNotification\032\031.bgs.prot"
+    "ocol.NO_RESPONSE\"\004\200\265\030\001\022s\n\031OnGameAccountS"
+    "tateUpdated\0225.bgs.protocol.account.v1.Ga"
+    "meAccountStateNotification\032\031.bgs.protoco"
+    "l.NO_RESPONSE\"\004\200\265\030\002\022m\n\025OnGameAccountsUpd"
+    "ated\0220.bgs.protocol.account.v1.GameAccou"
+    "ntNotification\032\031.bgs.protocol.NO_RESPONS"
+    "E\"\007\210\002\001\200\265\030\003\022s\n\024OnGameSessionUpdated\0227.bgs"
+    ".protocol.account.v1.GameAccountSessionN"
+    "otification\032\031.bgs.protocol.NO_RESPONSE\"\007"
+    "\210\002\001\200\265\030\004\032&\312>#bnet.protocol.account.Accoun"
+    "tNotifyB\005H\001\200\001\000", 8534);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "account_service.proto", &protobuf_RegisterTypes);
   GetAccountRequest::default_instance_ = new GetAccountRequest();
   GetAccountResponse::default_instance_ = new GetAccountResponse();
   CreateGameAccountRequest::default_instance_ = new CreateGameAccountRequest();
+  CreateGameAccountResponse::default_instance_ = new CreateGameAccountResponse();
   CacheExpireRequest::default_instance_ = new CacheExpireRequest();
   CredentialUpdateRequest::default_instance_ = new CredentialUpdateRequest();
   CredentialUpdateResponse::default_instance_ = new CredentialUpdateResponse();
@@ -1045,6 +1194,10 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
   ForwardCacheExpireRequest::default_instance_ = new ForwardCacheExpireRequest();
   GetAuthorizedDataRequest::default_instance_ = new GetAuthorizedDataRequest();
   GetAuthorizedDataResponse::default_instance_ = new GetAuthorizedDataResponse();
+  UpdateParentalControlsAndCAISRequest::default_instance_ = new UpdateParentalControlsAndCAISRequest();
+  QueueDeductRecordRequest::default_instance_ = new QueueDeductRecordRequest();
+  GetGameAccountRequest::default_instance_ = new GetGameAccountRequest();
+  GetGameAccountResponse::default_instance_ = new GetGameAccountResponse();
   AccountStateNotification::default_instance_ = new AccountStateNotification();
   GameAccountStateNotification::default_instance_ = new GameAccountStateNotification();
   GameAccountNotification::default_instance_ = new GameAccountNotification();
@@ -1052,6 +1205,7 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
   GetAccountRequest::default_instance_->InitAsDefaultInstance();
   GetAccountResponse::default_instance_->InitAsDefaultInstance();
   CreateGameAccountRequest::default_instance_->InitAsDefaultInstance();
+  CreateGameAccountResponse::default_instance_->InitAsDefaultInstance();
   CacheExpireRequest::default_instance_->InitAsDefaultInstance();
   CredentialUpdateRequest::default_instance_->InitAsDefaultInstance();
   CredentialUpdateResponse::default_instance_->InitAsDefaultInstance();
@@ -1077,6 +1231,10 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
   ForwardCacheExpireRequest::default_instance_->InitAsDefaultInstance();
   GetAuthorizedDataRequest::default_instance_->InitAsDefaultInstance();
   GetAuthorizedDataResponse::default_instance_->InitAsDefaultInstance();
+  UpdateParentalControlsAndCAISRequest::default_instance_->InitAsDefaultInstance();
+  QueueDeductRecordRequest::default_instance_->InitAsDefaultInstance();
+  GetGameAccountRequest::default_instance_->InitAsDefaultInstance();
+  GetGameAccountResponse::default_instance_->InitAsDefaultInstance();
   AccountStateNotification::default_instance_->InitAsDefaultInstance();
   GameAccountStateNotification::default_instance_->InitAsDefaultInstance();
   GameAccountNotification::default_instance_->InitAsDefaultInstance();
@@ -1095,6 +1253,7 @@ struct StaticDescriptorInitializer_account_5fservice_2eproto {
 
 #ifndef _MSC_VER
 const int GetAccountRequest::kRefFieldNumber;
+const int GetAccountRequest::kReloadFieldNumber;
 const int GetAccountRequest::kFetchAllFieldNumber;
 const int GetAccountRequest::kFetchBlobFieldNumber;
 const int GetAccountRequest::kFetchIdFieldNumber;
@@ -1103,6 +1262,7 @@ const int GetAccountRequest::kFetchBattleTagFieldNumber;
 const int GetAccountRequest::kFetchFullNameFieldNumber;
 const int GetAccountRequest::kFetchLinksFieldNumber;
 const int GetAccountRequest::kFetchParentalControlsFieldNumber;
+const int GetAccountRequest::kFetchCaisIdFieldNumber;
 #endif  // !_MSC_VER
 
 GetAccountRequest::GetAccountRequest()
@@ -1125,6 +1285,7 @@ GetAccountRequest::GetAccountRequest(const GetAccountRequest& from)
 void GetAccountRequest::SharedCtor() {
   _cached_size_ = 0;
   ref_ = NULL;
+  reload_ = false;
   fetch_all_ = false;
   fetch_blob_ = false;
   fetch_id_ = false;
@@ -1133,6 +1294,7 @@ void GetAccountRequest::SharedCtor() {
   fetch_full_name_ = false;
   fetch_links_ = false;
   fetch_parental_controls_ = false;
+  fetch_cais_id_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1180,12 +1342,12 @@ void GetAccountRequest::Clear() {
   } while (0)
 
   if (_has_bits_[0 / 32] & 255) {
-    ZR_(fetch_all_, fetch_links_);
+    ZR_(reload_, fetch_full_name_);
     if (has_ref()) {
       if (ref_ != NULL) ref_->::bgs::protocol::account::v1::AccountReference::Clear();
     }
   }
-  fetch_parental_controls_ = false;
+  ZR_(fetch_links_, fetch_cais_id_);
 
 #undef OFFSET_OF_FIELD_
 #undef ZR_
@@ -1209,6 +1371,21 @@ bool GetAccountRequest::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_ref()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(16)) goto parse_reload;
+        break;
+      }
+
+      // optional bool reload = 2 [default = false];
+      case 2: {
+        if (tag == 16) {
+         parse_reload:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &reload_)));
+          set_has_reload();
         } else {
           goto handle_unusual;
         }
@@ -1332,6 +1509,21 @@ bool GetAccountRequest::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(144)) goto parse_fetch_cais_id;
+        break;
+      }
+
+      // optional bool fetch_cais_id = 18 [default = false];
+      case 18: {
+        if (tag == 144) {
+         parse_fetch_cais_id:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &fetch_cais_id_)));
+          set_has_fetch_cais_id();
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1365,6 +1557,11 @@ void GetAccountRequest::SerializeWithCachedSizes(
   if (has_ref()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       1, this->ref(), output);
+  }
+
+  // optional bool reload = 2 [default = false];
+  if (has_reload()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->reload(), output);
   }
 
   // optional bool fetch_all = 10 [default = false];
@@ -1407,6 +1604,11 @@ void GetAccountRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(17, this->fetch_parental_controls(), output);
   }
 
+  // optional bool fetch_cais_id = 18 [default = false];
+  if (has_fetch_cais_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(18, this->fetch_cais_id(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1422,6 +1624,11 @@ void GetAccountRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->ref(), target);
+  }
+
+  // optional bool reload = 2 [default = false];
+  if (has_reload()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->reload(), target);
   }
 
   // optional bool fetch_all = 10 [default = false];
@@ -1464,6 +1671,11 @@ void GetAccountRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(17, this->fetch_parental_controls(), target);
   }
 
+  // optional bool fetch_cais_id = 18 [default = false];
+  if (has_fetch_cais_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(18, this->fetch_cais_id(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1481,6 +1693,11 @@ int GetAccountRequest::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->ref());
+    }
+
+    // optional bool reload = 2 [default = false];
+    if (has_reload()) {
+      total_size += 1 + 1;
     }
 
     // optional bool fetch_all = 10 [default = false];
@@ -1513,15 +1730,20 @@ int GetAccountRequest::ByteSize() const {
       total_size += 1 + 1;
     }
 
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     // optional bool fetch_links = 16 [default = false];
     if (has_fetch_links()) {
       total_size += 2 + 1;
     }
 
-  }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     // optional bool fetch_parental_controls = 17 [default = false];
     if (has_fetch_parental_controls()) {
+      total_size += 2 + 1;
+    }
+
+    // optional bool fetch_cais_id = 18 [default = false];
+    if (has_fetch_cais_id()) {
       total_size += 2 + 1;
     }
 
@@ -1555,6 +1777,9 @@ void GetAccountRequest::MergeFrom(const GetAccountRequest& from) {
     if (from.has_ref()) {
       mutable_ref()->::bgs::protocol::account::v1::AccountReference::MergeFrom(from.ref());
     }
+    if (from.has_reload()) {
+      set_reload(from.reload());
+    }
     if (from.has_fetch_all()) {
       set_fetch_all(from.fetch_all());
     }
@@ -1573,13 +1798,16 @@ void GetAccountRequest::MergeFrom(const GetAccountRequest& from) {
     if (from.has_fetch_full_name()) {
       set_fetch_full_name(from.fetch_full_name());
     }
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_fetch_links()) {
       set_fetch_links(from.fetch_links());
     }
-  }
-  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_fetch_parental_controls()) {
       set_fetch_parental_controls(from.fetch_parental_controls());
+    }
+    if (from.has_fetch_cais_id()) {
+      set_fetch_cais_id(from.fetch_cais_id());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -1608,6 +1836,7 @@ bool GetAccountRequest::IsInitialized() const {
 void GetAccountRequest::Swap(GetAccountRequest* other) {
   if (other != this) {
     std::swap(ref_, other->ref_);
+    std::swap(reload_, other->reload_);
     std::swap(fetch_all_, other->fetch_all_);
     std::swap(fetch_blob_, other->fetch_blob_);
     std::swap(fetch_id_, other->fetch_id_);
@@ -1616,6 +1845,7 @@ void GetAccountRequest::Swap(GetAccountRequest* other) {
     std::swap(fetch_full_name_, other->fetch_full_name_);
     std::swap(fetch_links_, other->fetch_links_);
     std::swap(fetch_parental_controls_, other->fetch_parental_controls_);
+    std::swap(fetch_cais_id_, other->fetch_cais_id_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1641,6 +1871,7 @@ const int GetAccountResponse::kBattleTagFieldNumber;
 const int GetAccountResponse::kFullNameFieldNumber;
 const int GetAccountResponse::kLinksFieldNumber;
 const int GetAccountResponse::kParentalControlInfoFieldNumber;
+const int GetAccountResponse::kCaisIdFieldNumber;
 #endif  // !_MSC_VER
 
 GetAccountResponse::GetAccountResponse()
@@ -1670,6 +1901,7 @@ void GetAccountResponse::SharedCtor() {
   battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   full_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   parental_control_info_ = NULL;
+  cais_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1684,6 +1916,9 @@ void GetAccountResponse::SharedDtor() {
   }
   if (full_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete full_name_;
+  }
+  if (cais_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete cais_id_;
   }
   if (this != default_instance_) {
     delete blob_;
@@ -1714,7 +1949,7 @@ GetAccountResponse* GetAccountResponse::New() const {
 }
 
 void GetAccountResponse::Clear() {
-  if (_has_bits_[0 / 32] & 91) {
+  if (_has_bits_[0 / 32] & 219) {
     if (has_blob()) {
       if (blob_ != NULL) blob_->::bgs::protocol::account::v1::AccountBlob::Clear();
     }
@@ -1733,6 +1968,11 @@ void GetAccountResponse::Clear() {
     }
     if (has_parental_control_info()) {
       if (parental_control_info_ != NULL) parental_control_info_->::bgs::protocol::account::v1::ParentalControlInfo::Clear();
+    }
+    if (has_cais_id()) {
+      if (cais_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        cais_id_->clear();
+      }
     }
   }
   email_.Clear();
@@ -1852,6 +2092,23 @@ bool GetAccountResponse::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(146)) goto parse_cais_id;
+        break;
+      }
+
+      // optional string cais_id = 18;
+      case 18: {
+        if (tag == 146) {
+         parse_cais_id:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_cais_id()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->cais_id().data(), this->cais_id().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "cais_id");
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1935,6 +2192,16 @@ void GetAccountResponse::SerializeWithCachedSizes(
       17, this->parental_control_info(), output);
   }
 
+  // optional string cais_id = 18;
+  if (has_cais_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->cais_id().data(), this->cais_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "cais_id");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      18, this->cais_id(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2005,6 +2272,17 @@ void GetAccountResponse::SerializeWithCachedSizes(
         17, this->parental_control_info(), target);
   }
 
+  // optional string cais_id = 18;
+  if (has_cais_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->cais_id().data(), this->cais_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "cais_id");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        18, this->cais_id(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -2050,6 +2328,13 @@ int GetAccountResponse::ByteSize() const {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->parental_control_info());
+    }
+
+    // optional string cais_id = 18;
+    if (has_cais_id()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->cais_id());
     }
 
   }
@@ -2111,6 +2396,9 @@ void GetAccountResponse::MergeFrom(const GetAccountResponse& from) {
     if (from.has_parental_control_info()) {
       mutable_parental_control_info()->::bgs::protocol::account::v1::ParentalControlInfo::MergeFrom(from.parental_control_info());
     }
+    if (from.has_cais_id()) {
+      set_cais_id(from.cais_id());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2148,6 +2436,7 @@ void GetAccountResponse::Swap(GetAccountResponse* other) {
     std::swap(full_name_, other->full_name_);
     links_.Swap(&other->links_);
     std::swap(parental_control_info_, other->parental_control_info_);
+    std::swap(cais_id_, other->cais_id_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -2170,6 +2459,8 @@ const int CreateGameAccountRequest::kAccountFieldNumber;
 const int CreateGameAccountRequest::kRegionFieldNumber;
 const int CreateGameAccountRequest::kProgramFieldNumber;
 const int CreateGameAccountRequest::kRealmPermissionsFieldNumber;
+const int CreateGameAccountRequest::kAccountRegionFieldNumber;
+const int CreateGameAccountRequest::kPlatformFieldNumber;
 #endif  // !_MSC_VER
 
 CreateGameAccountRequest::CreateGameAccountRequest()
@@ -2194,7 +2485,9 @@ void CreateGameAccountRequest::SharedCtor() {
   account_ = NULL;
   region_ = 0u;
   program_ = 0u;
-  realm_permissions_ = 1u;
+  realm_permissions_ = 0u;
+  account_region_ = 0u;
+  platform_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -2241,12 +2534,11 @@ void CreateGameAccountRequest::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 15) {
-    ZR_(region_, program_);
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(region_, platform_);
     if (has_account()) {
       if (account_ != NULL) account_->::bgs::protocol::account::v1::AccountId::Clear();
     }
-    realm_permissions_ = 1u;
   }
 
 #undef OFFSET_OF_FIELD_
@@ -2308,7 +2600,7 @@ bool CreateGameAccountRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint32 realm_permissions = 4 [default = 1];
+      // optional uint32 realm_permissions = 4 [default = 0];
       case 4: {
         if (tag == 32) {
          parse_realm_permissions:
@@ -2316,6 +2608,36 @@ bool CreateGameAccountRequest::MergePartialFromCodedStream(
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &realm_permissions_)));
           set_has_realm_permissions();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(40)) goto parse_account_region;
+        break;
+      }
+
+      // optional uint32 account_region = 5;
+      case 5: {
+        if (tag == 40) {
+         parse_account_region:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &account_region_)));
+          set_has_account_region();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(53)) goto parse_platform;
+        break;
+      }
+
+      // optional fixed32 platform = 6;
+      case 6: {
+        if (tag == 53) {
+         parse_platform:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
+                 input, &platform_)));
+          set_has_platform();
         } else {
           goto handle_unusual;
         }
@@ -2364,9 +2686,19 @@ void CreateGameAccountRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteFixed32(3, this->program(), output);
   }
 
-  // optional uint32 realm_permissions = 4 [default = 1];
+  // optional uint32 realm_permissions = 4 [default = 0];
   if (has_realm_permissions()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(4, this->realm_permissions(), output);
+  }
+
+  // optional uint32 account_region = 5;
+  if (has_account_region()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->account_region(), output);
+  }
+
+  // optional fixed32 platform = 6;
+  if (has_platform()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFixed32(6, this->platform(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -2396,9 +2728,19 @@ void CreateGameAccountRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteFixed32ToArray(3, this->program(), target);
   }
 
-  // optional uint32 realm_permissions = 4 [default = 1];
+  // optional uint32 realm_permissions = 4 [default = 0];
   if (has_realm_permissions()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(4, this->realm_permissions(), target);
+  }
+
+  // optional uint32 account_region = 5;
+  if (has_account_region()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(5, this->account_region(), target);
+  }
+
+  // optional fixed32 platform = 6;
+  if (has_platform()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFixed32ToArray(6, this->platform(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -2432,11 +2774,23 @@ int CreateGameAccountRequest::ByteSize() const {
       total_size += 1 + 4;
     }
 
-    // optional uint32 realm_permissions = 4 [default = 1];
+    // optional uint32 realm_permissions = 4 [default = 0];
     if (has_realm_permissions()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->realm_permissions());
+    }
+
+    // optional uint32 account_region = 5;
+    if (has_account_region()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->account_region());
+    }
+
+    // optional fixed32 platform = 6;
+    if (has_platform()) {
+      total_size += 1 + 4;
     }
 
   }
@@ -2478,6 +2832,12 @@ void CreateGameAccountRequest::MergeFrom(const CreateGameAccountRequest& from) {
     if (from.has_realm_permissions()) {
       set_realm_permissions(from.realm_permissions());
     }
+    if (from.has_account_region()) {
+      set_account_region(from.account_region());
+    }
+    if (from.has_platform()) {
+      set_platform(from.platform());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2508,6 +2868,8 @@ void CreateGameAccountRequest::Swap(CreateGameAccountRequest* other) {
     std::swap(region_, other->region_);
     std::swap(program_, other->program_);
     std::swap(realm_permissions_, other->realm_permissions_);
+    std::swap(account_region_, other->account_region_);
+    std::swap(platform_, other->platform_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -2519,6 +2881,236 @@ void CreateGameAccountRequest::Swap(CreateGameAccountRequest* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = CreateGameAccountRequest_descriptor_;
   metadata.reflection = CreateGameAccountRequest_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int CreateGameAccountResponse::kGameAccountFieldNumber;
+#endif  // !_MSC_VER
+
+CreateGameAccountResponse::CreateGameAccountResponse()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.CreateGameAccountResponse)
+}
+
+void CreateGameAccountResponse::InitAsDefaultInstance() {
+  game_account_ = const_cast< ::bgs::protocol::account::v1::GameAccountHandle*>(&::bgs::protocol::account::v1::GameAccountHandle::default_instance());
+}
+
+CreateGameAccountResponse::CreateGameAccountResponse(const CreateGameAccountResponse& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.CreateGameAccountResponse)
+}
+
+void CreateGameAccountResponse::SharedCtor() {
+  _cached_size_ = 0;
+  game_account_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+CreateGameAccountResponse::~CreateGameAccountResponse() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.CreateGameAccountResponse)
+  SharedDtor();
+}
+
+void CreateGameAccountResponse::SharedDtor() {
+  if (this != default_instance_) {
+    delete game_account_;
+  }
+}
+
+void CreateGameAccountResponse::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* CreateGameAccountResponse::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return CreateGameAccountResponse_descriptor_;
+}
+
+const CreateGameAccountResponse& CreateGameAccountResponse::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
+  return *default_instance_;
+}
+
+CreateGameAccountResponse* CreateGameAccountResponse::default_instance_ = NULL;
+
+CreateGameAccountResponse* CreateGameAccountResponse::New() const {
+  return new CreateGameAccountResponse;
+}
+
+void CreateGameAccountResponse::Clear() {
+  if (has_game_account()) {
+    if (game_account_ != NULL) game_account_->::bgs::protocol::account::v1::GameAccountHandle::Clear();
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool CreateGameAccountResponse::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.account.v1.CreateGameAccountResponse)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_game_account()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.account.v1.CreateGameAccountResponse)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.account.v1.CreateGameAccountResponse)
+  return false;
+#undef DO_
+}
+
+void CreateGameAccountResponse::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.account.v1.CreateGameAccountResponse)
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+  if (has_game_account()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->game_account(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.account.v1.CreateGameAccountResponse)
+}
+
+::google::protobuf::uint8* CreateGameAccountResponse::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.account.v1.CreateGameAccountResponse)
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+  if (has_game_account()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->game_account(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.account.v1.CreateGameAccountResponse)
+  return target;
+}
+
+int CreateGameAccountResponse::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+    if (has_game_account()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->game_account());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void CreateGameAccountResponse::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const CreateGameAccountResponse* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const CreateGameAccountResponse*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void CreateGameAccountResponse::MergeFrom(const CreateGameAccountResponse& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_game_account()) {
+      mutable_game_account()->::bgs::protocol::account::v1::GameAccountHandle::MergeFrom(from.game_account());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void CreateGameAccountResponse::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void CreateGameAccountResponse::CopyFrom(const CreateGameAccountResponse& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CreateGameAccountResponse::IsInitialized() const {
+
+  if (has_game_account()) {
+    if (!this->game_account().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void CreateGameAccountResponse::Swap(CreateGameAccountResponse* other) {
+  if (other != this) {
+    std::swap(game_account_, other->game_account_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata CreateGameAccountResponse::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = CreateGameAccountResponse_descriptor_;
+  metadata.reflection = CreateGameAccountResponse_reflection_;
   return metadata;
 }
 
@@ -7682,6 +8274,9 @@ void GetGameSessionInfoResponse::CopyFrom(const GetGameSessionInfoResponse& from
 
 bool GetGameSessionInfoResponse::IsInitialized() const {
 
+  if (has_session_info()) {
+    if (!this->session_info().IsInitialized()) return false;
+  }
   return true;
 }
 
@@ -9438,6 +10033,1200 @@ void GetAuthorizedDataResponse::Swap(GetAuthorizedDataResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int UpdateParentalControlsAndCAISRequest::kAccountFieldNumber;
+const int UpdateParentalControlsAndCAISRequest::kParentalControlInfoFieldNumber;
+const int UpdateParentalControlsAndCAISRequest::kCaisIdFieldNumber;
+const int UpdateParentalControlsAndCAISRequest::kSessionStartTimeFieldNumber;
+const int UpdateParentalControlsAndCAISRequest::kStartTimeFieldNumber;
+const int UpdateParentalControlsAndCAISRequest::kEndTimeFieldNumber;
+#endif  // !_MSC_VER
+
+UpdateParentalControlsAndCAISRequest::UpdateParentalControlsAndCAISRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+}
+
+void UpdateParentalControlsAndCAISRequest::InitAsDefaultInstance() {
+  account_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
+  parental_control_info_ = const_cast< ::bgs::protocol::account::v1::ParentalControlInfo*>(&::bgs::protocol::account::v1::ParentalControlInfo::default_instance());
+}
+
+UpdateParentalControlsAndCAISRequest::UpdateParentalControlsAndCAISRequest(const UpdateParentalControlsAndCAISRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+}
+
+void UpdateParentalControlsAndCAISRequest::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  account_ = NULL;
+  parental_control_info_ = NULL;
+  cais_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  session_start_time_ = GOOGLE_ULONGLONG(0);
+  start_time_ = GOOGLE_ULONGLONG(0);
+  end_time_ = GOOGLE_ULONGLONG(0);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+UpdateParentalControlsAndCAISRequest::~UpdateParentalControlsAndCAISRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+  SharedDtor();
+}
+
+void UpdateParentalControlsAndCAISRequest::SharedDtor() {
+  if (cais_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete cais_id_;
+  }
+  if (this != default_instance_) {
+    delete account_;
+    delete parental_control_info_;
+  }
+}
+
+void UpdateParentalControlsAndCAISRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* UpdateParentalControlsAndCAISRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return UpdateParentalControlsAndCAISRequest_descriptor_;
+}
+
+const UpdateParentalControlsAndCAISRequest& UpdateParentalControlsAndCAISRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
+  return *default_instance_;
+}
+
+UpdateParentalControlsAndCAISRequest* UpdateParentalControlsAndCAISRequest::default_instance_ = NULL;
+
+UpdateParentalControlsAndCAISRequest* UpdateParentalControlsAndCAISRequest::New() const {
+  return new UpdateParentalControlsAndCAISRequest;
+}
+
+void UpdateParentalControlsAndCAISRequest::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<UpdateParentalControlsAndCAISRequest*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(session_start_time_, end_time_);
+    if (has_account()) {
+      if (account_ != NULL) account_->::bgs::protocol::account::v1::AccountId::Clear();
+    }
+    if (has_parental_control_info()) {
+      if (parental_control_info_ != NULL) parental_control_info_->::bgs::protocol::account::v1::ParentalControlInfo::Clear();
+    }
+    if (has_cais_id()) {
+      if (cais_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        cais_id_->clear();
+      }
+    }
+  }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool UpdateParentalControlsAndCAISRequest::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.account.v1.AccountId account = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_account()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_parental_control_info;
+        break;
+      }
+
+      // optional .bgs.protocol.account.v1.ParentalControlInfo parental_control_info = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_parental_control_info:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_parental_control_info()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(26)) goto parse_cais_id;
+        break;
+      }
+
+      // optional string cais_id = 3;
+      case 3: {
+        if (tag == 26) {
+         parse_cais_id:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_cais_id()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->cais_id().data(), this->cais_id().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "cais_id");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(32)) goto parse_session_start_time;
+        break;
+      }
+
+      // optional uint64 session_start_time = 4;
+      case 4: {
+        if (tag == 32) {
+         parse_session_start_time:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &session_start_time_)));
+          set_has_session_start_time();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(40)) goto parse_start_time;
+        break;
+      }
+
+      // optional uint64 start_time = 5;
+      case 5: {
+        if (tag == 40) {
+         parse_start_time:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &start_time_)));
+          set_has_start_time();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(48)) goto parse_end_time;
+        break;
+      }
+
+      // optional uint64 end_time = 6;
+      case 6: {
+        if (tag == 48) {
+         parse_end_time:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &end_time_)));
+          set_has_end_time();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+  return false;
+#undef DO_
+}
+
+void UpdateParentalControlsAndCAISRequest::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+  // optional .bgs.protocol.account.v1.AccountId account = 1;
+  if (has_account()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->account(), output);
+  }
+
+  // optional .bgs.protocol.account.v1.ParentalControlInfo parental_control_info = 2;
+  if (has_parental_control_info()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->parental_control_info(), output);
+  }
+
+  // optional string cais_id = 3;
+  if (has_cais_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->cais_id().data(), this->cais_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "cais_id");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      3, this->cais_id(), output);
+  }
+
+  // optional uint64 session_start_time = 4;
+  if (has_session_start_time()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->session_start_time(), output);
+  }
+
+  // optional uint64 start_time = 5;
+  if (has_start_time()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(5, this->start_time(), output);
+  }
+
+  // optional uint64 end_time = 6;
+  if (has_end_time()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(6, this->end_time(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+}
+
+::google::protobuf::uint8* UpdateParentalControlsAndCAISRequest::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+  // optional .bgs.protocol.account.v1.AccountId account = 1;
+  if (has_account()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->account(), target);
+  }
+
+  // optional .bgs.protocol.account.v1.ParentalControlInfo parental_control_info = 2;
+  if (has_parental_control_info()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->parental_control_info(), target);
+  }
+
+  // optional string cais_id = 3;
+  if (has_cais_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->cais_id().data(), this->cais_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "cais_id");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->cais_id(), target);
+  }
+
+  // optional uint64 session_start_time = 4;
+  if (has_session_start_time()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->session_start_time(), target);
+  }
+
+  // optional uint64 start_time = 5;
+  if (has_start_time()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(5, this->start_time(), target);
+  }
+
+  // optional uint64 end_time = 6;
+  if (has_end_time()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(6, this->end_time(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
+  return target;
+}
+
+int UpdateParentalControlsAndCAISRequest::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.account.v1.AccountId account = 1;
+    if (has_account()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->account());
+    }
+
+    // optional .bgs.protocol.account.v1.ParentalControlInfo parental_control_info = 2;
+    if (has_parental_control_info()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->parental_control_info());
+    }
+
+    // optional string cais_id = 3;
+    if (has_cais_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->cais_id());
+    }
+
+    // optional uint64 session_start_time = 4;
+    if (has_session_start_time()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->session_start_time());
+    }
+
+    // optional uint64 start_time = 5;
+    if (has_start_time()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->start_time());
+    }
+
+    // optional uint64 end_time = 6;
+    if (has_end_time()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->end_time());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void UpdateParentalControlsAndCAISRequest::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const UpdateParentalControlsAndCAISRequest* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const UpdateParentalControlsAndCAISRequest*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void UpdateParentalControlsAndCAISRequest::MergeFrom(const UpdateParentalControlsAndCAISRequest& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_account()) {
+      mutable_account()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.account());
+    }
+    if (from.has_parental_control_info()) {
+      mutable_parental_control_info()->::bgs::protocol::account::v1::ParentalControlInfo::MergeFrom(from.parental_control_info());
+    }
+    if (from.has_cais_id()) {
+      set_cais_id(from.cais_id());
+    }
+    if (from.has_session_start_time()) {
+      set_session_start_time(from.session_start_time());
+    }
+    if (from.has_start_time()) {
+      set_start_time(from.start_time());
+    }
+    if (from.has_end_time()) {
+      set_end_time(from.end_time());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void UpdateParentalControlsAndCAISRequest::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void UpdateParentalControlsAndCAISRequest::CopyFrom(const UpdateParentalControlsAndCAISRequest& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UpdateParentalControlsAndCAISRequest::IsInitialized() const {
+
+  if (has_account()) {
+    if (!this->account().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void UpdateParentalControlsAndCAISRequest::Swap(UpdateParentalControlsAndCAISRequest* other) {
+  if (other != this) {
+    std::swap(account_, other->account_);
+    std::swap(parental_control_info_, other->parental_control_info_);
+    std::swap(cais_id_, other->cais_id_);
+    std::swap(session_start_time_, other->session_start_time_);
+    std::swap(start_time_, other->start_time_);
+    std::swap(end_time_, other->end_time_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata UpdateParentalControlsAndCAISRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = UpdateParentalControlsAndCAISRequest_descriptor_;
+  metadata.reflection = UpdateParentalControlsAndCAISRequest_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int QueueDeductRecordRequest::kDeductRecordFieldNumber;
+#endif  // !_MSC_VER
+
+QueueDeductRecordRequest::QueueDeductRecordRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.QueueDeductRecordRequest)
+}
+
+void QueueDeductRecordRequest::InitAsDefaultInstance() {
+  deduct_record_ = const_cast< ::bgs::protocol::account::v1::DeductRecord*>(&::bgs::protocol::account::v1::DeductRecord::default_instance());
+}
+
+QueueDeductRecordRequest::QueueDeductRecordRequest(const QueueDeductRecordRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.QueueDeductRecordRequest)
+}
+
+void QueueDeductRecordRequest::SharedCtor() {
+  _cached_size_ = 0;
+  deduct_record_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+QueueDeductRecordRequest::~QueueDeductRecordRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.QueueDeductRecordRequest)
+  SharedDtor();
+}
+
+void QueueDeductRecordRequest::SharedDtor() {
+  if (this != default_instance_) {
+    delete deduct_record_;
+  }
+}
+
+void QueueDeductRecordRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* QueueDeductRecordRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return QueueDeductRecordRequest_descriptor_;
+}
+
+const QueueDeductRecordRequest& QueueDeductRecordRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
+  return *default_instance_;
+}
+
+QueueDeductRecordRequest* QueueDeductRecordRequest::default_instance_ = NULL;
+
+QueueDeductRecordRequest* QueueDeductRecordRequest::New() const {
+  return new QueueDeductRecordRequest;
+}
+
+void QueueDeductRecordRequest::Clear() {
+  if (has_deduct_record()) {
+    if (deduct_record_ != NULL) deduct_record_->::bgs::protocol::account::v1::DeductRecord::Clear();
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool QueueDeductRecordRequest::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.account.v1.QueueDeductRecordRequest)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.account.v1.DeductRecord deduct_record = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_deduct_record()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.account.v1.QueueDeductRecordRequest)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.account.v1.QueueDeductRecordRequest)
+  return false;
+#undef DO_
+}
+
+void QueueDeductRecordRequest::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.account.v1.QueueDeductRecordRequest)
+  // optional .bgs.protocol.account.v1.DeductRecord deduct_record = 1;
+  if (has_deduct_record()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->deduct_record(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.account.v1.QueueDeductRecordRequest)
+}
+
+::google::protobuf::uint8* QueueDeductRecordRequest::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.account.v1.QueueDeductRecordRequest)
+  // optional .bgs.protocol.account.v1.DeductRecord deduct_record = 1;
+  if (has_deduct_record()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->deduct_record(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.account.v1.QueueDeductRecordRequest)
+  return target;
+}
+
+int QueueDeductRecordRequest::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.account.v1.DeductRecord deduct_record = 1;
+    if (has_deduct_record()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->deduct_record());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void QueueDeductRecordRequest::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const QueueDeductRecordRequest* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const QueueDeductRecordRequest*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void QueueDeductRecordRequest::MergeFrom(const QueueDeductRecordRequest& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_deduct_record()) {
+      mutable_deduct_record()->::bgs::protocol::account::v1::DeductRecord::MergeFrom(from.deduct_record());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void QueueDeductRecordRequest::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void QueueDeductRecordRequest::CopyFrom(const QueueDeductRecordRequest& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool QueueDeductRecordRequest::IsInitialized() const {
+
+  if (has_deduct_record()) {
+    if (!this->deduct_record().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void QueueDeductRecordRequest::Swap(QueueDeductRecordRequest* other) {
+  if (other != this) {
+    std::swap(deduct_record_, other->deduct_record_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata QueueDeductRecordRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = QueueDeductRecordRequest_descriptor_;
+  metadata.reflection = QueueDeductRecordRequest_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int GetGameAccountRequest::kGameAccountFieldNumber;
+const int GetGameAccountRequest::kReloadFieldNumber;
+#endif  // !_MSC_VER
+
+GetGameAccountRequest::GetGameAccountRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.GetGameAccountRequest)
+}
+
+void GetGameAccountRequest::InitAsDefaultInstance() {
+  game_account_ = const_cast< ::bgs::protocol::account::v1::GameAccountHandle*>(&::bgs::protocol::account::v1::GameAccountHandle::default_instance());
+}
+
+GetGameAccountRequest::GetGameAccountRequest(const GetGameAccountRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.GetGameAccountRequest)
+}
+
+void GetGameAccountRequest::SharedCtor() {
+  _cached_size_ = 0;
+  game_account_ = NULL;
+  reload_ = false;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GetGameAccountRequest::~GetGameAccountRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.GetGameAccountRequest)
+  SharedDtor();
+}
+
+void GetGameAccountRequest::SharedDtor() {
+  if (this != default_instance_) {
+    delete game_account_;
+  }
+}
+
+void GetGameAccountRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetGameAccountRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GetGameAccountRequest_descriptor_;
+}
+
+const GetGameAccountRequest& GetGameAccountRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
+  return *default_instance_;
+}
+
+GetGameAccountRequest* GetGameAccountRequest::default_instance_ = NULL;
+
+GetGameAccountRequest* GetGameAccountRequest::New() const {
+  return new GetGameAccountRequest;
+}
+
+void GetGameAccountRequest::Clear() {
+  if (_has_bits_[0 / 32] & 3) {
+    if (has_game_account()) {
+      if (game_account_ != NULL) game_account_->::bgs::protocol::account::v1::GameAccountHandle::Clear();
+    }
+    reload_ = false;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool GetGameAccountRequest::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.account.v1.GetGameAccountRequest)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_game_account()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(16)) goto parse_reload;
+        break;
+      }
+
+      // optional bool reload = 2 [default = false];
+      case 2: {
+        if (tag == 16) {
+         parse_reload:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &reload_)));
+          set_has_reload();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.account.v1.GetGameAccountRequest)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.account.v1.GetGameAccountRequest)
+  return false;
+#undef DO_
+}
+
+void GetGameAccountRequest::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.account.v1.GetGameAccountRequest)
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+  if (has_game_account()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->game_account(), output);
+  }
+
+  // optional bool reload = 2 [default = false];
+  if (has_reload()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->reload(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.account.v1.GetGameAccountRequest)
+}
+
+::google::protobuf::uint8* GetGameAccountRequest::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.account.v1.GetGameAccountRequest)
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+  if (has_game_account()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->game_account(), target);
+  }
+
+  // optional bool reload = 2 [default = false];
+  if (has_reload()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->reload(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.account.v1.GetGameAccountRequest)
+  return target;
+}
+
+int GetGameAccountRequest::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 1;
+    if (has_game_account()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->game_account());
+    }
+
+    // optional bool reload = 2 [default = false];
+    if (has_reload()) {
+      total_size += 1 + 1;
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void GetGameAccountRequest::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const GetGameAccountRequest* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const GetGameAccountRequest*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void GetGameAccountRequest::MergeFrom(const GetGameAccountRequest& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_game_account()) {
+      mutable_game_account()->::bgs::protocol::account::v1::GameAccountHandle::MergeFrom(from.game_account());
+    }
+    if (from.has_reload()) {
+      set_reload(from.reload());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void GetGameAccountRequest::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void GetGameAccountRequest::CopyFrom(const GetGameAccountRequest& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool GetGameAccountRequest::IsInitialized() const {
+
+  if (has_game_account()) {
+    if (!this->game_account().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void GetGameAccountRequest::Swap(GetGameAccountRequest* other) {
+  if (other != this) {
+    std::swap(game_account_, other->game_account_);
+    std::swap(reload_, other->reload_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata GetGameAccountRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GetGameAccountRequest_descriptor_;
+  metadata.reflection = GetGameAccountRequest_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int GetGameAccountResponse::kBlobFieldNumber;
+#endif  // !_MSC_VER
+
+GetGameAccountResponse::GetGameAccountResponse()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.GetGameAccountResponse)
+}
+
+void GetGameAccountResponse::InitAsDefaultInstance() {
+  blob_ = const_cast< ::bgs::protocol::account::v1::GameAccountBlob*>(&::bgs::protocol::account::v1::GameAccountBlob::default_instance());
+}
+
+GetGameAccountResponse::GetGameAccountResponse(const GetGameAccountResponse& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.GetGameAccountResponse)
+}
+
+void GetGameAccountResponse::SharedCtor() {
+  _cached_size_ = 0;
+  blob_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GetGameAccountResponse::~GetGameAccountResponse() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.GetGameAccountResponse)
+  SharedDtor();
+}
+
+void GetGameAccountResponse::SharedDtor() {
+  if (this != default_instance_) {
+    delete blob_;
+  }
+}
+
+void GetGameAccountResponse::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetGameAccountResponse::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GetGameAccountResponse_descriptor_;
+}
+
+const GetGameAccountResponse& GetGameAccountResponse::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
+  return *default_instance_;
+}
+
+GetGameAccountResponse* GetGameAccountResponse::default_instance_ = NULL;
+
+GetGameAccountResponse* GetGameAccountResponse::New() const {
+  return new GetGameAccountResponse;
+}
+
+void GetGameAccountResponse::Clear() {
+  if (has_blob()) {
+    if (blob_ != NULL) blob_->::bgs::protocol::account::v1::GameAccountBlob::Clear();
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool GetGameAccountResponse::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.account.v1.GetGameAccountResponse)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.account.v1.GameAccountBlob blob = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_blob()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.account.v1.GetGameAccountResponse)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.account.v1.GetGameAccountResponse)
+  return false;
+#undef DO_
+}
+
+void GetGameAccountResponse::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.account.v1.GetGameAccountResponse)
+  // optional .bgs.protocol.account.v1.GameAccountBlob blob = 1;
+  if (has_blob()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->blob(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.account.v1.GetGameAccountResponse)
+}
+
+::google::protobuf::uint8* GetGameAccountResponse::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.account.v1.GetGameAccountResponse)
+  // optional .bgs.protocol.account.v1.GameAccountBlob blob = 1;
+  if (has_blob()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->blob(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.account.v1.GetGameAccountResponse)
+  return target;
+}
+
+int GetGameAccountResponse::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.account.v1.GameAccountBlob blob = 1;
+    if (has_blob()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->blob());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void GetGameAccountResponse::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const GetGameAccountResponse* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const GetGameAccountResponse*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void GetGameAccountResponse::MergeFrom(const GetGameAccountResponse& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_blob()) {
+      mutable_blob()->::bgs::protocol::account::v1::GameAccountBlob::MergeFrom(from.blob());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void GetGameAccountResponse::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void GetGameAccountResponse::CopyFrom(const GetGameAccountResponse& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool GetGameAccountResponse::IsInitialized() const {
+
+  if (has_blob()) {
+    if (!this->blob().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void GetGameAccountResponse::Swap(GetGameAccountResponse* other) {
+  if (other != this) {
+    std::swap(blob_, other->blob_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata GetGameAccountResponse::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GetGameAccountResponse_descriptor_;
+  metadata.reflection = GetGameAccountResponse_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int AccountStateNotification::kAccountStateFieldNumber;
 const int AccountStateNotification::kSubscriberIdFieldNumber;
 const int AccountStateNotification::kAccountTagsFieldNumber;
@@ -10737,8 +12526,8 @@ google::protobuf::ServiceDescriptor const* AccountService::descriptor() {
   return AccountService_descriptor_;
 }
 
-void AccountService::GetGameAccount(::bgs::protocol::account::v1::GameAccountHandle const* request, std::function<void(::bgs::protocol::account::v1::GameAccountBlob const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameAccount(bgs.protocol.account.v1.GameAccountHandle{ %s })",
+void AccountService::GetGameAccountBlob(::bgs::protocol::account::v1::GameAccountHandle const* request, std::function<void(::bgs::protocol::account::v1::GameAccountBlob const*)> responseCallback) {
+  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameAccountBlob(bgs.protocol.account.v1.GameAccountHandle{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::account::v1::GameAccountBlob response;
@@ -10781,7 +12570,7 @@ void AccountService::IsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequ
   SendRequest(service_hash_, 15, request, std::move(callback));
 }
 
-void AccountService::CacheExpire(::bgs::protocol::account::v1::CacheExpireRequest const* request) { 
+void AccountService::CacheExpire(::bgs::protocol::account::v1::CacheExpireRequest const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.CacheExpire(bgs.protocol.account.v1.CacheExpireRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 20, request);
@@ -10908,16 +12697,60 @@ void AccountService::GetAuthorizedData(::bgs::protocol::account::v1::GetAuthoriz
   SendRequest(service_hash_, 37, request, std::move(callback));
 }
 
-void AccountService::AccountFlagUpdate(::bgs::protocol::account::v1::AccountFlagUpdateRequest const* request) { 
+void AccountService::AccountFlagUpdate(::bgs::protocol::account::v1::AccountFlagUpdateRequest const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.AccountFlagUpdate(bgs.protocol.account.v1.AccountFlagUpdateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 38, request);
 }
 
-void AccountService::GameAccountFlagUpdate(::bgs::protocol::account::v1::GameAccountFlagUpdateRequest const* request) { 
+void AccountService::GameAccountFlagUpdate(::bgs::protocol::account::v1::GameAccountFlagUpdateRequest const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GameAccountFlagUpdate(bgs.protocol.account.v1.GameAccountFlagUpdateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 39, request);
+}
+
+void AccountService::UpdateParentalControlsAndCAIS(::bgs::protocol::account::v1::UpdateParentalControlsAndCAISRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
+  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.UpdateParentalControlsAndCAIS(bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest{ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
+    ::bgs::protocol::NoData response;
+    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 40, request, std::move(callback));
+}
+
+void AccountService::CreateGameAccount2(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, std::function<void(::bgs::protocol::account::v1::CreateGameAccountResponse const*)> responseCallback) {
+  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.CreateGameAccount2(bgs.protocol.account.v1.CreateGameAccountRequest{ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
+    ::bgs::protocol::account::v1::CreateGameAccountResponse response;
+    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 41, request, std::move(callback));
+}
+
+void AccountService::GetGameAccount(::bgs::protocol::account::v1::GetGameAccountRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameAccountResponse const*)> responseCallback) {
+  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameAccount(bgs.protocol.account.v1.GetGameAccountRequest{ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
+    ::bgs::protocol::account::v1::GetGameAccountResponse response;
+    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 42, request, std::move(callback));
+}
+
+void AccountService::QueueDeductRecord(::bgs::protocol::account::v1::QueueDeductRecordRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
+  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.QueueDeductRecord(bgs.protocol.account.v1.QueueDeductRecordRequest{ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
+    ::bgs::protocol::NoData response;
+    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 43, request, std::move(callback));
 }
 
 void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
@@ -10925,19 +12758,27 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     case 12: {
       ::bgs::protocol::account::v1::GameAccountHandle request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetGameAccount server method call.", GetCallerInfo().c_str());
+        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetGameAccountBlob server method call.", GetCallerInfo().c_str());
         SendResponse(service_hash_, 12, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccountBlob(bgs.protocol.account.v1.GameAccountHandle{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GameAccountBlob::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccountBlob() returned bgs.protocol.account.v1.GameAccountBlob{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 12, token, response);
+        else
+          self->SendResponse(self->service_hash_, 12, token, status);
+      };
       ::bgs::protocol::account::v1::GameAccountBlob response;
-      uint32 status = HandleGetGameAccount(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccount(bgs.protocol.account.v1.GameAccountHandle{ %s }) returned bgs.protocol.account.v1.GameAccountBlob{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 12, token, &response);
-      else
-        SendResponse(service_hash_, 12, token, status);
+      uint32 status = HandleGetGameAccountBlob(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 13: {
@@ -10947,15 +12788,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 13, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAccount(bgs.protocol.account.v1.GetAccountRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetAccountResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAccount() returned bgs.protocol.account.v1.GetAccountResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 13, token, response);
+        else
+          self->SendResponse(self->service_hash_, 13, token, status);
+      };
       ::bgs::protocol::account::v1::GetAccountResponse response;
-      uint32 status = HandleGetAccount(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAccount(bgs.protocol.account.v1.GetAccountRequest{ %s }) returned bgs.protocol.account.v1.GetAccountResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 13, token, &response);
-      else
-        SendResponse(service_hash_, 13, token, status);
+      uint32 status = HandleGetAccount(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 14: {
@@ -10965,15 +12814,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 14, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.CreateGameAccount(bgs.protocol.account.v1.CreateGameAccountRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GameAccountHandle::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.CreateGameAccount() returned bgs.protocol.account.v1.GameAccountHandle{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 14, token, response);
+        else
+          self->SendResponse(self->service_hash_, 14, token, status);
+      };
       ::bgs::protocol::account::v1::GameAccountHandle response;
-      uint32 status = HandleCreateGameAccount(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.CreateGameAccount(bgs.protocol.account.v1.CreateGameAccountRequest{ %s }) returned bgs.protocol.account.v1.GameAccountHandle{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 14, token, &response);
-      else
-        SendResponse(service_hash_, 14, token, status);
+      uint32 status = HandleCreateGameAccount(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 15: {
@@ -10983,15 +12840,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 15, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.IsIgrAddress(bgs.protocol.account.v1.IsIgrAddressRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.IsIgrAddress() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 15, token, response);
+        else
+          self->SendResponse(self->service_hash_, 15, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleIsIgrAddress(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.IsIgrAddress(bgs.protocol.account.v1.IsIgrAddressRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 15, token, &response);
-      else
-        SendResponse(service_hash_, 15, token, status);
+      uint32 status = HandleIsIgrAddress(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 20: {
@@ -11001,7 +12866,6 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 20, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleCacheExpire(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.CacheExpire(bgs.protocol.account.v1.CacheExpireRequest{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -11016,15 +12880,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 21, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.CredentialUpdate(bgs.protocol.account.v1.CredentialUpdateRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::CredentialUpdateResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.CredentialUpdate() returned bgs.protocol.account.v1.CredentialUpdateResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 21, token, response);
+        else
+          self->SendResponse(self->service_hash_, 21, token, status);
+      };
       ::bgs::protocol::account::v1::CredentialUpdateResponse response;
-      uint32 status = HandleCredentialUpdate(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.CredentialUpdate(bgs.protocol.account.v1.CredentialUpdateRequest{ %s }) returned bgs.protocol.account.v1.CredentialUpdateResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 21, token, &response);
-      else
-        SendResponse(service_hash_, 21, token, status);
+      uint32 status = HandleCredentialUpdate(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 25: {
@@ -11034,15 +12906,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 25, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Subscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::SubscriptionUpdateResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Subscribe() returned bgs.protocol.account.v1.SubscriptionUpdateResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 25, token, response);
+        else
+          self->SendResponse(self->service_hash_, 25, token, status);
+      };
       ::bgs::protocol::account::v1::SubscriptionUpdateResponse response;
-      uint32 status = HandleSubscribe(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Subscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s }) returned bgs.protocol.account.v1.SubscriptionUpdateResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 25, token, &response);
-      else
-        SendResponse(service_hash_, 25, token, status);
+      uint32 status = HandleSubscribe(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 26: {
@@ -11052,15 +12932,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 26, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Unsubscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Unsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 26, token, response);
+        else
+          self->SendResponse(self->service_hash_, 26, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleUnsubscribe(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Unsubscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 26, token, &response);
-      else
-        SendResponse(service_hash_, 26, token, status);
+      uint32 status = HandleUnsubscribe(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 30: {
@@ -11070,15 +12958,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 30, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAccountState(bgs.protocol.account.v1.GetAccountStateRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetAccountStateResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAccountState() returned bgs.protocol.account.v1.GetAccountStateResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 30, token, response);
+        else
+          self->SendResponse(self->service_hash_, 30, token, status);
+      };
       ::bgs::protocol::account::v1::GetAccountStateResponse response;
-      uint32 status = HandleGetAccountState(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAccountState(bgs.protocol.account.v1.GetAccountStateRequest{ %s }) returned bgs.protocol.account.v1.GetAccountStateResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 30, token, &response);
-      else
-        SendResponse(service_hash_, 30, token, status);
+      uint32 status = HandleGetAccountState(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 31: {
@@ -11088,15 +12984,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 31, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccountState(bgs.protocol.account.v1.GetGameAccountStateRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetGameAccountStateResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccountState() returned bgs.protocol.account.v1.GetGameAccountStateResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 31, token, response);
+        else
+          self->SendResponse(self->service_hash_, 31, token, status);
+      };
       ::bgs::protocol::account::v1::GetGameAccountStateResponse response;
-      uint32 status = HandleGetGameAccountState(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccountState(bgs.protocol.account.v1.GetGameAccountStateRequest{ %s }) returned bgs.protocol.account.v1.GetGameAccountStateResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 31, token, &response);
-      else
-        SendResponse(service_hash_, 31, token, status);
+      uint32 status = HandleGetGameAccountState(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 32: {
@@ -11106,15 +13010,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 32, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetLicenses(bgs.protocol.account.v1.GetLicensesRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetLicensesResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetLicenses() returned bgs.protocol.account.v1.GetLicensesResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 32, token, response);
+        else
+          self->SendResponse(self->service_hash_, 32, token, status);
+      };
       ::bgs::protocol::account::v1::GetLicensesResponse response;
-      uint32 status = HandleGetLicenses(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetLicenses(bgs.protocol.account.v1.GetLicensesRequest{ %s }) returned bgs.protocol.account.v1.GetLicensesResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 32, token, &response);
-      else
-        SendResponse(service_hash_, 32, token, status);
+      uint32 status = HandleGetLicenses(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 33: {
@@ -11124,15 +13036,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 33, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameTimeRemainingInfo(bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameTimeRemainingInfo() returned bgs.protocol.account.v1.GetGameTimeRemainingInfoResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 33, token, response);
+        else
+          self->SendResponse(self->service_hash_, 33, token, status);
+      };
       ::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse response;
-      uint32 status = HandleGetGameTimeRemainingInfo(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameTimeRemainingInfo(bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest{ %s }) returned bgs.protocol.account.v1.GetGameTimeRemainingInfoResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 33, token, &response);
-      else
-        SendResponse(service_hash_, 33, token, status);
+      uint32 status = HandleGetGameTimeRemainingInfo(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 34: {
@@ -11142,15 +13062,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 34, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameSessionInfo(bgs.protocol.account.v1.GetGameSessionInfoRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetGameSessionInfoResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameSessionInfo() returned bgs.protocol.account.v1.GetGameSessionInfoResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 34, token, response);
+        else
+          self->SendResponse(self->service_hash_, 34, token, status);
+      };
       ::bgs::protocol::account::v1::GetGameSessionInfoResponse response;
-      uint32 status = HandleGetGameSessionInfo(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameSessionInfo(bgs.protocol.account.v1.GetGameSessionInfoRequest{ %s }) returned bgs.protocol.account.v1.GetGameSessionInfoResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 34, token, &response);
-      else
-        SendResponse(service_hash_, 34, token, status);
+      uint32 status = HandleGetGameSessionInfo(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 35: {
@@ -11160,15 +13088,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 35, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetCAISInfo(bgs.protocol.account.v1.GetCAISInfoRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetCAISInfoResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetCAISInfo() returned bgs.protocol.account.v1.GetCAISInfoResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 35, token, response);
+        else
+          self->SendResponse(self->service_hash_, 35, token, status);
+      };
       ::bgs::protocol::account::v1::GetCAISInfoResponse response;
-      uint32 status = HandleGetCAISInfo(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetCAISInfo(bgs.protocol.account.v1.GetCAISInfoRequest{ %s }) returned bgs.protocol.account.v1.GetCAISInfoResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 35, token, &response);
-      else
-        SendResponse(service_hash_, 35, token, status);
+      uint32 status = HandleGetCAISInfo(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 36: {
@@ -11178,15 +13114,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 36, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.ForwardCacheExpire(bgs.protocol.account.v1.ForwardCacheExpireRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.ForwardCacheExpire() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 36, token, response);
+        else
+          self->SendResponse(self->service_hash_, 36, token, status);
+      };
       ::bgs::protocol::NoData response;
-      uint32 status = HandleForwardCacheExpire(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.ForwardCacheExpire(bgs.protocol.account.v1.ForwardCacheExpireRequest{ %s }) returned bgs.protocol.NoData{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 36, token, &response);
-      else
-        SendResponse(service_hash_, 36, token, status);
+      uint32 status = HandleForwardCacheExpire(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 37: {
@@ -11196,15 +13140,23 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 37, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAuthorizedData(bgs.protocol.account.v1.GetAuthorizedDataRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetAuthorizedDataResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAuthorizedData() returned bgs.protocol.account.v1.GetAuthorizedDataResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 37, token, response);
+        else
+          self->SendResponse(self->service_hash_, 37, token, status);
+      };
       ::bgs::protocol::account::v1::GetAuthorizedDataResponse response;
-      uint32 status = HandleGetAuthorizedData(&request, &response);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAuthorizedData(bgs.protocol.account.v1.GetAuthorizedDataRequest{ %s }) returned bgs.protocol.account.v1.GetAuthorizedDataResponse{ %s } status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), response.ShortDebugString().c_str(), status);
-      if (!status)
-        SendResponse(service_hash_, 37, token, &response);
-      else
-        SendResponse(service_hash_, 37, token, status);
+      uint32 status = HandleGetAuthorizedData(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     case 38: {
@@ -11214,7 +13166,6 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 38, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleAccountFlagUpdate(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.AccountFlagUpdate(bgs.protocol.account.v1.AccountFlagUpdateRequest{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -11229,12 +13180,115 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
         SendResponse(service_hash_, 39, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleGameAccountFlagUpdate(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GameAccountFlagUpdate(bgs.protocol.account.v1.GameAccountFlagUpdateRequest{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
       if (status)
         SendResponse(service_hash_, 39, token, status);
+      break;
+    }
+    case 40: {
+      ::bgs::protocol::account::v1::UpdateParentalControlsAndCAISRequest request;
+      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.UpdateParentalControlsAndCAIS server method call.", GetCallerInfo().c_str());
+        SendResponse(service_hash_, 40, token, ERROR_RPC_MALFORMED_REQUEST);
+        return;
+      }
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.UpdateParentalControlsAndCAIS(bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.UpdateParentalControlsAndCAIS() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 40, token, response);
+        else
+          self->SendResponse(self->service_hash_, 40, token, status);
+      };
+      ::bgs::protocol::NoData response;
+      uint32 status = HandleUpdateParentalControlsAndCAIS(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
+      break;
+    }
+    case 41: {
+      ::bgs::protocol::account::v1::CreateGameAccountRequest request;
+      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.CreateGameAccount2 server method call.", GetCallerInfo().c_str());
+        SendResponse(service_hash_, 41, token, ERROR_RPC_MALFORMED_REQUEST);
+        return;
+      }
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.CreateGameAccount2(bgs.protocol.account.v1.CreateGameAccountRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::CreateGameAccountResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.CreateGameAccount2() returned bgs.protocol.account.v1.CreateGameAccountResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 41, token, response);
+        else
+          self->SendResponse(self->service_hash_, 41, token, status);
+      };
+      ::bgs::protocol::account::v1::CreateGameAccountResponse response;
+      uint32 status = HandleCreateGameAccount2(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
+      break;
+    }
+    case 42: {
+      ::bgs::protocol::account::v1::GetGameAccountRequest request;
+      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetGameAccount server method call.", GetCallerInfo().c_str());
+        SendResponse(service_hash_, 42, token, ERROR_RPC_MALFORMED_REQUEST);
+        return;
+      }
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccount(bgs.protocol.account.v1.GetGameAccountRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetGameAccountResponse::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccount() returned bgs.protocol.account.v1.GetGameAccountResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 42, token, response);
+        else
+          self->SendResponse(self->service_hash_, 42, token, status);
+      };
+      ::bgs::protocol::account::v1::GetGameAccountResponse response;
+      uint32 status = HandleGetGameAccount(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
+      break;
+    }
+    case 43: {
+      ::bgs::protocol::account::v1::QueueDeductRecordRequest request;
+      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.QueueDeductRecord server method call.", GetCallerInfo().c_str());
+        SendResponse(service_hash_, 43, token, ERROR_RPC_MALFORMED_REQUEST);
+        return;
+      }
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.QueueDeductRecord(bgs.protocol.account.v1.QueueDeductRecordRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
+        AccountService* self = static_cast<AccountService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.QueueDeductRecord() returned bgs.protocol.NoData{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 43, token, response);
+        else
+          self->SendResponse(self->service_hash_, 43, token, status);
+      };
+      ::bgs::protocol::NoData response;
+      uint32 status = HandleQueueDeductRecord(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
       break;
     }
     default:
@@ -11244,25 +13298,25 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
     }
 }
 
-uint32 AccountService::HandleGetGameAccount(::bgs::protocol::account::v1::GameAccountHandle const* request, ::bgs::protocol::account::v1::GameAccountBlob* response) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetGameAccount({ %s })",
+uint32 AccountService::HandleGetGameAccountBlob(::bgs::protocol::account::v1::GameAccountHandle const* request, ::bgs::protocol::account::v1::GameAccountBlob* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
+  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetGameAccountBlob({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleGetAccount(::bgs::protocol::account::v1::GetAccountRequest const* request, ::bgs::protocol::account::v1::GetAccountResponse* response) {
+uint32 AccountService::HandleGetAccount(::bgs::protocol::account::v1::GetAccountRequest const* request, ::bgs::protocol::account::v1::GetAccountResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetAccount({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleCreateGameAccount(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, ::bgs::protocol::account::v1::GameAccountHandle* response) {
+uint32 AccountService::HandleCreateGameAccount(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, ::bgs::protocol::account::v1::GameAccountHandle* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.CreateGameAccount({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleIsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 AccountService::HandleIsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.IsIgrAddress({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
@@ -11274,67 +13328,67 @@ uint32 AccountService::HandleCacheExpire(::bgs::protocol::account::v1::CacheExpi
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleCredentialUpdate(::bgs::protocol::account::v1::CredentialUpdateRequest const* request, ::bgs::protocol::account::v1::CredentialUpdateResponse* response) {
+uint32 AccountService::HandleCredentialUpdate(::bgs::protocol::account::v1::CredentialUpdateRequest const* request, ::bgs::protocol::account::v1::CredentialUpdateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.CredentialUpdate({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleSubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::account::v1::SubscriptionUpdateResponse* response) {
+uint32 AccountService::HandleSubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::account::v1::SubscriptionUpdateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.Subscribe({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleUnsubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 AccountService::HandleUnsubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.Unsubscribe({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleGetAccountState(::bgs::protocol::account::v1::GetAccountStateRequest const* request, ::bgs::protocol::account::v1::GetAccountStateResponse* response) {
+uint32 AccountService::HandleGetAccountState(::bgs::protocol::account::v1::GetAccountStateRequest const* request, ::bgs::protocol::account::v1::GetAccountStateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetAccountState({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleGetGameAccountState(::bgs::protocol::account::v1::GetGameAccountStateRequest const* request, ::bgs::protocol::account::v1::GetGameAccountStateResponse* response) {
+uint32 AccountService::HandleGetGameAccountState(::bgs::protocol::account::v1::GetGameAccountStateRequest const* request, ::bgs::protocol::account::v1::GetGameAccountStateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetGameAccountState({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleGetLicenses(::bgs::protocol::account::v1::GetLicensesRequest const* request, ::bgs::protocol::account::v1::GetLicensesResponse* response) {
+uint32 AccountService::HandleGetLicenses(::bgs::protocol::account::v1::GetLicensesRequest const* request, ::bgs::protocol::account::v1::GetLicensesResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetLicenses({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleGetGameTimeRemainingInfo(::bgs::protocol::account::v1::GetGameTimeRemainingInfoRequest const* request, ::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse* response) {
+uint32 AccountService::HandleGetGameTimeRemainingInfo(::bgs::protocol::account::v1::GetGameTimeRemainingInfoRequest const* request, ::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetGameTimeRemainingInfo({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleGetGameSessionInfo(::bgs::protocol::account::v1::GetGameSessionInfoRequest const* request, ::bgs::protocol::account::v1::GetGameSessionInfoResponse* response) {
+uint32 AccountService::HandleGetGameSessionInfo(::bgs::protocol::account::v1::GetGameSessionInfoRequest const* request, ::bgs::protocol::account::v1::GetGameSessionInfoResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetGameSessionInfo({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleGetCAISInfo(::bgs::protocol::account::v1::GetCAISInfoRequest const* request, ::bgs::protocol::account::v1::GetCAISInfoResponse* response) {
+uint32 AccountService::HandleGetCAISInfo(::bgs::protocol::account::v1::GetCAISInfoRequest const* request, ::bgs::protocol::account::v1::GetCAISInfoResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetCAISInfo({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleForwardCacheExpire(::bgs::protocol::account::v1::ForwardCacheExpireRequest const* request, ::bgs::protocol::NoData* response) {
+uint32 AccountService::HandleForwardCacheExpire(::bgs::protocol::account::v1::ForwardCacheExpireRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.ForwardCacheExpire({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 AccountService::HandleGetAuthorizedData(::bgs::protocol::account::v1::GetAuthorizedDataRequest const* request, ::bgs::protocol::account::v1::GetAuthorizedDataResponse* response) {
+uint32 AccountService::HandleGetAuthorizedData(::bgs::protocol::account::v1::GetAuthorizedDataRequest const* request, ::bgs::protocol::account::v1::GetAuthorizedDataResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetAuthorizedData({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
@@ -11352,6 +13406,30 @@ uint32 AccountService::HandleGameAccountFlagUpdate(::bgs::protocol::account::v1:
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
+uint32 AccountService::HandleUpdateParentalControlsAndCAIS(::bgs::protocol::account::v1::UpdateParentalControlsAndCAISRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
+  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.UpdateParentalControlsAndCAIS({ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+uint32 AccountService::HandleCreateGameAccount2(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, ::bgs::protocol::account::v1::CreateGameAccountResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
+  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.CreateGameAccount2({ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+uint32 AccountService::HandleGetGameAccount(::bgs::protocol::account::v1::GetGameAccountRequest const* request, ::bgs::protocol::account::v1::GetGameAccountResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
+  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.GetGameAccount({ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+uint32 AccountService::HandleQueueDeductRecord(::bgs::protocol::account::v1::QueueDeductRecordRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
+  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountService.QueueDeductRecord({ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
 // ===================================================================
 
 AccountListener::AccountListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
@@ -11365,25 +13443,25 @@ google::protobuf::ServiceDescriptor const* AccountListener::descriptor() {
   return AccountListener_descriptor_;
 }
 
-void AccountListener::OnAccountStateUpdated(::bgs::protocol::account::v1::AccountStateNotification const* request) { 
+void AccountListener::OnAccountStateUpdated(::bgs::protocol::account::v1::AccountStateNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountListener.OnAccountStateUpdated(bgs.protocol.account.v1.AccountStateNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 1, request);
 }
 
-void AccountListener::OnGameAccountStateUpdated(::bgs::protocol::account::v1::GameAccountStateNotification const* request) { 
+void AccountListener::OnGameAccountStateUpdated(::bgs::protocol::account::v1::GameAccountStateNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountListener.OnGameAccountStateUpdated(bgs.protocol.account.v1.GameAccountStateNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 2, request);
 }
 
-void AccountListener::OnGameAccountsUpdated(::bgs::protocol::account::v1::GameAccountNotification const* request) { 
+void AccountListener::OnGameAccountsUpdated(::bgs::protocol::account::v1::GameAccountNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountListener.OnGameAccountsUpdated(bgs.protocol.account.v1.GameAccountNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 3, request);
 }
 
-void AccountListener::OnGameSessionUpdated(::bgs::protocol::account::v1::GameAccountSessionNotification const* request) { 
+void AccountListener::OnGameSessionUpdated(::bgs::protocol::account::v1::GameAccountSessionNotification const* request) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountListener.OnGameSessionUpdated(bgs.protocol.account.v1.GameAccountSessionNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   SendRequest(service_hash_, 4, request);
@@ -11398,7 +13476,6 @@ void AccountListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 1, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnAccountStateUpdated(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountListener.OnAccountStateUpdated(bgs.protocol.account.v1.AccountStateNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -11413,7 +13490,6 @@ void AccountListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 2, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnGameAccountStateUpdated(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountListener.OnGameAccountStateUpdated(bgs.protocol.account.v1.GameAccountStateNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -11428,7 +13504,6 @@ void AccountListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 3, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnGameAccountsUpdated(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountListener.OnGameAccountsUpdated(bgs.protocol.account.v1.GameAccountNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
@@ -11443,7 +13518,6 @@ void AccountListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         SendResponse(service_hash_, 4, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
-
       uint32 status = HandleOnGameSessionUpdated(&request);
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountListener.OnGameSessionUpdated(bgs.protocol.account.v1.GameAccountSessionNotification{ %s }) status %u.",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "mpqfile.h"
+#include "cascfile.h"
 #include "wmo.h"
 #include "model.h"
 
@@ -111,7 +111,7 @@ class ADTFile
 {
 private:
     //size_t mcnk_offsets[256], mcnk_sizes[256];
-    MPQFile ADT;
+    CASCFile ADT;
     //mcell Mcell;
     std::string Adtfilename;
 public:

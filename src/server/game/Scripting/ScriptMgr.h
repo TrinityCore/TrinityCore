@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,14 +20,12 @@
 #define SC_SCRIPTMGR_H
 
 #include "Common.h"
-#include <atomic>
-#include "DB2Stores.h"
-#include "QuestDef.h"
-#include "SharedDefines.h"
-#include "World.h"
-#include "Weather.h"
+#include "ObjectGuid.h"
+#include <vector>
 
 class AccountMgr;
+class AreaTrigger;
+class AreaTriggerAI;
 class AuctionHouseObject;
 class Aura;
 class AuraScript;
@@ -58,6 +56,7 @@ class SpellCastTargets;
 class Transport;
 class Unit;
 class Vehicle;
+class Weather;
 class WorldPacket;
 class WorldSocket;
 class WorldObject;
@@ -67,10 +66,23 @@ struct AreaTriggerEntry;
 struct AuctionEntry;
 struct ConditionSourceInfo;
 struct Condition;
+struct CreatureTemplate;
+struct CreatureData;
 struct ItemTemplate;
 struct MapEntry;
 struct OutdoorPvPData;
 struct SceneTemplate;
+
+enum BattlegroundTypeId : uint32;
+enum Difficulty : uint8;
+enum DuelCompleteType : uint8;
+enum QuestStatus : uint8;
+enum RemoveMethod : uint8;
+enum ShutdownExitCode : uint32;
+enum ShutdownMask : uint32;
+enum SpellEffIndex : uint8;
+enum WeatherState : uint32;
+enum XPColorChar : uint8;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
@@ -193,10 +205,10 @@ class TC_GAME_API SpellScriptLoader : public ScriptObject
     public:
 
         // Should return a fully valid SpellScript pointer.
-        virtual SpellScript* GetSpellScript() const { return NULL; }
+        virtual SpellScript* GetSpellScript() const { return nullptr; }
 
         // Should return a fully valid AuraScript pointer.
-        virtual AuraScript* GetAuraScript() const { return NULL; }
+        virtual AuraScript* GetAuraScript() const { return nullptr; }
 };
 
 class TC_GAME_API ServerScript : public ScriptObject
@@ -292,18 +304,14 @@ class TC_GAME_API FormulaScript : public ScriptObject
         virtual void OnGroupRateCalculation(float& /*rate*/, uint32 /*count*/, bool /*isRaid*/) { }
 };
 
-template<class TMap> class MapScript : public UpdatableScript<TMap>
+template<class TMap>
+class MapScript : public UpdatableScript<TMap>
 {
     MapEntry const* _mapEntry;
 
     protected:
 
-        MapScript(uint32 mapId)
-            : _mapEntry(sMapStore.LookupEntry(mapId))
-        {
-            if (!_mapEntry)
-                TC_LOG_ERROR("scripts", "Invalid MapScript for %u; no such map ID.", mapId);
-        }
+        MapScript(MapEntry const* mapEntry) : _mapEntry(mapEntry) { }
 
     public:
 
@@ -433,7 +441,10 @@ class TC_GAME_API CreatureScript : public UnitScript, public UpdatableScript<Cre
         virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
+        virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/);
+
+        // Called when the creature tries to spawn. Return false to block spawn and re-evaluate on next tick.
+        virtual bool CanSpawn(ObjectGuid::LowType /*spawnId*/, uint32 /*entry*/, CreatureTemplate const* /*baseTemplate*/, CreatureTemplate const* /*actTemplate*/, CreatureData const* /*cData*/, Map const* /*map*/) const { return true; }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
@@ -466,7 +477,7 @@ class TC_GAME_API GameObjectScript : public ScriptObject, public UpdatableScript
         virtual bool OnQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the gameobject is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
+        virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/);
 
         // Called when the game object is destroyed (destructible buildings only).
         virtual void OnDestroyed(GameObject* /*go*/, Player* /*player*/) { }
@@ -738,7 +749,10 @@ class TC_GAME_API PlayerScript : public UnitScript
         virtual void OnMapChanged(Player* /*player*/) { }
 
         // Called after a player's quest status has been changed
-        virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/, QuestStatus /*status*/) { }
+        virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
+
+        // Called when a player completes a movie
+        virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -831,6 +845,18 @@ class TC_GAME_API GroupScript : public ScriptObject
 
         // Called when a group is disbanded.
         virtual void OnDisband(Group* /*group*/) { }
+};
+
+class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
+{
+    protected:
+
+        AreaTriggerEntityScript(const char* name);
+
+    public:
+
+        // Called when a AreaTriggerAI object is needed for the areatrigger.
+        virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
 };
 
 class TC_GAME_API SceneScript : public ScriptObject
@@ -980,6 +1006,7 @@ class TC_GAME_API ScriptMgr
         bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest);
         bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt);
         uint32 GetDialogStatus(Player* player, Creature* creature);
+        bool CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemplate const* actTemplate, CreatureData const* cData, Map const* map);
         CreatureAI* GetCreatureAI(Creature* creature);
         void OnCreatureUpdate(Creature* creature, uint32 diff);
 
@@ -1087,7 +1114,8 @@ class TC_GAME_API ScriptMgr
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
-        void OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status);
+        void OnQuestStatusChange(Player* player, uint32 questId);
+        void OnMovieComplete(Player* player, uint32 movieId);
 
     public: /* AccountScript */
 
@@ -1129,6 +1157,10 @@ class TC_GAME_API ScriptMgr
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
 
+    public: /* AreaTriggerEntityScript */
+
+        AreaTriggerAI* GetAreaTriggerAI(AreaTrigger* areaTrigger);
+
     public: /* SceneScript */
         void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string const& triggerName);
@@ -1142,6 +1174,70 @@ class TC_GAME_API ScriptMgr
 
         std::string _currentContext;
 };
+
+template <class S>
+class GenericSpellScriptLoader : public SpellScriptLoader
+{
+    public:
+        GenericSpellScriptLoader(char const* name) : SpellScriptLoader(name) { }
+        SpellScript* GetSpellScript() const override { return new S(); }
+};
+#define RegisterSpellScript(spell_script) new GenericSpellScriptLoader<spell_script>(#spell_script)
+
+template <class A>
+class GenericAuraScriptLoader : public SpellScriptLoader
+{
+    public:
+        GenericAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+        AuraScript* GetAuraScript() const override { return new A(); }
+};
+#define RegisterAuraScript(aura_script) new GenericAuraScriptLoader<aura_script>(#aura_script)
+
+template <class S, class A>
+class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
+{
+    public:
+        GenericSpellAndAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+        SpellScript* GetSpellScript() const override { return new S(); }
+        AuraScript* GetAuraScript() const override { return new A(); }
+};
+#define RegisterSpellAndAuraScriptPair(spell_script, aura_script) new GenericSpellAndAuraScriptLoader<spell_script, aura_script>(#spell_script)
+
+template <class AI>
+class GenericCreatureScript : public CreatureScript
+{
+    public:
+        GenericCreatureScript(char const* name) : CreatureScript(name) { }
+        CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
+};
+#define RegisterCreatureAI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
+
+template <class AI, AI*(*AIFactory)(Creature*)>
+class FactoryCreatureScript : public CreatureScript
+{
+    public:
+        FactoryCreatureScript(char const* name) : CreatureScript(name) { }
+        CreatureAI* GetAI(Creature* me) const override { return AIFactory(me); }
+};
+#define RegisterCreatureAIWithFactory(ai_name, factory_fn) new FactoryCreatureScript<ai_name, &factory_fn>(#ai_name)
+
+template <class AI>
+class GenericGameObjectScript : public GameObjectScript
+{
+    public:
+        GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
+        GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
+};
+#define RegisterGameObjectAI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
+
+template <class AI>
+class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
+{
+    public:
+        GenericAreaTriggerEntityScript(char const* name) : AreaTriggerEntityScript(name) { }
+        AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
+};
+#define RegisterAreaTriggerAI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
 
 #define sScriptMgr ScriptMgr::instance()
 

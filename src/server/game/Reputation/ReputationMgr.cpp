@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,17 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
 #include "ReputationMgr.h"
-#include "ReputationPackets.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "Opcodes.h"
-#include "WorldSession.h"
 #include "CharacterPackets.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "ReputationPackets.h"
+#include "ScriptMgr.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
 

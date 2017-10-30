@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,9 @@
 #include "MotionMaster.h"
 #include "CreatureAISelector.h"
 #include "Creature.h"
-
+#include "ScriptSystem.h"
+#include "Log.h"
+#include "Map.h"
 #include "ConfusedMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
 #include "HomeMovementGenerator.h"
@@ -28,6 +30,7 @@
 #include "TargetedMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
 #include "RandomMovementGenerator.h"
+#include "SplineChainMovementGenerator.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 
@@ -241,7 +244,7 @@ void MotionMaster::MoveConfused()
 void MotionMaster::MoveChase(Unit* target, float dist, float angle)
 {
     // ignore movement request if target not exist
-    if (!target || target == _owner || _owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+    if (!target || target == _owner)
         return;
 
     //_owner->ClearUnitState(UNIT_STATE_FOLLOW);
@@ -265,7 +268,7 @@ void MotionMaster::MoveChase(Unit* target, float dist, float angle)
 void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlot slot)
 {
     // ignore movement request if target not exist
-    if (!target || target == _owner || _owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+    if (!target || target == _owner)
         return;
 
     //_owner->AddUnitState(UNIT_STATE_FOLLOW);
@@ -345,7 +348,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
-void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ)
+void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
     //this function may make players fall below map
     if (_owner->GetTypeId() == TYPEID_PLAYER)
@@ -366,6 +369,9 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
     init.SetParabolic(max_height, 0);
     init.SetOrientationFixed(true);
     init.SetVelocity(speedXY);
+    if (spellEffectExtraData)
+        init.SetSpellEffectExtraData(*spellEffectExtraData);
+
     init.Launch();
     Mutate(new EffectMovementGenerator(0), MOTION_SLOT_CONTROLLED);
 }
@@ -384,7 +390,8 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, bool hasOrientation /* = false*/, uint32 arrivalSpellId /*= 0*/, ObjectGuid const& arrivalSpellTargetGuid /*= ObjectGuid::Empty*/)
+void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, bool hasOrientation /* = false*/,
+    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
     TC_LOG_DEBUG("misc", "Unit (%s) jumps to point (X: %f Y: %f Z: %f).", _owner->GetGUID().ToString().c_str(), x, y, z);
     if (speedXY <= 0.1f)
@@ -399,7 +406,18 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     init.SetVelocity(speedXY);
     if (hasOrientation)
         init.SetFacing(o);
+    if (spellEffectExtraData)
+        init.SetSpellEffectExtraData(*spellEffectExtraData);
     init.Launch();
+
+    uint32 arrivalSpellId = 0;
+    ObjectGuid arrivalSpellTargetGuid;
+    if (arrivalCast)
+    {
+        arrivalSpellId = arrivalCast->SpellId;
+        arrivalSpellTargetGuid = arrivalCast->Target;
+    }
+
     Mutate(new EffectMovementGenerator(id, arrivalSpellId, arrivalSpellTargetGuid), MOTION_SLOT_CONTROLLED);
 }
 
@@ -420,7 +438,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         if (_owner->IsFlying())
             point.z = z;
         else
-            point.z = _owner->GetMap()->GetHeight(_owner->GetPhaseMask(), point.x, point.y, z);
+            point.z = _owner->GetMap()->GetHeight(_owner->GetPhases(), point.x, point.y, z);
 
         init.Path().push_back(point);
     }
@@ -440,13 +458,23 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     init.Launch();
 }
 
-void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk)
+void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk, bool fly)
 {
-    Movement::PointsArray path(pathPoints, pathPoints + pathSize);
-
     Movement::MoveSplineInit init(_owner);
+    if (fly)
+    {
+        init.SetFly();
+        init.SetUncompressed();
+        init.SetSmooth();
+    }
+
+    Movement::PointsArray path;
+    path.reserve(pathSize);
+    std::transform(pathPoints, pathPoints + pathSize, std::back_inserter(path), [](Position const& point)
+    {
+        return G3D::Vector3(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
+    });
     init.MovebyPath(path);
-    init.SetSmooth();
     init.SetWalk(walk);
     init.Launch();
 
@@ -458,10 +486,42 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints
     //MovePoint(EVENT_CHARGE_PREPATH, pos, false);
 }
 
+void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk)
+{
+    Creature* owner = _owner->ToCreature();
+    if (!owner)
+    {
+        TC_LOG_ERROR("misc", "MotionMaster::MoveAlongSplineChain: non-creature %s tried to walk along DB spline chain. Ignoring.", _owner->GetGUID().ToString().c_str());
+        return;
+    }
+    std::vector<SplineChainLink> const* chain = sScriptSystemMgr->GetSplineChain(owner, dbChainId);
+    if (!chain)
+    {
+        TC_LOG_ERROR("misc", "MotionMaster::MoveAlongSplineChain: creature with entry %u tried to walk along non-existing spline chain with DB id %u.", owner->GetEntry(), dbChainId);
+        return;
+    }
+    MoveAlongSplineChain(pointId, *chain, walk);
+}
+
+void MotionMaster::MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk)
+{
+    Mutate(new SplineChainMovementGenerator(pointId, chain, walk), MOTION_SLOT_ACTIVE);
+}
+
+void MotionMaster::ResumeSplineChain(SplineChainResumeInfo const& info)
+{
+    if (info.Empty())
+    {
+        TC_LOG_ERROR("misc", "MotionMaster::ResumeSplineChain: unit with entry %u tried to resume a spline chain from empty info.", _owner->GetEntry());
+        return;
+    }
+    Mutate(new SplineChainMovementGenerator(info), MOTION_SLOT_ACTIVE);
+}
+
 void MotionMaster::MoveFall(uint32 id /*=0*/)
 {
     // use larger distance for vmap height search than in most other cases
-    float tz = _owner->GetMap()->GetHeight(_owner->GetPhaseMask(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
+    float tz = _owner->GetMap()->GetHeight(_owner->GetPhases(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
     if (tz <= INVALID_HEIGHT)
     {
         TC_LOG_DEBUG("misc", "MotionMaster::MoveFall: unable to retrieve a proper height at map %u (x: %f, y: %f, z: %f).",
@@ -473,8 +533,11 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
     if (std::fabs(_owner->GetPositionZ() - tz) < 0.1f)
         return;
 
+    _owner->SetFall(true);
+
+    // don't run spline movement for players
     if (_owner->GetTypeId() == TYPEID_PLAYER)
-        _owner->SetFall(true);
+        return;
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz, false);
@@ -483,7 +546,8 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
-void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_CHARGE*/, uint32 id /*= EVENT_CHARGE*/, bool generatePath /*= false*/)
+void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_CHARGE*/, uint32 id /*= EVENT_CHARGE*/, bool generatePath /*= false*/,
+    Unit const* target /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
     if (Impl[MOTION_SLOT_CONTROLLED] && Impl[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE)
         return;
@@ -491,17 +555,18 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_C
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
         TC_LOG_DEBUG("misc", "Player (%s) charged point (X: %f Y: %f Z: %f).", _owner->GetGUID().ToString().c_str(), x, y, z);
-        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath, speed), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath, speed, target, spellEffectExtraData), MOTION_SLOT_CONTROLLED);
     }
     else
     {
         TC_LOG_DEBUG("misc", "Creature (Entry: %u %s) charged point (X: %f Y: %f Z: %f).",
             _owner->GetEntry(), _owner->GetGUID().ToString().c_str(), x, y, z);
-        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, speed), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, speed, target, spellEffectExtraData), MOTION_SLOT_CONTROLLED);
     }
 }
 
-void MotionMaster::MoveCharge(PathGenerator const& path, float speed /*= SPEED_CHARGE*/)
+void MotionMaster::MoveCharge(PathGenerator const& path, float speed /*= SPEED_CHARGE*/, Unit const* target /*= nullptr*/,
+    Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
     G3D::Vector3 dest = path.GetActualEndPosition();
 
@@ -511,6 +576,10 @@ void MotionMaster::MoveCharge(PathGenerator const& path, float speed /*= SPEED_C
     Movement::MoveSplineInit init(_owner);
     init.MovebyPath(path.GetPath());
     init.SetVelocity(speed);
+    if (target)
+        init.SetFacing(target);
+    if (spellEffectExtraData)
+        init.SetSpellEffectExtraData(*spellEffectExtraData);
     init.Launch();
 }
 
@@ -525,6 +594,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
         TC_LOG_DEBUG("misc", "Creature (Entry: %u %s) seek assistance (X: %f Y: %f Z: %f)",
             _owner->GetEntry(), _owner->GetGUID().ToString().c_str(), x, y, z);
         _owner->AttackStop();
+        _owner->CastStop();
         _owner->ToCreature()->SetReactState(REACT_PASSIVE);
         Mutate(new AssistanceMovementGenerator(x, y, z), MOTION_SLOT_ACTIVE);
     }

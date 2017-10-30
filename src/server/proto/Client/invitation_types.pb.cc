@@ -18,11 +18,6 @@
 #include "Log.h"
 // @@protoc_insertion_point(includes)
 
-// Fix stupid windows.h included from Log.h->Common.h
-#ifdef SendMessage
-#undef SendMessage
-#endif
-
 namespace bgs {
 namespace protocol {
 
@@ -85,13 +80,12 @@ void protobuf_AssignDesc_invitation_5ftypes_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Invitation));
   InvitationSuggestion_descriptor_ = file->message_type(1);
-  static const int InvitationSuggestion_offsets_[6] = {
+  static const int InvitationSuggestion_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InvitationSuggestion, channel_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InvitationSuggestion, suggester_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InvitationSuggestion, suggestee_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InvitationSuggestion, suggester_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InvitationSuggestion, suggestee_name_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InvitationSuggestion, suggester_account_id_),
   };
   InvitationSuggestion_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -158,7 +152,6 @@ void protobuf_AssignDesc_invitation_5ftypes_2eproto() {
       sizeof(SendInvitationRequest));
   SendInvitationResponse_descriptor_ = file->message_type(5);
   static const int SendInvitationResponse_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendInvitationResponse, invitation_),
   };
   SendInvitationResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -276,38 +269,35 @@ void protobuf_AddDesc_invitation_5ftypes_2eproto() {
     "\0132\026.bgs.protocol.Identity\022\024\n\014inviter_nam"
     "e\030\004 \001(\t\022\024\n\014invitee_name\030\005 \001(\t\022\032\n\022invitat"
     "ion_message\030\006 \001(\t\022\025\n\rcreation_time\030\007 \001(\004"
-    "\022\027\n\017expiration_time\030\010 \001(\004*\005\010d\020\220N\"\204\002\n\024Inv"
+    "\022\027\n\017expiration_time\030\010 \001(\004*\005\010d\020\220N\"\316\001\n\024Inv"
     "itationSuggestion\022*\n\nchannel_id\030\001 \001(\0132\026."
     "bgs.protocol.EntityId\022,\n\014suggester_id\030\002 "
     "\002(\0132\026.bgs.protocol.EntityId\022,\n\014suggestee"
     "_id\030\003 \002(\0132\026.bgs.protocol.EntityId\022\026\n\016sug"
     "gester_name\030\004 \001(\t\022\026\n\016suggestee_name\030\005 \001("
-    "\t\0224\n\024suggester_account_id\030\006 \001(\0132\026.bgs.pr"
-    "otocol.EntityId\"f\n\020InvitationTarget\022(\n\010i"
-    "dentity\030\001 \001(\0132\026.bgs.protocol.Identity\022\r\n"
-    "\005email\030\002 \001(\t\022\022\n\nbattle_tag\030\003 \001(\t*\005\010d\020\220N\""
-    "Q\n\020InvitationParams\022\032\n\022invitation_messag"
-    "e\030\001 \001(\t\022\032\n\017expiration_time\030\002 \001(\004:\0010*\005\010d\020"
-    "\220N\"\205\002\n\025SendInvitationRequest\022.\n\016agent_id"
-    "entity\030\001 \001(\0132\026.bgs.protocol.Identity\022-\n\t"
-    "target_id\030\002 \002(\0132\026.bgs.protocol.EntityIdB"
-    "\002\030\001\022.\n\006params\030\003 \002(\0132\036.bgs.protocol.Invit"
-    "ationParams\022-\n\nagent_info\030\004 \001(\0132\031.bgs.pr"
-    "otocol.AccountInfo\022.\n\006target\030\005 \001(\0132\036.bgs"
-    ".protocol.InvitationTarget\"F\n\026SendInvita"
-    "tionResponse\022,\n\ninvitation\030\002 \001(\0132\030.bgs.p"
-    "rotocol.Invitation\"\220\001\n\027UpdateInvitationR"
-    "equest\022.\n\016agent_identity\030\001 \001(\0132\026.bgs.pro"
-    "tocol.Identity\022\025\n\rinvitation_id\030\002 \002(\006\022.\n"
-    "\006params\030\003 \002(\0132\036.bgs.protocol.InvitationP"
-    "arams\"\367\001\n\030GenericInvitationRequest\022(\n\010ag"
-    "ent_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022)\n\t"
-    "target_id\030\002 \001(\0132\026.bgs.protocol.EntityId\022"
-    "\025\n\rinvitation_id\030\003 \002(\006\022\024\n\014invitee_name\030\004"
-    " \001(\t\022\024\n\014inviter_name\030\005 \001(\t\022\031\n\rprevious_r"
-    "ole\030\006 \003(\rB\002\020\001\022\030\n\014desired_role\030\007 \003(\rB\002\020\001\022"
-    "\016\n\006reason\030\010 \001(\rB\'\n\rbnet.protocolB\024Invita"
-    "tionTypesProtoH\001", 1536);
+    "\t\"f\n\020InvitationTarget\022(\n\010identity\030\001 \001(\0132"
+    "\026.bgs.protocol.Identity\022\r\n\005email\030\002 \001(\t\022\022"
+    "\n\nbattle_tag\030\003 \001(\t*\005\010d\020\220N\"Q\n\020InvitationP"
+    "arams\022\032\n\022invitation_message\030\001 \001(\t\022\032\n\017exp"
+    "iration_time\030\002 \001(\004:\0010*\005\010d\020\220N\"\205\002\n\025SendInv"
+    "itationRequest\022.\n\016agent_identity\030\001 \001(\0132\026"
+    ".bgs.protocol.Identity\022-\n\ttarget_id\030\002 \002("
+    "\0132\026.bgs.protocol.EntityIdB\002\030\001\022.\n\006params\030"
+    "\003 \002(\0132\036.bgs.protocol.InvitationParams\022-\n"
+    "\nagent_info\030\004 \001(\0132\031.bgs.protocol.Account"
+    "Info\022.\n\006target\030\005 \001(\0132\036.bgs.protocol.Invi"
+    "tationTarget\"\030\n\026SendInvitationResponse\"\220"
+    "\001\n\027UpdateInvitationRequest\022.\n\016agent_iden"
+    "tity\030\001 \001(\0132\026.bgs.protocol.Identity\022\025\n\rin"
+    "vitation_id\030\002 \002(\006\022.\n\006params\030\003 \002(\0132\036.bgs."
+    "protocol.InvitationParams\"\367\001\n\030GenericInv"
+    "itationRequest\022(\n\010agent_id\030\001 \001(\0132\026.bgs.p"
+    "rotocol.EntityId\022)\n\ttarget_id\030\002 \001(\0132\026.bg"
+    "s.protocol.EntityId\022\025\n\rinvitation_id\030\003 \002"
+    "(\006\022\024\n\014invitee_name\030\004 \001(\t\022\024\n\014inviter_name"
+    "\030\005 \001(\t\022\031\n\rprevious_role\030\006 \003(\rB\002\020\001\022\030\n\014des"
+    "ired_role\030\007 \003(\rB\002\020\001\022\016\n\006reason\030\010 \001(\rB\'\n\rb"
+    "net.protocolB\024InvitationTypesProtoH\001", 1436);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "invitation_types.proto", &protobuf_RegisterTypes);
   Invitation::default_instance_ = new Invitation();
@@ -949,7 +939,6 @@ const int InvitationSuggestion::kSuggesterIdFieldNumber;
 const int InvitationSuggestion::kSuggesteeIdFieldNumber;
 const int InvitationSuggestion::kSuggesterNameFieldNumber;
 const int InvitationSuggestion::kSuggesteeNameFieldNumber;
-const int InvitationSuggestion::kSuggesterAccountIdFieldNumber;
 #endif  // !_MSC_VER
 
 InvitationSuggestion::InvitationSuggestion()
@@ -962,7 +951,6 @@ void InvitationSuggestion::InitAsDefaultInstance() {
   channel_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
   suggester_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
   suggestee_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-  suggester_account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
 }
 
 InvitationSuggestion::InvitationSuggestion(const InvitationSuggestion& from)
@@ -980,7 +968,6 @@ void InvitationSuggestion::SharedCtor() {
   suggestee_id_ = NULL;
   suggester_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   suggestee_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  suggester_account_id_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1000,7 +987,6 @@ void InvitationSuggestion::SharedDtor() {
     delete channel_id_;
     delete suggester_id_;
     delete suggestee_id_;
-    delete suggester_account_id_;
   }
 }
 
@@ -1026,7 +1012,7 @@ InvitationSuggestion* InvitationSuggestion::New() const {
 }
 
 void InvitationSuggestion::Clear() {
-  if (_has_bits_[0 / 32] & 63) {
+  if (_has_bits_[0 / 32] & 31) {
     if (has_channel_id()) {
       if (channel_id_ != NULL) channel_id_->::bgs::protocol::EntityId::Clear();
     }
@@ -1045,9 +1031,6 @@ void InvitationSuggestion::Clear() {
       if (suggestee_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         suggestee_name_->clear();
       }
-    }
-    if (has_suggester_account_id()) {
-      if (suggester_account_id_ != NULL) suggester_account_id_->::bgs::protocol::EntityId::Clear();
     }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1132,19 +1115,6 @@ bool InvitationSuggestion::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(50)) goto parse_suggester_account_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId suggester_account_id = 6;
-      case 6: {
-        if (tag == 50) {
-         parse_suggester_account_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_suggester_account_id()));
-        } else {
-          goto handle_unusual;
-        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1212,12 +1182,6 @@ void InvitationSuggestion::SerializeWithCachedSizes(
       5, this->suggestee_name(), output);
   }
 
-  // optional .bgs.protocol.EntityId suggester_account_id = 6;
-  if (has_suggester_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, this->suggester_account_id(), output);
-  }
-
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1271,13 +1235,6 @@ void InvitationSuggestion::SerializeWithCachedSizes(
         5, this->suggestee_name(), target);
   }
 
-  // optional .bgs.protocol.EntityId suggester_account_id = 6;
-  if (has_suggester_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        6, this->suggester_account_id(), target);
-  }
-
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1325,13 +1282,6 @@ int InvitationSuggestion::ByteSize() const {
           this->suggestee_name());
     }
 
-    // optional .bgs.protocol.EntityId suggester_account_id = 6;
-    if (has_suggester_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->suggester_account_id());
-    }
-
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -1374,9 +1324,6 @@ void InvitationSuggestion::MergeFrom(const InvitationSuggestion& from) {
     if (from.has_suggestee_name()) {
       set_suggestee_name(from.suggestee_name());
     }
-    if (from.has_suggester_account_id()) {
-      mutable_suggester_account_id()->::bgs::protocol::EntityId::MergeFrom(from.suggester_account_id());
-    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1405,9 +1352,6 @@ bool InvitationSuggestion::IsInitialized() const {
   if (has_suggestee_id()) {
     if (!this->suggestee_id().IsInitialized()) return false;
   }
-  if (has_suggester_account_id()) {
-    if (!this->suggester_account_id().IsInitialized()) return false;
-  }
   return true;
 }
 
@@ -1418,7 +1362,6 @@ void InvitationSuggestion::Swap(InvitationSuggestion* other) {
     std::swap(suggestee_id_, other->suggestee_id_);
     std::swap(suggester_name_, other->suggester_name_);
     std::swap(suggestee_name_, other->suggestee_name_);
-    std::swap(suggester_account_id_, other->suggester_account_id_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -2531,7 +2474,6 @@ void SendInvitationRequest::Swap(SendInvitationRequest* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int SendInvitationResponse::kInvitationFieldNumber;
 #endif  // !_MSC_VER
 
 SendInvitationResponse::SendInvitationResponse()
@@ -2541,7 +2483,6 @@ SendInvitationResponse::SendInvitationResponse()
 }
 
 void SendInvitationResponse::InitAsDefaultInstance() {
-  invitation_ = const_cast< ::bgs::protocol::Invitation*>(&::bgs::protocol::Invitation::default_instance());
 }
 
 SendInvitationResponse::SendInvitationResponse(const SendInvitationResponse& from)
@@ -2553,7 +2494,6 @@ SendInvitationResponse::SendInvitationResponse(const SendInvitationResponse& fro
 
 void SendInvitationResponse::SharedCtor() {
   _cached_size_ = 0;
-  invitation_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -2564,7 +2504,6 @@ SendInvitationResponse::~SendInvitationResponse() {
 
 void SendInvitationResponse::SharedDtor() {
   if (this != default_instance_) {
-    delete invitation_;
   }
 }
 
@@ -2590,9 +2529,6 @@ SendInvitationResponse* SendInvitationResponse::New() const {
 }
 
 void SendInvitationResponse::Clear() {
-  if (has_invitation()) {
-    if (invitation_ != NULL) invitation_->::bgs::protocol::Invitation::Clear();
-  }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -2606,31 +2542,14 @@ bool SendInvitationResponse::MergePartialFromCodedStream(
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.Invitation invitation = 2;
-      case 2: {
-        if (tag == 18) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_invitation()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
+  handle_unusual:
+    if (tag == 0 ||
+        ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+        ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+      goto success;
     }
+    DO_(::google::protobuf::internal::WireFormat::SkipField(
+          input, tag, mutable_unknown_fields()));
   }
 success:
   // @@protoc_insertion_point(parse_success:bgs.protocol.SendInvitationResponse)
@@ -2644,12 +2563,6 @@ failure:
 void SendInvitationResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:bgs.protocol.SendInvitationResponse)
-  // optional .bgs.protocol.Invitation invitation = 2;
-  if (has_invitation()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->invitation(), output);
-  }
-
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2660,13 +2573,6 @@ void SendInvitationResponse::SerializeWithCachedSizes(
 ::google::protobuf::uint8* SendInvitationResponse::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.SendInvitationResponse)
-  // optional .bgs.protocol.Invitation invitation = 2;
-  if (has_invitation()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->invitation(), target);
-  }
-
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -2678,15 +2584,6 @@ void SendInvitationResponse::SerializeWithCachedSizes(
 int SendInvitationResponse::ByteSize() const {
   int total_size = 0;
 
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.Invitation invitation = 2;
-    if (has_invitation()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->invitation());
-    }
-
-  }
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -2712,11 +2609,6 @@ void SendInvitationResponse::MergeFrom(const ::google::protobuf::Message& from) 
 
 void SendInvitationResponse::MergeFrom(const SendInvitationResponse& from) {
   GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_invitation()) {
-      mutable_invitation()->::bgs::protocol::Invitation::MergeFrom(from.invitation());
-    }
-  }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -2734,16 +2626,11 @@ void SendInvitationResponse::CopyFrom(const SendInvitationResponse& from) {
 
 bool SendInvitationResponse::IsInitialized() const {
 
-  if (has_invitation()) {
-    if (!this->invitation().IsInitialized()) return false;
-  }
   return true;
 }
 
 void SendInvitationResponse::Swap(SendInvitationResponse* other) {
   if (other != this) {
-    std::swap(invitation_, other->invitation_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
   }
@@ -3114,6 +3001,8 @@ void GenericInvitationRequest::SharedCtor() {
   invitation_id_ = GOOGLE_ULONGLONG(0);
   invitee_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   inviter_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  _previous_role_cached_byte_size_ = 0;
+  _desired_role_cached_byte_size_ = 0;
   reason_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }

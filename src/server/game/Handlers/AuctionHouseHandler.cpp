@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,17 +16,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "AccountMgr.h"
+#include "AuctionHouseMgr.h"
+#include "AuctionHousePackets.h"
+#include "Creature.h"
+#include "DatabaseEnv.h"
+#include "Item.h"
+#include "Language.h"
+#include "Log.h"
+#include "Mail.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "AuctionHouseMgr.h"
-#include "Log.h"
-#include "Language.h"
-#include "Util.h"
-#include "AccountMgr.h"
-#include "AuctionHousePackets.h"
 
 //void called when player click on auctioneer npc
 void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet)
@@ -110,12 +115,6 @@ void WorldSession::SendAuctionOwnerBidNotification(AuctionEntry const* auction, 
 //this void creates new auction and adds auction to some auctionhouse
 void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSellItem& packet)
 {
-    if (packet.Items.size() > MAX_AUCTION_ITEMS)
-    {
-        SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
-        return;
-    }
-
     for (auto const& item : packet.Items)
         if (!item.Guid || !item.UseCount || item.UseCount > 1000)
             return;
@@ -224,8 +223,8 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
     uint32 auctionTime = uint32(packet.RunTime * sWorld->getRate(RATE_AUCTION_TIME));
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    uint32 deposit = sAuctionMgr->GetAuctionDeposit(auctionHouseEntry, packet.RunTime, item, finalCount);
-    if (!_player->HasEnoughMoney((uint64)deposit))
+    uint64 deposit = sAuctionMgr->GetAuctionDeposit(auctionHouseEntry, packet.RunTime, item, finalCount);
+    if (!_player->HasEnoughMoney(deposit))
     {
         SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
         return;
@@ -441,7 +440,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
         stmt->setUInt64(0, auction->bidder);
-        stmt->setUInt32(1, auction->bid);
+        stmt->setUInt64(1, auction->bid);
         stmt->setUInt32(2, auction->Id);
         trans->Append(stmt);
 
@@ -512,8 +511,8 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
         {
             if (auction->bidder)                            // If we have a bidder, we have to send him the money he paid
             {
-                uint32 auctionCut = auction->GetAuctionCut();
-                if (!player->HasEnoughMoney((uint64)auctionCut))          //player doesn't have enough money, maybe message needed
+                uint64 auctionCut = auction->GetAuctionCut();
+                if (!player->HasEnoughMoney(auctionCut))          //player doesn't have enough money, maybe message needed
                     return;
                 sAuctionMgr->SendAuctionCancelledToBidderMail(auction, trans);
                 player->ModifyMoney(-int64(auctionCut));
@@ -535,7 +534,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     {
         SendAuctionCommandResult(NULL, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
         //this code isn't possible ... maybe there should be assert
-        TC_LOG_ERROR("network", "CHEATER: %s tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUID().ToString().c_str(), packet.AuctionItemID);
+        TC_LOG_ERROR("entities.player.cheat", "CHEATER: %s tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUID().ToString().c_str(), packet.AuctionItemID);
         return;
     }
 
@@ -628,7 +627,7 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
     Optional<AuctionSearchFilters> filters;
 
     WorldPackets::AuctionHouse::AuctionListItemsResult result;
-    if (packet.ClassFilters.empty())
+    if (!packet.ClassFilters.empty())
     {
         filters = boost::in_place();
 
@@ -638,8 +637,12 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
             {
                 for (auto const& subClassFilter : classFilter.SubClassFilters)
                 {
-                    filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
-                    filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                    if (classFilter.ItemClass < MAX_ITEM_CLASS)
+                    {
+                        filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
+                        if (subClassFilter.ItemSubclass < MAX_ITEM_SUBCLASS_TOTAL)
+                            filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                    }
                 }
             }
             else

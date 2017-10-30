@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,13 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
+#include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 enum ReliquaryOfSouls
 {
@@ -84,7 +88,7 @@ enum ReliquaryOfSouls
     NUMBER_ENSLAVED_SOUL            = 8
 };
 
-G3D::Vector2 const Coords[]=
+Position const Coords[]=
 {
     {450.4f, 212.3f},
     {542.1f, 212.3f},
@@ -101,7 +105,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_enslaved_soulAI(creature);
+        return GetBlackTempleAI<npc_enslaved_soulAI>(creature);
     }
 
     struct npc_enslaved_soulAI : public ScriptedAI
@@ -132,15 +136,14 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_reliquary_of_soulsAI>(creature);
+        return GetBlackTempleAI<boss_reliquary_of_soulsAI>(creature);
     }
 
-    struct boss_reliquary_of_soulsAI : public ScriptedAI
+    struct boss_reliquary_of_soulsAI : public BossAI
     {
-        boss_reliquary_of_soulsAI(Creature* creature) : ScriptedAI(creature)
+        boss_reliquary_of_soulsAI(Creature* creature) : BossAI(creature, DATA_RELIQUARY_OF_SOULS)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
             Counter = 0;
             Timer = 0;
             SoulCount = 0;
@@ -151,8 +154,6 @@ public:
         {
             Phase = 0;
         }
-
-        InstanceScript* instance;
 
         ObjectGuid EssenceGUID;
 
@@ -165,7 +166,7 @@ public:
 
         void Reset() override
         {
-            instance->SetBossState(DATA_RELIQUARY_OF_SOULS, NOT_STARTED);
+            _Reset();
 
             if (!EssenceGUID.IsEmpty())
             {
@@ -202,8 +203,7 @@ public:
         void EnterCombat(Unit* who) override
         {
             me->AddThreat(who, 10000.0f);
-            DoZoneInCombat();
-            instance->SetBossState(DATA_RELIQUARY_OF_SOULS, IN_PROGRESS);
+            _EnterCombat();
 
             Phase = 1;
             Counter = 0;
@@ -212,11 +212,8 @@ public:
 
         bool SummonSoul()
         {
-            uint32 random = rand32() % 6;
-            float x = Coords[random].x;
-            float y = Coords[random].y;
-
-            Creature* Soul = me->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0);
+            Position const& pos = Trinity::Containers::SelectRandomContainerElement(Coords);
+            Creature* Soul = me->SummonCreature(CREATURE_ENSLAVED_SOUL, pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (!Soul)
                 return false;
 
@@ -244,11 +241,6 @@ public:
                     me->AddThreat(unit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
                 }
             }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetBossState(DATA_RELIQUARY_OF_SOULS, DONE);
         }
 
         void UpdateAI(uint32 diff) override
@@ -396,7 +388,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_essence_of_sufferingAI(creature);
+        return GetBlackTempleAI<boss_essence_of_sufferingAI>(creature);
     }
 
     struct boss_essence_of_sufferingAI : public ScriptedAI
@@ -523,7 +515,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_essence_of_desireAI(creature);
+        return GetBlackTempleAI<boss_essence_of_desireAI>(creature);
     }
 
     struct boss_essence_of_desireAI : public ScriptedAI
@@ -572,7 +564,7 @@ public:
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-                for (SpellEffectInfo const* effect : spell->GetEffectsForDifficulty(me->GetMap()->GetDifficultyID()))
+                for (SpellEffectInfo const* effect : spell->GetEffectsForDifficulty(GetDifficulty()))
                     if (effect->Effect == SPELL_EFFECT_INTERRUPT_CAST)
                         if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SOUL_SHOCK
                             || me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEADEN)
@@ -634,7 +626,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_essence_of_angerAI(creature);
+        return GetBlackTempleAI<boss_essence_of_angerAI>(creature);
     }
 
     struct boss_essence_of_angerAI : public ScriptedAI

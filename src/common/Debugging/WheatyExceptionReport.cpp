@@ -5,8 +5,10 @@
 //==========================================
 #include "CompilerDefs.h"
 
-#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && !defined(__MINGW32__)
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #pragma warning(disable:4996)
 #pragma warning(disable:4312)
 #pragma warning(disable:4311)
@@ -21,6 +23,7 @@
 
 #include "Common.h"
 #include "GitRevision.h"
+#include <algorithm>
 
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")
@@ -50,8 +53,11 @@ inline LPTSTR ErrorMessage(DWORD dw)
 //============================== Global Variables =============================
 
 //
-// Declare the static variables of the WheatyExceptionReport class
+// Declare the static variables of the WheatyExceptionReport class and force their initialization before any other static in the program
 //
+#pragma warning(push)
+#pragma warning(disable: 4073) // C4073: initializers put in library initialization area
+#pragma init_seg(lib)
 TCHAR WheatyExceptionReport::m_szLogFileName[MAX_PATH];
 TCHAR WheatyExceptionReport::m_szDumpFileName[MAX_PATH];
 LPTOP_LEVEL_EXCEPTION_FILTER WheatyExceptionReport::m_previousFilter;
@@ -65,9 +71,9 @@ bool WheatyExceptionReport::alreadyCrashed;
 std::mutex WheatyExceptionReport::alreadyCrashedLock;
 WheatyExceptionReport::pRtlGetVersion WheatyExceptionReport::RtlGetVersion;
 
-
 // Declare global instance of class
 WheatyExceptionReport g_WheatyExceptionReport;
+#pragma warning(pop)
 
 //============================== Class Methods =============================
 
@@ -123,7 +129,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
     ++pos;
 
     TCHAR crash_folder_path[MAX_PATH];
-    sprintf(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
+    sprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
     if (!CreateDirectory(crash_folder_path, NULL))
     {
         if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -1404,12 +1410,15 @@ int __cdecl WheatyExceptionReport::stackprintf(const TCHAR * format, va_list arg
 
 int __cdecl WheatyExceptionReport::heapprintf(const TCHAR * format, va_list argptr)
 {
-    int retValue;
+    int retValue = 0;
     DWORD cbWritten;
     TCHAR* szBuff = (TCHAR*)malloc(sizeof(TCHAR) * WER_LARGE_BUFFER_SIZE);
-    retValue = vsprintf(szBuff, format, argptr);
-    WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
-    free(szBuff);
+    if (szBuff != nullptr)
+    {
+        retValue = vsprintf(szBuff, format, argptr);
+        WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
+        free(szBuff);
+    }
 
     return retValue;
 }

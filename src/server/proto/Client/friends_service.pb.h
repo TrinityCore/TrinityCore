@@ -28,7 +28,6 @@
 #include "entity_types.pb.h"
 #include "friends_types.pb.h"
 #include "invitation_types.pb.h"
-#include "role_types.pb.h"
 #include "rpc_types.pb.h"
 #include "ServiceBase.h"
 #include "MessageBuffer.h"
@@ -47,7 +46,6 @@ void protobuf_AssignDesc_friends_5fservice_2eproto();
 void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
 class SubscribeRequest;
-class SubscribeResponse;
 class UnsubscribeRequest;
 class GenericFriendRequest;
 class GenericFriendResponse;
@@ -55,6 +53,9 @@ class AssignRoleRequest;
 class ViewFriendsRequest;
 class ViewFriendsResponse;
 class UpdateFriendStateRequest;
+class GetFriendListRequest;
+class GetFriendListResponse;
+class CreateFriendshipRequest;
 class FriendNotification;
 class UpdateFriendStateNotification;
 class InvitationNotification;
@@ -149,157 +150,6 @@ class TC_PROTO_API SubscribeRequest : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static SubscribeRequest* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API SubscribeResponse : public ::google::protobuf::Message {
- public:
-  SubscribeResponse();
-  virtual ~SubscribeResponse();
-
-  SubscribeResponse(const SubscribeResponse& from);
-
-  inline SubscribeResponse& operator=(const SubscribeResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const SubscribeResponse& default_instance();
-
-  void Swap(SubscribeResponse* other);
-
-  // implements Message ----------------------------------------------
-
-  SubscribeResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SubscribeResponse& from);
-  void MergeFrom(const SubscribeResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional uint32 max_friends = 1;
-  inline bool has_max_friends() const;
-  inline void clear_max_friends();
-  static const int kMaxFriendsFieldNumber = 1;
-  inline ::google::protobuf::uint32 max_friends() const;
-  inline void set_max_friends(::google::protobuf::uint32 value);
-
-  // optional uint32 max_received_invitations = 2;
-  inline bool has_max_received_invitations() const;
-  inline void clear_max_received_invitations();
-  static const int kMaxReceivedInvitationsFieldNumber = 2;
-  inline ::google::protobuf::uint32 max_received_invitations() const;
-  inline void set_max_received_invitations(::google::protobuf::uint32 value);
-
-  // optional uint32 max_sent_invitations = 3;
-  inline bool has_max_sent_invitations() const;
-  inline void clear_max_sent_invitations();
-  static const int kMaxSentInvitationsFieldNumber = 3;
-  inline ::google::protobuf::uint32 max_sent_invitations() const;
-  inline void set_max_sent_invitations(::google::protobuf::uint32 value);
-
-  // repeated .bgs.protocol.Role role = 4;
-  inline int role_size() const;
-  inline void clear_role();
-  static const int kRoleFieldNumber = 4;
-  inline const ::bgs::protocol::Role& role(int index) const;
-  inline ::bgs::protocol::Role* mutable_role(int index);
-  inline ::bgs::protocol::Role* add_role();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >&
-      role() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >*
-      mutable_role();
-
-  // repeated .bgs.protocol.friends.v1.Friend friends = 5;
-  inline int friends_size() const;
-  inline void clear_friends();
-  static const int kFriendsFieldNumber = 5;
-  inline const ::bgs::protocol::friends::v1::Friend& friends(int index) const;
-  inline ::bgs::protocol::friends::v1::Friend* mutable_friends(int index);
-  inline ::bgs::protocol::friends::v1::Friend* add_friends();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >&
-      friends() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >*
-      mutable_friends();
-
-  // repeated .bgs.protocol.Invitation sent_invitations = 6;
-  inline int sent_invitations_size() const;
-  inline void clear_sent_invitations();
-  static const int kSentInvitationsFieldNumber = 6;
-  inline const ::bgs::protocol::Invitation& sent_invitations(int index) const;
-  inline ::bgs::protocol::Invitation* mutable_sent_invitations(int index);
-  inline ::bgs::protocol::Invitation* add_sent_invitations();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >&
-      sent_invitations() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >*
-      mutable_sent_invitations();
-
-  // repeated .bgs.protocol.Invitation received_invitations = 7;
-  inline int received_invitations_size() const;
-  inline void clear_received_invitations();
-  static const int kReceivedInvitationsFieldNumber = 7;
-  inline const ::bgs::protocol::Invitation& received_invitations(int index) const;
-  inline ::bgs::protocol::Invitation* mutable_received_invitations(int index);
-  inline ::bgs::protocol::Invitation* add_received_invitations();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >&
-      received_invitations() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >*
-      mutable_received_invitations();
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.friends.v1.SubscribeResponse)
- private:
-  inline void set_has_max_friends();
-  inline void clear_has_max_friends();
-  inline void set_has_max_received_invitations();
-  inline void clear_has_max_received_invitations();
-  inline void set_has_max_sent_invitations();
-  inline void clear_has_max_sent_invitations();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::google::protobuf::uint32 max_friends_;
-  ::google::protobuf::uint32 max_received_invitations_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role > role_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend > friends_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation > sent_invitations_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation > received_invitations_;
-  ::google::protobuf::uint32 max_sent_invitations_;
-  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
-  friend void protobuf_AssignDesc_friends_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static SubscribeResponse* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -834,16 +684,16 @@ class TC_PROTO_API ViewFriendsResponse : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // repeated .bgs.protocol.friends.v1.Friend friends = 1;
+  // repeated .bgs.protocol.friends.v1.FriendOfFriend friends = 1;
   inline int friends_size() const;
   inline void clear_friends();
   static const int kFriendsFieldNumber = 1;
-  inline const ::bgs::protocol::friends::v1::Friend& friends(int index) const;
-  inline ::bgs::protocol::friends::v1::Friend* mutable_friends(int index);
-  inline ::bgs::protocol::friends::v1::Friend* add_friends();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >&
+  inline const ::bgs::protocol::friends::v1::FriendOfFriend& friends(int index) const;
+  inline ::bgs::protocol::friends::v1::FriendOfFriend* mutable_friends(int index);
+  inline ::bgs::protocol::friends::v1::FriendOfFriend* add_friends();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::FriendOfFriend >&
       friends() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >*
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::FriendOfFriend >*
       mutable_friends();
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.friends.v1.ViewFriendsResponse)
@@ -853,7 +703,7 @@ class TC_PROTO_API ViewFriendsResponse : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend > friends_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::FriendOfFriend > friends_;
   friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
@@ -976,6 +826,288 @@ class TC_PROTO_API UpdateFriendStateRequest : public ::google::protobuf::Message
 
   void InitAsDefaultInstance();
   static UpdateFriendStateRequest* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API GetFriendListRequest : public ::google::protobuf::Message {
+ public:
+  GetFriendListRequest();
+  virtual ~GetFriendListRequest();
+
+  GetFriendListRequest(const GetFriendListRequest& from);
+
+  inline GetFriendListRequest& operator=(const GetFriendListRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetFriendListRequest& default_instance();
+
+  void Swap(GetFriendListRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  GetFriendListRequest* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GetFriendListRequest& from);
+  void MergeFrom(const GetFriendListRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.EntityId agent_id = 1;
+  inline bool has_agent_id() const;
+  inline void clear_agent_id();
+  static const int kAgentIdFieldNumber = 1;
+  inline const ::bgs::protocol::EntityId& agent_id() const;
+  inline ::bgs::protocol::EntityId* mutable_agent_id();
+  inline ::bgs::protocol::EntityId* release_agent_id();
+  inline void set_allocated_agent_id(::bgs::protocol::EntityId* agent_id);
+
+  // optional .bgs.protocol.EntityId target_id = 2;
+  inline bool has_target_id() const;
+  inline void clear_target_id();
+  static const int kTargetIdFieldNumber = 2;
+  inline const ::bgs::protocol::EntityId& target_id() const;
+  inline ::bgs::protocol::EntityId* mutable_target_id();
+  inline ::bgs::protocol::EntityId* release_target_id();
+  inline void set_allocated_target_id(::bgs::protocol::EntityId* target_id);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.friends.v1.GetFriendListRequest)
+ private:
+  inline void set_has_agent_id();
+  inline void clear_has_agent_id();
+  inline void set_has_target_id();
+  inline void clear_has_target_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::EntityId* agent_id_;
+  ::bgs::protocol::EntityId* target_id_;
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void protobuf_AssignDesc_friends_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static GetFriendListRequest* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API GetFriendListResponse : public ::google::protobuf::Message {
+ public:
+  GetFriendListResponse();
+  virtual ~GetFriendListResponse();
+
+  GetFriendListResponse(const GetFriendListResponse& from);
+
+  inline GetFriendListResponse& operator=(const GetFriendListResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetFriendListResponse& default_instance();
+
+  void Swap(GetFriendListResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  GetFriendListResponse* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GetFriendListResponse& from);
+  void MergeFrom(const GetFriendListResponse& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .bgs.protocol.friends.v1.Friend friends = 1;
+  inline int friends_size() const;
+  inline void clear_friends();
+  static const int kFriendsFieldNumber = 1;
+  inline const ::bgs::protocol::friends::v1::Friend& friends(int index) const;
+  inline ::bgs::protocol::friends::v1::Friend* mutable_friends(int index);
+  inline ::bgs::protocol::friends::v1::Friend* add_friends();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >&
+      friends() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >*
+      mutable_friends();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.friends.v1.GetFriendListResponse)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend > friends_;
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void protobuf_AssignDesc_friends_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static GetFriendListResponse* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API CreateFriendshipRequest : public ::google::protobuf::Message {
+ public:
+  CreateFriendshipRequest();
+  virtual ~CreateFriendshipRequest();
+
+  CreateFriendshipRequest(const CreateFriendshipRequest& from);
+
+  inline CreateFriendshipRequest& operator=(const CreateFriendshipRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CreateFriendshipRequest& default_instance();
+
+  void Swap(CreateFriendshipRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  CreateFriendshipRequest* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CreateFriendshipRequest& from);
+  void MergeFrom(const CreateFriendshipRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.EntityId inviter_id = 1;
+  inline bool has_inviter_id() const;
+  inline void clear_inviter_id();
+  static const int kInviterIdFieldNumber = 1;
+  inline const ::bgs::protocol::EntityId& inviter_id() const;
+  inline ::bgs::protocol::EntityId* mutable_inviter_id();
+  inline ::bgs::protocol::EntityId* release_inviter_id();
+  inline void set_allocated_inviter_id(::bgs::protocol::EntityId* inviter_id);
+
+  // optional .bgs.protocol.EntityId invitee_id = 2;
+  inline bool has_invitee_id() const;
+  inline void clear_invitee_id();
+  static const int kInviteeIdFieldNumber = 2;
+  inline const ::bgs::protocol::EntityId& invitee_id() const;
+  inline ::bgs::protocol::EntityId* mutable_invitee_id();
+  inline ::bgs::protocol::EntityId* release_invitee_id();
+  inline void set_allocated_invitee_id(::bgs::protocol::EntityId* invitee_id);
+
+  // repeated uint32 role = 3 [packed = true];
+  inline int role_size() const;
+  inline void clear_role();
+  static const int kRoleFieldNumber = 3;
+  inline ::google::protobuf::uint32 role(int index) const;
+  inline void set_role(int index, ::google::protobuf::uint32 value);
+  inline void add_role(::google::protobuf::uint32 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
+      role() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
+      mutable_role();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.friends.v1.CreateFriendshipRequest)
+ private:
+  inline void set_has_inviter_id();
+  inline void clear_has_inviter_id();
+  inline void set_has_invitee_id();
+  inline void clear_has_invitee_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::EntityId* inviter_id_;
+  ::bgs::protocol::EntityId* invitee_id_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > role_;
+  mutable int _role_cached_byte_size_;
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void protobuf_AssignDesc_friends_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static CreateFriendshipRequest* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1366,23 +1498,27 @@ class TC_PROTO_API FriendsService : public ServiceBase
   void UpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void Unsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void RevokeAllInvitations(::bgs::protocol::friends::v1::GenericFriendRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
+  void GetFriendList(::bgs::protocol::friends::v1::GetFriendListRequest const* request, std::function<void(::bgs::protocol::friends::v1::GetFriendListResponse const*)> responseCallback);
+  void CreateFriendship(::bgs::protocol::friends::v1::CreateFriendshipRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   // server methods --------------------------------------------------
 
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleSubscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, ::bgs::protocol::friends::v1::SubscribeResponse* response);
-  virtual uint32 HandleSendInvitation(::bgs::protocol::SendInvitationRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleAcceptInvitation(::bgs::protocol::GenericInvitationRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleRevokeInvitation(::bgs::protocol::GenericInvitationRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleDeclineInvitation(::bgs::protocol::GenericInvitationRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleIgnoreInvitation(::bgs::protocol::GenericInvitationRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleAssignRole(::bgs::protocol::friends::v1::AssignRoleRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleRemoveFriend(::bgs::protocol::friends::v1::GenericFriendRequest const* request, ::bgs::protocol::friends::v1::GenericFriendResponse* response);
-  virtual uint32 HandleViewFriends(::bgs::protocol::friends::v1::ViewFriendsRequest const* request, ::bgs::protocol::friends::v1::ViewFriendsResponse* response);
-  virtual uint32 HandleUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleUnsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleRevokeAllInvitations(::bgs::protocol::friends::v1::GenericFriendRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleSubscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, ::bgs::protocol::friends::v1::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSendInvitation(::bgs::protocol::SendInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleAcceptInvitation(::bgs::protocol::GenericInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleRevokeInvitation(::bgs::protocol::GenericInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleDeclineInvitation(::bgs::protocol::GenericInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleIgnoreInvitation(::bgs::protocol::GenericInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleAssignRole(::bgs::protocol::friends::v1::AssignRoleRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleRemoveFriend(::bgs::protocol::friends::v1::GenericFriendRequest const* request, ::bgs::protocol::friends::v1::GenericFriendResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleViewFriends(::bgs::protocol::friends::v1::ViewFriendsRequest const* request, ::bgs::protocol::friends::v1::ViewFriendsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUnsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleRevokeAllInvitations(::bgs::protocol::friends::v1::GenericFriendRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetFriendList(::bgs::protocol::friends::v1::GetFriendListRequest const* request, ::bgs::protocol::friends::v1::GetFriendListResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleCreateFriendship(::bgs::protocol::friends::v1::CreateFriendshipRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;
@@ -1502,202 +1638,6 @@ inline void SubscribeRequest::set_object_id(::google::protobuf::uint64 value) {
   set_has_object_id();
   object_id_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SubscribeRequest.object_id)
-}
-
-// -------------------------------------------------------------------
-
-// SubscribeResponse
-
-// optional uint32 max_friends = 1;
-inline bool SubscribeResponse::has_max_friends() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void SubscribeResponse::set_has_max_friends() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void SubscribeResponse::clear_has_max_friends() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void SubscribeResponse::clear_max_friends() {
-  max_friends_ = 0u;
-  clear_has_max_friends();
-}
-inline ::google::protobuf::uint32 SubscribeResponse::max_friends() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.max_friends)
-  return max_friends_;
-}
-inline void SubscribeResponse::set_max_friends(::google::protobuf::uint32 value) {
-  set_has_max_friends();
-  max_friends_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SubscribeResponse.max_friends)
-}
-
-// optional uint32 max_received_invitations = 2;
-inline bool SubscribeResponse::has_max_received_invitations() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void SubscribeResponse::set_has_max_received_invitations() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void SubscribeResponse::clear_has_max_received_invitations() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void SubscribeResponse::clear_max_received_invitations() {
-  max_received_invitations_ = 0u;
-  clear_has_max_received_invitations();
-}
-inline ::google::protobuf::uint32 SubscribeResponse::max_received_invitations() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.max_received_invitations)
-  return max_received_invitations_;
-}
-inline void SubscribeResponse::set_max_received_invitations(::google::protobuf::uint32 value) {
-  set_has_max_received_invitations();
-  max_received_invitations_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SubscribeResponse.max_received_invitations)
-}
-
-// optional uint32 max_sent_invitations = 3;
-inline bool SubscribeResponse::has_max_sent_invitations() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void SubscribeResponse::set_has_max_sent_invitations() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void SubscribeResponse::clear_has_max_sent_invitations() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void SubscribeResponse::clear_max_sent_invitations() {
-  max_sent_invitations_ = 0u;
-  clear_has_max_sent_invitations();
-}
-inline ::google::protobuf::uint32 SubscribeResponse::max_sent_invitations() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.max_sent_invitations)
-  return max_sent_invitations_;
-}
-inline void SubscribeResponse::set_max_sent_invitations(::google::protobuf::uint32 value) {
-  set_has_max_sent_invitations();
-  max_sent_invitations_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SubscribeResponse.max_sent_invitations)
-}
-
-// repeated .bgs.protocol.Role role = 4;
-inline int SubscribeResponse::role_size() const {
-  return role_.size();
-}
-inline void SubscribeResponse::clear_role() {
-  role_.Clear();
-}
-inline const ::bgs::protocol::Role& SubscribeResponse::role(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.role)
-  return role_.Get(index);
-}
-inline ::bgs::protocol::Role* SubscribeResponse::mutable_role(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.SubscribeResponse.role)
-  return role_.Mutable(index);
-}
-inline ::bgs::protocol::Role* SubscribeResponse::add_role() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.SubscribeResponse.role)
-  return role_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >&
-SubscribeResponse::role() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.SubscribeResponse.role)
-  return role_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >*
-SubscribeResponse::mutable_role() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.SubscribeResponse.role)
-  return &role_;
-}
-
-// repeated .bgs.protocol.friends.v1.Friend friends = 5;
-inline int SubscribeResponse::friends_size() const {
-  return friends_.size();
-}
-inline void SubscribeResponse::clear_friends() {
-  friends_.Clear();
-}
-inline const ::bgs::protocol::friends::v1::Friend& SubscribeResponse::friends(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.friends)
-  return friends_.Get(index);
-}
-inline ::bgs::protocol::friends::v1::Friend* SubscribeResponse::mutable_friends(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.SubscribeResponse.friends)
-  return friends_.Mutable(index);
-}
-inline ::bgs::protocol::friends::v1::Friend* SubscribeResponse::add_friends() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.SubscribeResponse.friends)
-  return friends_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >&
-SubscribeResponse::friends() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.SubscribeResponse.friends)
-  return friends_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >*
-SubscribeResponse::mutable_friends() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.SubscribeResponse.friends)
-  return &friends_;
-}
-
-// repeated .bgs.protocol.Invitation sent_invitations = 6;
-inline int SubscribeResponse::sent_invitations_size() const {
-  return sent_invitations_.size();
-}
-inline void SubscribeResponse::clear_sent_invitations() {
-  sent_invitations_.Clear();
-}
-inline const ::bgs::protocol::Invitation& SubscribeResponse::sent_invitations(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
-  return sent_invitations_.Get(index);
-}
-inline ::bgs::protocol::Invitation* SubscribeResponse::mutable_sent_invitations(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
-  return sent_invitations_.Mutable(index);
-}
-inline ::bgs::protocol::Invitation* SubscribeResponse::add_sent_invitations() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
-  return sent_invitations_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >&
-SubscribeResponse::sent_invitations() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
-  return sent_invitations_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >*
-SubscribeResponse::mutable_sent_invitations() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
-  return &sent_invitations_;
-}
-
-// repeated .bgs.protocol.Invitation received_invitations = 7;
-inline int SubscribeResponse::received_invitations_size() const {
-  return received_invitations_.size();
-}
-inline void SubscribeResponse::clear_received_invitations() {
-  received_invitations_.Clear();
-}
-inline const ::bgs::protocol::Invitation& SubscribeResponse::received_invitations(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
-  return received_invitations_.Get(index);
-}
-inline ::bgs::protocol::Invitation* SubscribeResponse::mutable_received_invitations(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
-  return received_invitations_.Mutable(index);
-}
-inline ::bgs::protocol::Invitation* SubscribeResponse::add_received_invitations() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
-  return received_invitations_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >&
-SubscribeResponse::received_invitations() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
-  return received_invitations_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >*
-SubscribeResponse::mutable_received_invitations() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
-  return &received_invitations_;
 }
 
 // -------------------------------------------------------------------
@@ -2136,31 +2076,31 @@ ViewFriendsRequest::mutable_role() {
 
 // ViewFriendsResponse
 
-// repeated .bgs.protocol.friends.v1.Friend friends = 1;
+// repeated .bgs.protocol.friends.v1.FriendOfFriend friends = 1;
 inline int ViewFriendsResponse::friends_size() const {
   return friends_.size();
 }
 inline void ViewFriendsResponse::clear_friends() {
   friends_.Clear();
 }
-inline const ::bgs::protocol::friends::v1::Friend& ViewFriendsResponse::friends(int index) const {
+inline const ::bgs::protocol::friends::v1::FriendOfFriend& ViewFriendsResponse::friends(int index) const {
   // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.ViewFriendsResponse.friends)
   return friends_.Get(index);
 }
-inline ::bgs::protocol::friends::v1::Friend* ViewFriendsResponse::mutable_friends(int index) {
+inline ::bgs::protocol::friends::v1::FriendOfFriend* ViewFriendsResponse::mutable_friends(int index) {
   // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.ViewFriendsResponse.friends)
   return friends_.Mutable(index);
 }
-inline ::bgs::protocol::friends::v1::Friend* ViewFriendsResponse::add_friends() {
+inline ::bgs::protocol::friends::v1::FriendOfFriend* ViewFriendsResponse::add_friends() {
   // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.ViewFriendsResponse.friends)
   return friends_.Add();
 }
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >&
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::FriendOfFriend >&
 ViewFriendsResponse::friends() const {
   // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.ViewFriendsResponse.friends)
   return friends_;
 }
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >*
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::FriendOfFriend >*
 ViewFriendsResponse::mutable_friends() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.ViewFriendsResponse.friends)
   return &friends_;
@@ -2304,6 +2244,242 @@ inline void UpdateFriendStateRequest::set_attributes_epoch(::google::protobuf::u
   set_has_attributes_epoch();
   attributes_epoch_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.UpdateFriendStateRequest.attributes_epoch)
+}
+
+// -------------------------------------------------------------------
+
+// GetFriendListRequest
+
+// optional .bgs.protocol.EntityId agent_id = 1;
+inline bool GetFriendListRequest::has_agent_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void GetFriendListRequest::set_has_agent_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void GetFriendListRequest::clear_has_agent_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void GetFriendListRequest::clear_agent_id() {
+  if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
+  clear_has_agent_id();
+}
+inline const ::bgs::protocol::EntityId& GetFriendListRequest::agent_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.GetFriendListRequest.agent_id)
+  return agent_id_ != NULL ? *agent_id_ : *default_instance_->agent_id_;
+}
+inline ::bgs::protocol::EntityId* GetFriendListRequest::mutable_agent_id() {
+  set_has_agent_id();
+  if (agent_id_ == NULL) agent_id_ = new ::bgs::protocol::EntityId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.GetFriendListRequest.agent_id)
+  return agent_id_;
+}
+inline ::bgs::protocol::EntityId* GetFriendListRequest::release_agent_id() {
+  clear_has_agent_id();
+  ::bgs::protocol::EntityId* temp = agent_id_;
+  agent_id_ = NULL;
+  return temp;
+}
+inline void GetFriendListRequest::set_allocated_agent_id(::bgs::protocol::EntityId* agent_id) {
+  delete agent_id_;
+  agent_id_ = agent_id;
+  if (agent_id) {
+    set_has_agent_id();
+  } else {
+    clear_has_agent_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.GetFriendListRequest.agent_id)
+}
+
+// optional .bgs.protocol.EntityId target_id = 2;
+inline bool GetFriendListRequest::has_target_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void GetFriendListRequest::set_has_target_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void GetFriendListRequest::clear_has_target_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void GetFriendListRequest::clear_target_id() {
+  if (target_id_ != NULL) target_id_->::bgs::protocol::EntityId::Clear();
+  clear_has_target_id();
+}
+inline const ::bgs::protocol::EntityId& GetFriendListRequest::target_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.GetFriendListRequest.target_id)
+  return target_id_ != NULL ? *target_id_ : *default_instance_->target_id_;
+}
+inline ::bgs::protocol::EntityId* GetFriendListRequest::mutable_target_id() {
+  set_has_target_id();
+  if (target_id_ == NULL) target_id_ = new ::bgs::protocol::EntityId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.GetFriendListRequest.target_id)
+  return target_id_;
+}
+inline ::bgs::protocol::EntityId* GetFriendListRequest::release_target_id() {
+  clear_has_target_id();
+  ::bgs::protocol::EntityId* temp = target_id_;
+  target_id_ = NULL;
+  return temp;
+}
+inline void GetFriendListRequest::set_allocated_target_id(::bgs::protocol::EntityId* target_id) {
+  delete target_id_;
+  target_id_ = target_id;
+  if (target_id) {
+    set_has_target_id();
+  } else {
+    clear_has_target_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.GetFriendListRequest.target_id)
+}
+
+// -------------------------------------------------------------------
+
+// GetFriendListResponse
+
+// repeated .bgs.protocol.friends.v1.Friend friends = 1;
+inline int GetFriendListResponse::friends_size() const {
+  return friends_.size();
+}
+inline void GetFriendListResponse::clear_friends() {
+  friends_.Clear();
+}
+inline const ::bgs::protocol::friends::v1::Friend& GetFriendListResponse::friends(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.GetFriendListResponse.friends)
+  return friends_.Get(index);
+}
+inline ::bgs::protocol::friends::v1::Friend* GetFriendListResponse::mutable_friends(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.GetFriendListResponse.friends)
+  return friends_.Mutable(index);
+}
+inline ::bgs::protocol::friends::v1::Friend* GetFriendListResponse::add_friends() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.GetFriendListResponse.friends)
+  return friends_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >&
+GetFriendListResponse::friends() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.GetFriendListResponse.friends)
+  return friends_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >*
+GetFriendListResponse::mutable_friends() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.GetFriendListResponse.friends)
+  return &friends_;
+}
+
+// -------------------------------------------------------------------
+
+// CreateFriendshipRequest
+
+// optional .bgs.protocol.EntityId inviter_id = 1;
+inline bool CreateFriendshipRequest::has_inviter_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void CreateFriendshipRequest::set_has_inviter_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void CreateFriendshipRequest::clear_has_inviter_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void CreateFriendshipRequest::clear_inviter_id() {
+  if (inviter_id_ != NULL) inviter_id_->::bgs::protocol::EntityId::Clear();
+  clear_has_inviter_id();
+}
+inline const ::bgs::protocol::EntityId& CreateFriendshipRequest::inviter_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.CreateFriendshipRequest.inviter_id)
+  return inviter_id_ != NULL ? *inviter_id_ : *default_instance_->inviter_id_;
+}
+inline ::bgs::protocol::EntityId* CreateFriendshipRequest::mutable_inviter_id() {
+  set_has_inviter_id();
+  if (inviter_id_ == NULL) inviter_id_ = new ::bgs::protocol::EntityId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.CreateFriendshipRequest.inviter_id)
+  return inviter_id_;
+}
+inline ::bgs::protocol::EntityId* CreateFriendshipRequest::release_inviter_id() {
+  clear_has_inviter_id();
+  ::bgs::protocol::EntityId* temp = inviter_id_;
+  inviter_id_ = NULL;
+  return temp;
+}
+inline void CreateFriendshipRequest::set_allocated_inviter_id(::bgs::protocol::EntityId* inviter_id) {
+  delete inviter_id_;
+  inviter_id_ = inviter_id;
+  if (inviter_id) {
+    set_has_inviter_id();
+  } else {
+    clear_has_inviter_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.CreateFriendshipRequest.inviter_id)
+}
+
+// optional .bgs.protocol.EntityId invitee_id = 2;
+inline bool CreateFriendshipRequest::has_invitee_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void CreateFriendshipRequest::set_has_invitee_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void CreateFriendshipRequest::clear_has_invitee_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void CreateFriendshipRequest::clear_invitee_id() {
+  if (invitee_id_ != NULL) invitee_id_->::bgs::protocol::EntityId::Clear();
+  clear_has_invitee_id();
+}
+inline const ::bgs::protocol::EntityId& CreateFriendshipRequest::invitee_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.CreateFriendshipRequest.invitee_id)
+  return invitee_id_ != NULL ? *invitee_id_ : *default_instance_->invitee_id_;
+}
+inline ::bgs::protocol::EntityId* CreateFriendshipRequest::mutable_invitee_id() {
+  set_has_invitee_id();
+  if (invitee_id_ == NULL) invitee_id_ = new ::bgs::protocol::EntityId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.CreateFriendshipRequest.invitee_id)
+  return invitee_id_;
+}
+inline ::bgs::protocol::EntityId* CreateFriendshipRequest::release_invitee_id() {
+  clear_has_invitee_id();
+  ::bgs::protocol::EntityId* temp = invitee_id_;
+  invitee_id_ = NULL;
+  return temp;
+}
+inline void CreateFriendshipRequest::set_allocated_invitee_id(::bgs::protocol::EntityId* invitee_id) {
+  delete invitee_id_;
+  invitee_id_ = invitee_id;
+  if (invitee_id) {
+    set_has_invitee_id();
+  } else {
+    clear_has_invitee_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.CreateFriendshipRequest.invitee_id)
+}
+
+// repeated uint32 role = 3 [packed = true];
+inline int CreateFriendshipRequest::role_size() const {
+  return role_.size();
+}
+inline void CreateFriendshipRequest::clear_role() {
+  role_.Clear();
+}
+inline ::google::protobuf::uint32 CreateFriendshipRequest::role(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.CreateFriendshipRequest.role)
+  return role_.Get(index);
+}
+inline void CreateFriendshipRequest::set_role(int index, ::google::protobuf::uint32 value) {
+  role_.Set(index, value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.CreateFriendshipRequest.role)
+}
+inline void CreateFriendshipRequest::add_role(::google::protobuf::uint32 value) {
+  role_.Add(value);
+  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.CreateFriendshipRequest.role)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
+CreateFriendshipRequest::role() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.CreateFriendshipRequest.role)
+  return role_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
+CreateFriendshipRequest::mutable_role() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.CreateFriendshipRequest.role)
+  return &role_;
 }
 
 // -------------------------------------------------------------------
