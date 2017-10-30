@@ -134,13 +134,13 @@ public:
                     } break;
                     case GROUND:
                     {
-                        float ground = player->GetMap()->GetHeight(x, y, MAX_HEIGHT);
+                        float ground = target->GetMap()->GetHeight(x, y, MAX_HEIGHT);
                         if (ground != INVALID_HEIGHT)
                             GOMove::MoveGameObject(player, x, y, ground, o, p, lowguid);
                     } break;
                     case FLOOR:
                     {
-                        float floor = player->GetMap()->GetHeight(x, y, z);
+                        float floor = target->GetMap()->GetHeight(x, y, z);
                         if (floor != INVALID_HEIGHT)
                             GOMove::MoveGameObject(player, x, y, floor, o, p, lowguid);
                     } break;
