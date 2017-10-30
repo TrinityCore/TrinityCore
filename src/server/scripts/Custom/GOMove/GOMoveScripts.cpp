@@ -23,6 +23,7 @@ http://rochet2.github.io/
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 
 class GOMove_commandscript : public CommandScript
 {
@@ -133,13 +134,13 @@ public:
                     } break;
                     case GROUND:
                     {
-                        float ground = target->GetMap()->GetHeight(0, x, y, MAX_HEIGHT);
+                        float ground = player->GetMap()->GetHeight(x, y, MAX_HEIGHT);
                         if (ground != INVALID_HEIGHT)
                             GOMove::MoveGameObject(player, x, y, ground, o, p, lowguid);
                     } break;
                     case FLOOR:
                     {
-                        float floor = target->GetMap()->GetHeight(0, x, y, z);
+                        float floor = player->GetMap()->GetHeight(x, y, z);
                         if (floor != INVALID_HEIGHT)
                             GOMove::MoveGameObject(player, x, y, floor, o, p, lowguid);
                     } break;
