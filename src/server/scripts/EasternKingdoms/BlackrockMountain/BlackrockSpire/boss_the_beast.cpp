@@ -102,7 +102,7 @@ public:
                 me->GetMotionMaster()->MovePath(BEAST_MOVEMENT_ID, true);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 if (spell->Effects[i].IsEffect(SPELL_EFFECT_SKINNING))
