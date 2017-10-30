@@ -105,6 +105,9 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
         void MoveInLineOfSight_Safe(Unit* who);
 
+        bool CanSeeEvenInPassiveMode() { return m_canSeeEvenInPassiveMode; }
+        void SetCanSeeEvenInPassiveMode(bool canSeeEvenInPassiveMode) { m_canSeeEvenInPassiveMode = canSeeEvenInPassiveMode; }
+
         // Trigger Creature "Alert" state (creature can see stealthed unit)
         void TriggerAlert(Unit const* who) const;
 
@@ -221,6 +224,7 @@ class TC_GAME_API CreatureAI : public UnitAI
 
     private:
         bool m_MoveInLineOfSight_locked;
+        bool m_canSeeEvenInPassiveMode;
 };
 
 enum Permitions

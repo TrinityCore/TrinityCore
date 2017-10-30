@@ -243,7 +243,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModSpellHealingPercentFromStat,            //175 SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT implemented in Unit::SpellBaseHealingBonus
     &AuraEffect::HandleSpiritOfRedemption,                        //176 SPELL_AURA_SPIRIT_OF_REDEMPTION   only for Spirit of Redemption spell, die at aura end
     &AuraEffect::HandleCharmConvert,                              //177 SPELL_AURA_AOE_CHARM
-    &AuraEffect::HandleNULL,                                      //178 SPELL_AURA_MOD_MAX_POWER_PCT
+    &AuraEffect::HandleAuraModMaxPowerPct,                        //178 SPELL_AURA_MOD_MAX_POWER_PCT
     &AuraEffect::HandleAuraModPowerDisplay,                       //179 SPELL_AURA_MOD_POWER_DISPLAY
     &AuraEffect::HandleNoImmediateEffect,                         //180 SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS   implemented in Unit::SpellDamageBonus
     &AuraEffect::HandleUnused,                                    //181 unused (4.3.4) old SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS
@@ -444,7 +444,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //376 SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE
     &AuraEffect::HandleNULL,                                      //377 SPELL_AURA_CAST_WHILE_WALKING_2
     &AuraEffect::HandleNULL,                                      //378
-    &AuraEffect::HandleNULL,                                      //379
+    &AuraEffect::HandleNoImmediateEffect,                         //379 SPELL_AURA_MOD_MANA_REGEN_PCT implemented in Player::UpdateManaRegen
     &AuraEffect::HandleNoImmediateEffect,                         //380 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE implemented in Spell::TriggerGlobalCooldown
     &AuraEffect::HandleNULL,                                      //381
     &AuraEffect::HandleNULL,                                      //382 SPELL_AURA_MOD_PET_STAT_PCT
@@ -536,7 +536,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //468 SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT
     &AuraEffect::HandleShowConfirmationPrompt,                    //469 SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY
     &AuraEffect::HandleNULL,                                      //470
-    &AuraEffect::HandleNULL,                                      //471 SPELL_AURA_MOD_VERSATILITY
+    &AuraEffect::HandleModVersatilityByPct,                       //471 SPELL_AURA_MOD_VERSATILITY
     &AuraEffect::HandleNULL,                                      //472
     &AuraEffect::HandleNoImmediateEffect,                         //473 SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT implemented in Player::DurabilityPointLossForEquipSlot
     &AuraEffect::HandleNULL,                                      //474
@@ -3914,6 +3914,26 @@ void AuraEffect::HandleOverrideAttackPowerBySpellPower(AuraApplication const* au
     target->UpdateAttackPowerAndDamage(true);
 }
 
+void AuraEffect::HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    float value = target->ToPlayer()->GetFloatValue(PLAYER_VERSATILITY_BONUS);
+
+    if (apply)
+        target->ToPlayer()->SetStatFloatValue(PLAYER_VERSATILITY_BONUS, (value + GetAmount()));
+    else
+        target->ToPlayer()->SetStatFloatValue(PLAYER_VERSATILITY_BONUS, (value - GetAmount()));
+
+    target->ToPlayer()->UpdateVersatility();
+}
+
 /********************************/
 /***      HEAL & ENERGIZE     ***/
 /********************************/
@@ -4116,6 +4136,24 @@ void AuraEffect::HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp
     }
     else
         target->SetUInt32Value(UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID, 0);
+}
+
+void AuraEffect::HandleAuraModMaxPowerPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (target->GetPowerIndex(GetMiscValue()) == MAX_POWERS)
+        return;
+
+    if (apply)
+        target->HandleStatModifier(UnitMods(UNIT_MOD_POWER_START + GetMiscValue()), TOTAL_PCT, float(GetAmount()), apply);
+    else
+        target->HandleStatModifier(UnitMods(UNIT_MOD_POWER_START + GetMiscValue()), TOTAL_PCT, float(GetAmount()), apply);
+
+    target->UpdateMaxPower(Powers(GetMiscValue()));
 }
 
 /********************************/
@@ -6430,8 +6468,8 @@ void AuraEffect::HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool
         player->GetSceneMgr().PlayScene(sceneId);
     else
     {
-        SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId);
-        player->GetSceneMgr().CancelSceneByPackageId(sceneTemplate->ScenePackageId);
+        if (SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId))
+            player->GetSceneMgr().CancelSceneByPackageId(sceneTemplate->ScenePackageId);
     }
 }
 

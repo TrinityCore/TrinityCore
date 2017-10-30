@@ -106,6 +106,7 @@ public:
             { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
             { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
             { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
+            { "criteria",      rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugCriteriaCommand,         "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1573,6 +1574,25 @@ public:
         }
 
         return Conversation::CreateConversation(conversationEntry, target, *target, { target->GetGUID() }) != nullptr;
+    }
+
+    static bool HandleDebugCriteriaCommand(ChatHandler* handler, char const* args)
+    {
+        if (!args)
+            return false;
+
+        WorldPacket packet;
+
+        packet << uint32(atoi(args));
+        packet << uint64(1);
+        packet << handler->GetSession()->GetPlayer()->GetGUID();
+        packet << uint32(0);
+        packet.AppendPackedTime(time(nullptr));
+        packet << uint32(0);
+        packet << uint32(0);
+
+        handler->GetSession()->SendPacket(&packet);
+        return true;
     }
 };
 

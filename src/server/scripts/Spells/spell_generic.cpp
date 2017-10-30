@@ -3609,7 +3609,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                         break;
                 }
 
-                float avgILvl = caster->ToPlayer()->GetAverageItemLevel();
+                float avgILvl = caster->ToPlayer()->GetAverageItemLevelEquipped();
                 if (avgILvl < baseItemLevel)
                     return;                     /// @todo Research possibility of scaling down
 
@@ -4317,7 +4317,7 @@ class spell_gen_pony_mount_check : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_pony_mount_check_AuraScript();
         }

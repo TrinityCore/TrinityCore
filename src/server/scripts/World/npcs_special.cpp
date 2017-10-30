@@ -354,103 +354,6 @@ public:
 };
 
 /*######
-## npc_dancing_flames
-######*/
-
-enum DancingFlames
-{
-    SPELL_BRAZIER           = 45423,
-    SPELL_SEDUCTION         = 47057,
-    SPELL_FIERY_AURA        = 45427
-};
-
-class npc_dancing_flames : public CreatureScript
-{
-public:
-    npc_dancing_flames() : CreatureScript("npc_dancing_flames") { }
-
-    struct npc_dancing_flamesAI : public ScriptedAI
-    {
-        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            Active = true;
-            CanIteract = 3500;
-        }
-
-        bool Active;
-        uint32 CanIteract;
-
-        void Reset() override
-        {
-            Initialize();
-            DoCast(me, SPELL_BRAZIER, true);
-            DoCast(me, SPELL_FIERY_AURA, false);
-            float x, y, z;
-            me->GetPosition(x, y, z);
-            me->Relocate(x, y, z + 0.94f);
-            me->SetDisableGravity(true);
-            me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!Active)
-            {
-                if (CanIteract <= diff)
-                {
-                    Active = true;
-                    CanIteract = 3500;
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-                }
-                else
-                    CanIteract -= diff;
-            }
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void ReceiveEmote(Player* player, uint32 emote) override
-        {
-            if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
-            {
-                me->SetInFront(player);
-                Active = false;
-
-                switch (emote)
-                {
-                    case TEXT_EMOTE_KISS:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
-                        break;
-                    case TEXT_EMOTE_WAVE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                        break;
-                    case TEXT_EMOTE_BOW:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                        break;
-                    case TEXT_EMOTE_JOKE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        break;
-                    case TEXT_EMOTE_DANCE:
-                        if (!player->HasAura(SPELL_SEDUCTION))
-                            DoCast(player, SPELL_SEDUCTION, true);
-                        break;
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_dancing_flamesAI(creature);
-    }
-};
-
-/*######
 ## npc_torch_tossing_target_bunny_controller
 ######*/
 
@@ -1476,40 +1379,6 @@ public:
     }
 };
 
-/*####
-## npc_brewfest_reveler
-####*/
-
-enum BrewfestReveler
-{
-    SPELL_BREWFEST_TOAST = 41586
-};
-
-class npc_brewfest_reveler : public CreatureScript
-{
-    public:
-        npc_brewfest_reveler() : CreatureScript("npc_brewfest_reveler") { }
-
-        struct npc_brewfest_revelerAI : public ScriptedAI
-        {
-            npc_brewfest_revelerAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void ReceiveEmote(Player* player, uint32 emote) override
-            {
-                if (!IsHolidayActive(HOLIDAY_BREWFEST))
-                    return;
-
-                if (emote == TEXT_EMOTE_DANCE)
-                    me->CastSpell(player, SPELL_BREWFEST_TOAST, false);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_brewfest_revelerAI(creature);
-        }
-};
-
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
@@ -2061,108 +1930,6 @@ public:
     }
 };
 
-/*#####
-# npc_spring_rabbit
-#####*/
-
-enum rabbitSpells
-{
-    SPELL_SPRING_FLING          = 61875,
-    SPELL_SPRING_RABBIT_JUMP    = 61724,
-    SPELL_SPRING_RABBIT_WANDER  = 61726,
-    SPELL_SUMMON_BABY_BUNNY     = 61727,
-    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
-    NPC_SPRING_RABBIT           = 32791
-};
-
-class npc_spring_rabbit : public CreatureScript
-{
-public:
-    npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_spring_rabbitAI(creature);
-    }
-
-    struct npc_spring_rabbitAI : public ScriptedAI
-    {
-        npc_spring_rabbitAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            inLove = false;
-            rabbitGUID.Clear();
-            jumpTimer = urand(5000, 10000);
-            bunnyTimer = urand(10000, 20000);
-            searchTimer = urand(5000, 10000);
-        }
-
-        bool inLove;
-        uint32 jumpTimer;
-        uint32 bunnyTimer;
-        uint32 searchTimer;
-        ObjectGuid rabbitGUID;
-
-        void Reset() override
-        {
-            Initialize();
-            if (Unit* owner = me->GetOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void DoAction(int32 /*param*/) override
-        {
-            inLove = true;
-            if (Unit* owner = me->GetOwner())
-                owner->CastSpell(owner, SPELL_SPRING_FLING, true);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (inLove)
-            {
-                if (jumpTimer <= diff)
-                {
-                    if (Unit* rabbit = ObjectAccessor::GetUnit(*me, rabbitGUID))
-                        DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
-                    jumpTimer = urand(5000, 10000);
-                } else jumpTimer -= diff;
-
-                if (bunnyTimer <= diff)
-                {
-                    DoCast(SPELL_SUMMON_BABY_BUNNY);
-                    bunnyTimer = urand(20000, 40000);
-                } else bunnyTimer -= diff;
-            }
-            else
-            {
-                if (searchTimer <= diff)
-                {
-                    if (Creature* rabbit = me->FindNearestCreature(NPC_SPRING_RABBIT, 10.0f))
-                    {
-                        if (rabbit == me || rabbit->HasAura(SPELL_SPRING_RABBIT_IN_LOVE))
-                            return;
-
-                        me->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, me);
-                        DoAction(1);
-                        rabbit->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, rabbit);
-                        rabbit->AI()->DoAction(1);
-                        rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_JUMP, true);
-                        rabbitGUID = rabbit->GetGUID();
-                    }
-                    searchTimer = urand(5000, 10000);
-                } else searchTimer -= diff;
-            }
-        }
-    };
-};
-
 class npc_imp_in_a_ball : public CreatureScript
 {
 private:
@@ -2501,11 +2268,35 @@ public:
     }
 };
 
+class npc_creature_damage_limit : public CreatureScript
+{
+public:
+    npc_creature_damage_limit() : CreatureScript("npc_creature_damage_limit") { }
+
+    struct npc_creature_damage_limitAI : public ScriptedAI
+    {
+        npc_creature_damage_limitAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void DamageTaken(Unit* doneBy, uint32& damage) override
+        {
+            uint32 healthPctLimit = me->GetScriptParam(0).numericValue;
+
+            if (doneBy->GetTypeId() == TYPEID_UNIT)
+                if (me->HealthBelowPctDamaged(healthPctLimit, damage))
+                    damage = 0;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_creature_damage_limitAI(creature);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
     new npc_chicken_cluck();
-    new npc_dancing_flames();
     new npc_torch_tossing_target_bunny_controller();
     new npc_midsummer_bunny_pole();
     new npc_doctor();
@@ -2515,13 +2306,12 @@ void AddSC_npcs_special()
     new npc_sayge();
     new npc_steam_tonk();
     new npc_tonk_mine();
-    new npc_brewfest_reveler();
     new npc_training_dummy();
     new npc_wormhole();
     new npc_experience();
     new npc_firework();
-    new npc_spring_rabbit();
     new npc_imp_in_a_ball();
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
+    new npc_creature_damage_limit();
 }

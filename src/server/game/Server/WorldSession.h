@@ -294,6 +294,11 @@ namespace WorldPackets
         class GarrisonCancelConstruction;
         class GarrisonRequestBlueprintAndSpecializationData;
         class GarrisonGetBuildingLandmarks;
+        class GarrisonOpenMissionNpcClient;
+        class GarrisonOpenMissionNpc;
+        class GarrisonRequestScoutingMap;
+        class GarrisonScoutingMapResult;
+        class AdventureJournalStartQuest;
     }
 
     namespace Guild
@@ -440,6 +445,7 @@ namespace WorldPackets
     {
         class SetSelection;
         class ViolenceLevel;
+        class PlayerSelectFaction;
         class TimeSyncResponse;
         class TutorialSetFlag;
         class SetDungeonDifficulty;
@@ -582,6 +588,8 @@ namespace WorldPackets
 
     namespace Quest
     {
+        struct WorldQuestUpdateInfo;
+
         class QuestConfirmAccept;
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
@@ -596,6 +604,7 @@ namespace WorldPackets
         class QuestPushResult;
         class PushQuestToParty;
         class RequestWorldQuestUpdate;
+        class QueryQuestReward;
     }
 
     namespace RaF
@@ -887,6 +896,8 @@ struct PacketCounter
 class TC_GAME_API WorldSession
 {
     public:
+        Ashamane::VariablesSafe Variables;
+
         WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time,
             std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
@@ -1442,6 +1453,7 @@ class TC_GAME_API WorldSession
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
         void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
+        void HandleQueryQuestRewards(WorldPackets::Quest::QueryQuestReward& packet);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);
@@ -1644,6 +1656,7 @@ class TC_GAME_API WorldSession
         void HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQuestCompletionNPCs& queryQuestCompletionNPCs);
         void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& questPoiQuery);
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
+        void HandlePlayerSelectFactionOpcode(WorldPackets::Misc::PlayerSelectFaction& playerSelectFaction);
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
@@ -1674,6 +1687,9 @@ class TC_GAME_API WorldSession
         void HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& garrisonCancelConstruction);
         void HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& garrisonRequestBlueprintAndSpecializationData);
         void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& garrisonGetBuildingLandmarks);
+        void HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpcClient& garrisonOpenMissionNpc);
+        void HandleGarrisonRequestScoutingMap(WorldPackets::Garrison::GarrisonRequestScoutingMap& scoutingMap);
+        void HandleAdventureJournalStartQuest(WorldPackets::Garrison::AdventureJournalStartQuest& packet);
 
         // Battle Pets
         void HandleBattlePetRequestJournal(WorldPackets::BattlePet::BattlePetRequestJournal& battlePetRequestJournal);

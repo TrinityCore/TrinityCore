@@ -65,7 +65,7 @@ namespace WorldPackets
 
             Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
             PlayerLevelDelta = target->GetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
-            PlayerItemLevel = target->GetAverageItemLevel();
+            PlayerItemLevel = target->GetAverageItemLevelEquipped();
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
             Class = creatureTemplate->unit_class;
@@ -82,7 +82,7 @@ namespace WorldPackets
 
             Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
             PlayerLevelDelta = attacker->GetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
-            PlayerItemLevel = attacker->GetAverageItemLevel();
+            PlayerItemLevel = attacker->GetAverageItemLevelEquipped();
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
             Class = creatureTemplate->unit_class;

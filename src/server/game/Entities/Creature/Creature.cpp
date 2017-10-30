@@ -648,7 +648,7 @@ void Creature::Update(uint32 diff)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
-
+                i_AI->UpdateOperations(diff);
                 i_AI->UpdateAI(diff);
                 m_AI_locked = false;
             }
@@ -1283,6 +1283,13 @@ float Creature::_GetHealthMod(int32 Rank)
         default:
             return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_HP);
     }
+}
+
+uint64 Creature::GetMaxHealthByLevel(uint8 level) const
+{
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+    return stats->GenerateHealth(cInfo);
 }
 
 void Creature::LowerPlayerDamageReq(uint64 unDamage)
@@ -2456,13 +2463,6 @@ bool Creature::HasScalableLevels() const
     return cinfo->levelScaling.is_initialized();
 }
 
-uint64 Creature::GetMaxHealthByLevel(uint8 level) const
-{
-    CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
-    return stats->GenerateHealth(cInfo);
-}
-
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
 {
     if (!HasScalableLevels())
@@ -2551,6 +2551,22 @@ uint32 Creature::GetScriptId() const
         return creatureData->ScriptId;
 
     return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
+}
+
+ScriptParam Creature::GetScriptParam(uint8 index) const
+{
+    ScriptParams guidParams = sObjectMgr->GetScriptParam(GetGUID().GetCounter());
+    auto guidItr = guidParams.find(index);
+    if (guidItr != guidParams.end())
+        return guidItr->second;
+
+    ScriptParams templateParams = sObjectMgr->GetTemplateScriptParam(GetEntry());
+    auto templateItr = templateParams.find(index);
+    if (templateItr != templateParams.end())
+        return templateItr->second;
+
+    ScriptParam param;
+    return param;
 }
 
 VendorItemData const* Creature::GetVendorItems() const

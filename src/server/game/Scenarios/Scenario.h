@@ -93,6 +93,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
 
         CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
         ScenarioData const* _data;
+        Ashamane::VariablesSafe Variables;
 
     private:
         ScenarioStepEntry const* _currentstep;

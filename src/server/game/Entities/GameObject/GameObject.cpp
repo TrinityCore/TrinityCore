@@ -83,6 +83,8 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 
     ResetLootMode(); // restore default loot mode
     m_stationaryPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+
+    m_shouldIntersectWithAllPhases = false;
 }
 
 GameObject::~GameObject()
@@ -128,6 +130,8 @@ void GameObject::CleanupsBeforeDelete(bool finalCleanup)
 
     if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
         RemoveFromOwner();
+
+    m_Events.KillAllEvents(false);
 }
 
 void GameObject::RemoveFromOwner()
@@ -371,6 +375,8 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
 
 void GameObject::Update(uint32 diff)
 {
+    m_Events.Update(diff);
+
     if (AI())
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
@@ -2551,7 +2557,7 @@ public:
 
     virtual bool IsSpawned() const override { return _owner->isSpawned(); }
     virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
-    virtual bool IsInPhase(std::set<uint32> const& phases) const override { return _owner->IsInPhase(phases); }
+    virtual bool IsInPhase(std::set<uint32> const& phases) const override { return _owner->IsInPhase(phases) || _owner->shouldIntersectWithAllPhases(); }
     virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
     virtual float GetOrientation() const override { return _owner->GetOrientation(); }
     virtual float GetScale() const override { return _owner->GetObjectScale(); }

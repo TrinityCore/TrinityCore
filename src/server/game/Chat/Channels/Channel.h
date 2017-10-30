@@ -230,7 +230,10 @@ class TC_GAME_API Channel
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }
         static void CleanOldChannelsInDB();
 
+        void SendToAllInChannel(std::string senderName, std::string message);
+
     private:
+
         template <class Builder>
         void SendToAll(Builder& builder, ObjectGuid const& guid = ObjectGuid::Empty) const;
 

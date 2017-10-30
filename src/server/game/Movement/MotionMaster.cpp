@@ -729,6 +729,20 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
         _owner->GetGUID().ToString().c_str(), path_id, repeatable ? "YES" : "NO");
 }
 
+void MotionMaster::MoveBackward(uint32 id, float x, float y, float z, float speed)
+{
+    if (_owner->GetTypeId() == TYPEID_PLAYER)
+        _owner->AddUnitMovementFlag(MOVEMENTFLAG_BACKWARD);
+
+    Movement::MoveSplineInit init(_owner);
+    init.MoveTo(x, y, z);
+    init.SetBackward();
+    init.Launch();
+    if (speed > 0.0f)
+        init.SetVelocity(speed);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+}
+
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
 {
     if (!time)

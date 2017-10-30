@@ -28,6 +28,8 @@ WorldPacket const* WorldPackets::WorldState::InitWorldStates::Write()
     _worldPacket << uint32(AreaID);
     _worldPacket << uint32(SubareaID);
 
+    std::sort(Worldstates.begin(), Worldstates.end());
+
     _worldPacket << uint32(Worldstates.size());
     for (WorldStateInfo const& wsi : Worldstates)
     {

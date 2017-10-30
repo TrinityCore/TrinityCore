@@ -1601,6 +1601,49 @@ struct GarrFollowerXAbilityLoadInfo
     }
 };
 
+struct GarrMissionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "Duration" },
+            { false, FT_INT, "OfferTime" },
+            { false, FT_STRING, "Name" },
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "Location" },
+            { false, FT_FLOAT, "Map1X" },
+            { false, FT_FLOAT, "Map1Y" },
+            { false, FT_FLOAT, "Map2X" },
+            { false, FT_FLOAT, "Map2Y" },
+            { false, FT_SHORT, "RequiredItemLevel" },
+            { false, FT_SHORT, "LocPrefixID" },
+            { false, FT_SHORT, "CurrencyID" },
+            { false, FT_BYTE, "RequiredLevel" },
+            { false, FT_BYTE, "GarrMechanicTypeRecID" },
+            { false, FT_BYTE, "RequiredFollowersCount" },
+            { false, FT_BYTE, "Category" },
+            { false, FT_BYTE, "MissionType" },
+            { false, FT_BYTE, "FollowerType" },
+            { false, FT_BYTE, "BaseBonusChance" },
+            { false, FT_BYTE, "LostChance" },
+            { false, FT_BYTE, "unk1" },
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TravelTime" },
+            { false, FT_INT, "SubCategory2" },
+            { false, FT_INT, "SubCategory1" },
+            { false, FT_INT, "CurrencyCost" },
+            { false, FT_INT, "Flags" },
+            { false, FT_INT, "RewardFollowerExperience" },
+            { false, FT_INT, "unk2" },
+            { false, FT_INT, "unk3" },
+            { false, FT_INT, "unk4" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrMissionMeta::Instance(), HOTFIX_SEL_GARR_MISSION);
+        return &loadInfo;
+    }
+};
+
 struct GarrPlotLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -3521,6 +3564,44 @@ struct QuestFactionRewardLoadInfo
             { true, FT_SHORT, "QuestRewFactionValue10" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestFactionRewardMeta::Instance(), HOTFIX_SEL_QUEST_FACTION_REWARD);
+        return &loadInfo;
+    }
+};
+
+struct QuestV2CliTaskLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        // issihhhhhhbbbbbbbbbbiii
+        static DB2FieldMeta const fields[] =
+        {
+            { true,  FT_INT,    "Unk1"          },
+            { false, FT_STRING_NOT_LOCALIZED, "Name"        },
+            { false, FT_STRING_NOT_LOCALIZED, "Description" },
+            { true,  FT_INT,    "Unk2"          },
+            { false, FT_SHORT,  "Unk3"          },
+            { false, FT_SHORT,  "Unk4"          },
+            { false, FT_SHORT,  "Unk5"          },
+            { false, FT_SHORT,  "QuestID0"      },
+            { false, FT_SHORT,  "QuestID1"      },
+            { false, FT_SHORT,  "QuestID2"      },
+            { false, FT_SHORT,  "Unk7"          },
+            { false, FT_SHORT,  "Unk8"          },
+            { false, FT_BYTE,   "Unk9"          },
+            { false, FT_BYTE,   "Unk10"         },
+            { false, FT_BYTE,   "Unk11"         },
+            { false, FT_BYTE,   "Unk12"         },
+            { false, FT_BYTE,   "Unk13"         },
+            { false, FT_BYTE,   "Unk14"         },
+            { false, FT_BYTE,   "Unk15"         },
+            { false, FT_BYTE,   "Unk16"         },
+            { false, FT_BYTE,   "RequiredLevel" },
+            { false, FT_BYTE,   "Unk18"         },
+            { false, FT_INT,    "ID"            },
+            { false, FT_INT,    "Unk19"         },
+            { false, FT_INT,    "QuestInfoID"   },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestV2CliTaskMeta::Instance(), HOTFIX_SEL_QUEST_V2_CLI_TASK);
         return &loadInfo;
     }
 };

@@ -17,6 +17,14 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_event_childrens_week();
+void AddSC_event_brewfest();
+void AddSC_event_winter_veil();
+void AddSC_event_lunar_festival();
+void AddSC_event_love_in_the_air();
+void AddSC_event_midsummer();
+void AddSC_event_morph();
+void AddSC_event_noblegarden();
+void AddSC_event_pilgrims_bounty();
 void AddSC_event_hallows_end();
 
 // The name of this function should match:
@@ -24,5 +32,13 @@ void AddSC_event_hallows_end();
 void AddEventsScripts()
 {
     AddSC_event_childrens_week();
+    AddSC_event_brewfest();
+    AddSC_event_winter_veil();
+    AddSC_event_lunar_festival();
+    AddSC_event_love_in_the_air();
+    AddSC_event_midsummer();
+    AddSC_event_morph();
+    AddSC_event_noblegarden();
+    AddSC_event_pilgrims_bounty();
     AddSC_event_hallows_end();
 }

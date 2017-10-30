@@ -116,6 +116,7 @@ private:
 class TC_GAME_API Object
 {
     public:
+        Ashamane::VariablesSafe Variables;
         virtual ~Object();
 
         bool IsInWorld() const { return m_inWorld; }
@@ -410,6 +411,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         virtual bool SetInPhase(uint32 id, bool update, bool apply);
+        bool AddPhase(uint32 id, bool update = true) { return SetInPhase(id, update, true); }
+        bool RemovePhase(uint32 id, bool update = true) { return SetInPhase(id, update, false); }
         void CopyPhaseFrom(WorldObject* obj, bool update = false);
         void UpdateAreaAndZonePhase();
         void ClearPhases(bool update = false);
@@ -513,8 +516,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         Scenario* GetScenario() const;
 
-        TempSummon* SummonCreature(uint32 id, Position const& pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0) const;
+        TempSummon* SummonCreature(uint32 id, Position const& pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0, bool visibleBySummonerOnly = false) const;
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, bool visibleBySummonerOnly = false) const;
         GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime /* s */);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime /* s */);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
@@ -527,8 +530,15 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         template <typename Container>
         void GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange = 250.0f) const;
 
+        void GetGameObjectListWithEntryInGridAppend(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange = 250.0f) const;
+
         template <typename Container>
         void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        void GetCreatureListWithEntryInGridAppend(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetCreatureListInGrid(Container& creatureContainer, float maxSearchRange = 250.0f) const;
 
         template <typename Container>
         void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange) const;
