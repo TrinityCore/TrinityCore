@@ -110,7 +110,7 @@ public:
                         instance->SetData(DATA_SPAWN_FINKLE_EINHORN, DATA_SPAWN_FINKLE_EINHORN);
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 type, uint32 /*data*/) override
         {
             switch (type)
             {
