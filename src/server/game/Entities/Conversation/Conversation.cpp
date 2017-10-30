@@ -19,6 +19,7 @@
 #include "Map.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include "Creature.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0)
 {
@@ -130,7 +131,22 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             actorField.Type = ConversationDynamicFieldActor::ActorType::CreatureActor;
             SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex++, &actorField);
         }
-        else
+        else if (!conversationTemplate->Actors.empty())
+            ++actorsIndex;
+    }
+
+    for (ObjectGuid::LowType actorGuids : conversationTemplate->ActorGuids)
+    {
+        if (actorGuids)
+        {
+            auto bounds = map->GetCreatureBySpawnIdStore().equal_range(actorGuids);
+
+            if (bounds.first == bounds.second)
+                return false;
+
+            AddActor(bounds.first->second->GetGUID(), actorsIndex++);
+        }
+        else if (!conversationTemplate->ActorGuids.empty())
             ++actorsIndex;
     }
 

@@ -47,6 +47,7 @@ struct ConversationTemplate
     uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
 
     std::vector<ConversationActorTemplate const*> Actors;
+    std::vector<ObjectGuid::LowType> ActorGuids;
     std::vector<ConversationLineTemplate const*> Lines;
 };
 
