@@ -42,7 +42,7 @@ public:
 
     static RESTService& Instance();
 
-    bool Start(boost::asio::io_service& ioService);
+    bool Start();
     void Stop();
     void Run();
 

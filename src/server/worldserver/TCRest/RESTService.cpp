@@ -25,7 +25,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-bool RESTService::Start(boost::asio::io_service& ioService)
+bool RESTService::Start()
 {
     _bindIP = sConfigMgr->GetStringDefault("WorldREST.BindIP", "127.0.0.1");
     uint32 port = sConfigMgr->GetIntDefault("WorldREST.Port", 8082);

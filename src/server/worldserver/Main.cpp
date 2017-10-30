@@ -305,7 +305,7 @@ extern int main(int argc, char** argv)
 
     if (sConfigMgr->GetBoolDefault("WorldREST.Enabled", false))
     {
-        if (!sRestService.Start(*ioService))
+        if (!sRestService.Start())
         {
             TC_LOG_ERROR("server.worldserver", "Failed to initialize Rest service");
             return 1;
