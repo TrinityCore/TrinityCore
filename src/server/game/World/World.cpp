@@ -1694,6 +1694,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadPageTextLocales();
     sObjectMgr->LoadGossipMenuItemsLocales();
     sObjectMgr->LoadPointOfInterestLocales();
+    sObjectMgr->LoadQuestGreetingsLocales();
 
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     TC_LOG_INFO("server.loading", ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -1847,6 +1848,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Quests Starters and Enders...");
     sObjectMgr->LoadQuestStartersAndEnders();                    // must be after quest load
+
+    TC_LOG_INFO("server.loading", "Loading Quests Greetings...");
+    sObjectMgr->LoadQuestGreetings();                           // must be loaded after creature_template, gameobject_template tables
 
     TC_LOG_INFO("server.loading", "Loading Objects Pooling Data...");
     sPoolMgr->LoadFromDB();
