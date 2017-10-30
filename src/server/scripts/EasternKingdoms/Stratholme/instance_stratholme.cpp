@@ -39,9 +39,9 @@ enum InstanceEvents
     EVENT_SLAUGHTER_SQUARE  = 2
 };
 
-const Position timmyTheCurelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
-const float scarletEntrancePositionX = 3630.0f;
-const float scarletEntrancePositionY = -3140.0f;
+Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
+float const scarletEntrancePositionX = 3630.0f;
+float const scarletEntrancePositionY = -3140.0f;
 
 class instance_stratholme : public InstanceMapScript
 {
@@ -103,7 +103,7 @@ class instance_stratholme : public InstanceMapScript
                             {
                                 if (++scarletsKilled >= TIMMY_THE_CRUEL_CRUSADERS_REQUIRED)
                                 {
-                                    instance->SummonCreature(NPC_TIMMY_THE_CRUEL, timmyTheCurelSpawnPosition);
+                                    instance->SummonCreature(NPC_TIMMY_THE_CRUEL, timmyTheCruelSpawnPosition);
                                     timmySpawned = true;
                                 }
                             }
