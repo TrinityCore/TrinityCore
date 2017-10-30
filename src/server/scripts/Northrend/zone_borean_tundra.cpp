@@ -1764,7 +1764,7 @@ public:
                     Talk(SAY_BONKER_5);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
 
