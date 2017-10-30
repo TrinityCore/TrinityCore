@@ -1713,11 +1713,20 @@ public:
 
 enum BonkerTogglevolt
 {
-    NPC_BONKER_TOGGLEVOLT   = 25589,
-    QUEST_GET_ME_OUTA_HERE  = 11673,
+    NPC_BONKER_TOGGLEVOLT  = 25589,
+    GO_BALL_AND_CHAIN      = 182531,
+    QUEST_GET_ME_OUTA_HERE = 11673,
 
-    SAY_BONKER_1            = 0,
-    SAY_BONKER_2            = 1
+    EVENT_OOC_TALK         = 1,
+    EVENT_TALK_1           = 2,
+    EVENT_TALK_2           = 3,
+
+    SAY_BONKER_0           = 0,
+    SAY_BONKER_1           = 1,
+    SAY_BONKER_2           = 2,
+    SAY_BONKER_3           = 3,
+    SAY_BONKER_4           = 4,
+    SAY_BONKER_5           = 5
 };
 
 class npc_bonker_togglevolt : public CreatureScript
@@ -1734,14 +1743,11 @@ public:
 
         void Initialize()
         {
-            Bonker_agro = 0;
+            _events.ScheduleEvent(EVENT_OOC_TALK, urand(10000, 20000));
         }
-
-        uint32 Bonker_agro;
 
         void Reset() override
         {
-            Initialize();
             SetDespawnAtFar(false);
         }
 
@@ -1751,18 +1757,45 @@ public:
                 player->FailQuest(QUEST_GET_ME_OUTA_HERE);
         }
 
-        void UpdateEscortAI(uint32 /*diff*/) override
+        void EnterCombat(Unit* who) override
         {
-            if (GetAttack() && UpdateVictim())
+            if (who->GetTypeId() != TYPEID_PLAYER)
+                if (roll_chance_i(20))
+                    Talk(SAY_BONKER_5);
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
             {
-                if (Bonker_agro == 0)
+                switch (eventId)
                 {
-                    Talk(SAY_BONKER_1);
-                    Bonker_agro++;
+                    case EVENT_OOC_TALK:
+                        Talk(SAY_BONKER_0);
+                        _events.ScheduleEvent(EVENT_OOC_TALK, urand(5 * MINUTE * IN_MILLISECONDS, 10 * MINUTE * IN_MILLISECONDS));
+                        break;
+                    case EVENT_TALK_1:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(SAY_BONKER_1, player);
+                        if (GameObject* go = me->FindNearestGameObject(GO_BALL_AND_CHAIN, 20.0f))
+                            go->SetLootState(GO_JUST_DEACTIVATED);
+                        _events.ScheduleEvent(EVENT_TALK_2, Seconds(11));
+                        break;
+                    case EVENT_TALK_2:
+                        Talk(SAY_BONKER_2);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        break;
                 }
-                DoMeleeAttackIfReady();
             }
-            else Bonker_agro=0;
+
+            EscortAI::UpdateAI(diff);
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1773,8 +1806,12 @@ public:
 
             switch (waypointId)
             {
+                case 1:
+                    Talk(SAY_BONKER_3);
+                    break;
                 case 29:
                     player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
+                    Talk(SAY_BONKER_4, player);
                     break;
             }
         }
@@ -1783,11 +1820,18 @@ public:
         {
             if (quest->GetQuestId() == QUEST_GET_ME_OUTA_HERE)
             {
+                _player = player->GetGUID();
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                Talk(SAY_BONKER_2, player);
+                _events.ScheduleEvent(EVENT_TALK_1, Seconds(2));
+                _events.CancelEvent(EVENT_OOC_TALK);
                 Start(true, true, player->GetGUID());
+                SetPauseTimer(12 * IN_MILLISECONDS);
             }
         }
+
+    private:
+        EventMap _events;
+        ObjectGuid _player;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
