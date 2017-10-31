@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
+#include "ObjectMgr.h"
 #include "Timer.h"
 
 namespace
@@ -125,7 +126,7 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation actors. DB table `conversation_actors` is empty.");
     }
 
-    if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, LastLineEndTime, VerifiedBuild FROM conversation_template"))
+    if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, LastLineEndTime, ScriptName, VerifiedBuild FROM conversation_template"))
     {
         uint32 oldMSTime = getMSTime();
 
@@ -137,6 +138,7 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationTemplate.Id                 = fields[0].GetUInt32();
             conversationTemplate.FirstLineId        = fields[1].GetUInt32();
             conversationTemplate.LastLineEndTime    = fields[2].GetUInt32();
+            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[3].GetCString());
 
             conversationTemplate.Actors = std::move(actorsByConversation[conversationTemplate.Id]);
 

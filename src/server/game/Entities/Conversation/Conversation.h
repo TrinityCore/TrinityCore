@@ -84,11 +84,15 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
+        void SetValidState(bool isValid) { _isValid = isValid; }
+        uint32 GetScriptId() const;
+
     private:
         Position _stationaryPosition;
         ObjectGuid _creatorGuid;
         uint32 _duration;
         GuidUnorderedSet _participants;
+        bool _isValid = true;
 };
 
 #endif // TRINITYCORE_CONVERSATION_H

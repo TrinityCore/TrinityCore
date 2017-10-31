@@ -23,6 +23,8 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "ConversationDataStore.h"
+#include "Conversation.h"
 #include "Errors.h"
 #include "GameObject.h"
 #include "GossipDef.h"
@@ -112,6 +114,10 @@ struct is_script_database_bound<AreaTriggerEntityScript>
 template<>
 struct is_script_database_bound<SceneScript>
     : std::true_type { };
+
+template<>
+struct is_script_database_bound<ConversationScript>
+: std::true_type { };
 
 enum Spells
 {
@@ -2447,6 +2453,14 @@ void ScriptMgr::OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTem
     tmpscript->OnSceneComplete(player, sceneInstanceID, sceneTemplate);
 }
 
+void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnConversationCreate(conversation, creator);
+}
+
 SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {
@@ -2644,6 +2658,12 @@ AreaTriggerEntityScript::AreaTriggerEntityScript(const char* name)
     ScriptRegistry<AreaTriggerEntityScript>::Instance()->AddScript(this);
 }
 
+ConversationScript::ConversationScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<ConversationScript>::Instance()->AddScript(this);
+}
+
 // Specialize for each script type class like so:
 template class TC_GAME_API ScriptRegistry<SpellScriptLoader>;
 template class TC_GAME_API ScriptRegistry<ServerScript>;
@@ -2673,3 +2693,4 @@ template class TC_GAME_API ScriptRegistry<UnitScript>;
 template class TC_GAME_API ScriptRegistry<AccountScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;
+template class TC_GAME_API ScriptRegistry<ConversationScript>;

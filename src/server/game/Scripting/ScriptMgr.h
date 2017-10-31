@@ -33,6 +33,7 @@ class Battleground;
 class BattlegroundMap;
 class Channel;
 class ChatCommand;
+class Conversation;
 class Creature;
 class CreatureAI;
 class DynamicObject;
@@ -879,6 +880,17 @@ class TC_GAME_API SceneScript : public ScriptObject
         virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
 };
 
+class TC_GAME_API ConversationScript : public ScriptObject
+{
+protected:
+// Manages registration, loading, and execution of scripts.
+    ConversationScript(const char* name);
+
+public:
+
+    virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { }
+};
+
 // Manages registration, loading, and execution of scripts.
 class TC_GAME_API ScriptMgr
 {
@@ -1166,6 +1178,9 @@ class TC_GAME_API ScriptMgr
         void OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string const& triggerName);
         void OnSceneCancel(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+
+    public: /* ConversationScript */
+        void OnConversationCreate(Conversation* conversation, Unit* creator);
 
     private:
         uint32 _scriptCount;

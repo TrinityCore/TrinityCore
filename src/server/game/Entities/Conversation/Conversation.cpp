@@ -17,8 +17,10 @@
 
 #include "Conversation.h"
 #include "Map.h"
+#include "Object.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include "ScriptMgr.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0)
 {
@@ -138,6 +140,16 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, line);
 
+    sScriptMgr->OnConversationCreate(this, creator);
+
+    // return if there is no actor added (actors start at idx = 0), missing actors cause client crash
+    if (!GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, 0))
+        return false;
+
+    // option to prevent AddToMap by external script, e.g. ConversationScript or InstanceScript
+    if (!_isValid)
+        return false;
+
     if (!GetMap()->AddToMap(this))
         return false;
 
@@ -146,6 +158,8 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
 void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
 {
+    ASSERT(actorGuid);
+
     ConversationDynamicFieldActor actorField;
     actorField.ActorGuid = actorGuid;
     actorField.Type = ConversationDynamicFieldActor::ActorType::WorldObjectActor;
@@ -155,4 +169,9 @@ void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
 void Conversation::AddParticipant(ObjectGuid const& participantGuid)
 {
     _participants.insert(participantGuid);
+}
+
+uint32 Conversation::GetScriptId() const
+{
+    return sConversationDataStore->GetConversationTemplate(GetEntry())->ScriptId;
 }

@@ -48,6 +48,8 @@ struct ConversationTemplate
 
     std::vector<ConversationActorTemplate const*> Actors;
     std::vector<ConversationLineTemplate const*> Lines;
+
+    uint32 ScriptId;
 };
 
 class TC_GAME_API ConversationDataStore
