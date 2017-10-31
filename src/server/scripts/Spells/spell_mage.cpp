@@ -1044,25 +1044,24 @@ public:
 
     public:
 
-        spell_mage_fire_mage_passive_AuraScript()
-        {
-            mod = new SpellModifier(GetAura());
-            mod->op = SPELLMOD_CRITICAL_CHANCE;
-            mod->type = SPELLMOD_FLAT;
-            mod->spellId = SPELL_MAGE_FIRE_MAGE_PASSIVE;
-            mod->value = 200;
-            mod->mask[0] = 0x2;
-        }
+        spell_mage_fire_mage_passive_AuraScript() {}
 
     private:
 
         SpellModifier* mod;
 
-        void HandleApply(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
+        void HandleApply(AuraEffect const* aurEffect, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetCaster()->ToPlayer();
             if (!player)
                 return;
+
+            mod = new SpellModifier(aurEffect->GetBase());
+            mod->op = SPELLMOD_CRITICAL_CHANCE;
+            mod->type = SPELLMOD_FLAT;
+            mod->spellId = SPELL_MAGE_FIRE_MAGE_PASSIVE;
+            mod->value = 200;
+            mod->mask[0] = 0x2;
 
             player->AddSpellMod(mod, true);
         }
