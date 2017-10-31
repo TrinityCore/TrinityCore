@@ -55,6 +55,7 @@ if( NOPCH )
   set(USE_SCRIPTPCH 0)
 endif()
 
+include(ConfigureBaseTargets)
 include(CheckPlatform)
 
 include(GroupSources)
