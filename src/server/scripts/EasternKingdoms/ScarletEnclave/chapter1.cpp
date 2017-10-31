@@ -1234,7 +1234,45 @@ class npc_scarlet_miner : public CreatureScript
         }
 };
 
-// npc 28912 quest 17217 boss 29001 mob 29007 go 191092
+enum StableMasterRepo
+{
+    SPELL_REPO = 52265
+};
+
+class spell_stable_master_repo : public SpellScriptLoader
+{
+public:
+    spell_stable_master_repo() : SpellScriptLoader("spell_stable_master_repo") { }
+
+    class spell_stable_master_repo_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_stable_master_repo_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_REPO });
+        }
+
+        void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Creature* target = GetTarget()->ToCreature();
+            if (Unit* owner = target->GetCharmerOrOwner())
+                GetCaster()->GetAI()->AttackStart(owner);
+
+            target->DespawnOrUnsummon(Seconds(2));
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_stable_master_repo_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_stable_master_repo_AuraScript();
+    }
+};
 
 void AddSC_the_scarlet_enclave_c1()
 {
@@ -1250,4 +1288,5 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_scarlet_ghoul();
     new npc_scarlet_miner();
     new npc_scarlet_miner_cart();
+    new spell_stable_master_repo();
 }
