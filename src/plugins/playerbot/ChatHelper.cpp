@@ -96,6 +96,11 @@ ChatHelper::ChatHelper(PlayerbotAI* ai) : PlayerbotAIAware(ai)
     specs[CLASS_DRUID][1] = "feral combat";
     specs[CLASS_DRUID][2] = "restoration";
 
+    classes[CLASS_DEATH_KNIGHT] = "dk";
+    specs[CLASS_DEATH_KNIGHT][0] = "blood";
+    specs[CLASS_DEATH_KNIGHT][1] = "frost";
+    specs[CLASS_DEATH_KNIGHT][2] = "unholy";
+
     classes[CLASS_HUNTER] = "hunter";
     specs[CLASS_HUNTER][0] = "beast mastery";
     specs[CLASS_HUNTER][1] = "marksmanship";

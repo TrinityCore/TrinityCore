@@ -12,6 +12,7 @@
 #include "strategy/druid/DruidAiObjectContext.h"
 #include "strategy/hunter/HunterAiObjectContext.h"
 #include "strategy/rogue/RogueAiObjectContext.h"
+#include "strategy/DK/DKAiObjectContext.h"
 #include "Player.h"
 #include "PlayerbotAIConfig.h"
 #include "RandomPlayerbotMgr.h"
@@ -47,6 +48,9 @@ AiObjectContext* AiFactory::createAiObjectContext(Player* player, PlayerbotAI* a
         break;
     case CLASS_ROGUE:
         return new RogueAiObjectContext(ai);
+        break;
+    case CLASS_DEATH_KNIGHT:
+        return new DKAiObjectContext(ai);
         break;
     }
     return new AiObjectContext(ai);
@@ -118,6 +122,14 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
             else
                 engine->addStrategies("dps", "threat", NULL);
             break;
+		case CLASS_DEATH_KNIGHT:
+			if (tab == 0)
+				engine->addStrategies("blood", NULL);
+			else if (tab == 1)
+				engine->addStrategies("frost", "frost aoe", "dps assist", "threat", NULL);
+			else
+				engine->addStrategies("unholy", "unholy aoe", "dps assist", "threat", NULL);
+			break;
         case CLASS_SHAMAN:
             if (tab == 0)
                 engine->addStrategies("caster", "caster aoe", "bmana", "threat", "flee", NULL);
@@ -185,9 +197,19 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
 
     switch (player->getClass()){
         case CLASS_PALADIN:
+            if (tab == 1)
+                nonCombatEngine->addStrategy("bthreat");
+            else
+                nonCombatEngine->addStrategy("bdps");
+            break;
         case CLASS_HUNTER:
+            nonCombatEngine->addStrategy("bdps");
+            break;
         case CLASS_SHAMAN:
-            nonCombatEngine->addStrategy("bmana");
+            if (tab == 0 || tab == 2)
+                nonCombatEngine->addStrategy("bmana");
+            else
+                nonCombatEngine->addStrategy("bdps");
             break;
         case CLASS_MAGE:
             if (tab == 1)
@@ -195,6 +217,29 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
             else
                 nonCombatEngine->addStrategy("bmana");
             break;
+        case CLASS_DRUID:
+            if (tab == 1)
+                nonCombatEngine->addStrategy("tank aoe");
+            else
+                nonCombatEngine->addStrategy("dps assist");
+            break;
+        case CLASS_WARRIOR:
+            if (tab == 2)
+                nonCombatEngine->addStrategy("tank aoe");
+            else
+                nonCombatEngine->addStrategy("dps assist");
+            break;
+            nonCombatEngine->addStrategy("dps assist");
+            break;
+		case CLASS_DEATH_KNIGHT:
+			if (tab == 0)
+				nonCombatEngine->addStrategy("tank");
+			else
+				nonCombatEngine->addStrategy("dps assist");
+			break;
+		default:
+			nonCombatEngine->addStrategy("dps assist");
+			break;
     }
     nonCombatEngine->addStrategies("nc", "attack weak", "food", "stay", "chat",
             "default", "quest", "loot", "gather", "duel", "emote", "lfg", NULL);

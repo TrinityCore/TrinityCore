@@ -22,6 +22,10 @@ public:
     bool IsInRandomQuestItemList(uint32 id);
 
     bool enabled;
+    //thesawolf - for notsorandom
+    bool notrandom;
+    //thesawolf - for ARAC support
+    bool aracgen;
     bool allowGuildBots;
     uint32 globalCoolDown, reactDelay, maxWaitForMove;
     float sightDistance, spellDistance, reactDistance, grindDistance, lootDistance,
@@ -48,6 +52,8 @@ public:
     uint32 minRandomBotsPriceChangeInterval, maxRandomBotsPriceChangeInterval;
     bool randomBotJoinLfg;
     bool randomBotLoginAtStartup;
+	bool randomBotJoinBG;
+	bool randomBotBracketPlayer;
     uint32 randomBotTeleLevel;
     bool logInGroupOnly, logValuesPerTick;
     bool fleeingEnabled;
@@ -62,6 +68,9 @@ public:
     uint32 randomBotGuildCount;
     bool deleteRandomBotGuilds;
     std::list<uint32> randomBotGuilds;
+    //thesawolf
+	bool randomBotInitQuest;
+	bool randomBotShowHelmet;
 
     bool guildTaskEnabled;
     uint32 minGuildTaskChangeTime, maxGuildTaskChangeTime;

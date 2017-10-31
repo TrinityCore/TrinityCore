@@ -19,9 +19,6 @@ public:
     void CleanRandomize();
     void Randomize();
     void Refresh();
-
-private:
-    void Randomize(bool incremental);
     void Prepare();
     void InitSecondEquipmentSet();
     void InitEquipment(bool incremental);
@@ -61,6 +58,47 @@ private:
     void InitGuild();
 
 private:
+    void Randomize(bool incremental);
+/* thesawolf changed most private to public
+    void Prepare();
+    void InitSecondEquipmentSet();
+    void InitEquipment(bool incremental);
+    bool CanEquipItem(ItemTemplate const* proto, uint32 desiredQuality);
+    bool CanEquipUnseenItem(uint8 slot, uint16 &dest, uint32 item);
+    void InitSkills();
+    void InitTradeSkills();
+    void UpdateTradeSkills();
+    void SetRandomSkill(uint16 id);
+    void InitSpells();
+    void ClearSpells();
+    void InitAvailableSpells();
+    void InitSpecialSpells();
+    void InitTalents();
+    void InitTalents(uint32 specNo);
+    void InitQuests();
+    void InitPet();
+    void ClearInventory();
+    void InitAmmo();
+    void InitMounts();
+    void InitPotions();
+    void InitFood();
+    bool CanEquipArmor(ItemTemplate const* proto);
+    bool CanEquipWeapon(ItemTemplate const* proto);
+    void EnchantItem(Item* item);
+    void AddItemStats(uint32 mod, uint8 &sp, uint8 &ap, uint8 &tank);
+    bool CheckItemStats(uint8 sp, uint8 ap, uint8 tank);
+    void CancelAuras();
+    bool IsDesiredReplacement(Item* item);
+    void InitBags();
+    void InitInventory();
+    void InitInventoryTrade();
+    void InitInventoryEquip();
+    void InitInventorySkill();
+    Item* StoreItem(uint32 itemId, uint32 count);
+    void InitGlyphs();
+    void InitGuild();
+*/
+public: //private:
     Player* bot;
     uint32 level;
     uint32 itemQuality;

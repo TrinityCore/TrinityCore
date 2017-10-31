@@ -4160,6 +4160,17 @@ AiPlayerbot.RandomClassSpecProbability.9.2 = 33
 AiPlayerbot.RandomClassSpecProbability.11.0 = 10
 AiPlayerbot.RandomClassSpecProbability.11.1 = 45
 AiPlayerbot.RandomClassSpecProbability.11.2 = 45
+# DeathKnight
+AiPlayerbot.RandomClassSpecProbability.6.0 = 33
+AiPlayerbot.RandomClassSpecProbability.6.1 = 33
+AiPlayerbot.RandomClassSpecProbability.6.2 = 33
+
+AiPlayerbot.RandomClassSpecProbability.0.0 = 33
+AiPlayerbot.RandomClassSpecProbability.0.1 = 33
+AiPlayerbot.RandomClassSpecProbability.0.2 = 33
+AiPlayerbot.RandomClassSpecProbability.10.0 = 33
+AiPlayerbot.RandomClassSpecProbability.10.1 = 33
+AiPlayerbot.RandomClassSpecProbability.10.2 = 33
 
 #
 # All other parameters are optional but can be changed by uncommenting them here
@@ -4209,6 +4220,18 @@ AiPlayerbot.MediumMana = 40
 
 # Enable random bot system
 AiPlayerbot.RandomBotAutologin = 1
+
+# Server won't randomize randombots inventory
+AiPlayerbot.NotSoRandom = 0
+
+# Randombots can get quests (do more lag on first run)
+AiPlayerbot.randomBotInitQuest = 0
+
+# Show helmet and cloak on randombots (reset required)
+AiPlayerbot.randomBotShowHelmet = 1
+
+# All race, all class mode for bots (need the client mod too)
+AiPlayerbot.ARAC = 0
 
 # Random bot default strategies (applied after defaults)
 AiPlayerbot.RandomBotCombatStrategies = +dps,+attack weak

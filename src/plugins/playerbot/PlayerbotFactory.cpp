@@ -77,8 +77,16 @@ void PlayerbotFactory::Prepare()
 
     bot->CombatStop(true);
     bot->SetLevel(level);
-    bot->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
-    bot->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
+
+	//thesawolf - refill hp/sp since level resets can leave a vacuum
+    bot->SetHealth(bot->GetMaxHealth());
+    bot->SetPower(POWER_MANA, bot->GetMaxPower(POWER_MANA));  
+
+    if (sPlayerbotAIConfig.randomBotShowHelmet)
+    {
+        bot->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
+        bot->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
+    }
 }
 
 void PlayerbotFactory::Randomize(bool incremental)
@@ -92,11 +100,18 @@ void PlayerbotFactory::Randomize(bool incremental)
     ClearInventory();
     bot->SaveToDB();
 
-    // @todo-playerbots
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing quests - Broken...");
-    //InitQuests();
+    if (sPlayerbotAIConfig.randomBotInitQuest)
+    {
+        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing quests...");
+        InitQuests();
+    }
     // quest rewards boost bot level, so reduce back
     bot->SetLevel(level);
+
+    //thesawolf - refill hp/sp since level resets can leave a vacuum
+    bot->SetHealth(bot->GetMaxHealth());
+    bot->SetPower(POWER_MANA, bot->GetMaxPower(POWER_MANA));
+
     ClearInventory();
     bot->SetUInt32Value(PLAYER_XP, 0);
     CancelAuras();
@@ -148,7 +163,8 @@ void PlayerbotFactory::Randomize(bool incremental)
     InitGlyphs();
 
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing guilds...");
-    InitGuild();
+    bot->SaveToDB(); //thesawolf - save save save (hopefully avoids dupes)
+    InitGuild(); //thesawolf - duplicate guild leaders causing segfault CHECK
 
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing pet...");
     InitPet();
@@ -588,6 +604,11 @@ bool PlayerbotFactory::CanEquipItem(ItemTemplate const* proto, uint32 desiredQua
 
 void PlayerbotFactory::InitEquipment(bool incremental)
 {
+    //thesawolf - lets stick the gearlock check here
+    QueryResult gresults = CharacterDatabase.PQuery("SELECT * FROM ai_playerbot_locks WHERE name_id = '%u'",  bot->GetGUID());
+    if (gresults)
+        return;
+
     DestroyItemsVisitor visitor(bot);
     IterateItems(&visitor, ITERATE_ALL_ITEMS);
 
@@ -1231,6 +1252,7 @@ void PlayerbotFactory::InitQuests()
             continue;
 
         AddPrevQuests(questId, questIds);
+		questIds.remove(questId); //singlecoretc        
         questIds.push_back(questId);
     }
 
@@ -1709,6 +1731,7 @@ void PlayerbotFactory::InitGlyphs()
 
 void PlayerbotFactory::InitGuild()
 {
+    bot->SaveToDB(); //thesawolf - save save save
     if (bot->GetGuildId())
         return;
 
@@ -1738,4 +1761,5 @@ void PlayerbotFactory::InitGuild()
     if (guild->GetMemberCount() < 10)
         guild->AddMember(trans, bot->GetGUID(), urand(GR_OFFICER, GR_INITIATE));
         //guild->AddMember(bot->GetGUID(), urand(GR_OFFICER, GR_INITIATE));
+    bot->SaveToDB(); //thesawolf - save save save
 }

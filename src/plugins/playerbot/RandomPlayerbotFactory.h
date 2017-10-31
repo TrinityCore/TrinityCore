@@ -19,6 +19,7 @@ class RandomPlayerbotFactory
         virtual ~RandomPlayerbotFactory() {}
 
     public:
+        bool CreateNotRandomBot(uint32 nid); //thesawolf
         bool CreateRandomBot(uint8 cls);
         static void CreateRandomBots();
         static void CreateRandomGuilds();

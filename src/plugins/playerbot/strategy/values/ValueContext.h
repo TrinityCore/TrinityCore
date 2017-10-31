@@ -56,6 +56,9 @@
 #include "Formations.h"
 #include "ItemUsageValue.h"
 #include "LastSaidValue.h"
+#include "RandomBotUpdateValue.h"
+#include "NearestFriendlyPlayersValue.h"
+#include "NearestNonBotPlayersValue.h"
 
 namespace ai
 {
@@ -64,6 +67,7 @@ namespace ai
     public:
         ValueContext()
         {
+            creators["nearest friendly players"] = &ValueContext::nearest_friendly_players;
             creators["nearest game objects"] = &ValueContext::nearest_game_objects;
             creators["nearest npcs"] = &ValueContext::nearest_npcs;
             creators["possible targets"] = &ValueContext::possible_targets;
@@ -145,9 +149,12 @@ namespace ai
             creators["speed"] = &ValueContext::speed;
             creators["last said"] = &ValueContext::last_said;
             creators["last emote"] = &ValueContext::last_emote;
+			creators["random bot update"] = &ValueContext::random_bot_update_value;
+			creators["nearest non bot players"] = &ValueContext::nearest_non_bot_players;
         }
 
     private:
+        static UntypedValue* nearest_friendly_players(PlayerbotAI* ai) { return new NearestFriendlyPlayersValue(ai); }
         static UntypedValue* item_usage(PlayerbotAI* ai) { return new ItemUsageValue(ai); }
         static UntypedValue* formation(PlayerbotAI* ai) { return new FormationValue(ai); }
         static UntypedValue* mana_save_level(PlayerbotAI* ai) { return new ManaSaveLevelValue(ai); }
@@ -228,5 +235,7 @@ namespace ai
         static UntypedValue* speed(PlayerbotAI* ai) { return new SpeedValue(ai); }
         static UntypedValue* last_said(PlayerbotAI* ai) { return new LastSaidValue(ai); }
         static UntypedValue* last_emote(PlayerbotAI* ai) { return new LastEmoteValue(ai); }
+		static UntypedValue* random_bot_update_value(PlayerbotAI* ai) { return new RandomBotUpdateValue(ai); }
+		static UntypedValue* nearest_non_bot_players(PlayerbotAI* ai) { return new NearestNonBotPlayersValue(ai); }
     };
 };

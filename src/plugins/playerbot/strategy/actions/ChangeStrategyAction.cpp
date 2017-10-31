@@ -19,7 +19,7 @@ bool ChangeNonCombatStrategyAction::Execute(Event event)
     string text = event.getParam();
 
     uint32 account = sCharacterCache->GetCharacterAccountIdByGuid(bot->GetGUID());
-    if (sPlayerbotAIConfig.IsInRandomAccountList(account) && ai->GetMaster() && ai->GetMaster()->GetSession()->GetSecurity() < SEC_GAMEMASTER)
+    if (sPlayerbotAIConfig.IsInRandomAccountList(account) && ai->GetMaster() && ai->GetMaster()->GetSession()->GetSecurity() < SEC_PLAYER) //SEC_GAMEMASTER) thesawolf
     {
         if (text.find("loot") != string::npos || text.find("gather") != string::npos)
         {

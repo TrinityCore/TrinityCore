@@ -44,6 +44,12 @@ bool PlayerbotAIConfig::Initialize()
         return false;
     }
 
+    // thesawolf - not so random bot creation
+    notrandom = sConfigMgr->GetBoolDefault("AiPlayerbot.NotSoRandom", true);
+    
+    // thesawolf - ARAC chargen support
+    aracgen = sConfigMgr->GetBoolDefault("AiPlayerbot.ARAC", false);
+
     globalCoolDown = (uint32) sWorld->getIntConfig(CONFIG_AIPLYERBOT_GLOBALCOOLDOWN);
     maxWaitForMove = sWorld->getIntConfig(CONFIG_AIPLYERBOT_MAXWAITFORMOVE);
     reactDelay = (uint32) sWorld->getIntConfig(CONFIG_AIPLYERBOT_REACTDELAY);
@@ -98,13 +104,17 @@ bool PlayerbotAIConfig::Initialize()
     minRandomBotsPriceChangeInterval = sWorld->getIntConfig(CONFIG_AIPLYERBOT_MINRANDOMBOTSPRICECHANGEINTERVAL);
     maxRandomBotsPriceChangeInterval = sWorld->getIntConfig(CONFIG_AIPLYERBOT_MAXRANDOMBOTSPRICECHANGEINTERVAL);
     randomBotJoinLfg = sWorld->getBoolConfig(CONFIG_AIPLYERBOT_RANDOMBOTJOINLFG);
+    randomBotJoinBG = sConfigMgr->GetBoolDefault("AiPlayerbot.RandomBotJoinBG", true);
     logInGroupOnly = sWorld->getBoolConfig(CONFIG_AIPLYERBOT_LOGINGROUPONLY);
     logValuesPerTick = sWorld->getBoolConfig(CONFIG_AIPLYERBOT_LOGVALUESPERTICK);
     fleeingEnabled = sWorld->getBoolConfig(CONFIG_AIPLYERBOT_FLEEINGENABLED);
     randomBotMinLevel = sWorld->getIntConfig(CONFIG_AIPLYERBOT_RANDOMBOTMINLEVEL);
     randomBotMaxLevel = sWorld->getIntConfig(CONFIG_AIPLYERBOT_RANDOMBOTMAXLEVEL);
+    randomBotBracketPlayer = sConfigMgr->GetBoolDefault("AIPlayerbot.RandomBotBracketPlayer", true);
     randomBotLoginAtStartup = sWorld->getBoolConfig(CONFIG_AIPLYERBOT_RANDOMBOTLOGINATSTARTUP);
     randomBotTeleLevel = sWorld->getIntConfig(CONFIG_AIPLYERBOT_RANDOMBOTTELELEVEL);
+	randomBotInitQuest = sConfigMgr->GetBoolDefault("AiPlayerbot.randomBotInitQuest", true);
+	randomBotShowHelmet = sConfigMgr->GetBoolDefault("AiPlayerbot.randomBotShowHelmet", true);
 
     randomChangeMultiplier = sWorld->getFloatConfig(CONFIG_AIPLYERBOT_RANDOMCHANGEMULTIPLIER);
 

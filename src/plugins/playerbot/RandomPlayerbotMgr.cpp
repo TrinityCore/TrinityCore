@@ -17,6 +17,11 @@ RandomPlayerbotMgr::~RandomPlayerbotMgr()
 {
 }
 
+int RandomPlayerbotMgr::GetMaxAllowedBotCount()
+{
+	return GetEventValue(0, "bot_count");
+}
+
 void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
 {
     SetNextCheckDelay(sPlayerbotAIConfig.randomBotUpdateInterval * 1000);
@@ -204,6 +209,108 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
     return false;
 }
 
+bool RandomPlayerbotMgr::ProcessBot(Player* player)
+{
+	player->GetPlayerbotAI()->GetAiObjectContext()->GetValue<bool>("random bot update")->Set(false);
+
+	uint32 bot = player->GetGUID();
+    if (player->isDead())
+    {
+        if (!GetEventValue(bot, "dead"))
+        {
+            sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Setting dead flag for bot %d", bot);
+            uint32 randomTime = urand(sPlayerbotAIConfig.minRandomBotReviveTime, sPlayerbotAIConfig.maxRandomBotReviveTime);
+            SetEventValue(bot, "dead", 1, randomTime);
+            SetEventValue(bot, "revive", 1, randomTime - 60);
+            return false;
+        }
+
+        if (!GetEventValue(bot, "revive"))
+        {
+			Revive(player);
+			return true;
+        }
+
+        return false;
+    }
+
+    if (player->GetGuild() && player->GetGuild()->GetLeaderGUID() == player->GetGUID())
+    {
+        for (vector<Player*>::iterator i = players.begin(); i != players.end(); ++i)
+            sGuildTaskMgr.Update(*i, player);
+    }
+
+
+	bool takePlayerLevel = sPlayerbotAIConfig.randomBotBracketPlayer;
+	if (takePlayerLevel)
+	{
+		uint32 maxLevel = sPlayerbotAIConfig.randomBotMaxLevel;
+		uint32 minLevel = sPlayerbotAIConfig.randomBotMinLevel;
+		uint32 level = 0;
+		if (maxLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+			maxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+		if (minLevel < 1)
+			minLevel = 1;
+		if (takePlayerLevel)
+		{
+			level = GetMasterLevel();
+			if (level == 0)
+			{
+				level = urand(minLevel, maxLevel);
+			}
+			minLevel = level - level % 10;
+			maxLevel = level - (level % 10) + 9;
+			level = urand(minLevel, maxLevel);
+		}
+		if (player->getLevel() < minLevel)
+		{
+			int oldlevel = player->getLevel();
+			player->SetLevel(level - 1);
+			IncreaseLevel(player);
+			sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Bot %d was leveled from %d to %d", bot, oldlevel, player->getLevel());
+		}
+	}
+
+    uint32 randomize = GetEventValue(bot, "randomize");
+    if (!randomize)
+    {
+        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Randomizing bot %d", bot);
+        Randomize(player);
+        uint32 randomTime = urand(sPlayerbotAIConfig.minRandomBotRandomizeTime, sPlayerbotAIConfig.maxRandomBotRandomizeTime);
+        ScheduleRandomize(bot, randomTime);
+        return true;
+    }
+
+    uint32 logout = GetEventValue(bot, "logout");
+    if (!logout)
+    {
+        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Logging out bot %d", bot);
+        LogoutPlayerBot(bot);
+        SetEventValue(bot, "logout", 1, sPlayerbotAIConfig.maxRandomBotInWorldTime);
+        return true;
+    }
+
+    uint32 teleport = GetEventValue(bot, "teleport");
+    if (!teleport)
+    {
+        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Random teleporting bot %d", bot);
+		RandomTeleportForLevel(player);
+        SetEventValue(bot, "teleport", 1, sPlayerbotAIConfig.maxRandomBotInWorldTime);
+        return true;
+    }
+
+    return false;
+}
+
+void RandomPlayerbotMgr::Revive(Player* player)
+{
+	uint32 bot = player->GetGUID();
+	sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Reviving dead bot %d", bot);
+	SetEventValue(bot, "dead", 0, 0);
+	SetEventValue(bot, "revive", 0, 0);
+	RandomTeleport(player, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+}
+
 void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs)
 {
     if (bot->IsBeingTeleported())
@@ -387,6 +494,20 @@ void RandomPlayerbotMgr::RandomizeFirst(Player* bot)
         RandomTeleport(bot, tele->mapId, tele->position_x, tele->position_y, tele->position_z);
         break;
     }
+}
+
+uint32 RandomPlayerbotMgr::GetMasterLevel()
+{
+	if (masterLevel==0)
+	{
+		QueryResult results = CharacterDatabase.PQuery("select level from characters where cinematic = 1 order by online desc limit 1");
+		if (results)
+		{
+			Field* fields = results->Fetch();
+			masterLevel = fields[0].GetUInt8();
+		}
+	}
+	return masterLevel;
 }
 
 uint32 RandomPlayerbotMgr::GetZoneLevel(uint16 mapId, float teleX, float teleY, float teleZ)
@@ -800,6 +921,12 @@ void RandomPlayerbotMgr::PrintStats()
             else
                 dps++;
             break;
+		case CLASS_DEATH_KNIGHT :
+			if (spec == 0)
+				tank++;
+			else
+				dps++;
+			break;
         case CLASS_WARRIOR:
             if (spec == 2)
                 tank++;
