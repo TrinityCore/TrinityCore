@@ -2967,11 +2967,11 @@ float Unit::GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) con
             TC_LOG_DEBUG("entities.unit","entering npcbot area for unit::getunitdodgechance");
             //npcbot - custom dodge chance instead of bunch of auras and remove base chance
             if (this->GetTypeId() != TYPEID_PLAYER)
-            if (ToCreature()->GetBotAI())
+            if (victim->ToCreature()->GetBotAI())
             {
-                if (!ToCreature()->CanDodge())
+                if (!victim->ToCreature()->CanDodge())
                     return 0.0f;
-                chance = ToCreature()->GetCreatureDodgeChance();
+                chance = victim->ToCreature()->GetCreatureDodgeChance();
             }
             //end npcbot
             TC_LOG_DEBUG("entities.unit","exiting npcbot area for unit::getunitdodgechance");
@@ -3029,11 +3029,11 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
             TC_LOG_DEBUG("entities.unit","entering npcbot area for unit::getunitparrychance");
             //npcbot - custom parry chance instead of bunch of auras
             if (this->GetTypeId() != TYPEID_PLAYER)
-            if (ToCreature()->GetBotAI())
+            if (victim->ToCreature()->GetBotAI())
             {
-                if (!ToCreature()->CanParry())
+                if (!victim->ToCreature()->CanParry())
                     return 0.0f;
-                chance = ToCreature()->GetCreatureParryChance();
+                chance = victim->ToCreature()->GetCreatureParryChance();
             }
             else
             //end npcbot
