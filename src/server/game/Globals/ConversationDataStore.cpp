@@ -120,7 +120,7 @@ void ConversationDataStore::LoadConversationTemplates()
                 ++count;                
             }
             else
-                    TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid actor (ID: %u) for Conversation %u, skipped", actorId, conversationId);
+                TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid actor (ID: %u) for Conversation %u, skipped", actorId, conversationId);
 
             if (actorId == 0 && actorGuid != 0)
             {
