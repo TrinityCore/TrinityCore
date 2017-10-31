@@ -975,7 +975,8 @@ public:
                 case EVENT_ATTACK:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->setFaction(FACTION_HOSTILE);
-                    me->CombatStart(ObjectAccessor::GetPlayer(*me, _playerGUID));
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        me->CombatStart(player);
                     _events.ScheduleEvent(EVENT_FIREBALL, 1);
                     _events.ScheduleEvent(EVENT_FROSTNOVA, Seconds(5));
                     break;
