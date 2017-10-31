@@ -15,8 +15,10 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "tanaan_intro.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "GameObject.h"
+#include "tanaan_intro.h"
 
 enum eCreatures
 {
@@ -331,35 +333,31 @@ public:
     }
 };
 
-/// 300003 - Gul'Dan Trigger (Friendly)
-class npc_gul_dan_trigger : public CreatureScript
+// Custom AT gul'dan trigger - 100000
+class at_tanaan_guldan_trigger : public AreaTriggerEntityScript
 {
 public:
-    npc_gul_dan_trigger() : CreatureScript("npc_gul_dan_trigger") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    at_tanaan_guldan_trigger() : AreaTriggerEntityScript("at_tanaan_guldan_trigger") { }
+
+    struct at_tanaan_guldan_triggerAI : AreaTriggerAI
     {
-        return new npc_gul_dan_triggerAI(creature);
-    }
+        at_tanaan_guldan_triggerAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct npc_gul_dan_triggerAI : public ScriptedAI
-    {
-        npc_gul_dan_triggerAI(Creature* creature) : ScriptedAI(creature) { }
+        int32 timeInterval;
 
-        void MoveInLineOfSight(Unit* p_Unit) override
+        void OnUnitEnter(Unit* unit) override
         {
-            if (p_Unit->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Player* l_Player = p_Unit->ToPlayer();
-
-            if (!l_Player || l_Player->GetPositionZ() > me->GetPositionZ() || !l_Player->isInFront(me))
-                return;
-
-            if (l_Player->GetQuestStatus(TanaanQuests::QuestThePortalPower) == QUEST_STATUS_INCOMPLETE && l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjEnterGulDanPrison) < 1)
-                l_Player->KilledMonsterCredit(TanaanKillCredits::CreditEnterGuldanPrison);
+            if (Player* player = unit->ToPlayer())
+                if (player->GetQuestStatus(TanaanQuests::QuestThePortalPower) == QUEST_STATUS_INCOMPLETE)
+                    player->KilledMonsterCredit(TanaanKillCredits::CreditEnterGuldanPrison);
         }
     };
+
+    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    {
+        return new at_tanaan_guldan_triggerAI(areatrigger);
+    }
 };
 
 /// 233104 - Statis Rune
@@ -388,7 +386,8 @@ void AddSC_tanaan_intro_portal()
 {
     new npc_generic_tanaan_guardian();
     new npc_iron_gronnling();
-    new npc_gul_dan_trigger();
+
+    new at_tanaan_guldan_trigger();
 
     new gob_intact_portal();
     new gob_static_rune();
