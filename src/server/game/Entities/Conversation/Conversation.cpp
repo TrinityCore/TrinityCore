@@ -16,10 +16,10 @@
  */
 
 #include "Conversation.h"
+#include "Creature.h"
 #include "Map.h"
 #include "Unit.h"
 #include "UpdateData.h"
-#include "Creature.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0)
 {
@@ -122,6 +122,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     _duration = conversationTemplate->LastLineEndTime;
 
     uint16 actorsIndex = 0;
+
     for (ConversationActorTemplate const* actor : conversationTemplate->Actors)
     {
         if (actor)
@@ -131,9 +132,12 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             actorField.Type = ConversationDynamicFieldActor::ActorType::CreatureActor;
             SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex++, &actorField);
         }
-        else if (!conversationTemplate->Actors.empty())
+        else
             ++actorsIndex;
     }
+
+    // reset actorsIndex
+    actorsIndex = 0;
 
     for (ObjectGuid::LowType actorGuids : conversationTemplate->ActorGuids)
     {
@@ -141,12 +145,16 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         {
             auto bounds = map->GetCreatureBySpawnIdStore().equal_range(actorGuids);
 
-            if (bounds.first == bounds.second)
-                return false;
-
-            AddActor(bounds.first->second->GetGUID(), actorsIndex++);
+            for (auto it = bounds.first; it != bounds.second; ++it)
+            {
+                if (it->second->IsAlive())
+                {
+                    AddActor(bounds.first->second->GetGUID(), actorsIndex++);
+                    break;
+                }
+            }
         }
-        else if (!conversationTemplate->ActorGuids.empty())
+        else
             ++actorsIndex;
     }
 

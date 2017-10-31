@@ -20,8 +20,8 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
-#include "Timer.h"
 #include "ObjectMgr.h"
+#include "Timer.h"
 
 namespace
 {
@@ -103,24 +103,28 @@ void ConversationDataStore::LoadConversationTemplates()
         {
             Field* fields = actors->Fetch();
 
-            uint32 conversationId = fields[0].GetUInt32();
-            uint32 actorId = fields[1].GetUInt32();
-            uint64 actorGuid = fields[2].GetUInt64();
-            uint16 idx = fields[3].GetUInt16();
+            uint32 conversationId         = fields[0].GetUInt32();
+            uint32 actorId                = fields[1].GetUInt32();
+            ObjectGuid::LowType actorGuid = fields[2].GetUInt64();
+            uint16 idx                    = fields[3].GetUInt16();
 
-            if (ConversationActorTemplate const* conversationActorTemplate = Trinity::Containers::MapGetValuePtr(_conversationActorTemplateStore, actorId))
+            if (actorId != 0 && actorGuid != 0)
+                TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references both actor (ID: %u) and actorGuid (GUID: " UI64FMTD ") for Conversation %u, GUID is ignored", actorId, actorGuid, conversationId);
+
+            if (actorId != 0)
             {
-                if (actorGuid != 0)
-                    TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references both actor (ID: %u) and actorGuid (GUID: " UI64FMTD ") for Conversation %u, GUID is ignored", actorId, actorGuid, conversationId);
+                if (ConversationActorTemplate const* conversationActorTemplate = Trinity::Containers::MapGetValuePtr(_conversationActorTemplateStore, actorId))
+                {
+                    std::vector<ConversationActorTemplate const*>& actors = actorsByConversation[conversationId];
+                    if (actors.size() <= idx)
+                        actors.resize(idx + 1);
+                    actors[idx] = conversationActorTemplate;
+                    ++count;
+                }
+                else
+                    TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid actor (ID: %u) for Conversation %u, skipped", actorId, conversationId);
 
-                std::vector<ConversationActorTemplate const*>& actors = actorsByConversation[conversationId];
-                if (actors.size() <= idx)
-                    actors.resize(idx + 1);
-                actors[idx] = conversationActorTemplate;
-                ++count;                
             }
-            else
-                TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid actor (ID: %u) for Conversation %u, skipped", actorId, conversationId);
 
             if (actorId == 0 && actorGuid != 0)
             {
@@ -134,7 +138,7 @@ void ConversationDataStore::LoadConversationTemplates()
                     ++count;
                 }
                 else
-                    TC_LOG_ERROR("sql.sql","Table `conversation_actors` references an invalid creature guid (GUID: " UI64FMTD ") for Conversation %u, skipped", actorGuid, conversationId);
+                    TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid creature guid (GUID: " UI64FMTD ") for Conversation %u, skipped", actorGuid, conversationId);
             }
         }
         while (actors->NextRow());
