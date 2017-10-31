@@ -1255,7 +1255,7 @@ public:
 
         void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (target->GetTypeId() != TYPEID_UNIT)
+            if (GetTarget()->GetTypeId() != TYPEID_UNIT)
                 return;
 
             Creature* target = GetTarget()->ToCreature();
