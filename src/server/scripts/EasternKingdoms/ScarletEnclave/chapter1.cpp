@@ -1255,6 +1255,9 @@ public:
 
         void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
+            if (target->GetTypeId() != TYPEID_UNIT)
+                return;
+
             Creature* target = GetTarget()->ToCreature();
             if (Unit* owner = target->GetCharmerOrOwner())
                 GetCaster()->GetAI()->AttackStart(owner);
