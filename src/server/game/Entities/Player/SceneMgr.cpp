@@ -33,8 +33,10 @@ SceneMgr::SceneMgr(Player* player) : _player(player)
 
 uint32 SceneMgr::PlayScene(uint32 sceneId, Position const* position /*= nullptr*/)
 {
-    SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId);
-    return PlaySceneByTemplate(*sceneTemplate, position);
+    if (SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId))
+        return PlaySceneByTemplate(*sceneTemplate, position);
+
+    return 0;
 }
 
 uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const sceneTemplate, Position const* position /*= nullptr*/)
