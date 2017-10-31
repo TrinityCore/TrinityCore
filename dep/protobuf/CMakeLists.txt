@@ -57,13 +57,6 @@ else()
   )
 endif()
 
-if (UNIX)
-  # Enable the default unix export behaviour for protobuf so we don't
-  # need to patch it's sources.
-  string(REPLACE "-fvisibility=hidden" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  string(REPLACE "-fvisibility=hidden" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-endif()
-
 add_library(protobuf ${protobuf_STAT_SRCS})
 
 target_include_directories(protobuf
@@ -73,6 +66,8 @@ target_include_directories(protobuf
     ${CMAKE_CURRENT_SOURCE_DIR}/tc_custom)
 
 target_link_libraries(protobuf
+  PRIVATE
+    trinity-default-interface
   PUBLIC
     threads)
 
