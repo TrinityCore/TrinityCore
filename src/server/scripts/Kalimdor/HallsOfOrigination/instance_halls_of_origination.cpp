@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
+#include "CreatureGroups.h"
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -37,7 +38,7 @@ DoorData const doorData[] =
     {GO_DOODAD_ULDUM_LASERBEAMS_03,   DATA_WATER_WARDEN,           DOOR_TYPE_PASSAGE },
     {GO_DOODAD_ULDUM_LIGHTMACHINE_04, DATA_AIR_WARDEN,             DOOR_TYPE_PASSAGE },
     {GO_DOODAD_ULDUM_LASERBEAMS_02,   DATA_AIR_WARDEN,             DOOR_TYPE_PASSAGE },
-    {0,                              0,                            DOOR_TYPE_ROOM   }
+    {0,                               0,                           DOOR_TYPE_ROOM    }
 };
 
 class instance_halls_of_origination : public InstanceMapScript
@@ -86,9 +87,13 @@ class instance_halls_of_origination : public InstanceMapScript
                         break;
                     case GO_SUN_MIRROR:
                         SunMirrorGUID = go->GetGUID();
+                        if (_deadElementals == 4)
+                            go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GO_ANRAPHET_DOOR:
                         AnraphetDoorGUID = go->GetGUID();
+                        if (_deadElementals == 4)
+                            go->SetGoState(GO_STATE_ACTIVE);
                         break;
                 }
             }
@@ -127,6 +132,36 @@ class instance_halls_of_origination : public InstanceMapScript
                     case BOSS_ANRAPHET:
                         AnraphetGUID = creature->GetGUID();
                         break;
+                    case BOSS_ISISET:
+                        IsisetGUID = creature->GetGUID();
+                        break;
+                    case NPC_SPATIAL_FLUX:
+                    case NPC_SPATIAL_ANOMALY:
+                    case NPC_FLUX_ANIMATOR:
+                    case NPC_STAR_SHARD:
+                        creature->SearchFormation();
+                        if (creature->GetFormation())
+                            isisetTrashGUIDs.push_back(creature->GetGUID());
+                        break;
+                }
+            }
+
+            void SetData(uint32 data, uint32 value) override
+            {
+                switch (data)
+                {
+                    case DATA_ISISET_PHASE:
+                        _isisetPhase = value;
+                        break;
+                    case DATA_ISISET_ASTRAL_RAIN_ALIVE:
+                        _isisetAstralRainAlive = value;
+                        break;
+                    case DATA_ISISET_CELESTIAL_CALL_ALIVE:
+                        _isisetCelestialCallAlive = value;
+                        break;
+                    case DATA_ISISET_VEIL_OF_SKY_ALIVE:
+                        _isisetVeilOfSkyAlive = value;
+                        break;
                 }
             }
 
@@ -136,6 +171,14 @@ class instance_halls_of_origination : public InstanceMapScript
                 {
                     case DATA_DEAD_ELEMENTALS:
                         return _deadElementals;
+                    case DATA_ISISET_PHASE:
+                        return _isisetPhase;
+                    case DATA_ISISET_ASTRAL_RAIN_ALIVE:
+                        return _isisetAstralRainAlive;
+                    case DATA_ISISET_CELESTIAL_CALL_ALIVE:
+                        return _isisetCelestialCallAlive;
+                    case DATA_ISISET_VEIL_OF_SKY_ALIVE:
+                        return _isisetVeilOfSkyAlive;
                     default:
                         break;
                 }
@@ -159,23 +202,17 @@ class instance_halls_of_origination : public InstanceMapScript
                         return TempleGuardianAnhuurGUID;
                     case DATA_BRANN_0_GUID:
                         return BrannBronzebeardGUID;
+                    case DATA_ANRAPHET_SUN_MIRROR:
+                         return SunMirrorGUID;
+                    case DATA_ANRAPHET_DOOR:
+                        return AnraphetDoorGUID;
                     case DATA_ANRAPHET_GUID:
                         return AnraphetGUID;
+                    case DATA_ISISET:
+                        return IsisetGUID;
                 }
 
                 return ObjectGuid::Empty;
-            }
-
-            void IncreaseDeadElementals(uint32 inc)
-            {
-                _deadElementals += inc;
-                if (_deadElementals == 4)
-                {
-                    if (GameObject* mirror = instance->GetGameObject(SunMirrorGUID))
-                        mirror->SetGoState(GO_STATE_ACTIVE);
-                    if (GameObject* door = instance->GetGameObject(AnraphetDoorGUID))
-                        door->SetGoState(GO_STATE_ACTIVE);
-                }
             }
 
             void OnUnitDeath(Unit* unit) override
@@ -190,12 +227,31 @@ class instance_halls_of_origination : public InstanceMapScript
                     case NPC_EARTH_WARDEN:
                     case NPC_WATER_WARDEN:
                     case NPC_AIR_WARDEN:
+                    {
                         uint32 data = creature->GetEntry() - WARDEN_ENTRY_DATA_DELTA;
                         SetBossState(data, IN_PROGRESS); // Needs to be set to IN_PROGRESS or else the gameobjects state won't be updated
                         SetBossState(data, DONE);
-                        IncreaseDeadElementals(1);
+                        ++_deadElementals;
                         if (Creature* brann = instance->GetCreature(BrannBronzebeardGUID))
                             brann->AI()->DoAction(ACTION_ELEMENTAL_DIED);
+                        break;
+                    }
+                    case NPC_SPATIAL_ANOMALY:
+                    case NPC_FLUX_ANIMATOR:
+                    case NPC_STAR_SHARD:
+                    {
+                        CreatureGroup* group = creature->GetFormation();
+                        // Check if whole formation is dead, then despawn its leader
+                        for (GuidVector::const_iterator itr = isisetTrashGUIDs.begin(); itr != isisetTrashGUIDs.end(); ++itr)
+                            if (Creature* member = instance->GetCreature(*itr))
+                                if (member->GetEntry() != NPC_SPATIAL_FLUX && member->GetFormation()->GetId() == group->GetId() && member->IsAlive())
+                                    return;
+                        // Despawn leader (Spatial Flux)
+                        if (Creature* leader = group->getLeader())
+                            leader->DespawnOrUnsummon();
+                        break;
+                    }
+                    default:
                         break;
                 }
             }
@@ -207,9 +263,7 @@ class instance_halls_of_origination : public InstanceMapScript
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
-                uint32 deadElementals;
-                data >> deadElementals;
-                IncreaseDeadElementals(deadElementals);
+                data >> _deadElementals;
             }
 
         protected:
@@ -222,7 +276,13 @@ class instance_halls_of_origination : public InstanceMapScript
             ObjectGuid AnraphetGUID;
             ObjectGuid AnraphetDoorGUID;
             ObjectGuid SunMirrorGUID;
+            ObjectGuid IsisetGUID;
+            GuidVector isisetTrashGUIDs;
             uint32 _deadElementals;
+            uint32 _isisetPhase;
+            uint32 _isisetAstralRainAlive;
+            uint32 _isisetCelestialCallAlive;
+            uint32 _isisetVeilOfSkyAlive;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
