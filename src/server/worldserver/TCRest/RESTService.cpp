@@ -87,7 +87,11 @@ bool RESTService::Start()
         }
         catch (const boost::property_tree::json_parser_error &e)
         {
-            *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: Error while deserializing JSON body : " << strlen(e.what()) << "\r\n\r\n" << e.what();
+            std::ostringstream whatErrorStream;
+            whatErrorStream << "Error while deserializing JSON body :" << e.what();
+            std::string whatError = whatErrorStream.str();
+
+            *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << whatError.length() << "\r\n\r\n" << whatError;
         }
         catch (const std::exception &e)
         {

@@ -38,6 +38,8 @@ class SpellInfo;
 class WorldSession;
 enum MovementGeneratorType : uint8;
 
+struct ScriptParam;
+
 struct VendorItemCount
 {
     VendorItemCount(uint32 _item, uint32 _count)
@@ -169,6 +171,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         std::string GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
+        ScriptParam GetScriptParam(uint8 index) const;
 
         // override WorldObject function for proper name localization
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
