@@ -105,7 +105,7 @@ namespace TanaanSceneObjects
         SceneHoldout                    = 933,
         SceneEyeOfKilrogg               = 938,
         SceneKilRoggRevealed            = 940,
-        SceneSneakyArmy                 = 940,
+        SceneSneakyArmy                 = 942,
         SceneEnterKarGathArena          = 945,
         SceneEscapingTheArena           = 946,
         SceneQuianaAndMaladaarEnter     = 947,
