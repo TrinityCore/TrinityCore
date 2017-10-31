@@ -682,6 +682,73 @@ void ObjectMgr::LoadCreatureScalingData()
     TC_LOG_INFO("server.loading", ">> Loaded %u creature template scaling data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadScriptParams()
+{
+    _scriptParamContainer.clear();
+    _templateScriptParamContainer.clear();
+
+    uint32 oldMSTime = getMSTime();
+
+    //                                                0              1        2               3
+    QueryResult result = WorldDatabase.Query("SELECT `entryOrGuid`, `index`, `numericParam`, `stringParam` FROM script_params");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 script param creature definitions. DB table `script_params` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        int64 entryOrGuid = fields[0].GetInt64();
+
+        if (entryOrGuid == 0)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `script_params` have record with entryOrGuid = 0");
+            continue;
+        }
+
+        uint8  index = fields[1].GetUInt8();
+
+        ScriptParam param;
+        param.numericValue  = fields[2].GetDouble();
+        param.stringValue   = fields[3].GetString();
+
+        if (entryOrGuid > 0)
+        {
+            uint32 entry = (uint32)entryOrGuid;
+
+            if (!sObjectMgr->GetCreatureTemplate(entryOrGuid))
+            {
+                TC_LOG_ERROR("sql.sql", "Creature template (Entry: " SI64FMTD ") does not exist but has a record in `script_params`", entryOrGuid);
+                continue;
+            }
+
+            _templateScriptParamContainer[entry][index] = param;
+        }
+        else
+        {
+            ObjectGuid::LowType lowGuid = (ObjectGuid::LowType)-entryOrGuid;
+
+            CreatureData const* creature = sObjectMgr->GetCreatureData(lowGuid);
+            if (!creature)
+            {
+                TC_LOG_ERROR("sql.sql", "ObjectMgr::LoadCreatureScriptParams: Creature guid (%lu) does not exist, skipped loading.", lowGuid);
+                continue;
+            }
+
+            _scriptParamContainer[lowGuid][index] = param;
+        }
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u script params in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 {
     if (!cInfo)
