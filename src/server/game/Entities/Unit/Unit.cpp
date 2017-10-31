@@ -3102,11 +3102,11 @@ float Unit::GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) con
             TC_LOG_DEBUG("entities.unit","entering npcbot area for unit::getunitblockchance");
             //npcbot - custom block chance instead of bunch of auras and remove base chance
             if (this->GetTypeId() != TYPEID_PLAYER)
-            if (ToCreature()->GetBotAI())
+            if (victim->ToCreature()->GetBotAI())
             {
-                if (!ToCreature()->CanBlock())
+                if (!victim->ToCreature()->CanBlock())
                     return 0.0f;
-                chance = ToCreature()->GetCreatureBlockChance();
+                chance = victim->ToCreature()->GetCreatureBlockChance();
             }
             //end npcbot
             TC_LOG_DEBUG("entities.unit","exiting npcbot area for unit::getunitblockchance");
