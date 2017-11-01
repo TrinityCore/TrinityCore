@@ -1245,14 +1245,14 @@ public:
 
         void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (GetTarget()->GetTypeId() != TYPEID_UNIT)
+            Creature* creature = GetTarget()->ToCreature();
+            if (!creature)
                 return;
 
-            Creature* target = GetTarget()->ToCreature();
-            if (Unit* owner = target->GetCharmerOrOwner())
+            if (Unit* owner = creature->GetCharmerOrOwner())
                 GetCaster()->GetAI()->AttackStart(owner);
 
-            target->DespawnOrUnsummon(Seconds(2));
+            creature->DespawnOrUnsummon(Seconds(2));
         }
 
         void Register() override
