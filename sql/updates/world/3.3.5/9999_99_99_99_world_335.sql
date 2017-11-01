@@ -1,6 +1,8 @@
 -- Coosh'coosh
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = 18586;
 
+UPDATE `creature` SET `MovementType` = 1, `spawndist` = 8 WHERE `id` = 18586;
+
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = 18586;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (18586, 0, 0, 0, 0, 0, 100, 0, 2000, 2000, 3000, 3000, 11, 9532, 64, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Coosh\'coosh - In Combat - Cast \'Lightning Bolt\''),
@@ -19,7 +21,6 @@ DELETE FROM `creature_text` WHERE `CreatureID` = 18586;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextID`, `TextRange`, `comment`) VALUES
 (18586, 0, 0, 'F\'woooroonn! Coosh\'coosh pay nothing! Die!', 12, 0, 100, 0, 0, 0, 15565, 0, 'Coosh\'coosh');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14,15) AND `SourceGroup` = 7730;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 7730;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(14, 7730, 9441, 0, 0, 9, 0, 10009, 0, 0, 0, 0, 0, '', 'Show gossip menu 7730 text id 9441 if quest Crackin\' Some Skulls has been taken.'),
 (15, 7730, 0, 0, 0, 9, 0, 10009, 0, 0, 0, 0, 0, '', 'Show gossip menu 7730 option id 0 if quest Crackin\' Some Skulls has been taken.');
