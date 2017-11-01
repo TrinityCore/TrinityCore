@@ -163,6 +163,8 @@ public:
                 {
                     if (waypointId == HOUSE_WAYPOINT)
                     {
+                        MoveTheChildren();
+
                         if (Creature* dana = me->FindNearestCreature(NPC_DANA, 10.0f))
                             _childrenGUIDs.push_back(dana->GetGUID());
 
