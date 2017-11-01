@@ -32,6 +32,7 @@ EndScriptData */
 #include "Map.h"
 #include "Player.h"
 #include "stratholme.h"
+#include "AreaBoundary.h"
 
 enum InstanceEvents
 {
@@ -40,8 +41,7 @@ enum InstanceEvents
 };
 
 Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
-float const scarletEntrancePositionX = 3630.0f;
-float const scarletEntrancePositionY = -3140.0f;
+static AreaBoundary* const beforeScarletGate = new EllipseBoundary(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
 class instance_stratholme : public InstanceMapScript
 {
@@ -53,6 +53,7 @@ class instance_stratholme : public InstanceMapScript
             instance_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
+
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     EncounterState[i] = NOT_STARTED;
 
@@ -99,7 +100,7 @@ class instance_stratholme : public InstanceMapScript
                         {
                             Position pos = who->ToCreature()->GetHomePosition();
                             // check if they're in front of the entrance
-                            if (pos.GetPositionX() > scarletEntrancePositionX && pos.GetPositionY() < scarletEntrancePositionY)
+                            if (beforeScarletGate->IsWithinBoundary(pos))
                             {
                                 if (++scarletsKilled >= TIMMY_THE_CRUEL_CRUSADERS_REQUIRED)
                                 {
