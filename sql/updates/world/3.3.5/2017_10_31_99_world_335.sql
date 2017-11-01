@@ -178,3 +178,11 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@ENTRY, 2,-9155.719,-132.458,75.17039, 0, 0, 1, 0, 100, 0), -- 07:32:15
 (@ENTRY, 3,-9340.689,-89.09771,66.49249, 0, 0, 1, 0, 100, 0), -- 07:32:27
 (@ENTRY, 4,-9353.076,-86.58789,65.68958, 0, 0, 0, 0, 100, 0); -- 07:33:47
+
+-- Correct position for each child
+UPDATE `creature` SET `position_x`=-9373.521, `position_y`=-67.71767, `position_z`=69.201965, `orientation`=1.117011 WHERE `guid`=79642;
+UPDATE `creature` SET `position_x`=-9374.94, `position_y`=-62.51654, `position_z`=69.201965, `orientation`=5.201081 WHERE `guid`=79643;
+UPDATE `creature` SET `position_x`=-9371.013, `position_y`=-71.20811, `position_z`=69.201965, `orientation`=1.937315 WHERE `guid`=79641;
+UPDATE `creature` SET `position_x`=-9368.419, `position_y`=-66.47543, `position_z`=69.201965, `orientation`=3.141593 WHERE `guid`=79638;
+UPDATE `creature` SET `position_x`=-9372.376, `position_y`=-65.49946, `position_z`=69.201965, `orientation`=4.206244 WHERE `guid`=79640;
+UPDATE `creature` SET `position_x`=-9377.477, `position_y`=-67.8297, `position_z`=69.201965, `orientation`=0.296706 WHERE `guid`=79639;
