@@ -10,13 +10,29 @@ uint64 extractGuid(WorldPacket& packet);
 bool CheckMountStateAction::Execute(Event event)
 {
     Player* master = GetMaster();
+	if (bot->InBattleground())
+	{
+		if (!ai->HasStrategy("warsong", BotState::BOT_STATE_NON_COMBAT))
+			ai->ChangeStrategy("+warsong", BOT_STATE_NON_COMBAT);
+		if (!ai->HasStrategy("grind", BotState::BOT_STATE_NON_COMBAT))
+			ai->ChangeStrategy("+grind", BOT_STATE_NON_COMBAT);
+		if (!ai->HasStrategy("warsong", BotState::BOT_STATE_COMBAT))
+			ai->ChangeStrategy("+warsong", BOT_STATE_COMBAT);
+		if (!ai->HasStrategy("grind", BotState::BOT_STATE_COMBAT))
+			ai->ChangeStrategy("+grind", BOT_STATE_COMBAT);
+		if (!ai->HasStrategy("dps", BotState::BOT_STATE_COMBAT))
+			ai->ChangeStrategy("+dps", BOT_STATE_COMBAT);
+		if (!ai->HasStrategy("heal", BotState::BOT_STATE_COMBAT))
+			ai->ChangeStrategy("+heal", BOT_STATE_COMBAT);
+		return false;
+	}
     if (!bot->GetGroup() || !master)
         return false;
 
     if (bot->IsFlying())
         return false;
 
-    if (master->IsMounted() && !bot->IsMounted())
+    if (bot->InBattleground() || (master->IsMounted() && !bot->IsMounted()))
     {
         return Mount();
     }

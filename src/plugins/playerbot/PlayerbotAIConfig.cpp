@@ -56,6 +56,7 @@ bool PlayerbotAIConfig::Initialize()
 
     sightDistance = sWorld->getFloatConfig(CONFIG_AIPLYERBOT_SIGHTDISTANCE);
     spellDistance = sWorld->getFloatConfig(CONFIG_AIPLYERBOT_SPELLDISTANCE);
+	shootDistance = sConfigMgr->GetFloatDefault("AiPlayerbot.ShootDistance", 11.0f);
     reactDistance = sWorld->getFloatConfig(CONFIG_AIPLYERBOT_REACTDISTANCE);
     grindDistance = sWorld->getFloatConfig(CONFIG_AIPLYERBOT_GRINDDISTANCE);
     lootDistance = sWorld->getFloatConfig(CONFIG_AIPLYERBOT_LOOTDISTANCE);
@@ -120,6 +121,8 @@ bool PlayerbotAIConfig::Initialize()
 
     randomBotCombatStrategies = sConfigMgr->GetStringDefault("AiPlayerbot.RandomBotCombatStrategies", "+dps,+attack weak,-threat");
     randomBotNonCombatStrategies = sConfigMgr->GetStringDefault("AiPlayerbot.RandomBotNonCombatStrategies", "+grind,+move random,+loot");
+	combatStrategies = config.GetStringDefault("AiPlayerbot.CombatStrategies", "+custom::say");
+	nonCombatStrategies = config.GetStringDefault("AiPlayerbot.NonCombatStrategies", "+custom::say");
 
     commandPrefix = sConfigMgr->GetStringDefault("AiPlayerbot.CommandPrefix", "");
 

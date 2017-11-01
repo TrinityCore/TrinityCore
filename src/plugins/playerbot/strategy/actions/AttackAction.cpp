@@ -57,7 +57,13 @@ bool AttackAction::Attack(Unit* target)
         if (verbose) ai->TellMaster(msg.str());
         return false;
     }
-    if (!bot->IsWithinLOSInMap(target))
+	if (target->isDead())
+	{
+		msg << " is dead";
+		if (verbose) bot->Say(msg.str(), LANG_UNIVERSAL);
+		return false;
+	}
+    if (!bot->InBattleground() && !bot->IsWithinLOSInMap(target))
     {
         msg << " is not on my sight";
         if (verbose) ai->TellMaster(msg.str());

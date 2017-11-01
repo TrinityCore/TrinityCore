@@ -7,6 +7,7 @@
 #include "MapManager.h"
 #include "PlayerbotCommandServer.h"
 #include "GuildTaskMgr.h"
+#include "../../game/Battlegrounds/Battleground.h"
 
 RandomPlayerbotMgr::RandomPlayerbotMgr() : PlayerbotHolder(), processTicks(0)
 {
@@ -138,6 +139,33 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
     Player* player = GetPlayerBot(bot);
     if (!player)
         return false;
+
+	if (player->InBattleground() && player->isDead())
+	{
+		Battleground *bg = player->GetBattleground();
+		const WorldSafeLocsEntry *pos= bg->GetClosestGraveyard(player);
+		if (!player->IsWithinDist3d(pos->x,pos->y,pos->z,3.0))
+		{
+			// Special handle for battleground maps
+			sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "bot %s died in a battleground. Try to resurrect.", player->GetName().c_str());
+			SetEventValue(bot, "dead", 1, 5);
+			//this is spirit release confirm?
+			player->RemoveGhoul();
+			player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+			player->BuildPlayerRepop();
+			player->SpawnCorpseBones();
+			player->RepopAtGraveyard();
+		}
+		else {
+			player->ResurrectPlayer(1.0f);
+		}
+		return false;
+	}
+
+	if (player->InBattleground())
+	{
+		return false;
+	}
 
     PlayerbotAI* ai = player->GetPlayerbotAI();
     if (!ai)
@@ -313,6 +341,8 @@ void RandomPlayerbotMgr::Revive(Player* player)
 
 void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs)
 {
+	if (bot->InBattleground())
+		return;
     if (bot->IsBeingTeleported())
         return;
 
@@ -364,6 +394,8 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs
 
 void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
 {
+	if (bot->InBattleground())
+		return;
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Preparing location to random teleporting bot %s for level %u", bot->GetName().c_str(), bot->getLevel());
 
     if (locsPerLevelCache[bot->getLevel()].empty()) {
@@ -412,6 +444,8 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
 
 void RandomPlayerbotMgr::RandomTeleport(Player* bot, uint16 mapId, float teleX, float teleY, float teleZ)
 {
+	if (bot->InBattleground())
+		return;
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Preparing location to random teleporting bot %s", bot->GetName().c_str());
 
     vector<WorldLocation> locs;
@@ -539,6 +573,8 @@ uint32 RandomPlayerbotMgr::GetZoneLevel(uint16 mapId, float teleX, float teleY, 
 
 void RandomPlayerbotMgr::Refresh(Player* bot)
 {
+	if (bot->InBattleground())
+		return;
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Refreshing bot %s", bot->GetName().c_str());
     if (bot->isDead())
     {
@@ -806,7 +842,8 @@ void RandomPlayerbotMgr::OnPlayerLogout(Player* player)
         if (player == ai->GetMaster())
         {
             ai->SetMaster(NULL);
-            ai->ResetStrategies();
+			if (!bot->InBattleground())
+				ai->ResetStrategies();
         }
     }
 
@@ -836,9 +873,12 @@ void RandomPlayerbotMgr::OnPlayerLogin(Player* player)
             PlayerbotAI* ai = bot->GetPlayerbotAI();
             if (member == player && (!ai->GetMaster() || ai->GetMaster()->GetPlayerbotAI()))
             {
-                ai->SetMaster(player);
-                ai->ResetStrategies();
-                ai->TellMaster("Hello");
+                if (!bot->InBattleground())
+				{
+					ai->SetMaster(player);
+					ai->ResetStrategies();
+					ai->TellMaster("Hello");
+				}
                 break;
             }
         }

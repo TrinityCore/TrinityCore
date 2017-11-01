@@ -32,6 +32,7 @@
 #include "UnitDefines.h"
 #include "Util.h"
 #include <map>
+#include "Random.h"
 
 #define WORLD_TRIGGER   12999
 
@@ -1937,6 +1938,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual void Yell(uint32 textId, WorldObject const* target = nullptr);
         virtual void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false);
         virtual void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
+
+		uint8 Preference = urand(0, 9); //Random preference playerbot
         //npcbot
         bool HasReactive(ReactiveType reactive) const { return m_reactiveTimer[reactive] > 0; }
         void ClearReactive(ReactiveType reactive);

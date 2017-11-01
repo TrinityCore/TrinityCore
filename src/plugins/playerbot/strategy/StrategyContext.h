@@ -62,6 +62,9 @@ namespace ai
             creators["move random"] = &StrategyContext::move_random;
             creators["lfg"] = &StrategyContext::lfg;
             creators["custom"] = &StrategyContext::custom;
+			creators["bg"] = &StrategyContext::bg;
+			creators["warsong"] = &StrategyContext::warsong;
+			creators["reveal"] = &StrategyContext::reveal;
         }
 
     private:
@@ -86,7 +89,10 @@ namespace ai
         static Strategy* pvp(PlayerbotAI* ai) { return new AttackEnemyPlayersStrategy(ai); }
         static Strategy* move_random(PlayerbotAI* ai) { return new MoveRandomStrategy(ai); }
         static Strategy* lfg(PlayerbotAI* ai) { return new LfgStrategy(ai); }
+		static Strategy* bg(PlayerbotAI* ai) { return new BGStrategy(ai); }
+		static Strategy* warsong(PlayerbotAI* ai) { return new WarsongStrategy(ai); }
         static Strategy* custom(PlayerbotAI* ai) { return new CustomStrategy(ai); }
+		static Strategy* reveal(PlayerbotAI* ai) { return new RevealStrategy(ai); }
     };
 
     class MovementStrategyContext : public NamedObjectContext<Strategy>

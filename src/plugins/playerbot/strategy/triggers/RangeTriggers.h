@@ -14,6 +14,16 @@ namespace ai
         }
     };
 
+	class EnemyTooCloseForShootTrigger : public Trigger {
+	public:
+		EnemyTooCloseForShootTrigger(PlayerbotAI* ai) : Trigger(ai, "enemy too close for shoot") {}
+		virtual bool IsActive()
+		{
+			Unit* target = AI_VALUE(Unit*, "current target");
+			return target && AI_VALUE2(float, "distance", "current target") <= sPlayerbotAIConfig.shootDistance;
+		}
+	};
+
     class EnemyTooCloseForMeleeTrigger : public Trigger {
     public:
         EnemyTooCloseForMeleeTrigger(PlayerbotAI* ai) : Trigger(ai, "enemy too close for melee", 5) {}

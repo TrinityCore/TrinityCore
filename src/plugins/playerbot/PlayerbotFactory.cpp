@@ -96,8 +96,11 @@ void PlayerbotFactory::Randomize(bool incremental)
 
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Resetting player...");
     bot->ResetTalents(true);
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Clearing spells...");
     ClearSpells();
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Clearing inventory...");
     ClearInventory();
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Save to DB...");
     bot->SaveToDB();
 
     if (sPlayerbotAIConfig.randomBotInitQuest)
@@ -105,16 +108,21 @@ void PlayerbotFactory::Randomize(bool incremental)
         sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing quests...");
         InitQuests();
     }
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Setting level...");
     // quest rewards boost bot level, so reduce back
     bot->SetLevel(level);
 
     //thesawolf - refill hp/sp since level resets can leave a vacuum
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Resetting health, power...");
     bot->SetHealth(bot->GetMaxHealth());
     bot->SetPower(POWER_MANA, bot->GetMaxPower(POWER_MANA));
-
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Clear inventory again...");
     ClearInventory();
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Setting player xp...");
     bot->SetUInt32Value(PLAYER_XP, 0);
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Canceling auras...");
     CancelAuras();
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Save to DB...");
     bot->SaveToDB();
 
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing spells (step 1)...");

@@ -13,6 +13,7 @@ namespace ai
         }
 
     protected:
+		bool ChaseTo(WorldObject *obj);
         bool MoveNear(uint32 mapId, float x, float y, float z, float distance = sPlayerbotAIConfig.followDistance);
         bool MoveTo(uint32 mapId, float x, float y, float z);
         bool MoveTo(Unit* target, float distance = 0.0f);

@@ -90,7 +90,13 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 {
     int tab = GetPlayerSpecTab(player);
 
-    engine->addStrategies("attack weak", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+    if (player->InBattleground() && player->GetBattlegroundTypeId()==BattlegroundTypeId::BATTLEGROUND_WS)
+	{
+		engine->addStrategies("warsong", "attack weak", "racials", "chat", "default", "dps", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+	}
+	else {
+		engine->addStrategies("attack weak", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+	}
 
     switch (player->getClass())
     {
@@ -241,13 +247,27 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
 			nonCombatEngine->addStrategy("dps assist");
 			break;
     }
-    nonCombatEngine->addStrategies("nc", "attack weak", "food", "stay", "chat",
-            "default", "quest", "loot", "gather", "duel", "emote", "lfg", NULL);
+    if (player->InBattleground())
+	{
+		nonCombatEngine->addStrategies("grind", "warsong", "nc", "attack weak", "food", "chat",
++			"default", "quest", "loot", "gather", "duel", "emote", "lfg", "bg", "conserve mana", NULL);
+	}
+	else {
+		nonCombatEngine->addStrategies("nc", "attack weak", "food", "stay", "chat",
++			"default", "quest", "loot", "gather", "duel", "emote", "follow", "lfg", "bg", "conserve mana", NULL);
+	}
 
-    if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())
-    {
-        nonCombatEngine->ChangeStrategy(sPlayerbotAIConfig.randomBotNonCombatStrategies);
-    }
+	if (sRandomPlayerbotMgr.IsRandomBot(player))
+	{
+		if (!player->GetGroup())
+		{
+			nonCombatEngine->ChangeStrategy(sPlayerbotAIConfig.randomBotNonCombatStrategies);
+		}
+	}
+	else
+	{
+		nonCombatEngine->ChangeStrategy(sPlayerbotAIConfig.nonCombatStrategies);
+	}
 
 }
 

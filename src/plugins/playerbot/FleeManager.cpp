@@ -93,7 +93,12 @@ void FleeManager::cleanup(list<FleePoint*> &points)
 
 bool FleePoint::isReasonable()
 {
-    return toAllPlayers.max <= sPlayerbotAIConfig.sightDistance && toCreatures.min >= sPlayerbotAIConfig.tooCloseDistance;
+    return toCreatures.min >= 0 && toCreatures.max >= 0 &&
+		toAllPlayers.min >= 0 && toAllPlayers.max >= 0 &&
+		toAllPlayers.min <= sPlayerbotAIConfig.spellDistance &&
+		toAllPlayers.max <= sPlayerbotAIConfig.sightDistance &&
+		toCreatures.min >= sPlayerbotAIConfig.tooCloseDistance &&
+		toCreatures.max >= sPlayerbotAIConfig.shootDistance;
 }
 
 bool FleePoint::isBetterByCreatures(FleePoint* other)
