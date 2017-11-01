@@ -67,7 +67,8 @@ enum COF_Events
     EVENT_WP_START_WOODS = 2,
     EVENT_WP_START_HOUSE = 3,
     EVENT_WP_START_LISA = 4,
-    EVENT_PLAY_SOUNDS = 5
+    EVENT_PLAY_SOUNDS = 5,
+    EVENT_BEGIN_EVENT   = 6
 };
 
 class npc_cameron : public CreatureScript
@@ -80,13 +81,40 @@ public:
         npc_cameronAI(Creature* creature) : ScriptedAI(creature)
         {
             _started = false;
+            ///! @Riztazz
+            ///! only for testing, should be called elsewhere
+            ///! its delayed by 10 seconds so everything is loaded around cameron before we start anything
+            ///! otherwise we might have issues with getting guids when cameron loads before everything else
+            ///! if you're going to use it in UpdateAI (checking localTime) do a delayed start as well
+            _events.ScheduleEvent(EVENT_BEGIN_EVENT, Seconds(10));
+        }
+
+        void BeginMovementEvent()
+        {
+            _childrenGUIDs.clear();
+
+            if (Creature* dana = me->FindNearestCreature(NPC_DANA, 25.0f))
+                _childrenGUIDs.push_back(dana->GetGUID());
+
+            if (Creature* john = me->FindNearestCreature(NPC_JOHN, 25.0f))
+                _childrenGUIDs.push_back(john->GetGUID());
+
+            if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 25.0f))
+                _childrenGUIDs.push_back(lisa->GetGUID());
+
+            if (Creature* aaron = me->FindNearestCreature(NPC_AARON, 25.0f))
+                _childrenGUIDs.push_back(aaron->GetGUID());
+
+            if (Creature* jose = me->FindNearestCreature(NPC_JOSE, 25.0f))
+                _childrenGUIDs.push_back(jose->GetGUID());
+
             me->GetMotionMaster()->MovePath(STORMWIND_PATH, false);
             _started = true;
         }
 
         static uint32 SoundPicker()
         {
-            uint32 newid = RAND(
+            return RAND(
                 BANSHEE_DEATH,
                 BANSHEEPREAGGRO,
                 CTHUN_YOU_WILL_DIE,
@@ -94,7 +122,6 @@ public:
                 HUMAN_FEMALE_EMOTE_CRY,
                 GHOSTDEATH
             );
-            return newid;
         }
 
         void MoveTheChildren()
@@ -110,8 +137,14 @@ public:
             };
 
             Trinity::Containers::RandomShuffle(MovePosPositions);
-            printf("size of vector: %zu", MovePosPositions.size());
 
+            //! first we break formation because children will need to move on their own now
+            for (auto guid : _childrenGUIDs)
+            {
+                if (Creature* child = ObjectAccessor::GetCreature(*me, guid))
+                    if (child->GetFormation())
+                        child->GetFormation()->RemoveMember(child);
+            }
 
             for (auto i = 0; i < _childrenGUIDs.size(); ++i)
             {
@@ -167,24 +200,6 @@ public:
                 {
                     if (waypointId == HOUSE_WAYPOINT)
                     {
-                        // Break formation
-                        //me->GetFormation()->FormationReset(true);
-
-                        if (Creature* dana = me->FindNearestCreature(NPC_DANA, 10.0f))
-                            _childrenGUIDs.push_back(dana->GetGUID());
-
-                        if (Creature* john = me->FindNearestCreature(NPC_JOHN, 10.0f))
-                            _childrenGUIDs.push_back(john->GetGUID());
-
-                        if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 10.0f))
-                            _childrenGUIDs.push_back(lisa->GetGUID());
-
-                        if (Creature* aaron = me->FindNearestCreature(NPC_AARON, 10.0f))
-                            _childrenGUIDs.push_back(aaron->GetGUID());
-
-                        if (Creature* jose = me->FindNearestCreature(NPC_JOSE, 10.0f))
-                            _childrenGUIDs.push_back(jose->GetGUID());
-
                         MoveTheChildren();
 
                         // After 30 seconds a random sound should play
@@ -204,17 +219,16 @@ public:
             localtime_r(&time, &localTm);
 
             // Start event at 7 am
-            if ((localTm.tm_hour == 7 && localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started )
+            ///! @Riztazz
+            ///! THIS SHOULD BE MOVED TO EVENT_MAP AND CHECKED EVERY NOW AND AGAIN
+            ///! RIGHT NOW YOU'RE CALLING IT EVERY 50ms
+            if ((localTm.tm_hour >= 7) && !_started )
             {
-                // Restore formation
-                //me->SearchFormation();
-                // Begin pathing
-                me->GetMotionMaster()->MovePath(STORMWIND_PATH, false);
-                _started = true;
+                _events.ScheduleEvent(EVENT_BEGIN_EVENT, Seconds(10));
             }
 
             // Reset event at 8 am
-            if ((localTm.tm_hour == 8 && localTm.tm_min == 0 && localTm.tm_sec == 0) && _started == true)
+            if ((localTm.tm_hour >= 8) && _started)
                 _started = false;
 
             while (uint32 eventId = _events.ExecuteEvent())
@@ -231,12 +245,20 @@ public:
                         me->GetMotionMaster()->MovePath(HOUSE_PATH, false);
                         break;
                     case EVENT_WP_START_LISA:
-                        if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 10.0f))
+                        ///! @Riztazz | U have guid store now, just iterate and find her GUID instead of another grid search
+                        ///! You need to break her formation first if you want her to execute her path
+                        ///! otherwise she will run away when she enters the house
+                        ///! you also need to think about next day, she runs away and rest of the kids stay near cameron
+                        ///! cameron will do a grid search to find all 5 childs but Lisa will be too far away
+                        if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 25.0f))
                             lisa->GetMotionMaster()->MovePath(LISA_PATH, false);
 
                         break;
                     case EVENT_PLAY_SOUNDS:
                         me->PlayDistanceSound(SoundPicker());
+                        break;
+                    case EVENT_BEGIN_EVENT:
+                        BeginMovementEvent();
                         break;
                     default:
                         break;
