@@ -3,7 +3,7 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 
 DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = 18586);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(18586, 0, 0, 0, 0, 0, 100, 0, 2000, 2000, 5000, 5000, 11, 9532, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Coosh\'coosh - In Combat - Cast \'Lightning Bolt\''),
+(18586, 0, 0, 0, 0, 0, 100, 0, 2000, 2000, 3000, 3000, 11, 9532, 64, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Coosh\'coosh - In Combat - Cast \'Lightning Bolt\''),
 (18586, 0, 1, 2, 62, 0, 100, 0, 7730, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Coosh\'coosh - On Gossip Option 0 Selected - Close Gossip'),
 (18586, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 2, 45, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Coosh\'coosh - On Gossip Option 0 Selected - Set Faction Ogre'),
 (18586, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coosh\'coosh - On Gossip Option 0 Selected - Say Line 0'),
