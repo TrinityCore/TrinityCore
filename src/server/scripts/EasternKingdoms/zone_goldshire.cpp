@@ -68,23 +68,6 @@ enum COF_Events
     EVENT_PLAY_SOUNDS = 5
 };
 
-Position const MovePosPositionOne = { -9373.521f, -67.71767f, 69.201965f, 1.117011f };
-Position const MovePosPositionTwo = { -9374.94f, -62.51654f, 69.201965f, 5.201081f };
-Position const MovePosPositionThree = { -9371.013f, -71.20811f, 69.201965f, 1.937315f };
-Position const MovePosPositionFour = { -9368.419f, -66.47543f, 69.201965f, 3.141593f };
-Position const MovePosPositionFive = { -9372.376f, -65.49946f, 69.201965f, 4.206244f };
-Position const MovePosPositionSix = { -9377.477f, -67.8297f, 69.201965f, 0.296706f };
-
-std::vector<Position> const MovePosPositions =
-{
-    { -9373.521f, -67.71767f, 69.201965f, 1.117011f },
-    { -9374.94f, -62.51654f, 69.201965f, 5.201081f },
-    { -9371.013f, -71.20811f, 69.201965f, 1.937315f },
-    { -9368.419f, -66.47543f, 69.201965f, 3.141593f },
-    { -9372.376f, -65.49946f, 69.201965f, 4.206244f },
-    { -9377.477f, -67.8297f, 69.201965f, 0.296706f }
-};
-
 class npc_cameron : public CreatureScript
 {
 public:
@@ -110,6 +93,33 @@ public:
                 GHOSTDEATH
             );
             return newid;
+        }
+
+        void MoveTheChildren()
+        {
+            std::vector<Position> MovePosPositions =
+            {
+                { -9373.521f, -67.71767f, 69.201965f, 1.117011f },
+                { -9374.94f, -62.51654f, 69.201965f, 5.201081f },
+                { -9371.013f, -71.20811f, 69.201965f, 1.937315f },
+                { -9368.419f, -66.47543f, 69.201965f, 3.141593f },
+                { -9372.376f, -65.49946f, 69.201965f, 4.206244f },
+                { -9377.477f, -67.8297f, 69.201965f, 0.296706f }
+            };
+
+            Trinity::Containers::RandomShuffle(MovePosPositions);
+
+            for (auto i = 0; i < _childrenGUIDs.size(); ++i)
+            {
+                if (Creature* children = ObjectAccessor::GetCreature(*me, _childrenGUIDs.at(i)))
+                {
+                    children->GetMotionMaster()->MovePoint(0, MovePosPositions.at(i));
+                    me->SetHomePosition(MovePosPositions.at(i));
+                }
+            }
+
+            me->GetMotionMaster()->MovePoint(0, MovePosPositions.back());
+            me->SetHomePosition(MovePosPositions.back());
         }
 
         void WaypointReached(uint32 waypointId, uint32 pathId) override
@@ -153,23 +163,20 @@ public:
                 {
                     if (waypointId == HOUSE_WAYPOINT)
                     {
-                        me->GetMotionMaster()->MovePoint(0, MovePosPositionOne);
-                        me->SetHomePosition(MovePosPositionOne);
-
                         if (Creature* dana = me->FindNearestCreature(NPC_DANA, 10.0f))
-                            dana->GetMotionMaster()->MovePoint(0, MovePosPositionTwo, true);
+                            _childrenGUIDs.push_back(dana->GetGUID());
 
                         if (Creature* john = me->FindNearestCreature(NPC_JOHN, 10.0f))
-                            john->GetMotionMaster()->MovePoint(0, MovePosPositionThree, true);
+                            _childrenGUIDs.push_back(john->GetGUID());
 
                         if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 10.0f))
-                            lisa->GetMotionMaster()->MovePoint(0, MovePosPositionFour, true);
+                            _childrenGUIDs.push_back(lisa->GetGUID());
 
                         if (Creature* aaron = me->FindNearestCreature(NPC_AARON, 10.0f))
-                            aaron->GetMotionMaster()->MovePoint(0, MovePosPositionFive, true);
+                            _childrenGUIDs.push_back(aaron->GetGUID());
 
                         if (Creature* jose = me->FindNearestCreature(NPC_JOSE, 10.0f))
-                            jose->GetMotionMaster()->MovePoint(0, MovePosPositionSix, true);
+                            _childrenGUIDs.push_back(jose->GetGUID());
 
                         // Between 30 and 60 seconds a random sound should play
                         uint32 rnd = urand(30, 60);
@@ -229,6 +236,7 @@ public:
     private:
         EventMap _events;
         bool _started;
+        GuidVector _childrenGUIDs;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
