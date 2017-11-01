@@ -1,13 +1,5 @@
 UPDATE `creature_template` SET `ScriptName`='npc_cameron' WHERE `entry`=805;
 
--- Only for 4.x
-UPDATE `creature` SET `position_x`=-9350.654, `position_y`=-90.29861, `position_z`=65.15973, `orientation`=5.20108 WHERE `guid`=79642;
-UPDATE `creature` SET `position_x`=-9354.359, `position_y`=-91.97743, `position_z`=64.87327, `orientation`=1.937315 WHERE `guid`=79643;
-UPDATE `creature` SET `position_x`=-9356.938, `position_y`=-87.10703, `position_z`=64.92709, `orientation`=4.206244 WHERE `guid`=79641;
-UPDATE `creature` SET `position_x`=-9355.375, `position_y`=-87.10703, `position_z`=65.69692, `orientation`=0.296706 WHERE `guid`=79638;
-UPDATE `creature` SET `position_x`=-9353.279, `position_y`=-89.96702, `position_z`=65.22049, `orientation`=3.141593 WHERE `guid`=79640;
-UPDATE `creature` SET `position_x`=-9352.859, `position_y`=-93.96007, `position_z`=64.4566, `orientation`=1.117011 WHERE `guid`=79639;
-
 DELETE FROM `creature_formations` WHERE `leaderGUID`=79638;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES
 (79638, 79638, 0, 0,   515), -- Cameron
@@ -139,7 +131,6 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@ENTRY, 22,-9155.88,-137.6466,74.73592, 0, 0, 0, 0, 100, 0);
 
 -- HOUSE_PATH
--- Only for 4.x
 SET @ENTRY := 80503;
 DELETE FROM `waypoint_data` WHERE `id`=@ENTRY;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
@@ -167,8 +158,17 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@ENTRY, 22,-9359.373,-69.76035,64.45229, 0, 0, 0, 0, 100, 0), -- 07:39:44
 (@ENTRY, 23,-9360.618,-71.72406,64.24545, 0, 0, 0, 0, 100, 0), -- 07:39:50
 (@ENTRY, 24,-9366.256,-80.96321,64.52115, 0, 0, 0, 0, 100, 0), -- 07:39:54
-(@ENTRY, 25,-9364.25,-85.4796,65.50365, 0, 0, 0, 0, 100, 0), -- 07:39:56
-(@ENTRY, 26,-9354.806,-87.93577,65.47449, 0, 0, 0, 0, 100, 0); -- 07:40:01
+(@ENTRY, 25,-9372.031,-87.89227,64.235367, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 26,-9376.598,-89.94442,63.722805, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 27,-9383.135,-84.98008,63.336449, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 28,-9380.336,-78.55399,64.437691, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 29,-9390.718,-68.80339,64.437691, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 30,-9392.218,-71.91143,64.437691, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 31,-9385.052,-76.36288,69.202148, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 32,-9382.018,-76.88008,69.164696, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 33,-9377.161,-72.19738,69.198997, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 34,-9375.251,-70.71793,69.201691, 0, 0, 0, 0, 100, 0),
+(@ENTRY, 35,-9372.823,-66.29554,69.201859, 0, 0, 0, 0, 100, 0);
 
 -- Lisa run away waypoints
 SET @ENTRY := 80700;
@@ -177,39 +177,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@ENTRY, 1,-9154.618,-134.9246,75.17611, 0, 0, 1, 0, 100, 0), -- 07:32:15
 (@ENTRY, 2,-9155.719,-132.458,75.17039, 0, 0, 1, 0, 100, 0), -- 07:32:15
 (@ENTRY, 3,-9340.689,-89.09771,66.49249, 0, 0, 1, 0, 100, 0), -- 07:32:27
-(@ENTRY, 4,-9353.076,-86.58789,65.68958, 0, 0, 0, 0, 100, 0); -- 07:33:47 Random movement
-
--- Lisa SAI
-SET @ENTRY := 807;
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,38,0,100,0,2,1,0,0,53,1,807,0,0,0,0,1,0,0,0,0,0,0,0,"Lisa - On Data Set 2 1 - Start Waypoint");
-
--- Aaron SAI
-SET @ENTRY := 810;
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,38,0,100,0,1,1,0,0,69,1,0,0,0,0,0,8,0,0,0,-9354.359,-91.97743,64.86536,1.117011,"Aaron - On Data Set 1 1 - Move To Position");
-
--- Jose SAI
-SET @ENTRY := 811;
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,38,0,100,0,1,1,0,0,69,1,0,0,0,0,0,8,0,0,0,-9356.938,-91.69791,64.93226,0.296706,"Jose - On Data Set 1 1 - Move To Position");
-
--- Dana SAI
-SET @ENTRY := 804;
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,38,0,100,0,1,1,0,0,69,1,0,0,0,0,0,8,0,0,0,-9353.279,-89.96702,65.20618,4.206244,"Dana - On Data Set 1 1 - Move To Position");
-
--- John SAI
-SET @ENTRY := 806;
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,38,0,100,0,1,1,0,0,69,1,0,0,0,0,0,8,0,0,0,-9352.859,-93.96007,64.3888,1.937315,"John - On Data Set 1 1 - Move To Position");
+(@ENTRY, 4,-9353.076,-86.58789,65.68958, 0, 0, 0, 0, 100, 0); -- 07:33:47

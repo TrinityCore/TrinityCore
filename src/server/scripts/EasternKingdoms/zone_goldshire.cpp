@@ -21,12 +21,7 @@
 #include "GameEventMgr.h"
 #include "GameTime.h"
 
-enum GameEvent
-{
-    GAME_EVENT_CHILDEREN_OF_GOLDSHIRE = 74
-};
-
-enum Paths
+enum COF_Paths
 {
     STORMWIND_PATH = 80500,
     GOLDSHIRE_PATH = 80501,
@@ -35,26 +30,26 @@ enum Paths
     LISA_PATH = 80700
 };
 
-enum Waypoints
+enum COF_Waypoints
 {
     STORMWIND_WAYPOINT = 52,
     GOLDSHIRE_WAYPOINT = 32,
     WOODS_WAYPOINT = 22,
-    HOUSE_WAYPOINT = 26,
+    HOUSE_WAYPOINT = 35,
     LISA_WAYPOINT = 4
 };
 
-enum Sounds
+enum COF_Sounds
 {
     BANSHEE_DEATH = 1171,
-    BANSHEEATTACK = 1167,
+    BANSHEEPREAGGRO = 1172,
     CTHUN_YOU_WILL_DIE = 8585,
     CTHUN_DEATH_IS_CLOSE = 8580,
     HUMAN_FEMALE_EMOTE_CRY = 6916,
     GHOSTDEATH = 3416
 };
 
-enum Creatures
+enum COF_Creatures
 {
     NPC_DANA = 804,
     NPC_CAMERON = 805,
@@ -64,7 +59,7 @@ enum Creatures
     NPC_JOSE = 811
 };
 
-enum Events
+enum COF_Events
 {
     EVENT_WP_START_GOLDSHIRE = 1,
     EVENT_WP_START_WOODS = 2,
@@ -73,7 +68,22 @@ enum Events
     EVENT_PLAY_SOUNDS = 5
 };
 
-Position const MovePosCameron = { -9354.81f, -87.9358f, 65.4745f, 5.20108f };
+Position const MovePosPositionOne = { -9373.521f, -67.71767f, 69.201965f, 1.117011f };
+Position const MovePosPositionTwo = { -9374.94f, -62.51654f, 69.201965f, 5.201081f };
+Position const MovePosPositionThree = { -9371.013f, -71.20811f, 69.201965f, 1.937315f };
+Position const MovePosPositionFour = { -9368.419f, -66.47543f, 69.201965f, 3.141593f };
+Position const MovePosPositionFive = { -9372.376f, -65.49946f, 69.201965f, 4.206244f };
+Position const MovePosPositionSix = { -9377.477f, -67.8297f, 69.201965f, 0.296706f };
+
+std::vector<Position> const MovePosPositions =
+{
+    { -9373.521f, -67.71767f, 69.201965f, 1.117011f },
+    { -9374.94f, -62.51654f, 69.201965f, 5.201081f },
+    { -9371.013f, -71.20811f, 69.201965f, 1.937315f },
+    { -9368.419f, -66.47543f, 69.201965f, 3.141593f },
+    { -9372.376f, -65.49946f, 69.201965f, 4.206244f },
+    { -9377.477f, -67.8297f, 69.201965f, 0.296706f }
+};
 
 class npc_cameron : public CreatureScript
 {
@@ -85,14 +95,15 @@ public:
         npc_cameronAI(Creature* creature) : ScriptedAI(creature)
         {
             _started = false;
-            creature->setActive(true);
+            me->GetMotionMaster()->MovePath(STORMWIND_PATH, false);
+            _started = true;
         }
 
         static uint32 SoundPicker()
         {
             uint32 newid = RAND(
                 BANSHEE_DEATH,
-                BANSHEEATTACK,
+                BANSHEEPREAGGRO,
                 CTHUN_YOU_WILL_DIE,
                 CTHUN_DEATH_IS_CLOSE,
                 HUMAN_FEMALE_EMOTE_CRY,
@@ -110,9 +121,8 @@ public:
                     if (waypointId == STORMWIND_WAYPOINT)
                     {
                         me->SetHomePosition(me->GetPosition());
-                        me->GetMotionMaster()->MovementExpired();
-                        me->GetMotionMaster()->MoveRandom(5.f);
-                        _events.ScheduleEvent(EVENT_WP_START_GOLDSHIRE, Seconds(2));
+                        me->GetMotionMaster()->MoveRandom(10.f);
+                        _events.ScheduleEvent(EVENT_WP_START_GOLDSHIRE, Seconds(2)); // Minutes(11)
                     }
 
                     break;
@@ -122,9 +132,8 @@ public:
                     if (waypointId == GOLDSHIRE_WAYPOINT)
                     {
                         me->SetHomePosition(me->GetPosition());
-                        me->GetMotionMaster()->MovementExpired();
-                        me->GetMotionMaster()->MoveRandom(5.f);
-                        _events.ScheduleEvent(EVENT_WP_START_WOODS, Seconds(2));
+                        me->GetMotionMaster()->MoveRandom(10.f);
+                        _events.ScheduleEvent(EVENT_WP_START_WOODS, Seconds(2)); // Minutes(15)
                     }
                     break;
                 }
@@ -133,9 +142,9 @@ public:
                     if (waypointId == WOODS_WAYPOINT)
                     {
                         me->SetHomePosition(me->GetPosition());
-                        me->GetMotionMaster()->MovementExpired();
-                        _events.ScheduleEvent(EVENT_WP_START_HOUSE, Seconds(2));
-                        _events.ScheduleEvent(EVENT_WP_START_LISA, Seconds(1));
+                        me->GetMotionMaster()->MoveRandom(10.f);
+                        _events.ScheduleEvent(EVENT_WP_START_HOUSE, Seconds(2));  // Minutes(6)
+                        _events.ScheduleEvent(EVENT_WP_START_LISA, Seconds(2));
                     }
 
                     break;
@@ -144,26 +153,27 @@ public:
                 {
                     if (waypointId == HOUSE_WAYPOINT)
                     {
-                        me->SetHomePosition(me->GetPosition());
-                        //me->GetMotionMaster()->MovementExpired();
-                        me->GetMotionMaster()->MovePoint(1, MovePosCameron);
-
-                        _events.ScheduleEvent(EVENT_PLAY_SOUNDS, Seconds(10));
+                        me->GetMotionMaster()->MovePoint(0, MovePosPositionOne);
+                        me->SetHomePosition(MovePosPositionOne);
 
                         if (Creature* dana = me->FindNearestCreature(NPC_DANA, 10.0f))
-                            dana->AI()->SetData(1, 1);
+                            dana->GetMotionMaster()->MovePoint(0, MovePosPositionTwo, true);
 
                         if (Creature* john = me->FindNearestCreature(NPC_JOHN, 10.0f))
-                            john->AI()->SetData(1, 1);
+                            john->GetMotionMaster()->MovePoint(0, MovePosPositionThree, true);
 
                         if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 10.0f))
-                            lisa->AI()->SetData(1, 1);
+                            lisa->GetMotionMaster()->MovePoint(0, MovePosPositionFour, true);
 
                         if (Creature* aaron = me->FindNearestCreature(NPC_AARON, 10.0f))
-                            aaron->AI()->SetData(1, 1);
+                            aaron->GetMotionMaster()->MovePoint(0, MovePosPositionFive, true);
 
                         if (Creature* jose = me->FindNearestCreature(NPC_JOSE, 10.0f))
-                            jose->AI()->SetData(1, 1);
+                            jose->GetMotionMaster()->MovePoint(0, MovePosPositionSix, true);
+
+                        // Between 30 and 60 seconds a random sound should play
+                        uint32 rnd = urand(30, 60);
+                        _events.ScheduleEvent(EVENT_PLAY_SOUNDS, Seconds(rnd));
                     }
                     break;
                 }
@@ -187,49 +197,29 @@ public:
 
             // Reset event at 8 am
             if ((localTm.tm_hour == 8 && localTm.tm_min == 0 && localTm.tm_sec == 0) && _started == true)
-            {
                 _started = false;
-            }
 
             while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                     case EVENT_WP_START_GOLDSHIRE:
-                    {
-                        me->GetMotionMaster()->MovementExpired();
                         me->GetMotionMaster()->MovePath(GOLDSHIRE_PATH, false);
                         break;
-                    }
                     case EVENT_WP_START_WOODS:
-                    {
-                        me->GetMotionMaster()->MovementExpired();
                         me->GetMotionMaster()->MovePath(WOODS_PATH, false);
                         break;
-                    }
                     case EVENT_WP_START_HOUSE:
-                    {
-                        me->GetMotionMaster()->MovementExpired();
                         me->GetMotionMaster()->MovePath(HOUSE_PATH, false);
                         break;
-                    }
                     case EVENT_WP_START_LISA:
-                    {
                         if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 10.0f))
-                        {
-                            lisa->GetMotionMaster()->MovementExpired();
                             lisa->GetMotionMaster()->MovePath(LISA_PATH, false);
-                        }
+
                         break;
-                    }
                     case EVENT_PLAY_SOUNDS:
-                    {
-                        me->PlayDistanceSound(SoundPicker());
-                        me->PlayDistanceSound(SoundPicker());
-                        me->PlayDistanceSound(SoundPicker());
                         me->PlayDistanceSound(SoundPicker());
                         break;
-                    }
                     default:
                         break;
                 }
