@@ -1,0 +1,34 @@
+/*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef IPCData_h__
+#define IPCData_h__
+
+#include <Windows.h>
+
+#define SharedMemoryName "client_initializer_shm"
+
+#define ApcStarted "client_apc_started"
+#define ApcFinished "client_apc_done"
+
+struct IPCData
+{
+    PAPCFUNC SignalReadyAddress;
+    HMODULE InitializerHandle;
+};
+
+#endif // IPCData_h__

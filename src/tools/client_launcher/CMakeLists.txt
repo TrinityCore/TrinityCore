@@ -8,15 +8,23 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if (WIN32)
-  add_subdirectory(client_launcher)
-  add_subdirectory(client_initializer)
+CollectSourceFiles(${CMAKE_CURRENT_SOURCE_DIR} PRIVATE_SOURCES)
+
+list(APPEND PRIVATE_SOURCES ${sources_windows})
+
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
+
+if(PLATFORM EQUAL 64)
+  set(target_name client_launcher_64)
 else()
-  add_subdirectory(connection_patcher)
+  set(target_name client_launcher_32)
 endif()
 
-add_subdirectory(extractor_common)
-add_subdirectory(map_extractor)
-add_subdirectory(vmap4_assembler)
-add_subdirectory(vmap4_extractor)
-add_subdirectory(mmaps_generator)
+add_executable(${target_name} ${PRIVATE_SOURCES})
+
+target_link_libraries(${target_name}
+  PUBLIC
+    common
+)
+
+install(TARGETS ${target_name} DESTINATION "${CMAKE_INSTALL_PREFIX}")
