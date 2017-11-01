@@ -235,7 +235,6 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         uint32 mDespawnTime;
         uint32 mDespawnState;
-        bool mJustReset;
 
         // Vehicle conditions
         bool mHasConditions;
