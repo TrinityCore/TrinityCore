@@ -20,6 +20,8 @@
 #include "ObjectAccessor.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
+#include "Creature.h"
+#include "CreatureGroups.h"
 
 enum COF_Paths
 {
@@ -108,6 +110,8 @@ public:
             };
 
             Trinity::Containers::RandomShuffle(MovePosPositions);
+            printf("size of vector: %zu", MovePosPositions.size());
+
 
             for (auto i = 0; i < _childrenGUIDs.size(); ++i)
             {
@@ -163,7 +167,8 @@ public:
                 {
                     if (waypointId == HOUSE_WAYPOINT)
                     {
-                        MoveTheChildren();
+                        // Break formation
+                        //me->GetFormation()->FormationReset(true);
 
                         if (Creature* dana = me->FindNearestCreature(NPC_DANA, 10.0f))
                             _childrenGUIDs.push_back(dana->GetGUID());
@@ -179,6 +184,8 @@ public:
 
                         if (Creature* jose = me->FindNearestCreature(NPC_JOSE, 10.0f))
                             _childrenGUIDs.push_back(jose->GetGUID());
+
+                        MoveTheChildren();
 
                         // After 30 seconds a random sound should play
                         _events.ScheduleEvent(EVENT_PLAY_SOUNDS, Seconds(30));
@@ -199,6 +206,9 @@ public:
             // Start event at 7 am
             if ((localTm.tm_hour == 7 && localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started )
             {
+                // Restore formation
+                //me->SearchFormation();
+                // Begin pathing
                 me->GetMotionMaster()->MovePath(STORMWIND_PATH, false);
                 _started = true;
             }
