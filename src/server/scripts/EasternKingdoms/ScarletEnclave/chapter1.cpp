@@ -1234,11 +1234,6 @@ class npc_scarlet_miner : public CreatureScript
         }
 };
 
-enum StableMasterRepo
-{
-    SPELL_REPO = 52265
-};
-
 class spell_stable_master_repo : public SpellScriptLoader
 {
 public:
@@ -1247,11 +1242,6 @@ public:
     class spell_stable_master_repo_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_stable_master_repo_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_REPO });
-        }
 
         void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
