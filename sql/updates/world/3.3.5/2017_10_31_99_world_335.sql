@@ -10,12 +10,12 @@ UPDATE `creature` SET `position_x`=-9352.859, `position_y`=-93.96007, `position_
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=79638;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES
-(79638, 79638, 0, 0, 0), -- Cameron
-(79638, 79639, 3, 230, 0), -- John
-(79638, 79640, 3, 180, 0), -- Dana
-(79638, 79641, 3, 130, 0), -- Jose
-(79638, 79642, 3, 310, 0), -- Lisa
-(79638, 79643, 3, 50, 0); -- Aaron
+(79638, 79638, 0, 0,   515), -- Cameron
+(79638, 79639, 3, 230, 515), -- John
+(79638, 79640, 3, 180, 515), -- Dana
+(79638, 79641, 3, 130, 515), -- Jose
+(79638, 79642, 3, 310, 515), -- Lisa
+(79638, 79643, 3, 50,  515); -- Aaron
 
 -- STORMWIND_PATH
 SET @ENTRY := 80500;
