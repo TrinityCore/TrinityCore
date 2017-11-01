@@ -2503,7 +2503,7 @@ void ScriptMgr::OnAddParticipant(Conversation* conversation, ObjectGuid particip
     ASSERT(conversation);
 
     GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
-    tmpscript->OnAddActor(conversation, participantGuid);
+    tmpscript->OnAddParticipant(conversation, participantGuid);
 }
 
 SpellScriptLoader::SpellScriptLoader(const char* name)
