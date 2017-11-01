@@ -137,18 +137,24 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     }
 
     uint16 linesIndex = 0;
+    std::list<uint16> _totalActorIdx;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
+    {
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, line);
 
-    sScriptMgr->OnConversationCreate(this, creator);
+        _totalActorIdx.push_back(line->ActorIdx);
+    }
 
-    // return if there is no actor added (actors start at idx = 0), missing actors cause client crash
-    if (!GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, 0))
+    _totalActorIdx.sort();
+    _totalActorIdx.unique();
+
+    if (!sScriptMgr->OnConversationCreate(this, creator))
         return false;
 
-    // option to prevent AddToMap by external script, e.g. ConversationScript or InstanceScript
-    if (!_isValid)
-        return false;
+    // All actors need to be set
+    for (std::list<uint16>::iterator itr = _totalActorIdx.begin(); itr != _totalActorIdx.end(); ++itr)
+        if (!GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, *itr))
+            return false;
 
     if (!GetMap()->AddToMap(this))
         return false;

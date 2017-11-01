@@ -117,7 +117,7 @@ struct is_script_database_bound<SceneScript>
 
 template<>
 struct is_script_database_bound<ConversationScript>
-: std::true_type { };
+    : std::true_type { };
 
 enum Spells
 {
@@ -773,6 +773,35 @@ public:
             sObjectMgr->ValidateSpellScripts();
             swapped = false;
         }
+    }
+
+    void BeforeUnload() final override
+    {
+        ASSERT(!swapped);
+    }
+
+private:
+    bool swapped;
+};
+
+/// This hook is responsible for swapping ConversationScript's
+template<typename Base>
+class ScriptRegistrySwapHooks<ConversationScript, Base>
+    : public ScriptRegistrySwapHookBase
+{
+public:
+    ScriptRegistrySwapHooks() : swapped(false) { }
+
+    void BeforeReleaseContext(std::string const& context) final override
+    {
+        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+        if (bounds.first != bounds.second)
+            swapped = true;
+    }
+
+    void BeforeSwapContext(bool /*initialize*/) override
+    {
+        swapped = false;
     }
 
     void BeforeUnload() final override
@@ -2453,12 +2482,12 @@ void ScriptMgr::OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTem
     tmpscript->OnSceneComplete(player, sceneInstanceID, sceneTemplate);
 }
 
-void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
+bool ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
 {
     ASSERT(conversation);
 
-    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
-    tmpscript->OnConversationCreate(conversation, creator);
+    GET_SCRIPT_RET(ConversationScript, conversation->GetScriptId(), tmpscript, true);
+    return tmpscript->OnConversationCreate(conversation, creator);
 }
 
 SpellScriptLoader::SpellScriptLoader(const char* name)

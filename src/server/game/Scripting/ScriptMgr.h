@@ -888,7 +888,7 @@ protected:
 
 public:
 
-    virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { }
+    virtual bool OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { return true; }
 };
 
 // Manages registration, loading, and execution of scripts.
@@ -1180,7 +1180,7 @@ class TC_GAME_API ScriptMgr
         void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
 
     public: /* ConversationScript */
-        void OnConversationCreate(Conversation* conversation, Unit* creator);
+        bool OnConversationCreate(Conversation* conversation, Unit* creator);
 
     private:
         uint32 _scriptCount;
