@@ -18,13 +18,12 @@
 /* ScriptData
 SDName: Zangarmarsh
 SD%Complete: 100
-SDComment: Quest support: 9752, 9785, 10009. Mark Of ... buffs.
+SDComment: Quest support: 9752, 9785, Mark Of ... buffs.
 SDCategory: Zangarmarsh
 EndScriptData */
 
 /* ContentData
 npcs_ashyen_and_keleth
-npc_cooshcoosh
 npc_kayra_longmane
 EndContentData */
 
@@ -153,91 +152,6 @@ public:
 };
 
 /*######
-## npc_cooshcoosh
-######*/
-
-#define GOSSIP_COOSH            "You owe Sim'salabim money. Hand them over or die!"
-
-enum Cooshhooosh
-{
-    SPELL_LIGHTNING_BOLT    = 9532,
-    QUEST_CRACK_SKULLS      = 10009
-};
-
-class npc_cooshcoosh : public CreatureScript
-{
-public:
-    npc_cooshcoosh() : CreatureScript("npc_cooshcoosh") { }
-
-    struct npc_cooshcooshAI : public ScriptedAI
-    {
-        npc_cooshcooshAI(Creature* creature) : ScriptedAI(creature)
-        {
-            m_uiNormFaction = creature->GetFaction();
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            LightningBolt_Timer = 2000;
-        }
-
-        uint32 m_uiNormFaction;
-        uint32 LightningBolt_Timer;
-
-        void Reset() override
-        {
-            Initialize();
-            if (me->GetFaction() != m_uiNormFaction)
-                me->SetFaction(m_uiNormFaction);
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (LightningBolt_Timer <= diff)
-            {
-                DoCastVictim(SPELL_LIGHTNING_BOLT);
-                LightningBolt_Timer = 5000;
-            } else LightningBolt_Timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_COOSH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-            SendGossipMenuFor(player, 9441, me->GetGUID());
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_INFO_DEF)
-            {
-                CloseGossipMenuFor(player);
-                me->SetFaction(FACTION_OGRE);
-                AttackStart(player);
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_cooshcooshAI(creature);
-    }
-};
-
-/*######
 ## npc_kayra_longmane
 ######*/
 
@@ -319,6 +233,5 @@ public:
 void AddSC_zangarmarsh()
 {
     new npcs_ashyen_and_keleth();
-    new npc_cooshcoosh();
     new npc_kayra_longmane();
 }
