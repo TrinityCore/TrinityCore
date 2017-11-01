@@ -32,7 +32,7 @@ enum COF_Paths
 
 enum COF_Waypoints
 {
-    STORMWIND_WAYPOINT = 52,
+    STORMWIND_WAYPOINT = 57,
     GOLDSHIRE_WAYPOINT = 32,
     WOODS_WAYPOINT = 22,
     HOUSE_WAYPOINT = 35,
@@ -180,9 +180,8 @@ public:
                         if (Creature* jose = me->FindNearestCreature(NPC_JOSE, 10.0f))
                             _childrenGUIDs.push_back(jose->GetGUID());
 
-                        // Between 30 and 60 seconds a random sound should play
-                        uint32 rnd = urand(30, 60);
-                        _events.ScheduleEvent(EVENT_PLAY_SOUNDS, Seconds(rnd));
+                        // After 30 seconds a random sound should play
+                        _events.ScheduleEvent(EVENT_PLAY_SOUNDS, Seconds(30));
                     }
                     break;
                 }
