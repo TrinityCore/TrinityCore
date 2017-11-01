@@ -10,9 +10,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (18586, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Coosh\'coosh - On Gossip Option 0 Selected - Start Attacking'),
 (18586, 0, 5, 0, 25, 0, 100, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Coosh\'coosh - On Reset - Set Default Faction');
 
-DELETE FROM `gossip_menu_option` WHERE `MenuID` = 18586;
+DELETE FROM `gossip_menu_option` WHERE `MenuID` = 7730;
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild) VALUES
-7730, 0, 0, 'I have been sent by Sal\'salabim to collect a debt that you owe. Pay up or I\'m going to have to hurt you.', 15560, 1, 1, 0, 0, 0, 0, '', 0, 0);
+(7730, 0, 0, 'I have been sent by Sal\'salabim to collect a debt that you owe. Pay up or I\'m going to have to hurt you.', 15560, 1, 1, 0, 0, 0, 0, '', 0, 0);
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 18586;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound, `BroadcastTextID`, `TextRange`, `comment`) VALUES
