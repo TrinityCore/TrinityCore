@@ -86,14 +86,19 @@ void AddSC_instance_wailing_caverns();
 void AddSC_boss_zum_rah();                   //Zul'Farrak
 void AddSC_zulfarrak();
 void AddSC_instance_zulfarrak();
-void AddSC_instance_halls_of_origination();
+void AddSC_instance_halls_of_origination();  //Halls of Origination
 void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
 void AddSC_boss_anraphet();
 void AddSC_instance_firelands();
-void AddSC_firelands();
+void AddSC_firelands();                     //Firelands
+void AddSC_boss_shannox();
+void AddSC_boss_bethtilac();
 void AddSC_boss_alysrazor();
+void AddSC_boss_lord_rhyolith();
+void AddSC_boss_ragnaros_firelands();
 void AddSC_boss_baleroc();
+void AddSC_boss_majordomo_staghelm();
 
 void AddSC_ashenvale();
 void AddSC_azshara();
@@ -192,6 +197,19 @@ void AddKalimdorScripts()
     AddSC_boss_zum_rah();                   //Zul'Farrak
     AddSC_zulfarrak();
     AddSC_instance_zulfarrak();
+    AddSC_instance_halls_of_origination();  //Halls of Origination
+    AddSC_boss_temple_guardian_anhuur();
+    AddSC_boss_earthrager_ptah();
+    AddSC_boss_anraphet();
+    AddSC_instance_firelands();             //Firelands
+    AddSC_firelands();
+    AddSC_boss_shannox();
+    AddSC_boss_bethtilac();
+    AddSC_boss_alysrazor();
+    AddSC_boss_lord_rhyolith();
+    AddSC_boss_ragnaros_firelands();
+    AddSC_boss_baleroc();
+    AddSC_boss_majordomo_staghelm();
 
     AddSC_ashenvale();
     AddSC_azshara();
@@ -215,14 +233,4 @@ void AddKalimdorScripts()
     AddSC_thunder_bluff();
     AddSC_ungoro_crater();
     AddSC_winterspring();
-
-    AddSC_instance_halls_of_origination();
-    AddSC_boss_temple_guardian_anhuur();
-    AddSC_boss_earthrager_ptah();
-    AddSC_boss_anraphet();
-
-    AddSC_instance_firelands();
-    AddSC_firelands();
-    AddSC_boss_alysrazor();
-    AddSC_boss_baleroc();
 }
