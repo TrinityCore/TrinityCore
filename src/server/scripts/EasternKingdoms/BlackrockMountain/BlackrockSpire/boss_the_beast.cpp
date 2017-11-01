@@ -19,11 +19,6 @@
 #include "ScriptMgr.h"
 #include "blackrock_spire.h"
 #include "ScriptedCreature.h"
-#include "Player.h"
-#include "ObjectAccessor.h"
-#include "InstanceScript.h"
-#include "MotionMaster.h"
-#include "SpellInfo.h"
 
 enum BeastSpells
 {
