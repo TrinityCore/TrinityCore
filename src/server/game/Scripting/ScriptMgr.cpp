@@ -2490,6 +2490,22 @@ bool ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
     return tmpscript->OnConversationCreate(conversation, creator);
 }
 
+void ScriptMgr::OnAddActor(Conversation* conversation, ObjectGuid actorGuid, uint16 actorIdx)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnAddActor(conversation, actorGuid, actorIdx);
+}
+
+void ScriptMgr::OnAddParticipant(Conversation* conversation, ObjectGuid participantGuid)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnAddActor(conversation, participantGuid);
+}
+
 SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {
