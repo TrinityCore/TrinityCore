@@ -209,11 +209,12 @@ class spell_item_anger_capacitor : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOTE_OF_ANGER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MANIFEST_ANGER_MAIN_HAND) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MANIFEST_ANGER_OFF_HAND))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_MOTE_OF_ANGER,
+                    SPELL_MANIFEST_ANGER_MAIN_HAND,
+                    SPELL_MANIFEST_ANGER_OFF_HAND
+                });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -564,13 +565,14 @@ class spell_item_deathbringers_will : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(Strength) ||
-                    !sSpellMgr->GetSpellInfo(Agility) ||
-                    !sSpellMgr->GetSpellInfo(AttackPower) ||
-                    !sSpellMgr->GetSpellInfo(Critical) ||
-                    !sSpellMgr->GetSpellInfo(Haste))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    Strength,
+                    Agility,
+                    AttackPower,
+                    Critical,
+                    Haste
+                });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -1128,12 +1130,13 @@ class spell_item_heartpierce : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(Energy) ||
-                    !sSpellMgr->GetSpellInfo(Mana) ||
-                    !sSpellMgr->GetSpellInfo(Rage) ||
-                    !sSpellMgr->GetSpellInfo(RunicPower))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    Energy,
+                    Mana,
+                    Rage,
+                    RunicPower
+                });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -3611,10 +3614,7 @@ class spell_item_shard_of_the_scale : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(HealProc) ||
-                    !sSpellMgr->GetSpellInfo(DamageProc))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ HealProc, DamageProc });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -3750,11 +3750,13 @@ class spell_item_sunwell_neck : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sFactionStore.LookupEntry(FACTION_ALDOR) ||
-                    !sFactionStore.LookupEntry(FACTION_SCRYERS) ||
-                    !sSpellMgr->GetSpellInfo(Aldors) ||
-                    !sSpellMgr->GetSpellInfo(Scryers))
+                    !sFactionStore.LookupEntry(FACTION_SCRYERS))
                     return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    Aldors,
+                    Scryers
+                });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -4165,6 +4167,115 @@ class spell_item_taunt_flag_targeting : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_item_taunt_flag_targeting_SpellScript();
+        }
+};
+
+// 13180 - Gnomish Mind Control Cap
+enum MindControlCap
+{
+    ROLL_CHANCE_DULLARD             = 32,
+    ROLL_CHANCE_NO_BACKFIRE         = 95,
+    SPELL_GNOMISH_MIND_CONTROL_CAP  = 13181,
+    SPELL_DULLARD                   = 67809
+};
+
+class spell_item_mind_control_cap : public SpellScriptLoader
+{
+    public:
+        spell_item_mind_control_cap() : SpellScriptLoader("spell_item_mind_control_cap") { }
+
+        class spell_item_mind_control_cap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_mind_control_cap_SpellScript);
+
+            bool Load() override
+            {
+                if (!GetCastItem())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_GNOMISH_MIND_CONTROL_CAP, SPELL_DULLARD });
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    if (roll_chance_i(ROLL_CHANCE_NO_BACKFIRE))
+                        caster->CastSpell(target, roll_chance_i(ROLL_CHANCE_DULLARD) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, true, GetCastItem());
+                    else
+                        target->CastSpell(caster, SPELL_GNOMISH_MIND_CONTROL_CAP, true); // backfire - 5% chance
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_mind_control_cap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_mind_control_cap_SpellScript();
+        }
+};
+
+// 8344 - Universal Remote (Gnomish Universal Remote)
+enum UniversalRemote
+{
+    SPELL_CONTROL_MACHINE       = 8345,
+    SPELL_MOBILITY_MALFUNCTION  = 8346,
+    SPELL_TARGET_LOCK           = 8347
+};
+
+class spell_item_universal_remote : public SpellScriptLoader
+{
+    public:
+        spell_item_universal_remote() : SpellScriptLoader("spell_item_universal_remote") { }
+
+        class spell_item_universal_remote_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_universal_remote_SpellScript);
+
+            bool Load() override
+            {
+                if (!GetCastItem())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_CONTROL_MACHINE, SPELL_MOBILITY_MALFUNCTION, SPELL_TARGET_LOCK });
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    uint8 chance = urand(0, 99);
+                    if (chance < 15)
+                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem()); 
+                    else if (chance < 25)
+                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem()); 
+                    else
+                        GetCaster()->CastSpell(target, SPELL_CONTROL_MACHINE, true, GetCastItem());
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_universal_remote_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_universal_remote_SpellScript();
         }
 };
 
@@ -4627,6 +4738,8 @@ void AddSC_item_spell_scripts()
     new spell_item_darkmoon_card_greatness();
     new spell_item_mana_drain();
     new spell_item_taunt_flag_targeting();
+    new spell_item_mind_control_cap();
+    new spell_item_universal_remote();
     new spell_item_zandalarian_charm("spell_item_unstable_power", SPELL_UNSTABLE_POWER_AURA_STACK);
     new spell_item_zandalarian_charm("spell_item_restless_strength", SPELL_RESTLESS_STRENGTH_AURA_STACK);
     new spell_item_artifical_stamina();
