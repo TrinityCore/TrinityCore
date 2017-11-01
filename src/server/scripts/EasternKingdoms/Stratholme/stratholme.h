@@ -83,9 +83,9 @@ enum STRQuestIds
 enum STRSpellIds
 {
     SPELL_BARON_ULTIMATUM               = 27861,
+    SPELL_PERM_FEIGN_DEATH              = 29266,
     SPELL_YSIDA_SAVED                   = 31912,
-    SPELL_YSIDA_CREDIT_EFFECT           = 31913,
-    SPELL_PERM_FEIGN_DEATH              = 29266
+    SPELL_YSIDA_CREDIT_EFFECT           = 31913
 };
 
 template <class AI, class T>
