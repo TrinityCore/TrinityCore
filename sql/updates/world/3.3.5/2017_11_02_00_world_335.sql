@@ -19,8 +19,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (9453, 0,  6,  7, 61, 0, 100, 0, 0, 0, 0, 0,   2, 91, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Aquementas - On Reached WP5 - Set Faction 91"),
 (9453, 0,  7,  0, 61, 0, 100, 0, 0, 0, 0, 0,   8,  2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Aquementas - On Reached WP5 - Set Aggresive"),
 (9453, 0,  8,  9,  4, 0, 100, 0, 0, 0, 0, 0,   1,  1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Aquementas - On Aggro - Say Line 1"),
-(9453, 0,  9, 10, 61, 0, 100, 0, 0, 0, 0, 0,   1,  2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Aquementas - On Aggro - Say Line 2"),
-(9453, 0, 10, 11, 61, 0, 100, 0, 0, 0, 0, 0,   1,  3, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Aquementas - On Aggro - Say Line 3"),
+(9453, 0,  9, 10, 61, 0, 100, 0, 0, 0, 0, 0,   1,  2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Aquementas - On Aggro - Say Line 2 (targets self)"),
+(9453, 0, 10, 11, 61, 0, 100, 0, 0, 0, 0, 0,   1,  3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Aquementas - On Aggro - Say Line 3 (targets self)"),
 (9453, 0, 11,  0, 61, 0, 100, 0, 0, 0, 0, 0, 85,13909,2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Aquementas - On Aggro - Invoker Cast Create Elemental Totem");
 
 DELETE FROM `waypoints` WHERE `entry`= 9453;
