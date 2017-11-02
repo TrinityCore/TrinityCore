@@ -1298,7 +1298,7 @@ class AreaTrigger_event_kar : public AreaTriggerScript
 public:
     AreaTrigger_event_kar() : AreaTriggerScript("at_event_kar") {}
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) override
     {
         if (Creature *kar = player->FindNearestCreature(NPC_KAR, 300, true))
             if (kar->GetAI()->GetData(DATA_BEGIN_KAR) == EVENT_KAR_AGGRO_NOT_DONE)
@@ -1314,7 +1314,7 @@ class AreaTrigger_event_kar_moveback : public AreaTriggerScript
 public:
     AreaTrigger_event_kar_moveback() : AreaTriggerScript("at_event_kar_moveback") {}
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) override
     {
         if (Creature *kar = player->FindNearestCreature(NPC_KAR, 200, true))
             if (kar->GetAI()->GetData(DATA_BEGIN_KAR) == EVENT_KAR_AGGRO_LAUNCHED)
@@ -1329,7 +1329,7 @@ class AreaTrigger_event_kar_attack : public AreaTriggerScript
 public:
     AreaTrigger_event_kar_attack() : AreaTriggerScript("at_event_kar_attack") {}
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) override
     {
         if (Creature *kar = player->FindNearestCreature(NPC_KAR, 200, true))
             if (kar->GetAI()->GetData(DATA_BEGIN_KAR) == EVENT_KAR_AGGRO_DONE)
@@ -1394,24 +1394,24 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_CAUTERIZE:
-                {
-                    std::list<Creature*> creatures;
-                    me->GetCreatureListWithEntryInGrid(creatures, NPC_FLAMEWAKER_SENTINEL, 30.0f);
-                    if (!creatures.empty())
+                    case EVENT_CAUTERIZE:
                     {
-                        Trinity::Containers::RandomResize(creatures, 1);
-                        if (Creature* pTarget = creatures.front())
-                           DoCast(pTarget, SPELL_CAUTERIZE, true);
-                     }
+                        std::list<Creature*> creatures;
+                        me->GetCreatureListWithEntryInGrid(creatures, NPC_FLAMEWAKER_SENTINEL, 30.0f);
+                        if (!creatures.empty())
+                        {
+                            Trinity::Containers::RandomResize(creatures, 1);
+                            if (Creature* pTarget = creatures.front())
+                               DoCast(pTarget, SPELL_CAUTERIZE, true);
+                        }
 
-                     events.ScheduleEvent(EVENT_CAUTERIZE, urand(15000, 20000));
-                     break;
-                }
-                case EVENT_CONFLAGRATION:
-                    DoCastVictim(SPELL_CONFLAGRATION);
-                    events.ScheduleEvent(EVENT_CONFLAGRATION, urand(20000, 25000));
-                    break;
+                        events.Repeat(Seconds(15), Seconds(20));
+                        break;
+                    }
+                    case EVENT_CONFLAGRATION:
+                        DoCastVictim(SPELL_CONFLAGRATION);
+                        events.Repeat(Seconds(20), Seconds(25));
+                        break;
                 }
             }
 
@@ -1476,15 +1476,15 @@ class npc_firelands_ancient_core_hound : public CreatureScript
                     {
                         case EVENT_DINNER_TIME:
                             DoCastVictim(SPELL_DINNER_TIME);
-                            events.ScheduleEvent(EVENT_DINNER_TIME, urand(30000, 40000));
+                            events.Repeat(30000, 40000);
                             break;
                         case EVENT_FLAME_BREATH:
                             DoCastVictim(SPELL_FLAME_BREATH);
-                            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(15000, 20000));
+                            events.Repeat(15000, 20000);
                             break;
                         case EVENT_TERRIFYING_ROAR:
                             DoCast(me, SPELL_TERRIFYING_ROAR);
-                            events.ScheduleEvent(EVENT_TERRIFYING_ROAR, urand(30000, 35000));
+                            events.Repeat(30000, 35000);
                             break;
                     }
                 }
