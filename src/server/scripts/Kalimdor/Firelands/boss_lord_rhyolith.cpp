@@ -745,9 +745,6 @@ class npc_lord_rhyolith_right_foot : public CreatureScript
                 for (uint8 i = 0; i < 3; ++i)
                      value += m_hits[i];
 
-                if (value < 0)
-                    return 0;
-
                 return value;
             }
         };

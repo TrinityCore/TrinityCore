@@ -2172,8 +2172,8 @@ class npc_blazing_heat: public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* pWho)  override {}
-            void UpdateAI(const uint32 uiDiff) override {}
+            void EnterCombat(Unit* /*pWho*/)  override {}
+            void UpdateAI(const uint32 /*uiDiff*/) override {}
         };
 };
 

@@ -394,7 +394,7 @@ class boss_bethtilac : public CreatureScript
                         case EVENT_GO_DOWN:
                         {
                             uiPhase = PHASE_LOW;
-                            me->GetMotionMaster()->MoveJump(addsPos[5].GetPositionX(), addsPos[5].GetPositionY(), addsPos[5].GetPositionZ(), 40.0f, 40.0f);
+                            me->GetMotionMaster()->MoveJump(addsPos[5], 40.0f, 40.0f);
                             events.ScheduleEvent(EVENT_FRENZY, 10000);
                             events.ScheduleEvent(EVENT_THE_WIDOW_KISS, 32000);
                             Map::PlayerList const &PlayerList = instance->instance->GetPlayers();

@@ -419,6 +419,8 @@ class spell_baleroc_shards_of_torment_aoe : public SpellScriptLoader
                         break;
                     }
                 }
+                default:
+                    break;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

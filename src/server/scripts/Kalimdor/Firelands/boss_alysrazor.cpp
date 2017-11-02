@@ -1799,7 +1799,7 @@ class npc_alysrazor_molten_meteor : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 /*diff*/) override
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_ALYSRAZOR) != IN_PROGRESS)
@@ -1893,31 +1893,20 @@ class spell_alysrazor_molten_feather : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetTarget())
-                    return;
+                Unit* target = GetTarget();
 
-                //GetTarget()->SetPower(POWER_ALTERNATE_POWER, 0);
+                //target->SetPower(POWER_ALTERNATE_POWER, 0);
 
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_PRI))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_PRI);
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_MAG))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_MAG);
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_DK))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_DK);
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_WARR))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_WARR);
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_WARL))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_WARL);
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_SHAM))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_SHAM);
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_DRU))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_DRU);
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_HUN))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_HUN);
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_PAL))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_PAL);
-                if (GetTarget()->HasAura(SPELL_MOLTEN_FEATHER_ROG))
-                    GetTarget()->RemoveAura(SPELL_MOLTEN_FEATHER_ROG);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_PRI);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_MAG);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_DK);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_WARR);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_WARL);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_SHAM);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_DRU);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_HUN);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_PAL);
+                target->RemoveAura(SPELL_MOLTEN_FEATHER_ROG);
             }
 
             void Register() override
@@ -1947,7 +1936,7 @@ class spell_alysrazor_molten_feather_script : public SpellScriptLoader
                 if (!GetCaster() || !GetHitUnit())
                     return;
 
-                if (GetHitUnit()->GetTypeId() != TYPEID_PLAYER)
+                if (!GetHitUnit()->IsPlayer())
                     return;
 
                 uint32 auraId = 0;

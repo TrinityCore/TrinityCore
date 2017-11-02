@@ -701,6 +701,7 @@ public:
             events.Reset();
             me->AddAura(SPELL_DEFENSIVE_CASTING, me);
         }
+
         void DoAction(int32 const param) override
         {
             switch (param)
@@ -712,6 +713,7 @@ public:
                     break;
             }
         }
+
         void EnterCombat(Unit* /*who*/) override
         {
             if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
@@ -724,19 +726,14 @@ public:
 
             events.ScheduleEvent(EVENT_CHECK_MAGMA, 1000);
         }
+
         void JustDied(Unit* /*killer*/) override
         {
-            if (magma)
-            {
+            if (magma == nullptr)
+                magma = me->FindNearestCreature(NPC_UNSTABLE_MAGMA, 100, true);
+
+            if (magma != nullptr)
                 magma->GetAI()->DoAction(ACTION_ANIMATOR_DEATH);
-            }
-            else
-            {
-                if (magma = me->FindNearestCreature(NPC_UNSTABLE_MAGMA, 100, true))
-                {
-                    magma->GetAI()->DoAction(ACTION_ANIMATOR_DEATH);
-                }
-            }
 
         }
         void UpdateAI(uint32 const diff) override
@@ -746,39 +743,22 @@ public:
 
             events.Update(diff);
 
-
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                case EVENT_CHECK_MAGMA:
-                    if (magma)
+                    case EVENT_CHECK_MAGMA:
                     {
-
-                        uint32 energy = magma->GetPower(POWER_MANA);
-                        if (me->HasAura(SPELL_BURNING_MOTIVATION))
+                        if (magma)
                         {
-
-                                energy = energy + 2;
-
-
+                            uint32 energy = magma->GetPower(POWER_MANA);
+                            energy += (me->HasAura(SPELL_BURNING_MOTIVATION) ? 2 : 1);
+                            magma->SetPower(POWER_MANA, energy);
                         }
-                        else
-                        {
-                            energy = energy + 1;
-                        }
-                        magma->SetPower(POWER_MANA, energy);
-                    }
-                    if (IsHeroic())
-                    {
-                        events.ScheduleEvent(EVENT_CHECK_MAGMA, 3000);
-                    }
-                    else
-                    {
-                        events.ScheduleEvent(EVENT_CHECK_MAGMA, 4000);
-                    }
 
-                    break;
+                        events.Repeat(IsHeroic() ? 3000 : 4000);
+                        break;
+                    }
                 }
             }
 
