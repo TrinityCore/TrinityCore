@@ -258,7 +258,7 @@ class npc_skyfall_star : public CreatureScript
                 me->SetDisableGravity(false);
             }
 
-            void EnterCombat(Unit* /*attacker*/)
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(5000, 6000));
             }
@@ -454,10 +454,10 @@ class npc_young_storm_dragon : public CreatureScript
                 {
                     switch (eventId)
                     {
-                    case EVENT_CHILLING_BLAST:
-                        DoCast(me->GetVictim(), SPELL_CHILLING_BLAST);
-                        events.ScheduleEvent(EVENT_CHILLING_BLAST, urand(15000, 18000));
-                        break;
+                        case EVENT_CHILLING_BLAST:
+                            DoCast(me->GetVictim(), SPELL_CHILLING_BLAST);
+                            events.ScheduleEvent(EVENT_CHILLING_BLAST, urand(15000, 18000));
+                            break;
                     }
                 }
                 DoMeleeAttackIfReady();
@@ -509,14 +509,14 @@ class npc_armored_mistral : public CreatureScript
                 {
                     switch (eventId)
                     {
-                    case EVENT_GALE_STRIKE:
-                        DoCast(me, SPELL_GALE_STRIKE);
-                        events.ScheduleEvent(EVENT_GALE_STRIKE, urand(15000, 20000));
-                        break;
-                    case EVENT_STORM_SURGE:
-                        DoCast(me, SPELL_STORM_SURGE);
-                        events.ScheduleEvent(EVENT_STORM_SURGE, urand(15000, 20000));
-                        break;
+                        case EVENT_GALE_STRIKE:
+                            DoCast(me, SPELL_GALE_STRIKE);
+                            events.ScheduleEvent(EVENT_GALE_STRIKE, urand(15000, 20000));
+                            break;
+                        case EVENT_STORM_SURGE:
+                            DoCast(me, SPELL_STORM_SURGE);
+                            events.ScheduleEvent(EVENT_STORM_SURGE, urand(15000, 20000));
+                            break;
                     }
                 }
                 DoMeleeAttackIfReady();
