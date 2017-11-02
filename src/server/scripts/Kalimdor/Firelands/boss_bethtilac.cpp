@@ -225,7 +225,8 @@ class boss_bethtilac : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id) override
             {
-                if (type = POINT_MOTION_TYPE)
+                if (type == POINT_MOTION_TYPE)
+                {
                     if (id == POINT_HIGH)
                     {
                         me->RemoveAurasByType(SPELL_AURA_MOD_TAUNT);
@@ -241,6 +242,7 @@ class boss_bethtilac : public CreatureScript
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
                     }
+                }
             }
 
             uint32 GetData(uint32 type) const override

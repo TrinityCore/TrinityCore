@@ -1106,7 +1106,7 @@ class npc_alysrazor_blazing_talon_initiate : public CreatureScript
 
             void SetData(uint32 type, uint32 data) override
             {
-                if (type = DATA_INITIATE)
+                if (type == DATA_INITIATE)
                 {
                     waypoint = data;
                     if (GameObject* molten_ground = me->FindNearestGameObject(GO_MOLTEN_GROUND, 300))

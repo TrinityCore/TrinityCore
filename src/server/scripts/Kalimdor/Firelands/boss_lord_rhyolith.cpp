@@ -381,7 +381,7 @@ class boss_lord_rhyolith : public CreatureScript
                                     return;
                                 }
 
-                                int32 i = NormalizeMove(curMove, CalculateNextMove(curMove, l_dmg, r_dmg));
+                                int32 i = NormalizeMove(curMove, CalculateNextMove(l_dmg, r_dmg));
                                 if (i < 0)
                                     bAchieve = false;
 
@@ -489,7 +489,7 @@ class boss_lord_rhyolith : public CreatureScript
             uint8 players_count;
             uint8 phase;
 
-            int32 CalculateNextMove(int32 cur, int32 left, int32 right)
+            int32 CalculateNextMove(int32 left, int32 right)
             {
                 int32 diff = right - left;
 

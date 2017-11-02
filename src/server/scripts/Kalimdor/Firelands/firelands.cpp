@@ -714,10 +714,14 @@ public:
         }
         void EnterCombat(Unit* /*who*/) override
         {
-
             if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-            if (magma = me->FindNearestCreature(NPC_UNSTABLE_MAGMA, 100,true))
-                me->CastSpell(magma, SPELL_MAGMA_CHARGING, true);
+            {
+                magma = me->FindNearestCreature(NPC_UNSTABLE_MAGMA, 100, true);
+
+                if (magma != nullptr)
+                    me->CastSpell(magma, SPELL_MAGMA_CHARGING, true);
+            }
+
             events.ScheduleEvent(EVENT_CHECK_MAGMA, 1000);
         }
         void JustDied(Unit* /*killer*/) override

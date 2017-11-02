@@ -390,7 +390,7 @@ class spell_baleroc_shards_of_torment_aoe : public SpellScriptLoader
                             }
                         }
 
-                        if (!meleetargets.empty() && rangetargets.empty() || meleetargets.empty() && !rangetargets.empty())
+                        if ((!meleetargets.empty() && rangetargets.empty()) || (meleetargets.empty() && !rangetargets.empty()))
                         {
                             if (GetMembersWithoutAura(targets, SPELL_BLAZE_OF_GLORY) >= 2)
                                 targets.remove_if(AuraCheck(SPELL_BLAZE_OF_GLORY));
