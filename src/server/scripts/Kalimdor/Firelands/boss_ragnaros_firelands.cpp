@@ -2078,7 +2078,7 @@ class npc_heartofragnaros: public CreatureScript
             {
             }
 
-            void UpdateAI(const uint32 uiDiff) override
+            void UpdateAI(const uint32 /*uiDiff*/) override
             {
                 Player* player = me->SelectNearestPlayer(6.0f);
                 if (player)

@@ -240,7 +240,7 @@ class instance_firelands : public InstanceMapScript
                 return true;
             }
 
-            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const override
+            bool CheckRequiredBosses(uint32 bossId, Player const* /*player = nullptr*/) const override
             {
                 switch (bossId)
                 {
