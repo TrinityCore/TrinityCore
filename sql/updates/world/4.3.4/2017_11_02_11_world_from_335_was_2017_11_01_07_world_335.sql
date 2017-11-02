@@ -1,3 +1,4 @@
+/*
 -- Tor'gan
 DELETE FROM `creature_text` WHERE `CreatureID`=2706;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -11,3 +12,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (270600,9,1,0,0,0,100,0,1000,1000,0,0,11,4093,0,0,0,0,0,1,0,0,0,0,0,0,0,"Tor'gan - On Script - Cast Reconstruction"),
 (270600,9,2,0,0,0,100,0,5000,5000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Tor'gan - On Script - Say Line 0"),
 (270600,9,3,0,0,0,100,0,0,0,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Tor'gan - On Script - Add Npc Flag Questgiver");
+*/

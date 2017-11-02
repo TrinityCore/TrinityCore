@@ -1,3 +1,4 @@
+/*
 -- 
 -- Oozeworm
 SET @GUID := 81136;
@@ -56,3 +57,4 @@ SET @GUID := 81134;
 DELETE FROM `creature` WHERE `guid`=@GUID;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
 (@GUID,14235,1,0,0,1,1,0,0,-3985.36,-3723.25,41.8631,4.24192,300,5,0,1829,0,1,0,0,0,"",0);
+*/

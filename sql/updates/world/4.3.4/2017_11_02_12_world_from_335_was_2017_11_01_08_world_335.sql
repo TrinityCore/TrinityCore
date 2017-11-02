@@ -1,3 +1,4 @@
+/*
 -- Celebras the Redeemed
 DELETE FROM `gossip_menu` WHERE `MenuID`=5349 AND `TextID` IN (6373, 6375);
 DELETE FROM `gossip_menu` WHERE `MenuID` IN (5350, 5351, 5352, 5353, 5354, 5355, 5358);
@@ -50,3 +51,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=13716 AND `GroupID`=8;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (13716,8,0,"Perhaps we can attempt this later. Please speak to me again if you wish to do so.",12,0,100,0,0,0,8947,0,"Celebras the Redeemed");
+*/

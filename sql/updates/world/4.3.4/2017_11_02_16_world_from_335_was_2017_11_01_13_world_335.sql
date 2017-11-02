@@ -1,3 +1,4 @@
+/*
 -- Blood Feeders (6461), Xen'zilla at Malaka'Jin, CompletionText contains typos
 UPDATE `quest_request_items` SET `CompletionText`="Hey mon, have you slain the hairy blood feeders? I fear none here in Stonetalon but I don't go walking around here at night... if you know what I mean mon!$b$bAs long as I stay off their dinner plate then all is well.$b$bGood luck to you, $c!" WHERE `ID`=6461;
 
@@ -22,3 +23,4 @@ UPDATE `quest_request_items` SET `CompletionText`= "Yes, what you be needin', mo
 
 -- Blasted Lands, quest "To Serve Kum'Isha" (2521), CompletionText cuts short at the end, as well as 'tau(ren)' is referenced instead of player race.
 UPDATE `quest_request_items` SET `CompletionText`= "I have dedicated my life to the search of flawless draenethyst spheres. A lifetime, $r!" WHERE `ID`=2521;
+*/

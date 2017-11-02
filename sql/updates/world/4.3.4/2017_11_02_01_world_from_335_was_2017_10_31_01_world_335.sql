@@ -1,3 +1,4 @@
+/*
 --
 UPDATE `creature_queststarter` SET `id`=11056 WHERE `quest`=5505;
 UPDATE `creature_questender` SET `id`=11056 WHERE `quest`=5505;
@@ -22,3 +23,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (11057, 1, 0, "It's done $n, and I think you'll be satisfied with the results.", 12, 0, 100, 0, 0, 0, 7281, 0, "Apothecary Dithers");
 
 UPDATE `quest_offer_reward` SET `RewardText`="Well, here you are, $n - the completed Skeleton Key.  I am certain as I can be that this key will allow you within the confines of the Scholomance.  There's only one way to be absolutely sure it works, though. Waste no time in trying it out, I say.$B$BGood luck, mighty hero.  May your victories continue to bring you fame and power as you lay waste to Scholomance!" WHERE `ID` IN (5505, 5511);
+*/

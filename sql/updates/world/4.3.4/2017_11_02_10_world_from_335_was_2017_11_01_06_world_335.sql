@@ -1,3 +1,4 @@
+/*
 -- Gravelsnout Forager
 UPDATE `smart_scripts` SET `event_param1`=4000, `event_param2`=9000 WHERE `entryorguid`=4114 AND `source_type`=0 AND `id`=0;
 
@@ -182,3 +183,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Random movement for some creatures
 UPDATE `creature` SET `spawndist`=5, `MovementType`=1 WHERE `guid` IN (51822, 21302);
 UPDATE `creature` SET `spawndist`=15, `MovementType`=1 WHERE `guid` IN (51823, 51824, 21546);
+*/

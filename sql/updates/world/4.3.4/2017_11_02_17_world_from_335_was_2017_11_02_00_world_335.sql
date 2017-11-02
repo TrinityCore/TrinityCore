@@ -1,3 +1,4 @@
+/*
 -- Aquementas (9453)
 UPDATE `creature_template` SET `AIName`='SmartAI', `ScriptName`='' WHERE  `entry`=9453;
 
@@ -40,3 +41,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (17, 0, 13909, 0, 0, 2, 0, 11172, 11, 0, 0, 0, 0, "", "Allow to cast spell 'Create Elemental Totem' if caster has item 'Silvery Claws' x11 in inventory"),
 (17, 0, 13909, 0, 0, 2, 0, 11173,  1, 0, 0, 0, 0, "", "Allow to cast spell 'Create Elemental Totem' if caster has item 'Irontree Heart' in inventory"),
 (17, 0, 13909, 0, 0, 2, 0, 11169,  1, 0, 0, 0, 0, "", "Allow to cast spell 'Create Elemental Totem' if caster has item 'Book of Aquor' in inventory");
+*/

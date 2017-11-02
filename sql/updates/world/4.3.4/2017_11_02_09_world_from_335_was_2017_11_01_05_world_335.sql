@@ -1,3 +1,4 @@
+/*
 -- Darkfang Venomspitter
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=4414;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=4414 AND `source_type`=0;
@@ -370,3 +371,4 @@ UPDATE `creature` SET `spawndist`=5, `MovementType`=1 WHERE `guid` IN (31481,200
 
 -- Fix spawn position for one creature
 UPDATE `creature` SET `position_z`=-7.17478 WHERE `guid`=8447;
+*/
