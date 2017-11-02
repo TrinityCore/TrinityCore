@@ -126,22 +126,23 @@ namespace TanaanPhaseSpell
 {
     enum
     {
-        PHASE_2 = 59073,
-        PHASE_4 = 59074,
-        PHASE_8 = 59087,
-        PHASE_16 = 54341,
-        //PHASE_32                  = 56617, //Probleme d'area actuellement, à chercher
-        PHASE_64 = 57569,
-        PHASE_128 = 74789,
-        PHASE_256 = 69819,
-        //PHASE_512                 = 0,
-        PHASE_1024 = 67789,
-        PHASE_2048 = 68480,
-        PHASE_4096 = 68481,
-        PHASE_8192 = 68482,
-        PHASE_16384 = 68483,
-        PHASE_32768 = 69077,
-        PHASE_65536 = 69078
+        PHASE_1         = 172329,
+        PHASE_2         = 59073,
+        PHASE_4         = 59074,
+        PHASE_8         = 59087,
+        PHASE_16        = 54341,
+        //PHASE_32      = 56617, //Probleme d'area actuellement, à chercher
+        PHASE_64        = 57569,
+        PHASE_128       = 74789,
+        PHASE_256       = 69819,
+        //PHASE_512     = 0,
+        PHASE_1024      = 67789,
+        PHASE_2048      = 68480,
+        PHASE_4096      = 68481,
+        PHASE_8192      = 68482,
+        PHASE_16384     = 68483,
+        PHASE_32768     = 69077,
+        PHASE_65536     = 69078
     };
 }
 

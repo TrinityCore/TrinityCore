@@ -103,10 +103,13 @@ public:
     playerScript_kill_your_hundred() : PlayerScript("playerScript_kill_your_hundred") { }
 
     // TODO : A l'abandon, on re-tp le joueur au donneur de quête
-    void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
+    void OnQuestAbandon(Player* player, const Quest* quest) override
     {
-        if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKillYourHundred)
-            p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneEnterKarGathArena);
+        if (player && quest && quest->GetQuestId() == TanaanQuests::QuestKillYourHundred)
+        {
+            player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneEnterKarGathArena);
+            player->TeleportTo(1265, 4234.09f, -2813.26f, 17.13f, 3.092513f);
+        }
     }
 
     void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceId, std::string p_Event) override
@@ -385,7 +388,7 @@ public:
         void Reset() override
         {
             m_Events.Reset();
-            m_Events.ScheduleEvent(EventCleararenaFighterCountByNpc, 10000);
+            m_Events.ScheduleEvent(EventCleararenaFighterCountByNpc, Seconds(10));
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
 
@@ -423,7 +426,7 @@ public:
                     }
                 }
 
-                m_Events.ScheduleEvent(EventCleararenaFighterCountByNpc, 10000);
+                m_Events.Repeat(Seconds(10));
             }
         }
 
@@ -432,10 +435,9 @@ public:
             // Spawn next brawler
             if (action == 1)
             {
-                Creature* kargath = me;
-                AddTimedDelayedOperation(500, [kargath]() -> void
+                me->GetScheduler().Schedule(Milliseconds(500), [](TaskContext context) -> void
                 {
-                    kargath->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, handBrawlerSpawnPositions[urand(0, 6)], TEMPSUMMON_CORPSE_DESPAWN);
+                    context.GetContextUnit()->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, handBrawlerSpawnPositions[urand(0, 6)], TEMPSUMMON_CORPSE_DESPAWN);
                 });
             }
         }
@@ -503,7 +505,7 @@ public:
 
         void Reset() override
         {
-            me->SetPhaseMask(2048 + 16384 + 32768, true);
+            me->AddPhases({ 180, 183, 184 });
         }
 
         void JustReachedHome() override
@@ -562,7 +564,7 @@ public:
             // Si il est déjà au sol, on ne le fait pas sauter, il passe directement à l'attaque sur un PNJ
             if (me->GetPositionZ() < 10.0f)
             {
-                MovementInform(EFFECT_MOTION_TYPE, 0);
+                MovementInform(EFFECT_MOTION_TYPE, 1);
                 return;
             }
 
@@ -587,7 +589,8 @@ public:
                 }
                 else
                 {
-                    // On le fait bouger un peu pour un visuel plus joli
+                    // Pas de mob à attaquer, on le fait bouger un peu
+                    // pour un visuel plus joli avant de le supprimer
                     me->GetMotionMaster()->MovePoint(2, frand(4376.39f, 4428.70f), frand(-2846.56f, -2804.52f), 5.0f);
                 }
             }
@@ -658,7 +661,7 @@ public:
 
         void EnterCombat(Unit* /*p_Target*/) override
         {
-            m_Events.ScheduleEvent(eDatas::EventWhipSplash, 3000);
+            m_Events.ScheduleEvent(eDatas::EventWhipSplash, Seconds(3));
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -669,7 +672,8 @@ public:
             {
                 if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                     me->CastSpell(l_Target, eDatas::SpellWhipSplash, false);
-                m_Events.ScheduleEvent(eDatas::EventWhipSplash, 12000);
+
+                m_Events.Repeat(Seconds(12));
             }
         }
     };
