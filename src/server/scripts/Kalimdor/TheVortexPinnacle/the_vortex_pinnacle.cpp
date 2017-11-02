@@ -725,7 +725,7 @@ class npc_lurking_tempest : public CreatureScript
 
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;

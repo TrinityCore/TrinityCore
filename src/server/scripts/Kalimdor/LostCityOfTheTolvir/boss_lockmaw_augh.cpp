@@ -323,11 +323,6 @@ public:
                 }
         }
 
-        void JustDied(Unit* /*Killer*/)
-        {
-            InstanceScript* instance = me->GetInstanceScript();
-        }
-
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())

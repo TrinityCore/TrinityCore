@@ -72,11 +72,11 @@ enum eActions
 
 enum eTexts
 {
-    SAY_START                                  = -1877004,
-    SAY_KNEEL_DOWN                             = -1877005,
-    SAY_DEATH                                  = -1877006,
-    SAY_KILL_PLAYER_1                          = -1877023,
-    SAY_KILL_PLAYER_2                          = -1877024,
+    SAY_START                                  = 0,
+    SAY_KNEEL_DOWN                             = 1,
+    SAY_DEATH                                  = 2,
+    SAY_KILL_PLAYER_1                          = 3,
+    SAY_KILL_PLAYER_2                          = 4,
 };
 
 enum ePhases
