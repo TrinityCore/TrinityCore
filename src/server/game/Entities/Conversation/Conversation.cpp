@@ -137,19 +137,19 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     }
 
     uint16 linesIndex = 0;
-    std::set<uint16> _totalActorIdx;
+    std::set<uint16> totalActorIdx;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
     {
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, line);
 
-        _totalActorIdx.insert(line->ActorIdx);
+        totalActorIdx.insert(line->ActorIdx);
     }
 
     if (!sScriptMgr->OnConversationCreate(this, creator))
         return false;
 
     // All actors need to be set
-    for (uint16 actorIdx : _totalActorIdx)
+    for (uint16 actorIdx : totalActorIdx)
         if (!GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx))
             return false;
 
