@@ -1039,21 +1039,6 @@ void PlayerbotFactory::InitSkills()
 {
     uint32 maxValue = level * 5;
     SetRandomSkill(SKILL_DEFENSE);
-    SetRandomSkill(SKILL_SWORDS);
-    SetRandomSkill(SKILL_AXES);
-    SetRandomSkill(SKILL_BOWS);
-    SetRandomSkill(SKILL_GUNS);
-    SetRandomSkill(SKILL_MACES);
-    SetRandomSkill(SKILL_2H_SWORDS);
-    SetRandomSkill(SKILL_STAVES);
-    SetRandomSkill(SKILL_2H_MACES);
-    SetRandomSkill(SKILL_2H_AXES);
-    SetRandomSkill(SKILL_DAGGERS);
-    SetRandomSkill(SKILL_THROWN);
-    SetRandomSkill(SKILL_CROSSBOWS);
-    SetRandomSkill(SKILL_WANDS);
-    SetRandomSkill(SKILL_POLEARMS);
-    SetRandomSkill(SKILL_FIST_WEAPONS);
 
     if (bot->getLevel() >= 70)
         bot->SetSkill(SKILL_RIDING, 0, 300, 300);
@@ -1070,13 +1055,100 @@ void PlayerbotFactory::InitSkills()
     switch (bot->getClass())
     {
     case CLASS_DEATH_KNIGHT:
+        SetRandomSkill(SKILL_SWORDS);
+        SetRandomSkill(SKILL_AXES);
+        SetRandomSkill(SKILL_MACES);
+        SetRandomSkill(SKILL_2H_SWORDS);
+        SetRandomSkill(SKILL_2H_MACES);
+        SetRandomSkill(SKILL_2H_AXES);
+        SetRandomSkill(SKILL_POLEARMS);
+        break;
+    case CLASS_DRUID:
+        SetRandomSkill(SKILL_MACES);
+        SetRandomSkill(SKILL_STAVES);
+        SetRandomSkill(SKILL_2H_MACES);
+        SetRandomSkill(SKILL_DAGGERS);
+        SetRandomSkill(SKILL_POLEARMS);
+        SetRandomSkill(SKILL_FIST_WEAPONS);
+        break;
     case CLASS_WARRIOR:
+        SetRandomSkill(SKILL_SWORDS);
+        SetRandomSkill(SKILL_AXES);
+        SetRandomSkill(SKILL_BOWS);
+        SetRandomSkill(SKILL_GUNS);
+        SetRandomSkill(SKILL_MACES);
+        SetRandomSkill(SKILL_2H_SWORDS);
+        SetRandomSkill(SKILL_STAVES);
+        SetRandomSkill(SKILL_2H_MACES);
+        SetRandomSkill(SKILL_2H_AXES);
+        SetRandomSkill(SKILL_DAGGERS);
+        SetRandomSkill(SKILL_CROSSBOWS);
+        SetRandomSkill(SKILL_POLEARMS);
+        SetRandomSkill(SKILL_FIST_WEAPONS);
+        SetRandomSkill(SKILL_THROWN);
+        break;
     case CLASS_PALADIN:
         bot->SetSkill(SKILL_PLATE_MAIL, 0, skillLevel, skillLevel);
+        SetRandomSkill(SKILL_SWORDS);
+        SetRandomSkill(SKILL_AXES);
+        SetRandomSkill(SKILL_MACES);
+        SetRandomSkill(SKILL_2H_SWORDS);
+        SetRandomSkill(SKILL_2H_MACES);
+        SetRandomSkill(SKILL_2H_AXES);
+        SetRandomSkill(SKILL_POLEARMS);
+        break;
+    case CLASS_PRIEST:
+        SetRandomSkill(SKILL_MACES);
+        SetRandomSkill(SKILL_STAVES);
+        SetRandomSkill(SKILL_DAGGERS);
+        SetRandomSkill(SKILL_WANDS);
         break;
     case CLASS_SHAMAN:
+        SetRandomSkill(SKILL_AXES);
+        SetRandomSkill(SKILL_MACES);
+        SetRandomSkill(SKILL_STAVES);
+        SetRandomSkill(SKILL_2H_MACES);
+        SetRandomSkill(SKILL_2H_AXES);
+        SetRandomSkill(SKILL_DAGGERS);
+        SetRandomSkill(SKILL_FIST_WEAPONS);
+        break;
+    case CLASS_MAGE:
+        SetRandomSkill(SKILL_SWORDS);
+        SetRandomSkill(SKILL_STAVES);
+        SetRandomSkill(SKILL_DAGGERS);
+        SetRandomSkill(SKILL_WANDS);
+        break;
+    case CLASS_WARLOCK:
+        SetRandomSkill(SKILL_SWORDS);
+        SetRandomSkill(SKILL_STAVES);
+        SetRandomSkill(SKILL_DAGGERS);
+        SetRandomSkill(SKILL_WANDS);
+        break;
     case CLASS_HUNTER:
+        SetRandomSkill(SKILL_SWORDS);
+        SetRandomSkill(SKILL_AXES);
+        SetRandomSkill(SKILL_BOWS);
+        SetRandomSkill(SKILL_GUNS);
+        SetRandomSkill(SKILL_2H_SWORDS);
+        SetRandomSkill(SKILL_STAVES);
+        SetRandomSkill(SKILL_2H_AXES);
+        SetRandomSkill(SKILL_DAGGERS);
+        SetRandomSkill(SKILL_CROSSBOWS);
+        SetRandomSkill(SKILL_POLEARMS);
+        SetRandomSkill(SKILL_FIST_WEAPONS);
+        SetRandomSkill(SKILL_THROWN);
         bot->SetSkill(SKILL_MAIL, 0, skillLevel, skillLevel);
+        break;
+    case CLASS_ROGUE:
+        SetRandomSkill(SKILL_SWORDS);
+        SetRandomSkill(SKILL_AXES);
+        SetRandomSkill(SKILL_BOWS);
+        SetRandomSkill(SKILL_GUNS);
+        SetRandomSkill(SKILL_MACES);
+        SetRandomSkill(SKILL_DAGGERS);
+        SetRandomSkill(SKILL_CROSSBOWS);
+        SetRandomSkill(SKILL_FIST_WEAPONS);
+        SetRandomSkill(SKILL_THROWN);
     }
 }
 

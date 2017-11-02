@@ -4249,7 +4249,8 @@ AiPlayerbot.RandomBotAutoCreate = 1
 AiPlayerbot.MinRandomBots = 50
 AiPlayerbot.MaxRandomBots = 200
 AiPlayerbot.RandomBotMinLevel = 1
-AiPlayerbot.RandomBotMaxLevel = 255 (ignored if more than MaxPlayerLevel mangosd.conf value)
+AiPlayerbot.RandomBotMaxLevel = 80 
+# (ignored if more than MaxPlayerLevel mangosd.conf value)
 
 # Accounts to create for random bots
 AiPlayerbot.RandomBotAccountPrefix = rndbot
@@ -4360,7 +4361,7 @@ AiPlayerbot.CommandServerPort = 8888
 AhBot.Enabled = 1
 
 # Should be used only if random bots are disabled
-# AhBot.GUID = 0
+ AhBot.GUID = 0
 
 # 199 for 80, 80 for 70, 70 for 60, ..., 25 for 20
 AhBot.MaxItemLevel = 199
@@ -4380,7 +4381,10 @@ AhBot.ItemBuyMinInterval = 7200
 AhBot.ItemBuyMaxInterval = 28800
 AhBot.ItemSellMinInterval = 7200
 AhBot.ItemSellMaxInterval = 28800
-
+AhBot.UpdateIntervalInSeconds = 300
+AhBot.History.Days = 30
+AhBot.MaxSellInterval = 28800
+AhBot.UnderPriceProbability = 0.05
 #
 # Items
 #
