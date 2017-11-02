@@ -413,6 +413,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual bool SetInPhase(uint32 id, bool update, bool apply);
         bool AddPhase(uint32 id, bool update = true) { return SetInPhase(id, update, true); }
         bool RemovePhase(uint32 id, bool update = true) { return SetInPhase(id, update, false); }
+        void AddPhases(std::initializer_list<uint32> const& phases, bool update = true);
+        void RemovePhases(std::initializer_list<uint32> const& phases, bool update = true);
         void CopyPhaseFrom(WorldObject* obj, bool update = false);
         void UpdateAreaAndZonePhase();
         void ClearPhases(bool update = false);

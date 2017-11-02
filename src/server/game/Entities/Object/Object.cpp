@@ -3020,6 +3020,26 @@ bool WorldObject::SetInPhase(uint32 id, bool update, bool apply)
     return true;
 }
 
+void WorldObject::AddPhases(std::initializer_list<uint32> const& phases, bool update /*= true*/)
+{
+    for (uint32 phase : phases)
+        AddPhase(phase, false);
+
+    // If update required, do it only once
+    if (update && IsInWorld())
+        UpdateObjectVisibility();
+}
+
+void WorldObject::RemovePhases(std::initializer_list<uint32> const& phases, bool update /*= true*/)
+{
+    for (uint32 phase : phases)
+        RemovePhase(phase, false);
+
+    // If update required, do it only once
+    if (update && IsInWorld())
+        UpdateObjectVisibility();
+}
+
 void WorldObject::CopyPhaseFrom(WorldObject* obj, bool update)
 {
     if (!obj)
