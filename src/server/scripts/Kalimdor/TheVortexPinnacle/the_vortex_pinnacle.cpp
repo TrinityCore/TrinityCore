@@ -981,29 +981,37 @@ class npc_temple_adept : public CreatureScript
                 {
                     switch (eventId)
                     {
-                    case EVENT_HOLY_SMITE:
-                        DoCast(me->GetVictim(), SPELL_HOLY_SMITE);
-                        events.ScheduleEvent(EVENT_HOLY_SMITE, urand(5000, 6000));
-                        break;
-                    case EVENT_DESPERATE_SPEED:
-                        DoCast(me, SPELL_DESPERATE_SPEED);
-                        events.ScheduleEvent(EVENT_DESPERATE_SPEED, urand(20000, 30000));
-                        break;
-                    case EVENT_GREATER_HEAL:
-                        if ((_target = me->FindNearestCreature(NPC_EXECUTOR_OF_THE_CALIPH, 30.0f)))
-                            if (_target->GetHealthPct() < 50)
-                                DoCast(_target, SPELL_GREATER_HEAL);
-                        else if ((_target = me->FindNearestCreature(NPC_MINISTER_OF_AIR, 30.0f)))
-                            if (_target->GetHealthPct() < 50)
-                                DoCast(_target, SPELL_GREATER_HEAL);
-                        else if ((_target = me->FindNearestCreature(NPC_SERVANT_OF_ASAAD, 30.0f)))
-                            if (_target->GetHealthPct() < 50)
-                                DoCast(_target, SPELL_GREATER_HEAL);
-                        else if ((_target = me->FindNearestCreature(NPC_TEMPEST_ADEPT, 30.0f)))
-                            if (_target->GetHealthPct() < 50)
-                                DoCast(_target, SPELL_GREATER_HEAL);
-                        events.ScheduleEvent(EVENT_GREATER_HEAL, urand(5000, 6000));
-                        break;
+                        case EVENT_HOLY_SMITE:
+                            DoCast(me->GetVictim(), SPELL_HOLY_SMITE);
+                            events.Repeat(5000, 6000);
+                            break;
+                        case EVENT_DESPERATE_SPEED:
+                            DoCast(me, SPELL_DESPERATE_SPEED);
+                            events.Repeat(20000, 30000);
+                            break;
+                        case EVENT_GREATER_HEAL:
+                            if ((_target = me->FindNearestCreature(NPC_EXECUTOR_OF_THE_CALIPH, 30.0f)))
+                            {
+                                if (_target->GetHealthPct() < 50)
+                                    DoCast(_target, SPELL_GREATER_HEAL);
+                            }
+                            else if ((_target = me->FindNearestCreature(NPC_MINISTER_OF_AIR, 30.0f)))
+                            {
+                                if (_target->GetHealthPct() < 50)
+                                    DoCast(_target, SPELL_GREATER_HEAL);
+                            }
+                            else if ((_target = me->FindNearestCreature(NPC_SERVANT_OF_ASAAD, 30.0f)))
+                            {
+                                if (_target->GetHealthPct() < 50)
+                                    DoCast(_target, SPELL_GREATER_HEAL);
+                            }
+                            else if ((_target = me->FindNearestCreature(NPC_TEMPEST_ADEPT, 30.0f)))
+                            {
+                                if (_target->GetHealthPct() < 50)
+                                    DoCast(_target, SPELL_GREATER_HEAL);
+                            }
+                            events.Repeat(5000, 6000);
+                            break;
                     }
                 }
             }
