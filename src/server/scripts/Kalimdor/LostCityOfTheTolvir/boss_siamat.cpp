@@ -62,12 +62,12 @@ enum eActions
 
 enum eTexts
 {
-    SAY_START_1                        = -1877011,
-    SAY_START_2                        = -1877027,
-    SAY_WAILING_WINDS_1                = -1877012,
-    SAY_WAILING_WINDS_2                = -1877026,
-    SAY_DEATH                          = -1877013,
-    SAY_KILL_PLAYER                    = -1877025,
+    SAY_START_1                        = 0,
+    SAY_START_2                        = 1,
+    SAY_WAILING_WINDS_1                = 2,
+    SAY_WAILING_WINDS_2                = 3,
+    SAY_DEATH                          = 4,
+    SAY_KILL_PLAYER                    = 5,
 };
 
 enum ePhases
