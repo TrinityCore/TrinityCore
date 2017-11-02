@@ -3286,7 +3286,7 @@ AuctionHouseBot.Update.Interval = 20
 #       Default:     0 - (Disabled)
 #                    1 - (Enabled)
 
-AuctionHouseBot.Seller.Enabled = 0
+#AuctionHouseBot.Seller.Enabled = 0
 
 #
 #    AuctionHouseBot.Alliance.Items.Amount.Ratio
@@ -3682,7 +3682,7 @@ AuctionHouseBot.Class.RandomStackRatio.Glyph = 0
 #       Default:     0 - (Disabled)
 #                    1 - (Enabled)
 
-AuctionHouseBot.Buyer.Enabled = 0
+#AuctionHouseBot.Buyer.Enabled = 0
 
 #
 #    AuctionHouseBot.Buyer.FACTION.Enabled
@@ -4354,11 +4354,11 @@ AiPlayerbot.CommandServerPort = 8888
 ###################################################################################################################
 
 # Disable original AuctionHouseBot
-#AuctionHouseBot.Seller.Enabled = 0
-#AuctionHouseBot.Buyer.Enabled = 0
+AuctionHouseBot.Seller.Enabled = 1
+AuctionHouseBot.Buyer.Enabled = 1
 
 # Replace with the new AhBot
-AhBot.Enabled = 1
+AhBot.Enabled = 0
 
 # Should be used only if random bots are disabled
  AhBot.GUID = 0
