@@ -1907,7 +1907,7 @@ class npc_firelands_magma_conduit : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 const /*diff*/) override
             {
                 if (!UpdateVictim())
                 {
@@ -1935,7 +1935,7 @@ class npc_firelands_magmakin : public CreatureScript
                 me->SetSpeed(MOVE_RUN, 2.0f);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 const /*diff*/) override
             {
                 if (!UpdateVictim())
                 {
