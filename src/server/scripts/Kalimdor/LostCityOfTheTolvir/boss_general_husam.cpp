@@ -71,12 +71,12 @@ enum ePhases
 
 enum Texts
 {
-    SAY_FINISH                                     = -1877000,
-    SAY_START                                      = -1877001,
-    SAY_CAST_SHOCKVAWE_1                           = -1877002,
-    SAY_CAST_SHOCKVAWE_2                           = -1877003,
-	YELL_KILL_PLAYER_1                             = -1877021,
-	YELL_TREAD_LIGHTLY                             = -1877022,
+    SAY_FINISH                                     = 0,
+    SAY_START                                      = 1,
+    SAY_CAST_SHOCKVAWE_1                           = 2,
+    SAY_CAST_SHOCKVAWE_2                           = 3,
+    YELL_KILL_PLAYER_1                             = 4,
+    YELL_TREAD_LIGHTLY                             = 5,
 };
 
 class boss_general_husam : public CreatureScript
@@ -152,11 +152,11 @@ public:
             lSummons.Summon(summoned);
         }
 
-		void KilledUnit(Unit* victim) override
-		{
-			if (victim->IsPlayer())
+        void KilledUnit(Unit* victim) override
+        {
+            if (victim->IsPlayer())
                 Talk(YELL_KILL_PLAYER_1);
-		}
+        }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -183,7 +183,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_COUNTDOWN_LAND_MINES:
-						Talk(YELL_TREAD_LIGHTLY);
+                        Talk(YELL_TREAD_LIGHTLY);
                         events.ScheduleEvent(EVENT_COUNTDOWN_LAND_MINES, 15000);
                         me->CastSpell(me, SPELL_DETONATE_TRAPS, false);
                         break;
