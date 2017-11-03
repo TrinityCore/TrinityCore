@@ -25,7 +25,7 @@ private:
     {
         return new ActionNode ("frostbolt",
             /*P*/ NULL,
-            /*A*/ NextAction::array(0, new NextAction("shoot"), NULL),
+			/*A*/ NULL,
             /*C*/ NULL);
     }
     static ActionNode* fire_blast(PlayerbotAI* ai)
