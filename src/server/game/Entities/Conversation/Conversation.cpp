@@ -151,8 +151,18 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     }
 
     uint16 linesIndex = 0;
+    std::set<uint16> totalActorIdx;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
+    {
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, line);
+
+        totalActorIdx.insert(line->ActorIdx);
+    }
+
+    // All actors need to be set
+    for (uint16 actorIdx : totalActorIdx)
+        if (!GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx))
+            return false;
 
     if (!GetMap()->AddToMap(this))
         return false;
