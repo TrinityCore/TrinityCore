@@ -16,7 +16,7 @@
  */
 
 #include "AchievementMgr.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "ScriptedGossip.h"
 #include "DarkmoonIsland.h"
 

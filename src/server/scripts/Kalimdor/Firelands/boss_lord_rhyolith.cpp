@@ -18,7 +18,7 @@
 #include "boss_lord_rhyolith.h"
 #include "firelands.h"
 #include "ObjectMgr.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "Vehicle.h"
 
 enum ScriptedTexts

@@ -17,7 +17,7 @@
  */
 
 #include "AchievementMgr.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"

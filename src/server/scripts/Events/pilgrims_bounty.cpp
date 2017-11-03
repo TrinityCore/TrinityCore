@@ -17,7 +17,7 @@
  */
 
 #include "SpellAuras.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
