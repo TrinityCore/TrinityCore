@@ -75,14 +75,14 @@ struct boss_the_beast : public BossAI
 
     void InitializeAI() override
     {
-        beastReached = false;
-        orcYelled = false;
+        _beastReached = false;
+        _orcYelled = false;
     }
 
     void Reset() override
     {
         _Reset();
-        if (beastReached)
+        if (_beastReached)
             me->GetMotionMaster()->MovePath(BEAST_MOVEMENT_ID, true);
     }
 
@@ -100,34 +100,34 @@ struct boss_the_beast : public BossAI
         {
             case DATA_BEAST_ROOM:
             {
-                if (!orcYelled)
+                if (!_orcYelled)
                 {
-                    if (nearbyOrcsGUIDs.empty())
+                    if (_nearbyOrcsGUIDs.empty())
                         FindNearbyOrcs();
 
                     //! vector still empty, creatures are missing
-                    if (nearbyOrcsGUIDs.empty())
+                    if (_nearbyOrcsGUIDs.empty())
                         return;
 
-                    orcYelled = true;
+                    _orcYelled = true;
 
                     // we only need one orc to say the line
-                    if (Creature* orc = ObjectAccessor::GetCreature(*me, nearbyOrcsGUIDs.front()))
+                    if (Creature* orc = ObjectAccessor::GetCreature(*me, _nearbyOrcsGUIDs.front()))
                         orc->AI()->Talk(SAY_BLACKHAND_DOOMED);
                 }
                 break;
             }
             case DATA_BEAST_REACHED:
             {
-                if (!beastReached)
+                if (!_beastReached)
                 {
-                    beastReached = true;
+                    _beastReached = true;
                     me->GetMotionMaster()->MovePath(BEAST_MOVEMENT_ID, true);
 
-                    if (nearbyOrcsGUIDs.empty())
+                    if (_nearbyOrcsGUIDs.empty())
                         FindNearbyOrcs();
 
-                    for (ObjectGuid guid : nearbyOrcsGUIDs)
+                    for (ObjectGuid guid : _nearbyOrcsGUIDs)
                     {
                         if (Creature* orc = ObjectAccessor::GetCreature(*me, guid))
                         {
@@ -216,13 +216,13 @@ struct boss_the_beast : public BossAI
         me->GetCreatureListWithEntryInGrid(temp, NPC_BLACKHAND_ELITE, 50.0f);
 
         for (Creature* creature : temp)
-            nearbyOrcsGUIDs.push_back(creature->GetGUID());
+            _nearbyOrcsGUIDs.push_back(creature->GetGUID());
     }
 
 private:
-    bool beastReached;
-    bool orcYelled;
-    GuidVector nearbyOrcsGUIDs;
+    bool _beastReached;
+    bool _orcYelled;
+    GuidVector _nearbyOrcsGUIDs;
 };
 
 //! The beast room areatrigger, this one triggers boss pathing. (AT Id 2066)
