@@ -49,16 +49,16 @@ enum eCreatures
 
 enum eTexts
 {
-    AUGH_SAY_INTRO_1                    = -1877007,
-    AUGH_SAY_INTRO_2                    = -1877008,
-    LOCKMAW_EMOTE_FRENZI                = -1877009,
-    AUGH_EMOTE_KILL_CROCK               = -1877014,
-    AUGH_SAY_HOW_YOU_KILL_CROCK         = -1877015,
-    AUGH_SAY_AUGH_SMART                 = -1877016,
-    AUGH_SAY_AUGH_BOSS                  = -1877017,
-    AUGH_SAY_AUGH_STEAL                 = -1877018,
-    AUGH_SAY_AUGH_BAD                   = -1877019,
-    AUGH_SAY_AAA                        = -1877020,
+    AUGH_SAY_INTRO_1                    = 0,
+    AUGH_SAY_INTRO_2                    = 1,
+    LOCKMAW_EMOTE_FRENZI                = 2,
+    AUGH_EMOTE_KILL_CROCK               = 3,
+    AUGH_SAY_HOW_YOU_KILL_CROCK         = 4,
+    AUGH_SAY_AUGH_SMART                 = 5,
+    AUGH_SAY_AUGH_BOSS                  = 6,
+    AUGH_SAY_AUGH_STEAL                 = 7,
+    AUGH_SAY_AUGH_BAD                   = 8,
+    AUGH_SAY_AAA                        = 9,
 };
 
 enum ePhases
@@ -321,11 +321,6 @@ public:
                     else
                         me->getThreatManager().modifyThreatPercent(player, -10);
                 }
-        }
-
-        void JustDied(Unit* /*Killer*/)
-        {
-            InstanceScript* instance = me->GetInstanceScript();
         }
 
         void UpdateAI(const uint32 diff)
