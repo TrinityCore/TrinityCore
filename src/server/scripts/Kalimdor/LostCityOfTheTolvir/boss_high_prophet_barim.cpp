@@ -17,7 +17,7 @@
 
 #include "Item.h"
 #include "lost_city_of_the_tolvir.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"

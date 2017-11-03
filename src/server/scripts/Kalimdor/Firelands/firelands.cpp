@@ -21,7 +21,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "MoveSplineInit.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "SpellMgr.h"
 
 enum SayMajordomo

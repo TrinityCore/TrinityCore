@@ -16,11 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "Unit.h"
 
 enum eBosses
 {
@@ -435,21 +439,7 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
                 if (caster == nullptr)
                     return;
 
-                float radius = 20.0f;
-                float shaOfAngerBunnyPresent = false;
-
-                std::list<Unit*> unitList;
-                Trinity::AnyUnitInObjectRangeCheck u_check(caster, radius);
-                Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(caster, unitList, u_check);
-                Cell::VisitAllObjects(caster, searcher, radius);
-
-                for (Unit* target : unitList)
-                {
-                    if (target->GetEntry() == eNpcs::ShaOfAngerBunny)
-                        shaOfAngerBunnyPresent = true;
-                }
-
-                if (!shaOfAngerBunnyPresent)
+                if (caster->FindNearestCreature(eNpcs::ShaOfAngerBunny, 20.0f) == nullptr)
                     caster->RemoveAura(SPELL_OVERCOME_BY_ANGER);
             }
  

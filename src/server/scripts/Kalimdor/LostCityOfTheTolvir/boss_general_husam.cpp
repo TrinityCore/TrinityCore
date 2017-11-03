@@ -15,7 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "lost_city_of_the_tolvir.h"
 #include "Vehicle.h"
 

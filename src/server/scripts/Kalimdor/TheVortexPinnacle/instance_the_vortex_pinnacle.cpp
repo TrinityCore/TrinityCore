@@ -15,8 +15,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptPCH.h"
+#include "Creature.h"
+#include "InstanceScript.h"
 #include "the_vortex_pinnacle.h"
+#include "ScriptMgr.h"
+#include "ScriptMgr.h"
 
 #define MAX_ENCOUNTER 3
 

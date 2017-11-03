@@ -19,7 +19,7 @@
 #include "ObjectMgr.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 
 enum ScriptTexts
 {
