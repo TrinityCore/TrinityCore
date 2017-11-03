@@ -10,6 +10,9 @@
 #include "Pet.h"
 #include "RandomPlayerbotFactory.h"
 #include "Item.h"
+#include "Log.h"
+#include "AiFactory.h"
+#include "ObjectAccessor.h"
 
 using namespace ai;
 using namespace std;
@@ -493,6 +496,8 @@ void PlayerbotFactory::AddItemStats(uint32 mod, uint8 &sp, uint8 &ap, uint8 &tan
 
 bool PlayerbotFactory::CanEquipWeapon(ItemTemplate const* proto)
 {
+	int tab = AiFactory::GetPlayerSpecTab(bot);
+
     switch (bot->getClass())
     {
     case CLASS_PRIEST:
@@ -547,16 +552,28 @@ bool PlayerbotFactory::CanEquipWeapon(ItemTemplate const* proto)
                 proto->SubClass != ITEM_SUBCLASS_WEAPON_BOW)
             return false;
         break;
-    case CLASS_ROGUE:
-        if (proto->SubClass != ITEM_SUBCLASS_WEAPON_DAGGER &&
-                proto->SubClass != ITEM_SUBCLASS_WEAPON_SWORD &&
-                proto->SubClass != ITEM_SUBCLASS_WEAPON_MACE &&
-                proto->SubClass != ITEM_SUBCLASS_WEAPON_GUN &&
-                proto->SubClass != ITEM_SUBCLASS_WEAPON_CROSSBOW &&
-                proto->SubClass != ITEM_SUBCLASS_WEAPON_BOW &&
-                proto->SubClass != ITEM_SUBCLASS_WEAPON_THROWN)
-            return false;
-        break;
+	case CLASS_ROGUE:
+		if (tab == 0) //assa
+		{
+			if (proto->SubClass != ITEM_SUBCLASS_WEAPON_DAGGER &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_GUN &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_CROSSBOW &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_BOW &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_THROWN)
+				return false;		              return false;
+		}
+		else //combat,sub
+		{
+			if (proto->SubClass != ITEM_SUBCLASS_WEAPON_DAGGER &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_SWORD &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_MACE &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_GUN &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_CROSSBOW &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_BOW &&
+				proto->SubClass != ITEM_SUBCLASS_WEAPON_THROWN)
+				return false;
+		}
+		break;
     }
 
     return true;
