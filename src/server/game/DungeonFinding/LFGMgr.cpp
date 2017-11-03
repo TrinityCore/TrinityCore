@@ -445,6 +445,8 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
     {
         if (grp->GetMembersCount() > MAXGROUPSIZE)
             joinData.result = LFG_JOIN_TOO_MUCH_MEMBERS;
+        //else if (grp->GetLeaderGUID() != player->GetGUID()) //only let party leader queue up
+        //    joinData.result = LFG_JOIN_NOT_MEET_REQS;
         else
         {
             uint8 memberCount = 0;
@@ -1117,25 +1119,26 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
     if (itProposalPlayer == proposal.players.end())
         return;
     //npcbot - player accepted proposal
-    //make its bots accept too
+    //make its bots accept too; also force playerbots in party to join
     if (accept && guid.IsPlayer())
     {
-        //if (Player* player = ObjectAccessor::GetObjectInOrOutOfWorld(guid, (Player*)NULL))
-        //{
-            //if (player->HaveBot())
-            //{
-                for (LfgProposalPlayerContainer::const_iterator itPlayers = proposal.players.begin(); itPlayers != proposal.players.end(); ++itPlayers)
+        Player *player = ObjectAccessor::FindPlayerByLowGUID(guid);
+        if (!player->GetPlayerbotAI())
+            for (LfgProposalPlayerContainer::const_iterator itPlayers = proposal.players.begin(); itPlayers != proposal.players.end(); ++itPlayers)
+            {
+                uint64 bguid = itPlayers->first;
+                if (ObjectGuid(bguid).IsPlayer())
                 {
-                    uint64 bguid = itPlayers->first;
-                    if (ObjectGuid(bguid).IsPlayer())
+                    player = ObjectAccessor::FindPlayerByLowGUID(bguid);
+                    Group* group = player->GetGroup();
+                    if (!group || (player && !player->GetPlayerbotAI()))
+                    {
                         continue;
-                    //if (!player->GetBotMgr()->GetBot(bguid))
-                    //    continue;
-
-                    UpdateProposal(proposalId, ObjectGuid(bguid), accept);
+                    }
                 }
-            //}
-        //}
+
+                UpdateProposal(proposalId, ObjectGuid(bguid), accept);
+            }
     }
     //end npcbot
 
