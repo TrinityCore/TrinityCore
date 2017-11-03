@@ -69,172 +69,160 @@ private:
     Creature* _me;
 };
 
-
-class boss_the_beast : public CreatureScript
+struct boss_the_beast : public BossAI
 {
-public:
-    boss_the_beast() : CreatureScript("boss_the_beast") { }
+    boss_the_beast(Creature* creature) : BossAI(creature, DATA_THE_BEAST) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void InitializeAI() override
     {
-        return GetBlackrockSpireAI<boss_thebeastAI>(creature);
+        beastReached = false;
+        orcYelled = false;
     }
 
-    struct boss_thebeastAI : public BossAI
+    void Reset() override
     {
-        boss_thebeastAI(Creature* creature) : BossAI(creature, DATA_THE_BEAST) { }
+        _Reset();
+        if (beastReached)
+            me->GetMotionMaster()->MovePath(BEAST_MOVEMENT_ID, true);
+    }
 
-        void InitializeAI() override
-        {
-            beastReached = false;
-            orcYelled = false;
-        }
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spell->Effects[i].IsEffect(SPELL_EFFECT_SKINNING))
+                if (!me->IsAlive()) // can that even happen?
+                    instance->SetData(DATA_SPAWN_FINKLE_EINHORN, DATA_SPAWN_FINKLE_EINHORN);
+    }
 
-        void Reset() override
+    void SetData(uint32 type, uint32 /*data*/) override
+    {
+        switch (type)
         {
-            _Reset();
-            if (beastReached)
-                me->GetMotionMaster()->MovePath(BEAST_MOVEMENT_ID, true);
-        }
-
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-        {
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                if (spell->Effects[i].IsEffect(SPELL_EFFECT_SKINNING))
-                    if (!me->IsAlive()) // can that even happen?
-                        instance->SetData(DATA_SPAWN_FINKLE_EINHORN, DATA_SPAWN_FINKLE_EINHORN);
-        }
-
-        void SetData(uint32 type, uint32 /*data*/) override
-        {
-            switch (type)
+            case DATA_BEAST_ROOM:
             {
-                case DATA_BEAST_ROOM:
+                if (!orcYelled)
                 {
-                    if (!orcYelled)
-                    {
-                        if (nearbyOrcsGUIDs.empty())
-                            FindNearbyOrcs();
+                    if (nearbyOrcsGUIDs.empty())
+                        FindNearbyOrcs();
 
-                        //! vector still empty, creatures are missing
-                        if (nearbyOrcsGUIDs.empty())
-                            return;
+                    //! vector still empty, creatures are missing
+                    if (nearbyOrcsGUIDs.empty())
+                        return;
 
-                        orcYelled = true;
+                    orcYelled = true;
 
-                        // we only need one orc to say the line
-                        if (Creature* orc = ObjectAccessor::GetCreature(*me, nearbyOrcsGUIDs.front()))
-                            orc->AI()->Talk(SAY_BLACKHAND_DOOMED);
-                    }
-                    break;
+                    // we only need one orc to say the line
+                    if (Creature* orc = ObjectAccessor::GetCreature(*me, nearbyOrcsGUIDs.front()))
+                        orc->AI()->Talk(SAY_BLACKHAND_DOOMED);
                 }
-                case DATA_BEAST_REACHED:
+                break;
+            }
+            case DATA_BEAST_REACHED:
+            {
+                if (!beastReached)
                 {
-                    if (!beastReached)
+                    beastReached = true;
+                    me->GetMotionMaster()->MovePath(BEAST_MOVEMENT_ID, true);
+
+                    if (nearbyOrcsGUIDs.empty())
+                        FindNearbyOrcs();
+
+                    for (ObjectGuid guid : nearbyOrcsGUIDs)
                     {
-                        beastReached = true;
-                        me->GetMotionMaster()->MovePath(BEAST_MOVEMENT_ID, true);
-
-                        if (nearbyOrcsGUIDs.empty())
-                            FindNearbyOrcs();
-
-                        for (ObjectGuid guid : nearbyOrcsGUIDs)
+                        if (Creature* orc = ObjectAccessor::GetCreature(*me, guid))
                         {
-                            if (Creature* orc = ObjectAccessor::GetCreature(*me, guid))
-                            {
-                                orc->GetMotionMaster()->MovePoint(1, orc->GetRandomPoint(OrcsRunawayPosition, 5.0f));
-                                orc->m_Events.AddEvent(new OrcDeathEvent(orc), me->m_Events.CalculateTime(6 * IN_MILLISECONDS));
-                                orc->SetReactState(REACT_PASSIVE);
-                            }
+                            orc->GetMotionMaster()->MovePoint(1, orc->GetRandomPoint(OrcsRunawayPosition, 5.0f));
+                            orc->m_Events.AddEvent(new OrcDeathEvent(orc), me->m_Events.CalculateTime(6 * IN_MILLISECONDS));
+                            orc->SetReactState(REACT_PASSIVE);
                         }
-                        // There is a chance player logged in between areatriggers (realm crash or restart)
-                        // executing part of script which happens when player enters boss room
-                        // otherwise we will see weird behaviour when someone steps on the previous areatrigger (dead mob yelling/moving)
-                        SetData(DATA_BEAST_ROOM, DATA_BEAST_ROOM);
                     }
-                    break;
+                    // There is a chance player logged in between areatriggers (realm crash or restart)
+                    // executing part of script which happens when player enters boss room
+                    // otherwise we will see weird behaviour when someone steps on the previous areatrigger (dead mob yelling/moving)
+                    SetData(DATA_BEAST_ROOM, DATA_BEAST_ROOM);
                 }
+                break;
             }
         }
+    }
 
-        void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) override
+    {
+        _EnterCombat();
+        events.ScheduleEvent(EVENT_FLAME_BREAK, Seconds(12));
+        events.ScheduleEvent(EVENT_IMMOLATE, Seconds(3));
+        events.ScheduleEvent(EVENT_TERRIFYING_ROAR, Seconds(23));
+        events.ScheduleEvent(EVENT_BERSERKER_CHARGE, Seconds(2));
+        events.ScheduleEvent(EVENT_FIREBALL, Seconds(8), Seconds(21));
+        events.ScheduleEvent(EVENT_FIREBLAST, Seconds(5), Seconds(8));
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_FLAME_BREAK, Seconds(12));
-            events.ScheduleEvent(EVENT_IMMOLATE, Seconds(3));
-            events.ScheduleEvent(EVENT_TERRIFYING_ROAR, Seconds(23));
-            events.ScheduleEvent(EVENT_BERSERKER_CHARGE, Seconds(2));
-            events.ScheduleEvent(EVENT_FIREBALL, Seconds(8), Seconds(21));
-            events.ScheduleEvent(EVENT_FIREBLAST, Seconds(5), Seconds(8));
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-             events.Update(diff);
+            switch (eventId)
+            {
+                case EVENT_FLAME_BREAK:
+                    DoCastVictim(SPELL_FLAMEBREAK);
+                    events.ScheduleEvent(EVENT_FLAME_BREAK, Seconds(10));
+                    break;
+                case EVENT_IMMOLATE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.f, true))
+                        DoCast(target, SPELL_IMMOLATE);
+                    events.ScheduleEvent(EVENT_IMMOLATE, Seconds(8));
+                    break;
+                case EVENT_TERRIFYING_ROAR:
+                    DoCastVictim(SPELL_TERRIFYINGROAR);
+                    events.ScheduleEvent(EVENT_TERRIFYING_ROAR, Seconds(20));
+                    break;
+                case EVENT_BERSERKER_CHARGE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 38.f, true))
+                        DoCast(target, SPELL_BERSERKER_CHARGE);
+                    events.Repeat(Seconds(15), Seconds(23));
+                    break;
+                case EVENT_FIREBALL:
+                    DoCastVictim(SPELL_FIREBALL);
+                    events.Repeat(Seconds(8), Seconds(21));
+                    break;
+                case EVENT_FIREBLAST:
+                    DoCastVictim(SPELL_FIREBLAST);
+                    events.Repeat(Seconds(5), Seconds(8));
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_FLAME_BREAK:
-                        DoCastVictim(SPELL_FLAMEBREAK);
-                        events.ScheduleEvent(EVENT_FLAME_BREAK, Seconds(10));
-                        break;
-                    case EVENT_IMMOLATE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.f, true))
-                            DoCast(target, SPELL_IMMOLATE);
-                        events.ScheduleEvent(EVENT_IMMOLATE, Seconds(8));
-                        break;
-                    case EVENT_TERRIFYING_ROAR:
-                        DoCastVictim(SPELL_TERRIFYINGROAR);
-                        events.ScheduleEvent(EVENT_TERRIFYING_ROAR, Seconds(20));
-                        break;
-                    case EVENT_BERSERKER_CHARGE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 38.f, true))
-                            DoCast(target, SPELL_BERSERKER_CHARGE);
-                        events.Repeat(Seconds(15), Seconds(23));
-                        break;
-                    case EVENT_FIREBALL:
-                        DoCastVictim(SPELL_FIREBALL);
-                        events.Repeat(Seconds(8), Seconds(21));
-                        break;
-                    case EVENT_FIREBLAST:
-                        DoCastVictim(SPELL_FIREBLAST);
-                        events.Repeat(Seconds(5), Seconds(8));
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
+        DoMeleeAttackIfReady();
+    }
 
-        void FindNearbyOrcs()
-        {
-            std::vector<Creature*> temp;
-            me->GetCreatureListWithEntryInGrid(temp, NPC_BLACKHAND_ELITE, 50.0f);
+    void FindNearbyOrcs()
+    {
+        std::vector<Creature*> temp;
+        me->GetCreatureListWithEntryInGrid(temp, NPC_BLACKHAND_ELITE, 50.0f);
 
-            for (Creature* creature : temp)
-                nearbyOrcsGUIDs.push_back(creature->GetGUID());
-        }
+        for (Creature* creature : temp)
+            nearbyOrcsGUIDs.push_back(creature->GetGUID());
+    }
 
-    private:
-        bool beastReached;
-        bool orcYelled;
-        GuidVector nearbyOrcsGUIDs;
-    };
+private:
+    bool beastReached;
+    bool orcYelled;
+    GuidVector nearbyOrcsGUIDs;
 };
 
 //! The beast room areatrigger, this one triggers boss pathing. (AT Id 2066)
@@ -282,7 +270,7 @@ public:
 
 void AddSC_boss_thebeast()
 {
-    new boss_the_beast();
+    RegisterBlackrockSpireCreatureAI(boss_the_beast);
     new at_trigger_the_beast_movement();
     new at_the_beast_room();
 }
