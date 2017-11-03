@@ -136,26 +136,18 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             ++actorsIndex;
     }
 
-    // reset actorsIndex
-    actorsIndex = 0;
-
-    for (ObjectGuid::LowType actorGuids : conversationTemplate->ActorGuids)
+    for (int i = 0; i < conversationTemplate->ActorGuids.size(); ++i)
     {
-        if (actorGuids)
-        {
-            auto bounds = map->GetCreatureBySpawnIdStore().equal_range(actorGuids);
+        auto bounds = map->GetCreatureBySpawnIdStore().equal_range(conversationTemplate->ActorGuids[i]);
 
-            for (auto it = bounds.first; it != bounds.second; ++it)
+        for (auto it = bounds.first; it != bounds.second; ++it)
+        {
+            if (it->second->IsAlive())
             {
-                if (it->second->IsAlive())
-                {
-                    AddActor(bounds.first->second->GetGUID(), actorsIndex++);
-                    break;
-                }
+                AddActor(bounds.first->second->GetGUID(), i++);
+                break;
             }
         }
-        else
-            ++actorsIndex;
     }
 
     uint16 linesIndex = 0;
