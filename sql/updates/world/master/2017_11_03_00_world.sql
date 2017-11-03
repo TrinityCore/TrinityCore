@@ -5,8 +5,8 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`= 42218 AND `action_param1`= 7885
 UPDATE `creature` SET `spawndist`= 3 WHERE `guid` IN (279925, 279890, 279892, 279976, 280117);
 
 -- Stormwind Infantry and Borhter Paxton Texts
-DELETE FROM `creature_text` WHERE `CreatureID` IN (49869, 951);
-INSERT INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
+DELETE FROM `creature_text` WHERE `entry` IN (49869, 951);
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
 (49869, 0, 0, 'I could use a heal, brother!', 12, 0, 100, 0, 0, 0, 49895, 'Stormwind Infantry'),
 (49869, 0, 1, 'I need a heal!', 12, 0, 100, 0, 0, 0, 49898, 'Stormwind Infantry'),
 (49869, 0, 2, 'Make yourself useful and heal me, Paxton!', 12, 0, 100, 0, 0, 0, 49896, 'Stormwind Infantry'),
