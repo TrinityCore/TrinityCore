@@ -641,7 +641,7 @@ class spell_baleroc_shards_of_torment_target_search : public SpellScript
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_baleroc_shards_of_torment_target_search::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 
-    bool _hasTarget;
+    bool _hasTarget = false;
 };
 
 // http://www.wowhead.com/spell=99253/torment
@@ -839,7 +839,7 @@ class spell_baleroc_vital_flame : public AuraScript
         OnEffectRemove += AuraEffectRemoveFn(spell_baleroc_vital_flame::OnRemove, EFFECT_0, SPELL_AURA_359, AURA_EFFECT_HANDLE_REAL);
     }
 
-    uint32 stacks;
+    uint32 stacks = 0u;
 };
 
 // http://www.wowhead.com/achievement=5830/share-the-pain //17577
