@@ -136,7 +136,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             ++actorsIndex;
     }
 
-    for (int i = 0; i < conversationTemplate->ActorGuids.size(); ++i)
+    for (uint8 i = 0; i < conversationTemplate->ActorGuids.size(); ++i)
     {
         auto bounds = map->GetCreatureBySpawnIdStore().equal_range(conversationTemplate->ActorGuids[i]);
 
