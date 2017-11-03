@@ -24,12 +24,12 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "AreaBoundary.h"
 #include "Map.h"
 #include "Player.h"
 #include "stratholme.h"
