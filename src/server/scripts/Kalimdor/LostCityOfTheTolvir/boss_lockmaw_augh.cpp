@@ -16,7 +16,7 @@
 */
 
 #include "lost_city_of_the_tolvir.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 
 enum eSpells
 {

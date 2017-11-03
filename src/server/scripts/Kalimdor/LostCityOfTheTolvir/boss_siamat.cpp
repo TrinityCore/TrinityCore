@@ -17,7 +17,7 @@
 
 #include "AchievementMgr.h"
 #include "lost_city_of_the_tolvir.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 

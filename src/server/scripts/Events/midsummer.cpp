@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -17,13 +18,13 @@
  */
 
 #include "AchievementMgr.h"
-#include "ScriptMgr.h"
-#include "SpellAuras.h"
-#include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "ScriptedEscortAI.h"
 #include "Spell.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
 #include "World.h"
 
 /*######
