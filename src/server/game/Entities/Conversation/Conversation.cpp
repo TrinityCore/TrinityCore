@@ -144,7 +144,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         {
             if (it->second->IsAlive())
             {
-                AddActor(bounds.first->second->GetGUID(), i++);
+                AddActor(bounds.first->second->GetGUID(), i);
                 break;
             }
         }
