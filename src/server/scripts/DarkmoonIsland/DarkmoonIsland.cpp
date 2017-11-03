@@ -16,7 +16,7 @@
  */
 
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "GameObject.h"
 #include "Transport.h"

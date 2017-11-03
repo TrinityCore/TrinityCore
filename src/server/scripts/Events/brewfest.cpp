@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "ScriptedEscortAI.h"
 #include "GameEventMgr.h"

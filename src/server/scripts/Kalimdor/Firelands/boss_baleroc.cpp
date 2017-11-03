@@ -17,7 +17,7 @@
 
 #include "firelands.h"
 #include "ObjectMgr.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 
 enum ScriptTexts
 {

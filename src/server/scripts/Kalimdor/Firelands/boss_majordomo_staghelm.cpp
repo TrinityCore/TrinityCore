@@ -17,7 +17,7 @@
 
 #include "firelands.h"
 #include "ObjectMgr.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 

@@ -19,7 +19,7 @@
 #include "GameObject.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 
 enum ScriptTexts
