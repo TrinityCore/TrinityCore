@@ -90,6 +90,10 @@
 
 TC_GAME_API std::atomic<bool> World::m_stopEvent(false);
 TC_GAME_API uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
+// playerbot mod
+#include "../../plugins/ahbot/AhBot.h"
+#include "../../plugins/playerbot/PlayerbotAIConfig.h"
+#include "../../plugins/playerbot/RandomPlayerbotMgr.h"
 
 TC_GAME_API std::atomic<uint32> World::m_worldLoopCounter(0);
 
@@ -1230,6 +1234,85 @@ void World::LoadConfigSettings(bool reload)
     m_visibility_notify_periodInInstances = sConfigMgr->GetIntDefault("Visibility.Notify.Period.InInstances",   DEFAULT_VISIBILITY_NOTIFY_PERIOD);
     m_visibility_notify_periodInBGArenas = sConfigMgr->GetIntDefault("Visibility.Notify.Period.InBGArenas",    DEFAULT_VISIBILITY_NOTIFY_PERIOD);
 
+    m_bool_configs[CONFIG_AHBOT_ENABLED] = sConfigMgr->GetBoolDefault("AhBot.Enabled", true);
+    m_int_configs[CONFIG_AHBOT_GUID] = (uint64)sConfigMgr->GetIntDefault("AhBot.GUID", 0);
+    m_int_configs[CONFIG_AHBOT_UPDATEINTERVAL] = sConfigMgr->GetIntDefault("AhBot.UpdateIntervalInSeconds", 300);
+    m_int_configs[CONFIG_AHBOT_HOSTORYDAYS] = sConfigMgr->GetIntDefault("AhBot.History.Days", 30);
+    m_int_configs[CONFIG_AHBOT_ITEMBUYMIN] = sConfigMgr->GetIntDefault("AhBot.ItemBuyMinInterval", 600);
+    m_int_configs[CONFIG_AHBOT_ITEMBUYMAX] = sConfigMgr->GetIntDefault("AhBot.ItemBuyMaxInterval", 7200);
+    m_int_configs[CONFIG_AHBOT_ITEMSELLMIN] = sConfigMgr->GetIntDefault("AhBot.ItemSellMinInterval", 600);
+    m_int_configs[CONFIG_AHBOT_ITEMSELLMAX] = sConfigMgr->GetIntDefault("AhBot.ItemSellMaxInterval", 7200);
+    m_int_configs[CONFIG_AHBOT_MAXSELL] = sConfigMgr->GetIntDefault("AhBot.MaxSellInterval", 3600 * 8);
+    m_int_configs[CONFIG_AHBOT_ALWAYSMONEY] = sConfigMgr->GetIntDefault("AhBot.AlwaysAvailableMoney", 200000);
+    m_float_configs[CONFIG_AHBOT_PRICEMULTIPLIER] = sConfigMgr->GetFloatDefault("AhBot.PriceMultiplier", 1.0f);
+    m_int_configs[CONFIG_AHBOT_DEFAULTMINPRICE] = sConfigMgr->GetIntDefault("AhBot.DefaultMinPrice", 20);
+    m_int_configs[CONFIG_AHBOT_MAXITEMLEVEL] = sConfigMgr->GetIntDefault("AhBot.MaxItemLevel", 199);
+    m_int_configs[CONFIG_AHBOT_MAXREQLEVEL] = sConfigMgr->GetIntDefault("AhBot.MaxRequiredLevel", 80);
+    m_float_configs[CONFIG_AHBOT_PRICEQUALITYMULTIPLY] = sConfigMgr->GetFloatDefault("AhBot.PriceQualityMultiplier", 1.0f);
+    m_float_configs[CONFIG_AHBOT_UNDERPRICEPROB] = sConfigMgr->GetFloatDefault("AhBot.UnderPriceProbability", 0.05f);
+    m_bool_configs[CONFIG_AIPLYERBOT_ENABLED] = sConfigMgr->GetBoolDefault("AiPlayerbot.Enabled", true);
+    m_bool_configs[CONFIG_AIPLYERBOT_ALLOWGUILDBOTS] = sConfigMgr->GetBoolDefault("AiPlayerbot.AllowGuildBots", true);
+    m_bool_configs[CONFIG_AIPLYERBOT_RANDOMBOTAUTOLOGIN] = sConfigMgr->GetBoolDefault("AiPlayerbot.RandomBotAutologin", true);
+    m_bool_configs[CONFIG_AIPLYERBOT_RANDOMBOTLOGINATSTARTUP] = sConfigMgr->GetBoolDefault("AiPlayerbot.RandomBotLoginAtStartup", true);
+    m_bool_configs[CONFIG_AIPLYERBOT_RANDOMBOTJOINLFG] = sConfigMgr->GetBoolDefault("AiPlayerbot.RandomBotJoinLfg", true);
+    m_bool_configs[CONFIG_AIPLYERBOT_LOGINGROUPONLY] = sConfigMgr->GetBoolDefault("AiPlayerbot.LogInGroupOnly", true);
+    m_bool_configs[CONFIG_AIPLYERBOT_LOGVALUESPERTICK] = sConfigMgr->GetBoolDefault("AiPlayerbot.LogValuesPerTick", false);
+    m_bool_configs[CONFIG_AIPLYERBOT_FLEEINGENABLED] = sConfigMgr->GetBoolDefault("AiPlayerbot.FleeingEnabled", true);
+    m_bool_configs[CONFIG_AIPLYERBOT_DELETERANDOMBOTACCOUNTS] = sConfigMgr->GetBoolDefault("AiPlayerbot.DeleteRandomBotAccounts", false);
+    m_bool_configs[CONFIG_AIPLYERBOT_DELETERANDOMBOTGUILDS] = sConfigMgr->GetBoolDefault("AiPlayerbot.DeleteRandomBotGuilds", false);
+    m_bool_configs[CONFIG_AIPLYERBOT_GUILDTASKENABLED] = sConfigMgr->GetBoolDefault("AiPlayerbot.EnableGuildTasks", true);
+    m_int_configs[CONFIG_AIPLYERBOT_GLOBALCOOLDOWN] = (uint32) sConfigMgr->GetIntDefault("AiPlayerbot.GlobalCooldown", 500);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXWAITFORMOVE] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxWaitForMove", 3000);
+    m_int_configs[CONFIG_AIPLYERBOT_REACTDELAY] = (uint32) sConfigMgr->GetIntDefault("AiPlayerbot.ReactDelay", 100);
+    m_int_configs[CONFIG_AIPLYERBOT_CRITICALHEALTH] = sConfigMgr->GetIntDefault("AiPlayerbot.CriticalHealth", 20);
+    m_int_configs[CONFIG_AIPLYERBOT_LOWHEALTH] = sConfigMgr->GetIntDefault("AiPlayerbot.LowHealth", 50);
+    m_int_configs[CONFIG_AIPLYERBOT_MEDIUMHEALTH] = sConfigMgr->GetIntDefault("AiPlayerbot.MediumHealth", 70);
+    m_int_configs[CONFIG_AIPLYERBOT_ALMOSTFULLHEALTH] = sConfigMgr->GetIntDefault("AiPlayerbot.AlmostFullHealth", 85);
+    m_int_configs[CONFIG_AIPLYERBOT_LOWMANA] = sConfigMgr->GetIntDefault("AiPlayerbot.LowMana", 15);
+    m_int_configs[CONFIG_AIPLYERBOT_MEDIUMMANA] = sConfigMgr->GetIntDefault("AiPlayerbot.MediumMana", 40);
+    m_int_configs[CONFIG_AIPLYERBOT_ITERATIONSPERTICK] = sConfigMgr->GetIntDefault("AiPlayerbot.IterationsPerTick", 10);
+    m_int_configs[CONFIG_AIPLYERBOT_MINRANDOMBOTS] = sConfigMgr->GetIntDefault("AiPlayerbot.MinRandomBots", 50);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXRANDOMBOTS] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxRandomBots", 200);
+    m_int_configs[CONFIG_AIPLYERBOT_RANDOMBOTUPDATEINTERVAL] = sConfigMgr->GetIntDefault("AiPlayerbot.RandomBotUpdateInterval", 60);
+    m_int_configs[CONFIG_AIPLYERBOT_RANDOMBOTCOUNTCHANGEMININTERVAL] = sConfigMgr->GetIntDefault("AiPlayerbot.RandomBotCountChangeMinInterval", 24 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_RANDOMBOTCOUNTCHANGEMAXINTERVAL] = sConfigMgr->GetIntDefault("AiPlayerbot.RandomBotCountChangeMaxInterval", 3 * 24 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MINRANDOMBOTINWORLDTIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MinRandomBotInWorldTime", 24 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXRANDOMBOTINWORLDTIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxRandomBotInWorldTime", 14 * 24 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MINRANDOMBOTRANDOMIZETIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MinRandomBotRandomizeTime", 2 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXRANDOMBOTRANDOMIZETIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxRandomRandomizeTime", 14 * 24 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MINRANDOMBOTREVIVETIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MinRandomBotReviveTime", 60);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXRANDOMBOTREVIVETIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxRandomReviveTime", 300);
+    m_int_configs[CONFIG_AIPLYERBOT_RANDOMBOTTELEPORTDISTANCE] = sConfigMgr->GetIntDefault("AiPlayerbot.RandomBotTeleportDistance", 1000);
+    m_int_configs[CONFIG_AIPLYERBOT_MINRANDOMBOTSPERINTERVAL] = sConfigMgr->GetIntDefault("AiPlayerbot.MinRandomBotsPerInterval", 50);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXRANDOMBOTSPERINTERVAL] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxRandomBotsPerInterval", 100);
+    m_int_configs[CONFIG_AIPLYERBOT_MINRANDOMBOTSPRICECHANGEINTERVAL] = sConfigMgr->GetIntDefault("AiPlayerbot.MinRandomBotsPriceChangeInterval", 2 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXRANDOMBOTSPRICECHANGEINTERVAL] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxRandomBotsPriceChangeInterval", 48 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_RANDOMBOTMINLEVEL] = sConfigMgr->GetIntDefault("AiPlayerbot.RandomBotMinLevel", 1);
+    m_int_configs[CONFIG_AIPLYERBOT_RANDOMBOTMAXLEVEL] = sConfigMgr->GetIntDefault("AiPlayerbot.RandomBotMaxLevel", 255);
+    m_int_configs[CONFIG_AIPLYERBOT_RANDOMBOTTELELEVEL] = sConfigMgr->GetIntDefault("AiPlayerbot.RandomBotTeleLevel", 3);
+    m_int_configs[CONFIG_AIPLYERBOT_RANDOMBOTACCOUNTCOUNT] = sConfigMgr->GetIntDefault("AiPlayerbot.RandomBotAccountCount", 50);
+    m_int_configs[CONFIG_AIPLYERBOT_RANDOMBOTGUILDCOUNT] = sConfigMgr->GetIntDefault("AiPlayerbot.RandomBotGuildCount", 50);
+    m_int_configs[CONFIG_AIPLYERBOT_MINGUILDTASKCHANGETIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MinGuildTaskChangeTime", 2 * 24 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXGUILDTASKCHANGETIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxGuildTaskChangeTime", 5 * 24 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MINGUILDTASKADVERTISEMENTTIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MinGuildTaskAdvertisementTime", 8 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXGUILDTASKADVERTISEMENTTIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxGuildTaskAdvertisementTime", 4 * 24 * 3600);
+    m_int_configs[CONFIG_AIPLYERBOT_MINGUILDTASKREWARDTIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MinGuildTaskRewardTime", 60);
+    m_int_configs[CONFIG_AIPLYERBOT_MAXGUILDTASKREWARDTIME] = sConfigMgr->GetIntDefault("AiPlayerbot.MaxGuildTaskRewardTime", 600);
+    m_int_configs[CONFIG_AIPLYERBOT_COMMANDSERVERPORT] = sConfigMgr->GetIntDefault("AiPlayerbot.CommandServerPort", 0);
+    m_float_configs[CONFIG_AIPLYERBOT_SIGHTDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.SightDistance", 50.0f);
+    m_float_configs[CONFIG_AIPLYERBOT_SPELLDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.SpellDistance", 25.0f);
+    m_float_configs[CONFIG_AIPLYERBOT_REACTDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.ReactDistance", 150.0f);
+    m_float_configs[CONFIG_AIPLYERBOT_GRINDDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.GrindDistance", 100.0f);
+    m_float_configs[CONFIG_AIPLYERBOT_LOOTDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.LootDistance", 20.0f);
+    m_float_configs[CONFIG_AIPLYERBOT_FLEEDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.FleeDistance", 20.0f);
+    m_float_configs[CONFIG_AIPLYERBOT_TOOCLOSEDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.TooCloseDistance", 5.0f);
+    m_float_configs[CONFIG_AIPLYERBOT_MELEEDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.MeleeDistance", 0.5f);
+    m_float_configs[CONFIG_AIPLYERBOT_FOLLOWDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.FollowDistance", 1.5f);
+    m_float_configs[CONFIG_AIPLYERBOT_WHISPERDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.WhisperDistance", 6000.0f);
+    m_float_configs[CONFIG_AIPLYERBOT_CONTACTDISTANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.ContactDistance", 0.5f);
+    m_float_configs[CONFIG_AIPLYERBOT_RANDOMGEARLOWERINGCHANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.RandomGearLoweringChance", 0.15);
+    m_float_configs[CONFIG_AIPLYERBOT_RANDOMBOTMAXLEVELCHANCE] = sConfigMgr->GetFloatDefault("AiPlayerbot.RandomBotMaxLevelChance", 0.4);
+    m_float_configs[CONFIG_AIPLYERBOT_RANDOMCHANGEMULTIPLIER] = sConfigMgr->GetFloatDefault("AiPlayerbot.RandomChangeMultiplier", 1.0);
     ///- Load the CharDelete related config options
     m_int_configs[CONFIG_CHARDELETE_METHOD] = sConfigMgr->GetIntDefault("CharDelete.Method", 0);
     m_int_configs[CONFIG_CHARDELETE_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.MinLevel", 0);
@@ -1687,7 +1770,10 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();
-
+    //npcbot
+    TC_LOG_INFO("server.loading", "Loading Creature template outfits...");     // must be after LoadCreatureTemplates
+    sObjectMgr->LoadCreatureOutfits();
+    //end npcbot
     TC_LOG_INFO("server.loading", "Loading Equipment templates...");           // must be after LoadCreatureTemplates
     sObjectMgr->LoadEquipmentTemplates();
 
@@ -2128,6 +2214,10 @@ void World::SetInitialWorldSettings()
 
     if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
         sLog->SetRealmId(realmId);
+    //TC_LOG_INFO("server.loading", "Initializing AuctionHouseBot...");
+    //auctionbot.Init();
+
+    sPlayerbotAIConfig.Initialize();
 }
 
 void World::DetectDBCLang()
@@ -2271,7 +2361,13 @@ void World::Update(uint32 diff)
 
         ///- Handle expired auctions
         sAuctionMgr->Update();
+        // ahbot mod
+        //auctionbot.Update();
     }
+
+    // playerbot mod
+    sRandomPlayerbotMgr.UpdateAI(diff);
+    sRandomPlayerbotMgr.UpdateSessions(diff);
 
     if (m_timers[WUPDATE_AUCTIONS_PENDING].Passed())
     {
@@ -2286,6 +2382,7 @@ void World::Update(uint32 diff)
         sAuctionBot->Update();
         m_timers[WUPDATE_AHBOT].Reset();
     }
+    // end of playerbot mod
 
     /// <li> Handle file changes
     if (m_timers[WUPDATE_CHECK_FILECHANGES].Passed())
@@ -2866,7 +2963,9 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
         m_ShutdownTimer = time;
         ShutdownMsg(true, nullptr, reason);
     }
-
+    // playerbot mod
+    sRandomPlayerbotMgr.LogoutAllBots();
+    // end of playerbot mod
     sScriptMgr->OnShutdownInitiate(ShutdownExitCode(exitcode), ShutdownMask(options));
 }
 
@@ -3414,6 +3513,76 @@ void World::ProcessQueryCallbacks()
 {
     _queryProcessor.ProcessReadyQueries();
 }
+//npcbot
+CharacterInfo const* World::GetCharacterInfo(ObjectGuid const& guid) const
+{
+    CharacterInfoContainer::const_iterator itr = _characterInfoStore.find(guid);
+    if (itr != _characterInfoStore.end())
+        return &itr->second;
+
+    return nullptr;
+}
+void World::LoadCharacterInfoStore()
+{
+    TC_LOG_INFO("server.loading", "Loading character info store");
+
+    _characterInfoStore.clear();
+
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", "No character name data loaded, empty query");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+        AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32()), fields[2].GetUInt32(), fields[1].GetString(),
+            fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", "Loaded character infos for " SZFMTD " characters", _characterInfoStore.size());
+}
+void World::AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+{
+    CharacterInfo& data = _characterInfoStore[guid];
+    data.Name = name;
+    data.AccountId = accountId;
+    data.Race = race;
+    data.Sex = gender;
+    data.Class = playerClass;
+    data.Level = level;
+}
+
+void World::UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
+{
+    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
+        return;
+
+    itr->second.Name = name;
+
+    if (gender != GENDER_NONE)
+        itr->second.Sex = gender;
+
+    if (race != RACE_NONE)
+        itr->second.Race = race;
+
+    WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
+    data << guid;
+    SendGlobalMessage(&data);
+}
+
+void World::UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level)
+{
+    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
+        return;
+
+    itr->second.Level = level;
+}
+//end npcbot
 
 void World::ReloadRBAC()
 {

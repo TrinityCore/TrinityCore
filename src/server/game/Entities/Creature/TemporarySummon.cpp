@@ -244,6 +244,15 @@ void TempSummon::UnSummon(uint32 msTime)
     Unit* owner = GetSummoner();
     if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
         owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
+    //npcbot
+    if (GetIAmABot() || GetIAmABotsPet())
+    {
+        //TC_LOG_ERROR("entities.player", "TempSummon::UnSummon(): Trying to unsummon Bot %s (guidLow: %u owner: %s)", GetName().c_str(), GetGUIDLow(), GetBotOwner()->GetName().c_str());
+        if (IsTempBot())
+            AI()->JustDied(NULL);
+        return;
+    }
+    //end npcbots
 
     AddObjectToRemoveList();
 }

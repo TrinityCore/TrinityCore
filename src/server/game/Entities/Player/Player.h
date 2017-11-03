@@ -31,6 +31,9 @@
 #include "PlayerTaxi.h"
 #include "QuestDef.h"
 #include <queue>
+#include "Map.h"
+#include "Item.h"
+#include "Bag.h"
 
 struct AccessRequirement;
 struct AchievementEntry;
@@ -51,7 +54,6 @@ struct TrainerSpell;
 struct VendorItem;
 
 class AchievementMgr;
-class Bag;
 class Battleground;
 class CinematicMgr;
 class Channel;
@@ -60,7 +62,6 @@ class Creature;
 class DynamicObject;
 class Group;
 class Guild;
-class Item;
 class LootStore;
 class OutdoorPvP;
 class Pet;
@@ -71,11 +72,18 @@ class PlayerSocial;
 class ReputationMgr;
 class SpellCastTargets;
 class TradeData;
+// NpcBot mod
+class BotMgr;
+// end NpcBot mod
 
 enum InventoryType : uint8;
 enum ItemClass : uint8;
 enum LootError : uint8;
 enum LootType : uint8;
+
+// Playerbot mod
+class PlayerbotAI;
+class PlayerbotMgr;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -515,7 +523,6 @@ typedef std::unordered_map<uint32, SkillStatusData> SkillStatusMap;
 
 class Quest;
 class Spell;
-class Item;
 class WorldSession;
 
 enum PlayerSlots
@@ -2131,11 +2138,38 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
+        // Playerbot mod:
+        // A Player can either have a playerbotMgr (to manage its bots), or have playerbotAI (if it is a bot), or
+        // neither. Code that enables bots must create the playerbotMgr and set it using SetPlayerbotMgr.
+        EquipmentSetContainer& GetEquipmentSets() { return _equipmentSets; }
+        void SetPlayerbotAI(PlayerbotAI* ai) { m_playerbotAI=ai; }
+        PlayerbotAI* GetPlayerbotAI() { return m_playerbotAI; }
+        void SetPlayerbotMgr(PlayerbotMgr* mgr) { m_playerbotMgr=mgr; }
+        PlayerbotMgr* GetPlayerbotMgr() { return m_playerbotMgr; }
+        void SetBotDeathTimer() { m_deathTimer = 0; }
+        PlayerTalentMap& GetTalentMap(uint8 spec) { return *m_talents[spec]; }
+        bool MinimalLoadFromDB( QueryResult result, uint32 guid );
+
         //! Return collision height sent to client
         float GetCollisionHeight(bool mounted) const;
 
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
+ 
+        /*********************************************************/
+        /***                     NPCBOT SYSTEM                    ***/
+        /*********************************************************/
+        void SetBotMgr(BotMgr* mgr) { ASSERT (!_botMgr); _botMgr = mgr; }
+        BotMgr* GetBotMgr() const { return _botMgr; }
+        bool HaveBot() const;
+        uint8 GetNpcBotsCount(bool inWorldOnly = false) const;
+        uint8 GetBotFollowDist() const;
+        void SetBotFollowDist(int8 dist);
+        void SetBotsShouldUpdateStats();
+        void RemoveAllBots(uint8 removetype = 0);
+        /*********************************************************/
+        /***                 END BOT SYSTEM                    ***/
+        /*********************************************************/
 
     protected:
         // Gamemaster whisper whitelist
@@ -2391,6 +2425,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool m_needsZoneUpdate;
 
     private:
+        /*********************************************************/
+        /***                     NPCBOT SYSTEM                    ***/
+        /*********************************************************/
+        BotMgr* _botMgr;
+        /*********************************************************/
+        /***                END BOT SYSTEM                     ***/
+        /*********************************************************/
+
         // internal common parts for CanStore/StoreItem functions
         InventoryResult CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const;
         InventoryResult CanStoreItem_InBag(uint8 bag, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, bool non_specialized, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
@@ -2466,6 +2508,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
+        PlayerbotAI* m_playerbotAI;
+        PlayerbotMgr* m_playerbotMgr;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

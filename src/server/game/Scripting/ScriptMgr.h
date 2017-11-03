@@ -416,6 +416,17 @@ class TC_GAME_API CreatureScript : public UnitScript
         CreatureScript(char const* name);
 
     public:
+        //npcbot
+        // Called when a player opens a gossip dialog with the creature.
+        virtual bool OnGossipHello(Player* /*player*/, Creature* /*creature*/) { return false; }
+
+        // Called when a player selects a gossip item in the creature's gossip menu.
+        virtual bool OnGossipSelect(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
+
+        // Called when a player selects a gossip with a code in the creature's gossip menu.
+        virtual bool OnGossipSelectCode(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
+        //end npcbot
+
 
         // Called when the creature tries to spawn. Return false to block spawn and re-evaluate on next tick.
         virtual bool CanSpawn(ObjectGuid::LowType /*spawnId*/, uint32 /*entry*/, CreatureTemplate const* /*baseTemplate*/, CreatureTemplate const* /*actTemplate*/, CreatureData const* /*cData*/, Map const* /*map*/) const { return true; }
@@ -920,6 +931,9 @@ class TC_GAME_API ScriptMgr
 
     public: /* CreatureScript */
 
+        bool OnGossipHello(Player* player, Creature* creature);
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action);
+        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code);
         bool CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureData const* cData, Map const* map);
         CreatureAI* GetCreatureAI(Creature* creature);
 

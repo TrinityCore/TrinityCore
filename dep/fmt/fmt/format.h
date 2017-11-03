@@ -4150,3 +4150,4 @@ operator"" _a(const wchar_t *s, std::size_t) { return {s}; }
 #endif
 
 #endif  // FMT_FORMAT_H_
+

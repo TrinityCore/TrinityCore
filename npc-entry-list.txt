@@ -1,0 +1,38 @@
+This is a list of all NPC's used in all of the patches.
+
+
+Entry         Name                     Script
+
+13            Beltez                   Guild Houses
+
+25266         The Lich King            Arena Gambler
+
+60001         Cyon                     Profession NPC
+
+60002         LordPsyan                NPC Buff
+
+60003         Lucy                     Level NPC
+
+60005         George                   Vote Rewarder
+
+80000         Young Woman              All-In-One
+
+99013         "Lucky" Bob              Lottery NPC
+
+99014         George                   Bounty Hunter
+
+99990         LordPsyan                BeastMaster
+
+100000        Abyssal                  Vortex TeleNPC
+
+100067        Young Woman              Enchant NPC
+
+100068        Young Mistress           Blood Money Duel NPC
+
+190010        Warpweaver               Transmogrification
+
+190011        Thaumaturge Vashreen     Reforging
+
+190012        Narpweaver               Transmog Vendor
+
+535200        LordPsyan                1v1 Arena Master

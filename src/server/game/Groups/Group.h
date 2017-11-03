@@ -329,7 +329,13 @@ class TC_GAME_API Group
 
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
-
+        //npcbot
+        ObjectGuid const *GetTargetIcons() const { return m_targetIcons; }
+        //end npcbot
+        // ai playerbot mod
+        ObjectGuid GetTargetIcon(int index) { return m_targetIcons[index]; }
+        Rolls* GetRolls() { return &RollId; }
+        // end
     protected:
         bool _setMembersGroup(ObjectGuid guid, uint8 group);
         void _homebindIfInstance(Player* player);

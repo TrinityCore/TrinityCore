@@ -30,6 +30,7 @@
 #include "SharedDefines.h"
 #include "UpdateFields.h"
 #include "UpdateMask.h"
+#include "Map.h"
 #include <list>
 #include <set>
 #include <unordered_map>
@@ -40,7 +41,6 @@ class CreatureAI;
 class DynamicObject;
 class GameObject;
 class InstanceScript;
-class Map;
 class Player;
 class TempSummon;
 class Transport;
@@ -274,6 +274,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetContactPoint(WorldObject const* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const;
 
         virtual float GetCombatReach() const { return 0.0f; } // overridden (only) in Unit
+        float GetObjectSize() const; //npcbot
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
@@ -417,6 +418,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetWorldObject(bool apply);
         bool IsPermanentWorldObject() const { return m_isWorldObject; }
         bool IsWorldObject() const;
+        //npcbot
+        template<class NOTIFIER> void VisitNearbyObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); }
+        template<class NOTIFIER> void VisitNearbyGridObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitGrid(GetPositionX(), GetPositionY(), radius, notifier); }
+        template<class NOTIFIER> void VisitNearbyWorldObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitWorld(GetPositionX(), GetPositionY(), radius, notifier); }
+        //end npcbot
 
         uint32  LastUsedScriptID;
 
