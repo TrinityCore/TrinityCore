@@ -70,6 +70,36 @@ CASC::StorageHandle CASC::OpenStorage(boost::filesystem::path const& path, DWORD
     return StorageHandle(handle);
 }
 
+namespace CASC
+{
+    static DWORD GetStorageInfo(StorageHandle const& storage, CASC_STORAGE_INFO_CLASS storageInfoClass)
+    {
+        DWORD value = 0;
+        size_t infoDataSizeNeeded = 0;
+        if (!::CascGetStorageInfo(storage.get(), storageInfoClass, &value, sizeof(value), &infoDataSizeNeeded))
+        {
+            if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+            {
+                std::unique_ptr<char> buf(new char[infoDataSizeNeeded]);
+                ::CascGetStorageInfo(storage.get(), storageInfoClass, buf.get(), infoDataSizeNeeded, &infoDataSizeNeeded);
+                return *reinterpret_cast<DWORD*>(buf.get());
+            }
+        }
+
+        return value;
+    }
+}
+
+DWORD CASC::GetBuildNumber(StorageHandle const& storage)
+{
+    return GetStorageInfo(storage, CascStorageGameBuild);
+}
+
+DWORD CASC::GetInstalledLocalesMask(StorageHandle const& storage)
+{
+    return GetStorageInfo(storage, CascStorageInstalledLocales);
+}
+
 CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors /*= false*/)
 {
     HANDLE handle = nullptr;

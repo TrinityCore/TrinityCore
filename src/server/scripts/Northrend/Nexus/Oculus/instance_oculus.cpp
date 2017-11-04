@@ -16,10 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "WorldPacket.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "oculus.h"
+#include "TemporarySummon.h"
+#include "WorldStatePackets.h"
 
 DoorData const doorData[] =
 {

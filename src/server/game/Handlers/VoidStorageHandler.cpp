@@ -15,17 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "CollectionMgr.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
+#include "Bag.h"
+#include "CollectionMgr.h"
+#include "Common.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "VoidStoragePackets.h"
+#include "World.h"
 
 void WorldSession::SendVoidStorageTransferResult(VoidTransferError result)
 {

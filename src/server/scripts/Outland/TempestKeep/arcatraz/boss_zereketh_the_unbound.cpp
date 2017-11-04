@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "arcatraz.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {
@@ -118,7 +118,7 @@ class boss_zereketh_the_unbound : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_zereketh_the_unboundAI(creature);
+            return GetArcatrazAI<boss_zereketh_the_unboundAI>(creature);
         }
 };
 

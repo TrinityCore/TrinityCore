@@ -16,15 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
+#include "DB2Stores.h"
+#include "GossipDef.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "Pet.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "TalentPackets.h"
+#include "Player.h"
 #include "SpellPackets.h"
+#include "TalentPackets.h"
 
 void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet)
 {
@@ -65,7 +66,10 @@ void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRe
         return;
     }
 
-    if (!unit->isCanTrainingAndResetTalentsOf(_player))
+    if (!unit->CanResetTalents(_player))
+        return;
+
+    if (!_player->PlayerTalkClass->GetGossipMenu().HasMenuItemType(GOSSIP_OPTION_UNLEARNTALENTS))
         return;
 
     // remove fake death

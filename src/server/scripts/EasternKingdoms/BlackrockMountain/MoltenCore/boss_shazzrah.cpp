@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "molten_core.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "molten_core.h"
 
 enum Spells
 {
@@ -115,7 +115,7 @@ class boss_shazzrah : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_shazzrahAI(creature);
+            return GetMoltenCoreAI<boss_shazzrahAI>(creature);
         }
 };
 
@@ -131,9 +131,7 @@ class spell_shazzrah_gate_dummy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAZZRAH_GATE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAZZRAH_GATE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

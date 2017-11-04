@@ -15,11 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "GuildMgr.h"
+#include "DB2Stores.h"
+#include "DatabaseEnv.h"
+#include "Guild.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "World.h"
+#include <algorithm>
 
 GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
-{ }
+{
+}
 
 GuildMgr::~GuildMgr()
 {
@@ -120,8 +127,8 @@ void GuildMgr::LoadGuilds()
 
         //          0          1       2             3              4              5              6
         QueryResult result = CharacterDatabase.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, "
-            //   7                  8       9       10            11          12           13
-            "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, g.level, COUNT(gbt.guildid) "
+            //   7                  8       9       10            11          12
+            "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, COUNT(gbt.guildid) "
             "FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC");
 
         if (!result)

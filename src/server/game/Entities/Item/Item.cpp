@@ -16,24 +16,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "Item.h"
-#include "ObjectMgr.h"
-#include "WorldPacket.h"
-#include "DatabaseEnv.h"
-#include "ItemEnchantmentMgr.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "ScriptMgr.h"
-#include "ConditionMgr.h"
-#include "Player.h"
-#include "Opcodes.h"
-#include "WorldSession.h"
-#include "ItemPackets.h"
-#include "TradeData.h"
-#include "GameTables.h"
-#include "CollectionMgr.h"
 #include "ArtifactPackets.h"
+#include "Bag.h"
+#include "CollectionMgr.h"
+#include "Common.h"
+#include "ConditionMgr.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GameTables.h"
+#include "ItemEnchantmentMgr.h"
+#include "ItemPackets.h"
+#include "Log.h"
+#include "LootMgr.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TradeData.h"
+#include "UpdateData.h"
+#include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -287,11 +292,11 @@ Item::Item()
     memset(&_bonusData, 0, sizeof(_bonusData));
 }
 
-bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)
+bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner)
 {
     Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
-    SetEntry(itemid);
+    SetEntry(itemId);
     SetObjectScale(1.0f);
 
     if (owner)
@@ -300,7 +305,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owne
         SetGuidValue(ITEM_FIELD_CONTAINED, owner->GetGUID());
     }
 
-    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
+    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemId);
     if (!itemProto)
         return false;
 
@@ -725,6 +730,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[17].GetUInt16());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[18].GetUInt32());
 
+    SetUInt32Value(ITEM_FIELD_CONTEXT, fields[19].GetUInt8());
+
     Tokenizer bonusListIDs(fields[20].GetString(), ' ');
     for (char const* token : bonusListIDs)
     {
@@ -897,31 +904,6 @@ uint32 Item::GetSkill()
     return proto->GetSkill();
 }
 
-ItemRandomEnchantmentId Item::GenerateItemRandomPropertyId(uint32 item_id)
-{
-    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
-    if (!itemProto)
-        return{};
-
-    // item must have one from this field values not null if it can have random enchantments
-    if (!itemProto->GetRandomProperty() && !itemProto->GetRandomSuffix())
-        return{};
-
-    // item can have not null only one from field values
-    if (itemProto->GetRandomProperty() && itemProto->GetRandomSuffix())
-    {
-        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->GetId(), itemProto->GetRandomProperty(), itemProto->GetRandomSuffix());
-        return{};
-    }
-
-    // RandomProperty case
-    if (itemProto->GetRandomProperty())
-        return GetItemEnchantMod(itemProto->GetRandomProperty(), ItemRandomEnchantmentType::Property);
-    // RandomSuffix case
-    else
-        return GetItemEnchantMod(itemProto->GetRandomSuffix(), ItemRandomEnchantmentType::Suffix);
-}
-
 void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
 {
     if (!randomPropId.Id)
@@ -978,7 +960,7 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
         // pretend the item never existed
         if (forplayer)
         {
-            RemoveFromUpdateQueueOf(forplayer);
+            RemoveItemFromUpdateQueueOf(this, forplayer);
             forplayer->DeleteRefundReference(GetGUID());
         }
         delete this;
@@ -991,7 +973,7 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
             uState = state;
 
         if (forplayer)
-            AddToUpdateQueueOf(forplayer);
+            AddItemToUpdateQueueOf(this, forplayer);
     }
     else
     {
@@ -1002,46 +984,46 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
     }
 }
 
-void Item::AddToUpdateQueueOf(Player* player)
+void AddItemToUpdateQueueOf(Item* item, Player* player)
 {
-    if (IsInUpdateQueue())
+    if (item->IsInUpdateQueue())
         return;
 
     ASSERT(player != NULL);
 
-    if (player->GetGUID() != GetOwnerGUID())
+    if (player->GetGUID() != item->GetOwnerGUID())
     {
         TC_LOG_DEBUG("entities.player.items", "Item::AddToUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!",
-            GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+            item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
         return;
     }
 
     if (player->m_itemUpdateQueueBlocked)
         return;
 
-    player->m_itemUpdateQueue.push_back(this);
-    uQueuePos = player->m_itemUpdateQueue.size()-1;
+    player->m_itemUpdateQueue.push_back(item);
+    item->uQueuePos = player->m_itemUpdateQueue.size() - 1;
 }
 
-void Item::RemoveFromUpdateQueueOf(Player* player)
+void RemoveItemFromUpdateQueueOf(Item* item, Player* player)
 {
-    if (!IsInUpdateQueue())
+    if (!item->IsInUpdateQueue())
         return;
 
     ASSERT(player != NULL);
 
-    if (player->GetGUID() != GetOwnerGUID())
+    if (player->GetGUID() != item->GetOwnerGUID())
     {
         TC_LOG_DEBUG("entities.player.items", "Item::RemoveFromUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!",
-            GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+            item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
         return;
     }
 
     if (player->m_itemUpdateQueueBlocked)
         return;
 
-    player->m_itemUpdateQueue[uQueuePos] = NULL;
-    uQueuePos = -1;
+    player->m_itemUpdateQueue[item->uQueuePos] = nullptr;
+    item->uQueuePos = -1;
 }
 
 uint8 Item::GetBagSlot() const
@@ -1062,7 +1044,7 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     if ((!mail || !IsBoundAccountWide()) && (IsSoulBound() && (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE) || !trade)))
         return false;
 
-    if (IsBag() && (Player::IsBagPos(GetPos()) || !((Bag const*)this)->IsEmpty()))
+    if (IsBag() && (Player::IsBagPos(GetPos()) || !ToBag()->IsEmpty()))
         return false;
 
     if (Player* owner = GetOwner())
@@ -1383,10 +1365,10 @@ void Item::SendTimeUpdate(Player* owner)
     owner->GetSession()->SendPacket(itemTimeUpdate.Write());
 }
 
-Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
+Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= nullptr*/)
 {
     if (count < 1)
-        return NULL;                                        //don't create item at zero count
+        return nullptr;                                        //don't create item at zero count
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
     if (proto)
@@ -1407,14 +1389,14 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
     }
     else
         ABORT();
-    return NULL;
+    return nullptr;
 }
 
-Item* Item::CloneItem(uint32 count, Player const* player) const
+Item* Item::CloneItem(uint32 count, Player const* player /*= nullptr*/) const
 {
     Item* newItem = CreateItem(GetEntry(), count, player);
     if (!newItem)
-        return NULL;
+        return nullptr;
 
     newItem->SetGuidValue(ITEM_FIELD_CREATOR, GetGuidValue(ITEM_FIELD_CREATOR));
     newItem->SetGuidValue(ITEM_FIELD_GIFTCREATOR, GetGuidValue(ITEM_FIELD_GIFTCREATOR));
@@ -1549,7 +1531,7 @@ void Item::SaveRefundDataToDB()
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_REFUND_INSTANCE);
     stmt->setUInt64(0, GetGUID().GetCounter());
     stmt->setUInt64(1, GetRefundRecipient().GetCounter());
-    stmt->setUInt32(2, GetPaidMoney());
+    stmt->setUInt64(2, GetPaidMoney());
     stmt->setUInt16(3, uint16(GetPaidExtendedCost()));
     trans->Append(stmt);
 
@@ -1762,7 +1744,7 @@ int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
 {
     -1,                                                     // INVTYPE_NON_EQUIP
     EQUIPMENT_SLOT_HEAD,                                    // INVTYPE_HEAD
-    EQUIPMENT_SLOT_NECK,                                    // INVTYPE_NECK
+    -1,                                                     // INVTYPE_NECK
     EQUIPMENT_SLOT_SHOULDERS,                               // INVTYPE_SHOULDERS
     EQUIPMENT_SLOT_BODY,                                    // INVTYPE_BODY
     EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_CHEST
@@ -1773,19 +1755,19 @@ int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
     EQUIPMENT_SLOT_HANDS,                                   // INVTYPE_HANDS
     -1,                                                     // INVTYPE_FINGER
     -1,                                                     // INVTYPE_TRINKET
-    -1,                                                     // INVTYPE_WEAPON
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_WEAPON
     EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_SHIELD
     EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGED
     EQUIPMENT_SLOT_BACK,                                    // INVTYPE_CLOAK
-    -1,                                                     // INVTYPE_2HWEAPON
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_2HWEAPON
     -1,                                                     // INVTYPE_BAG
     EQUIPMENT_SLOT_TABARD,                                  // INVTYPE_TABARD
     EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_ROBE
     EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_WEAPONMAINHAND
-    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_WEAPONOFFHAND
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_WEAPONOFFHAND
     EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_HOLDABLE
     -1,                                                     // INVTYPE_AMMO
-    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_THROWN
+    -1,                                                     // INVTYPE_THROWN
     EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGEDRIGHT
     -1,                                                     // INVTYPE_QUIVER
     -1                                                      // INVTYPE_RELIC
@@ -1827,20 +1809,13 @@ bool Item::CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceE
             case ITEM_CLASS_ARMOR:
                 if (source->GetSubClass() != ITEM_SUBCLASS_ARMOR_COSMETIC)
                     return false;
+                if (source->GetInventoryType() != target->GetInventoryType())
+                    if (ItemTransmogrificationSlots[source->GetInventoryType()] != ItemTransmogrificationSlots[target->GetInventoryType()])
+                        return false;
                 break;
             default:
                 return false;
         }
-    }
-
-    if (source->GetInventoryType() != target->GetInventoryType())
-    {
-        int32 sourceSlot = ItemTransmogrificationSlots[source->GetInventoryType()];
-        if (sourceSlot == -1 && source->GetInventoryType() == INVTYPE_WEAPON && (target->GetInventoryType() == INVTYPE_WEAPONMAINHAND || target->GetInventoryType() == INVTYPE_WEAPONOFFHAND))
-            sourceSlot = ItemTransmogrificationSlots[target->GetInventoryType()];
-
-        if (sourceSlot != ItemTransmogrificationSlots[target->GetInventoryType()])
-            return false;
     }
 
     return true;
@@ -2195,21 +2170,18 @@ uint32 Item::GetItemLevel(Player const* owner) const
         return MIN_ITEM_LEVEL;
 
     uint32 itemLevel = stats->GetBaseItemLevel();
-    if (_bonusData.HasItemLevelBonus || !_bonusData.ItemLevelOverride)
+    if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
     {
-        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
-        {
-            uint32 level = owner->getLevel();
-            if (uint32 fixedLevel = GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
-                level = fixedLevel;
-            if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, level)))
-                itemLevel = heirloomIlvl;
-        }
-
-        itemLevel += _bonusData.ItemLevelBonus;
+        uint32 level = owner->getLevel();
+        if (uint32 fixedLevel = GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
+            level = fixedLevel;
+        else
+            level = std::min(std::max(level, ssd->MinLevel), ssd->MaxLevel);
+        if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, level)))
+            itemLevel = heirloomIlvl;
     }
-    else
-        itemLevel = _bonusData.ItemLevelOverride;
+
+    itemLevel += _bonusData.ItemLevelBonus;
 
     if (ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(GetModifier(ITEM_MODIFIER_UPGRADE_ID)))
         itemLevel += upgrade->ItemLevelBonus;
@@ -2534,13 +2506,11 @@ void BonusData::Initialize(ItemTemplate const* proto)
     AppearanceModID = 0;
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
-    ItemLevelOverride = 0;
     RelicType = -1;
     HasItemLevelBonus = false;
 
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
     _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
-    _state.ItemLevelOverridePriority = std::numeric_limits<int32>::max();
     _state.HasQualityBonus = false;
 }
 
@@ -2622,13 +2592,6 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             {
                 ScalingStatDistribution = static_cast<uint32>(values[0]);
                 _state.ScalingStatDistributionPriority = values[1];
-            }
-            break;
-        case ITEM_BONUS_ITEM_LEVEL_OVERRIDE:
-            if (values[1] < _state.ItemLevelOverridePriority)
-            {
-                ItemLevelOverride = static_cast<uint32>(values[0]);
-                _state.ItemLevelOverridePriority = values[1];
             }
             break;
         case ITEM_BONUS_BONDING:

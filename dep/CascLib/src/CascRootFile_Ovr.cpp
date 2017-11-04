@@ -58,7 +58,7 @@ static int InsertFileEntry(
     // Fill the file entry
     pFileEntry->EncodingKey  = *(PENCODING_KEY)pbEncodingKey;
     pFileEntry->FileNameHash = CalcFileNameHash(szFileName);
-    pFileEntry->dwFileName   = Array_IndexOf(&pRootHandler->FileNames, szFileName);
+    pFileEntry->dwFileName   = (DWORD)Array_IndexOf(&pRootHandler->FileNames, szFileName);
 
     // Insert the file entry to the map
     assert(Map_FindObject(pRootHandler->pRootMap, &pFileEntry->FileNameHash, NULL) == NULL);
@@ -145,7 +145,7 @@ int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRo
     size_t nLength;
     char szOneLine[0x200];
     char szFileName[MAX_PATH+1];
-    DWORD dwFileCountMax = hs->pEncodingMap->TableSize;
+    DWORD dwFileCountMax = (DWORD)hs->pEncodingMap->TableSize;
     int nFileNameIndex;
     int nError = ERROR_SUCCESS;
 

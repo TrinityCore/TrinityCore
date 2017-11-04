@@ -18,12 +18,15 @@
 #ifndef DatabaseLoader_h__
 #define DatabaseLoader_h__
 
-#include "DatabaseWorkerPool.h"
-#include "DBUpdater.h"
+#include "Define.h"
 
 #include <functional>
-#include <stack>
 #include <queue>
+#include <stack>
+#include <string>
+
+template<class T>
+class DatabaseWorkerPool;
 
 // A helper class to initiate all database worker pools,
 // handles updating, delays preparing of statements and cleans up on failure.

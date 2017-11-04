@@ -19,10 +19,11 @@
 #define PetPackets_h__
 
 #include "Packet.h"
-#include "PacketUtilities.h"
+#include "Position.h"
 #include "ObjectGuid.h"
-#include "Unit.h"
-#include "WorldSession.h"
+#include "Optional.h"
+#include "UnitDefines.h"
+#include <array>
 
 namespace WorldPackets
 {
@@ -110,7 +111,7 @@ namespace WorldPackets
             uint8 CommandState = 0;
             uint8 Flag = 0;
 
-            std::array<int, 10> ActionButtons;
+            std::array<int, 10> ActionButtons = { };
 
             std::vector<uint32> Actions;
             std::vector<PetSpellCooldown> Cooldowns;
@@ -159,7 +160,6 @@ namespace WorldPackets
             std::vector<uint32> Spells;
         };
 
-
         struct PetRenameData
         {
             ObjectGuid PetGUID;
@@ -200,7 +200,7 @@ namespace WorldPackets
             ObjectGuid PetGUID;
             uint32 Action = 0;
             ObjectGuid TargetGUID;
-            G3D::Vector3 ActionPosition;
+            TaggedPosition<Position::XYZ> ActionPosition;
         };
 
         class PetSetAction final : public ClientPacket

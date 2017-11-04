@@ -16,10 +16,12 @@
  */
 
 #include "Scenario.h"
+#include "InstanceSaveMgr.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScenarioMgr.h"
-#include "InstanceSaveMgr.h"
-#include "ObjectMgr.h"
 #include "ScenarioPackets.h"
 
 Scenario::Scenario(ScenarioData const* scenarioData) : _data(scenarioData), _currentstep(nullptr)

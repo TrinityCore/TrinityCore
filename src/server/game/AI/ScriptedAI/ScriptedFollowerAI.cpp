@@ -23,10 +23,14 @@ SDComment: This AI is under development
 SDCategory: Npc
 EndScriptData */
 
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptedFollowerAI.h"
+#include "Creature.h"
 #include "Group.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 
 const float MAX_PLAYER_DISTANCE = 100.0f;
 
@@ -147,19 +151,11 @@ void FollowerAI::JustDied(Unit* /*killer*/)
         if (Group* group = player->GetGroup())
         {
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
-            {
                 if (Player* member = groupRef->GetSource())
-                {
-                    if (member->GetQuestStatus(m_pQuestForFollow->GetQuestId()) == QUEST_STATUS_INCOMPLETE)
-                        member->FailQuest(m_pQuestForFollow->GetQuestId());
-                }
-            }
+                    member->FailQuest(m_pQuestForFollow->GetQuestId());
         }
         else
-        {
-            if (player->GetQuestStatus(m_pQuestForFollow->GetQuestId()) == QUEST_STATUS_INCOMPLETE)
-                player->FailQuest(m_pQuestForFollow->GetQuestId());
-        }
+            player->FailQuest(m_pQuestForFollow->GetQuestId());
     }
 }
 

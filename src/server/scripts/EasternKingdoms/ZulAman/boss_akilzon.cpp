@@ -88,7 +88,7 @@ class boss_akilzon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_akilzonAI>(creature);
+            return GetZulAmanAI<boss_akilzonAI>(creature);
         }
 };
 

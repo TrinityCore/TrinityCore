@@ -19,6 +19,7 @@
 #define SceneMgr_h__
 
 #include "Common.h"
+#include <map>
 
 enum SceneFlags
 {

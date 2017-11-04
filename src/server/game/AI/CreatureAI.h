@@ -19,17 +19,20 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "Creature.h"
 #include "UnitAI.h"
-#include "AreaBoundary.h"
 #include "Common.h"
+#include "ObjectDefines.h"
 
-class WorldObject;
-class Unit;
+class AreaBoundary;
+class AreaTrigger;
 class Creature;
-class Player;
+class DynamicObject;
+class GameObject;
 class PlayerAI;
-class SpellInfo;
+class WorldObject;
+struct Position;
+
+typedef std::set<AreaBoundary const*> CreatureBoundary;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
@@ -65,7 +68,6 @@ enum SCEquip
     EQUIP_UNEQUIP   = 0
 };
 
-typedef std::set<AreaBoundary const*> CreatureBoundary;
 class TC_GAME_API CreatureAI : public UnitAI
 {
     protected:
@@ -81,7 +83,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
         bool CheckBoundary(Position const* who = nullptr) const;
-        void SetBoundary(CreatureBoundary const* boundary) { _boundary = boundary; me->DoImmediateBoundaryCheck(); }
+        void SetBoundary(CreatureBoundary const* boundary);
     public:
         enum EvadeReason
         {
@@ -92,11 +94,11 @@ class TC_GAME_API CreatureAI : public UnitAI
             EVADE_REASON_OTHER
         };
 
+        explicit CreatureAI(Creature* creature);
+
+        virtual ~CreatureAI();
+
         void Talk(uint8 id, WorldObject const* whisperTarget = nullptr);
-
-        explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), m_MoveInLineOfSight_locked(false) { }
-
-        virtual ~CreatureAI() { }
 
         /// == Reactions At =================================
 
@@ -154,6 +156,9 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }
 
         void OnCharmed(bool apply) override;
+
+        // Called when a spell cast gets interrupted
+        virtual void OnSpellCastInterrupt(SpellInfo const* /*spell*/) { }
 
         // Called at reaching home after evade
         virtual void JustReachedHome() { }

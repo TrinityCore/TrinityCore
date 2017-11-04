@@ -18,7 +18,7 @@
 
 #include "Totem.h"
 #include "Group.h"
-#include "ObjectMgr.h"
+#include "Map.h"
 #include "Player.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"

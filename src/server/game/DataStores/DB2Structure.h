@@ -18,11 +18,13 @@
 #ifndef TRINITY_DB2STRUCTURE_H
 #define TRINITY_DB2STRUCTURE_H
 
-#include "Common.h"
+#include "Define.h"
 #include "DBCEnums.h"
 #include "Util.h"
 
 #pragma pack(push, 1)
+
+struct LocalizedString;
 
 struct AchievementEntry
 {
@@ -324,16 +326,33 @@ struct BroadcastTextEntry
     uint32 PlayerConditionID;
 };
 
+struct CharacterFacialHairStylesEntry
+{
+    uint32 ID;
+    uint32 Geoset[5];
+    uint8 RaceID;
+    uint8 SexID;
+    uint8 VariationID;
+};
+
+struct CharBaseSectionEntry
+{
+    uint32 ID;
+    uint8 Variation;
+    uint8 ResolutionVariation;
+    uint8 Resolution;
+};
+
 struct CharSectionsEntry
 {
     uint32 ID;
     uint32 TextureFileDataID[3];
     uint16 Flags;
-    uint8 Race;
-    uint8 Gender;
-    uint8 GenType;
-    uint8 Type;
-    uint8 Color;
+    uint8 RaceID;
+    uint8 SexID;
+    uint8 BaseSection;
+    uint8 VariationIndex;
+    uint8 ColorIndex;
 };
 
 #define MAX_OUTFIT_ITEMS 24
@@ -473,6 +492,19 @@ struct CinematicSequencesEntry
     uint32 ID;
     uint32 SoundID;
     uint16 Camera[8];
+};
+
+struct ConversationLineEntry
+{
+    uint32 ID;
+    uint32 BroadcastTextID;
+    uint32 SpellVisualKitID;
+    uint32 Duration;
+    uint16 NextLineID;
+    uint16 Unk1;
+    uint8 Yell;
+    uint8 Unk2;
+    uint8 Unk3;
 };
 
 struct CreatureDisplayInfoEntry
@@ -695,6 +727,12 @@ struct CriteriaEntry
 
         // CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT = 182
         uint32 CharShipmentContainerID;
+
+        // CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT
+        uint32 EquipmentSlot;
+
+        // CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED = 205
+        uint32 TransmogSetGroupID;
     } Asset;
     uint32 StartAsset;
     uint32 FailAsset;
@@ -724,7 +762,6 @@ struct CurrencyTypesEntry
 {
     uint32 ID;
     LocalizedString* Name;
-    char const* InventoryIcon[2];
     uint32 MaxQty;
     uint32 MaxEarnablePerWeek;
     uint32 Flags;
@@ -732,6 +769,7 @@ struct CurrencyTypesEntry
     uint8 CategoryID;
     uint8 SpellCategory;
     uint8 Quality;
+    uint32 InventoryIconFileDataID;
     uint32 SpellWeight;
 };
 
@@ -828,12 +866,12 @@ struct EmotesEntry
     char const* EmoteSlashCommand;
     uint32 SpellVisualKitID;
     uint32 EmoteFlags;
+    int32 RaceMask;
     uint16 AnimID;
     uint8 EmoteSpecProc;
     uint32 EmoteSpecProcParam;
     uint32 EmoteSoundID;
     int32 ClassMask;
-    int32 RaceMask;
 };
 
 struct EmotesTextEntry
@@ -936,6 +974,7 @@ struct FactionTemplateEntry
         return EnemyMask == 0 && FriendMask == 0;
     }
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
+    bool ShouldSparAttack() const { return (Flags & FACTION_TEMPLATE_ENEMY_SPAR) != 0; }
 };
 
 struct GameObjectsEntry
@@ -1191,8 +1230,8 @@ struct HeirloomEntry
     LocalizedString* SourceText;
     uint32 OldItem[2];
     uint32 NextDifficultyItemID;
-    uint32 UpgradeItemID[2];
-    uint16 ItemBonusListID[2];
+    uint32 UpgradeItemID[3];
+    uint16 ItemBonusListID[3];
     uint8 Flags;
     uint8 Source;
     uint32 ID;
@@ -1206,7 +1245,6 @@ struct HolidaysEntry
 {
     uint32 ID;
     uint32 Date[MAX_HOLIDAY_DATES];                                 // dates in unix time starting at January, 1, 2000
-    char const* TextureFilename;
     uint16 Duration[MAX_HOLIDAY_DURATIONS];
     uint16 Region;
     uint8 Looping;
@@ -1216,6 +1254,7 @@ struct HolidaysEntry
     uint8 Flags;
     uint32 HolidayNameID;
     uint32 HolidayDescriptionID;
+    int32 TextureFileDataID[3];
 };
 
 struct ImportPriceArmorEntry
@@ -1420,6 +1459,12 @@ struct ItemExtendedCostEntry
     uint8 RequiredAchievement;
 };
 
+struct ItemLevelSelectorEntry
+{
+    uint32 ID;
+    uint16 ItemLevel;
+};
+
 struct ItemLimitCategoryEntry
 {
     uint32 ID;
@@ -1501,10 +1546,6 @@ struct ItemSetSpellEntry
     uint16 ChrSpecID;
     uint8 Threshold;
 };
-
-#define MAX_ITEM_PROTO_FLAGS 3
-#define MAX_ITEM_PROTO_SOCKETS 3
-#define MAX_ITEM_PROTO_STATS  10
 
 struct ItemSparseEntry
 {
@@ -1620,9 +1661,9 @@ struct KeyChainEntry
 
 struct LfgDungeonsEntry
 {
+    uint32 ID;
     LocalizedString* Name;
     uint32 Flags;
-    char const* TextureFilename;
     LocalizedString* Description;
     float MinItemLevel;
     uint16 MaxLevel;
@@ -1651,7 +1692,9 @@ struct LfgDungeonsEntry
     uint8 MinCountDamage;
     uint8 SubType;
     uint8 MentorCharLevel;
-    uint32 ID;
+    int32 TextureFileDataID;
+    int32 RewardIconFileDataID;
+    int32 ProposalTextureFileDataID;
 
     // Helpers
     uint32 Entry() const { return ID + (Type << 24); }
@@ -1774,6 +1817,7 @@ struct MapDifficultyEntry
     uint8 RaidDurationType;                                 // 1 means daily reset, 2 means weekly
     uint8 MaxPlayers;                                       // m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
     uint8 LockID;
+    uint8 Flags;
     uint8 ItemBonusTreeModID;
     uint32 Context;
 
@@ -2013,6 +2057,17 @@ struct PowerTypeEntry
     uint8 UIModifier;
 };
 
+struct PrestigeLevelInfoEntry
+{
+    uint32 ID;
+    uint32 IconID;
+    LocalizedString* PrestigeText;
+    uint8 PrestigeLevel;
+    uint8 Flags;
+
+    bool IsDisabled() const { return (Flags & PRESTIGE_FLAG_DISABLED) != 0; }
+};
+
 struct PvpDifficultyEntry
 {
     uint32 ID;
@@ -2023,6 +2078,14 @@ struct PvpDifficultyEntry
 
     // helpers
     BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(BracketID); }
+};
+
+struct PvpRewardEntry
+{
+    uint32 ID;
+    uint32 HonorLevel;
+    uint32 Prestige;
+    uint32 RewardPackID;
 };
 
 struct QuestFactionRewardEntry
@@ -2071,6 +2134,25 @@ struct RandPropPointsEntry
     uint32 EpicPropertiesPoints[5];
     uint32 RarePropertiesPoints[5];
     uint32 UncommonPropertiesPoints[5];
+};
+
+struct RewardPackEntry
+{
+    uint32 ID;
+    uint32 Money;
+    float ArtifactXPMultiplier;
+    uint8 ArtifactXPDifficulty;
+    uint8 ArtifactCategoryID;
+    uint32 TitleID;
+    uint32 Unused;
+};
+
+struct RewardPackXItemEntry
+{
+    uint32 ID;
+    uint32 ItemID;
+    uint32 RewardPackID;
+    uint32 Amount;
 };
 
 struct RulesetItemUpgradeEntry
@@ -2349,9 +2431,6 @@ struct SpellEffectEntry
     float PvPMultiplier;
 };
 
-#define MAX_SPELL_EFFECTS 32
-#define MAX_EFFECT_MASK 0xFFFFFFFF
-
 struct SpellEffectScalingEntry
 {
     uint32 ID;
@@ -2472,7 +2551,7 @@ struct SpellMiscEntry
 struct SpellPowerEntry
 {
     uint32 SpellID;
-    uint32 ManaCost;
+    int32 ManaCost;
     float ManaCostPercentage;
     float ManaCostPercentagePerSecond;
     uint32 RequiredAura;
@@ -2482,7 +2561,7 @@ struct SpellPowerEntry
     uint32 ID;
     int32 ManaCostPerLevel;
     int32 ManaCostPerSecond;
-    uint32 ManaCostAdditional;                                      // Spell uses [ManaCost, ManaCost+ManaCostAdditional] power - affects tooltip parsing as multiplier on SpellEffectEntry::EffectPointsPerResource
+    int32 ManaCostAdditional;                                       // Spell uses [ManaCost, ManaCost+ManaCostAdditional] power - affects tooltip parsing as multiplier on SpellEffectEntry::EffectPointsPerResource
                                                                     //   only SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE, SPELL_EFFECT_WEAPON_DAMAGE, SPELL_EFFECT_NORMALIZED_WEAPON_DMG
     uint32 PowerDisplayID;
     uint32 UnitPowerBarID;
@@ -2636,9 +2715,6 @@ struct TactKeyEntry
     uint8 Key[TACTKEY_SIZE];
 };
 
-#define MAX_TALENT_TIERS 7
-#define MAX_TALENT_COLUMNS 3
-
 struct TalentEntry
 {
     uint32 ID;
@@ -2702,6 +2778,40 @@ struct ToyEntry
     uint8 Flags;
     uint8 CategoryFilter;
     uint32 ID;
+};
+
+struct TransmogHolidayEntry
+{
+    uint32 ID;
+    int32 HolidayID;
+};
+
+struct TransmogSetEntry
+{
+    LocalizedString* Name;
+    uint16 BaseSetID;
+    uint16 UIOrder;
+    uint8 ExpansionID;
+    uint32 ID;
+    int32 Flags;
+    int32 QuestID;
+    int32 ClassMask;
+    int32 ItemNameDescriptionID;
+    uint32 TransmogSetGroupID;
+};
+
+struct TransmogSetGroupEntry
+{
+    LocalizedString* Label;
+    uint32 ID;
+};
+
+struct TransmogSetItemEntry
+{
+    uint32 ID;
+    uint32 TransmogSetID;
+    uint32 ItemModifiedAppearanceID;
+    int32 Flags;
 };
 
 struct TransportAnimationEntry

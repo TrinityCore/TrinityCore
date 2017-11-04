@@ -22,11 +22,13 @@ Comment: All honor related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
+#include "WorldSession.h"
 
 class honor_commandscript : public CommandScript
 {
@@ -71,7 +73,7 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        uint32 amount = (uint32)atoi(args);
+        int32 amount = atoi(args);
         target->RewardHonor(NULL, 1, amount);
         return true;
     }

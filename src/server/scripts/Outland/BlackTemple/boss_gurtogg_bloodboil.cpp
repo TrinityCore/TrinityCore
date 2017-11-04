@@ -23,9 +23,10 @@ Category: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "black_temple.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "black_temple.h"
 
 enum Bloodboil
 {
@@ -61,7 +62,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_gurtogg_bloodboilAI>(creature);
+        return GetBlackTempleAI<boss_gurtogg_bloodboilAI>(creature);
     }
 
     struct boss_gurtogg_bloodboilAI : public BossAI

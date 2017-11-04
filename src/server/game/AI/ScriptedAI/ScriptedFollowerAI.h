@@ -19,7 +19,10 @@
 #ifndef SC_FOLLOWERAI_H
 #define SC_FOLLOWERAI_H
 
+#include "ScriptedCreature.h"
 #include "ScriptSystem.h"
+
+class Quest;
 
 enum eFollowState
 {

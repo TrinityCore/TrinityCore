@@ -20,11 +20,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "PassiveAI.h"
-#include "SpellAuras.h"
 #include "azjol_nerub.h"
+#include "InstanceScript.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Events
 {
@@ -138,10 +140,10 @@ class boss_krik_thir : public CreatureScript
 
                 for (uint8 i = 1; i <= 3; ++i)
                 {
-                    std::list<TempSummon*> summons;
-                    me->SummonCreatureGroup(i, &summons);
-                    for (TempSummon* summon : summons)
-                        summon->AI()->SetData(DATA_PET_GROUP, i);
+                    std::list<TempSummon*> adds;
+                    me->SummonCreatureGroup(i, &adds);
+                    for (TempSummon* add : adds)
+                        add->AI()->SetData(DATA_PET_GROUP, i);
                 }
             }
 
@@ -416,11 +418,7 @@ class npc_watcher_gashra : public CreatureScript
 
         struct npc_watcher_gashraAI : public npc_gatewatcher_petAI
         {
-            npc_watcher_gashraAI(Creature* creature) : npc_gatewatcher_petAI(creature, true)
-            {
-                _instance = creature->GetInstanceScript();
-                me->SetReactState(REACT_PASSIVE);
-            }
+            npc_watcher_gashraAI(Creature* creature) : npc_gatewatcher_petAI(creature, true) { }
 
             void Reset() override
             {
@@ -481,7 +479,6 @@ class npc_watcher_gashra : public CreatureScript
 
             private:
                 EventMap _events;
-                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -499,7 +496,6 @@ class npc_watcher_narjil : public CreatureScript
         {
             npc_watcher_narjilAI(Creature* creature) : npc_gatewatcher_petAI(creature, true)
             {
-                _instance = creature->GetInstanceScript();
             }
 
             void Reset() override
@@ -561,7 +557,6 @@ class npc_watcher_narjil : public CreatureScript
 
             private:
                 EventMap _events;
-                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -579,7 +574,6 @@ class npc_watcher_silthik : public CreatureScript
         {
             npc_watcher_silthikAI(Creature* creature) : npc_gatewatcher_petAI(creature, true)
             {
-                _instance = creature->GetInstanceScript();
             }
 
             void Reset() override
@@ -641,7 +635,6 @@ class npc_watcher_silthik : public CreatureScript
 
             private:
                 EventMap _events;
-                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -926,7 +919,7 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
 {
     public:
         spell_gatewatcher_subboss_trigger() : SpellScriptLoader("spell_gatewatcher_subboss_trigger") { }
-        
+
         class spell_gatewatcher_subboss_trigger_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gatewatcher_subboss_trigger_SpellScript);
@@ -934,11 +927,15 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
             void HandleTargets(std::list<WorldObject*>& targetList)
             {
                 // Remove any Watchers that are already in combat
-                for (std::list<WorldObject*>::iterator it = targetList.begin(); it != targetList.end(); ++it)
+                auto it = targetList.begin();
+                while (it != targetList.end())
                 {
                     if (Creature* creature = (*it)->ToCreature())
                         if (creature->IsAlive() && !creature->IsInCombat())
+                        {
+                            ++it;
                             continue;
+                        }
                     it = targetList.erase(it);
                 }
 
@@ -983,7 +980,7 @@ class spell_anub_ar_skirmisher_fixtate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_FIXTATE_TRIGGERED) != nullptr;
+                return ValidateSpellInfo({ SPELL_FIXTATE_TRIGGERED });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1015,7 +1012,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_WEB_WRAP_WRAPPED) != nullptr;
+                return ValidateSpellInfo({ SPELL_WEB_WRAP_WRAPPED });
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1032,7 +1029,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_gatewatcher_web_wrap_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
             }
         };
-        
+
         AuraScript* GetAuraScript() const override
         {
             return new spell_gatewatcher_web_wrap_AuraScript();

@@ -16,11 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "MoveSplineInit.h"
-#include "SpellScript.h"
 #include "CombatAI.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum WoundedColdridgeMountaineer
 {
@@ -219,8 +223,7 @@ enum MilosGyro
     EVENT_MILO_DESPAWN            = 13
 };
 
-uint32 const pathSize = 24;
-G3D::Vector3 const kharanosPath[pathSize] =
+Position const kharanosPath[] =
 {
     { -6247.328f, 299.5365f, 390.266f   },
     { -6247.328f, 299.5365f, 390.266f   },
@@ -247,6 +250,7 @@ G3D::Vector3 const kharanosPath[pathSize] =
     { -5603.897f, -466.3438f, 409.8931f },
     { -5566.957f, -472.5642f, 399.0056f }
 };
+size_t const pathSize = std::extent<decltype(kharanosPath)>::value;
 
 class npc_milos_gyro : public CreatureScript
 {
@@ -299,7 +303,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_START_PATH:
-                        me->GetMotionMaster()->MoveSmoothPath(pathSize, kharanosPath, pathSize, false, true);
+                        me->GetMotionMaster()->MoveSmoothPath(uint32(pathSize), kharanosPath, pathSize, false, true);
                         _events.ScheduleEvent(EVENT_MILO_SAY_0, Seconds(5));
                         break;
                     case EVENT_MILO_SAY_0:

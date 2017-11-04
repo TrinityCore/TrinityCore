@@ -18,9 +18,9 @@
 #ifndef CombatLogPackets_h__
 #define CombatLogPackets_h__
 
-#include "Packet.h"
+#include "CombatLogPacketsCommon.h"
+#include "Optional.h"
 #include "Spell.h"
-#include "SpellPackets.h"
 
 namespace WorldPackets
 {
@@ -190,7 +190,7 @@ namespace WorldPackets
             int32 OverEnergize = 0;
         };
 
-        class SpellInstakillLog final : public ServerPacket
+        class TC_GAME_API SpellInstakillLog final : public ServerPacket
         {
         public:
             SpellInstakillLog() : ServerPacket(SMSG_SPELL_INSTAKILL_LOG, 16 + 16 + 4) { }

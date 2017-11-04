@@ -42,10 +42,12 @@ class BattlegroundTPScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PlayerData& playerData) const override
         {
-            stats.push_back(FlagCaptures);
-            stats.push_back(FlagReturns);
+            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+
+            playerData.Stats.push_back(FlagCaptures);
+            playerData.Stats.push_back(FlagReturns);
         }
 
         uint32 GetAttr1() const final override { return FlagCaptures; }

@@ -1376,10 +1376,10 @@ class TC_PROTO_API ChallengeService : public ServiceBase
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleChallengePicked(::bgs::protocol::challenge::v1::ChallengePickedRequest const* request, ::bgs::protocol::challenge::v1::ChallengePickedResponse* response);
-  virtual uint32 HandleChallengeAnswered(::bgs::protocol::challenge::v1::ChallengeAnsweredRequest const* request, ::bgs::protocol::challenge::v1::ChallengeAnsweredResponse* response);
-  virtual uint32 HandleChallengeCancelled(::bgs::protocol::challenge::v1::ChallengeCancelledRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleSendChallengeToUser(::bgs::protocol::challenge::v1::SendChallengeToUserRequest const* request, ::bgs::protocol::challenge::v1::SendChallengeToUserResponse* response);
+  virtual uint32 HandleChallengePicked(::bgs::protocol::challenge::v1::ChallengePickedRequest const* request, ::bgs::protocol::challenge::v1::ChallengePickedResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleChallengeAnswered(::bgs::protocol::challenge::v1::ChallengeAnsweredRequest const* request, ::bgs::protocol::challenge::v1::ChallengeAnsweredResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleChallengeCancelled(::bgs::protocol::challenge::v1::ChallengeCancelledRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSendChallengeToUser(::bgs::protocol::challenge::v1::SendChallengeToUserRequest const* request, ::bgs::protocol::challenge::v1::SendChallengeToUserResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;

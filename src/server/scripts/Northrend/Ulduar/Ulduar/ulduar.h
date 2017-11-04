@@ -18,6 +18,10 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
+#include "CreatureAIImpl.h"
+
+struct Position;
+
 #define UlduarScriptName "instance_ulduar"
 #define DataHeader "UU"
 
@@ -441,25 +445,10 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-template<class AI, class T>
-AI* GetUlduarAI(T* obj)
+template<typename AI, typename T>
+inline AI* GetUlduarAI(T* obj)
 {
-    return GetInstanceAI<AI, T>(obj, UlduarScriptName);
+    return GetInstanceAI<AI>(obj, UlduarScriptName);
 }
-
-class PlayerOrPetCheck
-{
-    public:
-        bool operator()(WorldObject* object) const
-        {
-            if (object->GetTypeId() == TYPEID_PLAYER)
-                return false;
-
-            if (Creature* creature = object->ToCreature())
-                return !creature->IsPet();
-
-            return true;
-        }
-};
 
 #endif

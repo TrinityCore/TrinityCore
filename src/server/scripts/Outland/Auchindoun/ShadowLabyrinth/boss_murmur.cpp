@@ -24,9 +24,10 @@ SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "shadow_labyrinth.h"
+#include "SpellScript.h"
 
 enum Murmur
 {
@@ -188,9 +189,7 @@ class spell_murmur_sonic_boom : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SONIC_BOOM_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SONIC_BOOM_EFFECT });
             }
 
             void HandleEffect(SpellEffIndex /*effIndex*/)

@@ -21,39 +21,43 @@
 /// \file
 
 #include "Common.h"
-#include "DatabaseEnv.h"
+#include "AppenderDB.h"
 #include "AsyncAcceptor.h"
-#include "RASession.h"
-#include "Configuration/Config.h"
-#include "OpenSSLCrypto.h"
-#include "ProcessPriority.h"
+#include "Banner.h"
+#include "BattlegroundMgr.h"
 #include "BigNumber.h"
-#include "World.h"
-#include "MapManager.h"
+#include "CliRunnable.h"
+#include "Configuration/Config.h"
+#include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
+#include "GitRevision.h"
 #include "InstanceSaveMgr.h"
+#include "MapManager.h"
+#include "Metric.h"
+#include "MySQLThreading.h"
 #include "ObjectAccessor.h"
+#include "OpenSSLCrypto.h"
+#include "OutdoorPvP/OutdoorPvPMgr.h"
+#include "ProcessPriority.h"
+#include "RASession.h"
+#include "RealmList.h"
+#include "ScriptLoader.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
-#include "ScriptLoader.h"
-#include "OutdoorPvP/OutdoorPvPMgr.h"
-#include "BattlegroundMgr.h"
 #include "TCSoap.h"
-#include "CliRunnable.h"
-#include "Banner.h"
-#include "GitRevision.h"
+#include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "RealmList.h"
-#include "DatabaseLoader.h"
-#include "AppenderDB.h"
-#include "Metric.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
-#include <boost/filesystem/path.hpp>
+#include <boost/asio/signal_set.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
 #include <google/protobuf/stubs/common.h>
+#include <iostream>
+#include <csignal>
 
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
@@ -106,7 +110,7 @@ void StopDB();
 void WorldUpdateLoop();
 void ClearOnlineAccounts();
 void ShutdownCLIThread(std::thread* cliThread);
-bool LoadRealmInfo(boost::asio::io_service& ioService);
+bool LoadRealmInfo();
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& cfg_service);
 
 /// Launch the Trinity server
@@ -210,7 +214,7 @@ extern int main(int argc, char** argv)
         threadPool->push_back(std::thread([ioService]() { ioService->run(); }));
 
     // Set process priority according to configuration settings
-    SetProcessPriority("server.worldserver");
+    SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
 
     // Start the databases
     if (!StartDB())
@@ -225,7 +229,7 @@ extern int main(int argc, char** argv)
 
     std::shared_ptr<void> sRealmListHandle(nullptr, [](void*) { sRealmList->Close(); });
 
-    LoadRealmInfo(*ioService);
+    LoadRealmInfo();
 
     sMetric->Initialize(realm.Name, *ioService, []()
     {
@@ -279,6 +283,7 @@ extern int main(int argc, char** argv)
 
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
+    uint16 instancePort = uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
     int networkThreads = sConfigMgr->GetIntDefault("Network.Threads", 1);
@@ -289,7 +294,7 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    if (!sWorldSocketMgr.StartNetwork(*ioService, worldListener, worldPort, networkThreads))
+    if (!sWorldSocketMgr.StartWorldNetwork(*ioService, worldListener, worldPort, instancePort, networkThreads))
     {
         TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
         return 1;
@@ -327,7 +332,7 @@ extern int main(int argc, char** argv)
     if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
     {
         freezeDetector = std::make_shared<FreezeDetector>(*ioService, coreStuckTime * 1000);
-        freezeDetector->Start(freezeDetector);
+        FreezeDetector::Start(freezeDetector);
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
 
@@ -366,50 +371,54 @@ void ShutdownCLIThread(std::thread* cliThread)
         {
             // if CancelSynchronousIo() fails, print the error and try with old way
             DWORD errorCode = GetLastError();
-            LPSTR errorBuffer;
 
-            DWORD formatReturnCode = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                                   nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
-            if (!formatReturnCode)
-                errorBuffer = "Unknown error";
+            // if CancelSynchronousIo fails with ERROR_NOT_FOUND then there was nothing to cancel, proceed with shutdown
+            if (errorCode != ERROR_NOT_FOUND)
+            {
+                LPSTR errorBuffer;
+                DWORD numCharsWritten = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+                    nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
+                if (!numCharsWritten)
+                    errorBuffer = "Unknown error";
 
-            TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
+                TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
 
-            if (!formatReturnCode)
-                LocalFree(errorBuffer);
+                if (numCharsWritten)
+                    LocalFree(errorBuffer);
 
-            // send keyboard input to safely unblock the CLI thread
-            INPUT_RECORD b[4];
-            HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
-            b[0].EventType = KEY_EVENT;
-            b[0].Event.KeyEvent.bKeyDown = TRUE;
-            b[0].Event.KeyEvent.uChar.AsciiChar = 'X';
-            b[0].Event.KeyEvent.wVirtualKeyCode = 'X';
-            b[0].Event.KeyEvent.wRepeatCount = 1;
+                // send keyboard input to safely unblock the CLI thread
+                INPUT_RECORD b[4];
+                HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
+                b[0].EventType = KEY_EVENT;
+                b[0].Event.KeyEvent.bKeyDown = TRUE;
+                b[0].Event.KeyEvent.uChar.AsciiChar = 'X';
+                b[0].Event.KeyEvent.wVirtualKeyCode = 'X';
+                b[0].Event.KeyEvent.wRepeatCount = 1;
 
-            b[1].EventType = KEY_EVENT;
-            b[1].Event.KeyEvent.bKeyDown = FALSE;
-            b[1].Event.KeyEvent.uChar.AsciiChar = 'X';
-            b[1].Event.KeyEvent.wVirtualKeyCode = 'X';
-            b[1].Event.KeyEvent.wRepeatCount = 1;
+                b[1].EventType = KEY_EVENT;
+                b[1].Event.KeyEvent.bKeyDown = FALSE;
+                b[1].Event.KeyEvent.uChar.AsciiChar = 'X';
+                b[1].Event.KeyEvent.wVirtualKeyCode = 'X';
+                b[1].Event.KeyEvent.wRepeatCount = 1;
 
-            b[2].EventType = KEY_EVENT;
-            b[2].Event.KeyEvent.bKeyDown = TRUE;
-            b[2].Event.KeyEvent.dwControlKeyState = 0;
-            b[2].Event.KeyEvent.uChar.AsciiChar = '\r';
-            b[2].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
-            b[2].Event.KeyEvent.wRepeatCount = 1;
-            b[2].Event.KeyEvent.wVirtualScanCode = 0x1c;
+                b[2].EventType = KEY_EVENT;
+                b[2].Event.KeyEvent.bKeyDown = TRUE;
+                b[2].Event.KeyEvent.dwControlKeyState = 0;
+                b[2].Event.KeyEvent.uChar.AsciiChar = '\r';
+                b[2].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
+                b[2].Event.KeyEvent.wRepeatCount = 1;
+                b[2].Event.KeyEvent.wVirtualScanCode = 0x1c;
 
-            b[3].EventType = KEY_EVENT;
-            b[3].Event.KeyEvent.bKeyDown = FALSE;
-            b[3].Event.KeyEvent.dwControlKeyState = 0;
-            b[3].Event.KeyEvent.uChar.AsciiChar = '\r';
-            b[3].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
-            b[3].Event.KeyEvent.wVirtualScanCode = 0x1c;
-            b[3].Event.KeyEvent.wRepeatCount = 1;
-            DWORD numb;
-            WriteConsoleInput(hStdIn, b, 4, &numb);
+                b[3].EventType = KEY_EVENT;
+                b[3].Event.KeyEvent.bKeyDown = FALSE;
+                b[3].Event.KeyEvent.dwControlKeyState = 0;
+                b[3].Event.KeyEvent.uChar.AsciiChar = '\r';
+                b[3].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
+                b[3].Event.KeyEvent.wVirtualScanCode = 0x1c;
+                b[3].Event.KeyEvent.wRepeatCount = 1;
+                DWORD numb;
+                WriteConsoleInput(hStdIn, b, 4, &numb);
+            }
         }
 #endif
         cliThread->join();
@@ -508,59 +517,27 @@ AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService)
     return acceptor;
 }
 
-bool LoadRealmInfo(boost::asio::io_service& ioService)
+bool LoadRealmInfo()
 {
-    boost::asio::ip::tcp::resolver resolver(ioService);
-    boost::asio::ip::tcp::resolver::iterator end;
-
-    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = %u", realm.Id.Realm);
-    if (!result)
-        return false;
-
-    Field* fields = result->Fetch();
-    realm.Name = fields[1].GetString();
-    boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
-
-    boost::system::error_code ec;
-    boost::asio::ip::tcp::resolver::iterator endPoint = resolver.resolve(externalAddressQuery, ec);
-    if (endPoint == end || ec)
+    if (Realm const* realmListRealm = sRealmList->GetRealm(realm.Id))
     {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
-        return false;
+        realm.Id = realmListRealm->Id;
+        realm.Build = realmListRealm->Build;
+        realm.ExternalAddress = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->ExternalAddress);
+        realm.LocalAddress = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->LocalAddress);
+        realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->LocalSubnetMask);
+        realm.Port = realmListRealm->Port;
+        realm.Name = realmListRealm->Name;
+        realm.NormalizedName = realmListRealm->NormalizedName;
+        realm.Type = realmListRealm->Type;
+        realm.Flags = realmListRealm->Flags;
+        realm.Timezone = realmListRealm->Timezone;
+        realm.AllowedSecurityLevel = realmListRealm->AllowedSecurityLevel;
+        realm.PopulationLevel = realmListRealm->PopulationLevel;
+        return true;
     }
 
-    realm.ExternalAddress = (*endPoint).endpoint().address();
-
-    boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[3].GetString(), "");
-    endPoint = resolver.resolve(localAddressQuery, ec);
-    if (endPoint == end || ec)
-    {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
-        return false;
-    }
-
-    realm.LocalAddress = (*endPoint).endpoint().address();
-
-    boost::asio::ip::tcp::resolver::query localSubmaskQuery(ip::tcp::v4(), fields[4].GetString(), "");
-    endPoint = resolver.resolve(localSubmaskQuery, ec);
-    if (endPoint == end || ec)
-    {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[4].GetString().c_str());
-        return false;
-    }
-
-    realm.LocalSubnetMask = (*endPoint).endpoint().address();
-
-    realm.Port = fields[5].GetUInt16();
-    realm.Type = fields[6].GetUInt8();
-    realm.Flags = RealmFlags(fields[7].GetUInt8());
-    realm.Timezone = fields[8].GetUInt8();
-    realm.AllowedSecurityLevel = AccountTypes(fields[9].GetUInt8());
-    realm.PopulationLevel = fields[10].GetFloat();
-    realm.Id.Region = fields[12].GetUInt8();
-    realm.Id.Site = fields[13].GetUInt8();
-    realm.Build = fields[11].GetUInt32();
-    return true;
+    return false;
 }
 
 /// Initialize connection to the databases

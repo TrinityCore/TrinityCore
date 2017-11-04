@@ -16,22 +16,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "CellImpl.h"
 #include "Common.h"
-#include "Log.h"
 #include "Corpse.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
-#include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Item.h"
+#include "Log.h"
 #include "LootMgr.h"
-#include "ObjectAccessor.h"
+#include "LootPackets.h"
 #include "Object.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "LootPackets.h"
-#include "WorldSession.h"
 
 class AELootCreatureCheck
 {
@@ -272,7 +275,7 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     std::list<Creature*> corpses;
     AELootCreatureCheck check(_player, packet.Unit);
     Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
-    _player->VisitNearbyGridObject(AELootCreatureCheck::LootDistance, searcher);
+    Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
 
     if (!corpses.empty())
         SendPacket(WorldPackets::Loot::AELootTargets(uint32(corpses.size() + 1)).Write());
@@ -551,11 +554,9 @@ void WorldSession::HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecia
     if (packet.SpecID)
     {
         if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(packet.SpecID))
-        {
             if (chrSpec->ClassID == GetPlayer()->getClass())
                 GetPlayer()->SetLootSpecId(packet.SpecID);
-        }
     }
     else
-        GetPlayer()->SetLootSpecId(packet.SpecID);
+        GetPlayer()->SetLootSpecId(0);
 }

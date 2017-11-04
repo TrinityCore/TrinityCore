@@ -16,10 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "PassiveAI.h"
+#include "AreaBoundary.h"
 #include "azjol_nerub.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -121,12 +128,16 @@ public:
             _petCount = 0;
         }
 
+        bool CanAIAttack(Unit const* /*who*/) const override { return true; } // do not check boundary here
+
         void EnterCombat(Unit* who) override
         {
             BossAI::EnterCombat(who);
 
             if (GameObject* door = instance->GetGameObject(DATA_ANUBARAK_WALL))
                 door->SetGoState(GO_STATE_ACTIVE); // open door for now
+            if (GameObject* door2 = instance->GetGameObject(DATA_ANUBARAK_WALL_2))
+                door2->SetGoState(GO_STATE_ACTIVE);
 
             Talk(SAY_AGGRO);
             instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
@@ -146,7 +157,7 @@ public:
                 return;
             }
             _guardianTrigger = (*summoned.begin())->GetGUID();
-            
+
             if (Creature* trigger = DoSummon(NPC_WORLD_TRIGGER, me->GetPosition(), 0u, TEMPSUMMON_MANUAL_DESPAWN))
                 _assassinTrigger = trigger->GetGUID();
             else
@@ -179,6 +190,8 @@ public:
                     case EVENT_CLOSE_DOOR:
                         if (GameObject* door = instance->GetGameObject(DATA_ANUBARAK_WALL))
                             door->SetGoState(GO_STATE_READY);
+                        if (GameObject* door2 = instance->GetGameObject(DATA_ANUBARAK_WALL_2))
+                            door2->SetGoState(GO_STATE_READY);
                         break;
                     case EVENT_POUND:
                         DoCastVictim(SPELL_POUND);
@@ -355,7 +368,7 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
                 DoCastSelf(SPELL_IMPALE_AURA, true);
-                
+
                 events.SetPhase(PHASE_SUBMERGE);
                 switch (_nextSubmerge)
                 {
@@ -474,8 +487,8 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
             {
                 if (!boundary)
                     return true;
-                for (CreatureBoundary::const_iterator it = boundary->cbegin(); it != boundary->cend(); ++it)
-                    if (!(*it)->IsWithinBoundary(&jumpTo))
+                for (AreaBoundary const* it : *boundary)
+                    if (!it->IsWithinBoundary(&jumpTo))
                         return false;
                 return true;
             }
@@ -646,7 +659,7 @@ class spell_anubarak_pound : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_POUND_DAMAGE) != nullptr;
+                return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -679,7 +692,7 @@ class spell_anubarak_carrion_beetles : public SpellScriptLoader
 
                 bool Validate(SpellInfo const* /*spell*/) override
                 {
-                    return (sSpellMgr->GetSpellInfo(SPELL_CARRION_BEETLE) != nullptr);
+                    return ValidateSpellInfo({ SPELL_CARRION_BEETLE });
                 }
 
                 void HandlePeriodic(AuraEffect const* /*eff*/)

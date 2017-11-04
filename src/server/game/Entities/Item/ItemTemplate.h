@@ -19,9 +19,12 @@
 #ifndef _ITEMPROTOTYPE_H
 #define _ITEMPROTOTYPE_H
 
+#include "Common.h"
 #include "DB2Structure.h"
 #include "SharedDefines.h"
 #include <bitset>
+#include <unordered_map>
+#include <vector>
 
 enum ItemModType
 {
@@ -153,7 +156,7 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK13         = 0x00040000,
     ITEM_FIELD_FLAG_CHILD         = 0x00080000,
     ITEM_FIELD_FLAG_UNK15         = 0x00100000,
-    ITEM_FIELD_FLAG_UNK16         = 0x00200000,
+    ITEM_FIELD_FLAG_NEW_ITEM      = 0x00200000, // Item glows in inventory
     ITEM_FIELD_FLAG_UNK17         = 0x00400000,
     ITEM_FIELD_FLAG_UNK18         = 0x00800000,
     ITEM_FIELD_FLAG_UNK19         = 0x01000000,
@@ -174,7 +177,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_HEROIC_TOOLTIP                    = 0x00000008, // Makes green "Heroic" text appear on item
     ITEM_FLAG_DEPRECATED                        = 0x00000010, // Cannot equip or use
     ITEM_FLAG_NO_USER_DESTROY                   = 0x00000020, // Item can not be destroyed, except by using spell (item can be reagent for spell)
-    ITEM_FLAG_PLAYERCAST                        = 0x00000040,
+    ITEM_FLAG_PLAYERCAST                        = 0x00000040, // Item's spells are castable by players
     ITEM_FLAG_NO_EQUIP_COOLDOWN                 = 0x00000080, // No default 30 seconds cooldown when equipped
     ITEM_FLAG_MULTI_LOOT_QUEST                  = 0x00000100,
     ITEM_FLAG_IS_WRAPPER                        = 0x00000200, // Item can wrap other items
@@ -182,7 +185,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_MULTI_DROP                        = 0x00000800, // Looting this item does not remove it from available loot
     ITEM_FLAG_ITEM_PURCHASE_RECORD              = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
     ITEM_FLAG_PETITION                          = 0x00002000, // Item is guild or arena charter
-    ITEM_FLAG_HAS_TEXT                          = 0x00004000,
+    ITEM_FLAG_HAS_TEXT                          = 0x00004000, // Only readable items have this (but not all)
     ITEM_FLAG_NO_DISENCHANT                     = 0x00008000,
     ITEM_FLAG_REAL_DURATION                     = 0x00010000,
     ITEM_FLAG_NO_CREATOR                        = 0x00020000,
@@ -190,7 +193,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_UNIQUE_EQUIPPABLE                 = 0x00080000, // You can only equip one of these
     ITEM_FLAG_IGNORE_FOR_AURAS                  = 0x00100000,
     ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS = 0x00200000, // Item can be used during arena match
-    ITEM_FLAG_NO_DURABILITY_LOSS                = 0x00400000,
+    ITEM_FLAG_NO_DURABILITY_LOSS                = 0x00400000, // Some Thrown weapons have it (and only Thrown) but not all
     ITEM_FLAG_USE_WHEN_SHAPESHIFTED             = 0x00800000, // Item can be used in shapeshift forms
     ITEM_FLAG_HAS_QUEST_GLOW                    = 0x01000000,
     ITEM_FLAG_HIDE_UNUSABLE_RECIPE              = 0x02000000, // Profession recipes: can only be looted if you meet requirements and don't already know it
@@ -290,13 +293,6 @@ enum CurrencyCategory
     // ...
 };
 
-enum ItemVendorType
-{
-    ITEM_VENDOR_TYPE_NONE     = 0,
-    ITEM_VENDOR_TYPE_ITEM     = 1,
-    ITEM_VENDOR_TYPE_CURRENCY = 2,
-};
-
 enum BAG_FAMILY_MASK
 {
     BAG_FAMILY_MASK_NONE                      = 0x00000000,
@@ -345,7 +341,7 @@ extern uint32 const SocketColorToGemTypeMask[19];
 
 #define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
-enum InventoryType
+enum InventoryType : uint8
 {
     INVTYPE_NON_EQUIP                           = 0,
     INVTYPE_HEAD                                = 1,
@@ -807,11 +803,8 @@ struct TC_GAME_API ItemTemplate
     char const* GetDefaultLocaleName() const;
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
-    bool IsUsableByLootSpecialization(Player const* player) const;
+    bool IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const;
     static std::size_t CalculateItemSpecBit(ChrSpecializationEntry const* spec);
 };
-
-// Benchmarked: Faster than std::map (insert/find)
-typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
 
 #endif

@@ -16,18 +16,21 @@
  */
 
 #include "WorldserverService.h"
+#include "BattlenetRpcErrorCodes.h"
 #include "Log.h"
+#include "ProtobufJSON.h"
+#include "Realm.h"
 #include "RealmList.h"
 #include "RealmList.pb.h"
-#include "BattlenetRpcErrorCodes.h"
-#include "ProtobufJSON.h"
+#include "World.h"
+#include <boost/asio/ip/address.hpp>
 #include <zlib.h>
 
 Battlenet::GameUtilitiesService::GameUtilitiesService(WorldSession* session) : BaseService(session)
 {
 }
 
-uint32 Battlenet::GameUtilitiesService::HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response)
+uint32 Battlenet::GameUtilitiesService::HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     Attribute const* command = nullptr;
     std::unordered_map<std::string, Variant const*> params;
@@ -104,7 +107,7 @@ uint32 Battlenet::GameUtilitiesService::HandleRealmJoinRequest(std::unordered_ma
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;
 }
 
-uint32 Battlenet::GameUtilitiesService::HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response)
+uint32 Battlenet::GameUtilitiesService::HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     if (request->attribute_key() == "Command_RealmListRequest_v1_b9")
     {

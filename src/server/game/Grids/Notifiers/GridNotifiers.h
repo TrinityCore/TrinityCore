@@ -19,24 +19,18 @@
 #ifndef TRINITY_GRIDNOTIFIERS_H
 #define TRINITY_GRIDNOTIFIERS_H
 
-#include "ObjectGridLoader.h"
-#include "UpdateData.h"
-#include <iostream>
-
-#include "Corpse.h"
-#include "Object.h"
 #include "AreaTrigger.h"
+#include "Creature.h"
+#include "Corpse.h"
+#include "Conversation.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
-#include "Player.h"
-#include "Unit.h"
-#include "CreatureAI.h"
-#include "Spell.h"
-#include "WorldSession.h"
 #include "Packet.h"
-
-class Player;
-//class Map;
+#include "Player.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "UnitAI.h"
+#include "UpdateData.h"
 
 namespace Trinity
 {
@@ -121,22 +115,23 @@ namespace Trinity
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
         void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
+        void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
 
     struct TC_GAME_API MessageDistDeliverer
     {
-        WorldObject* i_source;
+        WorldObject const* i_source;
         WorldPacket const* i_message;
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = NULL)
+        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
             : i_source(src), i_message(msg), i_distSq(dist * dist)
             , team(0)
             , skipped_receiver(skipped)
         {
             if (own_team_only)
-                if (Player* player = src->ToPlayer())
+                if (Player const* player = src->ToPlayer())
                     team = player->GetTeam();
         }
 
@@ -154,8 +149,7 @@ namespace Trinity
             if (!player->HaveAtClient(i_source))
                 return;
 
-            if (WorldSession* session = player->GetSession())
-                session->SendPacket(i_message);
+            player->SendDirectMessage(i_message);
         }
     };
 
@@ -171,6 +165,31 @@ namespace Trinity
     // SEARCHERS & LIST SEARCHERS & WORKERS
 
     // WorldObject searchers & workers
+
+    // Generic base class to insert elements into arbitrary containers using push_back
+    template<typename Type>
+    class ContainerInserter {
+        using InserterType = void(*)(void*, Type&&);
+
+        void* ref;
+        InserterType inserter;
+
+        // MSVC workaround
+        template<typename T>
+        static void InserterOf(void* ref, Type&& type)
+        {
+            static_cast<T*>(ref)->push_back(std::move(type));
+        }
+
+    protected:
+        template<typename T>
+        ContainerInserter(T& ref_) : ref(&ref_), inserter(&InserterOf<T>) { }
+
+        void Insert(Type type)
+        {
+            inserter(ref, std::move(type));
+        }
+    };
 
     template<class Check>
     struct WorldObjectSearcher
@@ -189,6 +208,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
@@ -210,20 +230,22 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
 
     template<class Check>
-    struct WorldObjectListSearcher
+    struct WorldObjectListSearcher : ContainerInserter<WorldObject*>
     {
         uint32 i_mapTypeMask;
         WorldObject const* _searcher;
-        std::list<WorldObject*> &i_objects;
         Check& i_check;
 
-        WorldObjectListSearcher(WorldObject const* searcher, std::list<WorldObject*> &objects, Check & check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : i_mapTypeMask(mapTypeMask), _searcher(searcher), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        WorldObjectListSearcher(WorldObject const* searcher, Container& container, Check & check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : ContainerInserter<WorldObject*>(container),
+              i_mapTypeMask(mapTypeMask), _searcher(searcher), i_check(check) { }
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -231,6 +253,7 @@ namespace Trinity
         void Visit(GameObjectMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
@@ -298,6 +321,15 @@ namespace Trinity
                     i_do(itr->GetSource());
         }
 
+        void Visit(ConversationMapType &m)
+        {
+            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
+                return;
+            for (ConversationMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
+                if (itr->GetSource()->IsInPhase(_searcher))
+                    i_do(itr->GetSource());
+        }
+
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
 
@@ -335,14 +367,15 @@ namespace Trinity
     };
 
     template<class Check>
-    struct GameObjectListSearcher
+    struct GameObjectListSearcher : ContainerInserter<GameObject*>
     {
         WorldObject const* _searcher;
-        std::list<GameObject*> &i_objects;
         Check& i_check;
 
-        GameObjectListSearcher(WorldObject const* searcher, std::list<GameObject*> &objects, Check & check)
-            : _searcher(searcher), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        GameObjectListSearcher(WorldObject const* searcher, Container& container, Check & check)
+            : ContainerInserter<GameObject*>(container),
+              _searcher(searcher), i_check(check) { }
 
         void Visit(GameObjectMapType &m);
 
@@ -407,14 +440,15 @@ namespace Trinity
 
     // All accepted by Check units if any
     template<class Check>
-    struct UnitListSearcher
+    struct UnitListSearcher : ContainerInserter<Unit*>
     {
         WorldObject const* _searcher;
-        std::list<Unit*> &i_objects;
         Check& i_check;
 
-        UnitListSearcher(WorldObject const* searcher, std::list<Unit*> &objects, Check & check)
-            : _searcher(searcher), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        UnitListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : ContainerInserter<Unit*>(container),
+              _searcher(searcher), i_check(check) { }
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -456,14 +490,15 @@ namespace Trinity
     };
 
     template<class Check>
-    struct CreatureListSearcher
+    struct CreatureListSearcher : ContainerInserter<Creature*>
     {
         WorldObject const* _searcher;
-        std::list<Creature*> &i_objects;
         Check& i_check;
 
-        CreatureListSearcher(WorldObject const* searcher, std::list<Creature*> &objects, Check & check)
-            : _searcher(searcher), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        CreatureListSearcher(WorldObject const* searcher, Container& container, Check & check)
+            : ContainerInserter<Creature*>(container),
+              _searcher(searcher), i_check(check) { }
 
         void Visit(CreatureMapType &m);
 
@@ -507,14 +542,15 @@ namespace Trinity
     };
 
     template<class Check>
-    struct PlayerListSearcher
+    struct PlayerListSearcher : ContainerInserter<Player*>
     {
         WorldObject const* _searcher;
-        std::list<Player*> &i_objects;
         Check& i_check;
 
-        PlayerListSearcher(WorldObject const* searcher, std::list<Player*> &objects, Check & check)
-            : _searcher(searcher), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        PlayerListSearcher(WorldObject const* searcher, Container& container, Check & check)
+            : ContainerInserter<Player*>(container),
+              _searcher(searcher), i_check(check) { }
 
         void Visit(PlayerMapType &m);
 
@@ -765,7 +801,7 @@ namespace Trinity
         private:
             Unit const* i_obj;
             float i_range;
-            uint32 i_hp;
+            uint64 i_hp;
     };
 
     class FriendlyCCedInRange
@@ -877,11 +913,11 @@ namespace Trinity
     class AnyGroupedUnitInObjectRangeCheck
     {
         public:
-            AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid) : _source(obj), _refUnit(funit), _range(range), _raid(raid) { }
+            AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid, bool playerOnly = false) : _source(obj), _refUnit(funit), _range(range), _raid(raid), _playerOnly(playerOnly) { }
 
             bool operator()(Unit* u) const
             {
-                if (G3D::fuzzyEq(_range, 0))
+                if (_playerOnly && u->GetTypeId() != TYPEID_PLAYER)
                     return false;
 
                 if (_raid)
@@ -900,6 +936,7 @@ namespace Trinity
             Unit const* _refUnit;
             float _range;
             bool _raid;
+            bool _playerOnly;
     };
 
     class AnyUnitInObjectRangeCheck
@@ -930,7 +967,7 @@ namespace Trinity
             bool operator()(Unit* u)
             {
                 if (u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
-                    !i_funit->IsFriendlyTo(u) && i_funit->CanSeeOrDetect(u))
+                    (i_funit->IsInCombatWith(u) || i_funit->IsHostileTo(u)) && i_obj->CanSeeOrDetect(u))
                 {
                     i_range = i_obj->GetDistance(u);        // use found unit range as new range limit for next check
                     return true;
@@ -951,11 +988,12 @@ namespace Trinity
     class AnyAoETargetUnitInObjectRangeCheck
     {
         public:
-            AnyAoETargetUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range)
-                : i_obj(obj), i_funit(funit), _spellInfo(NULL), i_range(range)
+            AnyAoETargetUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, SpellInfo const* spellInfo = nullptr)
+                : i_obj(obj), i_funit(funit), _spellInfo(spellInfo), i_range(range)
             {
-                if (DynamicObject const* dynObj = i_obj->ToDynObject())
-                    _spellInfo = sSpellMgr->GetSpellInfo(dynObj->GetSpellId());
+                if (!_spellInfo)
+                    if (DynamicObject const* dynObj = i_obj->ToDynObject())
+                        _spellInfo = dynObj->GetSpellInfo();
             }
 
             bool operator()(Unit* u) const
@@ -964,10 +1002,10 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 
-                if (i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : NULL) && i_obj->IsWithinDistInMap(u, i_range))
-                    return true;
+                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && u->GetTypeId() != TYPEID_PLAYER)
+                    return false;
 
-                return false;
+                return i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : nullptr) && i_obj->IsWithinDistInMap(u, i_range);
             }
 
         private:
@@ -1000,8 +1038,8 @@ namespace Trinity
                 if (!u->IsWithinLOSInMap(i_enemy))
                     return;
 
-                if (u->AI())
-                    u->AI()->AttackStart(i_enemy);
+                if (u->GetAI() && u->IsAIEnabled)
+                    u->GetAI()->AttackStart(i_enemy);
             }
         private:
             Unit* const i_funit;

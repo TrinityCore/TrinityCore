@@ -19,10 +19,11 @@
 #define TRINITYCORE_CHATLINK_H
 
 #include "SharedDefines.h"
-#include <sstream>
-#include <list>
-#include <cstring>
 #include "Common.h"
+#include <list>
+#include <sstream>
+#include <vector>
+#include <cstring>
 
 struct ItemLocale;
 struct ItemTemplate;

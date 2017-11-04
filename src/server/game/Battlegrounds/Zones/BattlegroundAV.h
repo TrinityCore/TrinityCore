@@ -1587,13 +1587,15 @@ struct BattlegroundAVScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PlayerData& playerData) const override
         {
-            stats.push_back(GraveyardsAssaulted);
-            stats.push_back(GraveyardsDefended);
-            stats.push_back(TowersAssaulted);
-            stats.push_back(TowersDefended);
-            stats.push_back(MinesCaptured);
+            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+
+            playerData.Stats.push_back(GraveyardsAssaulted);
+            playerData.Stats.push_back(GraveyardsDefended);
+            playerData.Stats.push_back(TowersAssaulted);
+            playerData.Stats.push_back(TowersDefended);
+            playerData.Stats.push_back(MinesCaptured);
         }
 
         uint32 GetAttr1() const final override { return GraveyardsAssaulted; }

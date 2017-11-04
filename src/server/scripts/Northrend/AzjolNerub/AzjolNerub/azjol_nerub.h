@@ -18,6 +18,8 @@
 #ifndef AZJOL_NERUB_H_
 #define AZJOL_NERUB_H_
 
+#include "CreatureAIImpl.h"
+
 #define AzjolNerubScriptName "instance_azjol_nerub"
 #define DataHeader           "AN"
 
@@ -34,7 +36,8 @@ enum ANDataTypes
     DATA_WATCHER_NARJIL,
     DATA_WATCHER_GASHRA,
     DATA_WATCHER_SILTHIK,
-    DATA_ANUBARAK_WALL
+    DATA_ANUBARAK_WALL,
+    DATA_ANUBARAK_WALL_2
 };
 
 enum ANCreatureIds
@@ -62,8 +65,8 @@ enum ANInstanceActions
     ACTION_GATEWATCHER_GREET        = 1
 };
 
-template<class AI>
-AI* GetAzjolNerubAI(Creature* creature)
+template<typename AI>
+inline AI* GetAzjolNerubAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, AzjolNerubScriptName);
 }

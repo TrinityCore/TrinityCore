@@ -16,16 +16,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
 #include "Guild.h"
+#include "GuildMgr.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "PetitionPackets.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include <sstream>
 
 #define CHARTER_DISPLAY_ID 16161
 #define GUILD_CHARTER_ITEM_ID 5863

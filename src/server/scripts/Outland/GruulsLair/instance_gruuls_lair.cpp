@@ -16,8 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "gruuls_lair.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {
@@ -32,7 +35,8 @@ MinionData const minionData[] =
     { NPC_KROSH_FIREHAND,       DATA_MAULGAR },
     { NPC_OLM_THE_SUMMONER,     DATA_MAULGAR },
     { NPC_KIGGLER_THE_CRAZED,   DATA_MAULGAR },
-    { NPC_BLINDEYE_THE_SEER,    DATA_MAULGAR }
+    { NPC_BLINDEYE_THE_SEER,    DATA_MAULGAR },
+    { 0,                        0            } // END
 };
 
 class instance_gruuls_lair : public InstanceMapScript

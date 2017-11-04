@@ -15,17 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AccountMgr.h"
+#include "icecrown_citadel.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
 #include "TransportMgr.h"
-#include "WorldPacket.h"
-#include "icecrown_citadel.h"
+#include "WorldStatePackets.h"
 
 enum EventIds
 {
@@ -1300,7 +1304,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         teleporter->SetGoState(GO_STATE_ACTIVE);
 
                         std::list<Creature*> stalkers;
-                        GetCreatureListWithEntryInGrid(stalkers, teleporter, NPC_INVISIBLE_STALKER, 100.0f);
+                        teleporter->GetCreatureListWithEntryInGrid(stalkers, NPC_INVISIBLE_STALKER, 100.0f);
                         if (stalkers.empty())
                             return;
 
@@ -1446,7 +1450,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         {
                             terenas->AI()->DoAction(ACTION_FROSTMOURNE_INTRO);
                             std::list<Creature*> triggers;
-                            GetCreatureListWithEntryInGrid(triggers, terenas, NPC_WORLD_TRIGGER_INFINITE_AOI, 100.0f);
+                            terenas->GetCreatureListWithEntryInGrid(triggers, NPC_WORLD_TRIGGER_INFINITE_AOI, 100.0f);
                             if (!triggers.empty())
                             {
                                 triggers.sort(Trinity::ObjectDistanceOrderPred(terenas, false));

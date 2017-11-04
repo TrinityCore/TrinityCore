@@ -16,28 +16,33 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Player.h"
-#include "Pet.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GroupMgr.h"
 #include "Group.h"
-#include "Formulas.h"
-#include "ObjectAccessor.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
-#include "MapManager.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Formulas.h"
+#include "GameObject.h"
+#include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
-#include "Util.h"
 #include "LFGMgr.h"
-#include "UpdateFieldFlags.h"
-#include "SpellAuras.h"
-#include "PartyPackets.h"
+#include "Log.h"
+#include "LootMgr.h"
 #include "LootPackets.h"
+#include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "PartyPackets.h"
+#include "Pet.h"
+#include "Player.h"
+#include "Random.h"
+#include "SpellAuras.h"
+#include "UpdateData.h"
+#include "UpdateFieldFlags.h"
+#include "Util.h"
+#include "World.h"
+#include "WorldSession.h"
 
 Roll::Roll(LootItem const& li) : itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -74,9 +79,12 @@ Group::~Group()
     if (m_bgGroup)
     {
         TC_LOG_DEBUG("bg.battleground", "Group::~Group: battleground group being deleted.");
-        if (m_bgGroup->GetBgRaid(ALLIANCE) == this) m_bgGroup->SetBgRaid(ALLIANCE, NULL);
-        else if (m_bgGroup->GetBgRaid(HORDE) == this) m_bgGroup->SetBgRaid(HORDE, NULL);
-        else TC_LOG_ERROR("misc", "Group::~Group: battleground group is not linked to the correct battleground.");
+        if (m_bgGroup->GetBgRaid(ALLIANCE) == this)
+            m_bgGroup->SetBgRaid(ALLIANCE, NULL);
+        else if (m_bgGroup->GetBgRaid(HORDE) == this)
+            m_bgGroup->SetBgRaid(HORDE, NULL);
+        else
+            TC_LOG_ERROR("misc", "Group::~Group: battleground group is not linked to the correct battleground.");
     }
     Rolls::iterator itr;
     while (!RollId.empty())
@@ -450,23 +458,20 @@ bool Group::AddMember(Player* player)
         player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, false);
         player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, true);
 
-        if (player->getLevel() >= LEVELREQUIREMENT_HEROIC)
+        if (player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
         {
-            if (player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
-            {
-                player->SetDungeonDifficultyID(GetDungeonDifficultyID());
-                player->SendDungeonDifficulty();
-            }
-            if (player->GetRaidDifficultyID() != GetRaidDifficultyID())
-            {
-                player->SetRaidDifficultyID(GetRaidDifficultyID());
-                player->SendRaidDifficulty(false);
-            }
-            if (player->GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
-            {
-                player->SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
-                player->SendRaidDifficulty(true);
-            }
+            player->SetDungeonDifficultyID(GetDungeonDifficultyID());
+            player->SendDungeonDifficulty();
+        }
+        if (player->GetRaidDifficultyID() != GetRaidDifficultyID())
+        {
+            player->SetRaidDifficultyID(GetRaidDifficultyID());
+            player->SendRaidDifficulty(false);
+        }
+        if (player->GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
+        {
+            player->SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
+            player->SendRaidDifficulty(true);
         }
     }
 
@@ -1366,8 +1371,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
 
         // remove is_blocked so that the item is lootable by all players
         LootItem* item = &(roll->itemSlot >= roll->getLoot()->items.size() ? roll->getLoot()->quest_items[roll->itemSlot - roll->getLoot()->items.size()] : roll->getLoot()->items[roll->itemSlot]);
-        if (item)
-            item->is_blocked = false;
+        item->is_blocked = false;
     }
 
     SendLootRollsComplete(*roll);
@@ -1491,7 +1495,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     {
         partyUpdate.LfgInfos = boost::in_place();
 
-        partyUpdate.LfgInfos->Slot = sLFGMgr->GetDungeon(m_guid);
+        partyUpdate.LfgInfos->Slot = sLFGMgr->GetLFGDungeonEntry(sLFGMgr->GetDungeon(m_guid));
         partyUpdate.LfgInfos->BootCount = 0;
         partyUpdate.LfgInfos->Aborted = false;
 

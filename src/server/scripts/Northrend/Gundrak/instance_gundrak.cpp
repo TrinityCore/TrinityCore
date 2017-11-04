@@ -15,11 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "gundrak.h"
+#include "Creature.h"
 #include "EventMap.h"
+#include "GameObject.h"
+#include "gundrak.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {

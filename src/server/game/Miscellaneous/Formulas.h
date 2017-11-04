@@ -19,11 +19,13 @@
 #ifndef TRINITY_FORMULAS_H
 #define TRINITY_FORMULAS_H
 
-#include "World.h"
-#include "SharedDefines.h"
-#include "ScriptMgr.h"
-#include "Player.h"
+#include "Creature.h"
 #include "GameTables.h"
+#include "Map.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "SharedDefines.h"
+#include "World.h"
 
 namespace Trinity
 {
@@ -175,7 +177,7 @@ namespace Trinity
             {
                 float xpMod = 1.0f;
 
-                gain = BaseGain(player->getLevel(), u->getLevel());
+                gain = BaseGain(player->getLevel(), u->GetLevelForTarget(player));
 
                 if (gain && creature)
                 {

@@ -17,12 +17,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "Player.h"
-#include "SpellScript.h"
-#include "CreatureTextMgr.h"
 #include "CombatAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*######
 ## Quest 12027: Mr. Floppy's Perilous Adventure
@@ -156,11 +158,8 @@ public:
                     }
                     break;
                 case 24:
-                    if (player)
-                    {
-                        player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
-                        Talk(SAY_QUEST_COMPLETE, player);
-                    }
+                    player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
+                    Talk(SAY_QUEST_COMPLETE, player);
                     me->SetWalk(false);
                     break;
                 case 25:
@@ -954,9 +953,12 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARHEAD_Z_CHECK) || !sSpellMgr->GetSpellInfo(SPELL_WARHEAD_SEEKING_LUMBERSHIP) || !sSpellMgr->GetSpellInfo(SPELL_WARHEAD_FUSE))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_WARHEAD_Z_CHECK,
+                SPELL_WARHEAD_SEEKING_LUMBERSHIP,
+                SPELL_WARHEAD_FUSE
+            });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -998,9 +1000,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PARACHUTE) || !sSpellMgr->GetSpellInfo(SPELL_TORPEDO_EXPLOSION))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_PARACHUTE, SPELL_TORPEDO_EXPLOSION });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)

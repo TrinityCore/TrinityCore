@@ -18,6 +18,8 @@
 #ifndef DEF_BLACKROCK_SPIRE_H
 #define DEF_BLACKROCK_SPIRE_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount         = 23;
 
 #define BRSScriptName "instance_blackrock_spire"
@@ -48,7 +50,8 @@ enum BRSDataTypes
     DATA_HALL_RUNE_4                = 19,
     DATA_HALL_RUNE_5                = 20,
     DATA_HALL_RUNE_6                = 21,
-    DATA_HALL_RUNE_7                = 22
+    DATA_HALL_RUNE_7                = 22,
+    DATA_SCARSHIELD_INFILTRATOR     = 23
 };
 
 enum BRSCreaturesIds
@@ -71,7 +74,8 @@ enum BRSCreaturesIds
     NPC_BLACKHAND_SUMMONER          = 9818,
     NPC_BLACKHAND_VETERAN           = 9819,
     NPC_BLACKHAND_INCARCERATOR      = 10316,
-    NPC_LORD_VICTOR_NEFARIUS        = 10162
+    NPC_LORD_VICTOR_NEFARIUS        = 10162,
+    NPC_SCARSHIELD_INFILTRATOR      = 10299
 };
 
 enum BRSAdditionalData
@@ -117,5 +121,11 @@ enum BRSGameObjectsIds
     GO_PORTCULLIS_ACTIVE            = 164726,
     GO_PORTCULLIS_TOBOSSROOMS       = 175186
 };
+
+template<typename AI>
+inline AI* GetBlackrockSpireAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, BRSScriptName);
+}
 
 #endif

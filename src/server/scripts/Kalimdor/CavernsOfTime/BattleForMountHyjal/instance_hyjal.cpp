@@ -24,9 +24,13 @@ SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "hyjal.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
@@ -50,7 +54,7 @@ ObjectData const creatureData[] =
 class instance_hyjal : public InstanceMapScript
 {
 public:
-    instance_hyjal() : InstanceMapScript("instance_hyjal", 534) { }
+    instance_hyjal() : InstanceMapScript(HyjalScriptName, 534) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {

@@ -15,10 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "GroupMgr.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "InstanceSaveMgr.h"
+#include "Log.h"
 #include "World.h"
 
 GroupMgr::GroupMgr()

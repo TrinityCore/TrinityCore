@@ -19,11 +19,8 @@
 #define BlackMarketPackets_h__
 
 #include "Packet.h"
+#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
-#include "ItemPackets.h"
-
-class Player;
-class BlackMarketEntry;
 
 namespace WorldPackets
 {
@@ -31,8 +28,6 @@ namespace WorldPackets
     {
         struct BlackMarketItem
         {
-            void Initialize(BlackMarketEntry *const entry, Player* player);
-
             int32 MarketID = 0;
             int32 SellerNPC = 0;
             Item::ItemInstance Item;

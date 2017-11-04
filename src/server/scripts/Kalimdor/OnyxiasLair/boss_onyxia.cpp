@@ -26,12 +26,15 @@ SDCategory: Onyxia's Lair
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
+#include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "onyxias_lair.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -356,7 +359,7 @@ public:
                             GameObject* Floor = NULL;
                             Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
                             Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
-                            me->VisitNearbyGridObject(30, searcher);
+                            Cell::VisitGridObjects(me, searcher, 30.0f);
                             if (Floor)
                                 instance->SetGuidData(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
                             events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
@@ -492,7 +495,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_onyxiaAI>(creature);
+        return GetInstanceAI<boss_onyxiaAI>(creature, OLScriptName);
     }
 };
 

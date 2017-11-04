@@ -92,7 +92,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_firemawAI>(creature);
+        return GetBlackwingLairAI<boss_firemawAI>(creature);
     }
 };
 

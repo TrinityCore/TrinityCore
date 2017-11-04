@@ -24,9 +24,10 @@ SDCategory: Halls of Lightning
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
-#include "Player.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Texts
@@ -365,9 +366,8 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_volkhanAI>(creature);
+        return GetHallsOfLightningAI<boss_volkhanAI>(creature);
     }
-
 };
 
 /*######
@@ -381,7 +381,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_molten_golemAI(creature);
+        return GetHallsOfLightningAI<npc_molten_golemAI>(creature);
     }
 
     struct npc_molten_golemAI : public ScriptedAI

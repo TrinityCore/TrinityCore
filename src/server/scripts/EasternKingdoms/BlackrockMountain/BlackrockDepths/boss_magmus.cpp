@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_depths.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {

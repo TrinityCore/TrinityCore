@@ -17,10 +17,10 @@
 
 #include "QueryPackets.h"
 #include "BattlenetAccountMgr.h"
-#include "Player.h"
-#include "PacketUtilities.h"
-#include "World.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldSession.h"
 
 void WorldPackets::Query::QueryCreature::Read()
 {
@@ -41,13 +41,13 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket.WriteBits(Stats.CursorName.length() + 1, 6);
         _worldPacket.WriteBit(Stats.Leader);
 
-        for (uint32 i = 0; i < MAX_CREATURE_NAMES; ++i)
+        for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
             _worldPacket.WriteBits(Stats.Name[i].length() + 1, 11);
             _worldPacket.WriteBits(Stats.NameAlt[i].length() + 1, 11);
         }
 
-        for (uint32 i = 0; i < MAX_CREATURE_NAMES; ++i)
+        for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
             if (!Stats.Name[i].empty())
                 _worldPacket << Stats.Name[i];
@@ -56,19 +56,12 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
                 _worldPacket << Stats.NameAlt[i];
         }
 
-        for (uint8 i = 0; i < 2; ++i)
-            _worldPacket << Stats.Flags[i];
-
+        _worldPacket.append(Stats.Flags.data(), Stats.Flags.size());
         _worldPacket << int32(Stats.CreatureType);
         _worldPacket << int32(Stats.CreatureFamily);
         _worldPacket << int32(Stats.Classification);
-
-        for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
-            _worldPacket << int32(Stats.ProxyCreatureID[i]);
-
-        for (uint32 i = 0; i < MAX_CREATURE_MODELS; ++i)
-            _worldPacket << int32(Stats.CreatureDisplayID[i]);
-
+        _worldPacket.append(Stats.ProxyCreatureID.data(), Stats.ProxyCreatureID.size());
+        _worldPacket.append(Stats.CreatureDisplayID.data(), Stats.CreatureDisplayID.size());
         _worldPacket << float(Stats.HpMulti);
         _worldPacket << float(Stats.EnergyMulti);
         _worldPacket << uint32(Stats.QuestItems.size());
@@ -308,9 +301,7 @@ WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
 
     _worldPacket << Player;
     _worldPacket << ActualMapID;
-    _worldPacket << Position.x;
-    _worldPacket << Position.y;
-    _worldPacket << Position.z;
+    _worldPacket << Position;
     _worldPacket << MapID;
     _worldPacket << Transport;
 
@@ -461,6 +452,21 @@ WorldPacket const* WorldPackets::Query::QueryItemTextResponse::Write()
     _worldPacket.WriteBit(Valid);
     _worldPacket << Item;
     _worldPacket << Id;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryRealmName::Read()
+{
+    _worldPacket >> VirtualRealmAddress;
+}
+
+WorldPacket const* WorldPackets::Query::RealmQueryResponse::Write()
+{
+    _worldPacket << uint32(VirtualRealmAddress);
+    _worldPacket << uint8(LookupState);
+    if (!LookupState)
+        _worldPacket << NameInfo;
 
     return &_worldPacket;
 }

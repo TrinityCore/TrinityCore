@@ -16,14 +16,20 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Spell.h"
-#include "Vehicle.h"
+#include "DB2Stores.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "ScriptedCreature.h"
-#include "ruby_sanctum.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ruby_sanctum.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Texts
 {
@@ -1422,9 +1428,7 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_markSpell))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ _markSpell });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1476,9 +1480,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->TriggerSpell))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0)->TriggerSpell });
             }
 
             void HandleTick(AuraEffect const* aurEff)
@@ -1522,9 +1524,7 @@ class spell_halion_marks : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_summonSpellId))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ _summonSpellId });
             }
 
             /// We were purged. Force removed stacks to zero and trigger the appropriated remove handler.
@@ -1620,9 +1620,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_beforeHitSpellId))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ _beforeHitSpellId });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*handle*/)
@@ -1679,11 +1677,11 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CLEAR_DEBUFFS))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_TWILIGHT_REALM))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_CLEAR_DEBUFFS,
+                    SPELL_TWILIGHT_REALM,
+                });
             }
 
             void HandleScript(SpellEffIndex effIndex)

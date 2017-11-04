@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "arcatraz.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {

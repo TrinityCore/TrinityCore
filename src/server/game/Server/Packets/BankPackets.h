@@ -18,10 +18,9 @@
 #ifndef BankPackets_h__
 #define BankPackets_h__
 
-#include "ItemPackets.h"
 #include "Packet.h"
+#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
-#include "WorldSession.h"
 
 namespace WorldPackets
 {

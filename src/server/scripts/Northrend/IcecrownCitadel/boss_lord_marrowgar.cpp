@@ -15,13 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "MoveSplineInit.h"
-#include "Player.h"
-#include "icecrown_citadel.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum ScriptTexts
 {
@@ -585,7 +589,7 @@ class spell_marrowgar_coldflame_damage : public SpellScriptLoader
                 if (target->HasAura(SPELL_IMPALED))
                     return false;
 
-                if (target->GetExactDist2d(GetOwner()) > GetSpellInfo()->GetEffect(target, EFFECT_0)->CalcRadius())
+                if (target->GetExactDist2d(GetOwner()) > GetSpellInfo()->GetEffect(target->GetMap()->GetDifficultyID(), EFFECT_0)->CalcRadius())
                     return false;
 
                 if (Aura* aur = target->GetAura(GetId()))
@@ -618,11 +622,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                for (uint32 i = 0; i < 3; ++i)
-                    if (!sSpellMgr->GetSpellInfo(BoneSpikeSummonId[i]))
-                        return false;
-
-                return true;
+                return ValidateSpellInfo(BoneSpikeSummonId);
             }
 
             bool Load() override

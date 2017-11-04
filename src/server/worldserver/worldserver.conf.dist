@@ -1732,6 +1732,14 @@ ListenRange.Yell = 300
 
 Creature.MovingStopTimeForPlayer = 180000
 
+#    MonsterSight
+#        Description: The maximum distance in yards that a "monster" creature can see
+#                     regardless of level difference (through CreatureAI::IsVisible).
+#                     Increases CONFIG_SIGHT_MONSTER to 50 yards. Used to be 20 yards.
+#        Default:     50.000000
+
+MonsterSight = 50.000000
+
 #
 ###################################################################################################
 
@@ -3210,6 +3218,15 @@ GameObject.CheckInvalidPosition = 0
 
 ###################################################################################################
 # AUCTION HOUSE BOT SETTINGS
+#
+#    AuctionHouseBot.Account
+#       Description: Account ID for AHBot characters. If non-zero, all auctions and bids associated
+#                    with the AHBot will randomly be assigned one of this account's characters.
+#       Default:     0
+#
+
+AuctionHouseBot.Account = 0
+
 #
 #    AuctionHouseBot.Update.Interval
 #       Description: Interval in seconds for AHBot to get updated

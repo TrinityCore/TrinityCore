@@ -24,11 +24,16 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "karazhan.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "karazhan.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 /***********************************/
 /*** OPERA WIZARD OF OZ EVENT *****/
@@ -118,7 +123,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_dorotheeAI>(creature);
+        return GetKarazhanAI<boss_dorotheeAI>(creature);
     }
 
     struct boss_dorotheeAI : public ScriptedAI
@@ -238,7 +243,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_titoAI(creature);
+        return GetKarazhanAI<npc_titoAI>(creature);
     }
 
     struct npc_titoAI : public ScriptedAI
@@ -312,7 +317,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_strawmanAI>(creature);
+        return GetKarazhanAI<boss_strawmanAI>(creature);
     }
 
     struct boss_strawmanAI : public ScriptedAI
@@ -432,7 +437,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_tinheadAI>(creature);
+        return GetKarazhanAI<boss_tinheadAI>(creature);
     }
 
     struct boss_tinheadAI : public ScriptedAI
@@ -547,7 +552,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_roarAI>(creature);
+        return GetKarazhanAI<boss_roarAI>(creature);
     }
 
     struct boss_roarAI : public ScriptedAI
@@ -661,7 +666,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_croneAI>(creature);
+        return GetKarazhanAI<boss_croneAI>(creature);
     }
 
     struct boss_croneAI : public ScriptedAI
@@ -745,7 +750,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_cycloneAI(creature);
+        return GetKarazhanAI<npc_cycloneAI>(creature);
     }
 
     struct npc_cycloneAI : public ScriptedAI
@@ -833,7 +838,7 @@ class npc_grandmother : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_grandmotherAI(creature);
+            return GetKarazhanAI<npc_grandmotherAI>(creature);
         }
 };
 
@@ -844,7 +849,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_bigbadwolfAI>(creature);
+        return GetKarazhanAI<boss_bigbadwolfAI>(creature);
     }
 
     struct boss_bigbadwolfAI : public ScriptedAI
@@ -1043,7 +1048,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_julianneAI>(creature);
+        return GetKarazhanAI<boss_julianneAI>(creature);
     }
 
     struct boss_julianneAI : public ScriptedAI
@@ -1164,7 +1169,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_romuloAI>(creature);
+        return GetKarazhanAI<boss_romuloAI>(creature);
     }
 
     struct boss_romuloAI : public ScriptedAI

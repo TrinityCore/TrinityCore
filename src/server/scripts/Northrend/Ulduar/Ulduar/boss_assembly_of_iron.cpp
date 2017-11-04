@@ -23,9 +23,13 @@ SDCategory: Ulduar - Ulduar
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 enum AssemblySpells
@@ -725,9 +729,7 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RUNE_OF_SUMMONING_SUMMON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RUNE_OF_SUMMONING_SUMMON });
             }
 
             void HandlePeriodic(AuraEffect const* aurEff)

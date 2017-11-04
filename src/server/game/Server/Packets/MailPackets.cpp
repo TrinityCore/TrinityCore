@@ -15,8 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Mail.h"
 #include "MailPackets.h"
+#include "Item.h"
+#include "Mail.h"
 #include "Player.h"
 #include "World.h"
 
