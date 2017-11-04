@@ -349,8 +349,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool VehicleCreate = (flags & UPDATEFLAG_VEHICLE) != 0;
     bool AnimKitCreate = (flags & UPDATEFLAG_ANIMKITS) != 0;
     bool Rotation = (flags & UPDATEFLAG_ROTATION) != 0;
-    bool HasAreaTrigger = (flags & UPDATEFLAG_GAMEOBJECT) != 0;
-    bool HasGameObject = (flags & UPDATEFLAG_AREATRIGGER) != 0;;
+    bool HasAreaTrigger = (flags & UPDATEFLAG_AREATRIGGER) != 0;
+    bool HasGameObject = (flags & UPDATEFLAG_GAMEOBJECT) != 0;;
     bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
     bool SmoothPhasing = false;
     bool SceneObjCreate = false;
