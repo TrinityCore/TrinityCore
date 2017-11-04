@@ -2221,13 +2221,13 @@ class spell_pal_sheath_of_light : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
-				
+
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL);
-				int32 amount = CalculatePct(static_cast<int32>(healInfo->GetEffectiveHeal()), aurEff->GetAmount());
-				amount /= spellInfo->GetMaxTicks();
-				// Add remaining ticks to healing done
-				amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, SPELL_AURA_PERIODIC_HEAL);
-					
+                int32 amount = CalculatePct(static_cast<int32>(healInfo->GetEffectiveHeal()), aurEff->GetAmount());
+                amount /= spellInfo->GetMaxTicks();
+                // Add remaining ticks to healing done
+                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, SPELL_AURA_PERIODIC_HEAL);
+                
                 caster->CastCustomSpell(SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
