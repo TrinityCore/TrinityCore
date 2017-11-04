@@ -2227,7 +2227,7 @@ class spell_pal_sheath_of_light : public SpellScriptLoader
                 amount /= spellInfo->GetMaxTicks();
                 // Add remaining ticks to healing done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, SPELL_AURA_PERIODIC_HEAL);
-                
+
                 caster->CastCustomSpell(SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
