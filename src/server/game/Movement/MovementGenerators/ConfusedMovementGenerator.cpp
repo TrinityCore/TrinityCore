@@ -56,44 +56,38 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* unit, uint32 diff)
     if (unit->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return true;
 
-    if (i_nextMoveTime.Passed())
-    {
-        // currently moving, update location
-        unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
+    // Check if we must generate movement.
+    i_nextMoveTime.Update(diff);
+    if (!i_nextMoveTime.Passed())
+        return true;
+    
+    // Get original position (where we started)
+    Position pos;
+    pos.Relocate(i_x, i_y, i_z);
 
-        if (unit->movespline->Finalized())
-            i_nextMoveTime.Reset(urand(800, 1500));
-    }
-    else
-    {
-        // waiting for next move
-        i_nextMoveTime.Update(diff);
-        if (i_nextMoveTime.Passed())
-        {
-            // start moving
-            unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
+    // Generate vector
+    float dist = float(urand(1, 4));
+    float angle = 2 * float(M_PI) * float(rand_norm());
+    
+    // Check how far we can move (collision check).
+    unit->MovePositionToFirstCollision(pos, dist, angle);
+    
+    // Generate path
+    PathGenerator path(unit);
+    path.SetPathLengthLimit(10.0f);
+    bool result = path.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+    if (!result || (path.GetPathType() & PATHFIND_NOPATH))
+        return true; // Return without setting timer, generate another movement on next update.
 
-            float dest = 4.0f * (float)rand_norm() - 2.0f;
+    // Send packet
+    Movement::MoveSplineInit init(unit);
+    init.MovebyPath(path.GetPath());
+    init.SetWalk(true);
+    init.Launch();
 
-            Position pos;
-            pos.Relocate(i_x, i_y, i_z);
-            unit->MovePositionToFirstCollision(pos, dest, 0.0f);
-
-            PathGenerator path(unit);
-            path.SetPathLengthLimit(30.0f);
-            bool result = path.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-            if (!result || (path.GetPathType() & PATHFIND_NOPATH))
-            {
-                i_nextMoveTime.Reset(100);
-                return true;
-            }
-
-            Movement::MoveSplineInit init(unit);
-            init.MovebyPath(path.GetPath());
-            init.SetWalk(true);
-            init.Launch();
-        }
-    }
+    // Next move packet always arrives in 800 ms.
+    // (Blizzard updates movement every 400 ms, so this value could be anything between 400 and 800)
+    i_nextMoveTime.Reset(750);
 
     return true;
 }
