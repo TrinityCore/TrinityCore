@@ -138,7 +138,7 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationTemplate.Id                 = fields[0].GetUInt32();
             conversationTemplate.FirstLineId        = fields[1].GetUInt32();
             conversationTemplate.LastLineEndTime    = fields[2].GetUInt32();
-            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[3].GetCString());
+            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[3].GetString());
 
             conversationTemplate.Actors = std::move(actorsByConversation[conversationTemplate.Id]);
 
