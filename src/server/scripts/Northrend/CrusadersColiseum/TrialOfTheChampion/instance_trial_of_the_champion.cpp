@@ -21,6 +21,7 @@ SDComment: missing fireworks when boss encounter is set to done
 SDCategory: Trial Of the Champion
 EndScriptData */
 
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -220,7 +221,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
                                 champion->SetReactState(REACT_PASSIVE);
                                 champion->SetHealth(1);
                                 champion->CombatStop(true);
-                                champion->setRegeneratingHealth(false);
+                                champion->SetRegenerateHealth(false);
                                 champion->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                                 champion->SetHomePosition(745.87f, 625.88f, 411.17f, champion->GetHomePosition().GetOrientation());
                                 champion->GetMotionMaster()->MoveTargetedHome();
@@ -297,7 +298,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
                         {
                             if (Creature* boss = instance->GetCreature(_argentChampionGUID))
                             {
-                                boss->setFaction(16);
+                                boss->SetFaction(FACTION_MONSTER_2);
                                 boss->SetHomePosition(747.02f, 637.65f, 411.57f, centerOrientation);
                                 boss->GetMotionMaster()->MovePoint(1, boss->GetHomePosition());
                             }

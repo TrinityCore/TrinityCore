@@ -25,7 +25,9 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "SpellMgr.h"
 #include "trial_of_the_champion.h"
 
 enum Yells
@@ -342,7 +344,7 @@ class boss_eadric : public CreatureScript
                             break;
                         case EVENT_CHALLENGE_DONE:
                             me->RemoveAllAuras();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().ClearAllThreat();
                             me->SetFullHealth();
                             me->RestoreFaction();
                             DoCastAOE(SPELL_EADRIC_ACH, true);
@@ -520,7 +522,7 @@ class boss_paletress : public CreatureScript
                             break;
                         case EVENT_CHALLENGE_DONE:
                             me->RemoveAllAuras();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().ClearAllThreat();
                             me->SetFullHealth();
                             DoCastAOE(SPELL_PALETRESS_ACH, true);
                             me->RestoreFaction();
@@ -1070,7 +1072,7 @@ class spell_eadric_radiance : public SpellScriptLoader
         }
 };
 
-std::vector<uint32> const memorySpells =
+uint32 const memorySpellId[25] =
 {
     SPELL_MEMORY_ALGALON,
     SPELL_MEMORY_ARCHIMONDE,
@@ -1111,10 +1113,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!ValidateSpellInfo(memorySpells))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo(memorySpellId);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1129,7 +1128,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                uint32 const randMemorySpellId = Trinity::Containers::SelectRandomContainerElement(memorySpells);
+                uint32 const randMemorySpellId = Trinity::Containers::SelectRandomContainerElement(memorySpellId);
                 GetHitUnit()->CastSpell(GetHitUnit(), randMemorySpellId, true, nullptr, nullptr, GetCaster()->GetGUID());
             }
 
@@ -1204,7 +1203,7 @@ class achievement_eadric_faceroller : public AchievementCriteriaScript
     public:
         achievement_eadric_faceroller() : AchievementCriteriaScript("achievement_eadric_faceroller") { }
 
-        bool OnCheck(Player* source, Unit* target) override
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target || !target->IsAIEnabled)
                 return false;

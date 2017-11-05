@@ -30,6 +30,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "SpellMgr.h"
 #include "Vehicle.h"
 #include "trial_of_the_champion.h"
 
@@ -216,7 +217,7 @@ void SetGrandChampionToEvadeMode(Creature* me)
 {
     me->RemoveAllAuras();
     me->ApplySpellImmune(SPELL_TRAMPLE_AURA, IMMUNITY_ID, SPELL_TRAMPLE_AURA, false);
-    me->DeleteThreatList();
+    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->SetLootRecipient(nullptr);
     me->AI()->Reset();
@@ -337,9 +338,9 @@ struct boss_grand_championAI : BossAI
                 if (pGrandChampion->HasAura(SPELL_KNEEL))
                 {
                     pGrandChampion->RemoveAllAuras();
-                    pGrandChampion->DeleteThreatList();
+                    pGrandChampion->GetThreatManager().ClearAllThreat();
                     pGrandChampion->SetLootRecipient(nullptr);
-                    pGrandChampion->setRegeneratingHealth(true);
+                    pGrandChampion->SetRegenerateHealth(true);
                     pGrandChampion->GetMotionMaster()->MoveTargetedHome();
                     pGrandChampion->AI()->Reset();
                 }
@@ -395,7 +396,7 @@ struct boss_grand_championAI : BossAI
                 me->GetMotionMaster()->Clear();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // to prevent boss from bugging out
                 me->SetHealth(me->GetMaxHealth());
-                me->setRegeneratingHealth(true);
+                me->SetRegenerateHealth(true);
                 me->SetWalk(false);
                 mount->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 // sometimes a player can trample champion right when he is about to enter in vehicle
@@ -441,7 +442,7 @@ struct boss_grand_championAI : BossAI
             me->SetReactState(REACT_PASSIVE);
             me->SetHealth(1);
             me->CombatStop(true);
-            me->setRegeneratingHealth(false); // we don't regen health yet
+            me->SetRegenerateHealth(false); // we don't regen health yet
             me->GetMotionMaster()->MoveIdle();
             me->SetWalk(true);
             // Champion's current vehicle runs to the gates and despawns
@@ -460,7 +461,7 @@ struct boss_grand_championAI : BossAI
 
                 Trinity::AllCreaturesOfEntryInRange check(me, newMountEntry, 100);
                 Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, tempList, check);
-                me->VisitNearbyGridObject(me->GetGridActivationRange(), searcher);
+                Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
 
                 for (std::list<Creature*>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
                 {
@@ -527,7 +528,7 @@ struct boss_grand_championAI : BossAI
                 me->SetReactState(REACT_PASSIVE);
                 me->SetHealth(1);
                 me->CombatStop(true);
-                me->setRegeneratingHealth(false);
+                me->SetRegenerateHealth(false);
                 me->GetMotionMaster()->MoveIdle();
                 me->RemoveAura(SPELL_EARTH_SHIELD);
                 me->RemoveAura(SPELL_HASTE);
@@ -664,7 +665,7 @@ struct boss_grand_championAI : BossAI
             me->ApplySpellImmune(SPELL_TRAMPLE_AURA, IMMUNITY_ID, SPELL_TRAMPLE_AURA, false);
             me->GetMotionMaster()->MoveIdle();
             me->GetMotionMaster()->Clear();
-            me->setRegeneratingHealth(true);
+            me->SetRegenerateHealth(true);
             instance->SetData(DATA_REMOVE_VEHICLES, 0);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             uiPhase = 5;
@@ -692,9 +693,9 @@ class generic_vehicleAI_toc5 : public CreatureScript
 public:
     generic_vehicleAI_toc5() : CreatureScript("generic_vehicleAI_toc5") { }
 
-    struct generic_vehicleAI_toc5AI : public npc_escortAI
+    struct generic_vehicleAI_toc5AI : public EscortAI
     {
-        generic_vehicleAI_toc5AI(Creature* creature) : npc_escortAI(creature)
+        generic_vehicleAI_toc5AI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             SetDespawnAtEnd(false);
@@ -825,10 +826,10 @@ public:
                 me->GetEntry() == VEHICLE_ARGENT_WARHORSE_COSMETIC)
                 return;
 
-            npc_escortAI::EnterEvadeMode(why);
+            EscortAI::EnterEvadeMode(why);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             uint32 TeamInInstance = instance->GetData(DATA_TEAM_IN_INSTANCE);
             // Grand Champions reached their final positions in the jousting event
@@ -854,7 +855,7 @@ public:
 
         void MovementInform(uint32 type, uint32 pointId) override
         {
-            npc_escortAI::MovementInform(type, pointId);
+            EscortAI::MovementInform(type, pointId);
 
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -938,7 +939,7 @@ public:
                         return false;
                     }
                 }
-                else if (rider->getThreatManager().isThreatListEmpty())
+                else if (rider->GetThreatManager().IsThreatListEmpty())
                 {
                     SetGrandChampionToEvadeMode(rider->ToCreature());
                     return false;
@@ -951,7 +952,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
             events.Update(uiDiff);
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -1000,12 +1001,12 @@ public:
                                                     {
                                                         // Grand Champion
                                                         // Resetting rider's threat (DoResetThreat() cannot be used on external unit)
-                                                        rider->getThreatManager().resetAllAggro();
+                                                        rider->GetThreatManager().resetAllAggro();
                                                         // Setting gaze on the new player
                                                         if (plr->GetVehicleBase())
-                                                            rider->AddThreat(plr->GetVehicleBase(), 100000.0f);
+                                                            AddThreat(plr->GetVehicleBase(), 100000.0f);
                                                         else
-                                                            rider->AddThreat(plr, 100000.0f);
+                                                            AddThreat(plr, 100000.0f);
                                                         // Casting actual charge
                                                         if (plr->GetVehicleBase())
                                                             rider->CastSpell(plr->GetVehicleBase(), spell_charge);
@@ -1019,12 +1020,12 @@ public:
                                             {
                                                 // Lesser Champion
                                                 // Resetting threat
-                                                DoResetThreat();
+                                                ResetThreatList();
                                                 // Setting gaze on the new player
                                                 if (plr->GetVehicleBase())
-                                                    me->AddThreat(plr->GetVehicleBase(), 100000.0f);
+                                                    AddThreat(plr->GetVehicleBase(), 100000.0f);
                                                 else
-                                                    me->AddThreat(plr, 100000.0f);
+                                                    AddThreat(plr, 100000.0f);
                                                 // Casting actual charge
                                                 if (plr->GetVehicleBase())
                                                     DoCast(plr->GetVehicleBase(), spell_charge);
@@ -1138,9 +1139,9 @@ public:
                                         Player* plr = itr->GetSource();
                                         if (plr && !plr->IsGameMaster() && plr->IsAlive() && me->IsInRange(plr, 8.0f, 25.0f, false))
                                         {
-                                            DoResetThreat();
+                                            ResetThreatList();
                                             DoCast(plr, SPELL_INTERCEPT);
-                                            me->AddThreat(plr, 5.0f);
+                                            AddThreat(plr, 5.0f);
                                             break;
                                         }
                                         else
@@ -1242,7 +1243,7 @@ public:
                         events.ScheduleEvent(EVENT_POLYMORPH, 8000);
                         break;
                     case EVENT_BLASTWAVE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                         {
                             if (me->IsWithinDist(target, 5.0f, false))
                             {
@@ -1515,7 +1516,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_DISENGAGE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                         {
                             if (me->IsWithinDist(target, 5.0f, false))
                             {
@@ -1610,7 +1611,7 @@ public:
                         events.ScheduleEvent(EVENT_EVISCERATE, 8000);
                         break;
                     case EVENT_FAN_OF_KNIVES:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                         {
                             if (me->IsWithinDist(target, 8.0f, false)) // 8 yards is minimum range
                                 DoCastAOE(SPELL_FAN_OF_KNIVES);
