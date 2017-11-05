@@ -1202,7 +1202,7 @@ void ObjectMgr::LoadGameObjectAddons()
     uint32 oldMSTime = getMSTime();
 
     //                                               0     1                 2                 3                 4                 5                 6                  7
-    QueryResult result = WorldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue, worldeffectid FROM gameobject_addon");
+    QueryResult result = WorldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue, WorldfEffectID FROM gameobject_addon");
 
     if (!result)
     {
@@ -7140,7 +7140,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
     uint32 oldMSTime = getMSTime();
 
     //                                                0       1       2      3        4        5
-    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, worldeffectid FROM gameobject_template_addon");
+    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, WorldfEffectID FROM gameobject_template_addon");
 
     if (!result)
     {

@@ -268,10 +268,10 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
         SetUInt32Value(GAMEOBJECT_FACTION, m_goTemplateAddon->faction);
         SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
 
-        if (m_goTemplateAddon->worldeffectid != 0)
+        if (m_goTemplateAddon->WorldEffectID != 0)
         {
             m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
-            SetWorldEffectID(m_goTemplateAddon->worldeffectid);
+            SetWorldEffectID(m_goTemplateAddon->WorldEffectID);
         }
     }
 
@@ -365,10 +365,10 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
         m_invisibility.AddValue(gameObjectAddon->invisibilityType, gameObjectAddon->InvisibilityValue);
     }
 
-    if (gameObjectAddon && gameObjectAddon->worldEffectID)
+    if (gameObjectAddon && gameObjectAddon->WorldEffectID)
     {
         m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
-        SetWorldEffectID(gameObjectAddon->worldEffectID);
+        SetWorldEffectID(gameObjectAddon->WorldEffectID);
     }
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
