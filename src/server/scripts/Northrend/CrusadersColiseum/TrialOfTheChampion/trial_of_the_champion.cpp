@@ -1301,7 +1301,7 @@ public:
                 {
                     // If Grand Champions, Eadric the Pure and Argent Confessor Paletress encounters are all done but Black Knight encounter has not been started
                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    SendGossipMenuFor(player, GOSSIP_TEXT_THIRD_BOSS, creature->GetGUID());
+                    SendGossipMenuFor(player, GOSSIP_TEXT_THIRD_BOSS, me->GetGUID());
                 }
             }
             return true;

@@ -1072,7 +1072,7 @@ class spell_eadric_radiance : public SpellScriptLoader
         }
 };
 
-std::vector<uint32> const memorySpells =
+uint32 const memorySpellId[25] =
 {
     SPELL_MEMORY_ALGALON,
     SPELL_MEMORY_ARCHIMONDE,
@@ -1113,10 +1113,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!ValidateSpellInfo(memorySpells))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo(memorySpellId);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1131,7 +1128,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                uint32 const randMemorySpellId = Trinity::Containers::SelectRandomContainerElement(memorySpells);
+                uint32 const randMemorySpellId = Trinity::Containers::SelectRandomContainerElement(memorySpellId);
                 GetHitUnit()->CastSpell(GetHitUnit(), randMemorySpellId, true, nullptr, nullptr, GetCaster()->GetGUID());
             }
 

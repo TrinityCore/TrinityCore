@@ -693,9 +693,9 @@ class generic_vehicleAI_toc5 : public CreatureScript
 public:
     generic_vehicleAI_toc5() : CreatureScript("generic_vehicleAI_toc5") { }
 
-    struct generic_vehicleAI_toc5AI : public npc_escortAI
+    struct generic_vehicleAI_toc5AI : public EscortAI
     {
-        generic_vehicleAI_toc5AI(Creature* creature) : npc_escortAI(creature)
+        generic_vehicleAI_toc5AI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             SetDespawnAtEnd(false);
@@ -826,10 +826,10 @@ public:
                 me->GetEntry() == VEHICLE_ARGENT_WARHORSE_COSMETIC)
                 return;
 
-            npc_escortAI::EnterEvadeMode(why);
+            EscortAI::EnterEvadeMode(why);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             uint32 TeamInInstance = instance->GetData(DATA_TEAM_IN_INSTANCE);
             // Grand Champions reached their final positions in the jousting event
@@ -855,7 +855,7 @@ public:
 
         void MovementInform(uint32 type, uint32 pointId) override
         {
-            npc_escortAI::MovementInform(type, pointId);
+            EscortAI::MovementInform(type, pointId);
 
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -939,7 +939,7 @@ public:
                         return false;
                     }
                 }
-                else if (rider->getThreatManager().isThreatListEmpty())
+                else if (rider->GetThreatManager().IsThreatListEmpty())
                 {
                     SetGrandChampionToEvadeMode(rider->ToCreature());
                     return false;
@@ -952,7 +952,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
             events.Update(uiDiff);
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -1001,7 +1001,7 @@ public:
                                                     {
                                                         // Grand Champion
                                                         // Resetting rider's threat (DoResetThreat() cannot be used on external unit)
-                                                        rider->getThreatManager().resetAllAggro();
+                                                        rider->GetThreatManager().resetAllAggro();
                                                         // Setting gaze on the new player
                                                         if (plr->GetVehicleBase())
                                                             AddThreat(plr->GetVehicleBase(), 100000.0f);
@@ -1020,7 +1020,7 @@ public:
                                             {
                                                 // Lesser Champion
                                                 // Resetting threat
-                                                DoResetThreat();
+                                                ResetThreatList();
                                                 // Setting gaze on the new player
                                                 if (plr->GetVehicleBase())
                                                     AddThreat(plr->GetVehicleBase(), 100000.0f);
@@ -1139,7 +1139,7 @@ public:
                                         Player* plr = itr->GetSource();
                                         if (plr && !plr->IsGameMaster() && plr->IsAlive() && me->IsInRange(plr, 8.0f, 25.0f, false))
                                         {
-                                            DoResetThreat();
+                                            ResetThreatList();
                                             DoCast(plr, SPELL_INTERCEPT);
                                             AddThreat(plr, 5.0f);
                                             break;
@@ -1243,7 +1243,7 @@ public:
                         events.ScheduleEvent(EVENT_POLYMORPH, 8000);
                         break;
                     case EVENT_BLASTWAVE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                         {
                             if (me->IsWithinDist(target, 5.0f, false))
                             {
@@ -1516,7 +1516,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_DISENGAGE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                         {
                             if (me->IsWithinDist(target, 5.0f, false))
                             {
@@ -1611,7 +1611,7 @@ public:
                         events.ScheduleEvent(EVENT_EVISCERATE, 8000);
                         break;
                     case EVENT_FAN_OF_KNIVES:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                         {
                             if (me->IsWithinDist(target, 8.0f, false)) // 8 yards is minimum range
                                 DoCastAOE(SPELL_FAN_OF_KNIVES);
