@@ -19,6 +19,7 @@
 #define ConversationDataStore_h__
 
 #include "Define.h"
+#include "ObjectGuid.h"
 
 #include <vector>
 
