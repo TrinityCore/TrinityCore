@@ -16,6 +16,9 @@
  */
 
 #include "Conversation.h"
+#include "Creature.h"
+#include "IteratorPair.h"
+#include "Log.h"
 #include "Map.h"
 #include "Unit.h"
 #include "UpdateData.h"
@@ -120,23 +123,47 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     SetUInt32Value(CONVERSATION_LAST_LINE_END_TIME, conversationTemplate->LastLineEndTime);
     _duration = conversationTemplate->LastLineEndTime;
 
-    uint16 actorsIndex = 0;
-    for (ConversationActorTemplate const* actor : conversationTemplate->Actors)
+    for (uint16 actorIndex = 0; actorIndex < conversationTemplate->Actors.size(); ++actorIndex)
     {
-        if (actor)
+        if (ConversationActorTemplate const* actor = conversationTemplate->Actors[actorIndex])
         {
             ConversationDynamicFieldActor actorField;
             actorField.ActorTemplate = *actor;
             actorField.Type = ConversationDynamicFieldActor::ActorType::CreatureActor;
-            SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex++, &actorField);
+            SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIndex, &actorField);
         }
-        else
-            ++actorsIndex;
     }
 
-    uint16 linesIndex = 0;
+    for (uint16 actorIndex = 0; actorIndex < conversationTemplate->ActorGuids.size(); ++actorIndex)
+    {
+        ObjectGuid::LowType const& actorGuid = conversationTemplate->ActorGuids[actorIndex];
+        if (!actorGuid)
+            continue;
+
+        for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), actorGuid))
+        {
+            // we just need the last one, overriding is legit
+            AddActor(pair.second->GetGUID(), actorIndex);
+        }
+    }
+
+    std::set<uint16> actorIndices;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
-        SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, line);
+    {
+        actorIndices.insert(line->ActorIdx);
+        AddDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, line);
+    }
+
+    // All actors need to be set
+    for (uint16 actorIndex : actorIndices)
+    {
+        ConversationDynamicFieldActor const* actor = GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIndex);
+        if (!actor || actor->IsEmpty())
+        {
+            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", conversationEntry, actorIndex);
+            return false;
+        }
+    }
 
     if (!GetMap()->AddToMap(this))
         return false;
