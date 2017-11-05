@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS `world_effect`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `world_effect` (
+  `ID` int(10) unsigned NOT NULL DEFAULT '0',
   `TargetAsset` int(10) unsigned NOT NULL DEFAULT '0',
   `CombatConditionID` smallint(5) unsigned NOT NULL DEFAULT '0',
   `TargetType` tinyint(3) unsigned NOT NULL DEFAULT '0',

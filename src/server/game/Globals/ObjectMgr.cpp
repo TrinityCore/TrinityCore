@@ -1249,6 +1249,12 @@ void ObjectMgr::LoadGameObjectAddons()
             gameObjectAddon.ParentRotation = QuaternionData();
         }
 
+        if (gameObjectAddon.worldEffectID && !sWorldEffectStore.LookupEntry(gameObjectAddon.worldEffectID))
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid worldEffect in `gameobject_addon`, set to default", guid);
+            gameObjectAddon.worldEffectID = 0;
+        }
+
         ++count;
     }
     while (result->NextRow());
@@ -7178,6 +7184,12 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
                     TC_LOG_ERROR("sql.sql", "GameObject (Entry %u GoType: %u) cannot be looted but has maxgold set in `gameobject_template_addon`.", entry, got->type);
                     break;
             }
+        }
+
+        if (gameObjectAddon.worldeffectid && !sWorldEffectStore.LookupEntry(gameObjectAddon.worldeffectid))
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid worldeffectid (%u) defined in `gameobject_template_addon`, set to default", entry, gameObjectAddon.worldeffectid);
+            gameObjectAddon.worldeffectid = 0;
         }
 
         ++count;

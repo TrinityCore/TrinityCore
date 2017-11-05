@@ -2991,6 +2991,7 @@ struct WMOAreaTableEntry
 
 struct WorldEffectEntry
 {
+    uint32 ID;
     uint32 TargetAsset;
     uint16 CombatConditionID;
     uint8 TargetType;
