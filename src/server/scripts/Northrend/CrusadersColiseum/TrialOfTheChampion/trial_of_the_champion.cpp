@@ -704,12 +704,12 @@ public:
                 {
                     if (player->GetVehicleBase())
                     {
-                        temp->AddThreat(player->GetVehicleBase(), 1.0f);
+                        AddThreat(player->GetVehicleBase(), 1.0f);
                         temp->AI()->AttackStart(player->GetVehicleBase());
                     }
                     else
                     {
-                        temp->AddThreat(player, 1.0f);
+                        AddThreat(player, 1.0f);
                         temp->AI()->AttackStart(player);
                     }
                     break;
@@ -1369,7 +1369,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_announcer_toc5AI>(creature);
+        return GetTrialOfChampionAI<npc_announcer_toc5AI>(creature);
     }
 };
 

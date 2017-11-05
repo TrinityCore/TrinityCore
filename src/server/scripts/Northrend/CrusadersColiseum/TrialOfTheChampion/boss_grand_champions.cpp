@@ -461,7 +461,7 @@ struct boss_grand_championAI : BossAI
 
                 Trinity::AllCreaturesOfEntryInRange check(me, newMountEntry, 100);
                 Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, tempList, check);
-                me->VisitNearbyGridObject(me->GetGridActivationRange(), searcher);
+                Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
 
                 for (std::list<Creature*>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
                 {
@@ -1004,9 +1004,9 @@ public:
                                                         rider->getThreatManager().resetAllAggro();
                                                         // Setting gaze on the new player
                                                         if (plr->GetVehicleBase())
-                                                            rider->AddThreat(plr->GetVehicleBase(), 100000.0f);
+                                                            AddThreat(plr->GetVehicleBase(), 100000.0f);
                                                         else
-                                                            rider->AddThreat(plr, 100000.0f);
+                                                            AddThreat(plr, 100000.0f);
                                                         // Casting actual charge
                                                         if (plr->GetVehicleBase())
                                                             rider->CastSpell(plr->GetVehicleBase(), spell_charge);
@@ -1023,9 +1023,9 @@ public:
                                                 DoResetThreat();
                                                 // Setting gaze on the new player
                                                 if (plr->GetVehicleBase())
-                                                    me->AddThreat(plr->GetVehicleBase(), 100000.0f);
+                                                    AddThreat(plr->GetVehicleBase(), 100000.0f);
                                                 else
-                                                    me->AddThreat(plr, 100000.0f);
+                                                    AddThreat(plr, 100000.0f);
                                                 // Casting actual charge
                                                 if (plr->GetVehicleBase())
                                                     DoCast(plr->GetVehicleBase(), spell_charge);
@@ -1141,7 +1141,7 @@ public:
                                         {
                                             DoResetThreat();
                                             DoCast(plr, SPELL_INTERCEPT);
-                                            me->AddThreat(plr, 5.0f);
+                                            AddThreat(plr, 5.0f);
                                             break;
                                         }
                                         else
