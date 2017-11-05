@@ -395,7 +395,7 @@ struct boss_grand_championAI : BossAI
                 me->GetMotionMaster()->Clear();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // to prevent boss from bugging out
                 me->SetHealth(me->GetMaxHealth());
-                me->setRegeneratingHealth(true);
+                me->SetRegenerateHealth(true);
                 me->SetWalk(false);
                 mount->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 // sometimes a player can trample champion right when he is about to enter in vehicle
@@ -441,7 +441,7 @@ struct boss_grand_championAI : BossAI
             me->SetReactState(REACT_PASSIVE);
             me->SetHealth(1);
             me->CombatStop(true);
-            me->setRegeneratingHealth(false); // we don't regen health yet
+            me->SetRegenerateHealth(false); // we don't regen health yet
             me->GetMotionMaster()->MoveIdle();
             me->SetWalk(true);
             // Champion's current vehicle runs to the gates and despawns
@@ -527,7 +527,7 @@ struct boss_grand_championAI : BossAI
                 me->SetReactState(REACT_PASSIVE);
                 me->SetHealth(1);
                 me->CombatStop(true);
-                me->setRegeneratingHealth(false);
+                me->SetRegenerateHealth(false);
                 me->GetMotionMaster()->MoveIdle();
                 me->RemoveAura(SPELL_EARTH_SHIELD);
                 me->RemoveAura(SPELL_HASTE);
@@ -664,7 +664,7 @@ struct boss_grand_championAI : BossAI
             me->ApplySpellImmune(SPELL_TRAMPLE_AURA, IMMUNITY_ID, SPELL_TRAMPLE_AURA, false);
             me->GetMotionMaster()->MoveIdle();
             me->GetMotionMaster()->Clear();
-            me->setRegeneratingHealth(true);
+            me->SetRegenerateHealth(true);
             instance->SetData(DATA_REMOVE_VEHICLES, 0);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             uiPhase = 5;
