@@ -1339,37 +1339,36 @@ public:
             return true;
         }
 
+        bool HasAllSeenEvent(Player* player)
+        {
+            if (!player)
+                return false;
+
+            if (player->IsGameMaster())
+                return true;
+
+            bool seen = true;
+            Map::PlayerList const& players = player->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                if (Player const *plr = itr->GetSource())
+                {
+                    // if everyone from your group have completed one of the Trial of the Champion achievements, you have option to skip the event
+                    // maybe not the correct way to do it but I couldn't figure out better
+                    if (!plr->HasAchieved(4298) /* Heroic ToC (alliance) */ && !plr->HasAchieved(3778) /* Normal ToC (horde) */ && !plr->HasAchieved(4297) /* Heroic ToC (horde) */ && !plr->HasAchieved(4296) /* Normal ToC (alliance) */)
+                    {
+                        seen = false;
+                        break;
+                    }
+                }
+            }
+            return seen;
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_announcer_toc5AI>(creature);
-    }
-
-    bool HasAllSeenEvent(Player* player)
-    {
-        if (!player)
-            return false;
-
-        if (player->IsGameMaster())
-            return true;
-
-        bool seen = true;
-        Map::PlayerList const& players = player->GetMap()->GetPlayers();
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        {
-            if (Player const *plr = itr->GetSource())
-            {
-                // if everyone from your group have completed one of the Trial of the Champion achievements, you have option to skip the event
-                // maybe not the correct way to do it but I couldn't figure out better
-                if (!plr->HasAchieved(4298) /* Heroic ToC (alliance) */ && !plr->HasAchieved(3778) /* Normal ToC (horde) */ && !plr->HasAchieved(4297) /* Heroic ToC (horde) */ && !plr->HasAchieved(4296) /* Normal ToC (alliance) */)
-                {
-                    seen = false;
-                    break;
-                }
-            }
-        }
-        return seen;
     }
 };
 
