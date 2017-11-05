@@ -21,6 +21,7 @@ SDComment: missing fireworks when boss encounter is set to done
 SDCategory: Trial Of the Champion
 EndScriptData */
 
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

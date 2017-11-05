@@ -342,7 +342,7 @@ class boss_eadric : public CreatureScript
                             break;
                         case EVENT_CHALLENGE_DONE:
                             me->RemoveAllAuras();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().ClearAllThreat();
                             me->SetFullHealth();
                             me->RestoreFaction();
                             DoCastAOE(SPELL_EADRIC_ACH, true);

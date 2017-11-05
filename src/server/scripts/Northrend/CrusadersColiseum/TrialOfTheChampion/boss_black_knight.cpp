@@ -221,7 +221,7 @@ public:
                         DoCastVictim(SPELL_CLAW);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50.0f, true))
                         {
-                            DoResetThreat();
+                            ResetThreatList();
                             me->AddThreat(target, 10.0f);
                             me->AI()->AttackStart(target);
                         }
