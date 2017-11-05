@@ -1251,7 +1251,7 @@ void ObjectMgr::LoadGameObjectAddons()
 
         if (gameObjectAddon.WorldEffectID && !sWorldEffectStore.LookupEntry(gameObjectAddon.WorldEffectID))
         {
-            TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid worldEffect in `gameobject_addon`, set to default", guid);
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid WorldEffectID (%u) in `gameobject_addon`, set to 0.", guid, gameObjectAddon.WorldEffectID);
             gameObjectAddon.WorldEffectID = 0;
         }
 
@@ -7188,7 +7188,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 
         if (gameObjectAddon.WorldEffectID && !sWorldEffectStore.LookupEntry(gameObjectAddon.WorldEffectID))
         {
-            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid WorldEffectID (%u) defined in `gameobject_template_addon`, set to default", entry, gameObjectAddon.WorldEffectID);
+            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid WorldEffectID (%u) defined in `gameobject_template_addon`, set to 0.", entry, gameObjectAddon.WorldEffectID);
             gameObjectAddon.WorldEffectID = 0;
         }
 

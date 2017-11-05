@@ -268,7 +268,7 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
         SetUInt32Value(GAMEOBJECT_FACTION, m_goTemplateAddon->faction);
         SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
 
-        if (m_goTemplateAddon->WorldEffectID != 0)
+        if (m_goTemplateAddon->WorldEffectID)
         {
             m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
             SetWorldEffectID(m_goTemplateAddon->WorldEffectID);

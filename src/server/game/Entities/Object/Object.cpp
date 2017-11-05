@@ -669,7 +669,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
     if (HasGameObject)
     {
-        //Hackfix
         bool bit8 = false;
         uint32 Int1 = 0;
 
