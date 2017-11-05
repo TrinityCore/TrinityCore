@@ -129,7 +129,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             ConversationDynamicFieldActor actorField;
             actorField.ActorTemplate = *actor;
             actorField.Type = ConversationDynamicFieldActor::ActorType::CreatureActor;
-            SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex, &actorField);
+            SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIndex, &actorField);
         }
     }
 
