@@ -30,6 +30,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "SpellMgr.h"
 #include "Vehicle.h"
 #include "trial_of_the_champion.h"
 
