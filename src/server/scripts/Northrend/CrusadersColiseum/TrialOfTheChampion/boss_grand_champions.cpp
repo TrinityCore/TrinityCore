@@ -337,9 +337,9 @@ struct boss_grand_championAI : BossAI
                 if (pGrandChampion->HasAura(SPELL_KNEEL))
                 {
                     pGrandChampion->RemoveAllAuras();
-                    pGrandChampion->DeleteThreatList();
+                    pGrandChampion->GetThreatManager().ClearAllThreat();
                     pGrandChampion->SetLootRecipient(nullptr);
-                    pGrandChampion->setRegeneratingHealth(true);
+                    pGrandChampion->SetRegenerateHealth(true);
                     pGrandChampion->GetMotionMaster()->MoveTargetedHome();
                     pGrandChampion->AI()->Reset();
                 }

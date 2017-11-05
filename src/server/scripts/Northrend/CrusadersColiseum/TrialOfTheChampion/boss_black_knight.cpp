@@ -222,7 +222,7 @@ public:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50.0f, true))
                         {
                             ResetThreatList();
-                            me->AddThreat(target, 10.0f);
+                            AddThreat(target, 10.0f);
                             me->AI()->AttackStart(target);
                         }
                         events.ScheduleEvent(EVENT_CLAW, urand(12000, 15000));

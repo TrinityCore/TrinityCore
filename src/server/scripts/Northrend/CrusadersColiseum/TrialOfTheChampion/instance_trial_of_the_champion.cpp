@@ -221,7 +221,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
                                 champion->SetReactState(REACT_PASSIVE);
                                 champion->SetHealth(1);
                                 champion->CombatStop(true);
-                                champion->setRegeneratingHealth(false);
+                                champion->SetRegenerateHealth(false);
                                 champion->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                                 champion->SetHomePosition(745.87f, 625.88f, 411.17f, champion->GetHomePosition().GetOrientation());
                                 champion->GetMotionMaster()->MoveTargetedHome();
