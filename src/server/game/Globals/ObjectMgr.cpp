@@ -1228,7 +1228,7 @@ void ObjectMgr::LoadGameObjectAddons()
         gameObjectAddon.ParentRotation = QuaternionData(fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
         gameObjectAddon.invisibilityType = InvisibilityType(fields[5].GetUInt8());
         gameObjectAddon.InvisibilityValue = fields[6].GetUInt32();
-        gameObjectAddon.worldEffectID = fields[7].GetUInt32();
+        gameObjectAddon.WorldEffectID = fields[7].GetUInt32();
 
         if (gameObjectAddon.invisibilityType >= TOTAL_INVISIBILITY_TYPES)
         {
@@ -1249,10 +1249,10 @@ void ObjectMgr::LoadGameObjectAddons()
             gameObjectAddon.ParentRotation = QuaternionData();
         }
 
-        if (gameObjectAddon.worldEffectID && !sWorldEffectStore.LookupEntry(gameObjectAddon.worldEffectID))
+        if (gameObjectAddon.WorldEffectID && !sWorldEffectStore.LookupEntry(gameObjectAddon.WorldEffectID))
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid worldEffect in `gameobject_addon`, set to default", guid);
-            gameObjectAddon.worldEffectID = 0;
+            gameObjectAddon.WorldEffectID = 0;
         }
 
         ++count;
@@ -7167,7 +7167,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         gameObjectAddon.flags         = fields[2].GetUInt32();
         gameObjectAddon.mingold       = fields[3].GetUInt32();
         gameObjectAddon.maxgold       = fields[4].GetUInt32();
-        gameObjectAddon.worldeffectid = fields[5].GetUInt32();
+        gameObjectAddon.WorldEffectID = fields[5].GetUInt32();
 
         // checks
         if (gameObjectAddon.faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
@@ -7186,10 +7186,10 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
             }
         }
 
-        if (gameObjectAddon.worldeffectid && !sWorldEffectStore.LookupEntry(gameObjectAddon.worldeffectid))
+        if (gameObjectAddon.WorldEffectID && !sWorldEffectStore.LookupEntry(gameObjectAddon.WorldEffectID))
         {
-            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid worldeffectid (%u) defined in `gameobject_template_addon`, set to default", entry, gameObjectAddon.worldeffectid);
-            gameObjectAddon.worldeffectid = 0;
+            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid WorldEffectID (%u) defined in `gameobject_template_addon`, set to default", entry, gameObjectAddon.WorldEffectID);
+            gameObjectAddon.WorldEffectID = 0;
         }
 
         ++count;
