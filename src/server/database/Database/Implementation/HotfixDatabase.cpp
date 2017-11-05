@@ -1005,7 +1005,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_WMO_AREA_TABLE, "SELECT ID, AreaName_lang FROM wmo_area_table_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // WorldEffect.db2
-    PrepareStatement(HOTFIX_SEL_WORLD_EFFECT, "SELECT TargetAsset, CombatConditionID, TargetType, WhenToDisplay, QuestFeedbackEffectID, "
+    PrepareStatement(HOTFIX_SEL_WORLD_EFFECT, "SELECT ID, TargetAsset, CombatConditionID, TargetType, WhenToDisplay, QuestFeedbackEffectID, "
         "PlayerConditionID FROM world_effect ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // WorldMapArea.db2
