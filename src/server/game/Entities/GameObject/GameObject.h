@@ -289,6 +289,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         /// Event handler
         EventProcessor m_Events;
 
+        uint32 GetWorldEffectID() const { return _worldEffectID; }
+        void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
+
         void AIM_Destroy();
         bool AIM_Initialize();
 
@@ -346,5 +349,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         GameObjectAI* m_AI;
         uint16 _animKitId;
+        uint32 _worldEffectID;
 };
 #endif

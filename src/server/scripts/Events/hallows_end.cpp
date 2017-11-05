@@ -227,7 +227,7 @@ class spell_tricky_treat: public SpellScriptLoader
 
 enum HallowsEnd
 {
-    ITEM_WATER_BUCKET = 32971,
+    ITEM_WATER_BUCKET      = 32971,
     SPELL_HAS_WATER_BUCKET = 42336,
 };
 
