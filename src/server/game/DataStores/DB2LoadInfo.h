@@ -5102,6 +5102,7 @@ struct WorldEffectLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
+            { false, FT_INT, "ID" },
             { false, FT_INT, "TargetAsset" },
             { false, FT_SHORT, "CombatConditionID" },
             { false, FT_BYTE, "TargetType" },
