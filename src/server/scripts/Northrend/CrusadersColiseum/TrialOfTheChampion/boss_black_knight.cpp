@@ -402,7 +402,7 @@ public:
                 {
                     Creature* ghoul = ObjectAccessor::GetCreature(*me, *itr);
                     if (ghoul && ghoul->IsAlive() && !ghoul->HasAura(SPELL_GHOUL_EXPLODE))
-                        DoExplode();
+                        ENSURE_AI(npc_risen_ghoul::npc_risen_ghoulAI, ghoul->AI())->DoExplode();
                 }
             }
         }
