@@ -1286,7 +1286,7 @@ class TC_GAME_API Unit : public WorldObject
         bool CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* victim, bool triggered, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, ObjectGuid originalCaster = ObjectGuid::Empty);
         bool CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* victim = NULL, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, ObjectGuid originalCaster = ObjectGuid::Empty);
         bool CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit* victim = NULL, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, ObjectGuid originalCaster = ObjectGuid::Empty);
-        Aura* AddAura(uint32 spellId, Unit* target);
+        Aura* AddAura(uint32 spellId, Unit* target = nullptr);
         Aura* AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
 

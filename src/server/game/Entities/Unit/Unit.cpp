@@ -11911,10 +11911,10 @@ void Unit::SetPvP(bool state)
         RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_PVP);
 }
 
-Aura* Unit::AddAura(uint32 spellId, Unit* target)
+Aura* Unit::AddAura(uint32 spellId, Unit* target /*= nullptr*/)
 {
     if (!target)
-        return NULL;
+        target = this;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
