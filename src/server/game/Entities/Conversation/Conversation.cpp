@@ -17,6 +17,7 @@
 
 #include "Conversation.h"
 #include "Creature.h"
+#include "IteratorPair.h"
 #include "Map.h"
 #include "Unit.h"
 #include "UpdateData.h"
@@ -121,48 +122,44 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     SetUInt32Value(CONVERSATION_LAST_LINE_END_TIME, conversationTemplate->LastLineEndTime);
     _duration = conversationTemplate->LastLineEndTime;
 
-    uint16 actorsIndex = 0;
-
-    for (ConversationActorTemplate const* actor : conversationTemplate->Actors)
+    for (uint16 actorIndex = 0; actorIndex < conversationTemplate->Actors.size(); ++actorIndex)
     {
-        if (actor)
+        if (ConversationActorTemplate const* actor = conversationTemplate->Actors[actorIndex])
         {
             ConversationDynamicFieldActor actorField;
             actorField.ActorTemplate = *actor;
             actorField.Type = ConversationDynamicFieldActor::ActorType::CreatureActor;
-            SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex++, &actorField);
+            SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex, &actorField);
         }
-        else
-            ++actorsIndex;
     }
 
-    for (uint8 i = 0; i < conversationTemplate->ActorGuids.size(); ++i)
+    for (uint16 actorIndex = 0; actorIndex < conversationTemplate->ActorGuids.size(); ++actorIndex)
     {
-        auto bounds = map->GetCreatureBySpawnIdStore().equal_range(conversationTemplate->ActorGuids[i]);
+        ObjectGuid::LowType const& actorGuid = conversationTemplate->ActorGuids[actorIndex];
+        if (!actorGuid)
+            continue;
 
-        for (auto it = bounds.first; it != bounds.second; ++it)
+        for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), actorGuid))
         {
-            if (it->second->IsAlive())
-            {
-                AddActor(it->second->GetGUID(), i);
-                break;
-            }
+            // we just need the last one, overriding is legit
+            AddActor(pair.second->GetGUID(), actorIndex);
         }
     }
 
-    uint16 linesIndex = 0;
-    std::set<uint16> totalActorIdx;
+    std::set<uint16> actorIndices;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
     {
-        SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, line);
-
-        totalActorIdx.insert(line->ActorIdx);
+        actorIndices.insert(line->ActorIdx);
+        AddDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, line);
     }
 
     // All actors need to be set
-    for (uint16 actorIdx : totalActorIdx)
-        if (!GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx))
+    for (uint16 actorIdx : actorIndices)
+    {
+        ConversationDynamicFieldActor const* actor = GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx);
+        if (!actor || actor->IsEmpty())
             return false;
+    }
 
     if (!GetMap()->AddToMap(this))
         return false;

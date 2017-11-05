@@ -123,13 +123,10 @@ void ConversationDataStore::LoadConversationTemplates()
                 }
                 else
                     TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid actor (ID: %u) for Conversation %u, skipped", actorId, conversationId);
-
             }
-
-            if (actorId == 0 && actorGuid != 0)
+            else if (actorGuid != 0)
             {
-                CreatureData const* creData = sObjectMgr->GetCreatureData(actorGuid);
-                if (creData)
+                if (CreatureData const* creData = sObjectMgr->GetCreatureData(actorGuid))
                 {
                     std::vector<ObjectGuid::LowType>& guids = actorGuidsByConversation[conversationId];
                     if (guids.size() <= idx)
