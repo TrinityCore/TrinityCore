@@ -1315,24 +1315,24 @@ public:
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF + 1:
-                    ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, me->AI())->StartEncounter();
+                    StartEncounter();
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
-                    ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, me->AI())->StartEncounter(true);
+                    StartEncounter(true);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 3:
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, me->AI())->uiArgentChampion = NPC_EADRIC;
-                    ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, me->AI())->DoStartArgentChampionEncounter();
+                    uiArgentChampion = NPC_EADRIC;
+                    DoStartArgentChampionEncounter();
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 4:
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, me->AI())->uiArgentChampion = NPC_PALETRESS;
-                    ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, me->AI())->DoStartArgentChampionEncounter();
+                    uiArgentChampion = NPC_PALETRESS;
+                    DoStartArgentChampionEncounter();
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 5:
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, me->AI())->DoStartBlackKnight();
+                    DoStartBlackKnight();
                     break;
                 default:
                     break;
