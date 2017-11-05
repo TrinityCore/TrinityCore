@@ -39,11 +39,27 @@ enum eScenes
     SPELL_SCENE_MEETING_WITH_QUEEN      = 188539,
 };
 
+enum ePhaseSpells
+{
+    SPELL_PHASE_170 = 59073,
+    SPELL_PHASE_171 = 59074,
+    SPELL_PHASE_172 = 59087,
+    SPELL_PHASE_173 = 54341,
+
+    SPELL_PHASE_175 = 57569,
+    SPELL_PHASE_176 = 74789,
+    SPELL_PHASE_177 = 69819,
+
+    SPELL_PHASE_179 = 67789,
+    SPELL_PHASE_180 = 68480,
+    SPELL_PHASE_181 = 68481
+};
+
 enum ePhases
 {
-    PHASE_MARDUM_WELCOME        = 50,
-    PHASE_MARDUM_AFTER_BANNER   = 51,
-    PHASE_MARDUM_FELSABBER      = 52,
+    PHASE_MARDUM_WELCOME        = SPELL_PHASE_170,
+    PHASE_MARDUM_AFTER_BANNER   = SPELL_PHASE_171,
+    PHASE_MARDUM_FELSABBER      = SPELL_PHASE_172,
 };
 
 class PlayerScript_mardum_welcome_scene_trigger : public PlayerScript
@@ -53,12 +69,20 @@ public:
 
     uint32 checkTimer = 1000;
 
+    void OnLogin(Player* player, bool firstLogin) override
+    {
+        if (player->GetZoneId() == 7705 && firstLogin)
+        {
+            player->RemoveAurasDueToSpell(PHASE_MARDUM_WELCOME);
+        }
+    }
+
     void OnUpdate(Player* player, uint32 diff) override
     {
         if (checkTimer <= diff)
         {
-            if (player->GetZoneId() == 7705 && player->GetQuestStatus(QUEST_INVASION_BEGIN) == QUEST_STATUS_INCOMPLETE &&
-                player->GetPositionY() < 3280 && player->HasAura(SPELL_SCENE_MARDUM_WELCOME) &&
+            if (player->GetZoneId() == 7705 && player->GetQuestStatus(QUEST_INVASION_BEGIN) == QUEST_STATUS_NONE &&
+                player->GetPositionY() < 3280 && !player->HasAura(SPELL_SCENE_MARDUM_WELCOME) &&
                 !player->HasInPhaseList(PHASE_MARDUM_WELCOME))
             {
                 player->CastSpell(player, SPELL_SCENE_MARDUM_WELCOME, true);
@@ -66,7 +90,7 @@ public:
 
             checkTimer = 1000;
         }
-        else checkTimer -= 1000;
+        else checkTimer -= diff;
     }
 };
 
@@ -77,7 +101,7 @@ public:
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
-        player->AddPhase(PHASE_MARDUM_WELCOME);
+        player->AddAura(PHASE_MARDUM_WELCOME);
     }
 };
 
@@ -90,8 +114,6 @@ public:
     {
         if (quest->GetQuestId() == QUEST_INVASION_BEGIN)
         {
-            player->RemovePhase(PHASE_MARDUM_WELCOME);
-
             // Todo : Make creatures wing out
         }
         return true;
@@ -119,7 +141,7 @@ public:
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
-        player->AddPhase(PHASE_MARDUM_AFTER_BANNER);
+        player->AddAura(PHASE_MARDUM_AFTER_BANNER);
     }
 };
 
@@ -154,8 +176,42 @@ public:
         }
         else if (triggerName == "UPDATEPHASE")
         {
-            player->AddPhase(PHASE_MARDUM_FELSABBER);
+            player->AddAura(PHASE_MARDUM_FELSABBER);
         }
+    }
+};
+
+// 200176 - Learn felsaber
+class spell_learn_felsaber : public SpellScriptLoader
+{
+public:
+    spell_learn_felsaber() : SpellScriptLoader("spell_learn_felsaber") { }
+
+    class spell_learn_felsaber_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_learn_felsaber_SpellScript);
+
+        void HandleMountOnHit(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->RemoveAurasDueToSpell(PHASE_MARDUM_FELSABBER);
+
+            // We schedule this to let hover animation pass
+            GetCaster()->GetScheduler().Schedule(Seconds(1), [](TaskContext context)
+            {
+                Unit* contextUnit = context.GetContextUnit();
+                contextUnit->CastSpell(contextUnit, 200175, true); // Felsaber mount
+            });
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_learn_felsaber_SpellScript::HandleMountOnHit, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_learn_felsaber_SpellScript();
     }
 };
 
@@ -284,6 +340,7 @@ void AddSC_mardum()
     new scene_mardum_change_legion_banner();
     new go_mardum_portal_ashtongue();
     new scene_mardum_welcome_ashtongue();
+    new spell_learn_felsaber();
     new go_mardum_cage("go_mardum_cage_belath",     94400);
     new go_mardum_cage("go_mardum_cage_cyana",      94377);
     new go_mardum_cage("go_mardum_cage_izal",       93117);
