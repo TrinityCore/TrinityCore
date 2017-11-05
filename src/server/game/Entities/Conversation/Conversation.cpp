@@ -18,6 +18,7 @@
 #include "Conversation.h"
 #include "Creature.h"
 #include "IteratorPair.h"
+#include "Log.h"
 #include "Map.h"
 #include "Unit.h"
 #include "UpdateData.h"
@@ -154,11 +155,14 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     }
 
     // All actors need to be set
-    for (uint16 actorIdx : actorIndices)
+    for (uint16 actorIndex : actorIndices)
     {
-        ConversationDynamicFieldActor const* actor = GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx);
+        ConversationDynamicFieldActor const* actor = GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIndex);
         if (!actor || actor->IsEmpty())
+        {
+            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", conversationEntry, actorIndex);
             return false;
+        }
     }
 
     if (!GetMap()->AddToMap(this))

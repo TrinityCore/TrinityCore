@@ -109,7 +109,10 @@ void ConversationDataStore::LoadConversationTemplates()
             uint16 idx                    = fields[3].GetUInt16();
 
             if (actorId != 0 && actorGuid != 0)
-                TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references both actor (ID: %u) and actorGuid (GUID: " UI64FMTD ") for Conversation %u, GUID is ignored", actorId, actorGuid, conversationId);
+            {
+                TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references both actor (ID: %u) and actorGuid (GUID: " UI64FMTD ") for Conversation %u, skipped.", actorId, actorGuid, conversationId);
+                continue;
+            }
 
             if (actorId != 0)
             {
