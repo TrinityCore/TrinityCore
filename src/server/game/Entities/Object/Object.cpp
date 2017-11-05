@@ -350,7 +350,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool AnimKitCreate = (flags & UPDATEFLAG_ANIMKITS) != 0;
     bool Rotation = (flags & UPDATEFLAG_ROTATION) != 0;
     bool HasAreaTrigger = (flags & UPDATEFLAG_AREATRIGGER) != 0;
-    bool HasGameObject = false;
+    bool HasGameObject = (flags & UPDATEFLAG_GAMEOBJECT) != 0;;
     bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
     bool SmoothPhasing = false;
     bool SceneObjCreate = false;
@@ -667,14 +667,20 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
     }
 
-    //if (HasGameObject)
-    //{
-    //    *data << uint32(WorldEffectID);
-    //    data->WriteBit(bit8);
-    //    data->FlushBits();
-    //    if (bit8)
-    //        *data << uint32(Int1);
-    //}
+    if (HasGameObject)
+    {
+        bool bit8 = false;
+        uint32 Int1 = 0;
+
+        GameObject const* gameObject = ToGameObject();
+
+        *data << uint32(gameObject->GetWorldEffectID());
+
+        data->WriteBit(bit8);
+        data->FlushBits();
+        if (bit8)
+            *data << uint32(Int1);
+    }
 
     //if (SmoothPhasing)
     //{

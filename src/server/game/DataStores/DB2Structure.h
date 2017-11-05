@@ -2989,6 +2989,17 @@ struct WMOAreaTableEntry
     uint32 UWZoneMusic;
 };
 
+struct WorldEffectEntry
+{
+    uint32 ID;
+    uint32 TargetAsset;
+    uint16 CombatConditionID;
+    uint8 TargetType;
+    uint8 WhenToDisplay;
+    uint32 QuestFeedbackEffectID;
+    uint32 PlayerConditionID;
+};
+
 struct WorldMapAreaEntry
 {
     char const* AreaName;
