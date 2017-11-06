@@ -32,6 +32,3 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15, 9724, 1, 0, 0, 2, 0, 38653, 2, 0, 1, 0, 0, '', 'Show gossip menu 9724 option id 1 if player does not have 2 of Banana Bunch.'),
 (15, 9724, 2, 0, 0, 9, 0, 12634, 0, 0, 0, 0, 0, '', 'Show gossip menu 9724 option id 2 if quest Some Make Lemonade, Some Make Liquor has been taken.'),
 (15, 9724, 2, 0, 0, 2, 0, 38655, 1, 0, 1, 0, 0, '', 'Show gossip menu 9724 option id 2 if player does not have 1 of Papaya.');
-
-
-
