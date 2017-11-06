@@ -245,7 +245,7 @@ public:
                         if (me->IsWithinDistInMap(mekgineer, MAX_REPAIR_RANGE))
                         {
                             //are we already channeling? Doesn't work very well, find better check?
-                            if (!me->GetUInt32Value(UNIT_CHANNEL_SPELL))
+                            if (!me->GetChannelSpellId())
                             {
                                 //me->GetMotionMaster()->MovementExpired();
                                 //me->GetMotionMaster()->MoveIdle();

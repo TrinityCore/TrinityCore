@@ -1570,6 +1570,10 @@ class TC_GAME_API Unit : public WorldObject
         float GetNegStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_NEGSTAT+stat); }
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
 
+        uint32 GetChannelSpellId() const { return GetUInt32Value(UNIT_CHANNEL_SPELL); }
+        void SetChannelSpellId(uint32 channelSpellId) { SetUInt32Value(UNIT_CHANNEL_SPELL, channelSpellId); }
+        uint32 GetChannelSpellXSpellVisualId() const { return GetUInt32Value(UNIT_CHANNEL_SPELL_X_SPELL_VISUAL); }
+        void SetChannelSpellXSpellVisualId(uint32 channelSpellXSpellVisualId) { SetUInt32Value(UNIT_CHANNEL_SPELL_X_SPELL_VISUAL, channelSpellXSpellVisualId); }
         DynamicFieldStructuredView<ObjectGuid> GetChannelObjects() const { return GetDynamicStructuredValues<ObjectGuid>(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS); }
         void AddChannelObject(ObjectGuid guid) { AddDynamicStructuredValue(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS, &guid); }
 
