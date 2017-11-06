@@ -31,8 +31,8 @@
 
 SmartAI::SmartAI(Creature* creature) : CreatureAI(creature), mIsCharmed(false), mFollowCreditType(0), mFollowArrivedTimer(0), mFollowCredit(0), mFollowArrivedEntry(0), mFollowDist(0.f), mFollowAngle(0.f),
     _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNode(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),
-    _OOCReached(false), _waypointPathEnded(false), mRun(true), mEvadeDisabled(false), mCanAutoAttack(true), mCanCombatMove(true), mInvincibilityHpLevel(0), mDespawnTime(0), mDespawnState(0), mJustReset(false),
-    mConditionsTimer(0), _gossipReturn(false), mEscortQuestID(0)
+    _OOCReached(false), _waypointPathEnded(false), mRun(true), mEvadeDisabled(false), mCanAutoAttack(true), mCanCombatMove(true), mInvincibilityHpLevel(0), mDespawnTime(0), mDespawnState(0), mConditionsTimer(0),
+    _gossipReturn(false), mEscortQuestID(0)
 {
     mHasConditions = sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, creature->GetEntry());
 }
@@ -401,7 +401,7 @@ void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
         me->PauseMovement();
         me->SetHomePosition(me->GetPosition());
     }
-    else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+    else if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
         if (_currentWaypointNode == _path.nodes.size())
             _waypointPathEnded = true;
@@ -541,8 +541,8 @@ void SmartAI::JustAppeared()
     me->SetVisible(true);
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
-    mJustReset = true;
-    JustReachedHome();
+    if (!me->IsSummon())
+        GetScript()->OnReset();
     GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     mFollowGuid.Clear(); // do not reset follower on Reset(), we need it after combat evade
     mFollowDist = 0;
@@ -557,23 +557,18 @@ void SmartAI::JustReachedHome()
 {
     GetScript()->OnReset();
 
-    if (!mJustReset)
+    GetScript()->ProcessEventsFor(SMART_EVENT_REACHED_HOME);
+
+    CreatureGroup* formation = me->GetFormation();
+    if (!formation || formation->getLeader() == me || !formation->isFormed())
     {
-        GetScript()->ProcessEventsFor(SMART_EVENT_REACHED_HOME);
-
-        CreatureGroup* formation = me->GetFormation();
-        if (!formation || formation->getLeader() == me || !formation->isFormed())
-        {
-            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE && me->GetWaypointPath())
-                me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
-            else
-                me->ResumeMovement();
-        }
-        else if (formation->isFormed())
-            me->GetMotionMaster()->MoveIdle(); // wait the order of leader
+        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE && me->GetWaypointPath())
+            me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+        else
+            me->ResumeMovement();
     }
-
-    mJustReset = false;
+    else if (formation->isFormed())
+        me->GetMotionMaster()->MoveIdle(); // wait the order of leader
 }
 
 void SmartAI::EnterCombat(Unit* enemy)
