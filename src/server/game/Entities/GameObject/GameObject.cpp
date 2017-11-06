@@ -55,7 +55,7 @@ QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0)
+    m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0), _worldEffectID(0)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -267,6 +267,12 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
     {
         SetUInt32Value(GAMEOBJECT_FACTION, m_goTemplateAddon->faction);
         SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
+
+        if (m_goTemplateAddon->WorldEffectID)
+        {
+            m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
+            SetWorldEffectID(m_goTemplateAddon->WorldEffectID);
+        }
     }
 
     SetEntry(goinfo->entry);
@@ -357,6 +363,12 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
     {
         m_invisibility.AddFlag(gameObjectAddon->invisibilityType);
         m_invisibility.AddValue(gameObjectAddon->invisibilityType, gameObjectAddon->InvisibilityValue);
+    }
+
+    if (gameObjectAddon && gameObjectAddon->WorldEffectID)
+    {
+        m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
+        SetWorldEffectID(gameObjectAddon->WorldEffectID);
     }
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
