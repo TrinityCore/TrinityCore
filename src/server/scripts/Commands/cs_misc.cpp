@@ -2182,9 +2182,9 @@ public:
         float x, y, z;
         motionMaster->GetDestination(x, y, z);
 
-        for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
+        for (uint8 itr = 0; itr < MAX_MOTION_SLOT; ++itr)
         {
-            MovementGenerator* movementGenerator = motionMaster->GetMotionSlot(i);
+            MovementGenerator* movementGenerator = motionMaster->GetMotionSlot(MovementSlot(itr));
             if (!movementGenerator)
             {
                 handler->SendSysMessage("Empty");

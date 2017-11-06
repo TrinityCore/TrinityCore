@@ -68,8 +68,10 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StopFollow(bool complete);
         bool IsEscortInvokerInRange();
 
+        void WaypointPathStarted(uint32 nodeId, uint32 pathId) override;
         void WaypointStarted(uint32 nodeId, uint32 pathId) override;
         void WaypointReached(uint32 nodeId, uint32 pathId) override;
+        void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         SmartScript* GetScript() { return &mScript; }
@@ -238,7 +240,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 mDespawnTime;
         uint32 mRespawnTime;
         uint32 mDespawnState;
-        bool mJustReset;
 
         // Vehicle conditions
         bool mHasConditions;
