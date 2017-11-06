@@ -147,7 +147,7 @@ public:
             }
         }
         
-        if (player->GetQuestStatus(entry) != QUEST_STATUS_NONE /* || player->IsActiveQuest(entry) ? */ )
+        if (player->GetQuestStatus(entry) != QUEST_STATUS_NONE)
         {
             player->RemoveActiveQuest(entry, false);
             player->RemoveRewardedQuest(entry);
