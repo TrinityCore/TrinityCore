@@ -257,6 +257,7 @@ uint32 ItemDynamicUpdateFieldFlags[CONTAINER_DYNAMIC_END] =
     UF_FLAG_OWNER | UF_FLAG_0x100,                          // ITEM_DYNAMIC_FIELD_BONUSLIST_IDS
     UF_FLAG_OWNER,                                          // ITEM_DYNAMIC_FIELD_ARTIFACT_POWERS
     UF_FLAG_OWNER,                                          // ITEM_DYNAMIC_FIELD_GEMS
+    UF_FLAG_OWNER,                                          // ITEM_DYNAMIC_FIELD_RELIC_TALENT_DATA
 };
 
 uint32 UnitUpdateFieldFlags[PLAYER_END] =
@@ -311,8 +312,8 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_BATTLE_PET_COMPANION_GUID+3
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_BATTLE_PET_DB_ID
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_BATTLE_PET_DB_ID+1
-    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_CHANNEL_SPELL
-    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_CHANNEL_SPELL_X_SPELL_VISUAL
+    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_FIELD_CHANNEL_DATA
+    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_FIELD_CHANNEL_DATA+1
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_SUMMONED_BY_HOME_REALM
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_BYTES_0
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_DISPLAY_POWER
@@ -2850,6 +2851,70 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+253
     UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+254
     UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+255
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+256
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+257
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+258
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+259
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+260
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+261
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+262
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+263
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+264
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+265
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+266
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+267
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+268
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+269
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+270
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+271
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+272
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+273
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+274
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+275
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+276
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+277
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+278
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+279
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+280
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+281
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+282
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+283
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+284
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+285
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+286
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+287
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+288
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+289
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+290
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+291
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+292
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+293
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+294
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+295
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+296
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+297
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+298
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+299
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+300
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+301
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+302
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+303
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+304
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+305
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+306
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+307
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+308
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+309
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+310
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+311
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+312
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+313
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+314
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+315
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+316
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+317
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+318
+    UF_FLAG_PRIVATE,                                        // PLAYER_EXPLORED_ZONES_1+319
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_REST_INFO
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_REST_INFO+1
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_REST_INFO+2
