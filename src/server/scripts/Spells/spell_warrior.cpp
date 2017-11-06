@@ -41,7 +41,8 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_PAUSE_RAGE_DECAY           = 109128,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
     SPELL_WARRIOR_CHARGE_SLOW_EFFECT                = 236027,
-    SPELL_WARRIOR_COLOSSUS_SMASH                    = 86346,
+    SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
+    SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT             = 208086,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
@@ -54,6 +55,7 @@ enum WarriorSpells
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
+    SPELL_WARRIOR_MORTAL_WOUNDS                     = 213667,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_REND                              = 94009,
     SPELL_WARRIOR_RETALIATION_DAMAGE                = 22858,
@@ -235,6 +237,39 @@ class spell_warr_charge_effect : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_warr_charge_effect_SpellScript();
+        }
+};
+
+// 167105 - Colossus Smash 7.1.5
+class spell_warr_colossus_smash : public SpellScriptLoader
+{
+    public:
+        spell_warr_colossus_smash() : SpellScriptLoader("spell_warr_colossus_smash") { }
+
+        class spell_warr_colossus_smash_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_colossus_smash_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT });
+            }
+
+            void HandleOnHit()
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT, true);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_warr_colossus_smash_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warr_colossus_smash_SpellScript();
         }
 };
 
@@ -590,6 +625,39 @@ class spell_warr_last_stand : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_warr_last_stand_SpellScript();
+        }
+};
+
+// 12294 - Mortal Strike 7.1.5
+class spell_warr_mortal_strike : public SpellScriptLoader
+{
+    public:
+        spell_warr_mortal_strike() : SpellScriptLoader("spell_warr_mortal_strike") { }
+
+        class spell_warr_mortal_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_mortal_strike_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_WARRIOR_MORTAL_WOUNDS });
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_WARRIOR_MORTAL_WOUNDS, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_mortal_strike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warr_mortal_strike_SpellScript();
         }
 };
 
@@ -1367,6 +1435,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_charge();
     new spell_warr_charge_drop_fire_periodic();
     new spell_warr_charge_effect();
+    new spell_warr_colossus_smash();
     new spell_warr_concussion_blow();
     new spell_warr_execute();
     new spell_warr_heroic_leap();
@@ -1376,6 +1445,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_item_t10_prot_4p_bonus();
     new spell_warr_lambs_to_the_slaughter();
     new spell_warr_last_stand();
+    new spell_warr_mortal_strike();
     new spell_warr_overpower();
     new spell_warr_rallying_cry();
     new spell_warr_rend();
