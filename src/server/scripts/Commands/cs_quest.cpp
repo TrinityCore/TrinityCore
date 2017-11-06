@@ -163,7 +163,6 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        
     }
 
     static bool HandleQuestComplete(ChatHandler* handler, char const* args)
