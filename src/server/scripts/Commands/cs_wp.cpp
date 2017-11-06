@@ -270,7 +270,7 @@ public:
         stmt->setUInt64(0, guidLow);
         WorldDatabase.Execute(stmt);
 
-        target->UpdateWaypointID(0);
+        target->UpdateCurrentWaypointInfo(0, 0);
 
         stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
         stmt->setUInt8(0, uint8(IDLE_MOTION_TYPE));
