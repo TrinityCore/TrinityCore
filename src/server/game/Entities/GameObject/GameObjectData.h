@@ -817,6 +817,7 @@ struct GameObjectTemplateAddon
     uint32  flags;
     uint32  mingold;
     uint32  maxgold;
+    uint32  WorldEffectID;
 };
 
 
@@ -844,6 +845,7 @@ struct GameObjectAddon
     QuaternionData ParentRotation;
     InvisibilityType invisibilityType;
     uint32 InvisibilityValue;
+    uint32 WorldEffectID;
 };
 
 // from `gameobject`
