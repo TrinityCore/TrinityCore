@@ -286,6 +286,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint16 GetAIAnimKitId() const override { return _animKitId; }
         void SetAnimKitId(uint16 animKitId, bool oneshot);
 
+        uint32 GetWorldEffectID() const { return _worldEffectID; }
+        void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
+
         void AIM_Destroy();
         bool AIM_Initialize();
 
@@ -338,5 +341,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         GameObjectAI* m_AI;
         uint16 _animKitId;
+        uint32 _worldEffectID;
 };
 #endif
