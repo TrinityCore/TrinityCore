@@ -879,7 +879,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        if (new_model_id > 0)
+        if (new_model_id > 0 && new_model_id != 19461)
         {
             ubot->SetDisplayId(new_model_id);
             return true;
@@ -914,8 +914,18 @@ public:
         }
         uint32 currDisplayId = ubot->GetDisplayId();
         uint32 npcbot_entry = bot->GetEntry();
-        TC_LOG_INFO("entities.unit","Setting display id of %u for npcbot entry %u",currDisplayId,npcbot_entry);
-        WorldDatabase.PExecute("update creature_template set modelid1 = %u, modelid3 = %u where entry = %u and entry between 70000 and 71000", currDisplayId, currDisplayId, npcbot_entry);
+        https://web.archive.org/web/20041129090319/http://www.worldofwarcraft.com
+        if (npcbot_entry <= 70235)
+        {
+            TC_LOG_INFO("entities.unit","Setting display id of %u for npcbot entry %u",currDisplayId,npcbot_entry);
+            WorldDatabase.PExecute("update creature_template set modelid1 = %u, modelid3 = %u where entry = %u and entry between 70000 and 71000", currDisplayId, currDisplayId, npcbot_entry);
+        }
+        else
+        {
+            TC_LOG_INFO("entities.unit","Setting display id of %u for npcbot entry %u",currDisplayId,npcbot_entry);
+            WorldDatabase.PExecute("update creature_template set modelid1 = %u, modelid2 = %u, modelid3 = %u, modelid4 = %u where entry = %u and entry between 70000 and 71000", currDisplayId, currDisplayId, currDisplayId, currDisplayId, npcbot_entry);
+        }
+    
         return true;
     }
     
