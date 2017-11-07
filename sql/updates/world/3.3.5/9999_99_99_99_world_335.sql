@@ -16,9 +16,12 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (28604, 0, 0, 3, 62, 0, 100, 0, 9724, 0, 0, 0, 11, 52073, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 0 Selected - Cast \'Dwarf Gives Orange\''),
 (28604, 0, 1, 3, 62, 0, 100, 0, 9724, 1, 0, 0, 11, 52074, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 1 Selected - Cast \'Dwarf Gives Banana\''),
 (28604, 0, 2, 3, 62, 0, 100, 0, 9724, 2, 0, 0, 11, 52076, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 2 Selected - Cast \'Dwarf Gives Papaya\''),
-(28604, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Say Line 1'),
-(28604, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Despawn Instant'),
-(28604, 0, 5, 0, 37, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Initialize - Say Line 0');
+(28604, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Close Gossip'),
+(28604, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 83, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Remove Gossip Flag'),
+(28604, 0, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Say Line 1'),
+(28604, 0, 6, 7, 61, 0, 100, 0, 0, 0, 0, 0, 46, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Move Forward 8 Yards'),
+(28604, 0, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 4000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Despawn In 4000 ms'),
+(28604, 0, 10, 0, 37, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Initialize - Say Line 0');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14, 15) AND `SourceGroup` IN (9678, 9720, 9724);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
