@@ -2948,7 +2948,8 @@ enum LockType
     LOCKTYPE_SLOW_CLOSE            = 18,
     LOCKTYPE_FISHING               = 19,
     LOCKTYPE_INSCRIPTION           = 20,
-    LOCKTYPE_OPEN_FROM_VEHICLE     = 21
+    LOCKTYPE_OPEN_FROM_VEHICLE     = 21,
+    LOCKTYPE_ARCHAEOLOGY           = 22,
 };
 
 enum TrainerType                                            // this is important type for npcs!
@@ -3415,6 +3416,7 @@ inline SkillType SkillByLockType(LockType locktype)
         case LOCKTYPE_MINING:      return SKILL_MINING;
         case LOCKTYPE_FISHING:     return SKILL_FISHING;
         case LOCKTYPE_INSCRIPTION: return SKILL_INSCRIPTION;
+        case LOCKTYPE_ARCHAEOLOGY: return SKILL_ARCHAEOLOGY;
         default: break;
     }
     return SKILL_NONE;

@@ -23,6 +23,7 @@
 #include "GroupReference.h"
 #include "MapReference.h"
 
+#include "Archaeology.h"
 #include "Item.h"
 #include "PetDefines.h"
 #include "QuestDef.h"
@@ -58,6 +59,7 @@ class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
 class PlayerAI;
+class Archaeology;
 
 struct CharacterCustomizeInfo;
 
@@ -1410,6 +1412,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
         void StoreLootItem(uint8 lootSlot, Loot* loot);
+        void StoreLootCurrency(uint8 lootSlot, Loot* loot);
 
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL, uint32* itemLimitCategory = NULL) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item* pItem = NULL, bool swap = false, uint32* no_space_count = NULL) const;
@@ -1952,6 +1955,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdateCraftSkill(uint32 spellid);
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1);
         bool UpdateFishingSkill();
+
+        inline void SurveyDigSite() { _archaeology.UseSite(); }
+        inline void NotifyRequestResearchHistory() { _archaeology.SendResearchHistory(); }
+        inline bool ArchProjectCompleteable(uint32 projectId) { return _archaeology.ProjectCompleteable(uint16(projectId)); }
+        inline bool HasArchProject(uint32 projectId) { return _archaeology.ProjectExists(uint16(projectId)); }
+        inline void CompleteArchProject(uint32 projectId) { _archaeology.CompleteProject(uint16(projectId)); }
+        inline void SetArchData(struct ArchData *data) { _archaeology.SetArchData(data); }
 
         float GetHealthBonusFromStamina();
         float GetManaBonusFromIntellect();
@@ -2887,6 +2897,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
+
+        Archaeology _archaeology;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

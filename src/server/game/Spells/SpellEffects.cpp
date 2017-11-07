@@ -167,7 +167,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectDismissPet,                               //102 SPELL_EFFECT_DISMISS_PET
     &Spell::EffectReputation,                               //103 SPELL_EFFECT_REPUTATION
     &Spell::EffectSummonObject,                             //104 SPELL_EFFECT_SUMMON_OBJECT_SLOT1
-    &Spell::EffectSummonObject,                             //105 SPELL_EFFECT_SUMMON_OBJECT_SLOT2
+    &Spell::EffectSurvey,                                   //105 SPELL_EFFECT_SUMMON_OBJECT_SLOT2
     &Spell::EffectSummonRaidMarker,                         //106 SPELL_EFFECT_SUMMON_OBJECT_SLOT3
     &Spell::EffectSummonObject,                             //107 SPELL_EFFECT_SUMMON_OBJECT_SLOT4
     &Spell::EffectDispelMechanic,                           //108 SPELL_EFFECT_DISPEL_MECHANIC
@@ -1422,6 +1422,14 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
 
     if (num_to_add)
     {
+        uint32 projectId = GetSpellInfo()->ResearchProjectId;
+
+        if (projectId && !player->ArchProjectCompleteable(projectId))
+        {
+            player->SendEquipError(EQUIP_ERR_SPELL_FAILED_REAGENTS_GENERIC, NULL, NULL);
+            return;
+        }
+
         // create the new item and store it
         Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
 
@@ -1431,6 +1439,9 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
             player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
             return;
         }
+
+        if (projectId)
+            player->CompleteArchProject(projectId);
 
         // set the "Crafted by ..." property of the item
         if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
@@ -1789,7 +1800,12 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     }
 
     if (gameObjTarget)
-        SendLoot(guid, LOOT_SKINNING);
+    {
+        if (skillId == SKILL_ARCHAEOLOGY)
+            SendLoot(guid, LOOT_ARCHAEOLOGY);
+        else
+            SendLoot(guid, LOOT_SKINNING);
+    }
     else if (itemTarget)
         itemTarget->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_UNLOCKED);
 
@@ -3171,6 +3187,19 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
         ExecuteLogEffectSummonObject(effIndex, linkedTrap);
     }
+}
+
+void Spell::EffectSurvey(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    if (!m_caster || m_spellInfo->Id != uint32(80451) || effIndex != EFFECT_0)
+        return;
+
+    if (Player *player = m_caster->ToPlayer())
+        if (player->HasSkill(SKILL_ARCHAEOLOGY))
+            player->SurveyDigSite();
 }
 
 void Spell::EffectScriptEffect(SpellEffIndex effIndex)

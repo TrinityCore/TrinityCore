@@ -1077,6 +1077,7 @@ class TC_GAME_API WorldSession
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
         void SendStreamingMovie();
+        void HandleRequestResearchHistory(WorldPacket& recv_data);
         int32 HandleEnableNagleAlgorithm();
 
     public:

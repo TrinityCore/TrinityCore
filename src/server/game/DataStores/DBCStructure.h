@@ -74,6 +74,13 @@ struct AchievementCriteriaEntry
             uint64  winCount;                               // 4
         } win_bg;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS = 3
+        struct
+        {
+            uint32 unused;                                 // 3
+            uint32 count;                                  // 4
+        } archaeology;
+
         // ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL            = 5
         // ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL      = 125
         struct
@@ -1782,6 +1789,22 @@ struct QuestFactionRewEntry
   int32       QuestRewFactionValue[10];
 };
 
+struct QuestPOIBlobEntry
+{
+    uint32      id;                                         // 0 m_id
+    uint32      type;                                       // 1 m_type
+    uint32      mapId;                                      // 2 m_mapId
+    uint32      unk;                                        // 3 m_unk
+};
+
+struct QuestPOIPointEntry
+{
+    uint32      id;                                         // 0 m_id
+    int32       x;                                          // 1 m_zoneX
+    int32       y;                                          // 2 m_zoneY
+    uint32      blobId;                                     // 3 m_blobId
+};
+
 struct RandomPropertiesPointsEntry
 {
     //uint32  Id;                                           // 0 hidden key
@@ -1789,6 +1812,59 @@ struct RandomPropertiesPointsEntry
     uint32    EpicPropertiesPoints[5];                      // 2-6
     uint32    RarePropertiesPoints[5];                      // 7-11
     uint32    UncommonPropertiesPoints[5];                  // 12-16
+};
+
+// ResearchBranch.dbc
+struct ResearchBranchEntry
+{
+    uint32 ID;
+    char*  Name;
+    uint32 FieldID;
+    uint32 CurrencyID;
+    char*  Icon;
+    uint32 ItemID;
+};
+
+// ResearchField.dbc
+struct ResearchFieldEntry
+{
+    uint32 ID;
+    char*  Name;
+    uint32 Unk3; //Unknown?
+};
+
+// ResearchProject.dbc
+struct ResearchProjectEntry
+{
+    uint32 ID;
+    char*  Name;
+    char*  Description;
+    uint32 hasReward;
+    uint32 ResearchBranchID;
+    uint32 ProjectSpell;
+    uint32 Complexity;
+    char*  Path;
+    uint32 RequiredFragments;
+};
+
+// ResearchSite.dbc
+struct ResearchSiteEntry
+{
+    uint32  ID;
+    uint32  MapId;
+    uint32  QuestPOI;
+    char*   Name;
+    char*   Flags;
+
+    bool IsValid() const
+    {
+        return ID != 140 && // template
+            ID != 142 &&    // template
+            ID != 161 &&    // template
+            ID != 471 &&    // Vashj'ir
+            ID != 473 &&    // Vashj'ir
+            ID != 475;      // Vashj'ir
+    }
 };
 
 struct ScalingStatDistributionEntry
@@ -2022,7 +2098,7 @@ struct SpellEntry
     uint32 SpellShapeshiftId;                               // 44       SpellShapeshift.dbc
     uint32 SpellTargetRestrictionsId;                       // 45       SpellTargetRestrictions.dbc
     uint32 SpellTotemsId;                                   // 46       SpellTotems.dbc
-    //uint32 ResearchProject;                               // 47       ResearchProject.dbc
+    uint32 ResearchProjectId;                               // 47       ResearchProject.dbc
 };
 
 // SpellCategories.dbc

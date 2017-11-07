@@ -440,6 +440,27 @@ void Loot::AddItem(LootStoreItem const& item)
     }
 }
 
+void Loot::AddCurrency(uint32 entry, uint32 min, uint32 max)
+{
+    uint32 amount = urand(min, max);
+
+    currencies.push_back(LootCurrency(entry, amount));
+
+    unlootedCurrency++;
+}
+
+LootCurrency* Loot::LootCurrencyInSlot(uint32 lootSlot, Player* player)
+{
+    if (currencies[lootSlot].looted)
+        return NULL;
+
+    currencies[lootSlot].looted = true;
+
+    unlootedCurrency--;
+
+    return &(currencies[lootSlot]);
+}
+
 // Calls processor of corresponding LootTemplate (which handles everything including references)
 bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError, uint16 lootMode /*= LOOT_MODE_DEFAULT*/)
 {
@@ -1102,6 +1123,19 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 ++itemsShown;
             }
         }
+    }
+
+    for (uint8 i = 0; i < l.currencies.size(); ++i)
+    {
+        if (l.currencies[i].count == 0 || l.currencies[i].id == 0 || l.currencies[i].looted)
+            continue;
+
+        l.currencies[i].index = currenciesShown + itemsShown;
+
+        b << uint8(l.currencies[i].index);
+        b << uint32(l.currencies[i].id);
+        b << uint32(l.currencies[i].count);
+        ++currenciesShown;
     }
 
     //update number of items and currencies shown
