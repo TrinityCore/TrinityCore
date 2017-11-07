@@ -129,7 +129,7 @@ void ConversationDataStore::LoadConversationTemplates()
             }
             else if (actorGuid != 0)
             {
-                if (CreatureData const* creData = sObjectMgr->GetCreatureData(actorGuid))
+                if (sObjectMgr->GetCreatureData(actorGuid))
                 {
                     std::vector<ObjectGuid::LowType>& guids = actorGuidsByConversation[conversationId];
                     if (guids.size() <= idx)
