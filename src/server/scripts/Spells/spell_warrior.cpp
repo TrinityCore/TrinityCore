@@ -175,7 +175,7 @@ public:
     {
         PrepareSpellScript(spell_warr_jump_to_skyhold_SpellScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUMP_TO_SKYHOLD_TELEPORT))
                 return false;
@@ -1641,7 +1641,7 @@ public:
     {
         PrepareAuraScript(spell_warr_shield_block_AuraScript);
 
-        bool Validate(SpellInfo const*) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SHIELD_BLOCKC_TRIGGERED))
                 return false;
@@ -2174,7 +2174,7 @@ public:
     {
         PrepareSpellScript(spell_warr_ignore_pain_SpellScript);
 
-        bool Validate(SpellInfo const*) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_RENEWED_FURY))
                 return false;
@@ -2337,7 +2337,7 @@ public:
     {
         PrepareSpellScript(spell_warr_focused_rage_prot_SpellScript);
 
-        bool Validate(SpellInfo const*) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_VENGEANCE_IGNORE_PAIN))
                 return false;
