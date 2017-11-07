@@ -1,5 +1,8 @@
--- Vekjik, Avatar of Freya, Adventurous Dwarf
+-- Vekjik, Avatar of Freya, Adventurous Dwarf, Bushwhacker
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` IN (27801, 28315, 28604, 28317);
+
+-- Add immune to PC/NPC flag for Bushwhacker
+UPDATE `creature_template` SET `unit_flags` = `unit_flags` | 768 WHERE `entry` = 28317;
 
 DELETE FROM `event_scripts` WHERE `id` = 18503;
 INSERT INTO `event_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
@@ -14,7 +17,7 @@ UPDATE `creature_text` SET `emote`=5 WHERE `CreatureID`=28604 AND `GroupID`=0 AN
 UPDATE `creature_text` SET `emote`=3 WHERE `CreatureID`=28604 AND `GroupID`=1 AND `ID`=0;
 
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` IN (27801, 28315, 28604, 28317);
-DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryorguid` IN (2860400);
+DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryorguid` IN (2860400, 2831700);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (28315, 0, 0, 1, 62, 0, 100, 0, 9686, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Close Gossip'),
 (28315, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Say Line 0'),
@@ -34,8 +37,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2860400, 9, 5, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Action list - Despawn In 3000 ms'),
 (28604, 0, 4, 0, 1, 0, 100, 1, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - OOC No Repeat - Say Line 0'),
 (28317, 0, 0, 0, 54, 0, 100, 0, 1, 1, 0, 0, 69, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On Summon - Move To Summoner'),
-(28317, 0, 1, 0, 9, 0, 100, 0, 0, 3, 0, 0, 49, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Within 0-3 Yards - Start Attacking Summoner');
-
+(28317, 0, 1, 0, 34, 0, 100, 0, 0, 0, 0, 0, 80, 2831700, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On Movement Inform - Run Timed Actionlist 2831700'),
+(2831700, 9, 0, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 19, 768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Timed Actionlist - Remove Flags Immune to PC/NPC'),
+(2831700, 9, 1, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 49, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Timed Actionlist - Start Attacking Summoner'),
+(28317, 0, 2, 0, 7, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On evade - Despawn');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14, 15) AND `SourceGroup` IN (9678, 9720, 9724);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
