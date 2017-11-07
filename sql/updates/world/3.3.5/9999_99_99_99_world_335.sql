@@ -1,6 +1,10 @@
 -- Vekjik, Avatar of Freya, Adventurous Dwarf
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` IN (27801, 28315, 28604, 28317);
 
+DELETE FROM `event_scripts` WHERE `id` = 18503;
+INSERT INTO `event_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
+(18503,0,10,28317,360000,0,5439.275, 4853.403, -202.332, 1.4199417);
+
 DELETE FROM `gossip_menu_option` WHERE `MenuID` = 9724 AND `OptionID` IN (0, 2); -- 1 is already present in DB
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
 (9724, 0, 0, 'Can you spare an orange?', 28594, 1, 1, 0, 0, 0, 0, '', 0, 0),
