@@ -23,7 +23,6 @@ SDCategory: Sholazar_Basin
 EndScriptData */
 
 /* ContentData
-npc_bushwhacker
 npc_engineer_helice
 npc_jungle_punch_target
 spell_q12620_the_lifewarden_wrath
@@ -43,50 +42,7 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
-#include "TemporarySummon.h"
 #include "Vehicle.h"
-
-/*######
-## npc_bushwhacker
-######*/
-
-class npc_bushwhacker : public CreatureScript
-{
-public:
-    npc_bushwhacker() : CreatureScript("npc_bushwhacker") { }
-
-    struct npc_bushwhackerAI : public ScriptedAI
-    {
-        npc_bushwhackerAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        void InitializeAI() override
-        {
-            if (me->isDead())
-                return;
-
-            if (TempSummon* summ = me->ToTempSummon())
-                if (Unit* summoner = summ->GetSummoner())
-                    me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
-
-            Reset();
-        }
-
-        void UpdateAI(uint32 /*uiDiff*/) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_bushwhackerAI(creature);
-    }
-};
 
 /*######
 ## npc_engineer_helice
@@ -817,7 +773,6 @@ public:
 
 void AddSC_sholazar_basin()
 {
-    new npc_bushwhacker();
     new npc_engineer_helice();
     new npc_jungle_punch_target();
     new spell_q12620_the_lifewarden_wrath();
