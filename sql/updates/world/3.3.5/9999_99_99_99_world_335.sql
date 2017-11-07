@@ -6,22 +6,28 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 (9724, 0, 0, 'Can you spare an orange?', 28594, 1, 1, 0, 0, 0, 0, '', 0, 0),
 (9724, 2, 0, 'I could really use a papaya.', 28596, 1, 1, 0, 0, 0, 0, '', 0, 0);
 
+UPDATE `creature_text` SET `emote`=5 WHERE `CreatureID`=28604 AND `GroupID`=0 AND `ID`=0;
+UPDATE `creature_text` SET `emote`=3 WHERE `CreatureID`=28604 AND `GroupID`=1 AND `ID`=0;
+
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` IN (27801, 28315, 28604);
+DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryorguid` IN (2860400);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (28315, 0, 0, 1, 62, 0, 100, 0, 9686, 0, 0, 0, 72, 9686, 13138, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Close Gossip'),
 (28315, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Say Line 0'),
 (28315, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 15, 12573, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Quest Credit \'Making Peace\''),
 (28315, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 51469, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Cast \'Frenzyheart\'s Fury\''),
 (27801, 0, 0, 0, 62, 0, 100, 0, 9722, 0, 0, 0, 85, 52045, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Avatar of Freya - On Gossip Option 0 Selected - Invoker Cast \'Freya Conversation Credit\''),
-(28604, 0, 0, 3, 62, 0, 100, 0, 9724, 0, 0, 0, 11, 52073, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 0 Selected - Cast \'Dwarf Gives Orange\''),
-(28604, 0, 1, 3, 62, 0, 100, 0, 9724, 1, 0, 0, 11, 52074, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 1 Selected - Cast \'Dwarf Gives Banana\''),
-(28604, 0, 2, 3, 62, 0, 100, 0, 9724, 2, 0, 0, 11, 52076, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 2 Selected - Cast \'Dwarf Gives Papaya\''),
-(28604, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Close Gossip'),
-(28604, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 83, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Remove Gossip Flag'),
-(28604, 0, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Say Line 1'),
-(28604, 0, 6, 7, 61, 0, 100, 0, 0, 0, 0, 0, 46, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Move Forward 8 Yards'),
-(28604, 0, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 4000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Despawn In 4000 ms'),
-(28604, 0, 8, 0, 37, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Initialize - Say Line 0');
+(28604, 0, 0, 3, 62, 0, 100, 0, 9724, 0, 0, 0, 85, 52073, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 0 Selected - Cast \'Dwarf Gives Orange\''),
+(28604, 0, 1, 3, 62, 0, 100, 0, 9724, 1, 0, 0, 85, 52074, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 1 Selected - Cast \'Dwarf Gives Banana\''),
+(28604, 0, 2, 3, 62, 0, 100, 0, 9724, 2, 0, 0, 85, 52076, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 2 Selected - Cast \'Dwarf Gives Papaya\''),
+(28604, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 2860400, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Close Gossip'),
+(2860400, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Close Gossip'),
+(2860400, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 83, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Remove Gossip Flag'),
+(2860400, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Set Orientation'),
+(2860400, 9, 3, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Say Line 1'),
+(2860400, 9, 4, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 114, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 25, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Move Forward 8 Yards'),
+(2860400, 9, 5, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Despawn In 4000 ms'),
+(28604, 0, 4, 0, 1, 0, 100, 1, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - Occ no repeat - Say Line 0');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14, 15) AND `SourceGroup` IN (9678, 9720, 9724);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
