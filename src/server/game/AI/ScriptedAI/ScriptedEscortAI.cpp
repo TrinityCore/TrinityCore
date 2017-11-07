@@ -123,8 +123,6 @@ void EscortAI::JustDied(Unit* /*killer*/)
 
 void EscortAI::JustAppeared()
 {
-    _escortState = STATE_ESCORT_NONE;
-
     if (!IsCombatMovementAllowed())
         SetCombatMovement(true);
 
@@ -134,7 +132,11 @@ void EscortAI::JustAppeared()
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
 
-    Reset();
+    if (!me->IsSummon())
+    {
+        _escortState = STATE_ESCORT_NONE;
+        Reset();
+    }
 }
 
 void EscortAI::ReturnToLastPoint()
