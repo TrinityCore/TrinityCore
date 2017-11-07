@@ -29,7 +29,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2860400, 9, 4, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 114, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 25, 0, 0, 'Adventurous Dwarf - On Action list - Move offset 25 Yards'),
 (2860400, 9, 5, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Action list - Despawn In 3000 ms'),
 (28604, 0, 4, 0, 1, 0, 100, 1, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - OOC No Repeat - Say Line 0'),
-(28317, 0, 0, 0, 54, 0, 100, 0, 1, 1, 0, 0, 69, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On Just Summoned - Move To Invoker');
+(28317, 0, 0, 0, 54, 0, 100, 0, 1, 1, 0, 0, 69, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On Summon - Move To Summoner'),
+(28317, 0, 1, 0, 9, 0, 100, 0, 0, 3, 0, 0, 49, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Within 0-3 Yards - Start Attacking Summoner');
+
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14, 15) AND `SourceGroup` IN (9678, 9720, 9724);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES

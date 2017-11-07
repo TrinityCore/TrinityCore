@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Sholazar_Basin
 SD%Complete: 100
-SDComment: Quest support: 12550, 12569, 12645, 12688, 12726, 13957
+SDComment: Quest support: 12550, 12645, 12688, 12726, 13957
 SDCategory: Sholazar_Basin
 EndScriptData */
 
