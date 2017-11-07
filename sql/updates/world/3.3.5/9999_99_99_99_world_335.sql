@@ -8,6 +8,10 @@ DELETE FROM `event_scripts` WHERE `id` = 18503;
 INSERT INTO `event_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
 (18503,0,10,28317,360000,0,5439.275, 4853.403, -202.332, 1.4199417);
 
+DELETE FROM `creature_text` WHERE `CreatureID` = 28317;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextID`, `TextRange`, `Comment`) VALUES
+(28317, 0, 0, '%s sniffs the air, catching the scent of something unusual.', 16, 0, 100, 0, 0, 0, 27731, 0, 'Bushwhacker');
+
 DELETE FROM `gossip_menu_option` WHERE `MenuID` = 9724 AND `OptionID` IN (0, 2); -- 1 is already present in DB
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
 (9724, 0, 0, 'Can you spare an orange?', 28594, 1, 1, 0, 0, 0, 0, '', 0, 0),
