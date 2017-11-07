@@ -15,7 +15,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (28315, 0, 0, 1, 62, 0, 100, 0, 9686, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Close Gossip'),
 (28315, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Say Line 0'),
 (28315, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 15, 12573, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Quest Credit \'Making Peace\''),
-(28315, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 11, 51469, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Cast \'Frenzyheart\'s Fury\''),
+(28315, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 51469, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Cast \'Frenzyheart\'s Fury\''),
 (27801, 0, 0, 1, 62, 0, 100, 0, 9722, 0, 0, 0, 85, 52045, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Avatar of Freya - On Gossip Option 0 Selected - Invoker Cast \'Freya Conversation Credit\''),
 (27801, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Avatar of Freya - On Gossip Option 0 Selected - Close Gossip'),
 (28604, 0, 0, 3, 62, 0, 100, 0, 9724, 0, 0, 0, 85, 52073, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 0 Selected - Cast \'Dwarf Gives Orange\''),
