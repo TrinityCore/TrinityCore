@@ -203,10 +203,10 @@ class TC_GAME_API SmartAI : public CreatureAI
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);
         void ReturnToLastOOCPos();
-        void UpdatePath(const uint32 diff);
-        void UpdateDespawn(uint32 diff);
-        // Vehicle conditions
         void CheckConditions(uint32 diff);
+        void UpdatePath(uint32 diff);
+        void UpdateFollow(uint32 diff);
+        void UpdateDespawn(uint32 diff);
 
         SmartScript mScript;
 
