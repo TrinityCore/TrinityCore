@@ -262,11 +262,15 @@ public:
 
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
+        std::ostringstream phases;
+        for (uint32 phaseId : object->GetPhases())
+            phases << phaseId << ", ";
+
         handler->PSendSysMessage(LANG_MAP_POSITION,
             mapId, (mapEntry ? mapEntry->name : unknown),
             zoneId, (zoneEntry ? zoneEntry->area_name : unknown),
             areaId, (areaEntry ? areaEntry->area_name : unknown),
-            object->GetPhaseMask(),
+            object->GetPhaseMask(), phases.str().c_str(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = object->GetTransport())
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
