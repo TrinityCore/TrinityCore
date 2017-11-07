@@ -616,10 +616,15 @@ void Creature::Update(uint32 diff)
 {
     if (IsAIEnabled && m_triggerJustAppeared && m_deathState == ALIVE)
     {
-        if (m_respawnCompatibilityMode && m_vehicleKit)
-            m_vehicleKit->Reset();
+        if (m_respawnCompatibilityMode)
+        {
+            if (m_vehicleKit)
+                m_vehicleKit->Reset();
+
+            AI()->JustAppeared();
+        }
+
         m_triggerJustAppeared = false;
-        AI()->JustAppeared();
     }
 
     UpdateMovementFlags();
