@@ -20,14 +20,14 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (28604, 0, 0, 3, 62, 0, 100, 0, 9724, 0, 0, 0, 85, 52073, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 0 Selected - Cast \'Dwarf Gives Orange\''),
 (28604, 0, 1, 3, 62, 0, 100, 0, 9724, 1, 0, 0, 85, 52074, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 1 Selected - Cast \'Dwarf Gives Banana\''),
 (28604, 0, 2, 3, 62, 0, 100, 0, 9724, 2, 0, 0, 85, 52076, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option 2 Selected - Cast \'Dwarf Gives Papaya\''),
-(28604, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 2860400, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Close Gossip'),
-(2860400, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Close Gossip'),
-(2860400, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 83, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Remove Gossip Flag'),
-(2860400, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Set Orientation'),
-(2860400, 9, 3, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Say Line 1'),
-(2860400, 9, 4, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 114, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 25, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Move Forward 8 Yards'),
-(2860400, 9, 5, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Despawn In 4000 ms'),
-(28604, 0, 4, 0, 1, 0, 100, 1, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - Occ no repeat - Say Line 0');
+(28604, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 2860400, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Gossip Option Selected - Action list'),
+(2860400, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Action list - Close Gossip'),
+(2860400, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 83, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Action list - Remove Gossip Flag'),
+(2860400, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Action list - Set Orientation'),
+(2860400, 9, 3, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Action list - Say Line 1'),
+(2860400, 9, 4, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 114, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 25, 0, 0, 'Adventurous Dwarf - On Action list - Move offset 25 Yards'),
+(2860400, 9, 5, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Action list - Despawn In 3000 ms'),
+(28604, 0, 4, 0, 1, 0, 100, 1, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - OOC No Repeat - Say Line 0');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14, 15) AND `SourceGroup` IN (9678, 9720, 9724);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
