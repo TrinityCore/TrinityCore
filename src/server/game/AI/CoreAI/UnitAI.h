@@ -330,8 +330,10 @@ class TC_GAME_API UnitAI
         // Called when the dialog status between a player and the creature is requested.
         virtual uint32 GetDialogStatus(Player* /*player*/);
 
+        virtual void WaypointPathStarted(uint32 /*nodeId*/, uint32 /*pathId*/) { }
         virtual void WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/) { }
         virtual void WaypointReached(uint32 /*nodeId*/, uint32 /*pathId*/) { }
+        virtual void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) { }
 
     private:
         UnitAI(UnitAI const& right) = delete;
