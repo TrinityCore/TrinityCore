@@ -429,6 +429,8 @@ public:
             return false;
         }
 
+        std::string param = (char*)args;
+
         char const* talentStr = handler->GetTrinityString(LANG_TALENT);
         char const* passiveStr = handler->GetTrinityString(LANG_PASSIVE);
 
@@ -452,7 +454,7 @@ public:
                 aura->GetCasterGUID().ToString().c_str());
         }
 
-        if (args == "all")
+        if (param == "all")
         {
             for (uint16 i = 0; i < TOTAL_AURAS; ++i)
             {

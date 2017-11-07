@@ -110,7 +110,7 @@ class npc_kayn_sunfury_welcome : public CreatureScript
 public:
     npc_kayn_sunfury_welcome() : CreatureScript("npc_kayn_sunfury_welcome") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+    bool OnQuestAccept(Player* /*player*/, Creature* /*creature*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_INVASION_BEGIN)
         {
