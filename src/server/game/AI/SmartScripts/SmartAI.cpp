@@ -42,24 +42,6 @@ bool SmartAI::IsAIControlled() const
     return !mIsCharmed;
 }
 
-void SmartAI::UpdateDespawn(uint32 diff)
-{
-    if (mDespawnState <= 1 || mDespawnState > 3)
-        return;
-
-    if (mDespawnTime < diff)
-    {
-        if (mDespawnState == 2)
-        {
-            me->SetVisible(false);
-            mDespawnTime = 5000;
-            mDespawnState++;
-        }
-        else
-            me->DespawnOrUnsummon(0, Seconds(mRespawnTime));
-    } else mDespawnTime -= diff;
-}
-
 void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 1*/)
 {
     if (me->IsInCombat()) // no wp movement in combat
@@ -296,80 +278,15 @@ void SmartAI::ReturnToLastOOCPos()
     me->GetMotionMaster()->MovePoint(SMART_ESCORT_LAST_OOC_POINT, me->GetHomePosition());
 }
 
-void SmartAI::UpdatePath(const uint32 diff)
-{
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))
-        return;
-
-    if (_escortInvokerCheckTimer < diff)
-    {
-        if (!IsEscortInvokerInRange())
-        {
-            StopPath(0, mEscortQuestID, true);
-
-            // allow to properly hook out of range despawn action, which in most cases should perform the same operation as dying
-            GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, me);
-            me->DespawnOrUnsummon();
-            return;
-        }
-        _escortInvokerCheckTimer = 1000;
-    }
-    else
-        _escortInvokerCheckTimer -= diff;
-
-    // handle pause
-    if (HasEscortState(SMART_ESCORT_PAUSED) && (_waypointReached || _waypointPauseForced))
-    {
-        if (_waypointPauseTimer <= diff)
-        {
-            if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
-                ResumePath();
-        }
-        else
-            _waypointPauseTimer -= diff;
-    }
-    else if (_waypointPathEnded) // end path
-    {
-        _waypointPathEnded = false;
-        StopPath();
-        return;
-    }
-
-    if (HasEscortState(SMART_ESCORT_RETURNING))
-    {
-        if (_OOCReached) // reached OOC WP
-        {
-            _OOCReached = false;
-            RemoveEscortState(SMART_ESCORT_RETURNING);
-            if (!HasEscortState(SMART_ESCORT_PAUSED))
-                ResumePath();
-        }
-    }
-}
-
 void SmartAI::UpdateAI(uint32 diff)
 {
     CheckConditions(diff);
+
     GetScript()->OnUpdate(diff);
+
     UpdatePath(diff);
+    UpdateFollow(diff);
     UpdateDespawn(diff);
-
-    /// @todo move to void
-    if (!mFollowGuid.IsEmpty())
-    {
-        if (mFollowArrivedTimer < diff)
-        {
-            if (me->FindNearestCreature(mFollowArrivedEntry, INTERACTION_DISTANCE, true))
-            {
-                StopFollow(true);
-                return;
-            }
-
-            mFollowArrivedTimer = 1000;
-        }
-        else
-            mFollowArrivedTimer -= diff;
-    }
 
     if (!IsAIControlled())
         return;
@@ -968,6 +885,96 @@ void SmartAI::CheckConditions(uint32 diff)
     }
     else
         mConditionsTimer -= diff;
+}
+
+void SmartAI::UpdatePath(uint32 diff)
+{
+    if (!HasEscortState(SMART_ESCORT_ESCORTING))
+        return;
+
+    if (_escortInvokerCheckTimer < diff)
+    {
+        if (!IsEscortInvokerInRange())
+        {
+            StopPath(0, mEscortQuestID, true);
+
+            // allow to properly hook out of range despawn action, which in most cases should perform the same operation as dying
+            GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, me);
+            me->DespawnOrUnsummon();
+            return;
+        }
+        _escortInvokerCheckTimer = 1000;
+    }
+    else
+        _escortInvokerCheckTimer -= diff;
+
+    // handle pause
+    if (HasEscortState(SMART_ESCORT_PAUSED) && (_waypointReached || _waypointPauseForced))
+    {
+        if (_waypointPauseTimer <= diff)
+        {
+            if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
+                ResumePath();
+        }
+        else
+            _waypointPauseTimer -= diff;
+    }
+    else if (_waypointPathEnded) // end path
+    {
+        _waypointPathEnded = false;
+        StopPath();
+        return;
+    }
+
+    if (HasEscortState(SMART_ESCORT_RETURNING))
+    {
+        if (_OOCReached) // reached OOC WP
+        {
+            _OOCReached = false;
+            RemoveEscortState(SMART_ESCORT_RETURNING);
+            if (!HasEscortState(SMART_ESCORT_PAUSED))
+                ResumePath();
+        }
+    }
+}
+
+void SmartAI::UpdateFollow(uint32 diff)
+{
+    if (mFollowGuid.IsEmpty())
+    {
+        if (mFollowArrivedTimer < diff)
+        {
+            if (me->FindNearestCreature(mFollowArrivedEntry, INTERACTION_DISTANCE, true))
+            {
+                StopFollow(true);
+                return;
+            }
+
+            mFollowArrivedTimer = 1000;
+        }
+        else
+            mFollowArrivedTimer -= diff;
+    }
+}
+
+void SmartAI::UpdateDespawn(uint32 diff)
+{
+    if (mDespawnState <= 1 || mDespawnState > 3)
+        return;
+
+    if (mDespawnTime < diff)
+    {
+        if (mDespawnState == 2)
+        {
+            me->SetVisible(false);
+            mDespawnTime = 5000;
+            mDespawnState++;
+        }
+        else
+            me->DespawnOrUnsummon(0, Seconds(mRespawnTime));
+    }
+    else
+        mDespawnTime -= diff;
 }
 
 void SmartGameObjectAI::UpdateAI(uint32 diff)
