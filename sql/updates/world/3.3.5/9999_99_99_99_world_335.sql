@@ -40,13 +40,13 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2860400, 9, 4, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 114, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 25, 0, 0, 'Adventurous Dwarf - On Action list - Move offset 25 Yards'),
 (2860400, 9, 5, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - On Action list - Despawn In 3000 ms'),
 (28604, 0, 4, 0, 1, 0, 100, 1, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Adventurous Dwarf - OOC No Repeat - Say Line 0'),
-(28317, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 2, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On Summon - Move To Summoner'),
-(28317, 0, 1, 0, 34, 0, 100, 1, 1, 0, 0, 0, 80, 2831700, 34, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On Movement Inform - Run Timed Actionlist 2831700'),
-(2831700, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On Movement Inform - Play Emote 0'),
-(2831700, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Timed Actionlist - Say Line 0'),
-(2831700, 9, 2, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 19, 768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Timed Actionlist - Remove Flags Immune to PC/NPC'),
-(2831700, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Timed Actionlist - Start Attacking Summoner'),
-(28317, 0, 2, 0, 7, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On evade - Despawn');
+(28317, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 2, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On Summon - Move To Summoner'),
+(28317, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On summon - Play Emote 0'),
+(28317, 0, 2, 0, 34, 0, 100, 1, 1, 0, 0, 0, 80, 2831700, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On Movement Inform - Run Timed Actionlist 2831700'),
+(2831700, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Timed Actionlist - Say Line 0'),
+(2831700, 9, 1, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 19, 768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Timed Actionlist - Remove Flags Immune to PC/NPC'),
+(2831700, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - Timed Actionlist - Start Attacking Summoner'),
+(28317, 0, 3, 0, 7, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bushwhacker - On evade - Despawn');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14, 15) AND `SourceGroup` IN (9678, 9720, 9724);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
