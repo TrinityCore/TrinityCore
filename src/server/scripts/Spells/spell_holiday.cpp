@@ -923,14 +923,14 @@ class spell_pilgrims_bounty_a_serving_of : public SpellScriptLoader
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->CastSpell(target, uint32(aurEff->GetBaseAmount()), true);
+                target->CastSpell(target, uint32(aurEff->GetAmount()), true);
                 HandlePlate(target, true);
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->RemoveAurasDueToSpell(aurEff->GetBaseAmount());
+                target->RemoveAurasDueToSpell(aurEff->GetAmount());
                 HandlePlate(target, false);
             }
 
