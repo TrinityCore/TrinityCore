@@ -830,7 +830,7 @@ enum TrinityStrings
     LANG_PINFO_CHR_LEVEL_LOW            = 843,
     LANG_PINFO_CHR_RACE                 = 844,
     LANG_PINFO_CHR_ALIVE                = 845,
-    LANG_PINFO_CHR_PHASE                = 846,
+    LANG_PINFO_CHR_PHASES               = 846,
     LANG_PINFO_CHR_MONEY                = 847,
     LANG_PINFO_CHR_MAP                  = 848,
     LANG_PINFO_CHR_GUILD                = 849,
@@ -1146,7 +1146,7 @@ enum TrinityStrings
     LANG_COMMAND_MUTEHISTORY            = 5059,
     LANG_COMMAND_MUTEHISTORY_EMPTY      = 5060,
     LANG_COMMAND_MUTEHISTORY_OUTPUT     = 5061,
-
+    LANG_PHASE_NOTFOUND                 = 5083,
     // Room for more Trinity strings      5062-9999
 
     // Level requirement notifications

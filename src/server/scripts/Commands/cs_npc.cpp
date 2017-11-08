@@ -1097,7 +1097,13 @@ public:
         if (!*args)
             return false;
 
-        uint32 phase = atoul(args);
+        uint32 phaseID = uint32(atoi((char*)args));
+        if (!sPhaseStore.LookupEntry(phaseID))
+        {
+            handler->SendSysMessage(LANG_PHASE_NOTFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
         Creature* creature = handler->getSelectedCreature();
         if (!creature || creature->IsPet())
@@ -1108,8 +1114,8 @@ public:
         }
 
         creature->ClearPhases();
-        creature->SetInPhase(phase, true, true);
-        creature->SetDBPhase(phase);
+        creature->SetInPhase(phaseID, true, true);
+        creature->SetDBPhase(phaseID);
 
         creature->SaveToDB();
 
