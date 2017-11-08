@@ -272,8 +272,6 @@ public:
                     break;
             }
 
-            int32 insanity = caster->GetPower(POWER_INSANITY);
-
             caster->CastSpell(caster, SPELL_PRIEST_VOIDFORM_BUFFS, true);
         }
 
