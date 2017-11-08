@@ -53,7 +53,9 @@ enum HunterSpells
     SPELL_HUNTER_SERPENT_STING                      = 1978,
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
+    SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
+    SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED     = 53220,
     SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
     SPELL_LOCK_AND_LOAD_TRIGGER                     = 56453,
     SPELL_LOCK_AND_LOAD_MARKER                      = 67544
@@ -966,20 +968,77 @@ class spell_hun_steady_shot : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            void HandleOnHit()
+            void HandleLaunch(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_STEADY_SHOT_FOCUS, true);
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_hun_steady_shot_SpellScript::HandleOnHit);
+                OnEffectLaunchTarget += SpellEffectFn(spell_hun_steady_shot_SpellScript::HandleLaunch, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
             return new spell_hun_steady_shot_SpellScript();
+        }
+};
+
+// 53221 - 53221 - 53224 - Improved Steady Shot
+
+class spell_hun_improved_steady_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_improved_steady_shot() : SpellScriptLoader("spell_hun_improved_steady_shot") { }
+
+        class spell_hun_improved_steady_shot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_improved_steady_shot_AuraScript);
+
+            bool Load() override
+            {
+                _steadyShotCounter = 0;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_STEADY_SHOT))
+                    return false;
+
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (eventInfo.GetSpellInfo()->Id == SPELL_HUNTER_STEADY_SHOT)
+                {
+                    _steadyShotCounter++;
+                    if (_steadyShotCounter == 2)
+                    {
+                        GetCaster()->CastCustomSpell(SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetCaster(), true);
+                        _steadyShotCounter = 0;
+                    }
+                }
+                else
+                    _steadyShotCounter = 0;
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_improved_steady_shot_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+
+        uint8 _steadyShotCounter;
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_improved_steady_shot_AuraScript();
         }
 };
 
@@ -1168,6 +1227,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_scatter_shot();
     new spell_hun_sniper_training();
     new spell_hun_steady_shot();
+    new spell_hun_improved_steady_shot();
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
