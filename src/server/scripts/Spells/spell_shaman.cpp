@@ -1609,7 +1609,7 @@ public:
     {
         PrepareSpellScript(spell_shaman_windfury_weapon_SpellScript);
 
-        bool Validate(SpellInfo const*) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return sSpellMgr->GetSpellInfo(SPELL_SHAMAN_WINDFURY_WEAPON_PASSIVE) != nullptr;
         }
@@ -1677,7 +1677,7 @@ public:
     {
         PrepareSpellScript(spell_sha_earthquake_tick_SpellScript);
 
-        bool Validate(SpellInfo const* /*spell*/) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHQUAKE_TICK))
                 return false;
@@ -1743,7 +1743,7 @@ public:
     {
         PrepareSpellScript(spell_sha_frozen_power_SpellScript);
 
-        bool Validate(SpellInfo const * /*spellEntry*/) override
+        bool Validate(SpellInfo const * /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(8056))
                 return false;
@@ -1846,7 +1846,7 @@ public:
     {
         PrepareSpellScript(spell_sha_healing_stream_SpellScript);
 
-        bool Validate(SpellInfo const* /*spell*/) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_HEALING_STREAM))
                 return false;
@@ -2191,7 +2191,7 @@ public:
     {
         PrepareAuraScript(spell_sha_resurgence_AuraScript);
 
-        bool Validate(const SpellInfo* /* spellInfo */) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return (sSpellMgr->GetSpellInfo(SPELL_WATER_SHIELD)
                 && sSpellMgr->GetSpellInfo(SPELL_RESURGENCE)
@@ -2391,7 +2391,7 @@ public:
     {
         PrepareAuraScript(spell_sha_maelstrom_weapon_AuraScript);
 
-        bool Validate(SpellInfo const*) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_MAELSTROM_WEAPON_POWER))
                 return false;
@@ -2858,41 +2858,41 @@ public:
 // 170374 - Earthen Rage (Passive)
 class spell_sha_earthen_rage_passive : public SpellScriptLoader
 {
-    public:
-        spell_sha_earthen_rage_passive() : SpellScriptLoader("spell_sha_earthen_rage_passive") { }
+public:
+    spell_sha_earthen_rage_passive() : SpellScriptLoader("spell_sha_earthen_rage_passive") { }
         
-            class spell_sha_earthen_rage_passive_AuraScript : public AuraScript
-            {
-                PrepareAuraScript(spell_sha_earthen_rage_passive_AuraScript);
+    class spell_sha_earthen_rage_passive_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_earthen_rage_passive_AuraScript);
             
-                bool Validate(SpellInfo const* /*spellInfo*/) override
-                {
-                    if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE))
-                        return false;
-                    if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC))
-                        return false;
-                    if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE))
-                        return false;
-                    return true;
-                }
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE))
+                return false;
+            return true;
+        }
             
-                void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-                {
-                    PreventDefaultAction();
-                    GetAura()->Variables.Set("procTargetGUID", eventInfo.GetProcTarget()->GetGUID());
-                    eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC, true);
-                }
+        void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            GetAura()->Variables.Set("procTargetGUID", eventInfo.GetProcTarget()->GetGUID());
+            eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC, true);
+        }
             
-                void Register() override
-                {
-                    OnEffectProc += AuraEffectProcFn(spell_sha_earthen_rage_passive_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-                }
-            };
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_sha_earthen_rage_passive_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
        
-            AuraScript* GetAuraScript() const override
-            {
-                return new  spell_sha_earthen_rage_passive_AuraScript();
-            }
+    AuraScript* GetAuraScript() const override
+    {
+        return new  spell_sha_earthen_rage_passive_AuraScript();
+    }
 };
 
 // 170377 - Earthen Rage (Proc Aura)
@@ -3178,7 +3178,8 @@ public:
             RANGE = 10,
             DELAY = 10000
         };
-        void Reset()
+
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -3205,7 +3206,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_lightning_surge_totem_AI(creature);
     }
@@ -3228,7 +3229,7 @@ public:
             RANGE = 10,
             DELAY = 1000
         };
-        void Reset()
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -3254,7 +3255,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_resonance_totem_AI(creature);
     }
@@ -3277,7 +3278,7 @@ public:
             RANGE = 8,
             DELAY = 15000
         };
-        void Reset()
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             ApplyBuff();
@@ -3302,7 +3303,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_liquid_magma_totem_AI(creature);
     }
@@ -3328,7 +3329,7 @@ public:
             RANGE = 10,
             DELAY = 2000
         };
-        void Reset()
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             ApplyBuff();
@@ -3372,7 +3373,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_earth_grab_totem_AI(creature);
     }
@@ -3397,7 +3398,7 @@ public:
             DELAY = 1900
         };
 
-        void Reset()
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             ApplyBuff();
@@ -3424,7 +3425,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_healing_tide_totem_AI(creature);
     }
@@ -3447,7 +3448,7 @@ public:
             RANGE = 30,
             DELAY = 1000
         };
-        void Reset()
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -3473,7 +3474,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tailwind_totem_AI(creature);
     }
@@ -3496,7 +3497,7 @@ public:
             RANGE = 10,
             DELAY = 1000
         };
-        void Reset()
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -3522,7 +3523,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ember_totem_AI(creature);
     }
@@ -3545,7 +3546,7 @@ public:
             RANGE = 10,
             DELAY = 1000
         };
-        void Reset()
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             ApplyBuff();
@@ -3568,7 +3569,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_cloudburst_totem_AI(creature);
     }
@@ -3590,7 +3591,7 @@ public:
         };
 
 
-        void Reset()
+        void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             CreateAreaTrigger();
@@ -3608,7 +3609,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_earthen_shield_totem_AI(creature);
     }
@@ -3770,7 +3771,7 @@ public:
         {
             SPELL_TO_CAST = SPELL_TOTEM_ANCESTRAL_PROTECTION_AT
         };
-        void Reset()
+        void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             ApplyBuff();
@@ -3786,7 +3787,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ancestral_protection_totem_AI(creature);
     }
@@ -3995,7 +3996,7 @@ public:
             RANGE = 40,
             DELAY = 500
         };
-        void Reset()
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -4038,7 +4039,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_skyfury_totem_AI(creature);
     }
@@ -4059,7 +4060,7 @@ public:
             SPELL_TO_CAST = SPELL_TOTEM_GROUDING_TOTEM_EFFECT
 
         };
-        void Reset()
+        void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             ApplyBuff();
@@ -4074,7 +4075,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_grounding_totem_AI(creature);
     }

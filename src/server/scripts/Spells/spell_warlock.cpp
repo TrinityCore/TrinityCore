@@ -1161,7 +1161,7 @@ public:
     {
         PrepareAuraScript(spell_warl_health_funnel_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_HEALTH_FUNNEL_HEAL))
                 return false;
@@ -4136,7 +4136,7 @@ public:
             SPELL_FELGUARD_AXE_TOSS             = 89766
         };
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(eServiceSpells::SPELL_FELGUARD_AXE_TOSS) ||
                 !sSpellMgr->GetSpellInfo(eServiceSpells::SPELL_FELHUNTER_SPELL_LOCK) ||
@@ -4445,7 +4445,7 @@ public:
     {
         PrepareAuraScript(spell_warl_demonic_calling_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMONIC_CALLING_TRIGGER))
                 return false;
