@@ -1705,71 +1705,6 @@ public:
     }
 };
 
-class spell_sha_unleash_flame : public SpellScriptLoader
-{
-public:
-    spell_sha_unleash_flame() : SpellScriptLoader("spell_sha_unleash_flame") { }
-
-    class spell_sha_unleash_flame_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_unleash_flame_SpellScript);
-
-        void HandleAfterHit()
-        {
-            Unit* caster = GetCaster();
-            // Unleashed Flame
-            if (caster->HasAura(165477))
-                caster->CastSpell(caster, 118470, true);
-        }
-
-        void Register() override
-        {
-            AfterHit += SpellHitFn(spell_sha_unleash_flame_SpellScript::HandleAfterHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sha_unleash_flame_SpellScript();
-    }
-};
-
-class spell_sha_frozen_power : public SpellScriptLoader
-{
-public:
-    spell_sha_frozen_power() : SpellScriptLoader("spell_sha_frozen_power") { }
-
-    class spell_sha_frozen_power_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_frozen_power_SpellScript);
-
-        bool Validate(SpellInfo const * /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(8056))
-                return false;
-            return true;
-        }
-
-        void HandleAfterHit()
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-                if (Unit* target = GetHitUnit())
-                    if (_player->HasAura(SPELL_SHAMAN_FROZEN_POWER))
-                        _player->CastSpell(target, SPELL_SHAMAN_FROST_SHOCK_FREEZE, true);
-        }
-
-        void Register() override
-        {
-            AfterHit += SpellHitFn(spell_sha_frozen_power_SpellScript::HandleAfterHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sha_frozen_power_SpellScript();
-    }
-};
-
 class spell_sha_glyph_of_lakestrider : public SpellScriptLoader
 {
 public:
@@ -1877,45 +1812,6 @@ public:
     }
 };
 
-class spell_sha_hex : public SpellScriptLoader
-{
-public:
-    spell_sha_hex() : SpellScriptLoader("spell_sha_hex") { }
-
-    class spell_sha_hex_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_sha_hex_AuraScript);
-
-        void OnApply(const AuraEffect* /* aurEff */, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-            {
-                if (target->IsMounted())
-                {
-                    target->Dismount();
-                    target->RemoveAurasByType(SPELL_AURA_MOUNTED);
-                }
-
-                if (target->HasUnitState(UNIT_STATE_CASTING))
-                {
-                    target->InterruptSpell(CURRENT_GENERIC_SPELL);
-                    target->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                }
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_sha_hex_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_sha_hex_AuraScript();
-    }
-};
-
 // Spirit link
 class spell_sha_spirit_link : public SpellScriptLoader
 {
@@ -1984,95 +1880,6 @@ public:
     }
 };
 
-class spell_sha_ascendance_trigger : public SpellScriptLoader
-{
-public:
-    spell_sha_ascendance_trigger() : SpellScriptLoader("spell_sha_ascendance_trigger") { }
-
-    class spell_sha_ascendance_trigger_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_ascendance_trigger_SpellScript);
-
-        bool Load() override
-        {
-            _targets = 0;
-            return true;
-        }
-
-        void HandleHeal(SpellEffIndex /*effIndex*/)
-        {
-            SetHitHeal(GetHitHeal() / _targets);
-        }
-
-        void FilterTargets(std::list<WorldObject*>& unitList)
-        {
-            _targets = unitList.size();
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ascendance_trigger_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-            OnEffectHitTarget += SpellEffectFn(spell_sha_ascendance_trigger_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-        }
-
-        uint32 _targets;
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sha_ascendance_trigger_SpellScript();
-    }
-};
-
-class spell_sha_static_shock : public SpellScriptLoader
-{
-public:
-    spell_sha_static_shock() : SpellScriptLoader("spell_sha_static_shock") { }
-
-    class spell_sha_static_shock_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_static_shock_SpellScript);
-
-        void HandleOnHit()
-        {
-            Player* _player = GetCaster()->ToPlayer();
-            if (!_player)
-                return;
-
-            Unit* target = GetHitUnit();
-            if (!target)
-                return;
-
-            // Only while have Lightning Shield is active
-            if (!_player->HasAura(SPELL_SHAMAN_LIGHTNING_SHIELD_AURA))
-                return;
-
-            // Static Shock
-            if (!_player->HasAura(51527))
-                return;
-
-            float chance = float(GetSpellInfo()->ProcChance);
-            if (Player* modOwner = _player->GetSpellModOwner())
-                modOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_CHANCE_OF_SUCCESS, chance);
-
-            if (!roll_chance_f(chance))
-                return;
-
-            _player->CastSpell(target, SPELL_SHAMAN_LIGHTNING_SHIELD_ORB_DAMAGE, true);
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_sha_static_shock_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sha_static_shock_SpellScript();
-    }
-};
-
 class spell_sha_spiritwalkers_grace : public SpellScriptLoader
 {
 public:
@@ -2098,68 +1905,6 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_sha_spiritwalkers_grace_SpellScript();
-    }
-};
-
-class spell_sha_unleash_elements : public SpellScriptLoader
-{
-public:
-    spell_sha_unleash_elements() : SpellScriptLoader("spell_sha_unleash_elements") { }
-
-    class spell_sha_unleash_elements_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
-
-        void HandleOnHit()
-        {
-            Unit* caster = GetCaster();
-            //TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_DISALLOW_PROC_EVENTS);
-            caster->CastSpell(caster, 73683, true); // Unleash Flame
-            caster->CastSpell(caster, 73681, true); // Unleash Wind
-
-            // Unleashed Fury
-            if (caster->HasAura(117012))
-                caster->CastSpell(caster, 118472, true);
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sha_unleash_elements_SpellScript();
-    }
-};
-
-class spell_sha_unleash_life : public SpellScriptLoader
-{
-public:
-    spell_sha_unleash_life() : SpellScriptLoader("spell_sha_unleash_life") { }
-
-    class spell_sha_unleash_life_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_unleash_life_SpellScript);
-
-        void HandleOnHit()
-        {
-            Unit* caster = GetCaster();
-            // Unleashed Fury
-            if (caster->HasAura(165479))
-                caster->CastSpell(caster, 118473, true);
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_sha_unleash_life_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sha_unleash_life_SpellScript();
     }
 };
 
@@ -4213,7 +3958,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_ancestral_guidance();
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_ancestral_protection_totem_aura();
-    new spell_sha_ascendance_trigger();
     new spell_sha_ascendance_water();
     new spell_sha_ascendance_water_heal();
     new spell_sha_bloodlust();
@@ -4234,7 +3978,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_fire_nova();
     new spell_sha_flame_shock_elem();
     new spell_sha_flametongue();
-    new spell_sha_frozen_power();
     new spell_sha_fulmination();
     new spell_sha_fury_of_air();
     new spell_sha_glyph_of_healing_wave();
@@ -4244,7 +3987,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_healing_stream_totem();
     new spell_sha_healing_stream_totem_heal();
     new spell_sha_heroism();
-    new spell_sha_hex();
     new spell_sha_item_lightning_shield();
     new spell_sha_item_lightning_shield_trigger();
     new spell_sha_item_mana_surge();
@@ -4265,14 +4007,10 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_resurgence();
     new spell_sha_spirit_link();
     new spell_sha_spiritwalkers_grace();
-    new spell_sha_static_shock();
     new spell_sha_stormbringer();
     new spell_sha_thunderstorm();
     new spell_sha_tidal_waves();
     new spell_sha_totem_mastery();
-    new spell_sha_unleash_elements();
-    new spell_sha_unleash_flame();
-    new spell_sha_unleash_life();
     new spell_sha_wellspring();
     new spell_sha_windfury();
     new spell_shaman_windfury_weapon();

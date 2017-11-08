@@ -3640,7 +3640,7 @@ public:
     {
         npc_sef_earth_spirit_AI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
+        void Reset() override
         {
             //me->CastSpell(me->GetOwner(), SEF_MIRROR, true);
             if (!me->GetOwner())
@@ -3652,13 +3652,13 @@ public:
             me->CastSpell(me, SEF_STATS, true);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 /*uiDiff*/) override
         {
             //Check caster and cast the same shit somehow
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_sef_earth_spirit_AI(creature);
     }
@@ -3674,7 +3674,7 @@ public:
     {
         npc_sef_fire_spirit_AI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
+        void Reset() override
         {
             //me->CastSpell(me->GetOwner(), SEF_MIRROR, true);
             if (!me->GetOwner())
@@ -3686,13 +3686,13 @@ public:
             me->CastSpell(me, SEF_STATS, true);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 /*uiDiff*/) override
         {
             //Check caster and cast the same shit somehow
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_sef_fire_spirit_AI(creature);
     }
