@@ -1406,7 +1406,7 @@ public:
     {
         PrepareAuraScript(spell_hun_marking_targets_AuraScript);
 
-        bool CheckProc(ProcEventInfo& eventInfo)
+        bool CheckProc(ProcEventInfo& /*eventInfo*/)
         {
             // Called by Multi-shoot & Arcane Shot
             return false;
