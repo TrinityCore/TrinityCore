@@ -88,6 +88,7 @@ class TC_GAME_API AuraApplication
         void SetNeedClientUpdate();
         bool IsNeedClientUpdate() const { return _needClientUpdate; }
         void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove);
+        void SendFakeAuraUpdate(uint32 auraId, bool remove);
         void ClientUpdate(bool remove = false);
 };
 

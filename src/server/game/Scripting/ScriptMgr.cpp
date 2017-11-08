@@ -2290,6 +2290,16 @@ void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
     FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId);
 }
 
+void ScriptMgr::OnModifyPower(Player* player, Powers power, int32 oldValue, int32& newValue, bool regen, bool after)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(player, power, oldValue, newValue, regen, after);
+}
+
+void ScriptMgr::OnPlayerTakeDamage(Player* player, uint32 damage, SpellSchoolMask schoolMask)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTakeDamage(player, damage, schoolMask);
+}
+
 void ScriptMgr::OnSceneStart(Player* player, uint32 scenePackageId, uint32 sceneInstanceId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSceneStart(player, scenePackageId, sceneInstanceId);
