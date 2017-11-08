@@ -19,26 +19,24 @@
 /* ScriptData
 SDName: Terokkar_Forest
 SD%Complete: 85
-SDComment: Quest support: 9889, 10009, 10873, 10896, 10898, 11096, 10052, 10051. Skettis->Ogri'la Flight
+SDComment: Quest support: 9889, 10009, 10873, 10896, 10898, 11096, 10052, 10051.
+TODO check these and update
 SDCategory: Terokkar Forest
 EndScriptData */
 
 /* ContentData
 npc_unkor_the_ruthless
-npc_infested_root_walker
-npc_rotting_forest_rager
 npc_floon
 npc_isla_starmane
-npc_slim
+npc_skywing
+npc_akuno
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
-#include "GameObjectAI.h"
 #include "Group.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
+#include "ScriptedGossip.h" //TODO remove after migrating Floon
 #include "WorldSession.h"
 
 /*######
@@ -166,43 +164,6 @@ public:
 };
 
 /*######
-## npc_infested_root_walker
-######*/
-
-enum InfestedRootWalker
-{
-    SPELL_SUMMON_WOOD_MITES = 39130
-};
-
-class npc_infested_root_walker : public CreatureScript
-{
-public:
-    npc_infested_root_walker() : CreatureScript("npc_infested_root_walker") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_infested_root_walkerAI(creature);
-    }
-
-    struct npc_infested_root_walkerAI : public ScriptedAI
-    {
-        npc_infested_root_walkerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void DamageTaken(Unit* done_by, uint32 &damage) override
-        {
-            if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
-                if (me->GetHealth() <= damage)
-                    if (rand32() % 100 < 75)
-                        //Summon Wood Mites
-                        DoCast(me, SPELL_SUMMON_WOOD_MITES, true);
-        }
-    };
-};
-
-/*######
 ## npc_skywing
 ######*/
 
@@ -259,43 +220,6 @@ public:
         void UpdateAI(uint32 diff) override
         {
             EscortAI::UpdateAI(diff);
-        }
-    };
-};
-
-/*######
-## npc_rotting_forest_rager
-######*/
-
-enum RottingForestRager
-{
-    SPELL_SUMMON_LOTS_OF_WOOD_MITES = 39134
-};
-
-class npc_rotting_forest_rager : public CreatureScript
-{
-public:
-    npc_rotting_forest_rager() : CreatureScript("npc_rotting_forest_rager") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_rotting_forest_ragerAI(creature);
-    }
-
-    struct npc_rotting_forest_ragerAI : public ScriptedAI
-    {
-        npc_rotting_forest_ragerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void DamageTaken(Unit* done_by, uint32 &damage) override
-        {
-            if (done_by->GetTypeId() == TYPEID_PLAYER)
-                if (me->GetHealth() <= damage)
-                    if (rand32() % 100 < 75)
-                        //Summon Lots of Wood Mites
-                        DoCast(me, SPELL_SUMMON_LOTS_OF_WOOD_MITES, true);
         }
     };
 };
@@ -512,135 +436,6 @@ public:
     }
 };
 
-/*######
-## go_skull_pile
-######*/
-
-enum SkullPile
-{
-    OPTION_ID_GEZZARAK_THE_HUNTRESS = 0,
-    OPTION_ID_DARKSCREECHER_AKKARAI = 1,
-    OPTION_ID_KARROG                = 2,
-    OPTION_ID_VAKKIZ_THE_WINDRAGER  = 3,
-    GOSSIP_MENU_ID_SKULL_PILE       = 8660,
-    ADVERSARIAL_BLOOD               = 11885,
-    SUMMON_GEZZARAK_THE_HUNTRESS    = 40632,
-    SUMMON_KARROG                   = 40640,
-    SUMMON_DARKSCREECHER_AKKARAI    = 40642,
-    SUMMON_VAKKIZ_THE_WINDRAGER     = 40644
-};
-
-class go_skull_pile : public GameObjectScript
-{
-public:
-    go_skull_pile() : GameObjectScript("go_skull_pile") { }
-
-    struct go_skull_pileAI : public GameObjectAI
-    {
-        go_skull_pileAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (sender)
-            {
-                case GOSSIP_SENDER_MAIN:    SendActionMenu(player, action); break;
-            }
-            return true;
-        }
-
-        bool GossipHello(Player* player) override
-        {
-            if ((player->GetQuestStatus(ADVERSARIAL_BLOOD) == QUEST_STATUS_INCOMPLETE) || player->GetQuestRewardStatus(ADVERSARIAL_BLOOD))
-            {
-                AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_GEZZARAK_THE_HUNTRESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_DARKSCREECHER_AKKARAI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_KARROG, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-            }
-
-            SendGossipMenuFor(player, me->GetGOInfo()->questgiver.gossipID, me->GetGUID());
-            return true;
-        }
-
-        void SendActionMenu(Player* player, uint32 action)
-        {
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    player->CastSpell(player, SUMMON_GEZZARAK_THE_HUNTRESS, false);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    player->CastSpell(player, SUMMON_DARKSCREECHER_AKKARAI, false);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    player->CastSpell(player, SUMMON_KARROG, false);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 4:
-                    player->CastSpell(player, SUMMON_VAKKIZ_THE_WINDRAGER, false);
-                    break;
-            }
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_skull_pileAI(go);
-    }
-};
-
-/*######
-## npc_slim
-######*/
-
-enum Slim
-{
-    FACTION_CONSORTIUM  = 933,
-    NPC_TEXT_NEITHER_SLIM_NOR_SHADY = 9895,
-    NPC_TEXT_I_SEE_YOU_ARE_A_FRIEND = 9896
-};
-
-class npc_slim : public CreatureScript
-{
-public:
-    npc_slim() : CreatureScript("npc_slim") { }
-
-    struct npc_slimAI : public ScriptedAI
-    {
-        npc_slimAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_TRADE)
-                player->GetSession()->SendListInventory(me->GetGUID());
-
-            return true;
-        }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->IsVendor() && player->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
-            {
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                SendGossipMenuFor(player, NPC_TEXT_I_SEE_YOU_ARE_A_FRIEND, me->GetGUID());
-            }
-            else
-                SendGossipMenuFor(player, NPC_TEXT_NEITHER_SLIM_NOR_SHADY, me->GetGUID());
-
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_slimAI(creature);
-    }
-};
-
 /*########
 ####npc_akuno
 #####*/
@@ -707,12 +502,8 @@ public:
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
-    new npc_infested_root_walker();
-    new npc_rotting_forest_rager();
     new npc_floon();
     new npc_isla_starmane();
-    new go_skull_pile();
     new npc_skywing();
-    new npc_slim();
     new npc_akuno();
 }
