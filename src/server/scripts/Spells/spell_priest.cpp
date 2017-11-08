@@ -205,7 +205,7 @@ public:
     {
         PrepareSpellScript(spell_pri_void_bolt_SpellScript);
 
-        bool Validate(SpellInfo const*) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VOID_BOLT))
                 return false;
@@ -329,7 +329,7 @@ public:
     {
         PrepareSpellScript(spell_pri_void_eruption_SpellScript);
 
-        bool Validate(SpellInfo const*) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VOID_ERUPTION) ||
                 !sSpellMgr->GetSpellInfo(SPELL_PRIEST_VOID_ERUPTION_DAMAGE))
@@ -1049,7 +1049,7 @@ public:
     {
         PrepareSpellScript(spell_pri_mind_sear_SpellScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_MIND_SEAR_INSANITY))
                 return false;
@@ -1591,7 +1591,7 @@ public:
     {
         PrepareSpellScript(spell_pri_leap_of_faith_SpellScript);
 
-        bool Validate(SpellInfo const*) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEAP_OF_FAITH_GLYPH)
                 && sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEAP_OF_FAITH_EFFECT);
@@ -2401,7 +2401,7 @@ public:
     {
         PrepareSpellScript(spell_pri_void_shift_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellEntry*/) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VOID_SHIFT))
                 return false;
@@ -2655,7 +2655,7 @@ public:
     {
         PrepareSpellScript(spell_pri_shadow_mend_SpellScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOW_MEND_AURA) ||
                 !sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOW_MEND_DAMAGE))
@@ -2849,7 +2849,7 @@ public:
     {
         PrepareAuraScript(spell_pri_atonement_AuraScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_AURA) ||
                 !sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_HEAL))
@@ -2951,7 +2951,7 @@ public:
     {
         PrepareSpellScript(spell_pri_angelic_feather_SpellScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER) ||
                 !sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AT))
@@ -2999,7 +2999,7 @@ public:
     {
         PrepareSpellScript(spell_pri_smite_SpellScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SMITE_ABSORB))
                 return false;
@@ -3093,7 +3093,7 @@ public:
     {
         PrepareAuraScript(spell_pri_focused_will_AuraScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_FOCUSED_WILL_BUFF))
                 return false;

@@ -1963,7 +1963,6 @@ public:
         SpellCastResult CheckCastMeet()
         {
             Unit* pet = GetCaster()->GetGuardianPet();
-            Unit* petTarget = GetExplTargetUnit();
 
             if (!pet || pet->isDead())
                 return SPELL_FAILED_NO_PET;

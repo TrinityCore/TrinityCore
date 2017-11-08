@@ -3152,7 +3152,7 @@ public:
             SPELL_MONK_HEALING_SPHERE_COOLDOWN  = 224863
         };
 
-        void OnUpdate(uint32 diff) 
+        void OnUpdate(uint32 diff)  override
         {
             if(pickupDelay >= 0)
                 pickupDelay -= diff;
