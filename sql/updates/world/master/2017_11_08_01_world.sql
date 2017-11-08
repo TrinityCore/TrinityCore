@@ -7,4 +7,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `creature_template_addon` WHERE `entry`=38217;
 INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`aiAnimKit`,`movementAnimKit`,`meleeAnimKit`,`auras`) VALUES
-(38217,0,0,257,0,0,0,0, '18950');
+(38217,0,0,257,0,0,0,0, 0, '18950');
