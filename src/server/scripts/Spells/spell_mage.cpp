@@ -35,7 +35,12 @@ enum MageSpells
     SPELL_ARCANCE_POTENCY_RANK_2                 = 31572,
     SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1         = 57529,
     SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2         = 57531,
-    SPELL_MAGE_ARCANE_MISSILES                   = 79808,
+
+    SPELL_MAGE_ARCANE_BLAST                      = 30451,
+    SPELL_MAGE_ARCANE_MISSILES                   = 5143,
+    SPELL_MAGE_ARCANE_MISSILES_DAMAGE            = 7268,
+    SPELL_MAGE_ARCANE_MISSILES_AURASTATE         = 79808,
+
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
@@ -1502,19 +1507,19 @@ public:
  
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES))
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES_AURASTATE))
                 return false;
             return true;
         }
- 
+
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_MISSILES);
+            GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_MISSILES_AURASTATE);
         }
  
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetCaster()->RemoveAura(SPELL_MAGE_ARCANE_MISSILES);
+            GetCaster()->RemoveAura(SPELL_MAGE_ARCANE_MISSILES_AURASTATE);
         }
  
         void Register() override
@@ -1527,6 +1532,74 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_mage_arcane_missiles_trigger_AuraScript();
+    }
+};
+
+// 79684 Offensive State (DND)
+class spell_mage_offensive_state_dnd : public SpellScriptLoader
+{
+public:
+    spell_mage_offensive_state_dnd() : SpellScriptLoader("spell_mage_offensive_state_dnd") { }
+
+    class spell_mage_offensive_state_dnd_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_offensive_state_dnd_AuraScript);
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES))
+                return false;
+
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES_DAMAGE))
+                return false;
+
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_BLAST))
+                return false;
+
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            // Don't proc when caster does not know Arcane Missiles
+            if (Player* playerCaster = GetCaster()->ToPlayer())
+                if (!playerCaster->HasSpell(SPELL_MAGE_ARCANE_MISSILES))
+                    return false;
+
+            // Don't proc Arcane Missiles from triggered Missiles
+            if (eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_MAGE_ARCANE_MISSILES_DAMAGE)
+                return false;
+
+            // Some spells have a increased chance of triggering the proc
+            switch (eventInfo.GetProcSpell()->GetSpellInfo()->Id)
+            {
+                case SPELL_MAGE_ARCANE_BLAST: // Arcane Blast has a 30% chance
+                    if (rand() % 100 < 30)
+                        return true;
+                    break;
+                default: // The default chance is at 15%
+                    if (rand() % 100 < 15)
+                        return true;
+                    break;
+            }
+
+            return false;
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_mage_offensive_state_dnd_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_offensive_state_dnd_AuraScript();
     }
 };
 
@@ -1562,4 +1635,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_time_warp();
     new spell_mage_water_elemental_freeze();
     new spell_mage_arcane_missiles_trigger();
+    new spell_mage_offensive_state_dnd();
 }
