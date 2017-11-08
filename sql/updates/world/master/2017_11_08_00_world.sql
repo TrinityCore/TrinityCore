@@ -8,7 +8,7 @@ DELETE FROM `quest_template_addon` WHERE `ID`=25073;
 INSERT INTO `quest_template_addon` (`ID`,`PrevQuestID`) VALUES (25073,38966);
 
 -- Remove duplicate gossip option
-DELETE FROM `gossip_menu_option` WHERE `menu_id`=10974 AND `id`=0;
+DELETE FROM `gossip_menu_option` WHERE `MenuId`=10974 AND `OptionIndex`=0;
 
 -- Condition for source Gossip menu option condition type Quest taken
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=10974 AND `SourceEntry`=1;
