@@ -34,7 +34,7 @@ npc_akuno
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "Group.h"
+#include "Group.h" //TODO remove after migrating Unkor
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h" //TODO remove after migrating Floon
