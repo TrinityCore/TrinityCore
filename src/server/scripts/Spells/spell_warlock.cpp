@@ -2042,8 +2042,9 @@ public:
             if (GetCaster())
             {
                 // This way if the current tick takes you below 4%, next tick won't execute
-                int32 basepoints = GetCaster()->CountPctFromMaxHealth(4);
-                if (GetCaster()->GetHealth() - basepoints <= basepoints)
+                uint64 basepoints = GetCaster()->CountPctFromMaxHealth(4);
+                if (GetCaster()->GetHealth() <= basepoints ||
+                    GetCaster()->GetHealth() - basepoints <= basepoints)
                     GetAura()->SetDuration(0);
             }
         }

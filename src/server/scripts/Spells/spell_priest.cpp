@@ -2713,8 +2713,6 @@ public:
             if (eventInfo.GetDamageInfo()->GetDamageType() == HEAL)
                 return false;
 
-            int32 damage = eventInfo.GetDamageInfo()->GetDamage();
-
             if (Aura* fear = GetAura())
             {
                 damageThreshold -= eventInfo.GetDamageInfo()->GetDamage();
