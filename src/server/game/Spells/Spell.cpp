@@ -4722,6 +4722,8 @@ void Spell::TakeRunePower(bool didHit)
             player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown() : uint32(RUNE_MISS_COOLDOWN), true);
             --runeCost;
         }
+
+        sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost, false, false);
     }
 }
 

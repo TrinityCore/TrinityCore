@@ -162,6 +162,20 @@ void AuraApplication::SetNeedClientUpdate()
     _target->SetVisibleAuraUpdate(this);
 }
 
+void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
+{
+    WorldPackets::Spells::AuraUpdate data;
+    data.UpdateAll = false;
+    data.UnitGUID = GetTarget()->GetGUID();
+
+    WorldPackets::Spells::AuraInfo inf;
+    inf.AuraData->SpellID = auraId;
+    BuildUpdatePacket(inf, remove);
+    data.Auras.push_back(inf);
+
+    _target->SendMessageToSet(data.Write(), true);
+}
+
 void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove)
 {
     ASSERT(_target->HasVisibleAura(this) != remove);

@@ -78,11 +78,13 @@ struct SceneTemplate;
 enum BattlegroundTypeId : uint32;
 enum Difficulty : uint8;
 enum DuelCompleteType : uint8;
+enum Powers : uint8;
 enum QuestStatus : uint8;
 enum RemoveMethod : uint8;
 enum ShutdownExitCode : uint32;
 enum ShutdownMask : uint32;
 enum SpellEffIndex : uint8;
+enum SpellSchoolMask;
 enum WeatherState : uint32;
 enum XPColorChar : uint8;
 
@@ -774,6 +776,12 @@ class TC_GAME_API PlayerScript : public UnitScript
         // Called after a player's quest status has been changed
         virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
 
+        // Called when a player power change
+        virtual void OnModifyPower(Player* /*player*/, Powers /*power*/, int32 /*oldValue*/, int32& /*newValue*/, bool /*regen*/, bool /*after*/) { }
+
+        // Called when a player take damage
+        virtual void OnTakeDamage(Player* /*player*/, uint32 /*damage*/, SpellSchoolMask /*schoolMask*/) { }
+
         // Called when a player start a standalone scene
         virtual void OnSceneStart(Player* /*player*/, uint32 /*scenePackageId*/, uint32 /*sceneInstanceID*/) { }
 
@@ -1171,6 +1179,8 @@ class TC_GAME_API ScriptMgr
         void OnQuestComplete(Player* player, const Quest* quest);
         void OnQuestAbandon(Player* player, const Quest* quest);
         void OnQuestStatusChange(Player* player, uint32 questId);
+        void OnModifyPower(Player* player, Powers power, int32 oldValue, int32& newValue, bool regen, bool after);
+        void OnPlayerTakeDamage(Player* player, uint32 damage, SpellSchoolMask schoolMask);
         void OnSceneStart(Player* player, uint32 scenePackageId, uint32 sceneInstanceId);
         void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string event);
         void OnSceneCancel(Player* player, uint32 sceneInstanceId);
