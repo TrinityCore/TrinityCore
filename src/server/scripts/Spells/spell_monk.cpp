@@ -522,7 +522,7 @@ public:
     {
         PrepareAuraScript(spell_monk_zen_flight_check_AuraScript);
 
-        bool Load()
+        bool Load() override
         {
             return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
         }
@@ -1553,12 +1553,12 @@ public:
 
 enum CracklingJade
 {
-    SPELL_MONK_CRACKLING_JADE_LIGHTNING = 117952,
-    SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC_DRIVER = 123332,
-    SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCK_BACK_DRIVER = 117959,
-    SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCK_BACK = 117962,
-    SPELL_MONK_CRACKLING_JADE_LIGHTNING_TALENT = 125648,
-    SPELL_MONK_CRACKLING_JAD_LIGHTNING_TALENT_SPEED = 125647,
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING                     = 117952,
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC_DRIVER     = 123332,
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCK_BACK_DRIVER   = 117959,
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCK_BACK          = 117962,
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING_TALENT              = 125648,
+    SPELL_MONK_CRACKLING_JAD_LIGHTNING_TALENT_SPEED         = 125647,
 };
 
 // 117962 - crackling jade lightning knockback
@@ -1593,43 +1593,6 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_monk_crackling_jade_knockback_SpellScript();
-    }
-};
-
-class spell_monk_paralysis : public SpellScriptLoader
-{
-public:
-    spell_monk_paralysis() : SpellScriptLoader("spell_monk_paralysis") { }
-
-    class spell_monk_paralysis_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_paralysis_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Unit* caster = GetCaster())
-            {
-                if (Unit* target = GetHitUnit())
-                {
-                    if (caster->HasAura(125755))
-                    {
-                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409)); // SW:D shall not be removed.
-                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
-                    }
-                }
-            }
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_monk_paralysis_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_monk_paralysis_SpellScript();
     }
 };
 
@@ -2030,7 +1993,7 @@ public:
 
         uint32 totalAbsorbAmount;
 
-        bool Load()
+        bool Load() override
         {
             totalAbsorbAmount = 0;
             return true;
@@ -2284,9 +2247,10 @@ public:
     {
         PrepareSpellScript(spell_monk_chi_wave_target_selector_SpellScript);
 
-        void OnLoad()
+        bool Load() override
         {
             m_shouldHeal = true; // just for initializing
+            return true;
         }
 
         void SelectTarget(std::list<WorldObject*>& targets)
@@ -3341,7 +3305,7 @@ public:
         PrepareAuraScript(spell_monk_dampen_harm_AuraScript);
         int32 healthPct;
 
-        bool Load()
+        bool Load() override
         {
             healthPct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(GetCaster());
             return GetUnitOwner()->ToPlayer();
@@ -3873,7 +3837,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_elusive_brawler_stacks();
     new spell_monk_energizing_brew();
     new spell_monk_enveloping_mist();
-    new spell_monk_essence_font_heal(); //I SPENT ONE FUCKING HOUR BECAUSE OF THIS FUCKING LINE
+    new spell_monk_essence_font_heal();
     new spell_monk_expel_harm();
     new spell_monk_fists_of_fury();
     new spell_monk_fists_of_fury_damage();
@@ -3894,7 +3858,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_life_cocoon();
     new spell_monk_mana_tea();
     new spell_monk_mana_tea_stacks();
-    new spell_monk_paralysis();
     new spell_monk_path_of_blossom();
     new spell_monk_power_strikes();
     new spell_monk_provoke();

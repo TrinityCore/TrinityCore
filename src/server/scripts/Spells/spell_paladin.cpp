@@ -1397,7 +1397,7 @@ public:
             amount = -1;
         }
 
-        void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+        void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
         {
             Unit* target = GetTarget();
 

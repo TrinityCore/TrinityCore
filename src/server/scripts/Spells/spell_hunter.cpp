@@ -145,7 +145,7 @@ public:
     {
         PrepareSpellScript(spell_hun_harpoon_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_HARPOON) ||
                 !sSpellMgr->GetSpellInfo(SPELL_HUNTER_HARPOON_ROOT))
@@ -213,7 +213,7 @@ public:
     {
         PrepareSpellScript(spell_hun_snake_hunter_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MONGOOSE_BITE))
                 return false;
@@ -288,7 +288,7 @@ public:
     {
         PrepareSpellScript(spell_hun_mongoose_bite_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MONGOOSE_BITE))
                 return false;
@@ -973,7 +973,7 @@ public:
     {
         PrepareSpellScript(spell_hun_kill_command_SpellScript);
 
-        bool Validate(SpellInfo const* /*SpellEntry*/)
+        bool Validate(SpellInfo const* /*SpellEntry*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_KILL_COMMAND))
                 return false;
