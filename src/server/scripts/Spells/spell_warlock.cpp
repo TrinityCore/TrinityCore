@@ -835,21 +835,23 @@ public:
                     CreatureTemplate const* ci = targetCreature->GetCreatureTemplate();
                     switch (ci->family)
                     {
-                    case CREATURE_FAMILY_SUCCUBUS:
-                        caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_SUCCUBUS);
-                        break;
-                    case CREATURE_FAMILY_VOIDWALKER:
-                        caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_VOIDWALKER);
-                        break;
-                    case CREATURE_FAMILY_FELGUARD:
-                        caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_FELGUARD);
-                        break;
-                    case CREATURE_FAMILY_FELHUNTER:
-                        caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_FELHUNTER);
-                        break;
-                    case CREATURE_FAMILY_IMP:
-                        caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_IMP);
-                        break;
+                        case CREATURE_FAMILY_SUCCUBUS:
+                            caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_SUCCUBUS);
+                            break;
+                        case CREATURE_FAMILY_VOIDWALKER:
+                            caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_VOIDWALKER);
+                            break;
+                        case CREATURE_FAMILY_FELGUARD:
+                            caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_FELGUARD);
+                            break;
+                        case CREATURE_FAMILY_FELHUNTER:
+                            caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_FELHUNTER);
+                            break;
+                        case CREATURE_FAMILY_IMP:
+                            caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_IMP);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -1938,50 +1940,6 @@ public:
     }
 };
 
-// Drain Soul
-class spell_warlock_drain_soul : public SpellScriptLoader
-{
-public:
-    spell_warlock_drain_soul() : SpellScriptLoader("spell_warlock_drain_soul") {}
-
-    class spell_warlock_drain_soul_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warlock_drain_soul_AuraScript);
-
-        void HandleDummyPeriodic(AuraEffect const* /* auraEffect */)
-        {
-            Unit* target = GetTarget();
-            Unit* caster = GetCaster();
-            if (!caster || !target)
-                return;
-
-            uint32 DrainSoulData[4][3] =
-            {
-                { 146739, EFFECT_0, 131740 }, // Corruption
-                { 30108, EFFECT_0, 131736 },
-                { 27243, EFFECT_0, 132566 },
-                { 980, EFFECT_0, 131737 },
-            };
-
-            for (uint8 i = 0; i < 4; i++)
-            {
-                if (target->GetAuraEffect(DrainSoulData[i][0], DrainSoulData[i][1], GetCaster()->GetGUID()))
-                    caster->CastSpell(target, DrainSoulData[i][2], true);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_warlock_drain_soul_AuraScript::HandleDummyPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_warlock_drain_soul_AuraScript();
-    }
-};
-
 enum LifeTap
 {
     SPELL_WARLOCK_LIFE_DRAIN_HEAL = 89653,
@@ -2185,33 +2143,6 @@ public:
     }
 };
 
-class spell_warl_chaos_wave : public SpellScriptLoader
-{
-public:
-    spell_warl_chaos_wave() : SpellScriptLoader("spell_warl_chaos_wave") { }
-
-    class spell_warl_chaos_wave_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_chaos_wave_SpellScript);
-
-        void HandleAfterCast()
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-                _player->CastSpell(_player, SPELL_WARLOCK_MOLTEN_CORE, true);
-        }
-
-        void Register() override
-        {
-            AfterCast += SpellCastFn(spell_warl_chaos_wave_SpellScript::HandleAfterCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warl_chaos_wave_SpellScript();
-    }
-};
-
 class spell_warl_conflagrate_aura : public SpellScriptLoader
 {
 public:
@@ -2384,36 +2315,6 @@ public:
     }
 };
 
-class spell_warl_demonic_leap : public SpellScriptLoader
-{
-public:
-    spell_warl_demonic_leap() : SpellScriptLoader("spell_warl_demonic_leap") { }
-
-    class spell_warl_demonic_leap_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_demonic_leap_SpellScript);
-
-        void HandleAfterCast()
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-            {
-                _player->CastSpell(_player, SPELL_WARLOCK_METAMORPHOSIS, true);
-                _player->CastSpell(_player, SPELL_WARLOCK_DEMONIC_LEAP_JUMP, true);
-            }
-        }
-
-        void Register() override
-        {
-            AfterCast += SpellCastFn(spell_warl_demonic_leap_SpellScript::HandleAfterCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warl_demonic_leap_SpellScript();
-    }
-};
-
 class spell_warl_drain_soul : public SpellScriptLoader
 {
 public:
@@ -2433,9 +2334,32 @@ public:
             }
         }
 
+        void HandleDummyPeriodic(AuraEffect const* /* auraEffect */)
+        {
+            Unit* target = GetTarget();
+            Unit* caster = GetCaster();
+            if (!caster || !target)
+                return;
+
+            uint32 DrainSoulData[4][3] =
+            {
+                { 146739,   EFFECT_0, 131740 }, // Corruption
+                { 30108,    EFFECT_0, 131736 },
+                { 27243,    EFFECT_0, 132566 },
+                { 980,      EFFECT_0, 131737 },
+            };
+
+            for (uint8 i = 0; i < 4; i++)
+            {
+                if (target->GetAuraEffect(DrainSoulData[i][0], DrainSoulData[i][1], GetCaster()->GetGUID()))
+                    caster->CastSpell(target, DrainSoulData[i][2], true);
+            }
+        }
+
         void Register() override
         {
-            OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_4, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul_AuraScript::HandleDummyPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_LEECH);
+            OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_LEECH, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -2626,36 +2550,6 @@ public:
     }
 };
 
-class spell_warl_hellfire : public SpellScriptLoader
-{
-public:
-    spell_warl_hellfire() : SpellScriptLoader("spell_warl_hellfire") { }
-
-    class spell_warl_hellfire_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warl_hellfire_AuraScript);
-
-        void OnTick(const AuraEffect* /* aurEff */)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->CastSpell(caster, 5857, true);
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_warl_hellfire_AuraScript();
-    }
-};
-
 class spell_warl_metamorphosis_cost : public SpellScriptLoader
 {
 public:
@@ -2762,7 +2656,7 @@ public:
             {
                 AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                 if (removeMode == AURA_REMOVE_BY_DEATH)
-                    GetCaster()->SetPower(POWER_SOUL_SHARDS, GetCaster()->GetPower(POWER_SOUL_SHARDS) + 2);
+                    GetCaster()->SetPower(POWER_SOUL_SHARDS, GetCaster()->GetPower(POWER_SOUL_SHARDS) + 5);
             }
         }
 
@@ -4658,7 +4552,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_burning_rush();
     new spell_warl_call_dreadstalkers();
     new spell_warl_chaos_bolt();
-    new spell_warl_chaos_wave();
     new spell_warl_conflagrate();
     new spell_warl_conflagrate_aura();
     new spell_warl_corruption_effect();
@@ -4673,7 +4566,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
     new spell_warl_demonic_gateway();
-    new spell_warl_demonic_leap();
     new spell_warl_devour_magic();
     new spell_warl_drain_soul();
     new spell_warl_everlasting_affliction();
@@ -4687,10 +4579,9 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_hand_of_guldan();
     new spell_warl_hand_of_guldan_damage();
     new spell_warl_haunt();
-    new spell_warl_havoc;
+    new spell_warl_havoc();
     new spell_warl_health_funnel();
     new spell_warl_healthstone_heal();
-    new spell_warl_hellfire();
     new spell_warl_immolate();
     new spell_warl_immolate_aura();
     new spell_warl_improved_soul_fire();
@@ -4721,7 +4612,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_void_ray();
     new spell_warlock_agony();
     new spell_warlock_blood_horror();
-    new spell_warlock_drain_soul();
     new spell_warlock_life_drain();
     new spell_warl_cauterize_master();
     new spell_warl_suffering();

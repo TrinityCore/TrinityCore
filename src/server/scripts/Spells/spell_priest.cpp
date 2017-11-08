@@ -952,7 +952,7 @@ public:
         bool Load() override
         {
             if (Aura* fear = GetAura())
-                fear->Variables.Set("damage", 0);
+                fear->Variables.Set("damage", (uint64)0);
 
             return true;
         }
@@ -965,8 +965,8 @@ public:
 
             if (Aura* fear = GetAura())
             {
-                int32 const* dmg = fear->Variables.Get<int32>("damage");
-                int32 newdamage = eventInfo.GetDamageInfo()->GetDamage() + (*dmg);
+                uint64 const* dmg = fear->Variables.Get<uint64>("damage");
+                uint64 newdamage = eventInfo.GetDamageInfo()->GetDamage() + (*dmg);
                 if (newdamage > target->CountPctFromMaxHealth(10))
                     fear->SetDuration(0);
                 else

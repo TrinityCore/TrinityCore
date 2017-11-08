@@ -1847,7 +1847,7 @@ public:
     {
         PrepareAuraScript(spell_pal_divine_purpose_AuraScript);
 
-        bool CheckProc(ProcEventInfo& eventInfo)
+        bool CheckProc(ProcEventInfo& /*eventInfo*/)
         {
             // Called by spell_pal_divine_purpose_proc
             return false;

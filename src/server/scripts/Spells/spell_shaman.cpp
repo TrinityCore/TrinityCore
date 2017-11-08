@@ -3066,7 +3066,8 @@ public:
             RANGE = 10,
             DELAY = 500
         };
-        void Reset()
+
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             ApplyBuff();
@@ -3098,7 +3099,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_wind_rush_totem_AI(creature);
     }
@@ -3122,7 +3123,7 @@ public:
             RANGE = 8,
             DELAY = 1000
         };
-        void Reset()
+        void Reset() override
         {
             m_uiBuffTimer = DELAY;
             ApplyBuff();
@@ -3153,7 +3154,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_voodoo_totem_AI(creature);
     }

@@ -2290,7 +2290,6 @@ public:
             if (!GetExplTargetUnit() || !GetOriginalCaster())
                 return;
 
-            Unit* caster = GetCaster();
             Unit* target = GetHitUnit();
             if (m_shouldHeal)
                 GetExplTargetUnit()->CastCustomSpell(132464, SPELLVALUE_BASE_POINT1, GetEffectValue(), target, true, NULL, NULL, GetOriginalCaster()->GetGUID());
