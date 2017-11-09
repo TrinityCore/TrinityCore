@@ -27,8 +27,8 @@ namespace Connection_Patcher
     {
         struct Common
         {
-            static const std::vector<unsigned char> Portal() { return { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
-            static const std::vector<unsigned char> Modulus()
+            static std::vector<unsigned char> Portal() { return { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
+            static std::vector<unsigned char> Modulus()
             {
                 return
                 {
@@ -50,9 +50,9 @@ namespace Connection_Patcher
                     0xF0, 0xB8, 0x32, 0xCB, 0x5B, 0x66, 0xCE, 0x51, 0x54, 0xB4, 0xC3, 0xD3, 0xD4, 0xDC, 0xB3, 0xEE
                 };
             }
-            static const std::string VersionsFile() { return "trinity6.github.io/%s/%s/build/versi"; };
-            static const std::vector<unsigned char> CertFileName() { return{ 't', 'c', '_', 'b', 'u', 'n', 'd', 'l', 'e', '.', 't', 'x', 't', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
-            static const std::string CertificateBundle()
+            static std::string VersionsFile() { return "trinity6.github.io/%s/%s/build/versi"; };
+            static std::vector<unsigned char> CertFileName() { return{ 't', 'c', '_', 'b', 'u', 'n', 'd', 'l', 'e', '.', 't', 'x', 't', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
+            static std::string CertificateBundle()
             {
                 return
 R"({

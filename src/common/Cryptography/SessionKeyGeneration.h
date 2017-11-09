@@ -19,7 +19,8 @@
 #ifndef SessionKeyGeneration_h__
 #define SessionKeyGeneration_h__
 
-#include "Common.h"
+#include "Define.h"
+#include <cstring>
 
 template<class Hash>
 class SessionKeyGenerator

@@ -24,6 +24,7 @@ Category: Caverns of Time, The Black Morass
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "the_black_morass.h"
 
@@ -147,7 +148,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_chrono_lord_dejaAI>(creature);
+        return GetBlackMorassAI<boss_chrono_lord_dejaAI>(creature);
     }
 };
 

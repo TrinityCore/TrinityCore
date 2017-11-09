@@ -1,8 +1,27 @@
+/*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "PlayerTaxi.h"
+#include "DB2Stores.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "TaxiPackets.h"
-#include "ObjectMgr.h"
 #include <limits>
-#include <math.h>
+#include <sstream>
 
 void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
 {
@@ -101,8 +120,12 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
     ClearTaxiDestinations();
 
     Tokenizer tokens(values, ' ');
+    auto iter = tokens.begin();
+    if (iter != tokens.end())
+        m_flightMasterFactionId = atoul(*iter);
 
-    for (Tokenizer::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
+    ++iter;
+    for (; iter != tokens.end(); ++iter)
     {
         uint32 node = atoul(*iter);
         AddTaxiDestination(node);
@@ -137,6 +160,7 @@ std::string PlayerTaxi::SaveTaxiDestinationsToString()
         return "";
 
     std::ostringstream ss;
+    ss << m_flightMasterFactionId << ' ';
 
     for (size_t i = 0; i < m_TaxiDestinations.size(); ++i)
         ss << m_TaxiDestinations[i] << ' ';
@@ -157,7 +181,7 @@ uint32 PlayerTaxi::GetCurrentTaxiPath() const
     return path;
 }
 
-std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
+std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi)
 {
     for (uint8 i = 0; i < TaxiMaskSize; ++i)
         ss << uint32(taxi.m_taximask[i]) << ' ';
@@ -183,4 +207,9 @@ bool PlayerTaxi::RequestEarlyLanding()
     }
 
     return false;
+}
+
+FactionTemplateEntry const* PlayerTaxi::GetFlightMasterFactionTemplate() const
+{
+    return sFactionTemplateStore.LookupEntry(m_flightMasterFactionId);
 }

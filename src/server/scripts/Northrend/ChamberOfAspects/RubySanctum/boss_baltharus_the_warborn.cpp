@@ -16,9 +16,11 @@
  */
 
 #include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "ruby_sanctum.h"
 
 enum Texts

@@ -24,8 +24,11 @@ Category: Auchindoun, Auchenai Crypts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "auchenai_crypts.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {

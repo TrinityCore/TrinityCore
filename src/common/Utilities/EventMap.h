@@ -18,9 +18,9 @@
 #ifndef _EVENT_MAP_H_
 #define _EVENT_MAP_H_
 
-#include "Common.h"
+#include "Define.h"
 #include "Duration.h"
-#include "Util.h"
+#include <map>
 
 class TC_COMMON_API EventMap
 {
@@ -134,10 +134,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void ScheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group = 0, uint32 phase = 0)
-    {
-        ScheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
-    }
+    void ScheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group = 0, uint8 phase = 0);
 
     /**
     * @name ScheduleEvent
@@ -171,10 +168,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void RescheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group = 0, uint32 phase = 0)
-    {
-        RescheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
-    }
+    void RescheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group = 0, uint8 phase = 0);
 
     /**
     * @name RescheduleEvent
@@ -227,10 +221,7 @@ public:
     * @param minTime Minimum time until the event occurs.
     * @param maxTime Maximum time until the event occurs.
     */
-    void Repeat(uint32 minTime, uint32 maxTime)
-    {
-        Repeat(urand(minTime, maxTime));
-    }
+    void Repeat(uint32 minTime, uint32 maxTime);
 
     /**
     * @name ExecuteEvent

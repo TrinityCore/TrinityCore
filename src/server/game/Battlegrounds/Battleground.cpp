@@ -16,26 +16,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ArenaScore.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
+#include "ChatPackets.h"
 #include "Creature.h"
 #include "CreatureTextMgr.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
-#include "GuildMgr.h"
 #include "Guild.h"
-#include "Object.h"
+#include "GuildMgr.h"
+#include "Log.h"
+#include "Map.h"
+#include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "SpellAuras.h"
-#include "Util.h"
-#include "WorldPacket.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
-#include "MiscPackets.h"
+#include "Util.h"
+#include "WorldStatePackets.h"
+#include <cstdarg>
 
 namespace Trinity
 {
@@ -484,7 +490,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                player->GetSession()->SendPacket(&data);
+                player->SendDirectMessage(&data);
 
         m_CountdownTimer = 0;
     }
@@ -640,6 +646,12 @@ Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::co
             player = NULL;
     }
     return player;
+}
+
+BattlegroundMap* Battleground::GetBgMap() const
+{
+    ASSERT(m_Map);
+    return m_Map;
 }
 
 void Battleground::SetTeamStartPosition(TeamId teamId, Position const& pos)
@@ -986,7 +998,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             if (SendPacket)
             {
                 WorldPackets::Battleground::BattlefieldStatusNone battlefieldStatus;
-                sBattlegroundMgr->BuildBattlegroundStatusNone(&battlefieldStatus, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), player->GetBattlegroundQueueJoinTime(bgQueueTypeId), m_ArenaType);
+                sBattlegroundMgr->BuildBattlegroundStatusNone(&battlefieldStatus, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), player->GetBattlegroundQueueJoinTime(bgQueueTypeId));
                 player->SendDirectMessage(battlefieldStatus.Write());
             }
 
@@ -1054,9 +1066,6 @@ void Battleground::Reset()
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
     PlayerScores.clear();
-
-    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
-        _arenaTeamScores[i].Reset();
 
     ResetBGSubclass();
 }
@@ -1141,7 +1150,7 @@ void Battleground::AddPlayer(Player* player)
             data << uint32(0); // unk
             data << uint32(countdownMaxForBGType - (GetElapsedTime() / 1000));
             data << uint32(countdownMaxForBGType);
-            player->GetSession()->SendPacket(&data);
+            player->SendDirectMessage(&data);
         }
     }
 
@@ -1326,7 +1335,7 @@ bool Battleground::HasFreeSlots() const
     return GetPlayersSize() < GetMaxPlayers();
 }
 
-void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData)
+void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         pvpLogData.Winner = GetWinner();
@@ -1335,54 +1344,22 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
     for (auto const& score : PlayerScores)
     {
         WorldPackets::Battleground::PVPLogData::PlayerData playerData;
-
-        playerData.PlayerGUID = score.second->PlayerGuid;
-        playerData.Kills = score.second->KillingBlows;
-        playerData.Faction = score.second->TeamId;
-        if (score.second->HonorableKills || score.second->Deaths || score.second->BonusHonor)
-        {
-            playerData.Honor = boost::in_place();
-            playerData.Honor->HonorKills = score.second->HonorableKills;
-            playerData.Honor->Deaths = score.second->Deaths;
-            playerData.Honor->ContributionPoints = score.second->BonusHonor;
-        }
-
-        playerData.DamageDone = score.second->DamageDone;
-        playerData.HealingDone = score.second->HealingDone;
-        score.second->BuildObjectivesBlock(playerData.Stats);
+        score.second->BuildPvPLogPlayerDataPacket(playerData);
 
         if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerData.PlayerGUID))
         {
             playerData.IsInWorld = true;
             playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+            playerData.PrimaryTalentTreeNameIndex = 0;
             playerData.Race = player->getRace();
+            playerData.Prestige = player->GetPrestigeLevel();
         }
-
-        //if (isRated())
-        //{
-        //    playerData.PreMatchRating;
-        //    playerData.RatingChange;
-        //    playerData.PreMatchMMR;
-        //    playerData.MmrChange;
-        //}
 
         pvpLogData.Players.push_back(playerData);
     }
 
-    if (isRated())
-    {
-        pvpLogData.Ratings = boost::in_place();
-
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
-        {
-            pvpLogData.Ratings->Postmatch[i] = _arenaTeamScores[i].NewRating;
-            pvpLogData.Ratings->Prematch[i] = _arenaTeamScores[i].OldRating;
-            pvpLogData.Ratings->PrematchMMR[i] = _arenaTeamScores[i].MatchmakerRating;
-        }
-    }
-
-    pvpLogData.PlayerCount[0] = int8(GetPlayersCountByTeam(HORDE));
-    pvpLogData.PlayerCount[1] = int8(GetPlayersCountByTeam(ALLIANCE));
+    pvpLogData.PlayerCount[BG_TEAM_HORDE] = int8(GetPlayersCountByTeam(HORDE));
+    pvpLogData.PlayerCount[BG_TEAM_ALLIANCE] = int8(GetPlayersCountByTeam(ALLIANCE));
 }
 
 bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
@@ -1459,14 +1436,14 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     if (!map)
         return false;
 
-    G3D::Quat rot(rotation0, rotation1, rotation2, rotation3);
+    QuaternionData rot(rotation0, rotation1, rotation2, rotation3);
     // Temporally add safety check for bad spawns and send log (object rotations need to be rechecked in sniff)
     if (!rotation0 && !rotation1 && !rotation2 && !rotation3)
     {
         TC_LOG_DEBUG("bg.battleground", "Battleground::AddObject: gameoobject [entry: %u, object type: %u] for BG (map: %u) has zeroed rotation fields, "
             "orientation used temporally, but please fix the spawn", entry, type, m_MapId);
 
-        rot = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
+        rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
     }
 
     // Must be created this way, adding to godatamap would add it to the base map of the instance
@@ -1697,7 +1674,7 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     if (Creature* creature = AddCreature(entry, type, x, y, z, o, teamId))
     {
         creature->setDeathState(DEAD);
-        creature->SetChannelObjectGuid(creature->GetGUID());
+        creature->AddChannelObject(creature->GetGUID());
         // aura
         /// @todo Fix display here
         // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
@@ -1882,7 +1859,7 @@ uint32 Battleground::GetAlivePlayersCountByTeam(uint32 Team) const
         if (itr->second.Team == Team)
         {
             Player* player = ObjectAccessor::FindPlayer(itr->first);
-            if (player && player->IsAlive() && player->GetShapeshiftForm() != FORM_SPIRIT_OF_REDEMPTION)
+            if (player && player->IsAlive())
                 ++count;
         }
     }

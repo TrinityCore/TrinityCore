@@ -24,13 +24,15 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "temple_of_ahnqiraj.h"
 
 class instance_temple_of_ahnqiraj : public InstanceMapScript
 {
     public:
-        instance_temple_of_ahnqiraj() : InstanceMapScript("instance_temple_of_ahnqiraj", 531) { }
+        instance_temple_of_ahnqiraj() : InstanceMapScript(AQ40ScriptName, 531) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {

@@ -17,7 +17,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "mechanar.h"
 
 static DoorData const doorData[] =
@@ -31,7 +33,7 @@ static DoorData const doorData[] =
 class instance_mechanar : public InstanceMapScript
 {
     public:
-        instance_mechanar(): InstanceMapScript("instance_mechanar", 554) { }
+        instance_mechanar(): InstanceMapScript(MechanarScriptName, 554) { }
 
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {

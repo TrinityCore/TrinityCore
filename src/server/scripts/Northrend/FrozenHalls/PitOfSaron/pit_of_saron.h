@@ -18,6 +18,9 @@
 #ifndef PIT_OF_SARON_H_
 #define PIT_OF_SARON_H_
 
+#include "CreatureAIImpl.h"
+#include "EventProcessor.h"
+
 #define PoSScriptName "instance_pit_of_saron"
 #define DataHeader "POS"
 
@@ -112,25 +115,14 @@ class ScheduledIcicleSummons : public BasicEvent
     public:
         ScheduledIcicleSummons(Creature* trigger) : _trigger(trigger) { }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            if (roll_chance_i(12))
-            {
-                _trigger->CastSpell(_trigger, SPELL_ICICLE_SUMMON, true);
-                _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(20000, 35000)));
-            }
-            else
-                _trigger->m_Events. AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(1000,20000)));
-
-            return true;
-        }
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override;
 
     private:
         Creature* _trigger;
 };
 
-template<class AI>
-AI* GetPitOfSaronAI(Creature* creature)
+template<typename AI>
+inline AI* GetPitOfSaronAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, PoSScriptName);
 }

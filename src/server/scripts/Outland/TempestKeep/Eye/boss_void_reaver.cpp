@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "the_eye.h"
 
@@ -167,7 +168,7 @@ class boss_void_reaver : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_void_reaverAI>(creature);
+            return GetTheEyeAI<boss_void_reaverAI>(creature);
         }
 };
 

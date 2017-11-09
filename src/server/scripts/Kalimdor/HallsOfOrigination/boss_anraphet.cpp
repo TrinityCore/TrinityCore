@@ -15,15 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
-#include "Player.h"
-#include "ObjectAccessor.h"
 #include "halls_of_origination.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -289,7 +291,7 @@ class npc_omega_stance : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_omega_stanceAI(creature);
+            return GetHallsOfOriginationAI<npc_omega_stanceAI>(creature);
         }
 };
 
@@ -541,7 +543,7 @@ public:
 
             float x = caster->GetPositionX() + dist * std::cos(angle);
             float y = caster->GetPositionY() + dist * std::sin(angle);
-            float z = caster->GetMap()->GetHeight(x, y, caster->GetPositionZ());
+            float z = caster->GetMap()->GetHeight(caster->GetPhases(), x, y, caster->GetPositionZ());
             float o = dest._position.GetOrientation();
 
             dest.Relocate({ x, y, z, o });

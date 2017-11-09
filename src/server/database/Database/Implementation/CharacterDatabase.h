@@ -18,10 +18,9 @@
 #ifndef _CHARACTERDATABASE_H
 #define _CHARACTERDATABASE_H
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-enum CharacterDatabaseStatements
+enum CharacterDatabaseStatements : uint32
 {
     /*  Naming standard for defines:
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
@@ -72,6 +71,8 @@ enum CharacterDatabaseStatements
 
     CHAR_SEL_CHARACTER_QUESTSTATUS,
     CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES,
+    CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_CRITERIA,
+    CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS,
     CHAR_SEL_CHARACTER_QUESTSTATUS_DAILY,
     CHAR_SEL_CHARACTER_QUESTSTATUS_WEEKLY,
     CHAR_SEL_CHARACTER_QUESTSTATUS_MONTHLY,
@@ -207,7 +208,8 @@ enum CharacterDatabaseStatements
     CHAR_UPD_GUILD_BANK_MONEY,
     CHAR_UPD_GUILD_RANK_BANK_MONEY,
     CHAR_UPD_GUILD_BANK_TAB_TEXT,
-    CHAR_INS_GUILD_MEMBER_WITHDRAW,
+    CHAR_INS_GUILD_MEMBER_WITHDRAW_TABS,
+    CHAR_INS_GUILD_MEMBER_WITHDRAW_MONEY,
     CHAR_DEL_GUILD_MEMBER_WITHDRAW,
     CHAR_SEL_CHAR_DATA_FOR_GUILD,
     CHAR_DEL_GUILD_ACHIEVEMENT,
@@ -451,6 +453,9 @@ enum CharacterDatabaseStatements
     CHAR_UPD_CHAR_TAXIMASK,
     CHAR_DEL_CHAR_QUESTSTATUS,
     CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES,
+    CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA,
+    CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS,
+    CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS_BY_CRITERIA,
     CHAR_DEL_CHAR_SOCIAL_BY_GUID,
     CHAR_DEL_CHAR_SOCIAL_BY_FRIEND,
     CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT,
@@ -498,11 +503,14 @@ enum CharacterDatabaseStatements
     CHAR_DEL_CHAR_QUESTSTATUS_BY_QUEST,
     CHAR_REP_CHAR_QUESTSTATUS_OBJECTIVES,
     CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_BY_QUEST,
+    CHAR_INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA,
+    CHAR_INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS,
     CHAR_INS_CHAR_QUESTSTATUS_REWARDED,
     CHAR_DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST,
     CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_FACTION_CHANGE,
     CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE,
     CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST,
+    CHAR_DEL_INVALID_QUEST_PROGRESS_CRITERIA,
     CHAR_DEL_CHAR_SKILL_BY_SKILL,
     CHAR_INS_CHAR_SKILLS,
     CHAR_UPD_CHAR_SKILLS,
@@ -633,13 +641,12 @@ public:
     typedef CharacterDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo);
+    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    ~CharacterDatabaseConnection();
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
-
-typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
 
 #endif

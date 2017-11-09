@@ -26,12 +26,14 @@ endif()
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/bnetPCH.h)
   set(PRIVATE_PCH_SOURCE PrecompiledHeaders/bnetPCH.cpp)
+  if (MSVC)
+    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/bnetPCH.cpp)
+  endif (MSVC)
 endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(bnetserver
-  ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
 )
 
@@ -63,7 +65,7 @@ set_target_properties(bnetserver
         "server")
 
 if (WIN32)
-  if (MSVC)
+  if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
     add_custom_command(TARGET bnetserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/

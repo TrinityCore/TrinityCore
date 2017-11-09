@@ -15,11 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "GuildMgr.h"
+#include "DB2Stores.h"
+#include "DatabaseEnv.h"
+#include "Guild.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "World.h"
+#include <algorithm>
 
 GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
-{ }
+{
+}
 
 GuildMgr::~GuildMgr()
 {
@@ -120,8 +127,8 @@ void GuildMgr::LoadGuilds()
 
         //          0          1       2             3              4              5              6
         QueryResult result = CharacterDatabase.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, "
-            //   7                  8       9       10            11          12           13
-            "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, g.level, COUNT(gbt.guildid) "
+            //   7                  8       9       10            11          12
+            "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, COUNT(gbt.guildid) "
             "FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC");
 
         if (!result)
@@ -403,17 +410,17 @@ void GuildMgr::LoadGuilds()
 
         //           0          1            2                3      4         5        6      7             8                   9                10          11          12    13
         // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyType, randomPropertyId, durability, playedTime, text,
-        //               14                  15                  16              17                  18            19
-        //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs,
-        //                                    20                           21                           22                           23                           24
+        //               14                  15                  16              17                  18       19            20
+        //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs,
+        //                                   21                            22                           23                           24                           25
         //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
-        //                                  25                        26                          27                         28                         29
+        //                                  26                        27                          28                         29                         30
         //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-        //                30           31           32                33          34           35           36                37          38           39           40                41
+        //                31           32           33                34          35           36           37                38          39           40           41                42
         //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-        //                       42                      43
+        //                       43                      44
         //        fixedScalingLevel, artifactKnowledgeLevel
-        //             44     45      46
+        //             45     46      47
         //        guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
 
         PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEMS));
@@ -427,7 +434,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint64 guildId = fields[44].GetUInt64();
+                uint64 guildId = fields[45].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);

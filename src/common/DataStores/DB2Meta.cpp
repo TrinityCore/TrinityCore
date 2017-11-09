@@ -18,8 +18,33 @@
 #include "DB2Meta.h"
 #include "Errors.h"
 
-DB2Meta::DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes)
-    : IndexField(indexField), FieldCount(fieldCount), LayoutHash(layoutHash), Types(types), ArraySizes(arraySizes)
+DB2FieldDefault::DB2FieldDefault(uint8 u8)
+{
+    AsUInt8 = u8;
+}
+
+DB2FieldDefault::DB2FieldDefault(uint16 u16)
+{
+    AsUInt16 = u16;
+}
+
+DB2FieldDefault::DB2FieldDefault(uint32 u32)
+{
+    AsUInt32 = u32;
+}
+
+DB2FieldDefault::DB2FieldDefault(float f)
+{
+    AsFloat = f;
+}
+
+DB2FieldDefault::DB2FieldDefault(char const* str)
+{
+    AsString = str;
+}
+
+DB2Meta::DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes, DB2FieldDefault const* fieldDefaults)
+    : IndexField(indexField), FieldCount(fieldCount), LayoutHash(layoutHash), Types(types), ArraySizes(arraySizes), FieldDefaults(fieldDefaults)
 {
 }
 

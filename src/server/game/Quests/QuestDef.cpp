@@ -17,10 +17,13 @@
  */
 
 #include "QuestDef.h"
+#include "DB2Stores.h"
+#include "Field.h"
 #include "GameTables.h"
+#include "Log.h"
 #include "Player.h"
-#include "World.h"
 #include "QuestPackets.h"
+#include "World.h"
 
 Quest::Quest(Field* questRecord)
 {
@@ -117,16 +120,17 @@ Quest::Quest(Field* questRecord)
     LimitTime = questRecord[103].GetUInt32();
     AllowableRaces = questRecord[104].GetInt32();
     QuestRewardID = questRecord[105].GetUInt32();
+    Expansion = questRecord[106].GetInt32();
 
-    LogTitle = questRecord[106].GetString();
-    LogDescription = questRecord[107].GetString();
-    QuestDescription = questRecord[108].GetString();
-    AreaDescription = questRecord[109].GetString();
-    PortraitGiverText = questRecord[110].GetString();
-    PortraitGiverName = questRecord[111].GetString();
-    PortraitTurnInText = questRecord[112].GetString();
-    PortraitTurnInName = questRecord[113].GetString();
-    QuestCompletionLog = questRecord[114].GetString();
+    LogTitle = questRecord[107].GetString();
+    LogDescription = questRecord[108].GetString();
+    QuestDescription = questRecord[109].GetString();
+    AreaDescription = questRecord[110].GetString();
+    PortraitGiverText = questRecord[111].GetString();
+    PortraitGiverName = questRecord[112].GetString();
+    PortraitTurnInText = questRecord[113].GetString();
+    PortraitTurnInName = questRecord[114].GetString();
+    QuestCompletionLog = questRecord[115].GetString();
 
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
@@ -217,6 +221,7 @@ void Quest::LoadQuestObjective(Field* fields)
 {
     QuestObjective obj;
     obj.ID = fields[0].GetUInt32();
+    obj.QuestID = fields[1].GetUInt32();
     obj.Type = fields[2].GetUInt8();
     obj.StorageIndex = fields[3].GetInt8();
     obj.ObjectID = fields[4].GetInt32();
@@ -358,7 +363,7 @@ bool Quest::IsAutoComplete() const
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const
 {
-    switch (Type)
+    switch (QuestInfoID)
     {
         case QUEST_INFO_RAID:
             return true;

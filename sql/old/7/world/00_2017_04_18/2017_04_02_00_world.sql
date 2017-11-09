@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_mage_blast_wave','spell_mage_mage_ward','spell_mage_mana_shield','spell_mage_replenish_mana','spell_mage_fire_frost_ward','spell_pal_improved_concentraction_aura_effect','spell_pal_improved_devotion_aura_effect','spell_pal_sanctified_retribution_effect');

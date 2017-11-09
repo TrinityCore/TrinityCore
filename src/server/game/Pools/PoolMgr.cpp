@@ -18,9 +18,17 @@
 
 #include "PoolMgr.h"
 #include "Containers.h"
-#include "ObjectMgr.h"
+#include "Creature.h"
+#include "DatabaseEnv.h"
+#include "GameObject.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
+#include <sstream>
+
+PoolObject::PoolObject(uint64 _guid, float _chance) : guid(_guid), chance(std::fabs(_chance))
+{
+}
 
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData
@@ -34,36 +42,31 @@ uint32 ActivePoolData::GetActiveObjectCount(uint32 pool_id) const
 
 // Method that tell if a creature is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<Creature>(uint64 db_guid) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint64 db_guid) const
 {
     return mSpawnedCreatures.find(db_guid) != mSpawnedCreatures.end();
 }
 
 // Method that tell if a gameobject is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<GameObject>(uint64 db_guid) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint64 db_guid) const
 {
     return mSpawnedGameobjects.find(db_guid) != mSpawnedGameobjects.end();
 }
 
 // Method that tell if a pool is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<Pool>(uint64 sub_pool_id) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint64 sub_pool_id) const
 {
     return mSpawnedPools.find(sub_pool_id) != mSpawnedPools.end();
 }
 
 // Method that tell if a quest can be started
 template<>
-bool ActivePoolData::IsActiveObject<Quest>(uint64 quest_id) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint64 quest_id) const
 {
     return mActiveQuests.find(quest_id) != mActiveQuests.end();
 }
-
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint64) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint64) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint64) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint64) const;
 
 template<>
 void ActivePoolData::ActivateObject<Creature>(uint64 db_guid, uint32 pool_id)
@@ -701,8 +704,9 @@ void PoolMgr::LoadFromDB()
 
                 GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(data->id);
                 if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
-                    goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
-                    goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
+                    goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE &&
+                    goinfo->type != GAMEOBJECT_TYPE_GATHERING_NODE &&
+                    goinfo->type != GAMEOBJECT_TYPE_GOOBER)
                 {
                     TC_LOG_ERROR("sql.sql", "`pool_gameobject` has a not lootable gameobject spawn (GUID: " UI64FMTD ", type: %u) defined for pool id (%u), skipped.", guid, goinfo->type, pool_id);
                     continue;

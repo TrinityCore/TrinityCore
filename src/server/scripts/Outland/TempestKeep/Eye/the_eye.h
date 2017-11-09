@@ -19,6 +19,9 @@
 #ifndef DEF_THE_EYE_H
 #define DEF_THE_EYE_H
 
+#include "CreatureAIImpl.h"
+
+#define TheEyeScriptName "instance_the_eye"
 #define DataHeader "TE"
 
 uint32 const EncounterCount = 4;
@@ -62,5 +65,11 @@ enum TEGameObjectIds
     GO_ARCANE_DOOR_LEFT                 = 184324,
     GO_ARCANE_DOOR_RIGHT                = 184325
 };
+
+template<typename AI>
+inline AI* GetTheEyeAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, TheEyeScriptName);
+}
 
 #endif

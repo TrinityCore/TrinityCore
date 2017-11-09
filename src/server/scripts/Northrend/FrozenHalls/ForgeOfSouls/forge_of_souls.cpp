@@ -16,10 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "forge_of_souls.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "forge_of_souls.h"
-#include "Player.h"
 
 enum Events
 {
@@ -79,7 +78,6 @@ public:
         npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
@@ -87,8 +85,6 @@ public:
         {
             phase = PHASE_NORMAL;
         }
-
-        InstanceScript* instance;
 
         EventMap events;
         Phase phase;
@@ -162,7 +158,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_sylvanas_fosAI>(creature);
+        return GetForgeOfSoulsAI<npc_sylvanas_fosAI>(creature);
     }
 };
 
@@ -176,7 +172,6 @@ public:
         npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
@@ -184,8 +179,6 @@ public:
         {
             phase = PHASE_NORMAL;
         }
-
-        InstanceScript* instance;
 
         EventMap events;
         Phase phase;
@@ -270,7 +263,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_jaina_fosAI>(creature);
+        return GetForgeOfSoulsAI<npc_jaina_fosAI>(creature);
     }
 };
 

@@ -79,6 +79,10 @@ namespace Connection_Patcher
             std::vector<unsigned char> verVec(verPatch.begin(), verPatch.end());
             patcher->Patch(verVec, Patterns::Common::VersionsFile());
 
+            std::cout << "patching launcher login parameters location\n";
+            // change registry/CFPreferences path
+            patcher->Patch(PATCH::LauncherLoginParametersLocation(), PATTERN::LauncherLoginParametersLocation());
+
             patcher->Finish(output);
 
             std::cout << "Patching done.\n";

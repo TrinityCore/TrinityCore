@@ -19,11 +19,13 @@
 #ifndef TRINITY_FORMULAS_H
 #define TRINITY_FORMULAS_H
 
-#include "World.h"
-#include "SharedDefines.h"
-#include "ScriptMgr.h"
-#include "Player.h"
+#include "Creature.h"
 #include "GameTables.h"
+#include "Map.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "SharedDefines.h"
+#include "World.h"
 
 namespace Trinity
 {
@@ -171,12 +173,11 @@ namespace Trinity
             Creature* creature = u->ToCreature();
             uint32 gain = 0;
 
-            if (!creature || (!creature->IsTotem() && !creature->IsPet() && !creature->IsCritter() &&
-                !(creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)))
+            if (!creature || creature->CanGiveExperience())
             {
                 float xpMod = 1.0f;
 
-                gain = BaseGain(player->getLevel(), u->getLevel());
+                gain = BaseGain(player->getLevel(), u->GetLevelForTarget(player));
 
                 if (gain && creature)
                 {

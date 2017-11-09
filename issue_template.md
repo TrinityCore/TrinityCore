@@ -1,6 +1,6 @@
-[//]: # (**********************************)
-[//]: # (** Fill in the following fields **)
-[//]: # (**********************************)
+<!--- (**********************************)
+      (** Fill in the following fields **)
+      (**********************************) --->
 
 **Description:**
 
@@ -17,7 +17,7 @@ CHANGEME Tell us what should happen instead.
 
 **Steps to reproduce the problem:**
 
-1. CHANGEME Step 1
+1. CHANGEME Step 1 include entries of affected creatures / items / quests with a link to the relevant wowhead page.  
 2. Step 2
 3. Step 3
 
@@ -28,11 +28,14 @@ CHANGEME 3.3.5, master or both
 **TC rev. hash/commit:** 
 
 CHANGEME Copy the first line of the `worldserver`, `authserver` or `bnetserver` startup.
-For example: TrinityCore rev. 9b006e511bf4 2016-11-29 11:31:41 +0100 (master branch) (Win64, RelWithDebInfo, Static) (bnetserver)
+For example: TrinityCore rev. 0000000000 2000-01-09 11:31:41 +0100 (my branch) (Win64, RelWithDebInfo, Static) (bnetserver)
 
 **TDB version:**  CHANGEME Version of the TrinityCore database
 
 **Operating system:** CHANGEME OS
 
-[//]: # (This template is for problem reports. For other types of report, edit it accordingly.)
-[//]: # (For fixes containing C++, create a Pull Request.)
+
+<!--- Notes
+- This template is for problem reports. For other types of report, edit it accordingly.
+- For fixes containing C++ changes, create a Pull Request.
+--->

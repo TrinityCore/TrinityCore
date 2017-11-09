@@ -16,11 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
-#include "ruby_sanctum.h"
-#include "Player.h"
 
 enum Texts
 {
@@ -183,9 +186,7 @@ class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RALLY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RALLY });
             }
 
             void CountTargets(std::list<WorldObject*>& targets)

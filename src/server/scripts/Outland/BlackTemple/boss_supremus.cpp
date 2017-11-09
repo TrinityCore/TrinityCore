@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
 #include "black_temple.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
 
 enum Texts
 {
@@ -65,7 +67,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new molten_flameAI(creature);
+        return GetBlackTempleAI<molten_flameAI>(creature);
     }
 
     struct molten_flameAI : public NullCreatureAI
@@ -264,7 +266,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_volcanoAI(creature);
+        return GetBlackTempleAI<npc_volcanoAI>(creature);
     }
 };
 

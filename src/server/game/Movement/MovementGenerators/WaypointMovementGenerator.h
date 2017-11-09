@@ -26,9 +26,11 @@
  */
 
 #include "MovementGenerator.h"
-#include "WaypointManager.h"
+#include "Creature.h"
+#include "DB2Stores.h"
 #include "Player.h"
-#include "World.h"
+#include "Timer.h"
+#include "WaypointManager.h"
 
 #define FLIGHT_TRAVEL_UPDATE  100
 #define TIMEDIFF_NEXT_WP      250
@@ -143,7 +145,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, Flig
         struct TaxiNodeChangeInfo
         {
             uint32 PathIndex;
-            int32 Cost;
+            int64 Cost;
         };
 
         std::deque<TaxiNodeChangeInfo> _pointsForPathSwitch;    //! node indexes and costs where TaxiPath changes

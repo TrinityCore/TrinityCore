@@ -16,15 +16,11 @@
  */
 
 #include "AppenderFile.h"
-#include "Common.h"
-#include "StringFormat.h"
 #include "Log.h"
+#include "LogMessage.h"
+#include <algorithm>
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-# include <Windows.h>
-#endif
-
-AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, ExtraAppenderArgs extraArgs) :
+AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs) :
     Appender(id, name, level, flags),
     logfile(NULL),
     _logDir(sLog->GetLogsDir()),

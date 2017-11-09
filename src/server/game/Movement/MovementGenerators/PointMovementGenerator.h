@@ -22,6 +22,7 @@
 #include "MovementGenerator.h"
 #include "FollowerReference.h"
 
+class Creature;
 namespace Movement
 {
     struct SpellEffectExtraData;

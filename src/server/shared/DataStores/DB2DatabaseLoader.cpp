@@ -16,10 +16,13 @@
  */
 
 #include "DB2DatabaseLoader.h"
-#include "Database/DatabaseEnv.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
 #include "DB2Meta.h"
+#include "Errors.h"
+#include "Log.h"
 
-DB2LoadInfo::DB2LoadInfo() : DB2FileLoadInfo()
+DB2LoadInfo::DB2LoadInfo() : DB2FileLoadInfo(), Statement(MAX_HOTFIXDATABASE_STATEMENTS)
 {
 }
 

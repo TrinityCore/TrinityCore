@@ -16,8 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "AreaBoundary.h"
 #include "azjol_nerub.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {
@@ -41,11 +45,12 @@ ObjectData const creatureData[] =
 
 ObjectData const gameobjectData[] =
 {
-    { GO_ANUBARAK_DOOR_3, DATA_ANUBARAK_WALL },
+    { GO_ANUBARAK_DOOR_1, DATA_ANUBARAK_WALL },
+    { GO_ANUBARAK_DOOR_3, DATA_ANUBARAK_WALL_2 },
     { 0,                  0                  } // END
 };
 
-BossBoundaryData const boundaries = 
+BossBoundaryData const boundaries =
 {
     { DATA_KRIKTHIR_THE_GATEWATCHER, new RectangleBoundary(400.0f, 580.0f, 623.5f, 810.0f) },
     { DATA_HADRONOX, new ZRangeBoundary(666.0f, 776.0f) },
@@ -76,6 +81,17 @@ class instance_azjol_nerub : public InstanceMapScript
                     return;
                 if (Creature* gatewatcher = GetCreature(DATA_KRIKTHIR_THE_GATEWATCHER))
                     gatewatcher->AI()->DoAction(-ACTION_GATEWATCHER_GREET);
+            }
+
+            bool CheckRequiredBosses(uint32 bossId, Player const* player) const override
+            {
+                if (_SkipCheckRequiredBosses(player))
+                    return true;
+
+                if (bossId > DATA_KRIKTHIR_THE_GATEWATCHER && GetBossState(DATA_KRIKTHIR_THE_GATEWATCHER) != DONE)
+                    return false;
+
+                return true;
             }
         };
 

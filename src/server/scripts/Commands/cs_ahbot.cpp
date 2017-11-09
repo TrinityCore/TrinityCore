@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "AuctionHouseBot.h"
 #include "Chat.h"
 #include "Language.h"
-#include "AuctionHouseBot.h"
+#include "RBAC.h"
 
 static const uint32 ahbotQualityIds[MAX_AUCTION_QUALITY] =
 {

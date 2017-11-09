@@ -18,9 +18,9 @@
 #ifndef CombatLogPackets_h__
 #define CombatLogPackets_h__
 
-#include "Packet.h"
+#include "CombatLogPacketsCommon.h"
+#include "Optional.h"
 #include "Spell.h"
-#include "SpellPackets.h"
 
 namespace WorldPackets
 {
@@ -37,6 +37,7 @@ namespace WorldPackets
             ObjectGuid CasterGUID;
             ObjectGuid CastID;
             int32 SpellID = 0;
+            int32 SpellXSpellVisualID = 0;
             int32 Damage = 0;
             int32 Overkill = 0;
             uint8 SchoolMask = 0;
@@ -45,7 +46,7 @@ namespace WorldPackets
             bool Periodic = false;
             int32 Absorbed = 0;
             int32 Flags = 0;
-            // Optional<SpellNonMeleeDamageLogDebugInfo> Debug Info;
+            // Optional<SpellNonMeleeDamageLogDebugInfo> DebugInfo;
             Optional<Spells::SandboxScalingData> SandboxScaling;
         };
 
@@ -186,9 +187,10 @@ namespace WorldPackets
             int32 SpellID = 0;
             int32 Type = 0;
             int32 Amount = 0;
+            int32 OverEnergize = 0;
         };
 
-        class SpellInstakillLog final : public ServerPacket
+        class TC_GAME_API SpellInstakillLog final : public ServerPacket
         {
         public:
             SpellInstakillLog() : ServerPacket(SMSG_SPELL_INSTAKILL_LOG, 16 + 16 + 4) { }

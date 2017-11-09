@@ -19,6 +19,9 @@
 #ifndef BFD_H_
 #define BFD_H_
 
+#include "CreatureAIImpl.h"
+
+#define BFDScriptName "instance_blackfathom_deeps"
 #define DataHeader "BFD"
 
 uint32 const EncounterCount = 3;
@@ -67,5 +70,11 @@ enum BFDGameObjectIds
     GO_AKU_MAI_DOOR                                        = 21117,
     GO_ALTAR_OF_THE_DEEPS                                  = 103016
 };
+
+template<typename AI>
+inline AI* GetBlackfathomDeepsAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, BFDScriptName);
+}
 
 #endif // BFD_H_

@@ -65,7 +65,7 @@ public:
     void UpdateClientStateIndex() { ++_clientStateIndex; }
 
     uint32 GetServerStateIndex() const { return _serverStateIndex; }
-    void UpdateServerStateIndex() { _serverStateIndex = rand32(); }
+    void UpdateServerStateIndex();
 
 private:
     void Update(bool for_trader = true) const;

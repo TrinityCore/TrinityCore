@@ -188,7 +188,7 @@ static bool DoStorageSearch_EncodingKey(TCascSearch * pSearch, PCASC_FIND_DATA p
                     // Fill-in the found file
                     memcpy(pFindData->EncodingKey, pEncodingEntry->EncodingKey, MD5_HASH_SIZE);
                     pFindData->szFileName[0] = 0;
-                    pFindData->szPlainName = NULL;
+                    pFindData->szPlainName = pFindData->szFileName;
                     pFindData->dwLocaleFlags = CASC_LOCALE_NONE;
                     pFindData->dwFileSize = ConvertBytesToInteger_4(pEncodingEntry->FileSizeBE);
 
@@ -233,7 +233,7 @@ static bool DoStorageSearch(TCascSearch * pSearch, PCASC_FIND_DATA pFindData)
     }
 
     // State 2: Searching the remaining entries
-    if(pSearch->dwState == 2)
+    if(pSearch->dwState == 2 && (pSearch->szMask == NULL || !strcmp(pSearch->szMask, "*")))
     {
         if(DoStorageSearch_EncodingKey(pSearch, pFindData))
             return true;
@@ -287,7 +287,7 @@ HANDLE WINAPI CascFindFirstFile(
     {
         if(pSearch != NULL)
             FreeSearchHandle(pSearch);
-        pSearch = NULL;
+        pSearch = (TCascSearch *)INVALID_HANDLE_VALUE;
     }
 
     return (HANDLE)pSearch;

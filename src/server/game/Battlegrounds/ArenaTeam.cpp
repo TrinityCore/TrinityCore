@@ -16,15 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
+#include "DatabaseEnv.h"
+#include "Group.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "WorldPacket.h"
-#include "ArenaTeam.h"
 #include "World.h"
-#include "Group.h"
-#include "ArenaTeamMgr.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
 
 ArenaTeam::ArenaTeam()
     : TeamId(0), Type(0), TeamName(), CaptainGuid(), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),
@@ -744,6 +747,10 @@ void ArenaTeam::SaveToDB()
 
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
+        // Save the effort and go
+        if (itr->WeekGames == 0)
+            continue;
+
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_MEMBER);
         stmt->setUInt16(0, itr->PersonalRating);
         stmt->setUInt16(1, itr->WeekGames);
@@ -764,8 +771,12 @@ void ArenaTeam::SaveToDB()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void ArenaTeam::FinishWeek()
+bool ArenaTeam::FinishWeek()
 {
+    // No need to go further than this
+    if (Stats.WeekGames == 0)
+        return false;
+
     // Reset team stats
     Stats.WeekGames = 0;
     Stats.WeekWins = 0;
@@ -776,6 +787,8 @@ void ArenaTeam::FinishWeek()
         itr->WeekGames = 0;
         itr->WeekWins = 0;
     }
+
+    return true;
 }
 
 bool ArenaTeam::IsFighting() const

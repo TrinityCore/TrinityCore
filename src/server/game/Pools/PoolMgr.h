@@ -20,9 +20,13 @@
 #define TRINITY_POOLHANDLER_H
 
 #include "Define.h"
-#include "Creature.h"
-#include "GameObject.h"
-#include "QuestDef.h"
+#include <map>
+#include <set>
+#include <vector>
+
+class Creature;
+class GameObject;
+class Quest;
 
 struct PoolTemplateData
 {
@@ -33,7 +37,7 @@ struct PoolObject
 {
     uint64  guid;
     float   chance;
-    PoolObject(uint64 _guid, float _chance) : guid(_guid), chance(std::fabs(_chance)) { }
+    PoolObject(uint64 _guid, float _chance);
 };
 
 class Pool                                                  // for Pool of Pool case

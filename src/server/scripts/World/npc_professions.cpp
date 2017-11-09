@@ -24,10 +24,13 @@ SDCategory: NPCs
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Item.h"
+#include "Log.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "WorldSession.h"
 
 /*
@@ -187,6 +190,7 @@ enum SpecializationTrainers
     N_TRAINER_TRANSMUTE     = 22427, // Zarevhi
     N_TRAINER_ELIXIR        = 19052, // Lorokeem
     N_TRAINER_POTION        = 17909, // Lauranna Thar'well
+    TRAINER_ID_ALCHEMY      = 122,
 
     /* Blacksmithing */
     N_TRAINER_SMITHOMNI1    = 11145, // Myolor Sunderfury
@@ -198,6 +202,7 @@ enum SpecializationTrainers
     N_TRAINER_HAMMER        = 11191, // Lilith the Lithe
     N_TRAINER_AXE           = 11192, // Kilram
     N_TRAINER_SWORD         = 11193, // Seril Scourgebane
+    TRAINER_ID_BLACKSMITHING = 80,
 
     /* Leatherworking */
     N_TRAINER_DRAGON1       =  7866, // Peter Galen
@@ -206,11 +211,13 @@ enum SpecializationTrainers
     N_TRAINER_ELEMENTAL2    =  7869, // Brumn Winterhoof
     N_TRAINER_TRIBAL1       =  7870, // Caryssia Moonhunter
     N_TRAINER_TRIBAL2       =  7871, // Se'Jib
+    TRAINER_ID_LEATHERWORKING = 103,
 
     /* Tailoring */
     N_TRAINER_SPELLFIRE     = 22213, // Gidge Spellweaver
     N_TRAINER_MOONCLOTH     = 22208, // Nasmara Moonsong
     N_TRAINER_SHADOWEAVE    = 22212, // Andrion Darkspinner
+    TRAINER_ID_TAILORING    = 117,
 };
 
 /*###
@@ -482,7 +489,7 @@ public:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRAIN:
-                player->GetSession()->SendTrainerList(creature->GetGUID());
+                player->GetSession()->SendTrainerList(creature, TRAINER_ID_ALCHEMY);
                 break;
                 //Learn Alchemy
             case GOSSIP_ACTION_INFO_DEF + 1:
@@ -670,7 +677,7 @@ public:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRAIN:
-                player->GetSession()->SendTrainerList(creature->GetGUID());
+                player->GetSession()->SendTrainerList(creature, TRAINER_ID_BLACKSMITHING);
                 break;
                 //Learn Armor/Weapon
             case GOSSIP_ACTION_INFO_DEF + 1:
@@ -980,7 +987,7 @@ public:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRAIN:
-                player->GetSession()->SendTrainerList(creature->GetGUID());
+                player->GetSession()->SendTrainerList(creature, TRAINER_ID_LEATHERWORKING);
                 break;
                 //Unlearn Leather
             case GOSSIP_ACTION_INFO_DEF + 1:
@@ -1110,7 +1117,7 @@ public:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 break;
             case GOSSIP_ACTION_TRAIN:
-                player->GetSession()->SendTrainerList(creature->GetGUID());
+                player->GetSession()->SendTrainerList(creature, TRAINER_ID_TAILORING);
                 break;
                 //Learn Tailor
             case GOSSIP_ACTION_INFO_DEF + 1:
@@ -1208,6 +1215,34 @@ public:
         }
         return true;
     }
+};
+
+enum MultiProfessionTrainer
+{
+    GOSSIP_OPTION_ALCHEMY        = 0,
+    GOSSIP_OPTION_BLACKSMITHING  = 1,
+    GOSSIP_OPTION_ENCHANTING     = 2,
+    GOSSIP_OPTION_ENGINEERING    = 3,
+    GOSSIP_OPTION_HERBALISM      = 4,
+    GOSSIP_OPTION_INSCRIPTION    = 5,
+    GOSSIP_OPTION_JEWELCRAFTING  = 6,
+    GOSSIP_OPTION_LEATHERWORKING = 7,
+    GOSSIP_OPTION_MINING         = 8,
+    GOSSIP_OPTION_SKINNING       = 9,
+    GOSSIP_OPTION_TAILORING      = 10,
+    GOSSIP_OPTION_MULTI          = 11,
+
+    GOSSIP_MENU_HERBALISM        = 12188,
+    GOSSIP_MENU_MINING           = 12189,
+    GOSSIP_MENU_SKINNING         = 12190,
+    GOSSIP_MENU_ALCHEMY          = 12191,
+    GOSSIP_MENU_BLACKSMITHING    = 12192,
+    GOSSIP_MENU_ENCHANTING       = 12193,
+    GOSSIP_MENU_ENGINEERING      = 12195,
+    GOSSIP_MENU_INSCRIPTION      = 12196,
+    GOSSIP_MENU_JEWELCRAFTING    = 12197,
+    GOSSIP_MENU_LEATHERWORKING   = 12198,
+    GOSSIP_MENU_TAILORING        = 12199
 };
 
 void AddSC_npc_professions()

@@ -18,6 +18,8 @@
 #ifndef OCULUS_H_
 #define OCULUS_H_
 
+#include "CreatureAIImpl.h"
+
 #define OculusScriptName "instance_oculus"
 #define DataHeader "OC"
 
@@ -105,8 +107,8 @@ enum OCMisc
     POINT_MOVE_OUT              = 1
 };
 
-template<class AI>
-AI* GetOculusAI(Creature* creature)
+template<typename AI>
+inline AI* GetOculusAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, OculusScriptName);
 }

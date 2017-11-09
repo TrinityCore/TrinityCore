@@ -21,10 +21,9 @@
 #ifndef _HOTFIXDATABASE_H
 #define _HOTFIXDATABASE_H
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-enum HotfixDatabaseStatements
+enum HotfixDatabaseStatements : uint32
 {
     /*  Naming standard for defines:
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
@@ -61,6 +60,8 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_ARTIFACT_POWER_LINK,
 
+    HOTFIX_SEL_ARTIFACT_POWER_PICKER,
+
     HOTFIX_SEL_ARTIFACT_POWER_RANK,
 
     HOTFIX_SEL_ARTIFACT_QUEST_XP,
@@ -90,6 +91,10 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_BROADCAST_TEXT,
     HOTFIX_SEL_BROADCAST_TEXT_LOCALE,
 
+    HOTFIX_SEL_CHARACTER_FACIAL_HAIR_STYLES,
+
+    HOTFIX_SEL_CHAR_BASE_SECTION,
+
     HOTFIX_SEL_CHAR_SECTIONS,
 
     HOTFIX_SEL_CHAR_START_OUTFIT,
@@ -114,6 +119,8 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_CINEMATIC_CAMERA,
 
     HOTFIX_SEL_CINEMATIC_SEQUENCES,
+
+    HOTFIX_SEL_CONVERSATION_LINE,
 
     HOTFIX_SEL_CREATURE_DISPLAY_INFO,
 
@@ -267,6 +274,8 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_ITEM_EXTENDED_COST,
 
+    HOTFIX_SEL_ITEM_LEVEL_SELECTOR,
+
     HOTFIX_SEL_ITEM_LIMIT_CATEGORY,
     HOTFIX_SEL_ITEM_LIMIT_CATEGORY_LOCALE,
 
@@ -329,6 +338,8 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_MOUNT_TYPE_X_CAPABILITY,
 
+    HOTFIX_SEL_MOUNT_X_DISPLAY,
+
     HOTFIX_SEL_MOVIE,
 
     HOTFIX_SEL_NAME_GEN,
@@ -353,7 +364,12 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_POWER_TYPE,
 
+    HOTFIX_SEL_PRESTIGE_LEVEL_INFO,
+    HOTFIX_SEL_PRESTIGE_LEVEL_INFO_LOCALE,
+
     HOTFIX_SEL_PVP_DIFFICULTY,
+
+    HOTFIX_SEL_PVP_REWARD,
 
     HOTFIX_SEL_QUEST_FACTION_REWARD,
 
@@ -369,6 +385,10 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_QUEST_XP,
 
     HOTFIX_SEL_RAND_PROP_POINTS,
+
+    HOTFIX_SEL_REWARD_PACK,
+
+    HOTFIX_SEL_REWARD_PACK_X_ITEM,
 
     HOTFIX_SEL_RULESET_ITEM_UPGRADE,
 
@@ -489,6 +509,16 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_TOY,
     HOTFIX_SEL_TOY_LOCALE,
 
+    HOTFIX_SEL_TRANSMOG_HOLIDAY,
+
+    HOTFIX_SEL_TRANSMOG_SET,
+    HOTFIX_SEL_TRANSMOG_SET_LOCALE,
+
+    HOTFIX_SEL_TRANSMOG_SET_GROUP,
+    HOTFIX_SEL_TRANSMOG_SET_GROUP_LOCALE,
+
+    HOTFIX_SEL_TRANSMOG_SET_ITEM,
+
     HOTFIX_SEL_TRANSPORT_ANIMATION,
 
     HOTFIX_SEL_TRANSPORT_ROTATION,
@@ -502,6 +532,8 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_WMO_AREA_TABLE,
     HOTFIX_SEL_WMO_AREA_TABLE_LOCALE,
+
+    HOTFIX_SEL_WORLD_EFFECT,
 
     HOTFIX_SEL_WORLD_MAP_AREA,
 
@@ -521,13 +553,12 @@ public:
     typedef HotfixDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-    HotfixDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo);
+    HotfixDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    ~HotfixDatabaseConnection();
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
-
-typedef DatabaseWorkerPool<HotfixDatabaseConnection> HotfixDatabaseWorkerPool;
 
 #endif

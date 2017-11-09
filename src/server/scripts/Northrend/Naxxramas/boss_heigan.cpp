@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "naxxramas.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "naxxramas.h"
-#include "Player.h"
 
 enum Spells
 {
@@ -77,7 +80,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_heiganAI>(creature);
+        return GetNaxxramasAI<boss_heiganAI>(creature);
     }
 
     struct boss_heiganAI : public BossAI
@@ -233,10 +236,10 @@ class spell_heigan_eruption : public SpellScriptLoader
                 if (!caster || !GetHitPlayer())
                     return;
 
-                if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
+                if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_HEIGAN)))
-                            Heigan->AI()->KilledUnit(GetHitPlayer());
+                            Heigan->AI()->KilledUnit(GetHitUnit());
             }
 
             void Register() override

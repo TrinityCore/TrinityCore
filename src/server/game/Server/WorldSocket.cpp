@@ -19,19 +19,20 @@
 #include "WorldSocket.h"
 #include "AuthenticationPackets.h"
 #include "BattlenetRpcErrorCodes.h"
-#include "BigNumber.h"
 #include "CharacterPackets.h"
+#include "DatabaseEnv.h"
+#include "Errors.h"
 #include "HmacHash.h"
-#include "Opcodes.h"
 #include "PacketLog.h"
-#include "QueryCallback.h"
+#include "Realm.h"
+#include "RBAC.h"
 #include "ScriptMgr.h"
 #include "SessionKeyGeneration.h"
 #include "SHA256.h"
 #include "World.h"
-
+#include "WorldPacket.h"
+#include "WorldSession.h"
 #include <zlib.h>
-#include <memory>
 
 #pragma pack(push, 1)
 
@@ -41,6 +42,8 @@ struct CompressedWorldPacket
     uint32 UncompressedAdler;
     uint32 CompressedAdler;
 };
+
+#pragma pack(pop)
 
 class EncryptablePacket : public WorldPacket
 {
@@ -52,8 +55,6 @@ public:
 private:
     bool _encrypt;
 };
-
-#pragma pack(pop)
 
 using boost::asio::ip::tcp;
 
@@ -70,7 +71,7 @@ uint8 const WorldSocket::ContinuedSessionSeed[16] = { 0x16, 0xAD, 0x0C, 0xD4, 0x
 
 WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
     _type(CONNECTION_TYPE_REALM), _key(0), _OverSpeedPings(0),
-    _worldSession(nullptr), _authed(false), _compressionStream(nullptr)
+    _worldSession(nullptr), _authed(false), _sendBufferSize(4096), _compressionStream(nullptr)
 {
     _serverChallenge.SetRand(8 * 16);
     _headerBuffer.Resize(SizeOfClientHeader);
@@ -202,7 +203,7 @@ void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t
 bool WorldSocket::Update()
 {
     EncryptablePacket* queued;
-    MessageBuffer buffer;
+    MessageBuffer buffer(_sendBufferSize);
     while (_bufferQueue.Dequeue(queued))
     {
         uint32 packetSize = queued->size();
@@ -212,7 +213,7 @@ bool WorldSocket::Update()
         if (buffer.GetRemainingSpace() < packetSize + SizeOfServerHeader)
         {
             QueuePacket(std::move(buffer));
-            buffer.Resize(4096);
+            buffer.Resize(_sendBufferSize);
         }
 
         if (buffer.GetRemainingSpace() >= packetSize + SizeOfServerHeader)
@@ -994,4 +995,9 @@ bool WorldSocket::HandlePing(WorldPackets::Auth::Ping& ping)
 
     SendPacketAndLogOpcode(*WorldPackets::Auth::Pong(ping.Serial).Write());
     return true;
+}
+
+bool PacketHeader::IsValidOpcode()
+{
+    return Command < NUM_OPCODE_HANDLERS;
 }

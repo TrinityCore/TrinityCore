@@ -19,9 +19,12 @@
 #include "GridStates.h"
 #include "GridNotifiers.h"
 #include "Log.h"
+#include "Map.h"
+#include "ObjectGridLoader.h"
 
 void InvalidState::Update(Map&, NGridType&, GridInfo&, uint32) const
-{ }
+{
+}
 
 void ActiveState::Update(Map& map, NGridType& grid, GridInfo&  info, uint32 diff) const
 {

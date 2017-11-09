@@ -19,18 +19,19 @@
 #ifndef _MMAP_COMMON_H
 #define _MMAP_COMMON_H
 
+#include "Common.h"
 #include <string>
 #include <vector>
 
-#include "Common.h"
-
 #ifndef _WIN32
-    #include <stddef.h>
+    #include <cstddef>
     #include <dirent.h>
+#else
+    #include <Windows.h>
 #endif
 
-#ifdef __linux__
-    #include <errno.h>
+#ifndef WIN32
+    #include <cerrno>
 #endif
 
 enum NavTerrain

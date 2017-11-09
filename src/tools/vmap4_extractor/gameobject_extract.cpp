@@ -77,7 +77,8 @@ struct GameobjectDisplayInfoLoadInfo
         };
         static char const* types = "ifffh";
         static uint8 const arraySizes[5] = { 1, 6, 1, 1, 1 };
-        static DB2Meta const meta(-1, 5, 0xE2D6FAB7, types, arraySizes);
+        static DB2FieldDefault const fieldDefaults[5] = { uint32(0), float(0), float(0), float(0), uint16(0) };
+        static DB2Meta const meta(-1, 5, 0x9EF36BC0, types, arraySizes, fieldDefaults);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }
@@ -130,7 +131,7 @@ void ExtractGameobjectModels()
     for (uint32 rec = 0; rec < db2.GetRecordCount(); ++rec)
     {
         DB2Record record = db2.GetRecord(rec);
-        uint32 fileId = record.GetUInt32(0, 0);
+        uint32 fileId = record.GetUInt32("FileDataID");
         if (!fileId)
             continue;
 
