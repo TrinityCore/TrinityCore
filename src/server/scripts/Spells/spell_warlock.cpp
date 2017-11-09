@@ -1477,7 +1477,7 @@ public:
                 return false;
 
             int32 basePoints = GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints;
-            int32 absorb = (eventInfo.GetDamageInfo()->GetDamage() * basePoints) / 100.f;
+            int32 absorb = ((eventInfo.GetDamageInfo() ? eventInfo.GetDamageInfo()->GetDamage(): 0) * basePoints) / 100.f;
 
             // Add remaining amount if already applied
             if (Aura* aur = caster->GetAura(SPELL_WARLOCK_SOUL_LEECH_ABSORB))
@@ -3295,9 +3295,8 @@ public:
     {
         spell_npc_warl_demonic_gateway_purpleAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
-            ;
         }
 
         void JustRespawned() override
@@ -3370,7 +3369,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new spell_npc_warl_demonic_gateway_purpleAI(p_Creature);
     }
@@ -3388,7 +3387,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            ;
         }
 
         void JustRespawned() override
@@ -3461,7 +3459,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new spell_npc_warl_demonic_gateway_greenAI(p_Creature);
     }
@@ -4385,7 +4383,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_pet_warlock_darkglare_PetAI(creature);
     }
@@ -4430,7 +4428,7 @@ public:
         Unit* target = nullptr;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_pet_warlock_wild_imp_PetAI(creature);
     }

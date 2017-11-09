@@ -3045,7 +3045,7 @@ public:
     {
         PrepareAuraScript(spell_pri_smite_absorb_AuraScript);
 
-        void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+        void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
         {
             Unit* caster = GetCaster();
             Unit* attacker = dmgInfo.GetAttacker();

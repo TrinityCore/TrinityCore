@@ -3566,11 +3566,6 @@ public:
     }
 };
 
-/*
-STORM EARTH AND FIRE
-*/
-const uint32 visualMorph[3] = { 138080, 138083, 138081 }; // Storm, Earth and Fire
-
 enum SEFSpells
 {
     SEF_MIRROR      = 60352,
