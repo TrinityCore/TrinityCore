@@ -46,7 +46,7 @@ INSERT INTO spell_script_names VALUES (188196, "spell_sha_lightning_bolt_elem");
 INSERT INTO spell_script_names VALUES (324, "spell_sha_lightning_shield");
 INSERT INTO spell_script_names VALUES (192223, "spell_sha_liquid_magma_effect");
 INSERT INTO spell_script_names VALUES (187880, "spell_sha_maelstrom_weapon");
-INSERT INTO spell_script_names VALUES (,30884 "spell_sha_nature_guardian");
+INSERT INTO spell_script_names VALUES (30884, "spell_sha_nature_guardian");
 INSERT INTO spell_script_names VALUES (210621, "spell_sha_path_of_flames_spread");
 INSERT INTO spell_script_names VALUES (202192, "spell_sha_resonance_effect");
 INSERT INTO spell_script_names VALUES (16196, "spell_sha_resurgence");
