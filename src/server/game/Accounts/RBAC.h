@@ -772,6 +772,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865, // reserved 
     RBAC_PERM_COMMAND_LIST_SPAWNPOINTS                       = 866, // reserved 
     // custom permissions 1000+
+    RBAC_PERM_COMMAND_MODIFY_FURY                            = 1001,
+    RBAC_PERM_COMMAND_MODIFY_PAIN                            = 1002,	
     RBAC_PERM_MAX
 };
 
