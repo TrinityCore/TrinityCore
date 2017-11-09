@@ -617,6 +617,9 @@ class TC_GAME_API VehicleScript : public ScriptObject
 
         // Called after a passenger is removed from a vehicle.
         virtual void OnRemovePassenger(Vehicle* /*veh*/, Unit* /*passenger*/) { }
+
+        // Called when a CreatureAI object is needed for the creature.
+        virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
 };
 
 class TC_GAME_API DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicObject>
