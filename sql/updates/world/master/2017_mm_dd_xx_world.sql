@@ -5,7 +5,11 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (11021, 'You changed Maelstrom of %s to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (11022, '%s changed your Maelstrom to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (11023, 'You changed Focus of %s to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(11024, '%s changed your Focus to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(11024, '%s changed your Focus to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(11025, 'You changed fury of %s to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(11026, '%s changed your fury to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(11027, 'You changed pain of %s to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(11028, '%s changed your pain to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 DELETE FROM `command` WHERE `name`='modify power' and `permission`= 867;
 INSERT INTO `command` (`name`, `permission`, `help`) VALUES
