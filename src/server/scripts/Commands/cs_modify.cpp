@@ -1008,51 +1008,53 @@ public:
 		{
 			switch (target->getPowerType())
 			{
-			case POWER_MANA:
-				NotifyModification(handler, target, LANG_YOU_CHANGE_MANA, LANG_YOURS_MANA_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
-				target->SetMaxPower(POWER_MANA, maxpower);
-				target->SetPower(POWER_MANA, power);
-				break;
-			case POWER_RAGE:
-				NotifyModification(handler, target, LANG_YOU_CHANGE_RAGE, LANG_YOURS_RAGE_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
-				target->SetMaxPower(POWER_RAGE, maxpower);
-				target->SetPower(POWER_RAGE, power);
-				break;
-			case POWER_FOCUS:
-				NotifyModification(handler, target, LANG_YOU_CHANGE_FOCUS, LANG_YOUR_FOCUS_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
-				target->SetMaxPower(POWER_FOCUS, maxpower);
-				target->SetPower(POWER_FOCUS, power);
-				break;
-			case POWER_ENERGY:
-				NotifyModification(handler, target, LANG_YOU_CHANGE_ENERGY, LANG_YOURS_ENERGY_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
-				target->SetMaxPower(POWER_ENERGY, maxpower);
-				target->SetPower(POWER_ENERGY, power);
-				break;
-			case POWER_RUNIC_POWER:
-				NotifyModification(handler, target, LANG_YOU_CHANGE_RUNIC_POWER, LANG_YOURS_RUNIC_POWER_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
-				target->SetMaxPower(POWER_RUNIC_POWER, maxpower);
-				target->SetPower(POWER_RUNIC_POWER, power);
-				break;
-			case POWER_MAELSTROM:
-				NotifyModification(handler, target, LANG_YOU_CHANGE_MAELSTROM, LANG_YOUR_MAELSTROM_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
-				target->SetMaxPower(POWER_MAELSTROM, maxpower);
-				target->SetPower(POWER_MAELSTROM, power);
-				break;
-			case POWER_INSANITY:
-				NotifyModification(handler, target, LANG_YOU_CHANGE_INSANITY, LANG_YOUR_INSANITY_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
-				target->SetMaxPower(POWER_MANA, maxpower);
-				target->SetPower(POWER_MANA, power);
-				break;
-			case POWER_FURY:
-				NotifyModification(handler, target, LANG_YOU_CHANGE_FURY, LANG_YOUR_FURY_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
-				target->SetMaxPower(POWER_FURY, maxpower);
-				target->SetPower(POWER_FURY, power);
-				break;
-			case POWER_PAIN:
-				NotifyModification(handler, target, LANG_YOU_CHANGE_PAIN, LANG_YOUR_PAIN_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
-				target->SetMaxPower(POWER_PAIN, maxpower);
-				target->SetPower(POWER_PAIN, power);
-				break;
+                case POWER_MANA:
+                    NotifyModification(handler, target, LANG_YOU_CHANGE_MANA, LANG_YOURS_MANA_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
+                    target->SetMaxPower(POWER_MANA, maxpower);
+                    target->SetPower(POWER_MANA, power);
+                    break;
+                case POWER_RAGE:
+                    NotifyModification(handler, target, LANG_YOU_CHANGE_RAGE, LANG_YOURS_RAGE_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
+                    target->SetMaxPower(POWER_RAGE, maxpower);
+                    target->SetPower(POWER_RAGE, power);
+                    break;
+                case POWER_FOCUS:
+                    NotifyModification(handler, target, LANG_YOU_CHANGE_FOCUS, LANG_YOUR_FOCUS_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
+                    target->SetMaxPower(POWER_FOCUS, maxpower);
+                    target->SetPower(POWER_FOCUS, power);
+                    break;
+                case POWER_ENERGY:
+                    NotifyModification(handler, target, LANG_YOU_CHANGE_ENERGY, LANG_YOURS_ENERGY_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
+                    target->SetMaxPower(POWER_ENERGY, maxpower);
+                    target->SetPower(POWER_ENERGY, power);
+                    break;
+                case POWER_RUNIC_POWER:
+                    NotifyModification(handler, target, LANG_YOU_CHANGE_RUNIC_POWER, LANG_YOURS_RUNIC_POWER_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
+                    target->SetMaxPower(POWER_RUNIC_POWER, maxpower);
+                    target->SetPower(POWER_RUNIC_POWER, power);
+                    break;
+                case POWER_MAELSTROM:
+                    NotifyModification(handler, target, LANG_YOU_CHANGE_MAELSTROM, LANG_YOUR_MAELSTROM_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
+                    target->SetMaxPower(POWER_MAELSTROM, maxpower);
+                    target->SetPower(POWER_MAELSTROM, power);
+                    break;
+                case POWER_INSANITY:
+                    NotifyModification(handler, target, LANG_YOU_CHANGE_INSANITY, LANG_YOUR_INSANITY_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
+                    target->SetMaxPower(POWER_MANA, maxpower);
+                    target->SetPower(POWER_MANA, power);
+                    break;
+                case POWER_FURY:
+                    NotifyModification(handler, target, LANG_YOU_CHANGE_FURY, LANG_YOUR_FURY_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
+                    target->SetMaxPower(POWER_FURY, maxpower);
+                    target->SetPower(POWER_FURY, power);
+                    break;
+                case POWER_PAIN:
+                    NotifyModification(handler, target, LANG_YOU_CHANGE_PAIN, LANG_YOUR_PAIN_CHANGED, power / powerMultiplier, maxpower / powerMultiplier);
+                    target->SetMaxPower(POWER_PAIN, maxpower);
+                    target->SetPower(POWER_PAIN, power);
+                    break;
+                default:
+                    break;
 			}
 			return true;
 		}
