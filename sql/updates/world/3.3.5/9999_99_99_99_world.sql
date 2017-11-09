@@ -1,30 +1,16 @@
--- Infested Root-Walker
+-- Infested Root-Walker, Rotting Forest-Rager
 
--- Table creature_template
-UPDATE `creature_template` SET `ScriptName` = '', `AIName` = 'SmartAI' WHERE `entry` = 22095;
+UPDATE `creature_template` SET `ScriptName` = '', `AIName` = 'SmartAI' WHERE `entry` IN (22095, 22307);
 
--- Table smart_scripts
-DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = 22095);
+DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid IN (22095, 22307));
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(22095, 0, 0, 0, 6, 0, 75, 0, 0, 0, 0, 0, 11, 39130, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Infested Root-Walker - On Just Died - Cast \'Summon Wood Mites\'');
+(22095, 0, 0, 0, 6, 0, 75, 0, 0, 0, 0, 0, 11, 39130, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Infested Root-Walker - On Just Died - Cast \'Summon Wood Mites\''),
+(22307, 0, 0, 0, 6, 0, 75, 0, 0, 0, 0, 0, 11, 39134, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rotting Forest-Rager - On Just Died - Cast \'Summon Lots Of Wood Mites\'');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceGroup`=1 AND `SourceEntry`=22095 AND `SourceId`=0;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceGroup` = 1 AND `SourceEntry` IN (22095, 22307) AND `SourceId` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 22095, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', ' Id 0 of Creature SAI for EntryOrGuid 22095 will execute if invoker is player.');
-
--- Rotting Forest-Rager
-
--- Table creature_template
-UPDATE `creature_template` SET `ScriptName` = '', `AIName` = 'SmartAI' WHERE `entry` = 22307;
-
--- Table smart_scripts
-DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = 22095);
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(22307, 0, 0, 0, 6, 0, 75, 0, 0, 0, 0, 0, 11, 39134, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Infested Root-Walker - On Just Died - Cast \'Summon Lots Of Wood Mites\'');
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceGroup`=1 AND `SourceEntry`=22307 AND `SourceId`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 22307, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', ' Id 0 of Creature SAI for EntryOrGuid 22307 will execute if invoker is player.');
+(22, 1, 22095, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', ' Id 0 of Creature SAI for Infested Root-Walker will execute if invoker is player.'),
+(22, 1, 22307, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', ' Id 0 of Creature SAI for Rotting Forest-Rager will execute if invoker is player.');
 
 -- Skull Pile
 UPDATE `gameobject_template` SET `ScriptName` = '', `AIName` = 'SmartGameObjectAI' WHERE `entry` = 185913;
@@ -50,24 +36,16 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15, 8660, 2, 0, 1, 8, 0, 11885, 0, 0, 0, 0, 0, '', 'Show gossip menu 8660 option id 2 if quest Adversarial Blood has been rewarded.'),
 (15, 8660, 3, 0, 1, 8, 0, 11885, 0, 0, 0, 0, 0, '', 'Show gossip menu 8660 option id 3 if quest Adversarial Blood has been rewarded.');
 
-
-
 -- Slim
-UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 19679; -- TODO does this need SAI? I don't think so since it has conditions and not smart_scripts.
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 19679;
 
 DELETE FROM `gossip_menu` WHERE `MenuID` = 8021;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 (8021, 9895, 0),
 (8021, 9896, 0);
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=8021;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14, 15) AND `SourceGroup` = 8021;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14, 8021, 9896, 0, 0, 5, 0, 933, 240, 0, 0, 0, 0, '', 'Show gossip menu 8021 text id 9896 if player is at least Friendly with The Consortium.'),
-(14, 8021, 9895, 0, 0, 5, 0, 933, 240, 0, 1, 0, 0, '', 'Show gossip menu 8021 text id 9895 if player is not at least Friendly with The Consortium.');
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=8021;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 8021, 9895, 0, 0, 5, 0, 933, 240, 0, 1, 0, 0, '', 'Show gossip menu 8021 text id 9895 if player is not at least Friendly with The Consortium.'),
 (15, 8021, 0, 0, 0, 5, 0, 933, 240, 0, 0, 0, 0, '', 'Show gossip menu 8021 option id 0 if player is at least Friendly with The Consortium.');
-
--- TODO consolidate this mess
-
