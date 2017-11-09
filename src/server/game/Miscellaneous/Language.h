@@ -1251,7 +1251,7 @@ enum TrinityStrings
     LANG_YOUR_INSANITY_CHANGED                    = 11020,
     LANG_YOU_CHANGE_MAELSTROM                     = 11021,
     LANG_YOUR_MAELSTROM_CHANGED                   = 11022,
-    LANG_YOU_CHANGE_FOCUS			              = 11023,
+    LANG_YOU_CHANGE_FOCUS			               = 11023,
     LANG_YOUR_FOCUS_CHANGED                       = 11024
 };
 #endif
