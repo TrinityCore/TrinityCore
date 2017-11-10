@@ -15,11 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
 
 #define ACTION_TALK 1
 
@@ -311,11 +319,11 @@ class mob_tushui_trainee : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                if (me->HealthBelowPctDamaged(16.67f, damage))
+                if (me->HealthBelowPctDamaged(16, damage))
                 {
                     me->setFaction(35);
 
-                    if(attacker && attacker->GetTypeId() == TYPEID_PLAYER)
+                    if(attacker && attacker->IsPlayer())
                         attacker->ToPlayer()->KilledMonsterCredit(54586);
 
                     damage = 0;

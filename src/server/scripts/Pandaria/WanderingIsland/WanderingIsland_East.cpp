@@ -15,12 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
 #include "Vehicle.h"
 
 #define QUEST_SPIRIT_OF_WATER 29678
@@ -94,7 +101,7 @@ class vehicle_balance_pole : public VehicleScript
     public:
         vehicle_balance_pole() : VehicleScript("vehicle_balance_pole") {}
 
-        void OnAddPassenger(Vehicle* veh, Unit* passenger, int8 /*seatId*/) override
+        void OnAddPassenger(Vehicle* /*veh*/, Unit* passenger, int8 /*seatId*/) override
         {
             if (passenger->HasAura(102938))
                 passenger->ExitVehicle();

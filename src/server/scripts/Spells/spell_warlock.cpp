@@ -25,6 +25,8 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "GridNotifiers.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "PetAI.h"
 #include "Player.h"
@@ -3385,7 +3387,7 @@ public:
     {
         spell_npc_warl_demonic_gateway_greenAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
         }
 

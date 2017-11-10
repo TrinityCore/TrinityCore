@@ -383,40 +383,16 @@ public:
 
         Position bottom = { -867.21f, -1133.19f, 81.22f, 1.75f };
 
-        void OnUpdate(uint32 /*diff*/) override
+        void OnUnitEnter(Unit* unit) override
         {
-            /*if (Unit* l_Caster = at->GetCaster())
-            {
-                std::list<Player*> l_PlayerList;
-                l_Caster->GetPlayerListInGrid(l_PlayerList, 50.0f);
-
-                for (Player* l_Player : l_PlayerList)
-                {
-                    if (l_Player->IsWithinDist(p_AreaTrigger, 20.0f, true))
-                    {
-                        if (l_Player->IsAlive() && !l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
-                            l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, bottom, 7.0f, 1);
-                        else if (!l_Player->IsAlive() && l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
-                            l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, bottom);
-                    }
-                    else if (l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
-                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, bottom);
-                }
-            }*/
+            if (unit->IsPlayer())
+                unit->ApplyMovementForce(at->GetGUID(), 7.0f, bottom);
         }
 
-        void OnRemove() override
+        void OnUnitExit(Unit* unit) override
         {
-            /*if (Unit* l_Caster = at->GetCaster())
-            {
-                std::list<Player*> l_PlayerList;
-                l_Caster->GetPlayerListInGrid(l_PlayerList, 70.0f);
-
-                for (Player* l_Player : l_PlayerList)
-                {
-                    l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, bottom);
-                }
-            }*/
+            if (unit->IsPlayer())
+                unit->RemoveMovementForce(at->GetGUID());
         }
     };
 
