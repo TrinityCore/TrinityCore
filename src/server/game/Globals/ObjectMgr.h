@@ -650,28 +650,28 @@ struct PointOfInterest
 
 struct GossipMenuItems
 {
-    uint32          MenuId;
-    uint32          OptionIndex;
-    uint8           OptionIcon;
-    std::string     OptionText;
-    uint32          OptionBroadcastTextId;
-    uint32          OptionType;
-    uint64          OptionNpcflag;
-    uint32          ActionMenuId;
-    uint32          ActionPoiId;
-    bool            BoxCoded;
-    uint32          BoxMoney;
-    std::string     BoxText;
-    uint32          BoxBroadcastTextId;
-    uint32          TrainerId;
+    uint32               MenuID;
+    uint32               OptionID;
+    uint8                OptionIcon;
+    std::string          OptionText;
+    uint32               OptionBroadcastTextID;
+    uint32               OptionType;
+    uint64               OptionNpcFlag;
+    uint32               ActionMenuID;
+    uint32               ActionPoiID;
+    bool                 BoxCoded;
+    uint32               BoxMoney;
+    std::string          BoxText;
+    uint32               BoxBroadcastTextID;
+    uint32               TrainerId;
     ConditionContainer   Conditions;
 };
 
 struct GossipMenus
 {
-    uint32          entry;
-    uint32          text_id;
-    ConditionContainer   conditions;
+    uint32               MenuID;
+    uint32               TextID;
+    ConditionContainer   Conditions;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
