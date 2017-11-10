@@ -81,7 +81,7 @@ if (ZMQ_INCLUDE_DIR AND ZMQ_LIBRARY AND NOT ZMQ_LIBRARY-NOTFOUND)
   message(STATUS "Found ZMQ library: ${ZMQ_LIBRARY}")
   message(STATUS "Found ZMQ headers: ${ZMQ_INCLUDE_DIR}")
 else()
-  message(FATAL_ERROR "Could not find ZMQ libraries/headers! Please install ZMQ with libraries and headers")
+  message(FATAL_ERROR "Could not find ZMQ libraries/headers! Please install ZMQ with libraries and headers, read README.md for more info")
 endif()
 
 # show the ZMQ_INCLUDE_DIR and ZMQ_LIBRARY variables only in the advanced view
