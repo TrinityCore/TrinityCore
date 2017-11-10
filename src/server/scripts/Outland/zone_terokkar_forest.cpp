@@ -20,7 +20,6 @@
 SDName: Terokkar_Forest
 SD%Complete: 85
 SDComment: Quest support: 9889, 10898, 10052, 10051.
-TODO remove 9889 when unkor done
 SDCategory: Terokkar Forest
 EndScriptData */
 
@@ -32,10 +31,9 @@ npc_akuno
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "Group.h" //TODO remove after migrating Unkor
+#include "Group.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h" //TODO remove after migrating Floon
 #include "WorldSession.h"
 
 /*######
@@ -72,7 +70,7 @@ public:
         {
             CanDoQuest = false;
             UnkorUnfriendly_Timer = 0;
-            Pulverize_Timer = 3000; //cast incombat 3000,3000,9000,9000
+            Pulverize_Timer = 3000;
         }
 
         bool CanDoQuest;
@@ -82,8 +80,8 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetStandState(UNIT_STAND_STATE_STAND); //ACTION_SET_UNIT_FIELD_BYTES_1 to 0
-            me->SetFaction(FACTION_OGRE); //45 - remove from SharedDefines.h when done
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            me->SetFaction(FACTION_OGRE);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -92,11 +90,11 @@ public:
         {
             Talk(SAY_SUBMIT);
             me->SetFaction(FACTION_FRIENDLY);
-            me->SetStandState(UNIT_STAND_STATE_SIT); //ACTION_SET_UNIT_FIELD_BYTES_1 (90) to 1
-            me->RemoveAllAuras(); //ACTION_REMOVEAURASFROMSPELL spellid 0 target self
+            me->SetStandState(UNIT_STAND_STATE_SIT);
+            me->RemoveAllAuras();
             me->GetThreatManager().ClearAllThreat();
             me->CombatStop(true);
-            UnkorUnfriendly_Timer = 60000; //reset after 60 seconds
+            UnkorUnfriendly_Timer = 60000;
         }
 
         void DamageTaken(Unit* done_by, uint32 &damage) override
