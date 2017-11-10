@@ -19,8 +19,7 @@
 /* ScriptData
 SDName: Terokkar_Forest
 SD%Complete: 85
-SDComment: Quest support: 9889, 10009, 10898, 10052, 10051.
-TODO remove 10009 when floon done
+SDComment: Quest support: 9889, 10898, 10052, 10051.
 TODO remove 9889 when unkor done
 SDCategory: Terokkar Forest
 EndScriptData */
