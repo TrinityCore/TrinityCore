@@ -41,7 +41,7 @@ enum InstanceEvents
 };
 
 Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
-static AreaBoundary* const beforeScarletGate = new EllipseBoundary(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
+AreaBoundary* const beforeScarletGate = new EllipseBoundary(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
 class instance_stratholme : public InstanceMapScript
 {
