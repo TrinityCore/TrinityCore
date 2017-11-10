@@ -1198,7 +1198,6 @@ public:
                     me->AddAura(AURA_BLESSING_OF_THE_PURPLE_FLAME, me);
                     me->AddAura(AURA_BLESSING_OF_THE_BLUE_FLAME, me);
                     me->AddAura(AURA_BLESSING_OF_THE_RED_FLAME, me);
-                    player->GetMotionMaster()->MoveJump(me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), 15.0f, 15.0f);
                     player->AddAura(AURA_BLESSING_OF_THE_PURPLE_FLAME, player);
                     player->AddAura(AURA_BLESSING_OF_THE_BLUE_FLAME, player);
                     player->AddAura(AURA_BLESSING_OF_THE_RED_FLAME, player);

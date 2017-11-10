@@ -900,28 +900,15 @@ public:
         std::list<Creature*> summonList;
         GetCreatureListWithEntryInGrid(summonList, player, 59960, 6.0f);
 
-        for (auto summoned: summonList)
-            IsSummoned = true;
+        IsSummoned = summonList.size() != 0;
 
-        if (IsSummoned == false)
+        if (IsSummoned == false &&
+            (quest->GetQuestId() == 29779 ||
+             quest->GetQuestId() == 29780 ||
+             quest->GetQuestId() == 29781))
         {
-            if (quest->GetQuestId() == 29779)
-            {
-                SummonHiFirepawHelper(player, 59960);
-                IsSummoned = true;
-            }
-
-            if (quest->GetQuestId() == 29780)
-            {
-                SummonHiFirepawHelper(player, 59960);
-                IsSummoned = true;
-            }
-
-            if (quest->GetQuestId() == 29781)
-            {
-                SummonHiFirepawHelper(player, 59960);
-                IsSummoned = true;
-            }
+            SummonHiFirepawHelper(player, 59960);
+            IsSummoned = true;
         }
 
         return true;

@@ -421,7 +421,7 @@ class spell_grab_carriage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_grab_carriage_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
 
