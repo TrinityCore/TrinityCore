@@ -14,7 +14,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 -- Skull Pile
 UPDATE `gameobject_template` SET `ScriptName` = '', `AIName` = 'SmartGameObjectAI' WHERE `entry` = 185913;
-DELETE FROM `smart_scripts` WHERE entryorguid = 185913 AND source_type = 1;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 185913 AND `source_type` = 1;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (185913, 1, 0, 1, 62, 0, 100, 0, 8660, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 0 Selected - Close Gossip'),
 (185913, 1, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 85, 40632, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 0 Selected - Invoker Cast \'Summon Gezzarak the Huntress\''),
@@ -49,3 +49,24 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14, 8021, 9896, 0, 0, 5, 0, 933, 240, 0, 0, 0, 0, '', 'Show gossip menu 8021 text id 9896 if player is at least Friendly with The Consortium.'),
 (14, 8021, 9895, 0, 0, 5, 0, 933, 240, 0, 1, 0, 0, '', 'Show gossip menu 8021 text id 9895 if player is not at least Friendly with The Consortium.'),
 (15, 8021, 0, 0, 0, 5, 0, 933, 240, 0, 0, 0, 0, '', 'Show gossip menu 8021 option id 0 if player is at least Friendly with The Consortium.');
+
+-- Floon
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 18588;
+
+UPDATE `gossip_menu_option` SET `ActionMenuID` = 7731 WHERE `MenuID` = 7732 AND `OptionID` = 0;
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 18588 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(18588, 0, 0, 0, 0, 0, 100, 0, 2000, 2000, 30000, 30000, 11, 6726, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Floon - In Combat - Cast \'Silence\''),
+(18588, 0, 0, 0, 0, 0, 100, 0, 4000, 4000, 5000, 5000, 11, 9672, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Floon - In Combat - Cast \'Frostbolt\''),
+(18588, 0, 0, 0, 0, 0, 100, 0, 9000, 9000, 20000, 20000, 11, 11831, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Floon - In Combat - Cast \'Frost Nova\''),
+(18588, 0, 1, 2, 62, 0, 100, 0, 7731, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Close Gossip'),
+(18588, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 2, 1738, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Set Faction Arrakoa'),
+(18588, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Say Line 0'),
+(18588, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Start Attacking'),
+(18588, 0, 5, 0, 25, 0, 100, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Reset - Set Default Faction');
+
+-- Condition only show menu 7731 option 0 if player has quest crack some skulls
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 7731;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(15, 7731, 0, 0, 0, 9, 0, 10009, 0, 0, 0, 0, 0, '', 'Show gossip menu 7731 option id 0 if quest Crackin\' Some Skulls has been taken.'),

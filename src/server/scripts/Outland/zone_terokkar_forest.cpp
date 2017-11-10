@@ -85,7 +85,7 @@ public:
         {
             Initialize();
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->SetFaction(FACTION_OGRE);
+            me->SetFaction(FACTION_OGRE); //This can be removed from SharedDefines.h when converted.
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -223,122 +223,6 @@ public:
             EscortAI::UpdateAI(diff);
         }
     };
-};
-
-/*######
-## npc_floon
-######*/
-
-enum Floon
-{
-    SAY_FLOON_ATTACK            = 0,
-    OPTION_ID_PAY_UP_OR_DIE     = 0,
-    OPTION_ID_COLLECT_A_DEBT    = 0,
-    MENU_ID_PAY_UP_OR_DIE       = 7731,
-    MENU_ID_COLLECT_A_DEBT      = 7732,
-    GOSSIP_FLOON_STRANGE_SOUNDS = 9442,
-    GOSSIP_HE_ALREADY_KILLED_ME = 9443,
-
-    SPELL_SILENCE               = 6726,
-    SPELL_FROSTBOLT             = 9672,
-    SPELL_FROST_NOVA            = 11831,
-
-    QUEST_CRACKIN_SOME_SKULLS   = 10009
-};
-
-class npc_floon : public CreatureScript
-{
-public:
-    npc_floon() : CreatureScript("npc_floon") { }
-
-    struct npc_floonAI : public ScriptedAI
-    {
-        npc_floonAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            m_uiNormFaction = creature->GetFaction();
-        }
-
-        void Initialize()
-        {
-            Silence_Timer = 2000;
-            Frostbolt_Timer = 4000;
-            FrostNova_Timer = 9000;
-        }
-
-        uint32 m_uiNormFaction;
-        uint32 Silence_Timer;
-        uint32 Frostbolt_Timer;
-        uint32 FrostNova_Timer;
-
-        void Reset() override
-        {
-            Initialize();
-            if (me->GetFaction() != m_uiNormFaction)
-                me->SetFaction(m_uiNormFaction);
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (Silence_Timer <= diff)
-            {
-                DoCastVictim(SPELL_SILENCE);
-                Silence_Timer = 30000;
-            } else Silence_Timer -= diff;
-
-            if (FrostNova_Timer <= diff)
-            {
-                DoCast(me, SPELL_FROST_NOVA);
-                FrostNova_Timer = 20000;
-            } else FrostNova_Timer -= diff;
-
-            if (Frostbolt_Timer <= diff)
-            {
-                DoCastVictim(SPELL_FROSTBOLT);
-                Frostbolt_Timer = 5000;
-            } else Frostbolt_Timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_INFO_DEF)
-            {
-                AddGossipItemFor(player, MENU_ID_PAY_UP_OR_DIE, OPTION_ID_PAY_UP_OR_DIE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, GOSSIP_HE_ALREADY_KILLED_ME, me->GetGUID());
-            }
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                CloseGossipMenuFor(player);
-                me->SetFaction(FACTION_ARAKKOA);
-                Talk(SAY_FLOON_ATTACK, player);
-                AttackStart(player);
-            }
-            return true;
-        }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-            SendGossipMenuFor(player, GOSSIP_FLOON_STRANGE_SOUNDS, me->GetGUID());
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_floonAI(creature);
-    }
 };
 
 /*######
