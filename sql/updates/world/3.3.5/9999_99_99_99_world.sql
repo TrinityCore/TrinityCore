@@ -51,7 +51,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15, 8021, 0, 0, 0, 5, 0, 933, 240, 0, 0, 0, 0, '', 'Show gossip menu 8021 option id 0 if player is at least Friendly with The Consortium.');
 
 -- Floon
-UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 18588;
+UPDATE `creature_template` SET `ScriptName` = '', `AIName` = 'SmartAI' WHERE `entry` = 18588;
 
 UPDATE `gossip_menu_option` SET `ActionMenuID` = 7731 WHERE `MenuID` = 7732 AND `OptionID` = 0;
 
