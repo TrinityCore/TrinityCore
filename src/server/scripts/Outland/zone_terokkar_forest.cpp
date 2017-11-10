@@ -26,7 +26,6 @@ EndScriptData */
 
 /* ContentData
 npc_unkor_the_ruthless
-npc_floon
 npc_isla_starmane
 npc_skywing
 npc_akuno
@@ -386,7 +385,6 @@ public:
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
-    new npc_floon();
     new npc_isla_starmane();
     new npc_skywing();
     new npc_akuno();
