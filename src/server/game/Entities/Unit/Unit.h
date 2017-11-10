@@ -24,6 +24,7 @@
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
 #include "HostileRefManager.h"
+#include "MovementPackets.h"
 #include "SpellAuraDefines.h"
 #include "TaskScheduler.h"
 #include "ThreatManager.h"
@@ -274,10 +275,6 @@ namespace WorldPackets
     namespace CombatLog
     {
         class CombatLogServerPacket;
-    }
-    namespace Movement
-    {
-        struct MovementForce;
     }
 }
 
