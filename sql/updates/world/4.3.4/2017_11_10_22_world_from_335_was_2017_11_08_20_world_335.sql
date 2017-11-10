@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `item_loot_template` WHERE `entry`=6307;
 INSERT INTO `item_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
@@ -49,3 +50,4 @@ INSERT INTO `item_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `Quest
 (6307, 4349, 0, 0.6818, 0, 1, 1, 1, 1, "Pattern: Phoenix Pants"),
 (6307, 4294, 0, 0.6818, 0, 1, 1, 1, 1, "Pattern: Hillman's Belt"),
 (6307, 6716, 0, 0.6818, 0, 1, 1, 1, 1, "Schematic: EZ-Thro Dynamite");
+*/

@@ -1,3 +1,4 @@
+/*
 --
 UPDATE `smart_scripts` SET `event_param1`=0, `event_param2`=0, `action_param2`=0 WHERE `entryorguid`=305400 AND `source_type`=9 AND `id`=1;
 UPDATE `smart_scripts` SET `event_param1`=5500, `event_param2`=5500 WHERE `entryorguid`=305400 AND `id`=2;
@@ -19,3 +20,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (2983, 0, 0, "%s beings to draw energy from the earth", 16, 0, 100, 0, 0, 0, 944, 0, "The Plains Vision"),
 (2983, 1, 0, "%s stares to the northwest and lets out a long, drawn out howl.", 16, 0, 100, 0, 0, 0, 945, 0, "The Plains Vision"),
 (2983, 2, 0, "%s lets forth a mighty howl.", 16, 0, 100, 0, 0, 0, 946, 0, "The Plains Vision");
+*/

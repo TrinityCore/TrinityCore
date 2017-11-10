@@ -1,3 +1,4 @@
+/*
 -- 
 SET @GUID := 81148; -- Needs 2
 DELETE FROM `creature` WHERE `guid` IN (@GUID, @GUID+1);
@@ -32,3 +33,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=4062;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (4062, 0, 0, "Still no sign of the final shipment of explosives.", 12, 7, 100, 0, 0, 0, 782, 0, "Dark Iron Bombardier"),
 (4062, 1, 0, "No sign of the final explosives shipment to the west either.  Where are those lollygaggers?", 12, 7, 100, 0, 0, 0, 783, 0, "Dark Iron Bombardier");
+*/

@@ -9,7 +9,7 @@ UPDATE `gameobject` SET `phaseMask` = 197 WHERE `guid` IN (66021,66039,65983,660
 DELETE FROM `creature` WHERE `guid` IN (129218,129219);
 DELETE FROM `creature_addon` WHERE `guid` IN (129218,129219);
 
-DELETE FROM `gameobject` WHERE `guid` IN (1484,1493); 
+DELETE FROM `gameobject` WHERE `guid` IN (1484,1493);
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
 (1484,191206,0,1,449, 2460.06, -5593.7, 367.394, 0.556369, 0, 0, 0.27461, 0.961556, 180,255,1),
 (1493,191206,609, 1, 231, 2460.06, -5593.7, 367.394, 0.556369, 0, 0, 0.27461, 0.961556, 180,255, 1);
