@@ -288,7 +288,7 @@ public:
             IntroTimer      = 100;
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid guid, int32 /*type*/) override
         {
             playerGuid = guid;
         }

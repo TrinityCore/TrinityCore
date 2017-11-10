@@ -3870,7 +3870,7 @@ public:
     {
         PrepareAuraScript(spell_warl_demonskin_AuraScript);
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             Unit* caster = GetCaster();
             if (!caster)

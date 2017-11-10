@@ -1635,7 +1635,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugRemoveForceMovementCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugRemoveForceMovementCommand(ChatHandler* handler, char const* /*args*/)
     {
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
