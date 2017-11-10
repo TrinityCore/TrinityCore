@@ -1113,7 +1113,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!ValidateSpellInfo(memorySpellsId))
+                if (!ValidateSpellInfo(memorySpells))
                     return false;
 
                 return true;
