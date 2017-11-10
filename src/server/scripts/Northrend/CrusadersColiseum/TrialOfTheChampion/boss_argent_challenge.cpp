@@ -1113,7 +1113,10 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(memorySpellId);
+                if (!ValidateSpellInfo(memorySpellsId))
+                    return false;
+
+                return true;
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
