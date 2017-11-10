@@ -275,6 +275,10 @@ namespace WorldPackets
     {
         class CombatLogServerPacket;
     }
+    namespace Movement
+    {
+        struct MovementForce;
+    }
 }
 
 typedef std::list<Unit*> UnitList;
@@ -1345,6 +1349,11 @@ class TC_GAME_API Unit : public WorldObject
         bool SetCanDoubleJump(bool enable);
         void SendSetVehicleRecId(uint32 vehicleId);
 
+        bool HasMovementForce(ObjectGuid source);
+        void ApplyMovementForce(ObjectGuid source, float magnitude, Position direction, Position origin = Position());
+        void RemoveMovementForce(ObjectGuid source);
+        void RemoveAllMovementForces();
+
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori, bool force = false);
         void SetFacingToObject(WorldObject const* object, bool force = false);
@@ -2074,6 +2083,8 @@ class TC_GAME_API Unit : public WorldObject
         TaskScheduler _scheduler;
 
         uint32 _lastUpdatePower[MAX_POWERS_PER_CLASS];
+
+        std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> _movementForces;
 };
 
 namespace Trinity

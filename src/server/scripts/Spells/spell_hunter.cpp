@@ -28,6 +28,8 @@
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "PetPackets.h"
 #include "ScriptMgr.h"

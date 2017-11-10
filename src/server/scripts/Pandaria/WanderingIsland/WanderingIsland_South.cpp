@@ -15,11 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "GameObject.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
 
 #define QUEST_A_NEW_FATE 29800
 #define A_NEW_FATE_KILL_CREDIT 57741
@@ -97,7 +107,7 @@ class mob_mandori_escort : public CreatureScript
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid guid, int32 /*type*/) override
         {
             playerGuid = guid;
 

@@ -15,13 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "GameObject.h"
-#include "ObjectMgr.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
 #include "Vehicle.h"
 
 #define GOSSIP_WIND     "I would like to go back on the top of the temple"
@@ -868,7 +876,6 @@ public:
     void SummonHiFirepawHelper(Player* summoner, uint32 entry)
     {
         uint32 phase = summoner->GetPhaseMask();
-        uint32 team = summoner->GetTeam();
         Position pos = summoner->GetPosition();
 
         Guardian* summon = new Guardian(NULL, summoner, false);
