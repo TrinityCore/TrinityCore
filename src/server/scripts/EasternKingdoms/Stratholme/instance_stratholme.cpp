@@ -41,7 +41,7 @@ enum InstanceEvents
 };
 
 Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
-AreaBoundary* const beforeScarletGate = new EllipseBoundary(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
+EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
 class instance_stratholme : public InstanceMapScript
 {
@@ -100,7 +100,7 @@ class instance_stratholme : public InstanceMapScript
                         {
                             Position pos = who->ToCreature()->GetHomePosition();
                             // check if they're in front of the entrance
-                            if (beforeScarletGate->IsWithinBoundary(pos))
+                            if (beforeScarletGate.IsWithinBoundary(pos))
                             {
                                 if (++scarletsKilled >= TIMMY_THE_CRUEL_CRUSADERS_REQUIRED)
                                 {
