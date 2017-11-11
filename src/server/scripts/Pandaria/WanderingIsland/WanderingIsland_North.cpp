@@ -772,10 +772,10 @@ public:
             switch (uiId)
             {
                 case 1:
-                    me->GetMotionMaster()->MoveJump(1227.11f, 3489.73f, 100.37f, 10, 20, 10.0f, 2);
+                    me->GetMotionMaster()->MoveJump(Position(1227.11f, 3489.73f, 100.37f), 10, 20, 10.0f);
                     break;
                 case 2:
-                    me->GetMotionMaster()->MoveJump(1236.68f, 3456.68f, 102.58f, 10, 20, 10.0f, 3);
+                    me->GetMotionMaster()->MoveJump(Position(1236.68f, 3456.68f, 102.58f), 10, 20, 10.0f);
                     break;
                 case 3:
                     Start(false, true);
@@ -1565,7 +1565,7 @@ class mob_huojin_trainee : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                if (me->HealthBelowPctDamaged(16.67f, damage))
+                if (me->HealthBelowPctDamaged(16, damage))
                 {
                     damage = 0;
                     if(attacker && attacker->GetTypeId() == TYPEID_PLAYER)
