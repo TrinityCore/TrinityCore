@@ -35,6 +35,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << uint32(TokenRedeemIndex);
     _worldPacket << int64(TokenBalanceAmount);
 
+    _worldPacket << uint32(BpayStoreProductDeliveryDelay);
+
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
     _worldPacket.WriteBit(ScrollOfResurrectionEnabled);
@@ -131,11 +133,15 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(false); // not accessed in handler
     _worldPacket.WriteBit(TrialBoostEnabled);
     _worldPacket.WriteBit(TokenBalanceEnabled);
+    _worldPacket.WriteBit(LiveRegionCharacterListEnabled);
+    _worldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
+    _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
     _worldPacket.FlushBits();
 
     _worldPacket << int32(TokenPollTimeSeconds);
     _worldPacket << int32(TokenRedeemIndex);
     _worldPacket << int64(TokenBalanceAmount);
+    _worldPacket << uint32(BpayStoreProductDeliveryDelay);
 
     return &_worldPacket;
 }

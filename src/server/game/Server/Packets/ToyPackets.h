@@ -43,7 +43,6 @@ namespace WorldPackets
             void Read() override;
 
             WorldPackets::Spells::SpellCastRequest Cast;
-            uint32 ItemID = 0;
         };
 
         class AccountToysUpdate final : public ServerPacket

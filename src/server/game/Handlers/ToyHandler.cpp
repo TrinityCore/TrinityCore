@@ -53,11 +53,12 @@ void WorldSession::HandleAddToy(WorldPackets::Toy::AddToy& packet)
 
 void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
 {
-    ItemTemplate const* item = sObjectMgr->GetItemTemplate(packet.ItemID);
+    uint32 itemId = packet.Cast.Misc[0];
+    ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
     if (!item)
         return;
 
-    if (!_collectionMgr->HasToy(packet.ItemID))
+    if (!_collectionMgr->HasToy(itemId))
         return;
 
     auto effect = std::find_if(item->Effects.begin(), item->Effects.end(), [&packet](ItemEffectEntry const* effect)
@@ -71,7 +72,7 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(packet.Cast.SpellID);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("network", "HandleUseToy: unknown spell id: %u used by Toy Item entry %u", packet.Cast.SpellID, packet.ItemID);
+        TC_LOG_ERROR("network", "HandleUseToy: unknown spell id: %u used by Toy Item entry %u", packet.Cast.SpellID, itemId);
         return;
     }
 
@@ -88,7 +89,7 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
     SendPacket(spellPrepare.Write());
 
     spell->m_fromClient = true;
-    spell->m_castItemEntry = packet.ItemID;
+    spell->m_castItemEntry = itemId;
     spell->m_misc.Raw.Data[0] = packet.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = packet.Cast.Misc[1];
     spell->m_castFlagsEx |= CAST_FLAG_EX_USE_TOY_SPELL;

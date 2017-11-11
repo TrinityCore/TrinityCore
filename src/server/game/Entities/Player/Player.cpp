@@ -1620,6 +1620,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 // send transfer packets
                 WorldPackets::Movement::TransferPending transferPending;
                 transferPending.MapID = mapid;
+                transferPending.OldMapPosition = GetPosition();
                 if (Transport* transport = GetTransport())
                 {
                     transferPending.Ship = boost::in_place();
