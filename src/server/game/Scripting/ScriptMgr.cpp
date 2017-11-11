@@ -1564,6 +1564,46 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
     return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
 }
 
+bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
+{
+    ASSERT(player);
+    ASSERT(creature);
+//#ifdef ELUNA
+    //if (sEluna->OnGossipHello(player, creature))
+    //    return true;
+//#endif
+    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
+    player->PlayerTalkClass->ClearMenus();
+    return tmpscript->OnGossipHello(player, creature);
+}
+
+bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+{
+    ASSERT(player);
+    ASSERT(creature);
+//#ifdef ELUNA
+    //if (sEluna->OnGossipSelect(player, creature, sender, action))
+    //    return true;
+//#endif
+
+    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
+    return tmpscript->OnGossipSelect(player, creature, sender, action);
+}
+
+bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
+{
+    ASSERT(player);
+    ASSERT(creature);
+    ASSERT(code);
+//#ifdef ELUNA
+//    if (sEluna->OnGossipSelectCode(player, creature, sender, action, code))
+//        return true;
+//#endif
+
+    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
+    return tmpscript->OnGossipSelectCode(player, creature, sender, action, code);
+}
+
 bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureData const* cData, Map const* map)
 {
     ASSERT(map);

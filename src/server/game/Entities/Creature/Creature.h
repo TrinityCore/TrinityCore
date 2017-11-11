@@ -27,6 +27,7 @@
 #include "Loot.h"
 #include "MapObject.h"
 #include <list>
+//#include "Log.h"
 
 class CreatureAI;
 class CreatureGroup;
@@ -35,6 +36,11 @@ class Quest;
 class Player;
 class SpellInfo;
 class WorldSession;
+
+// npcbot
+class bot_ai;
+class bot_minion_ai;
+class bot_pet_ai;
 
 enum MovementGeneratorType : uint8;
 
@@ -337,6 +343,76 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false) override;
         void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
 
+        //NpcBot commands
+        bool LoadBotCreatureFromDB(uint32 guid, Map* map, bool addToMap = true);
+        Player* GetBotOwner() const;
+        void SetBotOwner(Player* newowner);
+        Creature* GetCreatureOwner() const { return m_creature_owner; }
+        void SetCreatureOwner(Creature* newCreOwner) { m_creature_owner = newCreOwner; }
+        Creature* GetBotsPet() const { return m_bots_pet; }
+        void SetBotsPetDied();
+        void SetBotsPet(Creature* newpet) { /*ASSERT (!m_bots_pet);*/ m_bots_pet = newpet; }
+        bool IsNPCBot() const;
+        bool IsFreeBot() const;
+        void SetIAmABot(bool bot = true);
+        bool GetIAmABot() const;
+        bool GetIAmABotsPet() const;
+        uint8 GetBotClass() const;
+        uint8 GetBotRoles() const;
+        bot_ai* GetBotAI() const { /*TC_LOG_ERROR("entities.creature","calling getbotai");*/ return bot_AI; }
+        bot_minion_ai* GetBotMinionAI() const;
+        bot_pet_ai* GetBotPetAI() const;
+        void SetBotAI(bot_ai* ai) { bot_AI = ai; }
+        void SetBotCommandState(CommandStates st, bool force = false);
+        CommandStates GetBotCommandState() const;
+        void ApplyBotDamageMultiplierMelee(uint32& damage, CalcDamageInfo& damageinfo) const;
+        void ApplyBotDamageMultiplierMelee(int32& damage, SpellNonMeleeDamage& damageinfo, SpellInfo const* spellInfo, WeaponAttackType attackType, bool& crit) const;
+        void ApplyBotDamageMultiplierSpell(int32& damage, SpellNonMeleeDamage& damageinfo, SpellInfo const* spellInfo, WeaponAttackType attackType, bool& crit) const;
+        void ApplyBotDamageMultiplierHeal(Unit const* victim, float& heal, SpellInfo const* spellInfo, DamageEffectType damagetype, uint32 stack) const;
+        void ApplyBotCritMultiplierAll(Unit const* victim, float& crit_chance, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType) const;
+        void ApplyCreatureSpellCostMods(SpellInfo const* spellInfo, int32& cost) const;
+        void ApplyCreatureSpellCastTimeMods(SpellInfo const* spellInfo, int32& casttime) const;
+        void SetBotShouldUpdateStats();
+        void OnBotSummon(Creature* summon);
+        void OnBotDespawn(Creature* summon);
+        void SetCanUpdate(bool can) { m_canUpdate = can; }
+        void KillEvents(bool force);
+        void BotStopMovement();
+        void ResetBotAI(uint8 resetType = 0);
+
+        bool CanParry() const;
+        bool CanDodge() const;
+        bool CanBlock() const;
+        bool CanCrit() const;
+        bool CanMiss() const;
+
+        float GetCreatureParryChance() const;
+        float GetCreatureDodgeChance() const;
+        float GetCreatureBlockChance() const;
+        float GetCreatureCritChance() const;
+        float GetCreatureMissChance() const;
+        float GetCreatureEvasion() const;
+        float GetCreatureArmorPenetrationCoef() const;
+        float GetCreatureDamageTakenMod() const;
+        uint32 GetCreatureExpertise() const;
+        uint32 GetCreatureSpellPenetration() const;
+        uint32 GetCreatureSpellPower() const;
+
+        bool IsCreatureImmuneToSpell(SpellInfo const* spellInfo) const;
+        bool IsTempBot() const;
+
+        MeleeHitOutcome BotRollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackType attType) const;
+
+        void CastCreatureItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Spell const* spell = NULL);
+
+        void OnSpellGo(Spell const* spell);
+        void AddBotSpellCooldown(uint32 spellId, uint32 cooldown);
+
+        static bool IsBotCustomSpell(uint32 spellId);
+        //advanced
+        bool IsQuestBot() const;
+        //End Bot commands
+
         bool IsMovementPreventedByCasting() const override;
 
         // Part of Evade mechanics
@@ -404,6 +480,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
     private:
+        //npcbot system
+        Creature* m_creature_owner;
+        Creature* m_bots_pet;
+        bot_ai* bot_AI;
+        bool m_canUpdate;
+        //end npcbot system
         void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
         bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
 

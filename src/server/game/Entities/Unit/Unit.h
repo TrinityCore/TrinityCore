@@ -24,6 +24,7 @@
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
 #include "HostileRefManager.h"
+#include "MotionMaster.h"
 #include "OptionalFwd.h"
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
@@ -1141,7 +1142,7 @@ class TC_GAME_API Unit : public WorldObject
         void Kill(Unit* victim, bool durabilityLoss = true);
         void KillSelf(bool durabilityLoss = true) { Kill(this, durabilityLoss); }
         void DealHeal(HealInfo& healInfo);
-
+        void ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType);
         void ProcSkillsAndAuras(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
                                 uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
                                 DamageInfo* damageInfo, HealInfo* healInfo);
@@ -1638,7 +1639,6 @@ class TC_GAME_API Unit : public WorldObject
 
         void UpdateDamagePctDoneMods(WeaponAttackType attackType);
         void UpdateAllDamagePctDoneMods();
-
         float GetTotalStatValue(Stats stat) const;
         float GetTotalAuraModValue(UnitMods unitMod) const;
         SpellSchools GetSpellSchoolByAuraGroup(UnitMods unitMod) const;
@@ -1678,7 +1678,9 @@ class TC_GAME_API Unit : public WorldObject
 
         // Threat related methods
         bool CanHaveThreatList(bool skipAliveCheck = false) const;
+        void AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = NULL); //npcbot
         float ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL);
+        void DeleteThreatList(); //npcbot
         void TauntApply(Unit* victim);
         void TauntFadeOut(Unit* taunter);
         ThreatManager& GetThreatManager() { return m_ThreatManager; }
@@ -1758,6 +1760,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
         virtual bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const; // redefined in Creature
+        virtual bool IsImmunedToSpell(SpellInfo const* spellInfo) const; // redefined in Creature
         uint32 GetSchoolImmunityMask() const;
         uint32 GetDamageImmunityMask() const;
         uint32 GetMechanicImmunityMask() const;
@@ -1765,6 +1768,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask) const;
         bool IsImmunedToDamage(SpellInfo const* spellInfo) const;
         virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const; // redefined in Creature
+        virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; // redefined in Creature
 
         static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr, int8 effIndex = -1);
         uint32 CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = MAX_ATTACK) const;
@@ -1933,7 +1937,17 @@ class TC_GAME_API Unit : public WorldObject
         virtual void Yell(uint32 textId, WorldObject const* target = nullptr);
         virtual void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false);
         virtual void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
+        //npcbot
+        bool HasReactive(ReactiveType reactive) const { return m_reactiveTimer[reactive] > 0; }
+        void ClearReactive(ReactiveType reactive);
 
+        void SuspendDelayedSwing();
+        void ExecuteDelayedSwingHit(bool extra = false);
+        CalcDamageInfo _damageInfo;
+        uint64 _delayedTargetGuid;
+        uint32 _swingDelayTimer;
+        bool _swingLanded;
+        //end npcbot
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -2022,7 +2036,7 @@ class TC_GAME_API Unit : public WorldObject
         float GetCombatRatingReduction(CombatRating cr) const;
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
 
-        void ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType);
+
 
         void SetFeared(bool apply);
         void SetConfused(bool apply);

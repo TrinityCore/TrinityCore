@@ -1032,6 +1032,10 @@ void WorldObject::setActive(bool on)
 
     if (GetTypeId() == TYPEID_PLAYER)
         return;
+    //npcbot
+    if (on == false && GetTypeId() == TYPEID_UNIT && ToCreature()->IsNPCBot())
+        return;
+    //end npcbot
 
     m_isActive = on;
 
@@ -1901,6 +1905,11 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             summon = new Puppet(properties, summoner);
             break;
         case UNIT_MASK_TOTEM:
+            //npcbot: totem emul step 1
+            if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->ToCreature()->GetIAmABot())
+                summon = new Totem(properties, summoner->ToCreature()->GetBotOwner());
+            else
+            //end npcbot
             summon = new Totem(properties, summoner);
             break;
         case UNIT_MASK_MINION:
@@ -1921,7 +1930,11 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     summon->InitStats(duration);
     AddToMap(summon->ToCreature());
     summon->InitSummon();
-
+    //npcbot: totem emul step 2
+    //if (mask == UNIT_MASK_TOTEM)
+        if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->ToCreature()->GetIAmABot())
+            summoner->ToCreature()->OnBotSummon(summon);
+    //end npcbot
     // call MoveInLineOfSight for nearby creatures
     Trinity::AIRelocationNotifier notifier(*summon);
     Cell::VisitAllObjects(summon, notifier, GetVisibilityRange());
@@ -2219,6 +2232,12 @@ void WorldObject::GetContactPoint(WorldObject const* obj, float& x, float& y, fl
     // angle to face `obj` to `this` using distance includes size of `obj`
     GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2d, GetAngle(obj));
 }
+//npcbot
+float WorldObject::GetObjectSize() const
+{
+    return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_PLAYER_BOUNDING_RADIUS;
+}
+//end npcbot
 
 void WorldObject::MovePosition(Position &pos, float dist, float angle)
 {
