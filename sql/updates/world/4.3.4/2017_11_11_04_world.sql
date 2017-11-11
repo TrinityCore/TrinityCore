@@ -1,0 +1,1 @@
+DELETE `gossip_menu_option` WHERE `MenuId` IN (708, 1626, 7487,5108,5461,5462,7440,7484,9838);
