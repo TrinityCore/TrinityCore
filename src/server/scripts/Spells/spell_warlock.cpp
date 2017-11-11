@@ -4042,7 +4042,7 @@ public:
             return false;
         }
 
-        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -4401,7 +4401,7 @@ public:
     {
         npc_pet_warlock_wild_imp_PetAI(Creature* creature) : PetAI(creature) {}
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             Unit* owner = me->GetOwner();
             if (!owner)
@@ -4525,7 +4525,7 @@ public:
     {
         PrepareAuraScript(spell_warl_eradication_AuraScript);
 
-        bool CheckProc(ProcEventInfo& eventInfo)
+        bool CheckProc(ProcEventInfo& /*eventInfo*/)
         {
             return false;
         }

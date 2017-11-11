@@ -1261,8 +1261,6 @@ public:
                 {
                     case EVENT_CHECK_PLAYER:
                     {
-                        bool checkPassed = true;
-
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 30.0f);
                         for (auto player: playerList)
@@ -1475,49 +1473,27 @@ public:
 
     struct mob_instructorsAI : public ScriptedAI
     {
-        EventMap events;
-        uint8 rand;
-
-        mob_instructorsAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        uint32 punch1;
-        uint32 punch2;
-        uint32 punch3;
+        mob_instructorsAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
-            punch1 = 300;
-            punch2 = 2800;
-            punch3 = 5300;
-        }
-
-        void UpdateAI(const uint32 diff) override
-        {
-            if (punch1 <= diff)
+            me->GetScheduler().Schedule(Milliseconds(300), [this](TaskContext context)
             {
                 me->HandleEmoteCommand(35);
-                punch1 = 7500;
-            }
-            else
-                punch1 -= diff;
+                context.Repeat(Milliseconds(7500));
+            });
 
-            if (punch2 <= diff)
+            me->GetScheduler().Schedule(Milliseconds(2800), [this](TaskContext context)
             {
                 me->HandleEmoteCommand(36);
-                punch2 = 7500;
-            }
-            else
-                punch2 -= diff;
+                context.Repeat(Milliseconds(7500));
+            });
 
-            if (punch3 <= diff)
+            me->GetScheduler().Schedule(Milliseconds(5300), [this](TaskContext context)
             {
                 me->HandleEmoteCommand(37);
-                punch3 = 7500;
-            }
-            else
-                punch3 -= diff;
+                context.Repeat(Milliseconds(7500));
+            });
         }
     };
 };
@@ -1534,46 +1510,27 @@ public:
 
     struct mob_aspiring_traineeAI : public ScriptedAI
     {
-        mob_aspiring_traineeAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        uint32 punch1;
-        uint32 punch2;
-        uint32 punch3;
+        mob_aspiring_traineeAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
-            punch1 = 1000;
-            punch2 = 3500;
-            punch3 = 6000;
-        }
-
-        void UpdateAI(const uint32 diff) override
-        {
-            if (punch1 <= diff)
+            me->GetScheduler().Schedule(Milliseconds(1000), [this](TaskContext context)
             {
                 me->HandleEmoteCommand(35);
-                punch1 = 7500;
-            }
-            else
-                punch1 -= diff;
+                context.Repeat(Milliseconds(7500));
+            });
 
-            if (punch2 <= diff)
+            me->GetScheduler().Schedule(Milliseconds(3500), [this](TaskContext context)
             {
                 me->HandleEmoteCommand(36);
-                punch2 = 7500;
-            }
-            else
-                punch2 -= diff;
+                context.Repeat(Milliseconds(7500));
+            });
 
-            if (punch3 <= diff)
+            me->GetScheduler().Schedule(Milliseconds(6000), [this](TaskContext context)
             {
                 me->HandleEmoteCommand(37);
-                punch3 = 7500;
-            }
-            else
-                punch3 -= diff;
+                context.Repeat(Milliseconds(7500));
+            });
         }
     };
 };
