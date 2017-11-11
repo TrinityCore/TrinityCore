@@ -1812,7 +1812,7 @@ class mob_chia_hui_autumnleaf : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(const uint32 /*diff*/) override
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 12.0f);
