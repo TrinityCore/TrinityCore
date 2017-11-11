@@ -31,7 +31,7 @@
 
 #define ACTION_TALK 1
 
-const uint32 g_PandarenQuests[91]
+/*const uint32 g_PandarenQuests[91]
 {
     29404,
     29405,
@@ -124,7 +124,7 @@ const uint32 g_PandarenQuests[91]
     30818,
     31450,
     32396
-};
+};*/
 
 class mob_master_shang_xi : public CreatureScript
 {
