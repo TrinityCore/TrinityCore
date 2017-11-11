@@ -234,14 +234,14 @@ namespace ClientLauncher
 
         std::cout << "Successfully patched.\n";
 
+        // unblock wow
+        SetEvent(apcFinishedEvent.get());
+
         // unload initializer
         LPTHREAD_START_ROUTINE freeLibrary = reinterpret_cast<LPTHREAD_START_ROUTINE>(GetProcAddress(GetModuleHandleA("kernel32"), "FreeLibrary"));
         auto freeLibraryThread = make_winapi_ptr(CreateRemoteThread(processInfo.hProcess, nullptr, 0, freeLibrary, ipcData->InitializerHandle, 0, nullptr), &CloseHandle);
         if (!freeLibraryThread || !WaitFor(freeLibraryThread.get()))
             return false;
-
-        // unblock wow
-        SetEvent(apcFinishedEvent.get());
 
         // all went well, we can skip killing process
         terminator.release();
@@ -266,7 +266,7 @@ namespace ClientLauncher
         {
             po::basic_parsed_options<char> parsed = po::command_line_parser(argc, argv).options(all).positional(pos).allow_unregistered().run();
             po::store(parsed, vm);
-            unrecognized = po::collect_unrecognized(parsed.options, po::include_positional);
+            unrecognized = po::collect_unrecognized(parsed.options, po::exclude_positional);
             po::notify(vm);
         }
         catch (std::exception& e)

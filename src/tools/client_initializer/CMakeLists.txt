@@ -18,6 +18,6 @@ else()
   set(target_name client_initializer_32)
 endif()
 
-add_library(${target_name} SHARED ${PRIVATE_SOURCES})
+add_library(${target_name} MODULE ${PRIVATE_SOURCES})
 
 install(TARGETS ${target_name} DESTINATION "${CMAKE_INSTALL_PREFIX}")

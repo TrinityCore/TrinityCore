@@ -36,7 +36,7 @@ namespace ClientLauncher
             struct x86
             {
                 static std::vector<uint8> CertBundleCASCLocalFile() { return{ 0x6A, 0x00, 0x50, 0x8D, 0x45, 0xF8, 0x50, 0x68 }; }
-                static std::vector<uint8> CertBundleSignatureCheck() { return{ 0x59, 0x59, 0x84, 0xC0, 0x75, 0x08, 0x46, 0x83, 0xFE, 0x02 }; }
+                static std::vector<uint8> CertBundleSignatureCheck() { return{ 0x83, 0xC4, 0x0C, 0x84, 0xC0, 0x75, 0x08, 0x46, 0x83, 0xFE, 0x02 }; }
                 static std::vector<uint8> LauncherLoginParametersLocation() { return ::ClientLauncher::Patterns::Windows::LauncherLoginParametersLocation(); }
             };
 
