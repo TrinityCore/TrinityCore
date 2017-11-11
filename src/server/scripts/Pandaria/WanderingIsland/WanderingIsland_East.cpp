@@ -590,7 +590,7 @@ public:
             playerGuid      = ObjectGuid::Empty;
         }
 
-        void DoAction(const int32 actionId) override
+        void DoAction(const int32 /*actionId*/) override
         {
             eventTimer = 2500;
         }
