@@ -435,9 +435,7 @@ class boss_alar : public CreatureScript
                     }
                     else
                     {
-                        Unit* target = nullptr;
-                        target = me->SelectNearestTargetInAttackDistance(5);
-                        if (target)
+                        if (Unit* target = me->SelectNearestTargetInAttackDistance(5))
                             AttackStart(target);
                         else
                         {
