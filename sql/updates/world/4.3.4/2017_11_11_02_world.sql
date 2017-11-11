@@ -1,0 +1,20 @@
+--
+UPDATE `creature` SET `PhaseId` = 169 WHERE `phaseMask` = 1 AND `PhaseGroup` = 0;
+UPDATE `creature` SET `PhaseId` = 170 WHERE `phaseMask` = 2 AND `PhaseGroup` = 0;
+UPDATE `creature` SET `PhaseId` = 171 WHERE `phaseMask` = 4 AND `PhaseGroup` = 0;
+UPDATE `creature` SET `PhaseId` = 172 WHERE `phaseMask` = 8 AND `PhaseGroup` = 0;
+UPDATE `creature` SET `PhaseId` = 173 WHERE `phaseMask` = 16 AND `PhaseGroup` = 0;
+UPDATE `creature` SET `PhaseId` = 174 WHERE `phaseMask` = 32 AND `PhaseGroup` = 0;
+UPDATE `creature` SET `PhaseId` = 175 WHERE `phaseMask` = 64 AND `PhaseGroup` = 0;
+UPDATE `creature` SET `PhaseId` = 176 WHERE `phaseMask` = 128 AND `PhaseGroup` = 0;
+UPDATE `creature` SET `PhaseId` = 177 WHERE `phaseMask` = 256 AND `PhaseGroup` = 0;
+UPDATE `gameobject` SET `PhaseId` = 169 WHERE `phaseMask` = 1 AND `PhaseGroup` = 0;
+UPDATE `gameobject` SET `PhaseId` = 170 WHERE `phaseMask` = 2 AND `PhaseGroup` = 0;
+UPDATE `gameobject` SET `PhaseId` = 171 WHERE `phaseMask` = 4 AND `PhaseGroup` = 0;
+UPDATE `gameobject` SET `PhaseId` = 172 WHERE `phaseMask` = 8 AND `PhaseGroup` = 0;
+UPDATE `gameobject` SET `PhaseId` = 173 WHERE `phaseMask` = 16 AND `PhaseGroup` = 0;
+UPDATE `gameobject` SET `PhaseId` = 174 WHERE `phaseMask` = 32 AND `PhaseGroup` = 0;
+UPDATE `gameobject` SET `PhaseId` = 175 WHERE `phaseMask` = 64 AND `PhaseGroup` = 0;
+UPDATE `gameobject` SET `PhaseId` = 176 WHERE `phaseMask` = 128 AND `PhaseGroup` = 0;
+UPDATE `gameobject` SET `PhaseId` = 177 WHERE `phaseMask` = 256 AND `PhaseGroup` = 0;
+UPDATE `creature` SET `phaseMask` = 1, `PhaseId` = 169 WHERE `guid` = 250022;
