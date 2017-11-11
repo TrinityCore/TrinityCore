@@ -783,7 +783,7 @@ public:
             float posJumpY = frand(3949.0f, 3962.0f);
 
             if (Creature* ennemy = me->SummonCreature(NPC_ENNEMY, ennemiesPositions[pos].GetPositionX(), ennemiesPositions[pos].GetPositionY(), ennemiesPositions[pos].GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN))
-                ennemy->GetMotionMaster()->MoveJump(posJumpX, posJumpY, me->GetMap()->GetHeight(me->GetPhases(), posJumpX, posJumpY, 100.0f), 20.0f, 20.0f);
+                ennemy->GetMotionMaster()->MoveJump(Position(posJumpX, posJumpY, me->GetMap()->GetHeight(me->GetPhases(), posJumpX, posJumpY, 100.0f)), 20.0f, 20.0f);
         }
 
         void SummonHealer()

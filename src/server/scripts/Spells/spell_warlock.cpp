@@ -4371,7 +4371,7 @@ public:
     {
         npc_pet_warlock_darkglare_PetAI(Creature* creature) : PetAI(creature) {}
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             Unit* owner = me->GetOwner();
             if (!owner)
