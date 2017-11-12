@@ -46,8 +46,13 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 ## Install
 
 Detailed installation guides are available in the [wiki](https://collab.kpsn.org/display/tc/Installation+Guide) for
-Windows, Linux and Mac OSX. 
-You can get database from https://t.me/trinitycorelegacy 
+Windows, Linux and Mac OSX.  
+You can get database from  
+https://github.com/TrinityCoreLegacy/TrinityCore/releases  
+https://t.me/tdbreleases
+
+Notifications:
+https://t.me/trinitycorelegacy 
 
 
 ## Reporting issues
