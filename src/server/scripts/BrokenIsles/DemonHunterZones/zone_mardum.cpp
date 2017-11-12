@@ -15,12 +15,16 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
 #include "Creature.h"
 #include "GameObject.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "SceneMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum eQuests
 {
@@ -226,12 +230,19 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go) override
     {
-        if (Creature* npc = go->FindNearestCreature(_insideNpc, 10.0f))
+        if (Creature* creature = go->FindNearestCreature(_insideNpc, 10.0f))
         {
-            float x, y, z;
-            npc->GetClosePoint(x, y, z, npc->GetObjectSize() / 3, 50.0f);
-            npc->GetMotionMaster()->MovePoint(0, x, y, z);
-            npc->DespawnOrUnsummon(5000);
+            // TODO : Remove this line when phasing is done properly
+            creature->DestroyForPlayer(player);
+
+            if (TempSummon* personalCreature = player->SummonCreature(_insideNpc, creature->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 4000, 0, true))
+            {
+                float x, y, z;
+                personalCreature->GetClosePoint(x, y, z, personalCreature->GetObjectSize() / 3, 50.0f);
+                personalCreature->GetMotionMaster()->MovePoint(0, x, y, z);
+
+                // TODO : personalCreature->Talk(0);
+            }
 
             player->KilledMonsterCredit(_killCredit);
         }
@@ -254,8 +265,57 @@ public:
         {
         }
 
+        enum Spells
+        {
+            SPELL_INCITE_MADNESS    = 194529,
+            SPELL_INFERNAL_SMASH    = 192709,
+
+            SPELL_LEARN_EYE_BEAM    = 195447
+        };
+
+        enum Creatures
+        {
+            NPC_COLOSSAL_INFERNAL   = 96159
+        };
+
+        ObjectGuid colossalInfernalguid;
+
+        void Reset() override
+        {
+            if (Creature* infernal = me->SummonCreature(NPC_COLOSSAL_INFERNAL, 523.404, 2428.41, -117.087, 0.108873, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
+                colossalInfernalguid = infernal->GetGUID();
+        }
+
+        Creature* GetInfernal() const
+        {
+            return ObjectAccessor::GetCreature(*me, colossalInfernalguid);
+        }
+
+        void EnterCombat(Unit*) override
+        {
+            me->GetScheduler().Schedule(Seconds(15), [this](TaskContext context)
+            {
+                if (Unit* target = me->GetVictim())
+                    me->CastSpell(target, SPELL_INCITE_MADNESS);
+
+                context.Repeat(Seconds(15));
+            });
+
+            me->GetScheduler().Schedule(Seconds(10), [this](TaskContext context)
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                    if (Creature* infernal = GetInfernal())
+                        infernal->CastSpell(target, SPELL_INFERNAL_SMASH);
+
+                context.Repeat(Seconds(10));
+            });
+        }
+
         void JustDied(Unit* /*killer*/) override
         {
+            if (Creature* infernal = GetInfernal())
+                infernal->KillSelf();
+
             std::list<Player*> players;
             me->GetPlayerListInGrid(players, 50.0f);
 
@@ -263,6 +323,9 @@ public:
             {
                 player->KilledMonsterCredit(105946);
                 player->KilledMonsterCredit(96159);
+
+                if (!player->HasSpell(SPELL_LEARN_EYE_BEAM))
+                    player->CastSpell(player, SPELL_LEARN_EYE_BEAM);
             }
         }
     };
@@ -270,6 +333,36 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_mardum_inquisitor_pernissiusAI(creature);
+    }
+};
+
+// 192709 Infernal Smash
+class spell_mardum_infernal_smash : public SpellScriptLoader
+{
+public:
+    spell_mardum_infernal_smash() : SpellScriptLoader("spell_mardum_infernal_smash") { }
+
+    class spell_mardum_infernal_smash_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mardum_infernal_smash_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetCaster() || !GetHitUnit())
+                return;
+
+            GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_mardum_infernal_smash_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mardum_infernal_smash_SpellScript();
     }
 };
 
@@ -281,7 +374,12 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
     {
         player->KilledMonsterCredit(creature->GetEntry());
-        creature->KillSelf();
+
+        // TODO : Remove this line when phasing is done properly
+        creature->DestroyForPlayer(player);
+
+        if (TempSummon* personalCreature = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 4000, 0, true))
+            personalCreature->KillSelf();
         return true;
     }
 };
@@ -293,7 +391,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
-        if (!player->GetQuestObjectiveData(QUEST_COILSKAR_FORCES, 0))
+        if (!player->GetQuestObjectiveData(QUEST_COILSKAR_FORCES, 1))
         {
             player->KilledMonsterCredit(94406); // QUEST_COILSKAR_FORCES storageIndex 0 KillCredit
             player->KilledMonsterCredit(97831); // QUEST_COILSKAR_FORCES storageIndex 1 KillCredit
@@ -311,7 +409,8 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
-        if (!player->GetQuestObjectiveData(QUEST_MEETING_WITH_QUEEN, 0))
+        if (player->HasQuest(QUEST_MEETING_WITH_QUEEN) &&
+            !player->GetQuestObjectiveData(QUEST_MEETING_WITH_QUEEN, 0))
         {
             player->CastSpell(player, SPELL_SCENE_MEETING_WITH_QUEEN, true);
         }
@@ -346,6 +445,7 @@ void AddSC_mardum()
     new go_mardum_cage("go_mardum_cage_izal",       93117);
     new go_mardum_cage("go_mardum_cage_mannethrel", 93230);
     new npc_mardum_inquisitor_pernissius();
+    new spell_mardum_infernal_smash();
     new npc_mardum_ashtongue_mystic();
     new go_mardum_portal_coilskar();
     new go_meeting_with_queen_ritual();
