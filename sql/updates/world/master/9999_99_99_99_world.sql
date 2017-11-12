@@ -1,7 +1,7 @@
 -- Proc Chaos Strike only by its two damage spells and only if they are critical hits
 DELETE FROM `spell_proc` WHERE `SpellId`= 197125;
-INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `Hitmask`, `Chance`, `Cooldown`, `Charges`) VALUES
-(197125, 0, 107, 0x4040, 0x0800, 0x0, 0x0, 0x2, 0x0, 0x0, 0x0);
+INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellPhaseMask`, `HitMask`, `Chance`, `Cooldown`, `Charges`) VALUES
+(197125, 0, 107, 0x4040, 0x0, 0x0, 0x0, 0x2, 0x2, 0x0, 0x0, 0x0);
 
 DELETE FROM `spell_script_names` WHERE `spell_id`= 197125;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
