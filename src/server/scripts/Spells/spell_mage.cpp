@@ -1499,7 +1499,7 @@ public:
     class spell_mage_arcane_missiles_trigger_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_mage_arcane_missiles_trigger_AuraScript);
- 
+
         bool Load() override
         {
             return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -1512,18 +1512,24 @@ public:
             return true;
         }
 
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+        {
+            PreventDefaultAction();
+        }
+
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_MISSILES_AURASTATE);
+            GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_MISSILES_AURASTATE, true);
         }
- 
+
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             GetCaster()->RemoveAura(SPELL_MAGE_ARCANE_MISSILES_AURASTATE);
         }
- 
+
         void Register() override
         {
+            OnEffectProc += AuraEffectProcFn(spell_mage_arcane_missiles_trigger_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             AfterEffectApply += AuraEffectApplyFn(spell_mage_arcane_missiles_trigger_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles_trigger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
