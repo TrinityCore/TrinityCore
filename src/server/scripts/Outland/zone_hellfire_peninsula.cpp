@@ -334,8 +334,14 @@ public:
 
 enum FelGuard
 {
-    SPELL_SUMMON_POO            = 37688,
-    NPC_DERANGED_HELBOAR        = 16863
+    SPELL_SUMMON_POO     = 37688,
+    SPELL_FAKE_BLOOD     = 37692,
+    NPC_DERANGED_HELBOAR = 16863,
+
+    EVENT_SEARCH_HELBOAR = 1,
+    EVENT_HELBOAR_FOUND  = 2,
+    EVENT_SUMMON_POO     = 3,
+    EVENT_FOLLOW_PLAYER  = 4
 };
 
 class npc_fel_guard_hound : public CreatureScript
@@ -352,8 +358,8 @@ public:
 
         void Initialize()
         {
-            checkTimer = 5000; //check for creature every 5 sec
             helboarGUID.Clear();
+            _events.ScheduleEvent(EVENT_SEARCH_HELBOAR, Seconds(3));
         }
 
         void Reset() override
@@ -368,29 +374,54 @@ public:
 
             if (Creature* helboar = ObjectAccessor::GetCreature(*me, helboarGUID))
             {
-                helboar->RemoveCorpse();
-                DoCast(SPELL_SUMMON_POO);
-
-                if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);
+                _events.CancelEvent(EVENT_SEARCH_HELBOAR);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
+                me->CastSpell(helboar, SPELL_FAKE_BLOOD);
+                _events.ScheduleEvent(EVENT_HELBOAR_FOUND, Seconds(2));
             }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (checkTimer <= diff)
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                if (Creature* helboar = me->FindNearestCreature(NPC_DERANGED_HELBOAR, 10.0f, false))
+                switch (eventId)
                 {
-                    if (helboar->GetGUID() != helboarGUID && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE && !me->FindCurrentSpellBySpellId(SPELL_SUMMON_POO))
-                    {
-                        helboarGUID = helboar->GetGUID();
-                        me->GetMotionMaster()->MovePoint(1, helboar->GetPositionX(), helboar->GetPositionY(), helboar->GetPositionZ());
-                    }
+                    case EVENT_SEARCH_HELBOAR:
+                        if (Creature* helboar = me->FindNearestCreature(NPC_DERANGED_HELBOAR, 10.0f, false))
+                        {
+                            if (helboar->GetGUID() != helboarGUID && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE && !me->FindCurrentSpellBySpellId(SPELL_SUMMON_POO))
+                            {
+                                helboarGUID = helboar->GetGUID();
+                                me->SetWalk(true);
+                                me->GetMotionMaster()->MovePoint(1, helboar->GetPositionX(), helboar->GetPositionY(), helboar->GetPositionZ());
+                                helboar->DespawnOrUnsummon(Seconds(10));
+                            }
+                        }
+                        _events.Repeat(Seconds(3));
+                        break;
+                    case EVENT_HELBOAR_FOUND:
+                        if (Creature* helboar = ObjectAccessor::GetCreature(*me, helboarGUID))
+                        {
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
+                            me->CastSpell(helboar, SPELL_FAKE_BLOOD);
+                            _events.ScheduleEvent(EVENT_SUMMON_POO, Seconds(1));
+                        }
+                        break;
+                    case EVENT_SUMMON_POO:
+                        DoCast(SPELL_SUMMON_POO);
+                        _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, Seconds(2));
+                        break;
+                    case EVENT_FOLLOW_PLAYER:
+                        me->SetWalk(false);
+                        if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                            me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);
+                        _events.ScheduleEvent(EVENT_SEARCH_HELBOAR, Seconds(3));
+                        break;
                 }
-                checkTimer = 5000;
             }
-            else checkTimer -= diff;
 
             if (!UpdateVictim())
                 return;
@@ -399,7 +430,7 @@ public:
         }
 
     private:
-        uint32 checkTimer;
+        EventMap _events;
         ObjectGuid helboarGUID;
     };
 
