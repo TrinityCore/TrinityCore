@@ -528,7 +528,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 if(!sEluna->OnChat(sender, type, lang, msg, chn))
                     return;
 #endif
-                chn->Say(sender->GetGUID(), msg.c_str(), lang);
+                chn->Say(sender->GetGUID(), msg, lang);
             }
             break;
         }
