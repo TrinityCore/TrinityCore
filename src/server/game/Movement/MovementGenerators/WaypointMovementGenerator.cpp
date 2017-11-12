@@ -197,7 +197,26 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     //! Do not use formationDest here, MoveTo requires transport offsets due to DisableTransportPathTransformations() call
     //! but formationDest contains global coordinates
-    init.MoveTo(waypoint.x, waypoint.y, waypoint.z);
+    Movement::PointsArray path;
+    for (uint32 i = _currentNode; i < _currentNode + 4; ++i)
+    {
+        if (i > _path->nodes.size() - 1)
+            break;
+
+        WaypointNode const &point = _path->nodes.at(i);
+        {
+            if (point.delay)
+                break;
+            G3D::Vector3 vertice(point.x, point.y, point.z);
+            path.push_back(vertice);
+        }
+    }
+    // if we were not able to find enought vertices eg. delay in one of them or end of path -> fall back to default handling
+    if (path.size() < 1)
+        init.MoveTo(waypoint.x, waypoint.y, waypoint.z);
+    // just send the next 3 wps to client (seen in sniffs)
+    else
+        init.MovebyPath(path, _currentNode);
 
     //! Accepts angles such as 0.00001 and -0.00001, 0 must be ignored, default value in waypoint table
     if (waypoint.orientation && waypoint.delay)
@@ -255,13 +274,12 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
         if (!creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || creature->GetTransGUID().IsEmpty())
             creature->SetHomePosition(creature->GetPosition());
 
-        if (creature->movespline->Finalized())
+        uint32 pointId = (uint32)creature->movespline->currentPathIdx();
+        if (pointId > _currentNode || creature->movespline->Finalized())
         {
             OnArrived(creature);
             _isArrivalDone = true;
-
-            if (_nextMoveTime.Passed())
-                return StartMove(creature);
+            return StartMove(creature);
         }
         else if (_recalculateSpeed)
         {
