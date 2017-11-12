@@ -1522,7 +1522,7 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTre
         {
             if (bonusTreeNode->BonusTreeModID != itemBonusTreeMod)
                 continue;
-            
+
             if (bonusTreeNode->BonusListID)
             {
                 bonusListIDs.insert(bonusTreeNode->BonusListID);
@@ -1874,6 +1874,23 @@ PowerTypeEntry const* DB2Manager::GetPowerTypeEntry(Powers power) const
 {
     ASSERT(power < MAX_POWERS);
     return _powerTypes[power];
+}
+
+PowerTypeEntry const* DB2Manager::GetPowerTypeByName(std::string const& name) const
+{
+    for (PowerTypeEntry const* powerType : sPowerTypeStore)
+    {
+        std::string powerName = powerType->PowerTypeToken;
+        std::transform(powerName.begin(), powerName.end(), powerName.begin(), [](char c) { return char(::tolower(c)); });
+        if (powerName == name)
+            return powerType;
+
+        powerName.erase(std::remove(powerName.begin(), powerName.end(), '_'), powerName.end());
+        if (powerName == name)
+            return powerType;
+    }
+
+    return nullptr;
 }
 
 std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsByRewardID(uint32 rewardPackID) const

@@ -2045,11 +2045,15 @@ void Spell::prepareDataForTriggerSystem()
 
     // Hunter trap spells - activation proc for Lock and Load, Entrapment and Misdirection
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
-        (m_spellInfo->SpellFamilyFlags[0] & 0x18 ||     // Freezing and Frost Trap, Freezing Arrow
-        m_spellInfo->Id == 57879 ||                     // Snake Trap - done this way to avoid double proc
-        m_spellInfo->SpellFamilyFlags[2] & 0x00024000)) // Explosive and Immolation Trap
+        (m_spellInfo->SpellFamilyFlags[0] & 0x18 ||         // Freezing and Frost Trap, Freezing Arrow
+            m_spellInfo->Id == 57879 ||                     // Snake Trap - done this way to avoid double proc
+            m_spellInfo->SpellFamilyFlags[2] & 0x00024000)) // Explosive and Immolation Trap
     {
         m_procAttacker |= PROC_FLAG_DONE_TRAP_ACTIVATION;
+
+        // also fill up other flags (DoAllEffectOnTarget only fills up flag if both are not set)
+        m_procAttacker |= PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+        m_procVictim |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
     }
 
     // Hellfire Effect - trigger as DOT
@@ -2108,7 +2112,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         return;
 
     if (checkIfValid)
-        if (m_spellInfo->CheckTarget(m_caster, target, implicit) != SPELL_CAST_OK)
+        if (m_spellInfo->CheckTarget(m_caster, target, implicit || m_caster->GetEntry() == WORLD_TRIGGER) != SPELL_CAST_OK) // skip stealth checks for GO casts
             return;
 
     // Check for effect immune skip if immuned
@@ -4949,14 +4953,18 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (!(m_spellInfo->IsPassive() && (!m_targets.GetUnitTarget() || m_targets.GetUnitTarget() == m_caster)))
     {
         // Check explicit target for m_originalCaster - todo: get rid of such workarounds
-        SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(m_originalCaster ? m_originalCaster : m_caster, m_targets.GetObjectTarget(), m_targets.GetItemTarget());
+        Unit* caster = m_caster;
+        if (m_originalCaster && m_caster->GetEntry() != WORLD_TRIGGER) // Do a simplified check for gameobject casts
+            caster = m_originalCaster;
+
+        SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(caster, m_targets.GetObjectTarget(), m_targets.GetItemTarget());
         if (castResult != SPELL_CAST_OK)
             return castResult;
     }
 
     if (Unit* target = m_targets.GetUnitTarget())
     {
-        SpellCastResult castResult = m_spellInfo->CheckTarget(m_caster, target, false);
+        SpellCastResult castResult = m_spellInfo->CheckTarget(m_caster, target, m_caster->GetEntry() == WORLD_TRIGGER); // skip stealth checks for GO casts
         if (castResult != SPELL_CAST_OK)
             return castResult;
 

@@ -300,6 +300,7 @@ public:
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     PowerTypeEntry const* GetPowerTypeEntry(Powers power) const;
+    PowerTypeEntry const* GetPowerTypeByName(std::string const& name) const;
     uint8 GetMaxPrestige() const;
     static PvpDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
     static PvpDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
