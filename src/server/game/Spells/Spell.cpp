@@ -4656,7 +4656,7 @@ void Spell::TakeRunePower(bool didHit)
     {
         if (!player->GetRuneCooldown(i) && runeCost > 0)
         {
-            player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown() : uint32(RUNE_MISS_COOLDOWN), true);
+            player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown() : uint32(RUNE_MISS_COOLDOWN));
             --runeCost;
         }
     }

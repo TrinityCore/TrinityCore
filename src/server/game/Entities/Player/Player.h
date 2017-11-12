@@ -2269,7 +2269,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetRunesState() const;
         uint32 GetRuneCooldown(uint8 index) const { return m_runes->Cooldown[index]; }
         uint32 GetRuneBaseCooldown() const;
-        void SetRuneCooldown(uint8 index, uint32 cooldown, bool casted = false);
+        void SetRuneCooldown(uint8 index, uint32 cooldown);
         void ResyncRunes() const;
         void AddRunePower(uint8 index) const;
         void InitRunes();
