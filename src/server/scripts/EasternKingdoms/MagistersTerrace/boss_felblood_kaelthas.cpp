@@ -561,15 +561,12 @@ public:
                     Rebirth = true;
                 }
 
-                if (Rebirth)
+                if (Death_Timer <= diff)
                 {
-                    if (Death_Timer <= diff)
-                    {
-                        me->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
-                        me->DisappearAndDie();
-                        Rebirth = false;
-                    } else Death_Timer -= diff;
-                }
+                    me->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                    me->DisappearAndDie();
+                    Rebirth = false;
+                } else Death_Timer -= diff;
             }
 
             if (!UpdateVictim())

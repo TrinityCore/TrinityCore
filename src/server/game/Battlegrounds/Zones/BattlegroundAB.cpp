@@ -391,12 +391,12 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
 
 void BattlegroundAB::_NodeDeOccupied(uint8 node)
 {
+    //only dynamic nodes, no start points
     if (node >= BG_AB_DYNAMIC_NODES_COUNT)
         return;
 
     //remove bonus honor aura trigger creature when node is lost
-    if (node < BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
-        DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
+    DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
     RelocateDeadPlayers(BgCreatures[node]);
 
