@@ -717,8 +717,8 @@ public:
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/, bool entered) override
     {
-        if (player && player->IsAlive() && entered)
-            if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_MESSAGE_FROM_THE_WEST))
+        if (player->IsAlive() && entered)
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_MESSAGE_FROM_THE_WEST))
                 if (player->CanTakeQuest(quest, false))
                     if (Creature* creature = player->FindNearestCreature(NPC_MESSENGER_TORVUS, 50.0f, true))
                         creature->AI()->Talk(TALK_0, player);

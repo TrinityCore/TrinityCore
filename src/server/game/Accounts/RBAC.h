@@ -771,6 +771,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GROUP_MAINASSIST                       = 864, // reserved 
     RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865, // reserved 
     RBAC_PERM_COMMAND_LIST_SPAWNPOINTS                       = 866, // reserved 
+    RBAC_PERM_COMMAND_MODIFY_POWER                           = 867,
     // custom permissions 1000+
     RBAC_PERM_COMMAND_GOBJECT_SET_SCALE                      = 1398,
     RBAC_PERM_COMMAND_NPC_SET_SCALE                          = 1589,
