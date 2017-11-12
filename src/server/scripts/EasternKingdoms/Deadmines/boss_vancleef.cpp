@@ -23,13 +23,7 @@ enum VanCleefData
 {
     SPELL_DUAL_WIELD = 674,
     SPELL_THRASH = 12787,
-    SPELL_VANCLEEFS_ALLIES = 5200,
-
-    PHASE_ONE    = 1,
-    PHASE_66_PCT = 2,
-    PHASE_50_PCT = 3,
-    PHASE_33_PCT = 4,
-    PHASE_25_PCT = 5
+    SPELL_VANCLEEFS_ALLIES = 5200
 };
 
 enum Speech
@@ -42,7 +36,7 @@ enum Speech
     SAY_THREE  = 5     // The Brotherhood shall prevail!
 };
 
-// Sniffed - 3.3.0 11519
+// Sniffed - 3.3.0 11159
 Position const BlackguardPositions[] =
 {
         { -69.30876f, -819.8949f, 40.67694f, 6.055284f },
@@ -52,13 +46,16 @@ Position const BlackguardPositions[] =
 struct boss_vancleef : public BossAI
 {
     public:
-        boss_vancleef(Creature* creature) : BossAI(creature, DATA_VANCLEEF), _phase(PHASE_ONE){ }
+        boss_vancleef(Creature* creature) : BossAI(creature, DATA_VANCLEEF) { }
 
         void Reset() override
         {
             BossAI::Reset();
 
-            _phase = PHASE_ONE;
+            _guardsCalled = false;
+            _health25 = false;
+            _health33 = false;
+            _health66 = false;
 
             DoCastSelf(SPELL_DUAL_WIELD, true);
             DoCastSelf(SPELL_THRASH, true);
@@ -92,48 +89,37 @@ struct boss_vancleef : public BossAI
                 DoSummon(NPC_BLACKGUARD, BlackguardPosition, 60000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
-        void SwitchPhase(uint8 Phase)
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
-            // don't repeat
-            if (_phase == Phase)
-                return;
-
-            _phase = Phase;
-
-            switch (_phase)
+            if (!_guardsCalled && HealthBelowPct(50))
             {
-                case PHASE_66_PCT:
-                    Talk(SAY_ONE);
-                    break;
-                case PHASE_50_PCT:
-                    Talk(SAY_SUMMON);
-                    DoCastSelf(SPELL_VANCLEEFS_ALLIES);
-                    break;
-                case PHASE_33_PCT:
-                    Talk(SAY_TWO);
-                    break;
-                case PHASE_25_PCT:
-                    Talk(SAY_THREE);
-                    break;
-                default:
-                    break;
+                Talk(SAY_SUMMON);
+                DoCastSelf(SPELL_VANCLEEFS_ALLIES);
+                _guardsCalled = true;
+            }
+
+            if (!_health25 && HealthBelowPct(25))
+            {
+                Talk(SAY_THREE);
+                _health25 = true;
+            }
+            else if (!_health33 && HealthBelowPct(33))
+            {
+                Talk(SAY_TWO);
+                _health33 = true;
+            }
+            else if (!_health66 && HealthBelowPct(66))
+            {
+                Talk(SAY_ONE);
+                _health66 = true;
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
-        {
-            if (_phase == PHASE_ONE && HealthBelowPct(66))
-                SwitchPhase(PHASE_66_PCT);
-            else if (_phase == PHASE_66_PCT && HealthBelowPct(50))
-                SwitchPhase(PHASE_50_PCT);
-            else if (_phase == PHASE_50_PCT && HealthBelowPct(33))
-                SwitchPhase(PHASE_33_PCT);
-            else if (_phase == PHASE_33_PCT && HealthBelowPct(25))
-                SwitchPhase(PHASE_25_PCT);
-        }
-
     private:
-        uint8 _phase;
+        bool _guardsCalled;
+        bool _health66;
+        bool _health33;
+        bool _health25;
 };
 
 void AddSC_boss_vancleef()
