@@ -152,7 +152,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
                     return false;
                 }
             }
-            else if (id < 0)
+            else
             {
                 _suffix = sItemRandomSuffixStore.LookupEntry(-id);
                 if (!_suffix)
