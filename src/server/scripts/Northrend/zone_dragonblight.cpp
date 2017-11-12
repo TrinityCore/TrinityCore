@@ -409,7 +409,7 @@ public:
                 tree->AI()->Talk(SAY_WALKER_FRIENDLY, player);
                 tree->DespawnOrUnsummon(1000);
             }
-            else if (roll == 0) // enemy version
+            else // enemy version
             {
                 tree->AI()->Talk(SAY_WALKER_ENEMY, player);
                 tree->SetFaction(FACTION_MONSTER);
