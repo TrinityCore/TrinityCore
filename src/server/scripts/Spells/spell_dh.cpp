@@ -28,7 +28,7 @@
 
 enum DemonHunterSpells
 {
-    SPELL_CHAOS_STRIKE_PROC = 193840,
+    SPELL_CHAOS_STRIKE_ENERGIZE             = 193840,
 };
 
 // 197125 - Chaos Strike
@@ -43,12 +43,13 @@ class spell_dh_chaos_strike : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_CHAOS_STRIKE_PROC });
+                return ValidateSpellInfo({ SPELL_CHAOS_STRIKE_ENERGIZE });
             }
 
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
-                GetTarget()->CastCustomSpell(SPELL_CHAOS_STRIKE_PROC, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);
+                PreventDefaultAction();
+                GetTarget()->CastCustomSpell(SPELL_CHAOS_STRIKE_ENERGIZE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
