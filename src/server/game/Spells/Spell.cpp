@@ -54,6 +54,7 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <numeric>
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -4022,7 +4023,7 @@ void Spell::SendSpellStart()
         {
             castData.RemainingRunes->Start = m_runesState; // runes state before
             castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
-            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
                 float baseCd = float(player->GetRuneBaseCooldown());
@@ -4033,7 +4034,7 @@ void Spell::SendSpellStart()
         {
             castData.RemainingRunes->Start = 0;
             castData.RemainingRunes->Count = 0;
-            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
                 castData.RemainingRunes->Cooldowns.push_back(0);
         }
     }
@@ -4140,7 +4141,7 @@ void Spell::SendSpellGo()
         {
             castData.RemainingRunes->Start = m_runesState; // runes state before
             castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
-            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
                 float baseCd = float(player->GetRuneBaseCooldown());
@@ -4151,7 +4152,7 @@ void Spell::SendSpellGo()
         {
             castData.RemainingRunes->Start = 0;
             castData.RemainingRunes->Count = 0;
-            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
                 castData.RemainingRunes->Cooldowns.push_back(0);
         }
     }
@@ -4612,8 +4613,12 @@ void Spell::TakePower()
 
 SpellCastResult Spell::CheckRuneCost()
 {
-    auto runeCost = std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_RUNES; });
-    if (runeCost == m_powerCost.end())
+    int32 runeCost = std::accumulate(m_powerCost.begin(), m_powerCost.end(), 0, [](int32 totalCost, SpellPowerCost const& cost)
+    {
+        return totalCost + (cost.Power == POWER_RUNES ? cost.Amount : 0);
+    });
+
+    if (!runeCost)
         return SPELL_CAST_OK;
 
     Player* player = m_caster->ToPlayer();
@@ -4628,7 +4633,7 @@ SpellCastResult Spell::CheckRuneCost()
         if (player->GetRuneCooldown(i) == 0)
             ++readyRunes;
 
-    if (readyRunes < runeCost->Amount)
+    if (readyRunes < runeCost)
         return SPELL_FAILED_NO_POWER;                       // not sure if result code is correct
 
     return SPELL_CAST_OK;
@@ -4642,10 +4647,10 @@ void Spell::TakeRunePower(bool didHit)
     Player* player = m_caster->ToPlayer();
     m_runesState = player->GetRunesState();                 // store previous state
 
-    int32 runeCost = std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellPowerCost const& cost)
+    int32 runeCost = std::accumulate(m_powerCost.begin(), m_powerCost.end(), 0, [](int32 totalCost, SpellPowerCost const& cost)
     {
-        return cost.Power == POWER_RUNES;
-    })->Amount;
+        return totalCost + (cost.Power == POWER_RUNES ? cost.Amount : 0);
+    });
 
     for (int32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
     {

@@ -203,13 +203,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    // Init rune flags
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-    {
-        SetRuneTimer(i, 0xFFFFFFFF);
-        SetLastRuneGraceTimer(i, 0);
-    }
-
     for (uint8 i=0; i < MAX_TIMERS; i++)
         m_MirrorTimer[i] = DISABLED_MIRROR_TIMER;
 
@@ -1347,26 +1340,6 @@ void Player::Update(uint32 p_time)
         }
     }
 
-    if (getClass() == CLASS_DEATH_KNIGHT)
-    {
-        // Update rune timers
-        for (uint8 i = 0; i < MAX_RUNES; ++i)
-        {
-            uint32 timer = GetRuneTimer(i);
-
-            // Don't update timer if rune is disabled
-            if (GetRuneCooldown(i))
-                continue;
-
-            // Timer has began
-            if (timer < 0xFFFFFFFF)
-            {
-                timer += p_time;
-                SetRuneTimer(i, std::min(uint32(2500), timer));
-            }
-        }
-    }
-
     // group update
     SendUpdateToOutOfRangeGroupMembers();
 
@@ -1840,9 +1813,9 @@ void Player::RegenerateAll()
     {
         uint32 regeneratedRunes = 0;
         uint32 regenIndex = 0;
-        while (regeneratedRunes < MAX_RECHARGING_RUNES && !m_runes->CooldownOrder.empty())
+        while (regeneratedRunes < MAX_RECHARGING_RUNES && m_runes->CooldownOrder.size() > regenIndex)
         {
-            uint8 runeToRegen = m_runes->CooldownOrder[regenIndex++];
+            uint8 runeToRegen = m_runes->CooldownOrder[regenIndex];
             uint32 runeCooldown = GetRuneCooldown(runeToRegen);
             if (runeCooldown > m_regenTimer)
             {
@@ -1850,7 +1823,7 @@ void Player::RegenerateAll()
                 ++regenIndex;
             }
             else
-                SetRuneCooldown(runeCooldown, 0);
+                SetRuneCooldown(runeToRegen, 0);
 
             ++regeneratedRunes;
         }
@@ -18037,6 +18010,18 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         SetUInt32Value(UNIT_FIELD_POWER + loadedPowers, 0);
 
     SetPower(POWER_LUNAR_POWER, 0);
+    // Init rune recharge
+    if (GetPowerIndex(POWER_RUNES) != MAX_POWERS)
+    {
+        int32 runes = GetPower(POWER_RUNES);
+        int32 maxRunes = GetMaxPower(POWER_RUNES);
+        uint32 runeCooldown = GetRuneBaseCooldown();
+        while (runes < maxRunes)
+        {
+            SetRuneCooldown(runes, runeCooldown, false);
+            ++runes;
+        }
+    }
 
     TC_LOG_DEBUG("entities.player.loading", "Player::LoadFromDB: The value of player '%s' after load item and aura is: ", m_name.c_str());
     outDebugValues();
@@ -25457,6 +25442,11 @@ bool Player::isTotalImmunity() const
     return false;
 }
 
+uint8 Player::GetRunesState() const
+{
+    return uint8(m_runes->RuneState & ((1 << GetMaxPower(POWER_RUNES)) - 1));
+}
+
 uint32 Player::GetRuneBaseCooldown() const
 {
     float cooldown = RUNE_BASE_COOLDOWN;
@@ -25481,22 +25471,11 @@ uint32 Player::GetRuneBaseCooldown() const
 
 void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false*/)
 {
-    uint32 gracePeriod = GetRuneTimer(index);
-
-    if (casted && IsInCombat())
-    {
-        if (gracePeriod < 0xFFFFFFFF && cooldown > 0)
-        {
-            uint32 lessCd = std::min(uint32(2500), gracePeriod);
-            cooldown = (cooldown > lessCd) ? (cooldown - lessCd) : 0;
-            SetLastRuneGraceTimer(index, lessCd);
-        }
-
-        SetRuneTimer(index, 0);
-    }
-
     m_runes->Cooldown[index] = cooldown;
     m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
+    int32 activeRunes = std::count(std::begin(m_runes->Cooldown), &m_runes->Cooldown[std::min(GetMaxPower(POWER_RUNES), MAX_RUNES)], 0);
+    if (activeRunes != GetPower(POWER_RUNES))
+        SetPower(POWER_RUNES, activeRunes);
 }
 
 void Runes::SetRuneState(uint8 index, bool set /*= true*/)
@@ -25505,41 +25484,28 @@ void Runes::SetRuneState(uint8 index, bool set /*= true*/)
     if (set)
     {
         RuneState |= (1 << index);                      // usable
-        if (itr == CooldownOrder.end())
-            CooldownOrder.push_back(index);
+        if (itr != CooldownOrder.end())
+            CooldownOrder.erase(itr);
     }
     else
     {
         RuneState &= ~(1 << index);                     // on cooldown
-        if (itr != CooldownOrder.end())
-            CooldownOrder.erase(itr);
+        if (itr == CooldownOrder.end())
+            CooldownOrder.push_back(index);
     }
 }
 
 void Player::ResyncRunes() const
 {
-    WorldPackets::Spells::ResyncRunes data(MAX_RUNES);
-    data.Runes.Start = 0;
+    uint32 maxRunes = uint32(GetMaxPower(POWER_RUNES));
+
+    WorldPackets::Spells::ResyncRunes data(maxRunes);
+    data.Runes.Start = uint8((1 << maxRunes) - 1);
     data.Runes.Count = GetRunesState();
 
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
-        data.Runes.Cooldowns.push_back(uint8(255 - (GetRuneCooldown(i) * 51)));
-
-    // calculate mask of recharging runes
-    uint32 regeneratedRunes = 0;
-    uint32 regenIndex = 0;
-    while (regeneratedRunes < MAX_RECHARGING_RUNES && !m_runes->CooldownOrder.empty())
-    {
-        uint8 runeToRegen = m_runes->CooldownOrder[regenIndex++];
-        uint32 runeCooldown = GetRuneCooldown(runeToRegen);
-        if (runeCooldown > m_regenTimer)
-        {
-            data.Runes.Start |= 1 << runeToRegen;
-            ++regenIndex;
-        }
-
-        ++regeneratedRunes;
-    }
+    float baseCd = float(GetRuneBaseCooldown());
+    for (uint32 i = 0; i < maxRunes; ++i)
+        data.Runes.Cooldowns.push_back(uint8((baseCd - float(GetRuneCooldown(i))) / baseCd * 255));
 
     GetSession()->SendPacket(data.Write());
 }
@@ -25564,15 +25530,10 @@ void Player::InitRunes()
     m_runes->RuneState = 0;
 
     for (uint8 i = 0; i < MAX_RUNES; ++i)
-    {
         SetRuneCooldown(i, 0);                                          // reset cooldowns
-        SetRuneTimer(i, 0xFFFFFFFF);                                    // Reset rune flags
-        SetLastRuneGraceTimer(i, 0);
-    }
 
-    // set a base regen timer equal to 10 sec
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + runeIndex, 0.1f);
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, 0.1f);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + runeIndex, 0.0f);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, 0.0f);
 }
 
 void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast)
