@@ -119,12 +119,7 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
         ChatHandler(GetPlayer()->GetSession()).PSendSysMessage(LANG_COMMAND_SCENE_DEBUG_CANCEL, sceneInstanceID);
 
     SceneTemplate const* sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
-
-    // Must be done before removing aura
-    RemoveSceneInstanceId(sceneInstanceID);
-
-    if (sceneTemplate->SceneId != 0)
-        RemoveAurasDueToSceneId(sceneTemplate->SceneId);
+    uint32 const sceneId = sceneTemplate->SceneId;
 
     sScriptMgr->OnSceneCancel(GetPlayer(), sceneInstanceID, sceneTemplate);
 
@@ -133,6 +128,13 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
 
     if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
         CancelScene(sceneInstanceID, false);
+
+    // Must be done before removing aura but after every use of sceneTemplate,
+    // this will invalidate the pointer
+    RemoveSceneInstanceId(sceneInstanceID);
+
+    if (sceneId != 0)
+        RemoveAurasDueToSceneId(sceneId);
 }
 
 void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
@@ -144,12 +146,7 @@ void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
         ChatHandler(GetPlayer()->GetSession()).PSendSysMessage(LANG_COMMAND_SCENE_DEBUG_COMPLETE, sceneInstanceID);
 
     SceneTemplate const* sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
-
-    // Must be done before removing aura
-    RemoveSceneInstanceId(sceneInstanceID);
-
-    if (sceneTemplate->SceneId != 0)
-        RemoveAurasDueToSceneId(sceneTemplate->SceneId);
+    uint32 const sceneId = sceneTemplate->SceneId;
 
     sScriptMgr->OnSceneComplete(GetPlayer(), sceneInstanceID, sceneTemplate);
 
@@ -158,6 +155,13 @@ void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
 
     if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
         CancelScene(sceneInstanceID, false);
+
+    // Must be done before removing aura but after every use of sceneTemplate,
+    // this will invalidate the pointer
+    RemoveSceneInstanceId(sceneInstanceID);
+
+    if (sceneId != 0)
+        RemoveAurasDueToSceneId(sceneId);
 }
 
 bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 0*/) const
