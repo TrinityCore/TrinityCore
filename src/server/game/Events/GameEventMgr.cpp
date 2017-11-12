@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "LuaEngine.h"
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -144,6 +145,8 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 
         // When event is started, set its worldstate to current time
         sWorld->setWorldState(event_id, time(nullptr));
+        if (IsActiveEvent(event_id))
+            sEluna->OnGameEventStart(event_id);
         return false;
     }
     else
@@ -167,6 +170,8 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         if (overwrite && conditions_met)
             sWorld->ForceGameEventUpdate();
 
+        if (IsActiveEvent(event_id))
+            sEluna->OnGameEventStart(event_id);
         return conditions_met;
     }
 }
@@ -212,6 +217,8 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
             CharacterDatabase.CommitTransaction(trans);
         }
     }
+    if (!IsActiveEvent(event_id))
+        sEluna->OnGameEventStop(event_id);
 }
 
 void GameEventMgr::LoadFromDB()

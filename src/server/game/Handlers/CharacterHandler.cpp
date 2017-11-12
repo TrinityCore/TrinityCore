@@ -54,6 +54,10 @@
 #include "../../plugins/playerbot/playerbot.h"
 #include "../../plugins/playerbot/PlayerbotAIConfig.h"
 
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
+
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:
@@ -2171,7 +2175,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
                         ss << knownTitles[index] << ' ';
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
-                    stmt->setString(0, ss.str().c_str());
+                    stmt->setString(0, ss.str());
                     stmt->setUInt32(1, lowGuid);
                     trans->Append(stmt);
 

@@ -43,6 +43,9 @@
 #include "Pet.h"
 #include "Player.h"
 #include "ReputationMgr.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
 #include "ScriptMgr.h"
 #include "SkillExtraItems.h"
 #include "SharedDefines.h"
@@ -735,6 +738,14 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     // normal DB scripted effect
     TC_LOG_DEBUG("spells", "Spell ScriptStart spellid %u in EffectDummy(%u)", m_spellInfo->Id, effIndex);
     m_caster->GetMap()->ScriptsStart(sSpellScripts, uint32(m_spellInfo->Id | (effIndex << 24)), m_caster, unitTarget);
+#ifdef ELUNA
+    if (gameObjTarget)
+        sEluna->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, gameObjTarget);
+    else if (unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT)
+        sEluna->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, unitTarget->ToCreature());
+    else if (itemTarget)
+        sEluna->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, itemTarget);
+#endif
 }
 
 void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
@@ -1840,6 +1851,12 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         }
 
         player->PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+        if (sEluna->OnGossipHello(player, gameObjTarget))
+            return;
+        if (sEluna->OnGameObjectUse(player, gameObjTarget))
+            return;
+#endif
         if (gameObjTarget->AI()->GossipHello(player))
             return;
 
@@ -2797,8 +2814,6 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
         }
         return;
     }
-    if (!itemTarget)
-        return;
 
     uint32 enchant_id = m_spellInfo->Effects[effIndex].MiscValue;
 

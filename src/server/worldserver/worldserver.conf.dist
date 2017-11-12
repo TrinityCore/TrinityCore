@@ -1128,6 +1128,34 @@ MaxGroupXPDistance = 74
 MaxRecruitAFriendBonusDistance = 100
 
 #
+#    MinQuestScaledXPRatio
+#        Description: Min ratio of experience that a quest can grant when player level scaling is factored.
+#        Example:     50 (No less than 50% experience granted from a lower leveled quests completion)
+#                     100 (Quests always grant full experience upon completion)
+#        Default:     0 - (Quests too low may grant no experience)
+
+MinQuestScaledXPRatio = 0
+
+#
+#    MinCreatureScaledXPRatio
+#        Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.  This 
+#                     will also allow spell procs to trigger, such as Drain Soul, if > 0 and exp is grantable.
+#        Example:     50 (No less than 50% experience granted from a lower leveled creature kill)
+#                     100 (Creature kills always grant full experience upon kill)
+#        Default:     0 - (Creatures too low may grant no experience)
+
+MinCreatureScaledXPRatio = 0
+
+#
+#    MinDiscoveredScaledXPRatio
+#        Description: Min ratio of experience that an area discovery event will grant when player level scaling is factored.
+#        Example:     50 (No less than 50% experience granted from discovering a new section of map)
+#                     100 (Map exploration always grant full experience upon discovery)
+#        Default:     0 - (No experience granted when discovered area is too low level)
+
+MinDiscoveredScaledXPRatio = 0
+
+#
 #    MailDeliveryDelay
 #        Description: Time (in seconds) mail delivery is delayed when sending items.
 #        Default:     3600 - (1 hour)
@@ -3753,6 +3781,33 @@ AuctionHouseBot.Buyer.Recheck.Interval = 20
 ###################################################################################################
 
 ###################################################################################################
+#  ELUNA SETTINGS
+#
+#   Eluna.Enabled
+#       Description: Enable or disable Eluna LuaEngine
+#       Default:    true  - (enabled)
+#                   false - (disabled)
+#
+#   Eluna.TraceBack
+#       Description: Sets whether to use debug.traceback function on a lua error or not.
+#                    Notice that you can redefine the function.
+#       Default:    false - (use default error output)
+#                   true  - (use debug.traceback function)
+#
+#   Eluna.ScriptPath
+#       Description: Sets the location of the script folder to load scripts from
+#                    The path can be relative or absolute.
+#       Default:    "lua_scripts"
+#
+
+Eluna.Enabled = true
+Eluna.TraceBack = false
+Eluna.ScriptPath = "lua_scripts"
+
+#
+###################################################################################################
+
+###################################################################################################
 # LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
@@ -3823,6 +3878,7 @@ Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
 Appender.GM=2,2,15,gm/gm_%s.log
 Appender.DBErrors=2,2,0,DBErrors.log
+Appender.Eluna=2,5,3,Eluna.log,a
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -3850,6 +3906,7 @@ Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
 Logger.mmaps=3,Server
 Logger.playerbot=1,Console Server
+Logger.eluna=1,Console Eluna
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server

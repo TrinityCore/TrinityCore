@@ -69,6 +69,10 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#include "ElunaEventMgr.h"
+#endif
 #include <cmath>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -439,6 +443,10 @@ bool Unit::IsInCombatWith(Unit const* who) const
 
 void Unit::Update(uint32 p_time)
 {
+#ifdef ELUNA
+    elunaEvents->Update(p_time);
+#endif
+
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
     // Or else we may have some SPELL_STATE_FINISHED spells stalled in pointers, that is bad.
@@ -9136,6 +9144,11 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 
         controlled->SetInCombatState(PvP, enemy);
     }
+
+#ifdef ELUNA
+    if (Player* player = this->ToPlayer())
+        sEluna->OnPlayerEnterCombat(player, enemy);
+#endif
 }
 
 void Unit::ClearInCombat()
@@ -9174,6 +9187,11 @@ void Unit::ClearInCombat()
         ToPlayer()->UpdatePotionCooldown();
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
+
+#ifdef ELUNA
+    if (Player* player = this->ToPlayer())
+        sEluna->OnPlayerLeaveCombat(player);
+#endif
 }
 
 void Unit::ClearInPetCombat()
@@ -11798,15 +11816,16 @@ void Unit::StopMoving()
     init.Stop();
 }
 
-void Unit::PauseMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/)
+void Unit::PauseMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/, bool forced/* = true*/)
 {
     if (slot >= MAX_MOTION_SLOT)
         return;
 
-    if (MovementGenerator* movementGenerator = GetMotionMaster()->GetMotionSlot(slot))
+    if (MovementGenerator* movementGenerator = GetMotionMaster()->GetMotionSlot(MovementSlot(slot)))
         movementGenerator->Pause(timer);
 
-    StopMoving();
+    if (forced)
+        StopMoving();
 }
 
 void Unit::ResumeMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/)
@@ -11814,7 +11833,7 @@ void Unit::ResumeMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/)
     if (slot >= MAX_MOTION_SLOT)
         return;
 
-    if (MovementGenerator* movementGenerator = GetMotionMaster()->GetMotionSlot(slot))
+    if (MovementGenerator* movementGenerator = GetMotionMaster()->GetMotionSlot(MovementSlot(slot)))
         movementGenerator->Resume(timer);
 }
 
