@@ -399,8 +399,7 @@ public:
 
                                 for (uint8 i = 0; i < 3; ++i)
                                 {
-                                    Unit* target = NULL;
-                                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                                     Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                                     if (Orb && target)

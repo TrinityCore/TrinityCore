@@ -550,9 +550,7 @@ public:
             //Blizzard_Timer
             if (Blizzard_Timer <= diff)
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true))
                     DoCast(target, SPELL_BLIZZARD);
                 Blizzard_Timer = 15000 + rand32() % 15000;
             } else Blizzard_Timer -= diff;
