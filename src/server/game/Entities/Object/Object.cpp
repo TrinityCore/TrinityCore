@@ -215,6 +215,13 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             flags |= UPDATEFLAG_ANIMKITS;
     }
 
+    if (GameObject const* gameObject = dynamic_cast<GameObject const*>(this))
+    {
+        // Add ConditionMgr part here
+        if (gameObject->GetWorldEffectID())
+            flags |= UPDATEFLAG_GAMEOBJECT;
+    }
+
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
         // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...

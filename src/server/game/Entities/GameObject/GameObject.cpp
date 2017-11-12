@@ -269,10 +269,7 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
         SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
 
         if (m_goTemplateAddon->WorldEffectID)
-        {
-            m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
             SetWorldEffectID(m_goTemplateAddon->WorldEffectID);
-        }
     }
 
     SetEntry(goinfo->entry);
@@ -366,10 +363,7 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
     }
 
     if (gameObjectAddon && gameObjectAddon->WorldEffectID)
-    {
-        m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
         SetWorldEffectID(gameObjectAddon->WorldEffectID);
-    }
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
     AIM_Initialize();
