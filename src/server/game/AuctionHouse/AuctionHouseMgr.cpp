@@ -883,13 +883,15 @@ uint32 AuctionEntry::GetAuctionOutBid() const
 
 void AuctionEntry::DeleteFromDB(SQLTransaction& trans) const
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
+    PreparedStatement* stmt;
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
     stmt->setUInt32(0, Id);
     trans->Append(stmt);
 
-    PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION_BIDDERS);
-    stmt2->setUInt32(0, Id);
-    trans->Append(stmt2);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION_BIDDERS);
+    stmt->setUInt32(0, Id);
+    trans->Append(stmt);
 }
 
 void AuctionEntry::SaveToDB(SQLTransaction& trans) const
