@@ -47,8 +47,6 @@ enum WarriorSpells
     SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT             = 208086,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
-    SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
-    SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 94954, // jump + dmg
     SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
     SPELL_WARRIOR_IMPENDING_VICTORY_HEAL            = 202166,
@@ -351,7 +349,7 @@ class spell_warr_execute : public SpellScriptLoader
         }
 };
 
-// Heroic leap - 6544
+// 6544 - Heroic Leap
 class spell_warr_heroic_leap : public SpellScriptLoader
 {
 public:
@@ -363,10 +361,11 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo
-            ({ 
-              SPELL_WARRIOR_HEROIC_LEAP_JUMP,
-              SPELL_WARRIOR_BOUNDING_STRIDE_EFFECT
+            return ValidateSpellInfo(
+            {
+                SPELL_WARRIOR_HEROIC_LEAP_JUMP,
+                SPELL_WARRIOR_BOUNDING_STRIDE_EFFECT,
+                SPELL_WARRIOR_SHIELD_SLAM
             });
         }
 
@@ -409,8 +408,12 @@ public:
         {
             if (WorldLocation* dest = GetHitDest())
                 GetCaster()->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_WARRIOR_HEROIC_LEAP_JUMP, true);
+
             if (GetCaster()->HasAura(SPELL_WARRIOR_BOUNDING_STRIDE))
                 GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BOUNDING_STRIDE_EFFECT, true);
+
+            if (GetCaster()->HasSpell(SPELL_WARRIOR_SHIELD_SLAM))
+                GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_TAUNT, true);
         }
 
         void Register() override
