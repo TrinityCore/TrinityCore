@@ -1182,7 +1182,7 @@ public:
                 else if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->SetDisableGravity(true);
             }
-            else if (!apply)
+            else
             {
                 if (unit->GetTypeId() != TYPEID_PLAYER)
                 {
@@ -1285,7 +1285,7 @@ public:
                 if (unit->GetTypeId() == TYPEID_UNIT)
                     unit->CastSpell(unit, SPELL_TELEPORT_VISUAL_ONLY);
             }
-            else if (!apply)
+            else
             {
                 me->StopMoving();
                 me->SetDisableGravity(false);
