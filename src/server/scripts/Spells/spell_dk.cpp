@@ -140,6 +140,46 @@ enum DeathKnightSpells
     SPELL_DK_BONESTORM_HEAL                     = 196545
 };
 
+// 70656 - Advantage (T10 4P Melee Bonus)
+class spell_dk_advantage_t10_4p : public SpellScriptLoader
+{
+public:
+    spell_dk_advantage_t10_4p() : SpellScriptLoader("spell_dk_advantage_t10_4p") { }
+
+    class spell_dk_advantage_t10_4p_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_advantage_t10_4p_AuraScript);
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (Unit* caster = eventInfo.GetActor())
+            {
+                Player* player = caster->ToPlayer();
+                if (!player  || caster->getClass() != CLASS_DEATH_KNIGHT)
+                    return false;
+
+                for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+                    if (player->GetRuneCooldown(i) == 0)
+                        return false;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dk_advantage_t10_4p_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_advantage_t10_4p_AuraScript();
+    }
+};
+
 // 48707 - Anti-Magic Shell
 class spell_dk_anti_magic_shell : public SpellScriptLoader
 {
@@ -2439,6 +2479,7 @@ public:
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_advantage_t10_4p();
     new spell_dk_anti_magic_barrier();
     new spell_dk_anti_magic_shell();
     new spell_dk_anti_magic_shell_self();
