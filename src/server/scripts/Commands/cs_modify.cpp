@@ -74,6 +74,7 @@ public:
             { "standstate",   rbac::RBAC_PERM_COMMAND_MODIFY_STANDSTATE,   false, &HandleModifyStandStateCommand,    "" },
             { "talentpoints", rbac::RBAC_PERM_COMMAND_MODIFY_TALENTPOINTS, false, &HandleModifyTalentCommand,        "" },
             { "xp",           rbac::RBAC_PERM_COMMAND_MODIFY_XP,           false, &HandleModifyXPCommand,            "" },
+            { "power",        rbac::RBAC_PERM_COMMAND_MODIFY_POWER,        false, &HandleModifyPowerCommand,         "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -995,6 +996,81 @@ public:
 
         // we can run the command
         target->GiveXP(xp, nullptr);
+        return true;
+    }
+
+    // Edit Player Power
+    static bool HandleModifyPowerCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* target = handler->getSelectedPlayerOrSelf();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
+            return false;
+
+        char* powerTypeToken = strtok((char*)args, " ");
+        if (!powerTypeToken)
+            return false;
+
+        PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeByName(powerTypeToken);
+        if (!powerType)
+        {
+            handler->SendSysMessage(LANG_INVALID_POWER_NAME);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (target->GetPowerIndex(powerType->PowerTypeEnum) == MAX_POWERS)
+        {
+            handler->SendSysMessage(LANG_INVALID_POWER_NAME);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        char* amount = strtok(nullptr, " ");
+        if (!amount)
+            return false;
+
+        int32 powerAmount = atoi(amount);
+
+        if (powerAmount < 1)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        std::string formattedPowerName = powerType->PowerTypeToken;
+        bool upperCase = true;
+        for (char& c : formattedPowerName)
+        {
+            if (upperCase)
+            {
+                c = char(::toupper(c));
+                upperCase = false;
+            }
+            else
+                c = char(::tolower(c));
+
+            if (c == '_')
+            {
+                c = ' ';
+                upperCase = true;
+            }
+        }
+
+        NotifyModification(handler, target, LANG_YOU_CHANGE_POWER, LANG_YOUR_POWER_CHANGED, formattedPowerName.c_str(), powerAmount, powerAmount);
+        powerAmount *= powerType->UIModifier;
+        target->SetMaxPower(Powers(powerType->PowerTypeEnum), powerAmount);
+        target->SetPower(Powers(powerType->PowerTypeEnum), powerAmount);
         return true;
     }
 };
