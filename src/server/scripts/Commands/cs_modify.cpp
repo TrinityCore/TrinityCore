@@ -204,39 +204,6 @@ public:
         return false;
     }
 
-    static bool HandleModifyPowerCommand(ChatHandler* handler, const char* args)
-    {
-        if (!*args)
-            return false;
-
-        char* power_str = strtok((char*)args, " ");
-        char* value_str = strtok(NULL, " ");
-
-        if (!power_str || !value_str)
-            return false;
-
-        Player* target = handler->getSelectedPlayer();
-
-        if (!target)
-        {
-            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        uint32 power = (uint32)atoi(power_str);
-
-        if (power >= MAX_POWERS)
-            return false;
-
-        int32 value = (int32)atoi(value_str);
-
-        target->SetPower(Powers(power), value);
-        target->SetMaxPower(Powers(power), value);
-
-        return true;
-    }
-
     //Edit Player Faction
     static bool HandleModifyFactionCommand(ChatHandler* handler, const char* args)
     {
