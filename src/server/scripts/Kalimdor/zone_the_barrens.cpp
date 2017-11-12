@@ -481,7 +481,7 @@ public:
                                 Talk(SAY_TWIGGY_FLATHEAD_OVER);
                                 Reset();
                             }
-                            else if (creature) // Makes BIG WILL attackable.
+                            else // Makes BIG WILL attackable.
                             {
                                 creature->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                                 creature->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
