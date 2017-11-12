@@ -18018,7 +18018,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         uint32 runeCooldown = GetRuneBaseCooldown();
         while (runes < maxRunes)
         {
-            SetRuneCooldown(runes, runeCooldown, false);
+            SetRuneCooldown(runes, runeCooldown);
             ++runes;
         }
     }
@@ -25469,7 +25469,7 @@ uint32 Player::GetRuneBaseCooldown() const
     return cooldown;
 }
 
-void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false*/)
+void Player::SetRuneCooldown(uint8 index, uint32 cooldown)
 {
     m_runes->Cooldown[index] = cooldown;
     m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
