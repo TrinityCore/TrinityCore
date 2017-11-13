@@ -1,5 +1,5 @@
 -- Infested Root-Walker, Rotting Forest-Rager
-
+-- Tested, working
 UPDATE `creature_template` SET `ScriptName` = '', `AIName` = 'SmartAI' WHERE `entry` IN (22095, 22307);
 
 DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid IN (22095, 22307));
@@ -11,6 +11,14 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceGroup` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 1, 22095, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', ' Id 0 of Creature SAI for Infested Root-Walker will execute if invoker is player.'),
 (22, 1, 22307, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', ' Id 0 of Creature SAI for Rotting Forest-Rager will execute if invoker is player.');
+
+-- TODO 22419 wood mites do not attack player on spawn. Not sure how to handle this in practice. Proposed fix:
+-- Wood Mite
+UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 22419;
+
+DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = 22419);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(22419, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 21, 15, 0, 0, 0, 0, 0, 0, 'Wood Mite - On Just Summoned - Start Attacking');
 
 -- Skull Pile
 UPDATE `gameobject_template` SET `ScriptName` = '', `AIName` = 'SmartGameObjectAI' WHERE `entry` = 185913;
@@ -24,6 +32,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (185913, 1, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 85, 40642, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 2 Selected - Invoker Cast \'Summon Darkscreecher Akkarai\''),
 (185913, 1, 6, 7, 62, 0, 100, 0, 8660, 3, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 3 Selected - Close Gossip'),
 (185913, 1, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 85, 40644, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 3 Selected - Invoker Cast \'Summon Vakkiz the Windrager\'');
+
+-- TODO gossip does not close properly despite action in place above. No errors in DBErrors.log
+-- TODO should these mobs despawn after X seconds if not engaged / reset?
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 8660;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -50,6 +61,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14, 8021, 9895, 0, 0, 5, 0, 933, 240, 0, 1, 0, 0, '', 'Show gossip menu 8021 text id 9895 if player is not at least Friendly with The Consortium.'),
 (15, 8021, 0, 0, 0, 5, 0, 933, 240, 0, 0, 0, 0, '', 'Show gossip menu 8021 option id 0 if player is at least Friendly with The Consortium.');
 
+-- TODO when friendly, he immediately goes to vendor menu. This is probably as-intended, as WOTLK changed a lot of this, but
+-- that means the above conditions are really only here for appearance's sake. They should probably still be here in case 
+-- someone decides to mess with those flags globally though.
+
 -- Floon
 UPDATE `creature_template` SET `ScriptName` = '', `AIName` = 'SmartAI' WHERE `entry` = 18588;
 
@@ -66,6 +81,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (18588, 0, 6, 0, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Start Attacking'),
 (18588, 0, 7, 0, 25, 0, 100, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Reset - Set Default Faction');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 7731;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 7732;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(15, 7731, 0, 0, 0, 9, 0, 10009, 0, 0, 0, 0, 0, '', 'Show gossip menu 7731 option id 0 if quest Crackin\' Some Skulls has been taken.');
+(15, 7732, 0, 0, 0, 9, 0, 10009, 0, 0, 0, 0, 0, '', 'Show gossip menu 7732 option id 0 if quest Crackin\' Some Skulls has been taken.');
