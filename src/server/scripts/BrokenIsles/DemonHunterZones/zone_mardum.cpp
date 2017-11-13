@@ -31,7 +31,8 @@ enum eQuests
     QUEST_INVASION_BEGIN        = 40077,
     QUEST_ASHTONGUE_FORCES      = 40378,
     QUEST_COILSKAR_FORCES       = 40379,
-    QUEST_MEETING_WITH_QUEEN    = 39050
+    QUEST_MEETING_WITH_QUEEN    = 39050,
+    QUEST_SHIVARRA_FORCES       = 38765
 };
 
 enum eScenes
@@ -41,6 +42,7 @@ enum eScenes
     SPELL_SCENE_MARDUM_ASHTONGUE_FORCES = 189261,
     SPELL_SCENE_MARDUM_COILSKAR_FORCES  = 190793,
     SPELL_SCENE_MEETING_WITH_QUEEN      = 188539,
+    SPELL_SCENE_MARDUM_SHIVARRA_FORCES  = 190793,
 };
 
 enum ePhaseSpells
@@ -61,9 +63,9 @@ enum ePhaseSpells
 
 enum ePhases
 {
-    PHASE_MARDUM_WELCOME        = SPELL_PHASE_170,
-    PHASE_MARDUM_AFTER_BANNER   = SPELL_PHASE_171,
-    PHASE_MARDUM_FELSABBER      = SPELL_PHASE_172,
+    SPELL_PHASE_MARDUM_WELCOME      = SPELL_PHASE_170,
+    SPELL_PHASE_MARDUM_AFTER_BANNER = SPELL_PHASE_171,
+    SPELL_PHASE_MARDUM_FELSABBER    = SPELL_PHASE_172,
 };
 
 class PlayerScript_mardum_welcome_scene_trigger : public PlayerScript
@@ -77,7 +79,7 @@ public:
     {
         if (player->GetZoneId() == 7705 && firstLogin)
         {
-            player->RemoveAurasDueToSpell(PHASE_MARDUM_WELCOME);
+            player->RemoveAurasDueToSpell(SPELL_PHASE_MARDUM_WELCOME);
         }
     }
 
@@ -87,7 +89,7 @@ public:
         {
             if (player->GetZoneId() == 7705 && player->GetQuestStatus(QUEST_INVASION_BEGIN) == QUEST_STATUS_NONE &&
                 player->GetPositionY() < 3280 && !player->HasAura(SPELL_SCENE_MARDUM_WELCOME) &&
-                !player->HasInPhaseList(PHASE_MARDUM_WELCOME))
+                !player->HasAura(SPELL_PHASE_MARDUM_WELCOME))
             {
                 player->CastSpell(player, SPELL_SCENE_MARDUM_WELCOME, true);
             }
@@ -105,7 +107,7 @@ public:
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
-        player->AddAura(PHASE_MARDUM_WELCOME);
+        player->AddAura(SPELL_PHASE_MARDUM_WELCOME);
     }
 };
 
@@ -145,7 +147,7 @@ public:
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
-        player->AddAura(PHASE_MARDUM_AFTER_BANNER);
+        player->AddAura(SPELL_PHASE_MARDUM_AFTER_BANNER);
     }
 };
 
@@ -180,7 +182,7 @@ public:
         }
         else if (triggerName == "UPDATEPHASE")
         {
-            player->AddAura(PHASE_MARDUM_FELSABBER);
+            player->AddAura(SPELL_PHASE_MARDUM_FELSABBER);
         }
     }
 };
@@ -197,7 +199,7 @@ public:
 
         void HandleMountOnHit(SpellEffIndex /*effIndex*/)
         {
-            GetCaster()->RemoveAurasDueToSpell(PHASE_MARDUM_FELSABBER);
+            GetCaster()->RemoveAurasDueToSpell(SPELL_PHASE_MARDUM_FELSABBER);
 
             // We schedule this to let hover animation pass
             GetCaster()->GetScheduler().Schedule(Seconds(1), [](TaskContext context)
@@ -261,9 +263,7 @@ public:
 
     struct npc_mardum_inquisitor_pernissiusAI : public ScriptedAI
     {
-        npc_mardum_inquisitor_pernissiusAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        npc_mardum_inquisitor_pernissiusAI(Creature* creature) : ScriptedAI(creature) { }
 
         enum Spells
         {
@@ -430,6 +430,83 @@ public:
     }
 };
 
+class npc_mardum_doom_commander_beliash : public CreatureScript
+{
+public:
+    npc_mardum_doom_commander_beliash() : CreatureScript("npc_mardum_doom_commander_beliash") { }
+
+    struct npc_mardum_doom_commander_beliashAI : public ScriptedAI
+    {
+        npc_mardum_doom_commander_beliashAI(Creature* creature) : ScriptedAI(creature){ }
+
+        enum Spells
+        {
+            SPELL_SHADOW_BOLT_VOLLEY    = 196403,
+            SPELL_SHADOW_RETREAT        = 196625,
+            SPELL_SHADOW_RETREAT_AT     = 195402,
+
+            SPELL_LEARN_CONSUME_MAGIC   = 195439
+        };
+
+        void EnterCombat(Unit*) override
+        {
+            me->GetScheduler().Schedule(Milliseconds(2500), [this](TaskContext context)
+            {
+                me->CastSpell(me, SPELL_SHADOW_BOLT_VOLLEY, true);
+                context.Repeat(Milliseconds(2500));
+            });
+
+            me->GetScheduler().Schedule(Seconds(10), [this](TaskContext context)
+            {
+                me->CastSpell(me, SPELL_SHADOW_RETREAT);
+                context.Repeat(Seconds(15));
+
+                // During retreat commander make blaze appear
+                me->GetScheduler().Schedule({ Milliseconds(500), Milliseconds(1000) }, [this](TaskContext context)
+                {
+                    me->CastSpell(me, SPELL_SHADOW_RETREAT_AT, true);
+                });
+            });
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            std::list<Player*> players;
+            me->GetPlayerListInGrid(players, 50.0f);
+
+            for (Player* player : players)
+            {
+                player->KilledMonsterCredit(106003);
+
+                if (!player->HasSpell(SPELL_LEARN_CONSUME_MAGIC))
+                    player->CastSpell(player, SPELL_LEARN_CONSUME_MAGIC);
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_mardum_doom_commander_beliashAI(creature);
+    }
+};
+
+class go_mardum_portal_shivarra : public GameObjectScript
+{
+public:
+    go_mardum_portal_shivarra() : GameObjectScript("go_mardum_portal_shivarra") { }
+
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
+    {
+        if (!player->HasQuest(QUEST_SHIVARRA_FORCES))
+        {
+            player->CompleteQuest(QUEST_SHIVARRA_FORCES);
+            player->CastSpell(player, SPELL_SCENE_MARDUM_SHIVARRA_FORCES, true);
+        }
+
+        return false;
+    }
+};
+
 void AddSC_mardum()
 {
     new PlayerScript_mardum_welcome_scene_trigger();
@@ -450,4 +527,6 @@ void AddSC_mardum()
     new go_mardum_portal_coilskar();
     new go_meeting_with_queen_ritual();
     new scene_mardum_meeting_with_queen();
+    new npc_mardum_doom_commander_beliash();
+    new go_mardum_portal_shivarra();
 }
