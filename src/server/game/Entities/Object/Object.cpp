@@ -350,11 +350,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool AnimKitCreate = (flags & UPDATEFLAG_ANIMKITS) != 0;
     bool Rotation = (flags & UPDATEFLAG_ROTATION) != 0;
     bool HasAreaTrigger = (flags & UPDATEFLAG_AREATRIGGER) != 0;
-    bool HasGameObject = (flags & UPDATEFLAG_GAMEOBJECT) != 0;;
+    bool HasGameObject = (flags & UPDATEFLAG_GAMEOBJECT) != 0;
     bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
     bool SmoothPhasing = false;
     bool SceneObjCreate = false;
-    bool PlayerCreateData = false;
+    bool PlayerCreateData = GetTypeId() == TYPEID_PLAYER && ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
     std::vector<uint32> const* PauseTimes = nullptr;
     uint32 PauseTimesCount = 0;
     if (GameObject const* go = ToGameObject())
@@ -801,26 +801,33 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //    }
     //}
 
-    //if (PlayerCreateData)
-    //{
-    //    data->WriteBit(HasSceneInstanceIDs);
-    //    data->WriteBit(HasRuneState);
-    //    data->FlushBits();
-    //    if (HasSceneInstanceIDs)
-    //    {
-    //        *data << uint32(SceneInstanceIDs.size());
-    //        for (std::size_t i = 0; i < SceneInstanceIDs.size(); ++i)
-    //            *data << uint32(SceneInstanceIDs[i]);
-    //    }
-    //    if (HasRuneState)
-    //    {
-    //        *data << uint8(RechargingRuneMask);
-    //        *data << uint8(UsableRuneMask);
-    //        *data << uint32(ToUnit()->GetMaxPower(POWER_RUNES));
-    //        for (uint32 i = 0; i < ToUnit()->GetMaxPower(POWER_RUNES); ++i)
-    //            *data << uint8(255 - (ToUnit()->ToPlayer()->GetRuneCooldown(i) * 51));
-    //    }
-    //}
+    if (PlayerCreateData)
+    {
+        bool HasSceneInstanceIDs = false;
+        bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
+
+        data->WriteBit(HasSceneInstanceIDs);
+        data->WriteBit(HasRuneState);
+        data->FlushBits();
+        //if (HasSceneInstanceIDs)
+        //{
+        //    *data << uint32(SceneInstanceIDs.size());
+        //    for (std::size_t i = 0; i < SceneInstanceIDs.size(); ++i)
+        //        *data << uint32(SceneInstanceIDs[i]);
+        //}
+        if (HasRuneState)
+        {
+            Player const* player = ToPlayer();
+            float baseCd = float(player->GetRuneBaseCooldown());
+            uint32 maxRunes = uint32(player->GetMaxPower(POWER_RUNES));
+
+            *data << uint8((1 << maxRunes) - 1);
+            *data << uint8(player->GetRunesState());
+            *data << uint32(maxRunes);
+            for (uint32 i = 0; i < maxRunes; ++i)
+                *data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255);
+        }
+    }
 }
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const

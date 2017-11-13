@@ -1006,13 +1006,6 @@ public:
             return false;
 
         Player* target = handler->getSelectedPlayerOrSelf();
-        if (!target)
-        {
-            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
