@@ -265,13 +265,8 @@ class spell_sha_earth_shield : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (!eventInfo.GetDamageInfo() || !HasEffect(EFFECT_1))
+                if (!eventInfo.GetDamageInfo() || !HasEffect(EFFECT_1) || eventInfo.GetDamageInfo()->GetDamage() < GetTarget()->CountPctFromMaxHealth(GetEffect(EFFECT_1)->GetAmount()))
                     return false;
-
-                if (AuraEffect* effect = GetEffect(EFFECT_1))
-                    if (eventInfo.GetDamageInfo()->GetDamage() < GetTarget()->CountPctFromMaxHealth(effect->GetAmount()))
-                        return false;
-
                 return true;
             }
 
