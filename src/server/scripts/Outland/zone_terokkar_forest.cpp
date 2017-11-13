@@ -31,6 +31,7 @@ npc_akuno
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "Group.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
