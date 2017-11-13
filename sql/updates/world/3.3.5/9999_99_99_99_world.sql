@@ -11,14 +11,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22, 1, 22095, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', ' Id 0 of Creature SAI for Infested Root-Walker will execute if invoker is player.'),
 (22, 1, 22307, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', ' Id 0 of Creature SAI for Rotting Forest-Rager will execute if invoker is player.');
 
--- TODO 22419 wood mites do not attack player on spawn. Not sure how to handle this in practice. Proposed fix:
--- Wood Mite
-UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 22419;
-
-DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = 22419);
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(22419, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 21, 15, 0, 0, 0, 0, 0, 0, 'Wood Mite - On Just Summoned - Start Attacking');
-
 -- Skull Pile
 UPDATE `gameobject_template` SET `ScriptName` = '', `AIName` = 'SmartGameObjectAI' WHERE `entry` = 185913;
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 185913 AND `source_type` = 1;
