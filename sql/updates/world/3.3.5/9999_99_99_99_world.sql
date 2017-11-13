@@ -1,5 +1,4 @@
 -- Infested Root-Walker, Rotting Forest-Rager
--- Tested, working
 UPDATE `creature_template` SET `ScriptName` = '', `AIName` = 'SmartAI' WHERE `entry` IN (22095, 22307);
 
 DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid IN (22095, 22307));
