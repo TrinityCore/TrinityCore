@@ -384,6 +384,9 @@ class TC_GAME_API Quest
         uint32 _startItemCount        = 0;
         uint32 _rewardMailSenderEntry = 0;
         uint32 _specialFlags          = 0; // custom flags, not sniffed/WDB
+
+        // Helpers
+        static uint32 RoundXPValue(uint32 xp);
 };
 
 struct QuestStatusData

@@ -323,16 +323,33 @@ void QuestMenu::ClearMenu()
     _questMenuItems.clear();
 }
 
-void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string& Title, ObjectGuid npcGUID)
+void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string& Title, ObjectGuid guid)
 {
     WorldPacket data(SMSG_QUESTGIVER_QUEST_LIST, 100);    // guess size
-    data << uint64(npcGUID);
-    data << Title;
-    data << uint32(eEmote._Delay);                         // player emote
-    data << uint32(eEmote._Emote);                         // NPC emote
+    data << uint64(guid);
+
+    if (QuestGreeting const* questGreeting = sObjectMgr->GetQuestGreeting(guid))
+    {
+        std::string strGreeting = questGreeting->greeting;
+
+        LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
+        if (localeConstant != LOCALE_enUS)
+            if (QuestGreetingLocale const* questGreetingLocale = sObjectMgr->GetQuestGreetingLocale(MAKE_PAIR32(guid.GetEntry(), guid.GetTypeId())))
+                ObjectMgr::GetLocaleString(questGreetingLocale->greeting, localeConstant, strGreeting);
+
+        data << strGreeting;
+        data << uint32(questGreeting->greetEmoteDelay);
+        data << uint32(questGreeting->greetEmoteType);
+    }
+    else
+    {
+        data << Title;
+        data << uint32(eEmote._Delay);                         // player emote
+        data << uint32(eEmote._Emote);                         // NPC emote
+    }
 
     size_t count_pos = data.wpos();
-    data << uint8 (0);
+    data << uint8(0);
     uint32 count = 0;
 
     // Store this instead of checking the Singleton every loop iteration
@@ -340,9 +357,9 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
 
     for (uint32 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
-        QuestMenuItem const& qmi = _questMenu.GetItem(i);
+        QuestMenuItem const& questMenuItem = _questMenu.GetItem(i);
 
-        uint32 questID = qmi.QuestId;
+        uint32 questID = questMenuItem.QuestId;
 
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
@@ -351,14 +368,14 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
 
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
             if (localeConstant != LOCALE_enUS)
-                if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(localeData->Title, localeConstant, title);
+                if (QuestLocale const* questTemplateLocaleData = sObjectMgr->GetQuestLocale(questID))
+                    ObjectMgr::GetLocaleString(questTemplateLocaleData->Title, localeConstant, title);
 
             if (questLevelInTitle)
                 Quest::AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
             data << uint32(questID);
-            data << uint32(qmi.QuestIcon);
+            data << uint32(questMenuItem.QuestIcon);
             data << int32(quest->GetQuestLevel());
             data << uint32(quest->GetFlags());             // 3.3.3 quest flags
             data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
@@ -368,7 +385,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
 
     data.put<uint8>(count_pos, count);
     _session->SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC=%s", npcGUID.ToString().c_str());
+
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST (QuestGiver: %s)", guid.ToString().c_str());
 }
 
 void PlayerMenu::SendQuestGiverStatus(uint8 questStatus, ObjectGuid npcGUID) const
