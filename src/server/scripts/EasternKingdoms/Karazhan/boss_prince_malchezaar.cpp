@@ -491,8 +491,7 @@ public:
                             {
                                 if (axe->GetVictim())
                                     ResetThreat(axe->GetVictim(), axe);
-                                if (target)
-                                    AddThreat(target, 1000000.0f, axe);
+                                AddThreat(target, 1000000.0f, axe);
                             }
                         }
                     }
