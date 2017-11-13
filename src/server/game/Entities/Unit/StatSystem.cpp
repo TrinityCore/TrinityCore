@@ -23,6 +23,7 @@
 #include "Pet.h"
 #include "Creature.h"
 #include "GameTables.h"
+#include "ObjectMgr.h"
 #include "SharedDefines.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
@@ -743,19 +744,27 @@ void Player::UpdateManaRegen()
     if (manaIndex == MAX_POWERS)
         return;
 
-    // Mana regen from spirit
-    float spirit_regen = 0.0f;
-    // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT aura on spirit base regen
-    spirit_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+    // Base Mana Pool = 5% of Base Mana
+    float regenPct = 5.0f;
 
-    // CombatRegen = 5% of Base Mana
-    float base_regen = GetCreateMana() * 0.02f + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
+    // Get base of Mana Pool in sBaseMPGameTable
+    uint32 basemana = 0;
+    sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), basemana);
+    float base_regen = basemana * regenPct / 100.f;
 
-    // Set regen rate in cast state apply only on spirit based regen
-    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+    base_regen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
 
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen + CalculatePct(spirit_regen, modManaRegenInterrupt));
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + manaIndex, 0.001f + spirit_regen + base_regen);
+    // Calculate for 1 second, the client multiplies the field values by 5
+    base_regen /= 5;
+
+    // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT
+    base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+
+    // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
+    base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
+
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + manaIndex, base_regen);
 }
 
 void Player::UpdateAllRunesRegen()
