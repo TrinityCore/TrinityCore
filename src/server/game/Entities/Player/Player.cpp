@@ -594,14 +594,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     if (getPowerType() == POWER_MANA)
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
 
-    if (getPowerType() == POWER_RUNIC_POWER)
-    {
-        SetPower(POWER_RUNES, 8);
-        SetMaxPower(POWER_RUNES, 8);
-        SetPower(POWER_RUNIC_POWER, 0);
-        SetMaxPower(POWER_RUNIC_POWER, 1000);
-    }
-
     // original spells
     LearnDefaultSkills();
     LearnCustomSpells();
