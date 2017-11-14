@@ -407,6 +407,12 @@ Position const IllidanDBTargetPoints[4] =
     { 660.3492f, 345.5749f, 353.2961f }
 };
 
+Position const BladesPositions[2] =
+{
+    { 676.226013f, 325.230988f },
+    { 678.059998f, 285.220001f }
+};
+
 uint32 const SummonCageTrapSpells[8] =
 {
     SPELL_SUMMON_CAGE_TRAP_1,
@@ -438,15 +444,14 @@ private:
 class ChargeTargetSelector : public std::unary_function<Unit*, bool>
 {
 public:
-    ChargeTargetSelector(Unit const* unit) : _me(unit) { }
+    ChargeTargetSelector() { }
 
     bool operator()(Unit* unit) const
     {
-        return unit->GetTypeId() == TYPEID_PLAYER && _me->GetDistance2d(unit) > 25.0f;
+        return unit->GetTypeId() == TYPEID_PLAYER
+            && unit->GetDistance2d(BladesPositions[0].GetPositionX(), BladesPositions[0].GetPositionY()) > 25.0f
+            && unit->GetDistance2d(BladesPositions[1].GetPositionX(), BladesPositions[1].GetPositionY()) > 25.0f;
     }
-
-private:
-    Unit const* _me;
 };
 
 struct boss_illidan_stormrage : public BossAI
@@ -1497,7 +1502,7 @@ struct npc_flame_of_azzinoth : public ScriptedAI
                     _events.ScheduleEvent(EVENT_FLAME_CHARGE, Seconds(5));
                     break;
                 case EVENT_FLAME_CHARGE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, ChargeTargetSelector(me)))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, ChargeTargetSelector()))
                     {
                         DoCast(target, SPELL_CHARGE);
                         _events.Repeat(Seconds(5));
