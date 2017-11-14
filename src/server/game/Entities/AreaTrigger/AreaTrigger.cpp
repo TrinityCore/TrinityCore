@@ -41,7 +41,7 @@
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
-    _areaTriggerTemplate(nullptr), _areaTriggerMiscTemplate(nullptr), _ai()
+    _areaTriggerTemplate(nullptr), _areaTriggerMiscTemplate(nullptr), _guidScriptId(0), _ai()
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -97,7 +97,7 @@ bool AreaTrigger::LoadFromDB(ObjectGuid::LowType guidLow, Map* map)
         if (trigger.guid == guidLow)
         {
             Position pos(trigger.position_x, trigger.position_y, trigger.position_z);
-            return CreateStaticAreaTrigger(trigger.id, guidLow,pos, map);
+            return CreateStaticAreaTrigger(trigger.id, guidLow, pos, map, trigger.scriptId);
         }
     }
 
@@ -193,12 +193,13 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     return true;
 }
 
-bool AreaTrigger::CreateStaticAreaTrigger(uint32 entry, ObjectGuid::LowType guidLow, Position const& pos, Map* map)
+bool AreaTrigger::CreateStaticAreaTrigger(uint32 entry, ObjectGuid::LowType guidLow, Position const& pos, Map* map, uint32 scriptId /*= 0*/)
 {
     ASSERT(map != nullptr);
 
     _targetGuid = ObjectGuid::Empty;
     _aurEff = nullptr;
+    _guidScriptId = scriptId;
 
     SetMap(map);
     Relocate(pos);
@@ -450,6 +451,9 @@ AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
 
 uint32 AreaTrigger::GetScriptId() const
 {
+    if (_guidScriptId != 0)
+        return _guidScriptId;
+
     return GetTemplate()->ScriptId;
 }
 
