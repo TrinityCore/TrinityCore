@@ -15,16 +15,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 UPDATE `gameobject_template` SET `ScriptName` = '', `AIName` = 'SmartGameObjectAI' WHERE `entry` = 185913;
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 185913 AND `source_type` = 1;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(185913, 1, 0, 1, 62, 0, 100, 0, 8660, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 0 Selected - Close Gossip'),
-(185913, 1, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 85, 40632, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 0 Selected - Invoker Cast \'Summon Gezzarak the Huntress\''),
-(185913, 1, 2, 3, 62, 0, 100, 0, 8660, 1, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 1 Selected - Close Gossip'),
-(185913, 1, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 85, 40640, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 1 Selected - Invoker Cast \'Summon Karrog\''),
-(185913, 1, 4, 5, 62, 0, 100, 0, 8660, 2, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 2 Selected - Close Gossip'),
-(185913, 1, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 85, 40642, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 2 Selected - Invoker Cast \'Summon Darkscreecher Akkarai\''),
-(185913, 1, 6, 7, 62, 0, 100, 0, 8660, 3, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 3 Selected - Close Gossip'),
-(185913, 1, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 85, 40644, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 3 Selected - Invoker Cast \'Summon Vakkiz the Windrager\'');
+(185913, 1, 0, 4, 62, 0, 100, 0, 8660, 0, 0, 0, 85, 40632, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 0 Selected - Invoker Cast \'Summon Gezzarak the Huntress\''),
+(185913, 1, 1, 4, 62, 0, 100, 0, 8660, 1, 0, 0, 85, 40642, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 1 Selected - Invoker Cast \'Summon Darkscreecher Akkarai\''),
+(185913, 1, 2, 4, 62, 0, 100, 0, 8660, 2, 0, 0, 85, 40640, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 2 Selected - Invoker Cast \'Summon Karrog\''),
+(185913, 1, 3, 4, 62, 0, 100, 0, 8660, 3, 0, 0, 85, 40644, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 3 Selected - Invoker Cast \'Summon Vakkiz the Windrager\''),
+(185913, 1, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option Selected - Close Gossip');
 
--- TODO gossip does not close properly despite action in place above. No errors in DBErrors.log
 -- TODO should these mobs despawn after X seconds if not engaged / reset?
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 8660;
