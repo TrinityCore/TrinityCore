@@ -21,8 +21,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (185913, 1, 3, 4, 62, 0, 100, 0, 8660, 3, 0, 0, 85, 40644, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 3 Selected - Invoker Cast \'Summon Vakkiz the Windrager\''),
 (185913, 1, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option Selected - Close Gossip');
 
--- TODO should these mobs despawn after X seconds if not engaged / reset?
-
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 8660;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (15, 8660, 0, 0, 0, 9, 0, 11885, 0, 0, 0, 0, 0, '', 'Show gossip menu 8660 option id 0 if quest Adversarial Blood has been taken.'),
