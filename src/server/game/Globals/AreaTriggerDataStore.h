@@ -31,6 +31,7 @@ struct AreaTriggerData
     float position_z;
     uint32 map_id;
     uint32 spawn_mask;
+    uint32 scriptId;
     ObjectGuid::LowType guid;
 };
 

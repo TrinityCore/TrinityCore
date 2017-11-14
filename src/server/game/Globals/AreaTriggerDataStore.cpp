@@ -204,7 +204,7 @@ void AreaTriggerDataStore::LoadAreaTriggers()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, map_id, spawn_mask, guid FROM `areatrigger`");
+    QueryResult result = WorldDatabase.Query("SELECT guid, id, position_x, position_y, position_z, map_id, spawn_mask, scriptname FROM `areatrigger`");
 
     if (!result)
     {
@@ -225,13 +225,14 @@ void AreaTriggerDataStore::LoadAreaTriggers()
 
         AreaTriggerData my_temp;
 
+        my_temp.guid        = fields[index++].GetUInt64();
         my_temp.id          = fields[index++].GetUInt32();
         my_temp.position_x  = fields[index++].GetFloat();
         my_temp.position_y  = fields[index++].GetFloat();
         my_temp.position_z  = fields[index++].GetFloat();
         my_temp.map_id      = fields[index++].GetUInt32();
         my_temp.spawn_mask  = fields[index++].GetUInt32();
-        my_temp.guid        = fields[index++].GetUInt64();
+        my_temp.scriptId    = sObjectMgr->GetScriptId(fields[index++].GetString());;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(my_temp.map_id);
         if (!mapEntry)
