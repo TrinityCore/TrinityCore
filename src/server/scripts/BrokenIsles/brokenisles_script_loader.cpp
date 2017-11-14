@@ -18,6 +18,9 @@
 
 // This is where scripts' loading functions should be declared:
 
+// Portals
+void AddSC_legion_portal_at_scripts();
+
 // Zones
 void AddSC_azsuna();
 void AddSC_highmountain();
@@ -128,6 +131,9 @@ void AddSC_boss_helya_maw();
 // void Add${NameOfDirectory}Scripts()
 void AddBrokenIslesScripts()
 {
+    // Portals
+    AddSC_legion_portal_at_scripts();
+    
     // Zones
     AddSC_azsuna();
     AddSC_highmountain();
