@@ -1549,7 +1549,8 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->GetEffect(caster->GetMap()->GetDifficultyID(), EFFECT_1)->CalcValue()));
+                    if (SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(caster->GetMap()->GetDifficultyID(), EFFECT_1))
+                        caster->AddThreat(GetTarget(), -float(effect->CalcValue()));
                     caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
                 }
             }
