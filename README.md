@@ -1,6 +1,6 @@
-# ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore (master)
+# AshamaneCore
 
-[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
+[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/AshamaneProject/AshamaneCore.svg)](https://isitmaintained.com/project/AshamaneProject/AshamaneCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/AshamaneProject/AshamaneCore.svg)](https://isitmaintained.com/project/AshamaneProject/AshamaneCore "Percentage of issues still open")
 
 ## Build Status
 
@@ -11,7 +11,21 @@
 
 AshamaneCore is a *MMORPG* Framework based mostly in C++.
 
-It is fully based on *TrinityCore*
+It is fully based on *TrinityCore*, with upgrades like :
+
+- Class Hall Basics (WIP)
+- World Quests
+- Personal Spawns (visible by summoner only)
+- Legion scripts (WIP)
+- Wod Scripts (full blizzlike Jungle of Tanaan intro)
+- Pandaria Scripts (all dungeons & world bosses)
+
+with Ashamane Database (ADB) :
+
+- All Cataclysm zones spawns
+- All Mist of Pandaria zones spawns
+- All Draenor zones spawns
+- All Legion zones spawns (including Class Halls)
 
 It is completely open source; community involvement is highly encouraged.
 
