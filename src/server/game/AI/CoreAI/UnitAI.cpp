@@ -193,6 +193,33 @@ void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
     me->CastSpell(nullptr, spellId, triggered);
 }
 
+BasicEvent* UnitAI::DoCastDelayed(Unit* victim, uint32 spellId, uint32 delay, bool triggered, bool aliveCheck)
+{
+    struct DelayedCast : public BasicEvent
+    {
+        DelayedCast(Unit *caster, Unit *target, uint32 spellId, bool triggered, bool aliveCheck) : BasicEvent(),
+            _caster(caster), _target(target), _spellId(spellId), _triggered(triggered), _aliveCheck(aliveCheck) { }
+
+        bool Execute(uint64, uint32)
+        {
+            if ((_aliveCheck && _caster->IsAlive()) || !_aliveCheck)
+                _caster->CastSpell(_target, _spellId, _triggered);
+            return true;
+        }
+
+        Unit *_caster;
+        Unit *_target;
+        uint32 _spellId;
+        bool _triggered;
+        bool _aliveCheck;
+    };
+
+    BasicEvent* castEvent = new DelayedCast(me, victim, spellId, triggered, aliveCheck);
+    me->m_Events.AddEvent(castEvent, me->m_Events.CalculateTime(delay));
+    return castEvent;
+}
+
+
 uint32 UnitAI::GetDialogStatus(Player* /*player*/)
 {
     return DIALOG_STATUS_SCRIPTED_NO_STATUS;
