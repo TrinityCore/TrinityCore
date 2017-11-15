@@ -1,3 +1,4 @@
+/*
 -- Quest "Conscript of the Horde"
 UPDATE `quest_request_items` SET `EmoteOnComplete`=15 WHERE `ID`=840;
 UPDATE `quest_offer_reward` SET `Emote1`=6 WHERE `ID`=840;
@@ -551,3 +552,4 @@ DELETE FROM `quest_details` WHERE `ID`=1487;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
 (1487,1,0,0,0,0,0,0,0,0);
 UPDATE `quest_offer_reward` SET `Emote1`=1, `Emote2`=2 WHERE `ID`=1487;
+*/

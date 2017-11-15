@@ -1,3 +1,4 @@
+/*
 -- Jorn Skyseer
 DELETE FROM `creature_text` WHERE `CreatureID`=3387;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -16,3 +17,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3338 AND `source_type`=0 AND `id`=1;
 UPDATE `smart_scripts` SET `link`=0  WHERE `entryorguid`=3338 AND `source_type`=0 AND `id`=0; 
+*/

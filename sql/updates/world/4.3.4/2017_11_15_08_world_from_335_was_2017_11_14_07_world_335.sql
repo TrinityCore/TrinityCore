@@ -1,3 +1,4 @@
+/*
 -- Gavis Greyshield
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=23941;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=23941 AND `source_type`=0;
@@ -16,3 +17,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=23941;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (23941,0,0,"I surrender! Stay your blade!",12,0,100,5,0,0,22469,0,"Gavis Greyshield"),
 (23941,1,0,"I will go with you. Just spare my men. They're good lads who've only made a mistake...",12,0,100,1,0,0,22470,0,"Gavis Greyshield");
+*/

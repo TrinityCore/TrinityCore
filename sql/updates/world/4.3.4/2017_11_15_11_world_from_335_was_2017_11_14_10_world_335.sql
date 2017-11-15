@@ -1,3 +1,4 @@
+/*
 -- Apothecary Lydon
 DELETE FROM `creature_text` WHERE `CreatureID`=2216;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -15,3 +16,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (221600,9,3,0,0,0,100,0,6000,6000,0,0,17,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Apothecary Lydon - On Script - Set Emote State 0"),
 (221600,9,4,0,0,0,100,0,500,500,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Apothecary Lydon - On Script - Say Line 1"),
 (221600,9,5,0,0,0,100,0,0,0,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Apothecary Lydon - On Script - Add Npc Flag Questgiver");
+*/

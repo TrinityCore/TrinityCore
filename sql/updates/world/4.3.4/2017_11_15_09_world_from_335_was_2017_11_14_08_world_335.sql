@@ -1,3 +1,4 @@
+/*
 -- Magatha Grimtotem
 DELETE FROM `creature_text` WHERE `CreatureID`=4046 AND `GroupID` IN (0,1);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -13,3 +14,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (404600,9,1,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,7,0,0,0,0,0,0,0,"Magatha Grimtotem - On Script - Say Line 0"),
 (404600,9,2,0,0,0,100,0,4000,4000,0,0,1,1,0,0,0,0,0,7,0,0,0,0,0,0,0,"Magatha Grimtotem - On Script - Say Line 1"),
 (404600,9,3,0,0,0,100,0,2000,2000,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Magatha Grimtotem - On Script - Add Npc Flag Questgiver");
+*/

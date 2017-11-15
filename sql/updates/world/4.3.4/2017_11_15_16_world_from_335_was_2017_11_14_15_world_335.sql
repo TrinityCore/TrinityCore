@@ -1,3 +1,4 @@
+/*
 -- 
 -- Longtooth Runner
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=5286;
@@ -546,3 +547,4 @@ UPDATE `creature` SET `position_x`=-5704.74, `position_y`=3379.41, `position_z`=
 
 -- Fix model for Grimtotem Naturalists
 UPDATE `creature` SET `modelid`=0 WHERE `id`=7726 AND `modelid`=2289;
+*/

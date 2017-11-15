@@ -1,3 +1,4 @@
+/*
 -- Greater Plainstrider
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=3244;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3244 AND `source_type`=0;
@@ -629,3 +630,4 @@ INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALU
 (@GUID,1110,0,"Baron Longshore (3467) - Spawn 1"),
 (@GUID+1,1110,0,"Baron Longshore (3467) - Spawn 2"),
 (15066,1110,0,"Baron Longshore (3467) - Spawn 3");
+*/

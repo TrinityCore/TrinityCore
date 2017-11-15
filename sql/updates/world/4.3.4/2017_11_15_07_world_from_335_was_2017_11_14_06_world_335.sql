@@ -1,3 +1,4 @@
+/*
 -- Kin'weelay
 DELETE FROM `creature_text` WHERE `CreatureID`=2519;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -14,3 +15,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (251900,9,2,0,0,0,100,0,2000,2000,0,0,11,2362,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kin'weelay - On Script - Cast Create Spellstone"),
 (251900,9,3,0,0,0,100,0,6000,6000,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kin'weelay - On Script - Say Line 1"),
 (251900,9,4,0,0,0,100,0,0,0,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kin'weelay - On Script - Add Npc Flag Questgiver");
+*/

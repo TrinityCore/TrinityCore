@@ -1,3 +1,4 @@
+/*
 -- Quest "Forsaken Aid"
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID`=4046 AND `GroupID` IN (2,3);
@@ -71,3 +72,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (4068,34,-1013.08,246.142,108.77,""),
 (4068,35,-1006.87,255.833,113.284,""),
 (4068,36,-997.047,275.161,112.343,"");
+*/

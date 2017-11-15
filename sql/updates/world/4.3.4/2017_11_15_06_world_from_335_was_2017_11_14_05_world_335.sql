@@ -1,3 +1,4 @@
+/*
 -- Quest "Samophlange (Part 2)"
 -- Main Control Valve
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry`=4072;
@@ -20,3 +21,4 @@ DELETE FROM `creature_text` WHERE `CreatureID` IN (3284,3285);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (3284,0,0,"Get away from there!",12,0,100,0,0,0,4704,0,"Venture Co. Drudger"),
 (3285,0,0,"Get away from there!",12,0,100,0,0,0,4704,0,"Venture Co. Peon");
+*/

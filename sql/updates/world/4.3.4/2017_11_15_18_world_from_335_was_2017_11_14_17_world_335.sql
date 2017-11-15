@@ -1,3 +1,4 @@
+/*
 -- Love is in the Air: "A Gift for the ..." quests
 DELETE FROM `quest_request_items` WHERE `ID` IN (24597,24609,24610,24611,24612,24613,24614,24615);
 INSERT INTO `quest_request_items` (`ID`,`CompletionText`,`VerifiedBuild`) VALUES
@@ -19,3 +20,4 @@ INSERT INTO `quest_offer_reward` (`ID`,`RewardText`,`VerifiedBuild`) VALUES
 (24613,'My thanks for this Lovely Charm Bracelet.',-1),
 (24614,'My thanks for this Lovely Charm Bracelet.',-1),
 (24615,'My thanks for this Lovely Charm Bracelet.',-1);
+*/
