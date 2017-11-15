@@ -715,8 +715,8 @@ class spell_baleroc_torment_AuraScript : public AuraScript
         if (healer->HasAura(SPELL_VITAL_FLAME))
             return;
 
-        bool Is25ManHeroic = healer->GetMap()->IsHeroic() && healer->GetMap()->Is25ManRaid();
-        uint32 stacks = healer->GetAuraCount(SPELL_VITAL_SPARK) + std::min(uint8(ceil(GetStackAmount() / (Is25ManHeroic ? 5 : 3))), uint8(255));
+        bool is25ManHeroic = healer->GetMap()->IsHeroic() && healer->GetMap()->Is25ManRaid();
+        uint32 stacks = healer->GetAuraCount(SPELL_VITAL_SPARK) + std::min(uint8(ceil(GetStackAmount() / (is25ManHeroic ? 5.0 : 3.0))), uint8(255));
 
         healer->SetAuraStack(SPELL_VITAL_SPARK, healer, stacks);
         if (Aura* aura = healer->GetAura(SPELL_VITAL_SPARK))
