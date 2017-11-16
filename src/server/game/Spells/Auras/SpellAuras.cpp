@@ -664,7 +664,7 @@ void Aura::UpdateOwner(uint32 diff, WorldObject* owner)
     Update(diff, caster);
 
     if (m_duration && m_spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
-        HeartbeatResistance(diff);
+        HeartbeatResistance(diff, caster);
 
     if (m_updateTargetMapInterval <= int32(diff))
         UpdateTargetMap(caster);
@@ -2042,43 +2042,38 @@ void Aura::TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, Pro
         Remove();
 }
 
-void Aura::HeartbeatResistance(uint32 diff)
+void Aura::HeartbeatResistance(uint32 diff, Unit* caster)
 {
     m_heartBeatTimer += diff;
 
-    if (m_heartBeatTimer < 950)
+    if (m_heartBeatTimer < IN_MILLISECONDS)
         return;
 
     Unit* target = GetOwner()->ToUnit();
-    Unit* caster = GetCaster();
 
     if (!target || !caster)
         return;
 
     if (target->GetTypeId() == TYPEID_UNIT && caster->GetTypeId() == TYPEID_PLAYER)
     {
-        m_heartBeatTimer = 0;
+        m_heartBeatTimer = (uint32)GetApplyTime() - m_heartBeatTimer;
 
-        uint32 auraTimePassed = time(nullptr) - GetApplyTime();
-
-        if (auraTimePassed == (uint32)std::floor((GetMaxDuration() * 0.25f / IN_MILLISECONDS) + 0.5f) ||
-            auraTimePassed == (uint32)std::floor((GetMaxDuration() * 0.50f / IN_MILLISECONDS) + 0.5f) ||
-            auraTimePassed == (uint32)std::floor((GetMaxDuration() * 0.75f / IN_MILLISECONDS) + 0.5f))
+        if (m_heartBeatTimer == (uint32)std::floor(GetMaxDuration() * 0.25f / IN_MILLISECONDS + 0.5f) ||
+            m_heartBeatTimer == (uint32)std::floor(GetMaxDuration() * 0.50f / IN_MILLISECONDS + 0.5f) ||
+            m_heartBeatTimer == (uint32)std::floor(GetMaxDuration() * 0.75f / IN_MILLISECONDS + 0.5f))
         {
-            TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura. Duration %u, Max %u", auraTimePassed, (GetMaxDuration() / IN_MILLISECONDS));
-
-            SpellSchoolMask schoolMask = m_spellInfo->GetSchoolMask();
-            uint32 resistance = schoolMask != SPELL_SCHOOL_MASK_NORMAL ? target->GetResistance(GetFirstSchoolInMask(schoolMask)) : 0;
-            uint32 breakChance = urand(0, 100);
-            uint32 breakPct = 5 + uint32((resistance / powf(target->getLevel(), 1.441f) * 0.10f) * 100);
-
-            if (breakChance < breakPct)
+            SpellSchoolMask schoolMask = m_spellInfo->GetSchoolMask();           
+            uint32 resistance = schoolMask != SPELL_SCHOOL_MASK_NORMAL ? target->GetResistance(GetFirstSchoolInMask(schoolMask)) : 0;       
+            uint32 breakPct = 5 + CalculatePct(resistance, std::powf(float(target->getLevel()), 1.441f) + 10.0f);
+            
+            if (roll_chance_i(breakPct))
             {
                 Remove();
-                TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u and roll %u.", m_spellInfo->Id, auraTimePassed, breakPct, breakChance);
-                return;
+                TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u.", m_spellInfo->Id, m_heartBeatTimer, breakPct);
             }
         }
+
+        m_heartBeatTimer = 0;
     }
 }
 
