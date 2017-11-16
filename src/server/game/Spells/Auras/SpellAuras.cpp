@@ -2059,7 +2059,7 @@ void Aura::HeartbeatResistance(uint32 diff, Unit* caster)
         {
             SpellSchoolMask schoolMask = m_spellInfo->GetSchoolMask();
             uint32 resistance = schoolMask != SPELL_SCHOOL_MASK_NORMAL ? target->GetResistance(GetFirstSchoolInMask(schoolMask)) : 0;
-            uint32 breakPct = uint32(resistance / powf(target->getLevel(), 1.441f) * 0.10f * 100) + 5;
+            uint32 breakPct = uint32(resistance / powf(float(target->getLevel()), 1.441f) * 0.10f * 100) + 5;
 
             if (roll_chance_i(breakPct))
             {
