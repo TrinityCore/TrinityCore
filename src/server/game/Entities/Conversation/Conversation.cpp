@@ -156,6 +156,8 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         AddDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, line);
     }
 
+    sScriptMgr->OnConversationCreate(this, creator);
+
     // All actors need to be set
     for (uint16 actorIndex : actorIndices)
     {
@@ -166,8 +168,6 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             return false;
         }
     }
-
-    sScriptMgr->OnConversationCreate(this, creator);
 
     if (!GetMap()->AddToMap(this))
         return false;
