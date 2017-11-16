@@ -2482,28 +2482,12 @@ void ScriptMgr::OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTem
     tmpscript->OnSceneComplete(player, sceneInstanceID, sceneTemplate);
 }
 
-bool ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
-{
-    ASSERT(conversation);
-
-    GET_SCRIPT_RET(ConversationScript, conversation->GetScriptId(), tmpscript, true);
-    return tmpscript->OnConversationCreate(conversation, creator);
-}
-
-void ScriptMgr::OnAddActor(Conversation* conversation, ObjectGuid actorGuid, uint16 actorIdx)
+void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
 {
     ASSERT(conversation);
 
     GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
-    tmpscript->OnAddActor(conversation, actorGuid, actorIdx);
-}
-
-void ScriptMgr::OnAddParticipant(Conversation* conversation, ObjectGuid participantGuid)
-{
-    ASSERT(conversation);
-
-    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
-    tmpscript->OnAddParticipant(conversation, participantGuid);
+    tmpscript->OnConversationCreate(conversation, creator);
 }
 
 SpellScriptLoader::SpellScriptLoader(const char* name)

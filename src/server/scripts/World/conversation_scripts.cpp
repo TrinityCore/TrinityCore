@@ -28,7 +28,7 @@
 public:
     conversation_example() : ConversationScript("conversation_example") { }
 
-    bool OnConversationCreate(Conversation* conversation, Unit* creator)
+    void OnConversationCreate(Conversation* conversation, Unit* creator)
     {
         Creature* firstCreature = creator->FindNearestCreature(CREATURE_ONE, 100.0f);
         Creature* secondCreature = creator->FindNearestCreature(CREATURE_TWO, 100.0f);
@@ -37,10 +37,7 @@ public:
         {
             conversation->AddActor(firstCreature->GetGUID(), 0);
             conversation->AddActor(secondCreature->GetGUID(), 1);
-            return true;
         }
-
-        return false;
     }
 };*/
 

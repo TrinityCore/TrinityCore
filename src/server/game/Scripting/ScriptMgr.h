@@ -889,13 +889,7 @@ class TC_GAME_API ConversationScript : public ScriptObject
     public:
     
         // Called when Conversation is created but not added to Map yet
-        virtual bool OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { return true; }
-
-        // Called when an Conversation::AddActor is used
-        virtual void OnAddActor(Conversation* /*conversation*/, ObjectGuid /*actorGuid*/, uint16 /*actorIdx*/) { }
-
-        // Called when a Participant is added to conversation
-        virtual void OnAddParticipant(Conversation* /*conversation*/, ObjectGuid /*participantGuid*/) { }
+        virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { return true; }
 };
 
 // Manages registration, loading, and execution of scripts.
@@ -1187,9 +1181,7 @@ class TC_GAME_API ScriptMgr
         void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
 
     public: /* ConversationScript */
-        bool OnConversationCreate(Conversation* conversation, Unit* creator);
-        void OnAddActor(Conversation* conversation, ObjectGuid actorGuid, uint16 actorIdx);
-        void OnAddParticipant(Conversation* conversation, ObjectGuid participantGuid);
+        void OnConversationCreate(Conversation* conversation, Unit* creator);
 
     private:
         uint32 _scriptCount;

@@ -140,6 +140,8 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, line);
 
+    sScriptMgr->OnConversationCreate(this, creator);
+
     if (!GetMap()->AddToMap(this))
         return false;
 
@@ -154,15 +156,11 @@ void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
     actorField.ActorGuid = actorGuid;
     actorField.Type = ConversationDynamicFieldActor::ActorType::WorldObjectActor;
     SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx, &actorField);
-
-    sScriptMgr->OnAddActor(this, actorGuid, actorIdx);
 }
 
 void Conversation::AddParticipant(ObjectGuid const& participantGuid)
 {
     _participants.insert(participantGuid);
-
-    sScriptMgr->OnAddParticipant(this, participantGuid);
 }
 
 uint32 Conversation::GetScriptId() const
