@@ -335,7 +335,7 @@ public:
         {
         }
 
-        void Reset()
+        void Reset() override
         {
             me->GetMotionMaster()->MoveRandom(7.0f);
             me->SetReactState(REACT_AGGRESSIVE);
@@ -350,7 +350,7 @@ public:
             me->GetMotionMaster()->Clear(MOTION_SLOT_IDLE);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
                 damage = me->GetHealth() - 1;
