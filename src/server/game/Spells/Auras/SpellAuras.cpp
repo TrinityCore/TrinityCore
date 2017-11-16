@@ -350,12 +350,13 @@ m_procCooldown(std::chrono::steady_clock::time_point::min())
 {
     if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
-    
-    if (m_spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
-        m_heartBeatTimer = 5 * IN_MILLISECONDS;
 
     m_maxDuration = CalcMaxDuration(caster);
     m_duration = m_maxDuration;
+    
+    if (m_duration > 0 && m_spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
+        m_heartBeatTimer = m_duration / 4;
+    
     m_procCharges = CalcMaxCharges(caster);
     m_isUsingCharges = m_procCharges != 0;
     memset(m_effects, 0, sizeof(m_effects));
@@ -2067,7 +2068,7 @@ void Aura::HeartbeatResistance(uint32 diff, Unit* caster)
             }
         }
 
-        m_heartBeatTimer = 5 * IN_MILLISECONDS;
+        m_heartBeatTimer = m_duration / 4;
     }
     else
         m_heartBeatTimer -= diff;
