@@ -206,7 +206,7 @@ class TC_GAME_API Aura
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
-        void HeartbeatResistance(uint32 diff);
+        void HeartbeatResistance(uint32 diff, Unit* caster);
 
         // AuraScript
         void LoadScripts();
