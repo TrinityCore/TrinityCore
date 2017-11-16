@@ -33,6 +33,11 @@ struct ConversationDynamicFieldActor
         memset(Raw.Data, 0, sizeof(Raw.Data));
     }
 
+    bool IsEmpty() const
+    {
+        return ActorGuid.IsEmpty(); // this one is good enough
+    }
+
     enum ActorType
     {
         WorldObjectActor = 0,
