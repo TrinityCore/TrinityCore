@@ -2072,9 +2072,9 @@ void Aura::HeartbeatResistance(uint32 diff, Unit* caster)
                 TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u.", m_spellInfo->Id, m_heartBeatTimer, breakPct);
             }
         }
-
-        m_heartBeatTimer = 0;
     }
+    
+    m_heartBeatTimer = 0;
 }
 
 void Aura::_DeleteRemovedApplications()
