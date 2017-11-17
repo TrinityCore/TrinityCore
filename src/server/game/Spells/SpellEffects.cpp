@@ -4365,7 +4365,7 @@ void Spell::EffectKnockBack(SpellEffIndex /*effIndex*/)
     {
         // If the caster IS the target, we want him go back by default
         if (m_caster == unitTarget)
-            m_caster->GetPositionWithDistInFront(1.0f, x, y);
+            m_caster->GetPositionWithDistInFront(-1.0f, x, y);
         else
             m_caster->GetPosition(x, y);
     }
