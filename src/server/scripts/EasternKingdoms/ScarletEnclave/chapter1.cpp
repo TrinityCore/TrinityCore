@@ -660,33 +660,33 @@ class npc_dark_rider_of_acherus : public CreatureScript
 
             void Reset() override
             {
-                HorseGUID.Clear();
+                _horseGUID.Clear();
 
                 if (TempSummon* summon = me->ToTempSummon())
                     if (Unit* summoner = summon->GetSummoner())
-                        HorseGUID = summoner->GetGUID();
+                        _horseGUID = summoner->GetGUID();
 
-                events.ScheduleEvent(EVENT_START_MOVE, 0);
-                events.ScheduleEvent(EVENT_DESPAWN_HORSE, 5000);
-                events.ScheduleEvent(EVENT_END_SCRIPT, 12000);
+                _events.ScheduleEvent(EVENT_START_MOVE, 0);
+                _events.ScheduleEvent(EVENT_DESPAWN_HORSE, Seconds(5));
+                _events.ScheduleEvent(EVENT_END_SCRIPT, Seconds(12));
             }
 
             void UpdateAI(uint32 diff) override
             {
-                events.Update(diff);
+                _events.Update(diff);
 
-                switch (uint32 eventId = events.ExecuteEvent())
+                switch (uint32 eventId = _events.ExecuteEvent())
                 {
                     case EVENT_START_MOVE:
-                        me->SetTarget(HorseGUID);
+                        me->SetTarget(_horseGUID);
                         me->SetSpeedRate(MOVE_RUN, 0.4f);
 
-                        if (Creature* horse = ObjectAccessor::GetCreature(*me, HorseGUID))
+                        if (Creature* horse = ObjectAccessor::GetCreature(*me, _horseGUID))
                             me->GetMotionMaster()->MoveFollow(horse, 2.0f, 0.f);
                         break;
                     case EVENT_DESPAWN_HORSE:
                         Talk(SAY_DARK_RIDER);
-                        if (Creature* horse = ObjectAccessor::GetCreature(*me, HorseGUID))
+                        if (Creature* horse = ObjectAccessor::GetCreature(*me, _horseGUID))
                             DoCast(horse, SPELL_DESPAWN_HORSE, true);
                         break;
                     case EVENT_END_SCRIPT:
@@ -699,14 +699,14 @@ class npc_dark_rider_of_acherus : public CreatureScript
 			
 			void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
-                if (spell->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == HorseGUID)
+                if (spell->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == _horseGUID)
                     if (Creature* creature = target->ToCreature())
                         creature->DespawnOrUnsummon(2500);
             }
 
         private:
-            ObjectGuid HorseGUID;
-            EventMap events;
+            ObjectGuid _horseGUID;
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -803,11 +803,15 @@ public:
             return ValidateSpellInfo({ SPELL_DELIVER_STOLEN_HORSE, SPELL_EFFECT_STOLEN_HORSE });
         }
 
+        bool Load() override
+        {
+            _salanarNear = false;
+        }
+
         void HitSalanarCheck(SpellEffIndex /*effIndex*/)
         {
             // Can only hit Salanar due to TARGET_UNIT_NEARBY_ENTRY
-            if (Unit* salanar = GetHitUnit())
-                _salanarNear = true;
+            _salanarNear = true;
         }
 
         void HitTargetCheck(SpellEffIndex effIndex)
@@ -821,15 +825,12 @@ public:
             if (Player* player = GetHitPlayer())
                 player->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
 
-            if (Unit* caster = GetCaster())
-            {
-                caster->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
+            Unit* caster = GetCaster();
+            caster->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
+            caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            caster->SetFaction(FACTION_FRIENDLY);
 
-                caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                caster->SetFaction(FACTION_FRIENDLY);
-
-                caster->CastSpell(caster, SPELL_CALL_DARK_RIDER, true);
-            }
+            caster->CastSpell(caster, SPELL_CALL_DARK_RIDER, true);
         }
 
         void Register() override
@@ -838,6 +839,7 @@ public:
             OnEffectHitTarget += SpellEffectFn(spell_deliver_stolen_horse_SpellScript::HitTargetCheck, EFFECT_1, SPELL_EFFECT_KILL_CREDIT2);
         }
 
+    private:
         bool _salanarNear;
     };
 
