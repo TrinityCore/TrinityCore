@@ -889,7 +889,7 @@ class TC_GAME_API ConversationScript : public ScriptObject
     public:
     
         // Called when Conversation is created but not added to Map yet
-        virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { return true; }
+        virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { }
 };
 
 // Manages registration, loading, and execution of scripts.
