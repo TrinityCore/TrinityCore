@@ -482,7 +482,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //414
     &AuraEffect::HandleNULL,                                      //415
     &AuraEffect::HandleNoImmediateEffect,                         //416 SPELL_AURA_MOD_COOLDOWN_BY_HASTE_REGEN implemented in SpellHistory::StartCooldown
-    &AuraEffect::HandleNoImmediateEffect,                         //417 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_REGEN implemented in Spell::TriggerGlobalCooldown
+    &AuraEffect::HandAuraModMaxPower,                             //417 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_REGEN implemented in Spell::TriggerGlobalCooldown
     &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_MOD_MAX_POWER
     &AuraEffect::HandleAuraModIncreaseBaseManaPercent,            //419 SPELL_AURA_MOD_BASE_MANA_PCT
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_MOD_BATTLE_PET_XP_PCT
@@ -3918,6 +3918,23 @@ void AuraEffect::HandleOverrideAttackPowerBySpellPower(AuraApplication const* au
     target->UpdateAttackPowerAndDamage(true);
 }
 
+void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+    
+    Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
+    
+    Powers power = Powers(GetMiscValue());
+    uint32 newValue = target->GetMaxPower(power);
+    
+    if (apply)
+        target->SetMaxPower(power, (newValue + GetAmount()));
+    else
+        target->SetMaxPower(power, (newValue - GetAmount()));
+}
 /********************************/
 /***      HEAL & ENERGIZE     ***/
 /********************************/
