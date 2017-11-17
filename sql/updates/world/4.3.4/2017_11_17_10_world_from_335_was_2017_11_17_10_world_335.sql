@@ -1,3 +1,4 @@
+/*
 -- Besseleth
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=11921;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=11921 AND `source_type`=0;
@@ -106,3 +107,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Fix faction for Brother Ravenoak
 UPDATE `creature_template` SET `faction`=124 WHERE `entry`=5915;
+*/

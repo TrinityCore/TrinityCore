@@ -1,3 +1,4 @@
+/*
 DELETE FROM `quest_greeting` WHERE `ID` IN (3390,3339,3995,4049,264,3519,392,900,2080,3337,3567,4791,5767,344,3847,11862);
 INSERT INTO `quest_greeting` (`ID`, `Type`, `GreetEmoteType`, `GreetEmoteDelay`, `Greeting`, `VerifiedBuild`) VALUES
 (3390,0,0,0,"The Barrens holds a variety of substances for which we, the apothecaries of Lordaeron may find use.",0), -- Apothecary Helbrim
@@ -18,3 +19,4 @@ INSERT INTO `quest_greeting` (`ID`, `Type`, `GreetEmoteType`, `GreetEmoteDelay`,
 (11862,0,0,0,"",0); -- Tsunaman
 
 UPDATE `creature_template` SET `npcflag`=2 WHERE `entry`=234;
+*/

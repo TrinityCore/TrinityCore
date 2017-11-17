@@ -1,3 +1,4 @@
+/*
 -- Pathing for Rocklance
 UPDATE `creature` SET `position_x`=-1201.63, `position_y`=-3099.24, `position_z`=94.8781, `spawndist`=0, `MovementType`=2 WHERE `guid`=20720;
 UPDATE `creature` SET `position_x`=-1198.92, `position_y`=-3101.53, `position_z`=94.8262, `spawndist`=0, `MovementType`=0 WHERE `guid`=14007;
@@ -44,3 +45,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (207200,27,-1123.65,-3070.33,91.8408,0,0,0,0,100,0),
 (207200,28,-1147.38,-3076.85,92.3126,0,0,0,0,100,0),
 (207200,29,-1177.95,-3082.89,92.8266,0,0,0,0,100,0);
+*/

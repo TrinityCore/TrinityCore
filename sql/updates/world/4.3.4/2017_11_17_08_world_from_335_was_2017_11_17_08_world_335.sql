@@ -1,3 +1,4 @@
+/*
 -- Tammra Windfield
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=11864;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=11864 AND `source_type`=0;
@@ -10,3 +11,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 UPDATE `gameobject_template_addon` SET `flags`=4 WHERE `entry`=177927;
 UPDATE `gameobject` SET `spawntimesecs`=10 WHERE `guid`=33531;
+*/

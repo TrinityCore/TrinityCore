@@ -1,3 +1,4 @@
+/*
 -- Pathing for Wooly Kodo
 UPDATE `creature` SET `position_x`=-2891.01, `position_y`=-2150.02, `position_z`=94.2478, `spawndist`=0, `MovementType`=2 WHERE `guid`=15144;
 UPDATE `creature` SET `position_x`=-2895.78, `position_y`=-2158.99, `position_z`=91.6667, `spawndist`=0, `MovementType`=0 WHERE `guid`=15142;
@@ -73,3 +74,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (151440,54,-2840.01,-2172.53,92.9766,0,0,0,0,100,214155),
 (151440,55,-2850.23,-2170.11,91.6667,0,0,0,0,100,214156),
 (151440,56,-2874.56,-2162.59,92.2099,0,0,0,0,100,214159);
+*/

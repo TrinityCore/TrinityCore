@@ -1,3 +1,4 @@
+/*
 -- Tsunaman
 UPDATE `creature` SET `position_x`=824.854, `position_y`=933.05, `position_z`=155.485, `orientation`=2.16375 WHERE `guid`=29247;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=11862;
@@ -15,3 +16,4 @@ DELETE FROM `waypoints` WHERE `entry`=11862;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (11862,1,818.627,941.855,154.26,""),
 (11862,2,824.854,933.05,155.485,"");
+*/
