@@ -803,14 +803,14 @@ public:
             return ValidateSpellInfo({ SPELL_DELIVER_STOLEN_HORSE, SPELL_EFFECT_STOLEN_HORSE });
         }
 
-        void CheckHitSalanar(SpellEffIndex effIndex)
+        void HitSalanarCheck(SpellEffIndex /*effIndex*/)
         {
             // Can only hit Salanar due to TARGET_UNIT_NEARBY_ENTRY
             if (Unit* salanar = GetHitUnit())
                 _salanarNear = true;
         }
 
-        void CheckHitTarget(SpellEffIndex effIndex)
+        void HitTargetCheck(SpellEffIndex effIndex)
         {
             if (!_salanarNear)
             {
@@ -834,8 +834,8 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_deliver_stolen_horse_SpellScript::CheckHitSalanar, EFFECT_0, SPELL_EFFECT_DUMMY);
-            OnEffectHitTarget += SpellEffectFn(spell_deliver_stolen_horse_SpellScript::CheckHitTarget, EFFECT_1, SPELL_EFFECT_KILL_CREDIT2);
+            OnEffectHitTarget += SpellEffectFn(spell_deliver_stolen_horse_SpellScript::HitSalanarCheck, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_deliver_stolen_horse_SpellScript::HitTargetCheck, EFFECT_1, SPELL_EFFECT_KILL_CREDIT2);
         }
 
         bool _salanarNear;
