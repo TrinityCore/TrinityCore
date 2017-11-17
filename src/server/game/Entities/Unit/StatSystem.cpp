@@ -744,18 +744,12 @@ void Player::UpdateManaRegen()
     if (manaIndex == MAX_POWERS)
         return;
 
-    // Base Mana Pool = 5% of Base Mana
-    float regenPct = 5.0f;
-
     // Get base of Mana Pool in sBaseMPGameTable
     uint32 basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), basemana);
-    float base_regen = basemana * regenPct / 100.f;
+    float base_regen = basemana / 100.f;
 
     base_regen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
-
-    // Calculate for 1 second, the client multiplies the field values by 5
-    base_regen /= 5;
 
     // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT
     base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
@@ -763,7 +757,10 @@ void Player::UpdateManaRegen()
     // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
     base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
 
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen);
+    // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_INTERRUPT
+    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen * modManaRegenInterrupt);
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + manaIndex, base_regen);
 }
 
