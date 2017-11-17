@@ -644,9 +644,9 @@ enum DarkRiderOfAcherus
     SAY_DARK_RIDER              = 0,
     SPELL_DESPAWN_HORSE         = 52267,
 
-	EVENT_START_MOVE            = 0,
-	EVENT_DESPAWN_HORSE,
-	EVENT_END_SCRIPT
+    EVENT_START_MOVE            = 0,
+    EVENT_DESPAWN_HORSE,
+    EVENT_END_SCRIPT
 };
 
 class npc_dark_rider_of_acherus : public CreatureScript
@@ -695,19 +695,6 @@ class npc_dark_rider_of_acherus : public CreatureScript
                     default:
                         break;
                 }
-            }
-
-            void InitDespawnHorse(Unit* who)
-            {
-                if (!who)
-                    return;
-
-                TargetGUID = who->GetGUID();
-                me->SetWalk(true);
-                me->SetSpeedRate(MOVE_RUN, 0.4f);
-                me->GetMotionMaster()->MoveChase(who);
-                me->SetTarget(TargetGUID);
-                Intro = true;
             }
 			
 			void SpellHitTarget(Unit* target, SpellInfo const* spell) override
@@ -1276,7 +1263,7 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_eye_of_acherus();
     new npc_death_knight_initiate();
     new npc_salanar_the_horseman();
-	new spell_deliver_stolen_horse();
+    new spell_deliver_stolen_horse();
     new npc_dark_rider_of_acherus();
     new npc_ros_dark_rider();
     new npc_dkc1_gothik();
