@@ -15,33 +15,6 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Conversation.h"
-#include "ConversationDataStore.h"
-#include "Creature.h"
-#include "Player.h"
-#include "Object.h"
-#include "ScriptMgr.h"
-#include "Unit.h"
-
-/*class conversation_example : public ConversationScript
-{
-public:
-    conversation_example() : ConversationScript("conversation_example") { }
-
-    void OnConversationCreate(Conversation* conversation, Unit* creator)
-    {
-        Creature* firstCreature = creator->FindNearestCreature(CREATURE_ONE, 100.0f);
-        Creature* secondCreature = creator->FindNearestCreature(CREATURE_TWO, 100.0f);
-
-        if (firstCreature && secondCreature)
-        {
-            conversation->AddActor(firstCreature->GetGUID(), 0);
-            conversation->AddActor(secondCreature->GetGUID(), 1);
-        }
-    }
-};*/
-
 void AddSC_conversation_scripts()
 {
-    //new conversation_example();
 }

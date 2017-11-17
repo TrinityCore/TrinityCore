@@ -20,10 +20,8 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
-#include "Object.h"
-#include "Unit.h"
-#include "UpdateData.h"
 #include "ScriptMgr.h"
+#include "UpdateData.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0)
 {
