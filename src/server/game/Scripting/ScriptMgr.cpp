@@ -23,7 +23,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
-#include "ConversationDataStore.h"
 #include "Conversation.h"
 #include "Errors.h"
 #include "GameObject.h"
