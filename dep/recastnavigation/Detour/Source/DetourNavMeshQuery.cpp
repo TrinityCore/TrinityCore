@@ -578,7 +578,7 @@ dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, flo
 				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
 		}
 		float h;
-		if (dtClosestHeightPointTriangle(pos, v[0], v[1], v[2], h))
+		if (dtClosestHeightPointTriangle(closest, v[0], v[1], v[2], h))
 		{
 			closest[1] = h;
 			break;
@@ -759,7 +759,7 @@ public:
 /// return #DT_SUCCESS, but @p nearestRef will be zero. So if in doubt, check 
 /// @p nearestRef before using @p nearestPt.
 ///
-dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* extents,
+dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfExtents,
 										 const dtQueryFilter* filter,
 										 dtPolyRef* nearestRef, float* nearestPt) const
 {
@@ -770,7 +770,7 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 	
 	dtFindNearestPolyQuery query(this, center);
 
-	dtStatus status = queryPolygons(center, extents, filter, &query);
+	dtStatus status = queryPolygons(center, halfExtents, filter, &query);
 	if (dtStatusFailed(status))
 		return status;
 
@@ -943,7 +943,7 @@ public:
 /// be filled to capacity. The method of choosing which polygons from the 
 /// full set are included in the partial result set is undefined.
 ///
-dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* extents,
+dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* halfExtents,
 									   const dtQueryFilter* filter,
 									   dtPolyRef* polys, int* polyCount, const int maxPolys) const
 {
@@ -952,7 +952,7 @@ dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* extents
 
 	dtCollectPolysQuery collector(polys, maxPolys);
 
-	dtStatus status = queryPolygons(center, extents, filter, &collector);
+	dtStatus status = queryPolygons(center, halfExtents, filter, &collector);
 	if (dtStatusFailed(status))
 		return status;
 
@@ -963,21 +963,21 @@ dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* extents
 /// @par 
 ///
 /// The query will be invoked with batches of polygons. Polygons passed
-/// to the query have bounding boxes that overlap with the center and extents
+/// to the query have bounding boxes that overlap with the center and halfExtents
 /// passed to this function. The dtPolyQuery::process function is invoked multiple
 /// times until all overlapping polygons have been processed.
 ///
-dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* extents,
+dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* halfExtents,
 									   const dtQueryFilter* filter, dtPolyQuery* query) const
 {
 	dtAssert(m_nav);
 
-	if (!center || !extents || !filter || !query)
+	if (!center || !halfExtents || !filter || !query)
 		return DT_FAILURE | DT_INVALID_PARAM;
 
 	float bmin[3], bmax[3];
-	dtVsub(bmin, center, extents);
-	dtVadd(bmax, center, extents);
+	dtVsub(bmin, center, halfExtents);
+	dtVadd(bmax, center, halfExtents);
 	
 	// Find tiles the query touches.
 	int minx, miny, maxx, maxy;
