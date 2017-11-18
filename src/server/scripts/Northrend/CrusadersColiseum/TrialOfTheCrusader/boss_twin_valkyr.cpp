@@ -148,7 +148,7 @@ class OrbsDespawner : public BasicEvent
         Creature* _creature;
 };
 
-uint32 const GetSisterData(uint32 sisterEntry)
+static uint32 GetSisterData(uint32 sisterEntry)
 {
     return sisterEntry == NPC_FJOLA_LIGHTBANE ? DATA_FJOLA_LIGHTBANE : DATA_EYDIS_DARKBANE;
 }
