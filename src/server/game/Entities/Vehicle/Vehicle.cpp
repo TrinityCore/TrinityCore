@@ -383,6 +383,15 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     /// @VehicleJoinEvent::Abort
 }
 
+bool Vehicle::AddPassenger(uint32 passengerEntry, int8 seatId /*= -1*/)
+{
+    if (Unit* base = GetBase())
+        if (Creature* summon = base->SummonCreature(passengerEntry, base->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
+            return AddPassenger(summon, seatId);
+
+    return false;
+}
+
 /**
  * @fn bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
  *

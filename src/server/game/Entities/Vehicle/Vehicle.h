@@ -55,6 +55,7 @@ class TC_GAME_API Vehicle : public TransportBase
         SeatMap::const_iterator GetNextEmptySeat(int8 seatId, bool next) const;
         uint8 GetAvailableSeatCount() const;
 
+        bool AddPassenger(uint32 passengerEntry, int8 seatId = -1);
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
         void EjectPassenger(Unit* passenger, Unit* controller);
         Vehicle* RemovePassenger(Unit* passenger);

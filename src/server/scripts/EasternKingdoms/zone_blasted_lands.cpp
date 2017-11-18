@@ -86,9 +86,11 @@ enum eSpells
 
 enum eMaps
 {
-    BLASTED_LANDS_DRAENOR_PHASE = 1190,
-    EASTERN_KINGDOM_MAP_ID      = 0,
-    BLASTER_LANDS_ZONE_ID       = 4
+    MAP_EASTERN_KINGDOM             = 0,
+    MAP_BLASTED_LANDS_DRAENOR_PHASE = 1190,
+    MAP_DRAENOR                     = 1265,
+
+    BLASTER_LANDS_ZONE_ID           = 4
 };
 
 // Dark Portal phasing
@@ -97,23 +99,23 @@ class PlayerScript_DarkPortal_Phasing: public PlayerScript
     public:
         PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing") { }
 
-        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 /*p_NewAreaID*/)
+        void OnUpdateZone(Player* player, uint32 newZoneID, uint32 oldZoneID, uint32 /*newAreaID*/) override
         {
-            if (p_Player->IsInFlight())
+            if (player->IsInFlight())
                 return;
 
-            if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE || p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
+            if (player->GetMapId() == MAP_EASTERN_KINGDOM || player->GetMapId() == MAP_BLASTED_LANDS_DRAENOR_PHASE)
             {
-                if (p_NewZoneID != p_OldZoneID && (p_NewZoneID == BLASTER_LANDS_ZONE_ID || p_OldZoneID == BLASTER_LANDS_ZONE_ID))
+                if (newZoneID != oldZoneID && (newZoneID == BLASTER_LANDS_ZONE_ID || oldZoneID == BLASTER_LANDS_ZONE_ID))
                 {
-                    if (p_Player->getLevel() >= 90 && p_NewZoneID == BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID && !p_Player->HasAura(SPELL_TIME_TRAVELLING))
+                    if (player->getLevel() >= 90 && newZoneID == BLASTER_LANDS_ZONE_ID && player->GetMapId() == MAP_EASTERN_KINGDOM && !player->HasAura(SPELL_TIME_TRAVELLING))
                     {
-                        p_Player->SeamlessTeleportToMap(BLASTED_LANDS_DRAENOR_PHASE);
+                        player->SeamlessTeleportToMap(MAP_BLASTED_LANDS_DRAENOR_PHASE);
                     }
 
-                    if (p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE)
+                    if (newZoneID != BLASTER_LANDS_ZONE_ID && player->GetMapId() == MAP_BLASTED_LANDS_DRAENOR_PHASE)
                     {
-                        p_Player->SeamlessTeleportToMap(EASTERN_KINGDOM_MAP_ID);
+                        player->SeamlessTeleportToMap(MAP_EASTERN_KINGDOM);
                     }
                 }
             }
@@ -126,7 +128,7 @@ class npc_zidormi : public CreatureScript
 public:
     npc_zidormi() : CreatureScript("npc_zidormi") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->getLevel() < 90)
             return true;
@@ -145,18 +147,18 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 0)
         {
             player->CastSpell(player, SPELL_TIME_TRAVELLING, true);
-            player->SeamlessTeleportToMap(EASTERN_KINGDOM_MAP_ID);
+            player->SeamlessTeleportToMap(MAP_EASTERN_KINGDOM);
         }
         else if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->RemoveAurasDueToSpell(SPELL_TIME_TRAVELLING);
-            player->SeamlessTeleportToMap(BLASTED_LANDS_DRAENOR_PHASE);
+            player->SeamlessTeleportToMap(MAP_BLASTED_LANDS_DRAENOR_PHASE);
         }
 
         CloseGossipMenuFor(player);
@@ -205,7 +207,7 @@ class npc_archmage_khadgar_gossip : public CreatureScript
             QuestTheProdigalFrostwolf             = 34437,
         };
 
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/)
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
         {
             if (player->GetQuestStatus(QuestStartDraenor) == QUEST_STATUS_NONE)
                 return true;
@@ -271,7 +273,7 @@ class npc_archmage_khadgar_gossip : public CreatureScript
                 teleportPos = { 4055.08f, -2018.38f, 73.10f, 3.14f };
             }
 
-            player->SeamlessTeleportToMap(BLASTED_LANDS_DRAENOR_PHASE);
+            player->TeleportTo(MAP_DRAENOR, teleportPos);
 
             return true;
         }

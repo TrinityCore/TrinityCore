@@ -19,6 +19,7 @@
 
 void AddSC_frostfire_ridge();
 void AddSC_shadowmoon_draenor();
+void AddSC_tanaan_jungle();
 
 void AddSC_tanaan_intro_global();
 void AddSC_tanaan_intro_portal();
@@ -34,6 +35,7 @@ void AddDraenorScripts()
 {
     AddSC_frostfire_ridge();
     AddSC_shadowmoon_draenor();
+    AddSC_tanaan_jungle();
 
     AddSC_tanaan_intro_global();
     AddSC_tanaan_intro_portal();
