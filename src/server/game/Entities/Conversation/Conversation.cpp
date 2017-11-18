@@ -20,6 +20,7 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "ScriptMgr.h"
 #include "Unit.h"
 #include "UpdateData.h"
 
@@ -154,6 +155,8 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         AddDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, line);
     }
 
+    sScriptMgr->OnConversationCreate(this, creator);
+
     // All actors need to be set
     for (uint16 actorIndex : actorIndices)
     {
@@ -182,4 +185,9 @@ void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
 void Conversation::AddParticipant(ObjectGuid const& participantGuid)
 {
     _participants.insert(participantGuid);
+}
+
+uint32 Conversation::GetScriptId() const
+{
+    return sConversationDataStore->GetConversationTemplate(GetEntry())->ScriptId;
 }

@@ -9089,6 +9089,8 @@ void ObjectMgr::LoadScriptNames()
     QueryResult result = WorldDatabase.Query(
         "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
         "UNION "
+        "SELECT DISTINCT(ScriptName) FROM conversation_template WHERE ScriptName <> '' "
+        "UNION "
         "SELECT DISTINCT(ScriptName) FROM creature WHERE ScriptName <> '' "
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM creature_template WHERE ScriptName <> '' "
