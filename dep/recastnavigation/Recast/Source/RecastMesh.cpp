@@ -379,7 +379,7 @@ static int triangulate(int n, const int* verts, int* indices, int* tris)
 			// We might get here because the contour has overlapping segments, like this:
 			//
 			//  A o-o=====o---o B
-			//   /  |C   D|    \
+			//   /  |C   D|    \.
 			//  o   o     o     o
 			//  :   :     :     :
 			// We'll try to recover by loosing up the inCone test a bit so that a diagonal
