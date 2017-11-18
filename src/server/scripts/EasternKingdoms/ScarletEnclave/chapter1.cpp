@@ -725,6 +725,7 @@ enum SalanarTheHorseman
     GOSSIP_SALANAR_OPTION             = 0,
     SALANAR_SAY                       = 0,
     QUEST_INTO_REALM_OF_SHADOWS       = 12687,
+    NPC_HAVENSHIRE_STALLION           = 28605,
     NPC_DARK_RIDER_OF_ACHERUS         = 28654,
     NPC_SALANAR_IN_REALM_OF_SHADOWS   = 28788,
     SPELL_EFFECT_STOLEN_HORSE         = 52263,
@@ -806,6 +807,7 @@ public:
         bool Load() override
         {
             _salanarNear = false;
+            return GetCaster()->GetEntry() == NPC_HAVENSHIRE_STALLION;
         }
 
         void HitSalanarCheck(SpellEffIndex /*effIndex*/)
