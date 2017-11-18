@@ -20,6 +20,7 @@
 // This is where scripts' loading functions should be declared:
 // world
 void AddSC_areatrigger_scripts();
+void AddSC_conversation_scripts();
 void AddSC_emerald_dragons();
 void AddSC_generic_creature();
 void AddSC_go_scripts();
@@ -41,6 +42,7 @@ void AddSC_duel_reset();
 void AddWorldScripts()
 {
     AddSC_areatrigger_scripts();
+    AddSC_conversation_scripts();
     AddSC_emerald_dragons();
     AddSC_generic_creature();
     AddSC_go_scripts();
