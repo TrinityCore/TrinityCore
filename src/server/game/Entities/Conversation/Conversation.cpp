@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "ScriptMgr.h"
+#include "Unit.h"
 #include "UpdateData.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0)
@@ -175,8 +176,6 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
 void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
 {
-    ASSERT(actorGuid);
-
     ConversationDynamicFieldActor actorField;
     actorField.ActorGuid = actorGuid;
     actorField.Type = ConversationDynamicFieldActor::ActorType::WorldObjectActor;

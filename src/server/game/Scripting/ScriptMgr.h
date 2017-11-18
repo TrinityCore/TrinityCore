@@ -860,6 +860,17 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
         virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
 };
 
+class TC_GAME_API ConversationScript : public ScriptObject
+{
+    protected:
+        ConversationScript(char const* name);
+
+    public:
+
+        // Called when Conversation is created but not added to Map yet.
+        virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { }
+};
+
 class TC_GAME_API SceneScript : public ScriptObject
 {
     protected:
@@ -878,18 +889,6 @@ class TC_GAME_API SceneScript : public ScriptObject
 
         // Called when a scene is completed
         virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
-};
-
-class TC_GAME_API ConversationScript : public ScriptObject
-{
-    protected:
-    // Manages registration, loading, and execution of scripts.
-        ConversationScript(const char* name);
-    
-    public:
-    
-        // Called when Conversation is created but not added to Map yet
-        virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { }
 };
 
 // Manages registration, loading, and execution of scripts.
@@ -1174,14 +1173,16 @@ class TC_GAME_API ScriptMgr
 
         AreaTriggerAI* GetAreaTriggerAI(AreaTrigger* areaTrigger);
 
+    public: /* ConversationScript */
+
+        void OnConversationCreate(Conversation* conversation, Unit* creator);
+
     public: /* SceneScript */
+
         void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string const& triggerName);
         void OnSceneCancel(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
-
-    public: /* ConversationScript */
-        void OnConversationCreate(Conversation* conversation, Unit* creator);
 
     private:
         uint32 _scriptCount;

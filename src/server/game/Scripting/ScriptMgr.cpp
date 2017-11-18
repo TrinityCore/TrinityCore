@@ -111,11 +111,11 @@ struct is_script_database_bound<AreaTriggerEntityScript>
     : std::true_type { };
 
 template<>
-struct is_script_database_bound<SceneScript>
+struct is_script_database_bound<ConversationScript>
     : std::true_type { };
 
 template<>
-struct is_script_database_bound<ConversationScript>
+struct is_script_database_bound<SceneScript>
     : std::true_type { };
 
 enum Spells
@@ -333,7 +333,6 @@ class ScriptRegistrySwapHooks
 {
 };
 
-/// This hook is responsible for swapping OutdoorPvP's
 template<typename Base>
 class UnsupportedScriptRegistrySwapHooks
     : public ScriptRegistrySwapHookBase
@@ -772,35 +771,6 @@ public:
             sObjectMgr->ValidateSpellScripts();
             swapped = false;
         }
-    }
-
-    void BeforeUnload() final override
-    {
-        ASSERT(!swapped);
-    }
-
-private:
-    bool swapped;
-};
-
-/// This hook is responsible for swapping ConversationScript's
-template<typename Base>
-class ScriptRegistrySwapHooks<ConversationScript, Base>
-    : public ScriptRegistrySwapHookBase
-{
-public:
-    ScriptRegistrySwapHooks() : swapped(false) { }
-
-    void BeforeReleaseContext(std::string const& context) final override
-    {
-        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
-        if (bounds.first != bounds.second)
-            swapped = true;
-    }
-
-    void BeforeSwapContext(bool /*initialize*/) override
-    {
-        swapped = false;
     }
 
     void BeforeUnload() final override
@@ -2444,6 +2414,15 @@ void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& dama
     FOREACH_SCRIPT(PlayerScript)->ModifySpellDamageTaken(target, attacker, damage);
 }
 
+// Conversation
+void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnConversationCreate(conversation, creator);
+}
+
 // Scene
 void ScriptMgr::OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {
@@ -2479,14 +2458,6 @@ void ScriptMgr::OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTem
 
     GET_SCRIPT(SceneScript, sceneTemplate->ScriptId, tmpscript);
     tmpscript->OnSceneComplete(player, sceneInstanceID, sceneTemplate);
-}
-
-void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
-{
-    ASSERT(conversation);
-
-    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
-    tmpscript->OnConversationCreate(conversation, creator);
 }
 
 SpellScriptLoader::SpellScriptLoader(const char* name)
@@ -2686,7 +2657,7 @@ AreaTriggerEntityScript::AreaTriggerEntityScript(const char* name)
     ScriptRegistry<AreaTriggerEntityScript>::Instance()->AddScript(this);
 }
 
-ConversationScript::ConversationScript(const char* name)
+ConversationScript::ConversationScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<ConversationScript>::Instance()->AddScript(this);
@@ -2720,5 +2691,5 @@ template class TC_GAME_API ScriptRegistry<GroupScript>;
 template class TC_GAME_API ScriptRegistry<UnitScript>;
 template class TC_GAME_API ScriptRegistry<AccountScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
-template class TC_GAME_API ScriptRegistry<SceneScript>;
 template class TC_GAME_API ScriptRegistry<ConversationScript>;
+template class TC_GAME_API ScriptRegistry<SceneScript>;
