@@ -3928,12 +3928,9 @@ void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode
         return;
     
     Powers power = Powers(GetMiscValue());
-    uint32 newValue = target->GetMaxPower(power);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
     
-    if (apply)
-        target->SetMaxPower(power, (newValue + GetAmount()));
-    else
-        target->SetMaxPower(power, (newValue - GetAmount()));
+    target->HandleStatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
 /********************************/
 /***      HEAL & ENERGIZE     ***/
