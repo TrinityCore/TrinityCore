@@ -59,7 +59,13 @@ enum RogueSpells
     SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
     SPELL_ROGUE_RUPTURE                             = 1943,
     SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE        = 51699,
-    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169
+    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169,
+    SPELL_ROGUE_NIGHTSTALKER_AURA                   = 14062,
+    SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE            = 130493,
+    SPELL_ROGUE_SHADOW_FOCUS_AURA                   = 108209,
+    SPELL_ROGUE_SHADOW_FOCUS_COST_PCT               = 112942,
+    SPELL_ROGUE_STEALTH_SUBTERFUGE                  = 115191,
+    SPELL_ROGUE_STEALTH_SUBTERFUGE_EFFECT           = 115192
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -613,23 +619,43 @@ class spell_rog_stealth : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_stealth_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
-                    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
-                    SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC,
-                    SPELL_ROGUE_SANCTUARY,
-                    SPELL_ROGUE_STEALTH_STEALTH_AURA,
-                    SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA
-                });
-            }
+          //bool Validate(SpellInfo const* /*spellInfo*/) override
+          //{
+          //    return ValidateSpellInfo(
+          //    {
+          //        SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
+          //        SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
+          //        SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC,
+          //        SPELL_ROGUE_SANCTUARY,
+          //        SPELL_ROGUE_STEALTH_STEALTH_AURA,
+          //        SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA,
+          //        SPELL_ROGUE_NIGHTSTALKER_AURA,
+          //        SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE,
+          //        SPELL_ROGUE_SHADOW_FOCUS_AURA,
+          //        SPELL_ROGUE_SHADOW_FOCUS_COST_PCT,
+          //        SPELL_ROGUE_STEALTH_SUBTERFUGE,
+          //        SPELL_ROGUE_STEALTH_SUBTERFUGE_EFFECT
+          //     });
+          //}
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
+                if (GetSpellInfo()->Id != SPELL_ROGUE_STEALTH_SUBTERFUGE_EFFECT)
+                {
+                    target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, true);
+                    target->CastSpell(target, SPELL_ROGUE_STEALTH_STEALTH_AURA, true);
 
+                    if (target->HasAura(SPELL_ROGUE_NIGHTSTALKER_AURA))
+                        target->CastSpell(target, SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE, true);
+
+                    if (target->HasAura(SPELL_ROGUE_SHADOW_FOCUS_AURA))
+                        target->CastSpell(target, SPELL_ROGUE_SHADOW_FOCUS_COST_PCT, true);
+                }
+                else
+                {
+                    target->RemoveAura(SPELL_ROGUE_STEALTH_SUBTERFUGE);
+                }
                 // Master of Subtlety
                 if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
                     target->CastCustomSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true);
@@ -642,7 +668,24 @@ class spell_rog_stealth : public SpellScriptLoader
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (GetSpellInfo()->Id != SPELL_ROGUE_STEALTH_SUBTERFUGE || removeMode == AURA_REMOVE_BY_CANCEL)
+                {
+                    target->RemoveAura(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA);
 
+                    if (Aura* nightstalker = target->GetAura(SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE))
+                        nightstalker->SetDuration(200);   ///< We can't remove it now,your abilities requiring Stealth can still be used for 3 sec after Stealth breaks.
+
+                     target->RemoveAura(SPELL_ROGUE_SHADOW_FOCUS_COST_PCT);
+                }
+
+                if (GetSpellInfo()->Id == SPELL_ROGUE_STEALTH_SUBTERFUGE)
+                {
+                    if (!target->HasAura(SPELL_ROGUE_STEALTH_SUBTERFUGE_EFFECT))
+                        target->CastSpell(target, SPELL_ROGUE_STEALTH_SUBTERFUGE_EFFECT, true);
+                }
+
+                target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_STEALTH_AURA);
                 // Master of subtlety
                 if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
                     target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC, true);
