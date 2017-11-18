@@ -3920,18 +3920,17 @@ void AuraEffect::HandleOverrideAttackPowerBySpellPower(AuraApplication const* au
 
 void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
-    
+
     Unit* target = aurApp->GetTarget();
-    if (!target)
-        return;
-    
+
     Powers power = Powers(GetMiscValue());
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
-    
+
     target->HandleStatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
+
 /********************************/
 /***      HEAL & ENERGIZE     ***/
 /********************************/
