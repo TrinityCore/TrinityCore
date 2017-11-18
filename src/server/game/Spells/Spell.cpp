@@ -2516,6 +2516,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
     {
+        hitMask |= target->crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
+
         // Fill base damage struct (unitTarget - is real spell target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_SpellVisual, m_spellSchoolMask);
         hitMask |= createProcHitMask(&damageInfo, missInfo);
