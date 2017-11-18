@@ -35,7 +35,7 @@ class Unit;
 class WorldObject;
 class WorldPacket;
 struct BattlegroundScore;
-struct PvpDifficultyEntry;
+struct PVPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
 namespace WorldPackets
@@ -301,7 +301,7 @@ class TC_GAME_API Battleground
         void SetTypeID(BattlegroundTypeId TypeID) { m_TypeID = TypeID; }
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
         //here we can count minlevel and maxlevel for players
-        void SetBracket(PvpDifficultyEntry const* bracketEntry);
+        void SetBracket(PVPDifficultyEntry const* bracketEntry);
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
         void SetStatus(BattlegroundStatus Status) { m_Status = Status; }
         void SetClientInstanceID(uint32 InstanceID) { m_ClientInstanceID = InstanceID; }
