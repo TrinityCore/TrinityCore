@@ -308,11 +308,6 @@ void Player::UpdateMaxPower(Powers power)
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
-
-    AuraEffectList const& modMaxPower = GetAuraEffectsByType(SPELL_AURA_MOD_MAX_POWER);
-    for (AuraEffectList::const_iterator i = modMaxPower.begin(); i != modMaxPower.end(); i++)
-        if(power == (*i)->GetMiscValue())
-            value += float((*i)->GetAmount());
     
     SetMaxPower(power, uint32(value));
 }
