@@ -24,19 +24,42 @@
 #define DataHeader "TCR"
 
 struct Position;
+uint32 const EncounterCount = 6;
 
 enum TCRDataTypes
 {
-    BOSS_BEASTS                 = 0,
-    BOSS_JARAXXUS               = 1,
-    BOSS_CRUSADERS              = 2,
-    BOSS_VALKIRIES              = 3,
-    BOSS_LICH_KING              = 4,    // not really a boss but oh well
-    BOSS_ANUBARAK               = 5,
-    MAX_ENCOUNTERS              = 6,
+    // Encounter States
+    DATA_NORTHREND_BEASTS       = 0,
+    DATA_JARAXXUS               = 1,
+    DATA_FACTION_CRUSADERS      = 2,
+    DATA_TWIN_VALKIRIES         = 3,
+    DATA_LICH_KING              = 4,
+    DATA_ANUBARAK               = 5,
 
-    TYPE_COUNTER                = 8,
-    TYPE_EVENT                  = 9,
+    // Additional Data
+    DATA_GORMOK_THE_IMPALER     = 5,
+    DATA_ACIDMAW                = 6,
+    DATA_DREADSCALE             = 7,
+    DATA_ICEHOWL                = 8,
+    DATA_FJOLA_LIGHTBANE        = 9,
+    DATA_EYDIS_DARKBANE         = 10,
+    DATA_BARRET_RAMSEY          = 11,
+    DATA_FORDRING               = 12,
+    DATA_FORDRING_ANUBARAK      = 13,
+    DATA_VARIAN                 = 14,
+    DATA_GARROSH                = 15,
+    DATA_FIZZLEBANG             = 16,
+    DATA_FACTION_CHAMPIONS      = 17,
+
+    DATA_CRUSADERS_CHEST        = 18,
+    DATA_COLISEUM_FLOOR         = 19,
+    DATA_MAIN_GATE              = 20,
+    DATA_EAST_PORTCULLIS        = 21,
+    DATA_WEB_DOOR               = 22,
+    DATA_TRIBUTE_CHEST          = 23,
+
+    TYPE_COUNTER                = 24,
+    TYPE_EVENT                  = 25,
 
     TYPE_EVENT_TIMER            = 101,
     TYPE_EVENT_NPC              = 102,
@@ -96,14 +119,14 @@ enum AnnouncerMessages
 
 enum TCRCreatureIds
 {
-    NPC_BARRENT                 = 34816,
-    NPC_TIRION                  = 34996,
-    NPC_TIRION_FORDRING         = 36095,
-    NPC_ARGENT_MAGE             = 36097,
-    NPC_FIZZLEBANG              = 35458,
-    NPC_GARROSH                 = 34995,
-    NPC_VARIAN                  = 34990,
-    NPC_LICH_KING               = 35877,
+    NPC_BARRET_RAMSEY            = 34816,
+    NPC_TIRION_FORDRING          = 34996,
+    NPC_TIRION_FORDRING_ANUBARAK = 36095,
+    NPC_ARGENT_MAGE              = 36097,
+    NPC_FIZZLEBANG               = 35458,
+    NPC_GARROSH                  = 34995,
+    NPC_VARIAN                   = 34990,
+    NPC_LICH_KING                = 35877,
 
     NPC_THRALL                  = 34994,
     NPC_PROUDMOORE              = 34992,
@@ -149,8 +172,8 @@ enum TCRCreatureIds
     NPC_HORDE_WARLOCK                   = 34450,
     NPC_HORDE_WARRIOR                   = 34453,
 
-    NPC_LIGHTBANE                       = 34497,
-    NPC_DARKBANE                        = 34496,
+    NPC_FJOLA_LIGHTBANE                 = 34497,
+    NPC_EYDIS_DARKBANE                  = 34496,
 
     NPC_DARK_ESSENCE                    = 34567,
     NPC_LIGHT_ESSENCE                   = 34568,
