@@ -308,7 +308,7 @@ void Player::UpdateMaxPower(Powers power)
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
-    
+
     SetMaxPower(power, uint32(value));
 }
 
