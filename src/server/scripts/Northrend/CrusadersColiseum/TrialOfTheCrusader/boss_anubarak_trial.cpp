@@ -166,7 +166,7 @@ class boss_anubarak_trial : public CreatureScript
 
         struct boss_anubarak_trialAI : public BossAI
         {
-            boss_anubarak_trialAI(Creature* creature) : BossAI(creature, BOSS_ANUBARAK)
+            boss_anubarak_trialAI(Creature* creature) : BossAI(creature, DATA_ANUBARAK)
             {
                 Initialize();
             }
@@ -221,7 +221,7 @@ class boss_anubarak_trial : public CreatureScript
 
             void JustReachedHome() override
             {
-                instance->SetBossState(BOSS_ANUBARAK, FAIL);
+                instance->SetBossState(DATA_ANUBARAK, FAIL);
                 //Summon Scarab Swarms neutral at random places
                 for (int i = 0; i < 10; i++)
                     if (Creature* scarab = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
@@ -459,8 +459,8 @@ class npc_swarm_scarab : public CreatureScript
                 DoCast(me, SPELL_ACID_MANDIBLE);
                 me->SetInCombatWithZone();
                 if (me->IsInCombat())
-                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_ANUBARAK)))
-                        Anubarak->AI()->JustSummoned(me);
+                    if (Creature* anubarak = _instance->GetCreature(DATA_ANUBARAK))
+                        anubarak->AI()->JustSummoned(me);
             }
 
             void DoAction(int32 actionId) override
@@ -483,7 +483,7 @@ class npc_swarm_scarab : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (_instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
+                if (_instance->GetBossState(DATA_ANUBARAK) != IN_PROGRESS)
                     me->DisappearAndDie();
 
                 if (!UpdateVictim())
@@ -539,8 +539,8 @@ class npc_nerubian_burrower : public CreatureScript
                 DoCast(me, SPELL_AWAKENED);
                 me->SetInCombatWithZone();
                 if (me->IsInCombat())
-                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_ANUBARAK)))
-                        Anubarak->AI()->JustSummoned(me);
+                    if (Creature* anubarak = _instance->GetCreature(DATA_ANUBARAK))
+                        anubarak->AI()->JustSummoned(me);
             }
 
             void DoAction(int32 actionId) override
@@ -559,7 +559,7 @@ class npc_nerubian_burrower : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (_instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
+                if (_instance->GetBossState(DATA_ANUBARAK) != IN_PROGRESS)
                     me->DisappearAndDie();
 
                 if (!UpdateVictim() && !me->HasAura(SPELL_SUBMERGE_EFFECT))
