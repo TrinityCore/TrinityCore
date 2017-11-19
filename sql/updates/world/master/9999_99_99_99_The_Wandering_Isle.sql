@@ -7396,8 +7396,8 @@ INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `Sourc
 (29799, 0, 0, 0, 30767, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), -- The Healing of Shen-zin Su
 (31450, 0, 0, 0, 29799, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); -- A New Fate
 
-DELETE FROM `creature_text` WHERE `entry` IN (53565, 60176, 54135, 60248, 60729, 60250, 56663, 60852, 57721, 54611, 60900, 54586, 57638, 55477, 54975, 59642, 55943, 60253, 54786, 55672, 61127, 56013, 60042, 60741, 60878, 64881, 55539, 55744, 57712, 59986, 57692, 56662, 56418, 59652, 55694, 57720, 60770, 60183, 54943, 55483, 60249, 55595, 64885, 59988, 60244, 65471, 65558, 60888, 60889, 57669, 56236, 55944, 60851, 56660, 56686, 56159, 56416, 60834, 56676, 60877, 64880, 56661, 61126, 64875, 64506, 54856, 54567, 64879, 54587, 54568, 56503, 57670, 65470, 55504, 54130);
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+DELETE FROM `creature_text` WHERE `CreatureID` IN (53565, 60176, 54135, 60248, 60729, 60250, 56663, 60852, 57721, 54611, 60900, 54586, 57638, 55477, 54975, 59642, 55943, 60253, 54786, 55672, 61127, 56013, 60042, 60741, 60878, 64881, 55539, 55744, 57712, 59986, 57692, 56662, 56418, 59652, 55694, 57720, 60770, 60183, 54943, 55483, 60249, 55595, 64885, 59988, 60244, 65471, 65558, 60888, 60889, 57669, 56236, 55944, 60851, 56660, 56686, 56159, 56416, 60834, 56676, 60877, 64880, 56661, 61126, 64875, 64506, 54856, 54567, 64879, 54587, 54568, 56503, 57670, 65470, 55504, 54130);
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (53565, 0, 0, 'Such skill for a new trainee.', 12, 0, 100, 511, 0, 0, 56431, 0, 'Aspiring Trainee to Training Target'),
 (53565, 0, 1, 'That target didn''t stand a chance.', 12, 0, 100, 511, 0, 0, 56433, 0, 'Aspiring Trainee to Training Target'),
 (53565, 0, 2, 'One day you will have to teach me your secrets.', 12, 0, 100, 509, 0, 0, 56432, 0, 'Aspiring Trainee to Training Target'),
@@ -8442,8 +8442,8 @@ INSERT INTO `trainer_spell` (`TrainerId`, `SpellId`, `MoneyCost`, `ReqSkillLine`
 (117, 3841, 200, 197, 60, 0, 0, 0, 0, 24461),
 (117, 3911, 10, 0, 0, 0, 0, 0, 5, 24461);
 
-DELETE FROM `gossip_menu` WHERE `entry` IN (13346, 13036, 14616, 14672, 13060, 13037, 13038, 9821, 13158, 14674, 15125, 12185, 12186, 12188, 12189, 12190, 12191, 12192, 12193, 12195, 12196, 12197, 12198, 12199, 14491, 13102, 13140, 14617, 13736, 12180, 9868, 15040, 13204, 14268, 13220, 13201, 13249, 14671, 14670, 13726);
-INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
+DELETE FROM `gossip_menu` WHERE `MenuID` IN (13346, 13036, 14616, 14672, 13060, 13037, 13038, 9821, 13158, 14674, 15125, 12185, 12186, 12188, 12189, 12190, 12191, 12192, 12193, 12195, 12196, 12197, 12198, 12199, 14491, 13102, 13140, 14617, 13736, 12180, 9868, 15040, 13204, 14268, 13220, 13201, 13249, 14671, 14670, 13726);
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`) VALUES
 (13346, 18919),
 (13036, 20785),
 (14616, 20677),
@@ -8488,8 +8488,8 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 (14670, 20776),
 (13726, 19723);
 
-DELETE FROM `gossip_menu_option` WHERE `MenuId` IN (13726, 13204, 13140, 15125, 14674, 13060);
-INSERT INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcflag`, `VerifiedBuild`) VALUES
+DELETE FROM `gossip_menu_option` WHERE `MenuID` IN (13726, 13204, 13140, 15125, 14674, 13060);
+INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcflag`, `VerifiedBuild`) VALUES
 (13726, 0, 0, 'I''m ready to decide.', 60279, 1, 1, 20886), -- 13726
 (13204, 0, 0, 'Maybe you should talk to her.', 62476, 1, 1, 20886), -- 13204
 (13140, 0, 0, 'Shu, can you wake up Wuguo for me?', 54025, 1, 1, 20886), -- 13140
@@ -8500,8 +8500,8 @@ INSERT INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `Option
 (14674, 1, 1, 'What do you have for sale?', 66614, 3, 128, 20886), -- 14674
 (13060, 0, 1, 'What do you have for sale?', 66614, 3, 128, 20886); -- 13060
 
-DELETE FROM `gossip_menu_option_action` WHERE `MenuId` IN (12180, 12185, 12186, 12188, 12189, 12190, 12191, 12192, 12193, 12195, 12196, 12197, 12198, 12199, 15125);
-INSERT INTO `gossip_menu_option_action` (`MenuId`, `OptionIndex`, `ActionMenuId`, `ActionPoiId`) VALUES
+DELETE FROM `gossip_menu_option_action` WHERE `MenuID` IN (12180, 12185, 12186, 12188, 12189, 12190, 12191, 12192, 12193, 12195, 12196, 12197, 12198, 12199, 15125);
+INSERT INTO `gossip_menu_option_action` (`MenuID`, `OptionID`, `ActionMenuId`, `ActionPoiId`) VALUES
 (12180, 11, 12185, 0),
 (12180, 12, 12186, 0),
 (12185, 11, 12188, 0),
@@ -8557,8 +8557,8 @@ INSERT INTO `gossip_menu_option_action` (`MenuId`, `OptionIndex`, `ActionMenuId`
 (15125, 11, 12185, 0),
 (15125, 12, 12186, 0);
 
-DELETE FROM `gossip_menu_option_trainer` WHERE `MenuId` IN (12188, 12189, 12190, 12191, 12192, 12193, 12195, 12196, 12197, 12198, 12199);
-INSERT INTO `gossip_menu_option_trainer` (`MenuId`, `OptionIndex`, `TrainerId`) VALUES
+DELETE FROM `gossip_menu_option_trainer` WHERE `MenuID` IN (12188, 12189, 12190, 12191, 12192, 12193, 12195, 12196, 12197, 12198, 12199);
+INSERT INTO `gossip_menu_option_trainer` (`MenuID`, `OptionID`, `TrainerId`) VALUES
 (12188, 11, 388), -- Herbalism
 (12189, 11, 389), -- Mining
 (12190, 11, 390), -- Skinning
@@ -8571,70 +8571,70 @@ INSERT INTO `gossip_menu_option_trainer` (`MenuId`, `OptionIndex`, `TrainerId`) 
 (12198, 11, 103), -- Leatherworking
 (12199, 11, 117); -- Tailoring
 
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12180 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12180 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47142, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12185 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47143, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12185 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47144, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12185 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12185 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47145, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12186 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47146, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12186 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47147, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12186 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47148, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12186 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47149, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12186 AND `OptionIndex`=15;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47150, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12186 AND `OptionIndex`=16;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47151, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12186 AND `OptionIndex`=17;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47152, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12186 AND `OptionIndex`=18;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12186 AND `OptionIndex`=19;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47145, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12188 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47149, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12188 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12188 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12188 AND `OptionIndex`=15;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47146, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12189 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47148, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12189 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47150, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12189 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12189 AND `OptionIndex`=15;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12189 AND `OptionIndex`=16;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47151, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12190 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12190 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12190 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47142, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12191 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47149, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12191 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12191 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12191 AND `OptionIndex`=15;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47143, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12192 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12192 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12192 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47152, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12193 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12193 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12193 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47143, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12195 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12195 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12195 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47142, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12196 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12196 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12196 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47143, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12197 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12197 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12197 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47144, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12198 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12198 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12198 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47147, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12199 AND `OptionIndex`=12;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12199 AND `OptionIndex`=13;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuId`=12199 AND `OptionIndex`=14;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47112, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12188 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47116, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12189 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47117, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12190 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47109, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12191 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47110, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12192 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47118, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12193 AND `OptionIndex`=10;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47111, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12193 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47119, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12195 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47113, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12196 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47114, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12197 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47115, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12198 AND `OptionIndex`=11;
-UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47118, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuId`=12199 AND `OptionIndex`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12180 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12180 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47142, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12185 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47143, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12185 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47144, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12185 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12185 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47145, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12186 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47146, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12186 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47147, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12186 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47148, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12186 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47149, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12186 AND `OptionID`=15;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47150, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12186 AND `OptionID`=16;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47151, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12186 AND `OptionID`=17;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47152, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12186 AND `OptionID`=18;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12186 AND `OptionID`=19;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47145, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12188 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47149, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12188 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12188 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12188 AND `OptionID`=15;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47146, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12189 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47148, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12189 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47150, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12189 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12189 AND `OptionID`=15;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12189 AND `OptionID`=16;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47151, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12190 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12190 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12190 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47142, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12191 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47149, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12191 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12191 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12191 AND `OptionID`=15;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47143, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12192 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12192 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12192 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47152, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12193 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12193 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12193 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47143, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12195 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12195 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12195 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47142, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12196 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12196 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12196 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47143, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12197 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12197 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12197 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47144, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12198 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12198 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12198 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47147, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12199 AND `OptionID`=12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47106, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12199 AND `OptionID`=13;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47107, `OptionType`=1, `OptionNpcflag`=1 WHERE `MenuID`=12199 AND `OptionID`=14;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47112, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12188 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47116, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12189 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47117, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12190 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47109, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12191 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47110, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12192 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47118, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12193 AND `OptionID`=10;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47111, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12193 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47119, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12195 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47113, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12196 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47114, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12197 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47115, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12198 AND `OptionID`=11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID`=47118, `OptionType`=5, `OptionNpcflag`=1 WHERE `MenuID`=12199 AND `OptionID`=11;
 
 DELETE FROM `npc_text` WHERE `ID` IN (18605, 18630, 18680, 19723, 20776, 20777);
 INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextId0`, `BroadcastTextId1`, `BroadcastTextId2`, `BroadcastTextId3`, `BroadcastTextId4`, `BroadcastTextId5`, `BroadcastTextId6`, `BroadcastTextId7`, `VerifiedBuild`) VALUES
