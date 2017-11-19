@@ -17,28 +17,30 @@
  */
 
 /*
- * Scripts for spells with SPELLFAMILY_DEMON_HUNTER and SPELLFAMILY_GENERIC spells used by deathknight players.
+ * Scripts for spells with SPELLFAMILY_DEMON_HUNTER and SPELLFAMILY_GENERIC spells used by demon hunter players.
  * Ordered alphabetically using scriptname.
  * Scriptnames of files in this file should be prefixed with "spell_dh_".
  */
 
-#include "Player.h"
+#include <chrono>
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "ObjectAccessor.h"
+#include "PathGenerator.h"
+#include "Player.h"
+#include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "Containers.h"
-#include "PathGenerator.h"
 #include "SpellPackets.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
 #include "World.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "ScriptedGossip.h"
-#include <chrono>
 
 enum DHSpells
 {
@@ -856,7 +858,7 @@ public:
                     bp = SPELL_DH_CONSUME_SOUL_10_VENG;
                     break;
                 }
-                if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 200))
+                if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 200))
                 {
                     tempSumm->setFaction(caster->getFaction());
                     tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
@@ -2035,9 +2037,9 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                caster->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                 caster->SetFall(true);
                 caster->SetDisableGravity(false);
+                caster->SendSetPlayHoverAnim(false);
             }
         }
 
