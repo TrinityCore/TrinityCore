@@ -67,6 +67,7 @@ enum PaladinSpells
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGEMENT_DAMAGE               = 54158,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
+    SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
     SPELL_PALADIN_SANCTIFIED_WRATH               = 57318,
     SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1     = 53375,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742
@@ -365,13 +366,13 @@ class spell_pal_blessing_of_protection : public SpellScript
     
     bool Validate(SpellInfo const* /*SpellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE });
+        return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE, SPELL_PALADIN_IMMUNE_SHIELD_MARKER });
     }
     SpellCastResult Forbearance()
     {
         if (Unit* caster = GetCaster())
         {
-            if(caster->HasAura(SPELL_PALADIN_FORBEARANCE))
+            if(caster->HasAura(SPELL_PALADIN_FORBEARANCE) || caster->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
                 return SPELL_FAILED_TARGET_AURASTATE;
         }
         return SPELL_CAST_OK;
@@ -380,7 +381,10 @@ class spell_pal_blessing_of_protection : public SpellScript
     void HandleOnHit()
     {
         if (Unit* caster = GetCaster())
+        {
             caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
+            caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
+        }
     }
     
     void Register() override
@@ -503,6 +507,8 @@ class spell_pal_divine_shield : public SpellScript
     {
         return ValidateSpellInfo
         ({
+            SPELL_PALADIN_FORBEARANCE,
+            SPELL_PALADIN_IMMUNE_SHIELD_MARKER,
             SPELL_PALADIN_FINAL_STAND,
             SPELL_PALADIN_FINAL_STAND_EFFECT
         });
@@ -512,7 +518,7 @@ class spell_pal_divine_shield : public SpellScript
     {
         if (Unit* caster = GetCaster())
         {
-            if (caster->HasAura(SPELL_PALADIN_FORBEARANCE))
+            if(caster->HasAura(SPELL_PALADIN_FORBEARANCE) || caster->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
                 return SPELL_FAILED_TARGET_AURASTATE;
         }
         return SPELL_CAST_OK;
@@ -524,6 +530,7 @@ class spell_pal_divine_shield : public SpellScript
             if (caster->HasAura(SPELL_PALADIN_FINAL_STAND))
                 caster->CastSpell(caster, SPELL_PALADIN_FINAL_STAND_EFFECT, true);
             caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
+            caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
         }
     }
     
@@ -947,14 +954,14 @@ class spell_pal_lay_on_hands : public SpellScript
     
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE });
+        return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE, SPELL_PALADIN_IMMUNE_SHIELD_MARKER });
     }
     
     SpellCastResult Forbearance()
     {
         if (Unit* caster = GetCaster())
         {
-            if (caster->HasAura(SPELL_PALADIN_FORBEARANCE))
+            if(caster->HasAura(SPELL_PALADIN_FORBEARANCE) || caster->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
                 return SPELL_FAILED_TARGET_AURASTATE;
         }
         return SPELL_CAST_OK;
@@ -963,7 +970,10 @@ class spell_pal_lay_on_hands : public SpellScript
     void HandleOnHit()
     {
         if (Unit* caster = GetCaster())
+        {
             caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
+            caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
+        }
     }
     
     void Register() override
