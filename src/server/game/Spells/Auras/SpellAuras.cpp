@@ -995,6 +995,9 @@ bool Aura::CanBeSaved() const
     if (IsPassive())
         return false;
 
+    if (GetSpellInfo()->IsChanneled())
+        return false;
+
     // Check if aura is single target, not only spell info
     if (GetCasterGUID() != GetOwner()->GetGUID() || IsSingleTarget())
         if (GetSpellInfo()->IsSingleTarget())
