@@ -355,7 +355,7 @@ class spell_pal_blinding_light : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_pal_blinding_light::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
-}
+};
 
 // 190784 - Divine Steed
 class spell_pal_divine_steed : public SpellScriptLoader
