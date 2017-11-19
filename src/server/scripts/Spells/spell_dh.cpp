@@ -2778,8 +2778,8 @@ public:
             if (!caster || !dest)
                 return;
 
-            caster->GetSpellHistory()->RestoreCharge(GetSpellInfo()->ChargeCategoryId);
-            caster->GetSpellHistory()->ForceSendSetSpellCharges(sSpellCategoryStore.LookupEntry(GetSpellInfo()->ChargeCategoryId));
+            /*caster->GetSpellHistory()->RestoreCharge(GetSpellInfo()->ChargeCategoryId);
+            caster->GetSpellHistory()->ForceSendSetSpellCharges(sSpellCategoryStore.LookupEntry(GetSpellInfo()->ChargeCategoryId));*/
             caster->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_DH_INFERNAL_STRIKE_JUMP, true);
             caster->CastSpell(caster, SPELL_DH_INFERNAL_STRIKE_VISUAL, true);
         }
