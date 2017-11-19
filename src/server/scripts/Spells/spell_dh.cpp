@@ -1499,32 +1499,23 @@ public:
 
         int32 _charges;
 
-        bool Load() override
-        {
-            Unit* caster = GetCaster();
-            while (caster->GetSpellHistory()->HasCharge(sSpellMgr->GetSpellInfo(SPELL_DH_FEL_BARRAGE)->ChargeCategoryId))
-            {
-                caster->GetSpellHistory()->ConsumeCharge(sSpellMgr->GetSpellInfo(SPELL_DH_FEL_BARRAGE)->ChargeCategoryId);
-                _charges++;
-                caster->GetSpellHistory()->ForceSendSetSpellCharges(sSpellCategoryStore.LookupEntry(GetSpellInfo()->ChargeCategoryId));
-            }
-            return true;
-        }
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_FEL_BARRAGE)||
+            if (!sSpellMgr->GetSpellInfo(SPELL_DH_FEL_BARRAGE) ||
                 !sSpellMgr->GetSpellInfo(SPELL_DH_FEL_BARRAGE_TRIGGER))
                 return false;
             return true;
         }
 
+        bool Load() override
+        {
+            _charges = GetCaster()->GetSpellHistory()->GetChargeCount(sSpellMgr->GetSpellInfo(SPELL_DH_FEL_BARRAGE)->ChargeCategoryId);
+            return true;
+        }
+
         void HandleTrigger(AuraEffect const* /*aurEff*/)
         {
-            Unit* caster = GetCaster();
-            Unit* target = GetTarget();
-
-            caster->CastCustomSpell(target, SPELL_DH_FEL_BARRAGE_TRIGGER, &_charges, NULL, NULL, true);
+            GetCaster()->CastCustomSpell(GetTarget(), SPELL_DH_FEL_BARRAGE_TRIGGER, &_charges, NULL, NULL, true);
         }
 
         void Register() override
