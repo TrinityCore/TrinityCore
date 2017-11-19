@@ -915,6 +915,20 @@ bool SpellHistory::HasCharge(uint32 chargeCategoryId) const
     return itr == _categoryCharges.end() || int32(itr->second.size()) < maxCharges;
 }
 
+int32 SpellHistory::GetChargeCount(uint32 chargeCategoryId) const
+{
+    // Check if the spell is currently using charges (untalented warlock Dark Soul)
+    int32 maxCharges = GetMaxCharges(chargeCategoryId);
+    if (maxCharges <= 0)
+        return 0;
+
+    auto const itr = _categoryCharges.find(chargeCategoryId);
+    if (itr == _categoryCharges.end())
+        return 0;
+
+    return std::min(int32(itr->second.size()), maxCharges);
+}
+
 int32 SpellHistory::GetMaxCharges(uint32 chargeCategoryId) const
 {
     SpellCategoryEntry const* chargeCategoryEntry = sSpellCategoryStore.LookupEntry(chargeCategoryId);
