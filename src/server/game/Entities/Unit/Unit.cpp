@@ -9282,7 +9282,7 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_DAMAGE_RANGED:       UpdateDamagePhysical(RANGED_ATTACK);  break;
 
         default:
-            ABORT("Not implemented UnitMod %u", unitMod);
+            ASSERT(false, "Not implemented UnitMod %u", unitMod);
             break;
     }
 
