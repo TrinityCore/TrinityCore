@@ -40,6 +40,7 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN = 37879,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
+    SPELL_PALADIN_BLINDING_LIGHT_EFFECT          = 105421,
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
     SPELL_PALADIN_DIVINE_STEED_HUMAN             = 221883,
@@ -333,6 +334,30 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
             return new spell_pal_blessing_of_faith_SpellScript();
         }
 };
+
+// 115750 - Blinding Light
+class spell_pal_blinding_light : public SpellScript
+{
+    PrepareSpellScript(spell_pal_blinding_light);
+    
+    bool Validate(SpellInfo const* /*spellinfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_BLINDING_LIGHT_EFFECT });
+    }
+    
+    void HandleDummy(SpellEffIndex /*effind*/)
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            GetCaster()->CastSpell(target, SPELL_PALADIN_BLINDING_LIGHT_EFFECT, true);  
+        }
+    }
+    
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_blinding_light::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+}
 
 // 190784 - Divine Steed
 class spell_pal_divine_steed : public SpellScriptLoader
@@ -1329,6 +1354,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_aura_mastery_immune();
     new spell_pal_avenging_wrath();
     new spell_pal_blessing_of_faith();
+    RegisterSpellScript(spell_pal_blinding_light);
     new spell_pal_divine_steed();
     new spell_pal_divine_storm();
     new spell_pal_exorcism_and_holy_wrath_damage();
