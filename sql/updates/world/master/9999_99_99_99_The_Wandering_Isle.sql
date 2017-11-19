@@ -7759,6 +7759,7 @@ UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAtta
 UPDATE `creature_template` SET `minlevel`=7, `maxlevel`=7, `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33587720, `unit_flags2`=2048, `VehicleId`=1800, `AIName`='SmartAI', `InhabitType`=4 WHERE `entry`=55685;
 UPDATE `creature_template` SET `minlevel`=7, `maxlevel`=7, `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33544, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=55694;
 UPDATE `creature_template` SET `unit_flags`=32768, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=55632;
+UPDATE `creature_template` SET `ScriptName`='npc_ruk_ruk' WHERE `entry`=55634;
 UPDATE `creature_template` SET `lootid`=55601, `AIName`='SmartAI' WHERE `entry`=55601;
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=256, `unit_flags2`=67110912 WHERE `entry`=64322;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=8, `unit_flags2`=67635200, `VehicleId`=1950, `AIName`='SmartAI' WHERE `entry`=57690;
@@ -10986,23 +10987,23 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (59988, 0, 3, 4, 38, 0, 100, 0, 2, 2, 0, 0, 59, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Walk'),
 (59988, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
 (59988, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 69, 20, 0, 0, 0, 0, 0, 8, 0, 0, 0, 569.153, 3582.24, 94.95621, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
-(59988, 0, 6, 7, 34, 0, 100, 0, 8, 20, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 3.054326, 'Ji Firepaw - On Movement Inform - Set Orientation'),
-(59988, 0, 7, 8, 61, 0, 100, 0, 0, 0, 0, 0, 17, 433, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Movement Inform - Set Emote State'),
-(59988, 0, 8, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5998800, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Movement Inform - Run Script'),
-(5998800, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
--- (5998800, 9, 1, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 128, 15801, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Play Spell Visual Kit'),
-(5998800, 9, 2, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 45, 3, 3, 0, 0, 0, 0, 11, 59989, 10, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Data'),
-(5998800, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 59, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Run'),
-(59988, 0, 9, 10, 38, 0, 100, 0, 4, 4, 0, 0, 69, 21, 0, 0, 0, 0, 0, 8, 0, 0, 0, 571.661, 3578.93, 94.99271, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
-(59988, 0, 10, 0, 61, 0, 100, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Emote State'),
-(59988, 0, 11, 12, 38, 0, 100, 0, 5, 5, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
-(59988, 0, 12, 0, 61, 0, 100, 0, 0, 0, 0, 0, 53, 1, 5998800, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Start WP'),
-(59988, 0, 13, 0, 58, 0, 100, 0, 9, 5998800, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 2.49739, 'Ji Firepaw - On WP Ended - Set Orientation'),
-(59988, 0, 14, 0, 8, 0, 100, 1, 115420, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 2.513274, 'Ji Firepaw - On Spellhit - Set Orientation'),
-(59988, 0, 15, 0, 38, 0, 100, 0, 6, 3, 0, 0, 1, 3, 7000, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
-(59988, 0, 16, 0, 52, 0, 100, 0, 3, 59988, 0, 0, 45, 6, 4, 0, 0, 0, 0, 11, 60042, 5, 0, 0, 0, 0, 0, 'Ji Firepaw - On Text Over - Set Data'),
-(59988, 0, 17, 18, 38, 0, 100, 0, 6, 5, 0, 0, 1, 4, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
-(59988, 0, 18, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 60000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Despawn'),
+(59988, 0, 6, 0, 34, 0, 100, 0, 8, 20, 0, 0, 80, 5998800, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Movement Inform - Run Script'),
+(5998800, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 3.054326, 'Ji Firepaw - Set Orientation'),
+(5998800, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 433, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Emote State'),
+(5998800, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+(5998800, 9, 3, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 128, 15801, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Play Spell Visual Kit'),
+(5998800, 9, 4, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 45, 3, 3, 0, 0, 0, 0, 11, 59989, 10, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Data'),
+(5998800, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 59, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Run'),
+(59988, 0, 7, 8, 38, 0, 100, 0, 4, 4, 0, 0, 69, 21, 0, 0, 0, 0, 0, 8, 0, 0, 0, 571.661, 3578.93, 94.99271, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
+(59988, 0, 8, 0, 61, 0, 100, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Emote State'),
+(59988, 0, 9, 10, 38, 0, 100, 0, 5, 5, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
+(59988, 0, 10, 0, 61, 0, 100, 0, 0, 0, 0, 0, 53, 1, 5998800, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Start WP'),
+(59988, 0, 11, 0, 58, 0, 100, 0, 9, 5998800, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 2.49739, 'Ji Firepaw - On WP Ended - Set Orientation'),
+(59988, 0, 12, 0, 8, 0, 100, 1, 115420, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 2.513274, 'Ji Firepaw - On Spellhit - Set Orientation'),
+(59988, 0, 13, 0, 38, 0, 100, 0, 6, 3, 0, 0, 1, 3, 7000, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
+(59988, 0, 14, 0, 52, 0, 100, 0, 3, 59988, 0, 0, 45, 6, 4, 0, 0, 0, 0, 11, 60042, 5, 0, 0, 0, 0, 0, 'Ji Firepaw - On Text Over - Set Data'),
+(59988, 0, 15, 16, 38, 0, 100, 0, 6, 5, 0, 0, 1, 4, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
+(59988, 0, 16, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 60000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Despawn'),
 -- Jojo Ironbrow
 (59989, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 53, 1, 59989, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On Data Set - Start WP'),
 (59989, 0, 1, 2, 58, 0, 100, 0, 12, 59989, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 2.986894, 'Jojo Ironbrow - On WP Ended - Set Orientation'),
@@ -11017,8 +11018,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5998900, 9, 2, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 11, 115443, 2, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Pei-Wu Gate Entrance Credit'),
 (5998900, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 84034, 2, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Update Zone Auras and Phase Shift (Demon Creator)'),
 (5998900, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 20, 0, 0, 0, 0, 0, 8, 0, 0, 0, 569.9028, 3582.063, 95.02676, 0, 'Jojo Ironbrow - Move to Pos'),
--- (59989, 0, 8, 9, 34, 0, 100, 0, 8, 20, 0, 0, 128, 28180, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On Movement Inform - Play Spell Visual Kit'),
-(59989, 0, 9, 0, 34, 0, 100, 0, 8, 20, 0, 0, 80, 5998901, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On Movement Inform - Run Script'),
+(59989, 0, 8, 9, 34, 0, 100, 0, 8, 20, 0, 0, 128, 28180, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On Movement Inform - Play Spell Visual Kit'),
+(59989, 0, 9, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5998901, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On Movement Inform - Run Script'),
 (5998901, 9, 0, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 9, 0, 0, 0, 0, 0, 0, 20, 211298, 3, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Activate Gameobject'),
 (5998901, 9, 1, 0, 0, 0, 100, 0, 500, 500, 0, 0, 11, 56913, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast CSA Dummy Effect Self'),
 (5998901, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 5, 5, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Data'),
@@ -12158,7 +12159,7 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (60729, 13, 242.6622, 4008.173, 88.57216, ''),
 (60729, 14, 235.0417, 4007.537, 87.66889, 'Set Orientation');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (114698, 116421, 128598, 96733, 102207, 102522, 107050, 103069, 117033, 117034, 117035, 117036, 116810, 117054, 128589, 128588, 119073, 104126, 109144, 60603, 108806, 129341, 117400);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (114698, 116421, 128598, 96733, 102207, 102522, 107050, 103069, 117033, 117034, 117035, 117036, 116810, 117054, 128589, 128588, 119073, 125699, 104126, 109144, 60603, 108806, 129341, 117400);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (114698, 'spell_summon_troublemaker'),
 (116421, 'spell_meditation_timer_bar'),
@@ -12176,6 +12177,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (128589, 'spell_aysa_congrats_timer'),
 (128588, 'spell_aysa_congrats_trigger_aura'),
 (119073, 'spell_gen_creature_permanent_feign_death'),
+(125699, 'spell_ruk_ruk_ooksplosions'),
 (104126, 'spell_monkey_wisdom_text'),
 (109144, 'spell_master_shang_final_escort_say'),
 (60603, 'spell_gen_eject_passenger'),

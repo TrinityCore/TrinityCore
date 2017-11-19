@@ -569,7 +569,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
     // 118 - 127 : 3.3.5 reserved
-    SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
+    SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim, 4 = spellVisualKit)
     SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
     SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
 
@@ -1103,14 +1103,6 @@ struct SmartAction
         {
             uint32 sceneId;
         } scene;
-
-        struct
-        {
-            uint32 radius;
-            uint32 clockwise;
-            uint32 steps;
-            uint32 run;
-        } moveCircle;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
