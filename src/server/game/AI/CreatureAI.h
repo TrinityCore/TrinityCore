@@ -157,6 +157,9 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         void OnCharmed(bool apply) override;
 
+        // Called when a spell cast gets interrupted
+        virtual void OnSpellCastInterrupt(SpellInfo const* /*spell*/) { }
+
         // Called at reaching home after evade
         virtual void JustReachedHome() { }
 

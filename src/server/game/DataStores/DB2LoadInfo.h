@@ -5096,6 +5096,25 @@ struct WmoAreaTableLoadInfo
     }
 };
 
+struct WorldEffectLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TargetAsset" },
+            { false, FT_SHORT, "CombatConditionID" },
+            { false, FT_BYTE, "TargetType" },
+            { false, FT_BYTE, "WhenToDisplay" },
+            { false, FT_INT, "QuestFeedbackEffectID" },
+            { false, FT_INT, "PlayerConditionID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldEffectMeta::Instance(), HOTFIX_SEL_WORLD_EFFECT);
+        return &loadInfo;
+    }
+};
+
 struct WorldMapAreaLoadInfo
 {
     static DB2LoadInfo const* Instance()
