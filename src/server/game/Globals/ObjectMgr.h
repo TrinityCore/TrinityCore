@@ -650,28 +650,28 @@ struct PointOfInterest
 
 struct GossipMenuItems
 {
-    uint32          MenuId;
-    uint32          OptionIndex;
-    uint8           OptionIcon;
-    std::string     OptionText;
-    uint32          OptionBroadcastTextId;
-    uint32          OptionType;
-    uint64          OptionNpcflag;
-    uint32          ActionMenuId;
-    uint32          ActionPoiId;
-    bool            BoxCoded;
-    uint32          BoxMoney;
-    std::string     BoxText;
-    uint32          BoxBroadcastTextId;
-    uint32          TrainerId;
+    uint32               MenuID;
+    uint32               OptionID;
+    uint8                OptionIcon;
+    std::string          OptionText;
+    uint32               OptionBroadcastTextID;
+    uint32               OptionType;
+    uint64               OptionNpcFlag;
+    uint32               ActionMenuID;
+    uint32               ActionPoiID;
+    bool                 BoxCoded;
+    uint32               BoxMoney;
+    std::string          BoxText;
+    uint32               BoxBroadcastTextID;
+    uint32               TrainerId;
     ConditionContainer   Conditions;
 };
 
 struct GossipMenus
 {
-    uint32          entry;
-    uint32          text_id;
-    ConditionContainer   conditions;
+    uint32               MenuID;
+    uint32               TextID;
+    ConditionContainer   Conditions;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
@@ -867,7 +867,7 @@ class TC_GAME_API ObjectMgr
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry) const;
         GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
-        int LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32> *skip_vendors);
+        int LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *skip_vendors);
 
         void LoadGameObjectTemplate();
         void LoadGameObjectTemplateAddons();
@@ -1391,9 +1391,9 @@ class TC_GAME_API ObjectMgr
             return &iter->second;
         }
 
-        void AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist = true); // for event
+        void AddVendorItem(uint32 entry, VendorItem const& vItem, bool persist = true); // for event
         bool RemoveVendorItem(uint32 entry, uint32 item, uint8 type, bool persist = true); // for event
-        bool IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type, Player* player = nullptr, std::set<uint32>* skip_vendors = nullptr, uint32 ORnpcflag = 0) const;
+        bool IsVendorItemValid(uint32 vendor_entry, VendorItem const& vItem, Player* player = nullptr, std::set<uint32>* skip_vendors = nullptr, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
         ScriptNameContainer const& GetAllScriptNames() const;

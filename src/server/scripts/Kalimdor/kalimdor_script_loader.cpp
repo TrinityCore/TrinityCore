@@ -111,7 +111,6 @@ void AddSC_orgrimmar();
 void AddSC_silithus();
 void AddSC_stonetalon_mountains();
 void AddSC_tanaris();
-void AddSC_teldrassil();
 void AddSC_the_barrens();
 void AddSC_thousand_needles();
 void AddSC_thunder_bluff();
@@ -209,7 +208,6 @@ void AddKalimdorScripts()
     AddSC_silithus();
     AddSC_stonetalon_mountains();
     AddSC_tanaris();
-    AddSC_teldrassil();
     AddSC_the_barrens();
     AddSC_thousand_needles();
     AddSC_thunder_bluff();

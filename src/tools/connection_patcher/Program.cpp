@@ -81,7 +81,7 @@ namespace Connection_Patcher
 
             std::cout << "patching launcher login parameters location\n";
             // change registry/CFPreferences path
-            patcher->Patch(Patches::Common::LauncherLoginParametersLocation(), Patterns::Common::LauncherLoginParametersLocation());
+            patcher->Patch(PATCH::LauncherLoginParametersLocation(), PATTERN::LauncherLoginParametersLocation());
 
             patcher->Finish(output);
 

@@ -173,7 +173,7 @@ class TC_GAME_API ArenaTeam
 
 
 
-        void FinishWeek();
+        bool FinishWeek(); // returns true if arena team played this week
         void FinishGame(int32 mod);
 
     protected:

@@ -221,6 +221,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
         ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting
 
+        GameObject* GetLinkedTrap();
+        void SetLinkedTrap(GameObject* linkedTrap) { m_linkedTrap = linkedTrap->GetGUID(); }
+
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id) const override;
         bool ActivateToQuest(Player* target) const;
@@ -286,6 +289,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint16 GetAIAnimKitId() const override { return _animKitId; }
         void SetAnimKitId(uint16 animKitId, bool oneshot);
 
+        uint32 GetWorldEffectID() const { return _worldEffectID; }
+        void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
+
         void AIM_Destroy();
         bool AIM_Initialize();
 
@@ -324,6 +330,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid m_lootRecipient;
         ObjectGuid m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
+
+        ObjectGuid m_linkedTrap;
+
     private:
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
@@ -338,5 +347,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         GameObjectAI* m_AI;
         uint16 _animKitId;
+        uint32 _worldEffectID;
 };
 #endif

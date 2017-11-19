@@ -353,12 +353,8 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
 
     _gossipMenuItemsLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT menu_id, id, "
-        "option_text_loc1, box_text_loc1, option_text_loc2, box_text_loc2, "
-        "option_text_loc3, box_text_loc3, option_text_loc4, box_text_loc4, "
-        "option_text_loc5, box_text_loc5, option_text_loc6, box_text_loc6, "
-        "option_text_loc7, box_text_loc7, option_text_loc8, box_text_loc8 "
-        "FROM locales_gossip_menu_option");
+    //                                               0       1            2       3           4
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
 
     if (!result)
         return;
@@ -367,19 +363,21 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     {
         Field* fields = result->Fetch();
 
-        uint16 menuId   = fields[0].GetUInt16();
-        uint16 id       = fields[1].GetUInt16();
 
-        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, id)];
+        uint16 menuId           = fields[0].GetUInt16();
+        uint16 optionId         = fields[1].GetUInt16();
+        std::string localeName  = fields[2].GetString();
+        std::string optionText  = fields[3].GetString();
+        std::string boxText     = fields[4].GetString();
 
-        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[2 + 2 * (i - 1)].GetString(), locale, data.OptionText);
-            AddLocaleString(fields[2 + 2 * (i - 1) + 1].GetString(), locale, data.BoxText);
-        }
-    }
-    while (result->NextRow());
+        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, optionId)];
+        LocaleConstant locale       = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
+
+        AddLocaleString(optionText, locale, data.OptionText);
+        AddLocaleString(boxText, locale, data.BoxText);
+    } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_option locale strings in %u ms", uint32(_gossipMenuItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
@@ -442,12 +440,10 @@ void ObjectMgr::LoadCreatureTemplates()
     }
 
     _creatureTemplateStore.rehash(result->GetRowCount());
-    uint32 count = 0;
     do
     {
         Field* fields = result->Fetch();
         LoadCreatureTemplate(fields);
-        ++count;
     }
     while (result->NextRow());
 
@@ -455,7 +451,7 @@ void ObjectMgr::LoadCreatureTemplates()
     for (CreatureTemplateContainer::const_iterator itr = _creatureTemplateStore.begin(); itr != _creatureTemplateStore.end(); ++itr)
         CheckCreatureTemplate(&itr->second);
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u creature definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u creature definitions in %u ms", uint32(_creatureTemplateStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureTemplate(Field* fields)
@@ -869,7 +865,10 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
     FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);
     if (!factionTemplate)
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction template (%u).", cInfo->Entry, cInfo->faction);
+    {
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction template (%u). This can lead to crashes, set to faction 35.", cInfo->Entry, cInfo->faction);
+        const_cast<CreatureTemplate*>(cInfo)->faction = sFactionTemplateStore.AssertEntry(35)->ID; // this might seem stupid but all shit will would break if faction 35 did not exist
+    }
 
     // used later for scale
     CreatureDisplayInfoEntry const* displayScaleEntry = nullptr;
@@ -1198,8 +1197,8 @@ void ObjectMgr::LoadGameObjectAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0     1                 2                 3                 4                 5                 6
-    QueryResult result = WorldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue FROM gameobject_addon");
+    //                                               0     1                 2                 3                 4                 5                 6                  7
+    QueryResult result = WorldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue, WorldEffectID FROM gameobject_addon");
 
     if (!result)
     {
@@ -1225,6 +1224,7 @@ void ObjectMgr::LoadGameObjectAddons()
         gameObjectAddon.ParentRotation = QuaternionData(fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
         gameObjectAddon.invisibilityType = InvisibilityType(fields[5].GetUInt8());
         gameObjectAddon.InvisibilityValue = fields[6].GetUInt32();
+        gameObjectAddon.WorldEffectID = fields[7].GetUInt32();
 
         if (gameObjectAddon.invisibilityType >= TOTAL_INVISIBILITY_TYPES)
         {
@@ -1243,6 +1243,12 @@ void ObjectMgr::LoadGameObjectAddons()
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid parent rotation in `gameobject_addon`, set to default", guid);
             gameObjectAddon.ParentRotation = QuaternionData();
+        }
+
+        if (gameObjectAddon.WorldEffectID && !sWorldEffectStore.LookupEntry(gameObjectAddon.WorldEffectID))
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid WorldEffectID (%u) in `gameobject_addon`, set to 0.", guid, gameObjectAddon.WorldEffectID);
+            gameObjectAddon.WorldEffectID = 0;
         }
 
         ++count;
@@ -5825,6 +5831,10 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                     stmt->setUInt64(0, itr2->item_guid);
                     CharacterDatabase.Execute(stmt);
                 }
+
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
+                stmt->setUInt32(0, m->messageID);
+                CharacterDatabase.Execute(stmt);
             }
             else
             {
@@ -7125,8 +7135,8 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3        4
-    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold FROM gameobject_template_addon");
+    //                                                0       1       2      3        4        5
+    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, WorldEffectID FROM gameobject_template_addon");
 
     if (!result)
     {
@@ -7149,10 +7159,11 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         }
 
         GameObjectTemplateAddon& gameObjectAddon = _gameObjectTemplateAddonStore[entry];
-        gameObjectAddon.faction = uint32(fields[1].GetUInt16());
-        gameObjectAddon.flags   = fields[2].GetUInt32();
-        gameObjectAddon.mingold = fields[3].GetUInt32();
-        gameObjectAddon.maxgold = fields[4].GetUInt32();
+        gameObjectAddon.faction       = uint32(fields[1].GetUInt16());
+        gameObjectAddon.flags         = fields[2].GetUInt32();
+        gameObjectAddon.mingold       = fields[3].GetUInt32();
+        gameObjectAddon.maxgold       = fields[4].GetUInt32();
+        gameObjectAddon.WorldEffectID = fields[5].GetUInt32();
 
         // checks
         if (gameObjectAddon.faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
@@ -7169,6 +7180,12 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
                     TC_LOG_ERROR("sql.sql", "GameObject (Entry %u GoType: %u) cannot be looted but has maxgold set in `gameobject_template_addon`.", entry, got->type);
                     break;
             }
+        }
+
+        if (gameObjectAddon.WorldEffectID && !sWorldEffectStore.LookupEntry(gameObjectAddon.WorldEffectID))
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid WorldEffectID (%u) defined in `gameobject_template_addon`, set to 0.", entry, gameObjectAddon.WorldEffectID);
+            gameObjectAddon.WorldEffectID = 0;
         }
 
         ++count;
@@ -8666,12 +8683,11 @@ void ObjectMgr::LoadCreatureDefaultTrainers()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " default trainers in %u ms", _creatureDefaultTrainers.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 referenceType, std::set<uint32> *skip_vendors)
+int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *skip_vendors)
 {
     // find all items from the reference vendor
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NPC_VENDOR_REF);
     stmt->setUInt32(0, uint32(item));
-    stmt->setUInt8(1, referenceType);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -8686,20 +8702,27 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 referenceType
 
         // if item is a negative, its a reference
         if (item_id < 0)
-            count += LoadReferenceVendor(vendor, -item_id, referenceType, skip_vendors);
+            count += LoadReferenceVendor(vendor, -item_id, skip_vendors);
         else
         {
-            int32  maxcount     = fields[1].GetUInt32();
-            uint32 incrtime     = fields[2].GetUInt32();
-            uint32 ExtendedCost = fields[3].GetUInt32();
-            uint8  type         = fields[4].GetUInt8();
+            VendorItem vItem;
+            vItem.item              = item_id;
+            vItem.maxcount          = fields[1].GetUInt32();
+            vItem.incrtime          = fields[2].GetUInt32();
+            vItem.ExtendedCost      = fields[3].GetUInt32();
+            vItem.Type              = fields[4].GetUInt8();
+            vItem.PlayerConditionId = fields[6].GetUInt32();
+            vItem.IgnoreFiltering   = fields[7].GetBool();
 
-            if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, type, nullptr, skip_vendors))
+            Tokenizer bonusListIDsTok(fields[5].GetString(), ' ');
+            for (char const* token : bonusListIDsTok)
+                vItem.BonusListIDs.push_back(int32(atol(token)));
+
+            if (!IsVendorItemValid(vendor, vItem, nullptr, skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[vendor];
-
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type);
+            vList.AddItem(std::move(vItem));
             ++count;
         }
     } while (result->NextRow());
@@ -8718,10 +8741,9 @@ void ObjectMgr::LoadVendors()
 
     std::set<uint32> skip_vendors;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type FROM npc_vendor ORDER BY entry, slot ASC");
+    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionID, IgnoreFiltering FROM npc_vendor ORDER BY entry, slot ASC");
     if (!result)
     {
-
         TC_LOG_ERROR("server.loading", ">>  Loaded 0 Vendors. DB table `npc_vendor` is empty!");
         return;
     }
@@ -8737,20 +8759,27 @@ void ObjectMgr::LoadVendors()
 
         // if item is a negative, its a reference
         if (item_id < 0)
-            count += LoadReferenceVendor(entry, -item_id, 0, &skip_vendors);
+            count += LoadReferenceVendor(entry, -item_id, &skip_vendors);
         else
         {
-            uint32 maxcount     = fields[2].GetUInt32();
-            uint32 incrtime     = fields[3].GetUInt32();
-            uint32 ExtendedCost = fields[4].GetUInt32();
-            uint8  type         = fields[5].GetUInt8();
+            VendorItem vItem;
+            vItem.item              = item_id;
+            vItem.maxcount          = fields[2].GetUInt32();
+            vItem.incrtime          = fields[3].GetUInt32();
+            vItem.ExtendedCost      = fields[4].GetUInt32();
+            vItem.Type              = fields[5].GetUInt8();
+            vItem.PlayerConditionId = fields[7].GetUInt32();
+            vItem.IgnoreFiltering   = fields[8].GetBool();
 
-            if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, type, nullptr, &skip_vendors))
+            Tokenizer bonusListIDsTok(fields[6].GetString(), ' ');
+            for (char const* token : bonusListIDsTok)
+                vItem.BonusListIDs.push_back(int32(atol(token)));
+
+            if (!IsVendorItemValid(entry, vItem, nullptr, &skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
-
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type);
+            vList.AddItem(std::move(vItem));
             ++count;
         }
     }
@@ -8765,15 +8794,15 @@ void ObjectMgr::LoadGossipMenu()
 
     _gossipMenusStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, text_id FROM gossip_menu");
+
+    //                                               0       1
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, TextID FROM gossip_menu");
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0  gossip_menu entries. DB table `gossip_menu` is empty!");
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 gossip_menu IDs. DB table `gossip_menu` is empty!");
         return;
     }
-
-    uint32 count = 0;
 
     do
     {
@@ -8781,22 +8810,19 @@ void ObjectMgr::LoadGossipMenu()
 
         GossipMenus gMenu;
 
-        gMenu.entry             = fields[0].GetUInt16();
-        gMenu.text_id           = fields[1].GetUInt32();
+        gMenu.MenuID = fields[0].GetUInt16();
+        gMenu.TextID = fields[1].GetUInt32();
 
-        if (!GetNpcText(gMenu.text_id))
+        if (!GetNpcText(gMenu.TextID))
         {
-            TC_LOG_ERROR("sql.sql", "Table gossip_menu entry %u are using non-existing text_id %u", gMenu.entry, gMenu.text_id);
+            TC_LOG_ERROR("sql.sql", "Table gossip_menu: ID %u is using non-existing TextID %u", gMenu.MenuID, gMenu.TextID);
             continue;
         }
 
-        _gossipMenusStore.insert(GossipMenusContainer::value_type(gMenu.entry, gMenu));
+        _gossipMenusStore.insert(GossipMenusContainer::value_type(gMenu.MenuID, gMenu));
+    } while (result->NextRow());
 
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu IDs in %u ms", uint32(_gossipMenusStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGossipMenuItems()
@@ -8807,26 +8833,24 @@ void ObjectMgr::LoadGossipMenuItems()
 
     QueryResult result = WorldDatabase.Query(
     //          0         1              2             3             4                        5             6
-        "SELECT o.MenuId, o.OptionIndex, o.OptionIcon, o.OptionText, o.OptionBroadcastTextId, o.OptionType, o.OptionNpcflag, "
+        "SELECT o.MenuID, o.OptionID, o.OptionIcon, o.OptionText, o.OptionBroadcastTextId, o.OptionType, o.OptionNpcflag, "
     //   7                8
-        "oa.ActionMenuId, oa.ActionPoiId, "
+        "oa.ActionMenuID, oa.ActionPoiID, "
     //   9            10           11          12
         "ob.BoxCoded, ob.BoxMoney, ob.BoxText, ob.BoxBroadcastTextId, "
     //   13
         "ot.TrainerId "
         "FROM gossip_menu_option o "
-        "LEFT JOIN gossip_menu_option_action oa ON o.MenuId = oa.MenuId AND o.OptionIndex = oa.OptionIndex "
-        "LEFT JOIN gossip_menu_option_box ob ON o.MenuId = ob.MenuId AND o.OptionIndex = ob.OptionIndex "
-        "LEFT JOIN gossip_menu_option_trainer ot ON o.MenuId = ot.MenuId AND o.OptionIndex = ot.OptionIndex "
-        "ORDER BY o.MenuId, o.OptionIndex");
+        "LEFT JOIN gossip_menu_option_action oa ON o.MenuID = oa.MenuID AND o.OptionID = oa.OptionID "
+        "LEFT JOIN gossip_menu_option_box ob ON o.MenuID = ob.MenuID AND o.OptionID = ob.OptionID "
+        "LEFT JOIN gossip_menu_option_trainer ot ON o.MenuID = ot.MenuID AND o.OptionID = ot.OptionID "
+        "ORDER BY o.MenuId, o.OptionID");
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 gossip_menu_option entries. DB table `gossip_menu_option` is empty!");
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 gossip_menu_option IDs. DB table `gossip_menu_option` is empty!");
         return;
     }
-
-    uint32 count = 0;
 
     do
     {
@@ -8834,66 +8858,64 @@ void ObjectMgr::LoadGossipMenuItems()
 
         GossipMenuItems gMenuItem;
 
-        gMenuItem.MenuId                = fields[0].GetUInt32();
-        gMenuItem.OptionIndex           = fields[1].GetUInt32();
+        gMenuItem.MenuID                = fields[0].GetUInt32();
+        gMenuItem.OptionID              = fields[1].GetUInt32();
         gMenuItem.OptionIcon            = fields[2].GetUInt8();
         gMenuItem.OptionText            = fields[3].GetString();
-        gMenuItem.OptionBroadcastTextId = fields[4].GetUInt32();
+        gMenuItem.OptionBroadcastTextID = fields[4].GetUInt32();
         gMenuItem.OptionType            = fields[5].GetUInt32();
-        gMenuItem.OptionNpcflag         = fields[6].GetUInt64();
-        gMenuItem.ActionMenuId          = fields[7].GetUInt32();
-        gMenuItem.ActionPoiId           = fields[8].GetUInt32();
+        gMenuItem.OptionNpcFlag         = fields[6].GetUInt64();
+        gMenuItem.ActionMenuID          = fields[7].GetUInt32();
+        gMenuItem.ActionPoiID           = fields[8].GetUInt32();
         gMenuItem.BoxCoded              = fields[9].GetBool();
         gMenuItem.BoxMoney              = fields[10].GetUInt32();
         gMenuItem.BoxText               = fields[11].GetString();
-        gMenuItem.BoxBroadcastTextId    = fields[12].GetUInt32();
+        gMenuItem.BoxBroadcastTextID    = fields[12].GetUInt32();
         gMenuItem.TrainerId             = fields[13].GetUInt32();
 
         if (gMenuItem.OptionIcon >= GOSSIP_ICON_MAX)
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has unknown icon id %u. Replacing with GOSSIP_ICON_CHAT", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.OptionIcon);
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionID %u has unknown icon id %u. Replacing with GOSSIP_ICON_CHAT", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.OptionIcon);
             gMenuItem.OptionIcon = GOSSIP_ICON_CHAT;
         }
 
-        if (gMenuItem.OptionBroadcastTextId)
+        if (gMenuItem.OptionBroadcastTextID)
         {
-            if (!sBroadcastTextStore.LookupEntry(gMenuItem.OptionBroadcastTextId))
+            if (!sBroadcastTextStore.LookupEntry(gMenuItem.OptionBroadcastTextID))
             {
-                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has non-existing or incompatible OptionBroadcastTextId %u, ignoring.", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.OptionBroadcastTextId);
-                gMenuItem.OptionBroadcastTextId = 0;
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionID %u has non-existing or incompatible OptionBroadcastTextID %u, ignoring.", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.OptionBroadcastTextID);
+                gMenuItem.OptionBroadcastTextID = 0;
             }
         }
 
         if (gMenuItem.OptionType >= GOSSIP_OPTION_MAX)
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has unknown option id %u. Option will not be used", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.OptionType);
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuID %u, OptionID %u has unknown option id %u. Option will not be used", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.OptionType);
 
-        if (gMenuItem.ActionPoiId && !GetPointOfInterest(gMenuItem.ActionPoiId))
+        if (gMenuItem.ActionPoiID && !GetPointOfInterest(gMenuItem.ActionPoiID))
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u use non-existing action_poi_id %u, ignoring", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.ActionPoiId);
-            gMenuItem.ActionPoiId = 0;
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuID %u, OptionID %u use non-existing action_poi_id %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.ActionPoiID);
+            gMenuItem.ActionPoiID = 0;
         }
 
-        if (gMenuItem.BoxBroadcastTextId)
+        if (gMenuItem.BoxBroadcastTextID)
         {
-            if (!sBroadcastTextStore.LookupEntry(gMenuItem.BoxBroadcastTextId))
+            if (!sBroadcastTextStore.LookupEntry(gMenuItem.BoxBroadcastTextID))
             {
-                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has non-existing or incompatible BoxBroadcastTextId %u, ignoring.", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.BoxBroadcastTextId);
-                gMenuItem.BoxBroadcastTextId = 0;
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionID %u has non-existing or incompatible BoxBroadcastTextId %u, ignoring.", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.BoxBroadcastTextID);
+                gMenuItem.BoxBroadcastTextID = 0;
             }
         }
 
         if (gMenuItem.TrainerId && !GetTrainer(gMenuItem.TrainerId))
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option_trainer` for MenuId %u, OptionIndex %u use non-existing TrainerId %u, ignoring", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.TrainerId);
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option_trainer` for MenuId %u, OptionIndex %u use non-existing TrainerId %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.TrainerId);
             gMenuItem.TrainerId = 0;
         }
 
-        _gossipMenuItemsStore.insert(GossipMenuItemsContainer::value_type(gMenuItem.MenuId, gMenuItem));
-        ++count;
-    }
-    while (result->NextRow());
+        _gossipMenuItemsStore.insert(GossipMenuItemsContainer::value_type(gMenuItem.MenuID, gMenuItem));
+    } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_option entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_option entries in %u ms", uint32(_gossipMenuItemsStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
@@ -8910,21 +8932,21 @@ uint32 ObjectMgr::GetCreatureDefaultTrainer(uint32 creatureId) const
     return 0;
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist /*= true*/)
+void ObjectMgr::AddVendorItem(uint32 entry, VendorItem const& vItem, bool persist /*= true*/)
 {
     VendorItemData& vList = _cacheVendorItemStore[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedCost, type);
+    vList.AddItem(vItem);
 
     if (persist)
     {
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENDOR);
 
         stmt->setUInt32(0, entry);
-        stmt->setUInt32(1, item);
-        stmt->setUInt8(2, maxcount);
-        stmt->setUInt32(3, incrtime);
-        stmt->setUInt32(4, extendedCost);
-        stmt->setUInt8(5, type);
+        stmt->setUInt32(1, vItem.item);
+        stmt->setUInt8(2, vItem.maxcount);
+        stmt->setUInt32(3, vItem.incrtime);
+        stmt->setUInt32(4, vItem.ExtendedCost);
+        stmt->setUInt8(5, vItem.Type);
 
         WorldDatabase.Execute(stmt);
     }
@@ -8953,7 +8975,7 @@ bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, uint8 type, bool per
     return true;
 }
 
-bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount, uint32 incrtime, uint32 ExtendedCost, uint8 type, Player* player, std::set<uint32>* skip_vendors, uint32 ORnpcflag) const
+bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, VendorItem const& vItem, Player* player, std::set<uint32>* skip_vendors, uint32 ORnpcflag) const
 {
     CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(vendor_entry);
     if (!cInfo)
@@ -8980,42 +9002,57 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
         return false;
     }
 
-    if ((type == ITEM_VENDOR_TYPE_ITEM && !sObjectMgr->GetItemTemplate(id)) ||
-        (type == ITEM_VENDOR_TYPE_CURRENCY && !sCurrencyTypesStore.LookupEntry(id)))
+    if ((vItem.Type == ITEM_VENDOR_TYPE_ITEM && !sObjectMgr->GetItemTemplate(vItem.item)) ||
+        (vItem.Type == ITEM_VENDOR_TYPE_CURRENCY && !sCurrencyTypesStore.LookupEntry(vItem.item)))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, id, type);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, vItem.item, vItem.Type);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u, type %u), ignore", vendor_entry, id, type);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u, type %u), ignore", vendor_entry, vItem.item, vItem.Type);
         return false;
     }
 
-    if (ExtendedCost && !sItemExtendedCostStore.LookupEntry(ExtendedCost))
+    if (vItem.PlayerConditionId && !sPlayerConditionStore.LookupEntry(vItem.PlayerConditionId))
     {
-        if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, ExtendedCost);
-        else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", id, ExtendedCost, vendor_entry);
+        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with invalid PlayerConditionId (%u) for vendor (%u), ignore", vItem.item, vItem.PlayerConditionId, vendor_entry);
         return false;
     }
 
-    if (type == ITEM_VENDOR_TYPE_ITEM) // not applicable to currencies
+    if (vItem.ExtendedCost && !sItemExtendedCostStore.LookupEntry(vItem.ExtendedCost))
     {
-        if (maxcount > 0 && incrtime == 0)
+        if (player)
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, vItem.ExtendedCost);
+        else
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", vItem.item, vItem.ExtendedCost, vendor_entry);
+        return false;
+    }
+
+    if (vItem.Type == ITEM_VENDOR_TYPE_ITEM) // not applicable to currencies
+    {
+        if (vItem.maxcount > 0 && vItem.incrtime == 0)
         {
             if (player)
-                ChatHandler(player->GetSession()).PSendSysMessage("MaxCount != 0 (%u) but IncrTime == 0", maxcount);
+                ChatHandler(player->GetSession()).PSendSysMessage("MaxCount != 0 (%u) but IncrTime == 0", vItem.maxcount);
             else
-                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount` (%u) for item %u of vendor (Entry: %u) but `incrtime`=0, ignore", maxcount, id, vendor_entry);
+                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount` (%u) for item %u of vendor (Entry: %u) but `incrtime`=0, ignore", vItem.maxcount, vItem.item, vendor_entry);
             return false;
         }
-        else if (maxcount == 0 && incrtime > 0)
+        else if (vItem.maxcount == 0 && vItem.incrtime > 0)
         {
             if (player)
                 ChatHandler(player->GetSession()).PSendSysMessage("MaxCount == 0 but IncrTime<>= 0");
             else
-                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount`=0 for item %u of vendor (Entry: %u) but `incrtime`<>0, ignore", id, vendor_entry);
+                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount`=0 for item %u of vendor (Entry: %u) but `incrtime`<>0, ignore", vItem.item, vendor_entry);
             return false;
+        }
+
+        for (int32 bonusList : vItem.BonusListIDs)
+        {
+            if (!sDB2Manager.GetItemBonusList(bonusList))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u) with invalid bonus %u for vendor (%u), ignore", vItem.item, bonusList, vendor_entry);
+                return false;
+            }
         }
     }
 
@@ -9023,18 +9060,18 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
     if (!vItems)
         return true;                                        // later checks for non-empty lists
 
-    if (vItems->FindItemCostPair(id, ExtendedCost, type))
+    if (vItems->FindItemCostPair(vItem.item, vItem.ExtendedCost, vItem.Type))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, id, ExtendedCost, type);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, vItem.item, vItem.ExtendedCost, vItem.Type);
         else
-            TC_LOG_ERROR("sql.sql", "Table `npc_vendor` has duplicate items %u (with extended cost %u, type %u) for vendor (Entry: %u), ignoring", id, ExtendedCost, type, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `npc_vendor` has duplicate items %u (with extended cost %u, type %u) for vendor (Entry: %u), ignoring", vItem.item, vItem.ExtendedCost, vItem.Type, vendor_entry);
         return false;
     }
 
-    if (type == ITEM_VENDOR_TYPE_CURRENCY && maxcount == 0)
+    if (vItem.Type == ITEM_VENDOR_TYPE_CURRENCY && vItem.maxcount == 0)
     {
-        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", id, type, vendor_entry);
+        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", vItem.item, vItem.Type, vendor_entry);
         return false;
     }
 
@@ -9051,6 +9088,8 @@ void ObjectMgr::LoadScriptNames()
 
     QueryResult result = WorldDatabase.Query(
         "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
+        "UNION "
+        "SELECT DISTINCT(ScriptName) FROM conversation_template WHERE ScriptName <> '' "
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM creature WHERE ScriptName <> '' "
         "UNION "
