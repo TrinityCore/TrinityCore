@@ -18231,33 +18231,34 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
     TC_LOG_DEBUG("entities.player.loading", "Player::_LoadAuras: Loading auras for %s", GetGUID().ToString().c_str());
 
     /*
-                    0  1      2           3            4       5
-    SELECT casterGuid, spell, effectMask, effectIndex, amount, baseAmount FROM character_aura_effect WHERE guid = ?
+                    0         1      2           3            4       5           6
+    SELECT casterGuid, itemGuid, spell, effectMask, effectIndex, amount, baseAmount FROM character_aura_effect WHERE guid = ?
     */
 
-    ObjectGuid casterGuid;
+    ObjectGuid casterGuid, itemGuid;
     std::map<AuraKey, AuraLoadEffectInfo> effectInfo;
     if (effectResult)
     {
         do
         {
             Field* fields = effectResult->Fetch();
-            uint32 effectIndex = fields[3].GetUInt8();
+            uint32 effectIndex = fields[4].GetUInt8();
             if (effectIndex < MAX_SPELL_EFFECTS)
             {
                 casterGuid.SetRawValue(fields[0].GetBinary());
-                AuraKey key{ casterGuid, fields[1].GetUInt32(), fields[2].GetUInt32() };
+                itemGuid.SetRawValue(fields[1].GetBinary());
+                AuraKey key{ casterGuid, itemGuid, fields[2].GetUInt32(), fields[3].GetUInt32() };
                 AuraLoadEffectInfo& info = effectInfo[key];
-                info.Amounts[effectIndex] = fields[4].GetInt32();
-                info.BaseAmounts[effectIndex] = fields[5].GetInt32();
+                info.Amounts[effectIndex] = fields[5].GetInt32();
+                info.BaseAmounts[effectIndex] = fields[6].GetInt32();
             }
         }
         while (effectResult->NextRow());
     }
 
     /*
-                    0  1      2           3                4           5            6           7              8
-    SELECT casterGuid, spell, effectMask, recalculateMask, stackCount, maxDuration, remainTime, remainCharges, castItemLevel FROM character_aura WHERE guid = ?
+                    0         1      2           3                4           5            6           7              8              9
+    SELECT casterGuid, itemGuid, spell, effectMask, recalculateMask, stackCount, maxDuration, remainTime, remainCharges, castItemLevel FROM character_aura WHERE guid = ?
     */
     if (auraResult)
     {
@@ -18265,13 +18266,14 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
         {
             Field* fields = auraResult->Fetch();
             casterGuid.SetRawValue(fields[0].GetBinary());
-            AuraKey key{ casterGuid, fields[1].GetUInt32(), fields[2].GetUInt32() };
-            uint32 recalculateMask = fields[3].GetUInt32();
-            uint8 stackCount = fields[4].GetUInt8();
-            int32 maxDuration = fields[5].GetInt32();
-            int32 remainTime = fields[6].GetInt32();
-            uint8 remainCharges = fields[7].GetUInt8();
-            int32 castItemLevel = fields[8].GetInt32();
+            itemGuid.SetRawValue(fields[1].GetBinary());
+            AuraKey key{ casterGuid, itemGuid, fields[2].GetUInt32(), fields[3].GetUInt32() };
+            uint32 recalculateMask = fields[4].GetUInt32();
+            uint8 stackCount = fields[5].GetUInt8();
+            int32 maxDuration = fields[6].GetInt32();
+            int32 remainTime = fields[7].GetInt32();
+            uint8 remainCharges = fields[8].GetUInt8();
+            int32 castItemLevel = fields[9].GetInt32();
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(key.SpellId);
             if (!spellInfo)
@@ -18303,7 +18305,7 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
 
             AuraLoadEffectInfo& info = effectInfo[key];
             ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
-            if (Aura* aura = Aura::TryCreate(spellInfo, castId, key.EffectMask, this, nullptr, info.BaseAmounts.data(), nullptr, casterGuid, castItemLevel))
+            if (Aura* aura = Aura::TryCreate(spellInfo, castId, key.EffectMask, this, nullptr, info.BaseAmounts.data(), nullptr, casterGuid, itemGuid, castItemLevel))
             {
                 if (!aura->CanBeSaved())
                 {
@@ -20158,6 +20160,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
         stmt->setUInt64(index++, GetGUID().GetCounter());
         stmt->setBinary(index++, key.Caster.GetRawValue());
+        stmt->setBinary(index++, key.Item.GetRawValue());
         stmt->setUInt32(index++, key.SpellId);
         stmt->setUInt32(index++, key.EffectMask);
         stmt->setUInt32(index++, recalculateMask);
@@ -20176,6 +20179,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA_EFFECT);
                 stmt->setUInt64(index++, GetGUID().GetCounter());
                 stmt->setBinary(index++, key.Caster.GetRawValue());
+                stmt->setBinary(index++, key.Item.GetRawValue());
                 stmt->setUInt32(index++, key.SpellId);
                 stmt->setUInt32(index++, key.EffectMask);
                 stmt->setUInt8(index++, effect->GetEffIndex());
