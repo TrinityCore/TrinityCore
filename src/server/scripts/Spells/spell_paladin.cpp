@@ -53,6 +53,8 @@ enum PaladinSpells
     SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1          = 9799,
     SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
     SPELL_PALADIN_FORBEARANCE                    = 25771,
+    SPELL_PALADIN_FINAL_STAND                    = 204077,
+    SPELL_PALADIN_FINAL_STAND_EFFECT             = 204079,
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
     SPELL_PALADIN_HOLY_MENDING                   = 64891,
     SPELL_PALADIN_HOLY_POWER_ARMOR               = 28790,
@@ -62,7 +64,6 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
     SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
-    SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGEMENT_DAMAGE               = 54158,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
@@ -357,6 +358,37 @@ class spell_pal_blinding_light : public SpellScript
     }
 };
 
+// 1022 - Blessing of Protection
+class spell_pal_blessing_of_protection : public SpellScript
+{
+    PrepareSpellScript(spell_pal_blessing_of_protection);
+    
+    bool Validate(SpellInfo const* /*SpellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE });
+    }
+    SpellCastResult Forbearance()
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if(caster->HasAura(SPELL_PALADIN_FORBEARANCE))
+                return SPELL_FAILED_TARGET_AURASTATE;
+        }
+        return SPELL_CAST_OK;
+    }
+    
+    void HandleOnHit()
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
+    }
+    
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pal_blessing_of_protection::Forbearance);
+        OnHit += SpellHitFn(spell_pal_blessing_of_protection::HandleOnHit);
+    }
+}
 // 190784 - Divine Steed
 class spell_pal_divine_steed : public SpellScriptLoader
 {
@@ -461,6 +493,45 @@ class spell_pal_divine_storm : public SpellScriptLoader
         }
 };
 
+// 642 - Divine Shield
+class spell_pal_divine_shield : public SpellScript
+{
+    PrepareSpellScript(spell_pal_divine_shield);
+    
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PALADIN_FINAL_STAND,
+            SPELL_PALADIN_FINAL_STAND_EFFECT
+        });
+    }
+    
+    SpellCastResult Forbearance()
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (caster->HasAura(SPELL_PALADIN_FORBEARANCE))
+                return SPELL_FAILED_TARGET_AURASTATE;
+        }
+        return SPELL_CAST_OK;
+    }
+    void HandleOnHit()
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (caster->HasAura(SPELL_PALADIN_FINAL_STAND))
+                caster->CastSpell(caster, SPELL_PALADIN_FINAL_STAND_EFFECT, true);
+            caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
+        }
+    }
+    
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pal_divine_shield::Forbearance);
+        OnHit += SpellHitFn(spell_pal_divine_shield::HandleOnHit);
+    }
+}
 // 33695 - Exorcism and Holy Wrath Damage
 class spell_pal_exorcism_and_holy_wrath_damage : public SpellScriptLoader
 {
@@ -868,54 +939,37 @@ class spell_pal_judgement : public SpellScriptLoader
 };
 
 // 633 - Lay on Hands
-class spell_pal_lay_on_hands : public SpellScriptLoader
+class spell_pal_lay_on_hand : public SpellScript
 {
-    public:
-        spell_pal_lay_on_hands() : SpellScriptLoader("spell_pal_lay_on_hands") { }
-
-        class spell_pal_lay_on_hands_SpellScript : public SpellScript
+    PrepareSpellScript(spell_pal_lay_on_hand);
+    
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE });
+    }
+    
+    SpellCastResult Forbearance()
+    {
+        if (Unit* caster = GetCaster())
         {
-            PrepareSpellScript(spell_pal_lay_on_hands_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE, SPELL_PALADIN_IMMUNE_SHIELD_MARKER });
-            }
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetExplTargetUnit())
-                    if (caster == target)
-                        if (target->HasAura(SPELL_PALADIN_FORBEARANCE) || target->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
-                            return SPELL_FAILED_TARGET_AURASTATE;
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleScript()
-            {
-                Unit* caster = GetCaster();
-                if (caster == GetHitUnit())
-                {
-                    caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
-                    caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hands_SpellScript::CheckCast);
-                AfterHit += SpellHitFn(spell_pal_lay_on_hands_SpellScript::HandleScript);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_lay_on_hands_SpellScript();
+            if (caster->HasAura(SPELL_PALADIN_FORBEARANCE))
+                return SPELL_FAILED_TARGET_AURASTATE;
         }
-};
-
+        return SPELL_CAST_OK;
+    }
+    
+    void HandleOnHit()
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
+    }
+    
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hand::Forbearance);
+        OnHit += SpellHitFn(spell_pal_lay_on_hand::HandleOnHit);
+    }
+}
 // 53651 - Light's Beacon - Beacon of Light
 class spell_pal_light_s_beacon : public SpellScriptLoader
 {
@@ -1353,8 +1407,10 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_avenging_wrath();
     new spell_pal_blessing_of_faith();
     RegisterSpellScript(spell_pal_blinding_light);
+    RegisterSpellScript(spell_pal_blessing_of_protection);
     new spell_pal_divine_steed();
     new spell_pal_divine_storm();
+    RegisterSpellScript(spell_pal_divine_shield);
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
     new spell_pal_glyph_of_holy_light();
@@ -1364,7 +1420,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_item_healing_discount();
     new spell_pal_item_t6_trinket();
     new spell_pal_judgement();
-    new spell_pal_lay_on_hands();
+    RegisterSpellScript(spell_pal_lay_on_hand);
     new spell_pal_light_s_beacon();
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();
