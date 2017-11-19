@@ -49,6 +49,7 @@ enum PaladinSpells
     SPELL_PALADIN_FORBEARANCE                    = 25771,
     SPELL_PALADIN_FINAL_STAND                    = 204077,
     SPELL_PALADIN_FINAL_STAND_EFFECT             = 204079,
+    SPELL_PALADIN_GAIN_HOLY_POWER_2              = 228231,
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
     SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
@@ -376,10 +377,7 @@ class spell_pal_divine_hammer : public SpellScript
     {
         if (Unit* Caster = GetCaster())
         {
-            uint32 Power = Caster->GetPower(POWER_HOLY_POWER);
-            if (Power > 3)
-                Power = 3;
-            Caster->SetPower(POWER_HOLY_POWER, Power + 2);
+            Caster->CastSpell(Caster, SPELL_PALADIN_GAIN_HOLY_POWER_2, true);
         }
     }
     
