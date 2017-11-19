@@ -894,9 +894,10 @@ class spell_pal_templar_verdict : public  SpellScript
         Unit* caster = GetCaster();
         if (Unit* target = GetHitUnit())
         {
-            caster->CastSpell(target, SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE, true);
             if (caster->HasSpell(SPELL_PALADIN_TEMPLAR_VERDICT_HOLY))
                 caster->CastSpell(target, SPELL_PALADIN_TEMPLAR_VERDICT_HOLY_DAMAGE, true);
+            else
+                caster->CastSpell(target, SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE, true);
         }
     }
     
