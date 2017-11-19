@@ -87,7 +87,6 @@ enum BRSAdditionalData
     AREATRIGGER                     = 1,
     AREATRIGGER_DRAGONSPIRE_HALL    = 2046,
     AREATRIGGER_BLACKROCK_STADIUM   = 2026,
-    DATA_SPAWN_FINKLE_EINHORN       = 2,
     SAY_FINKLE_GANG                 = 0
 };
 

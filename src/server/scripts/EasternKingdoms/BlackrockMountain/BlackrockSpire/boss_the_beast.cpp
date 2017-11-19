@@ -28,6 +28,7 @@ enum BeastSpells
     SPELL_BERSERKER_CHARGE          = 16636,
     SPELL_FIREBALL                  = 16788,
     SPELL_FIREBLAST                 = 16144,
+    SPELL_FINKLE_IS_EINHORN         = 16710,
     SPELL_SUICIDE                   = 7
 };
 
@@ -91,7 +92,7 @@ struct boss_the_beast : public BossAI
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (spell->Effects[i].IsEffect(SPELL_EFFECT_SKINNING))
                 if (!me->IsAlive()) // can that even happen?
-                    instance->SetData(DATA_SPAWN_FINKLE_EINHORN, DATA_SPAWN_FINKLE_EINHORN);
+                    DoCastAOE(SPELL_FINKLE_IS_EINHORN, true);
     }
 
     void SetData(uint32 type, uint32 /*data*/) override
@@ -157,11 +158,6 @@ struct boss_the_beast : public BossAI
         events.ScheduleEvent(EVENT_FIREBLAST, Seconds(5), Seconds(8));
     }
 
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-    }
-
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
@@ -178,16 +174,16 @@ struct boss_the_beast : public BossAI
             {
                 case EVENT_FLAME_BREAK:
                     DoCastVictim(SPELL_FLAMEBREAK);
-                    events.ScheduleEvent(EVENT_FLAME_BREAK, Seconds(10));
+                    events.Repeat(Seconds(10));
                     break;
                 case EVENT_IMMOLATE:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.f, true))
                         DoCast(target, SPELL_IMMOLATE);
-                    events.ScheduleEvent(EVENT_IMMOLATE, Seconds(8));
+                    events.Repeat(Seconds(8));
                     break;
                 case EVENT_TERRIFYING_ROAR:
                     DoCastVictim(SPELL_TERRIFYINGROAR);
-                    events.ScheduleEvent(EVENT_TERRIFYING_ROAR, Seconds(20));
+                    events.Repeat(Seconds(20));
                     break;
                 case EVENT_BERSERKER_CHARGE:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 38.f, true))
@@ -231,7 +227,7 @@ class at_trigger_the_beast_movement : public AreaTriggerScript
 public:
     at_trigger_the_beast_movement() : AreaTriggerScript("at_trigger_the_beast_movement") { }
 
-    
+
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
     {
         if (player->IsGameMaster())
