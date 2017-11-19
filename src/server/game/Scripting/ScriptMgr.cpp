@@ -20,6 +20,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Chat.h"
+#include "Conversation.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
@@ -107,6 +108,10 @@ struct is_script_database_bound<AchievementCriteriaScript>
 
 template<>
 struct is_script_database_bound<AreaTriggerEntityScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<ConversationScript>
     : std::true_type { };
 
 template<>
@@ -328,7 +333,6 @@ class ScriptRegistrySwapHooks
 {
 };
 
-/// This hook is responsible for swapping OutdoorPvP's
 template<typename Base>
 class UnsupportedScriptRegistrySwapHooks
     : public ScriptRegistrySwapHookBase
@@ -2410,6 +2414,15 @@ void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& dama
     FOREACH_SCRIPT(PlayerScript)->ModifySpellDamageTaken(target, attacker, damage);
 }
 
+// Conversation
+void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnConversationCreate(conversation, creator);
+}
+
 // Scene
 void ScriptMgr::OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {
@@ -2644,6 +2657,12 @@ AreaTriggerEntityScript::AreaTriggerEntityScript(const char* name)
     ScriptRegistry<AreaTriggerEntityScript>::Instance()->AddScript(this);
 }
 
+ConversationScript::ConversationScript(char const* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<ConversationScript>::Instance()->AddScript(this);
+}
+
 // Specialize for each script type class like so:
 template class TC_GAME_API ScriptRegistry<SpellScriptLoader>;
 template class TC_GAME_API ScriptRegistry<ServerScript>;
@@ -2672,4 +2691,5 @@ template class TC_GAME_API ScriptRegistry<GroupScript>;
 template class TC_GAME_API ScriptRegistry<UnitScript>;
 template class TC_GAME_API ScriptRegistry<AccountScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
+template class TC_GAME_API ScriptRegistry<ConversationScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;
