@@ -52,6 +52,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/util.c
   )
 
+  if (VALGRIND)
+    set(jemalloc_STAT_SRC ${jemalloc_STAT_SRC} ${CMAKE_CURRENT_SOURCE_DIR}/src/valgrind.c)
+  endif()
+
   add_library(jemalloc STATIC ${jemalloc_STAT_SRC})
 
   target_include_directories(jemalloc
