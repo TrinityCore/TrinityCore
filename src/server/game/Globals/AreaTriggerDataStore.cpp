@@ -204,7 +204,7 @@ void AreaTriggerDataStore::LoadAreaTriggers()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT guid, id, position_x, position_y, position_z, map_id, spawn_mask, scriptname FROM `areatrigger`");
+    QueryResult result = WorldDatabase.Query("SELECT guid, id, position_x, position_y, position_z, map_id, spawn_mask, ScriptName FROM `areatrigger`");
 
     if (!result)
     {
