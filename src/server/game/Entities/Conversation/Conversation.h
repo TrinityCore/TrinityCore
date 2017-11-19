@@ -89,6 +89,8 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
+        uint32 GetScriptId() const;
+
     private:
         Position _stationaryPosition;
         ObjectGuid _creatorGuid;
