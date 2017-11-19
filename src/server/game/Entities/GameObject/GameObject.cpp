@@ -597,7 +597,7 @@ void GameObject::Update(uint32 diff)
                     {
                         // Hunter trap: Search units which are unfriendly to the trap's owner
                         Trinity::NearestUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
-                        Trinity::UnitSearcher<Trinity::NearestUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
+                        Trinity::UnitLastSearcher<Trinity::NearestUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
                         Cell::VisitAllObjects(this, searcher, radius);
                     }
                     else
