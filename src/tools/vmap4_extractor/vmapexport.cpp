@@ -25,7 +25,7 @@
 #include "Banner.h"
 #include <sys/stat.h>
 
-#ifdef WIN32
+#ifdef _WIN32
     #include <direct.h>
     #define mkdir _mkdir
 #endif
