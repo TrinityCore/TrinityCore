@@ -388,7 +388,8 @@ class spell_pal_blessing_of_protection : public SpellScript
         OnCheckCast += SpellCheckCastFn(spell_pal_blessing_of_protection::Forbearance);
         OnHit += SpellHitFn(spell_pal_blessing_of_protection::HandleOnHit);
     }
-}
+};
+
 // 190784 - Divine Steed
 class spell_pal_divine_steed : public SpellScriptLoader
 {
@@ -531,7 +532,8 @@ class spell_pal_divine_shield : public SpellScript
         OnCheckCast += SpellCheckCastFn(spell_pal_divine_shield::Forbearance);
         OnHit += SpellHitFn(spell_pal_divine_shield::HandleOnHit);
     }
-}
+};
+
 // 33695 - Exorcism and Holy Wrath Damage
 class spell_pal_exorcism_and_holy_wrath_damage : public SpellScriptLoader
 {
@@ -939,9 +941,9 @@ class spell_pal_judgement : public SpellScriptLoader
 };
 
 // 633 - Lay on Hands
-class spell_pal_lay_on_hand : public SpellScript
+class spell_pal_lay_on_hands : public SpellScript
 {
-    PrepareSpellScript(spell_pal_lay_on_hand);
+    PrepareSpellScript(spell_pal_lay_on_hands);
     
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -966,10 +968,11 @@ class spell_pal_lay_on_hand : public SpellScript
     
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hand::Forbearance);
-        OnHit += SpellHitFn(spell_pal_lay_on_hand::HandleOnHit);
+        OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hands::Forbearance);
+        OnHit += SpellHitFn(spell_pal_lay_on_hands::HandleOnHit);
     }
-}
+};
+
 // 53651 - Light's Beacon - Beacon of Light
 class spell_pal_light_s_beacon : public SpellScriptLoader
 {
@@ -1420,7 +1423,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_item_healing_discount();
     new spell_pal_item_t6_trinket();
     new spell_pal_judgement();
-    RegisterSpellScript(spell_pal_lay_on_hand);
+    RegisterSpellScript(spell_pal_lay_on_hands);
     new spell_pal_light_s_beacon();
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();
