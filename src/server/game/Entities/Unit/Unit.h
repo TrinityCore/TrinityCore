@@ -375,7 +375,7 @@ enum UnitMods
     UNIT_MOD_POWER_END = UNIT_MOD_PAIN + 1
 };
 
-static_assert(UNIT_MOD_POWER_END - UNIT_MOD_POWER_START == MAX_POWERS, "UnitMods enum is wrong.");
+static_assert(UNIT_MOD_POWER_END - UNIT_MOD_POWER_START == MAX_POWERS, "UnitMods powers section does not match Powers enum!");
 
 enum BaseModGroup
 {
