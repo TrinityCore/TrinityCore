@@ -339,20 +339,18 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
 class spell_pal_blinding_light : public SpellScript
 {
     PrepareSpellScript(spell_pal_blinding_light);
-    
-    bool Validate(SpellInfo const* /*spellinfo*/) override
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PALADIN_BLINDING_LIGHT_EFFECT });
     }
-    
-    void HandleDummy(SpellEffIndex /*effind*/)
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
-        {
-            GetCaster()->CastSpell(target, SPELL_PALADIN_BLINDING_LIGHT_EFFECT, true);  
-        }
+            GetCaster()->CastSpell(target, SPELL_PALADIN_BLINDING_LIGHT_EFFECT, true);
     }
-    
+
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pal_blinding_light::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
