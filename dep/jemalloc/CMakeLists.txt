@@ -20,8 +20,8 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
 
   # Create the header, so we can use it
   configure_file(
-    "${CMAKE_SOURCE_DIR}/dep/jemalloc/jemalloc_defs.h.in.cmake"
-    "${BUILDDIR}/jemalloc_defs.h"
+    "${CMAKE_SOURCE_DIR}/dep/jemalloc/jemalloc_internal_defs.h.in.cmake"
+    "${BUILDDIR}/jemalloc_internal_defs.h"
     @ONLY
   )
 
@@ -42,6 +42,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/jemalloc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mb.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mutex.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pages.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/prof.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/quarantine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/rtree.c
