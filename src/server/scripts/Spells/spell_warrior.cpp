@@ -35,6 +35,8 @@ enum WarriorSpells
 {
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
+    SPELL_WARRIOR_BOUNDING_STRIDE                   = 202163, // Tier 4
+    SPELL_WARRIOR_BOUNDING_STRIDE_EFFECT            = 202164, // Speed
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 218104,
     SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL       = 198337,
@@ -45,9 +47,7 @@ enum WarriorSpells
     SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT             = 208086,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
-    SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
-    SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
-    SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
+    SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 94954, // jump + dmg
     SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
     SPELL_WARRIOR_IMPENDING_VICTORY_HEAL            = 202166,
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
@@ -349,7 +349,7 @@ class spell_warr_execute : public SpellScriptLoader
         }
 };
 
-// Heroic leap - 6544
+// 6544 - Heroic Leap
 class spell_warr_heroic_leap : public SpellScriptLoader
 {
 public:
@@ -361,7 +361,12 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_WARRIOR_HEROIC_LEAP_JUMP });
+            return ValidateSpellInfo(
+            {
+                SPELL_WARRIOR_HEROIC_LEAP_JUMP,
+                SPELL_WARRIOR_BOUNDING_STRIDE_EFFECT,
+                SPELL_WARRIOR_SHIELD_SLAM
+            });
         }
 
         SpellCastResult CheckElevation()
@@ -403,6 +408,12 @@ public:
         {
             if (WorldLocation* dest = GetHitDest())
                 GetCaster()->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_WARRIOR_HEROIC_LEAP_JUMP, true);
+
+            if (GetCaster()->HasAura(SPELL_WARRIOR_BOUNDING_STRIDE))
+                GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BOUNDING_STRIDE_EFFECT, true);
+
+            if (GetCaster()->HasSpell(SPELL_WARRIOR_SHIELD_SLAM))
+                GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_TAUNT, true);
         }
 
         void Register() override
@@ -415,47 +426,6 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_warr_heroic_leap_SpellScript();
-    }
-};
-
-// Heroic Leap (triggered by Heroic Leap (6544)) - 178368
-class spell_warr_heroic_leap_jump : public SpellScriptLoader
-{
-public:
-    spell_warr_heroic_leap_jump() : SpellScriptLoader("spell_warr_heroic_leap_jump") { }
-
-    class spell_warr_heroic_leap_jump_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_heroic_leap_jump_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo(
-            {
-                SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP,
-                SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF,
-                SPELL_WARRIOR_IMPROVED_HEROIC_LEAP,
-                SPELL_WARRIOR_TAUNT
-            });
-        }
-
-        void AfterJump(SpellEffIndex /*effIndex*/)
-        {
-            if (GetCaster()->HasAura(SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP))
-                GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF, true);
-            if (GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_HEROIC_LEAP))
-                GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_TAUNT, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_warr_heroic_leap_jump_SpellScript::AfterJump, EFFECT_1, SPELL_EFFECT_JUMP_DEST);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warr_heroic_leap_jump_SpellScript();
     }
 };
 
@@ -1439,7 +1409,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_concussion_blow();
     new spell_warr_execute();
     new spell_warr_heroic_leap();
-    new spell_warr_heroic_leap_jump();
     new spell_warr_impending_victory();
     new spell_warr_intimidating_shout();
     new spell_warr_item_t10_prot_4p_bonus();
