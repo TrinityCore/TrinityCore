@@ -13,15 +13,15 @@ UPDATE `gossip_menu_option` SET `ActionMenuID` = 7731 WHERE `MenuID` = 7732 AND 
 DELETE FROM `smart_scripts` WHERE (`source_type` = 0 AND `entryorguid` IN (22095, 22307, 18588)) OR (`source_type` = 1 AND `entryorguid` = 185913);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (22095, 0, 0, 0, 6, 0, 75, 0, 0, 0, 0, 0, 11, 39130, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Infested Root-Walker - On Just Died - Cast \'Summon Wood Mites\''),
-(22095, 0, 1, 0, 0, 0, 100, 1, 15000, 20000, 32000, 38000, 11, 39000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Infested Root-Walker - In Combat - Cast \'Regrowth\' (No Repeat)'),
+(22095, 0, 1, 0, 0, 0, 100, 0, 15000, 20000, 32000, 38000, 11, 39000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Infested Root-Walker - In Combat - Cast \'Regrowth\' (No Repeat)'),
 (22307, 0, 0, 0, 6, 0, 75, 0, 0, 0, 0, 0, 11, 39134, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rotting Forest-Rager - On Just Died - Cast \'Summon Lots Of Wood Mites\''),
-(22307, 0, 1, 0, 0, 0, 100, 1, 0, 5, 12000, 18000, 11, 15548, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rotting Forest-Rager - In Combat - Cast \'Thunderclap\' (No Repeat)'),
+(22307, 0, 1, 0, 0, 0, 100, 0, 0, 5, 12000, 18000, 11, 15548, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rotting Forest-Rager - In Combat - Cast \'Thunderclap\' (No Repeat)'),
 (18588, 0, 0, 0, 0, 0, 100, 0, 2000, 2000, 30000, 30000, 11, 6726, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Floon - In Combat - Cast \'Silence\''),
 (18588, 0, 1, 0, 0, 0, 100, 0, 4000, 4000, 5000, 5000, 11, 9672, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Floon - In Combat - Cast \'Frostbolt\''),
 (18588, 0, 2, 0, 0, 0, 100, 0, 9000, 9000, 20000, 20000, 11, 11831, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Floon - In Combat - Cast \'Frost Nova\''),
 (18588, 0, 3, 4, 62, 0, 100, 0, 7731, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Close Gossip'),
 (18588, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 2, 1738, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Set Faction Arrakoa'),
-(18588, 0, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Say Line 0'),
+(18588, 0, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Say Line 0'),
 (18588, 0, 6, 0, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Gossip Option 0 Selected - Start Attacking'),
 (18588, 0, 7, 0, 25, 0, 100, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Floon - On Reset - Set Default Faction'),
 (185913, 1, 0, 4, 62, 0, 100, 0, 8660, 0, 0, 0, 85, 40632, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Skull Pile - On Gossip Option 0 Selected - Invoker Cast \'Summon Gezzarak the Huntress\''),
