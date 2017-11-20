@@ -1517,7 +1517,7 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
             return;
         }
 
-        if (Aura* aura = Aura::TryCreate(m_spellInfo, m_castId, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0], nullptr, ObjectGuid::Empty, m_castItemLevel))
+        if (Aura* aura = Aura::TryCreate(m_spellInfo, m_castId, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0], nullptr, ObjectGuid::Empty, ObjectGuid::Empty, m_castItemLevel))
         {
             m_spellAura = aura;
             m_spellAura->_RegisterForTargets();
