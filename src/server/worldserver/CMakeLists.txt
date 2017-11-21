@@ -47,11 +47,20 @@ endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
-target_link_libraries(worldserver
-  PUBLIC
-    scripts
-    game
-    readline)
+if (WITH_PCR)
+    target_link_libraries(worldserver
+      PUBLIC
+        scripts
+        game
+        readline
+        ${CPR_LIBRARIES})
+else()
+    target_link_libraries(worldserver
+      PUBLIC
+        scripts
+        game
+        readline)
+endif()
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -59,11 +68,20 @@ CollectIncludeDirectories(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-target_include_directories(worldserver
-  PUBLIC
-    ${PUBLIC_INCLUDES}
-  PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR})
+if (WITH_PCR)
+    target_include_directories(worldserver
+      PUBLIC
+        ${PUBLIC_INCLUDES}
+        ${CPR_INCLUDE_DIRS}
+      PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR})
+else()
+    target_include_directories(worldserver
+      PUBLIC
+        ${PUBLIC_INCLUDES}
+      PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
 set_target_properties(worldserver
     PROPERTIES

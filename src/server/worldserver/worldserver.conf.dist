@@ -28,7 +28,8 @@
 #    ARENA CONFIG
 #    NETWORK CONFIG
 #    CONSOLE AND REMOTE ACCESS
-#    REST SERVER
+#    REST SERVICE
+#    WORLD TO DISCORD
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
 #    AUCTION HOUSE BOT SETTINGS
@@ -2927,6 +2928,28 @@ WorldREST.Port = 8082
 #        Default:     ""
 
 WorldREST.AuthToken = ""
+
+#
+###################################################################################################
+
+###################################################################################################
+# WORLD TO DISCORD
+#
+#
+#    WorldREST.Enabled
+#        Description: Enable World to Discord service.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+WorldToDiscord.Enabled = 0
+
+#
+#    WorldREST.RelayURL
+#        Description: Relay http server that will handle the http call
+#                     every 2 seconds with world channel player chats
+#        Default:     "http://127.0.0.1:8083"
+
+WorldToDiscord.RelayURL = "http://127.0.0.1:8083"
 
 #
 ###################################################################################################

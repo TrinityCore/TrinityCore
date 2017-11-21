@@ -722,7 +722,7 @@ public:
 
         void HandleDummyTick(AuraEffect const* /*aurEff*/)
         {
-            if (GameObject* circle = GetTarget()->GetGameObject(GetId()))
+            if (GetTarget()->GetGameObject(GetId()))
             {
                 Unit* l_Target = GetTarget();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT);
@@ -3066,12 +3066,11 @@ public:
         void HandleAfterHit()
         {
             if (Aura* aura = GetHitAura())
-                if (AuraEffect* auraEff = aura->GetEffect(EFFECT_0))
-                {
-                    aura->SetMaxDuration(20 * IN_MILLISECONDS);
-                    aura->SetDuration(20 * IN_MILLISECONDS);
-                    aura->RefreshDuration();
-                }
+            {
+                aura->SetMaxDuration(20 * IN_MILLISECONDS);
+                aura->SetDuration(20 * IN_MILLISECONDS);
+                aura->RefreshDuration();
+            }
         }
 
         void Register() override

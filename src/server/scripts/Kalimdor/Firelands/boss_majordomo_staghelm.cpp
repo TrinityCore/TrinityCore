@@ -243,7 +243,7 @@ class boss_majordomo_staghelm : public CreatureScript
                         case EVENT_CHECK_PHASE:
                         {
                             uint8 _phase = PHASE_CAT;
-                            if (Unit* target = me->GetVictim())
+                            if (me->GetVictim())
                             {
                                 std::list<Player*> PlayerList;
                                 me->GetPlayerListInGrid(PlayerList, 10.0f);
@@ -402,43 +402,40 @@ class spell_staghelm_concentration_aura : public SpellScriptLoader
                 if (!GetUnitOwner())
                     return;
 
-                if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_0))
-                {
-                    int32 oldamount = GetUnitOwner()->GetPower(POWER_ALTERNATE_POWER);
-                    int32 newamount = oldamount + 5;
-                    if (newamount > 100)
-                        newamount = 100;
-                    if (newamount == oldamount)
-                        return;
+                int32 oldamount = GetUnitOwner()->GetPower(POWER_ALTERNATE_POWER);
+                int32 newamount = oldamount + 5;
+                if (newamount > 100)
+                    newamount = 100;
+                if (newamount == oldamount)
+                    return;
 
-                    if (oldamount < 100 && newamount == 100)
-                    {
-                        GetUnitOwner()->RemoveAura(SPELL_EPIC_CONCENTRATION);
-                        GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_LEGENDARY_CONCENTRATION, true);
-                    }
-                    else if (oldamount < 75 && newamount >= 75)
-                    {
-                        GetUnitOwner()->RemoveAura(SPELL_RARE_CONCENTRATION);
-                        GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_EPIC_CONCENTRATION, true);
-                    }
-                    else if (oldamount < 50 && newamount >= 50)
-                    {
-                        GetUnitOwner()->RemoveAura(SPELL_UNCOMMON_CONCENTRATION);
-                        GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_RARE_CONCENTRATION, true);
-                    }
-                    else if (oldamount < 25 && newamount >= 25)
-                    {
-                        GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_UNCOMMON_CONCENTRATION, true);
-                    }
-                    else if (newamount < 25)
-                    {
-                        GetUnitOwner()->RemoveAura(SPELL_LEGENDARY_CONCENTRATION);
-                        GetUnitOwner()->RemoveAura(SPELL_EPIC_CONCENTRATION);
-                        GetUnitOwner()->RemoveAura(SPELL_RARE_CONCENTRATION);
-                        GetUnitOwner()->RemoveAura(SPELL_UNCOMMON_CONCENTRATION);
-                    }
-                    GetUnitOwner()->SetPower(POWER_ALTERNATE_POWER, newamount);
+                if (oldamount < 100 && newamount == 100)
+                {
+                    GetUnitOwner()->RemoveAura(SPELL_EPIC_CONCENTRATION);
+                    GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_LEGENDARY_CONCENTRATION, true);
                 }
+                else if (oldamount < 75 && newamount >= 75)
+                {
+                    GetUnitOwner()->RemoveAura(SPELL_RARE_CONCENTRATION);
+                    GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_EPIC_CONCENTRATION, true);
+                }
+                else if (oldamount < 50 && newamount >= 50)
+                {
+                    GetUnitOwner()->RemoveAura(SPELL_UNCOMMON_CONCENTRATION);
+                    GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_RARE_CONCENTRATION, true);
+                }
+                else if (oldamount < 25 && newamount >= 25)
+                {
+                    GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_UNCOMMON_CONCENTRATION, true);
+                }
+                else if (newamount < 25)
+                {
+                    GetUnitOwner()->RemoveAura(SPELL_LEGENDARY_CONCENTRATION);
+                    GetUnitOwner()->RemoveAura(SPELL_EPIC_CONCENTRATION);
+                    GetUnitOwner()->RemoveAura(SPELL_RARE_CONCENTRATION);
+                    GetUnitOwner()->RemoveAura(SPELL_UNCOMMON_CONCENTRATION);
+                }
+                GetUnitOwner()->SetPower(POWER_ALTERNATE_POWER, newamount);
             }
 
             void Register() override

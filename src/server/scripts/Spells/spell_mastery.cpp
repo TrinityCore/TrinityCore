@@ -210,7 +210,7 @@ public:
             {
                 for (uint32 l_I = 0; l_I < 5; ++l_I)
                 {
-                    if (Aura* icicle = caster->GetAura(IcicleAuras[l_I]))
+                    if (caster->HasAura(IcicleAuras[l_I]))
                         icicles[icicleCount++] = IcicleAuras[l_I];
                 }
             }
@@ -285,7 +285,7 @@ public:
             // Remove aura with visual icicle
             for (uint32 l_I = 0; l_I < 5; ++l_I)
             {
-                if (Aura* icicle = player->GetAura(IcicleAuras[l_I]))
+                if (player->HasAura(IcicleAuras[l_I]))
                     player->RemoveAura(IcicleAuras[l_I]);
             }
         }

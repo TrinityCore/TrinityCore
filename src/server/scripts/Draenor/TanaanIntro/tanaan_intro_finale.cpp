@@ -248,8 +248,8 @@ public:
             p_Player->KilledMonsterCredit(TanaanKillCredits::CreditSpeakWithThaelin);
             CloseGossipMenuFor(p_Player);
 
-            if (Creature* l_Thaelin = p_Player->SummonCreature(p_Creature->GetEntry(), p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
-                p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockThaelinLow);
+            p_Player->SummonCreature(p_Creature->GetEntry(), p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+            p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockThaelinLow);
         }
 
 
