@@ -39,6 +39,11 @@ if(SERVERS)
   add_subdirectory(rapidjson)
   add_subdirectory(efsw)
   add_subdirectory(protobuf)
+
+  if (WITH_CPR)
+    add_definitions(-DWITH_CPR)
+    add_subdirectory(cpr)
+  endif(WITH_CPR)
 endif()
 
 if(TOOLS)

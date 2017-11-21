@@ -262,13 +262,8 @@ public:
         void HandleOnHit()
         {
             if (Player* player = GetCaster()->ToPlayer())
-            {
-                if (Unit* target = GetHitUnit())
-                {
-                    if (player->HasAura(SPELL_DRUID_PREDATORY_SWIFTNESS) && roll_chance_i(20 * _cp))
-                        player->CastSpell(player, SPELL_DRUID_PREDATORY_SWIFTNESS_AURA, true);
-                }
-            }
+                if (player->HasAura(SPELL_DRUID_PREDATORY_SWIFTNESS) && roll_chance_i(20 * _cp))
+                    player->CastSpell(player, SPELL_DRUID_PREDATORY_SWIFTNESS_AURA, true);
         }
 
         void Register() override

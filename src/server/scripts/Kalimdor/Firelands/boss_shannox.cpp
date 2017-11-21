@@ -524,7 +524,7 @@ class npc_shannox_riplimb : public CreatureScript
             {
                 if (bFetch)
                 {
-                    if (Creature* pShannox = me->FindNearestCreature(NPC_SHANNOX, 1.0f))
+                    if (me->FindNearestCreature(NPC_SHANNOX, 1.0f))
                     {
                         bFetch = false;
                         me->RemoveAurasDueToSpell(SPELL_DOGGED_DETERMINATION);

@@ -34,6 +34,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
+#include <cwctype>
 
 Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zoneEntry /*= nullptr*/) :
     _announceEnabled(false),                                               // no join/leave announces
@@ -177,6 +178,23 @@ void Channel::CleanOldChannelsInDB()
 
         TC_LOG_DEBUG("chat.system", "Cleaned out unused custom chat channels.");
     }
+}
+
+std::string Channel::GetLowerName() const
+{
+    std::string lowername = _channelName;
+    std::transform(lowername.begin(), lowername.end(), lowername.begin(), ::tolower);
+    return lowername;
+}
+
+bool Channel::IsWorld() const
+{
+    if (GetLowerName() == "world" ||
+        GetLowerName() == "world_es" ||
+        GetLowerName() == "world_fr")
+        return true;
+
+    return false;
 }
 
 void Channel::JoinChannel(Player* player, std::string const& pass)

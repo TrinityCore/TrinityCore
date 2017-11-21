@@ -1,0 +1,16 @@
+version: '1.1.{build}'
+configuration:
+    - RELEASE
+    - DEBUG
+os: Visual Studio 2015
+before_build:
+    - git submodule update --init --recursive
+    - set CMAKE_USE_OPENSSL=OFF
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_BUILD_TYPE=%Configuration% .. -G "Visual Studio 14 2015"
+build:
+    project: C:\projects\cpr\build\cpr.sln
+test_script:
+    - cd C:\projects\cpr\build
+    - ctest -VV -C %Configuration%

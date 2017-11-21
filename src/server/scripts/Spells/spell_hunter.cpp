@@ -1003,7 +1003,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Player* player = GetCaster()->ToPlayer())
+            if (GetCaster()->IsPlayer())
             {
                 if (Unit* pet = GetCaster()->GetGuardianPet())
                 {
@@ -1749,7 +1749,7 @@ public:
 
         void OnApply(AuraEffect const*, AuraEffectHandleModes)
         {
-            if (Player* player = GetCaster()->ToPlayer())
+            if (GetCaster()->IsPlayer())
             {
                 if (Unit* pet = GetCaster()->GetGuardianPet())
                 {
@@ -1763,7 +1763,7 @@ public:
 
         void OnRemove(AuraEffect const*, AuraEffectHandleModes)
         {
-            if (Player* player = GetCaster()->ToPlayer())
+            if (GetCaster()->IsPlayer())
             {
                 if (Unit* pet = GetCaster()->GetGuardianPet())
                 {
@@ -1905,7 +1905,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* target = GetExplTargetUnit())
+                if (GetExplTargetUnit())
                 {
                     std::list<Unit*> targetList;
                     float radius = sSpellMgr->GetSpellInfo(SPELL_HUNTER_SENTINEL)->GetEffect(0)->CalcRadius(caster);

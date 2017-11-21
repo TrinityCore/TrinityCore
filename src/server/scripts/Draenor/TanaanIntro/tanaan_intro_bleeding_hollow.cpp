@@ -249,7 +249,7 @@ public:
             {
                 if (m_checkObjectiveTimer <= p_Diff)
                 {
-                    if (Creature* l_Bleeding = GetClosestCreatureWithEntry(me, TanaanCreatures::NpcBleedingHollowBloodchosen, 55.0f))
+                    if (GetClosestCreatureWithEntry(me, TanaanCreatures::NpcBleedingHollowBloodchosen, 55.0f))
                         if (Player* l_Player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
                             if (!l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed))
                             {

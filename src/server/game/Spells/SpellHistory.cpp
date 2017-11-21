@@ -804,7 +804,7 @@ void SpellHistory::ForceSendSetSpellCharges(SpellCategoryEntry const* chargeCate
 
 void SpellHistory::UpdateCharges()
 {
-    if (Player* player = GetPlayerOwner())
+    if (GetPlayerOwner())
     {
         Clock::time_point now = Clock::now();
 
