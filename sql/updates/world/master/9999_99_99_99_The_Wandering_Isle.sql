@@ -7509,6 +7509,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (55477, 8, 0, 'just...', 12, 0, 100, 509, 0, 27353, 60455, 0, 'Ji Firepaw'),
 (55477, 9, 0, 'WAKE UP?!', 12, 0, 100, 22, 0, 27354, 60456, 0, 'Ji Firepaw'),
 (55477, 10, 0, 'I will break you, little rock man!', 12, 0, 100, 25, 0, 27355, 60457, 0, 'Ji Firepaw'),
+(55477, 11, 0, '%s sighs.', 16, 0, 100, 0, 0, 0, 55942, 0, 'Ji Firepaw to Player'),
 (55483, 0, 0, 'Gimme all your vegetables!', 12, 0, 100, 0, 0, 0, 54873, 0, 'Plump Virmen to Player'),
 (55483, 0, 1, 'AIIIIEEEEEEE!', 12, 0, 100, 0, 0, 0, 54874, 0, 'Plump Virmen to Player'),
 (55483, 0, 2, 'This virmen land!', 12, 0, 100, 0, 0, 0, 54876, 0, 'Plump Virmen to Player'),
@@ -7760,6 +7761,7 @@ UPDATE `creature_template` SET `minlevel`=7, `maxlevel`=7, `faction`=2395, `Base
 UPDATE `creature_template` SET `minlevel`=7, `maxlevel`=7, `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33544, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=55694;
 UPDATE `creature_template` SET `unit_flags`=32768, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=55632;
 UPDATE `creature_template` SET `ScriptName`='npc_ruk_ruk' WHERE `entry`=55634;
+UPDATE `creature_template` SET `ScriptName`='npc_ruk_ruk_rocket' WHERE `entry`=64322;
 UPDATE `creature_template` SET `lootid`=55601, `AIName`='SmartAI' WHERE `entry`=55601;
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=256, `unit_flags2`=67110912 WHERE `entry`=64322;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=8, `unit_flags2`=67635200, `VehicleId`=1950, `AIName`='SmartAI' WHERE `entry`=57690;
@@ -8696,7 +8698,7 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceEntry` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944)) OR (`SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (524, 592, 593, 594, 595, 596, 597, 598, 964, 1430, 1510, 1518, 1523, 1526, 1527, 1836, 1885, 879, 903, 1835) AND `SourceEntry`=0);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=25 AND `SourceEntry` IN (975, 976);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7709, 7714, 7265) AND `SourceId`=2;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118029, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497);
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 102522, 107049, 125961, 115446, 115447, 115334, 115336, 115338, 115435, 115493, 115494, 115495)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup`=13140);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Phases Specific
@@ -8721,8 +8723,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26, 1027, 5820, 0, 1, 8, 0, 29521, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1027 when Quest 29521 rewarded'),
 (26, 1028, 5820, 0, 0, 28, 0, 29775, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1028 when Quest 29775 complete'),
 (26, 1028, 5820, 0, 1, 8, 0, 29775, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1028 when Quest 29775 rewarded'),
-(26, 1029, 5820, 0, 0, 28, 0, 29776, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1029 when Quest 29776 complete'),
-(26, 1029, 5820, 0, 1, 8, 0, 29776, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1029 when Quest 29776 rewarded'),
+(26, 1029, 5820, 0, 0, 8, 0, 29775, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1029 when Quest 29775 rewarded'), -- should be delayed
 (26, 1030, 5820, 0, 0, 28, 0, 29791, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1030 when Quest 29791 complete'),
 (26, 1030, 5820, 0, 1, 8, 0, 29791, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1030 when Quest 29791 rewarded'),
 (26, 1429, 5837, 0, 0, 8, 0, 29776, 0, 0, 1, 0, 0, '', 'The Dawning Span Phase 1429 when Quest 29776 not rewarded'),
@@ -8886,6 +8887,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 105881, 0, 0, 31, 0, 3, 55213, 0, 0, 0, 0, '', 'Trigger Spirit of Water at Farm target Shu'),
 (13, 1, 105881, 0, 0, 33, 0, 1, 3, 0, 0, 0, 0, '', 'Trigger Spirit of Water at Farm target Shu owned by summoner'), -- temp?
 (13, 1, 118032, 0, 0, 31, 0, 3, 60914, 0, 0, 0, 0, '', 'Water Spout target Water Spout Bunny'),
+(13, 2, 118029, 0, 0, 31, 0, 3, 60915, 0, 0, 0, 0, '', 'Water Spout Warning target Mossback Toad'),
 (13, 1, 118030, 0, 0, 31, 0, 3, 60915, 0, 0, 0, 0, '', 'Water Spout Burst target Mossback Toad'),
 (13, 1, 118030, 0, 1, 31, 0, 4, 0, 0, 0, 0, 0, '', 'Water Spout Burst target player'),
 (13, 1, 118033, 0, 0, 31, 0, 3, 55556, 0, 0, 0, 0, '', 'Water Spout Laugh Trigger target Shu'),
@@ -9164,7 +9166,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (114455, 5881, 0, 0, 0, 0, 2, 1, 0, 0), -- See Quest Invis 6 (Cart - The Dai-Lo Farmstead)
 (118028, 5881, 29768, 29776, 0, 0, 2, 1, 74, 11), -- See Quest Invis 7 (Ji Firepaw)
 (115446, 5828, 0, 29792, 0, 0, 2, 1, 0, 9), -- See Quest Invis 29 (Mandori Village Gate - GO)
-(104028, 5820, 29775, 29790, 0, 0, 2, 1, 66, 9), -- See Quest Invis 2 (Master Shang)
+(104028, 5820, 29775, 29776, 0, 0, 2, 1, 66, 11), -- See Quest Invis 2 (Master Shang)
 (104334, 5886, 0, 29785, 0, 0, 2, 1, 0, 9), -- See Quest Invis 1 (Chamber Winds - GO)
 (106394, 5859, 0, 29787, 0, 0, 2, 1, 0, 9), -- See Quest Invis 2 (Spirit Wall - GO)
 (104566, 5886, 29785, 29786, 0, 0, 2, 1, 66, 1), -- See Quest Invis 4 (Aysa - near Air Spirit)
@@ -10068,13 +10070,12 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (55556, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 1827, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shu - On Gossip Select - Remove Phase'),
 -- Water Spout Bunny
 (60914, 0, 0, 1, 8, 0, 100, 0, 118032, 0, 0, 0, 11, 118029, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Spout Bunny - On Spellhit - Cast Water Spout Warning'),
-(60914, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 60915, 15, 0, 0, 0, 0, 0, 'Water Spout Bunny - On Spellhit - Set Data'),
-(60914, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 6091400, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Spout Bunny - On Spellhit - Run Script'),
+(60914, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 6091400, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Spout Bunny - On Spellhit - Run Script'),
 (6091400, 9, 0, 0, 0, 0, 100, 0, 4500, 4500, 0, 0, 11, 118031, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Spout Bunny - Cast Water Spout Geyser Aura'),
 (6091400, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 118030, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Spout Bunny - Cast Water Spout Burst'),
 (6091400, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 118029, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Spout Bunny - Remove Aura'),
 -- Mossback Toad
-(60915, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 69, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Mossback Toad - On Data Set - Move to Pos'),
+(60915, 0, 0, 0, 8, 0, 100, 0, 118029, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Mossback Toad - On Spellhit - Move to Pos'), -- todo: toad doesnt respond to NPC cast. wtf?
 -- Raggis
 (55506, 0, 0, 0, 0, 0, 100, 0, 8000, 12000, 35000, 40000, 11, 125383, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Raggis - Update IC - Cast Burrow'),
 -- Raggis (vehicle)
@@ -10116,9 +10117,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Wugou
 (55539, 0, 0, 0, 8, 0, 100, 0, 104012, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Wugou - On Spellhit - Talk'),
 -- Ji Firepaw
-(-@CGUID-1198, 0, 0, 0, 8, 0, 100, 0, 104012, 0, 25000, 25000, 80, 5547701, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Run Script'),
-(5547701, 9, 0, 0, 0, 0, 100, 0, 4500, 4500, 0, 0, 90, 65544, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Bytes 1'),
-(5547701, 9, 1, 0, 0, 0, 100, 0, 20000, 20000, 0, 0, 91, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Remove Bytes 1'),
+(-@CGUID-1198, 0, 0, 0, 8, 0, 100, 0, 104012, 0, 0, 0, 80, 5547701, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Run Script'),
+(5547701, 9, 0, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 11, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
 -- Shu (pet)
 (55558, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 53, 1, 55558, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - Just Spawned - Start WP'),
 (55558, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 54, 2000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - Just Spawned - Pause WP'),
@@ -10134,7 +10134,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (55558, 0, 9, 10, 58, 0, 100, 0, 8, 5555800, 0, 0, 11, 118035, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - On WP Ended - Cast Cast Water Spirit Laugh'),
 (55558, 0, 10, 11, 61, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Shu - On WP Ended - Set Data'),
 (55558, 0, 11, 0, 61, 0, 100, 0, 0, 0, 0, 0, 29, 0, 1, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shu - On WP Ended - Follow Summoner'),
-(55558, 0, 12, 13, 8, 0, 100, 0, 106683, 0, 0, 0, 59, 1, 4, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - On Spellhit - Set Run'),
+(55558, 0, 12, 13, 8, 0, 100, 0, 106683, 0, 0, 0, 59, 1, 15, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - On Spellhit - Set Run'),
 (55558, 0, 13, 14, 61, 0, 100, 0, 0, 0, 0, 0, 53, 1, 5555801, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - On Spellhit - Start WP'),
 (55558, 0, 14, 0, 61, 0, 100, 0, 0, 0, 0, 0, 28, 104017, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shu - On Spellhit - Remove Aura'),
 (55558, 0, 15, 0, 58, 0, 100, 0, 8, 5555801, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shu - On WP Ended - Despawn'),
@@ -10776,7 +10776,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5668603, 9, 4, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 11, 109336, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Cast Trigger Walking Stick Blossom'),
 (5668603, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 106625, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Cast Planting Stave Credit'),
 (5668603, 9, 6, 0, 0, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Despawn'),
--- Walking Stick (hackfix - spawns shouldn't be visible to other units)
+-- Walking Stick (temp hackfix - spawns shouldn't be visible to other units)
 (57874, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 18, 520, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Walking Stick - Just Spawned - Add Unit Flags'),
 -- Thornbranch Scamp
 (55640, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
@@ -11827,7 +11827,7 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (55685, 10, 948.6129, 3602.809, 255.2892, ''),
 (55685, 11, 942.1215, 3596.853, 257.2684, ''),
 (55685, 12, 933.0104, 3600.142, 256.6022, ''),
-(55685, 13, 920.4496, 3604.771, 253.1732, 'Despawn'),
+(55685, 13, 920.4496, 3604.771, 254.1732, 'Despawn'), -- pos Z increased by 1.0 because player was falling to textures. Bug in generated maps?
 -- Ji Firepaw
 (55694, 1, 919.6441, 3631.506, 251.9946, ''),
 (55694, 2, 919.9514, 3640.104, 252.1429, ''),
@@ -12015,7 +12015,7 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (57781, 10, 948.6129, 3602.809, 255.2892, ''),
 (57781, 11, 942.1215, 3596.853, 257.2684, ''),
 (57781, 12, 933.0104, 3600.142, 256.6022, ''),
-(57781, 13, 920.4496, 3604.771, 253.1732, 'Despawn'),
+(57781, 13, 920.4496, 3604.771, 254.1732, 'Despawn'), -- pos Z increased by 1.0 because player was falling to textures. Bug in generated maps?
 -- Aysa Cloudsinger
 (59986, 1, 669.9549, 3601.26, 146.9476, ''),
 (59986, 2, 658.6858, 3604.403, 146.6792, ''),

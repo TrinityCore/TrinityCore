@@ -1145,14 +1145,14 @@ public:
 
 enum MonkeyWisdomTexts
 {
-    TEXT_MONKEY_WISDOM = 54073,
-    TEXT_MONKEY_WISDOM_2 = 54074,
-    TEXT_MONKEY_WISDOM_3 = 54075,
-    TEXT_MONKEY_WISDOM_4 = 54076,
-    TEXT_MONKEY_WISDOM_5 = 54077,
-    TEXT_MONKEY_WISDOM_6 = 54078,
-    TEXT_MONKEY_WISDOM_7 = 54079,
-    TEXT_MONKEY_WISDOM_8 = 54080
+    TEXT_MONKEY_WISDOM      = 54073,
+    TEXT_MONKEY_WISDOM_2    = 54074,
+    TEXT_MONKEY_WISDOM_3    = 54075,
+    TEXT_MONKEY_WISDOM_4    = 54076,
+    TEXT_MONKEY_WISDOM_5    = 54077,
+    TEXT_MONKEY_WISDOM_6    = 54078,
+    TEXT_MONKEY_WISDOM_7    = 54079,
+    TEXT_MONKEY_WISDOM_8    = 54080
 };
 
 class spell_monkey_wisdom_text : public SpellScriptLoader
@@ -1195,6 +1195,235 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_monkey_wisdom_text_SpellScript();
+    }
+};
+
+enum RukRukOoksplosions
+{
+	SPELL_OOKSPLOSIONS_TRIGGERED	= 125885
+};
+
+class spell_ruk_ruk_ooksplosions : public SpellScriptLoader
+{
+public:
+	spell_ruk_ruk_ooksplosions() : SpellScriptLoader("spell_ruk_ruk_ooksplosions") { }
+
+	class spell_ruk_ruk_ooksplosions_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_ruk_ruk_ooksplosions_AuraScript);
+
+		void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+		{
+			Unit* caster = GetCaster();
+            float x, y, z;
+            caster->GetClosePoint(x, y, z, caster->GetObjectSize() / 2, frand(0, 3), frand(0, 2 * float(M_PI)));
+            caster->CastSpell(x, y, z, SPELL_OOKSPLOSIONS_TRIGGERED, true);
+		}
+
+		void Register() override
+		{
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_ruk_ruk_ooksplosions_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+		}
+	};
+
+	AuraScript* GetAuraScript() const override
+	{
+		return new spell_ruk_ruk_ooksplosions_AuraScript();
+	}
+};
+
+enum RukRukEvents
+{
+	EVENT_AIM			= 1,
+	EVENT_OOKSPLOSIONS  = 2
+};
+
+enum RukRukSpells
+{
+	SPELL_AIM			= 125609,
+	SPELL_OOKSPLOSIONS	= 125699,
+	SPELL_AIM_VISUAL	= 26079
+};
+
+class npc_ruk_ruk : public CreatureScript
+{
+public:
+	npc_ruk_ruk() : CreatureScript("npc_ruk_ruk") { }
+
+	struct npc_ruk_rukAI : public ScriptedAI
+	{
+		npc_ruk_rukAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            events.Reset();
+        }
+
+		void EnterCombat(Unit* /*who*/) override
+		{
+			events.ScheduleEvent(EVENT_AIM, 10000);
+			events.ScheduleEvent(EVENT_OOKSPLOSIONS, 30000);
+		}
+
+        Position GetRocketTargetPos() const
+        {
+            return pos;
+        }
+
+		void UpdateAI(uint32 diff) override
+		{
+            if (!UpdateVictim())
+                return;
+
+			events.Update(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+					case EVENT_AIM:
+                        if (me->HasUnitState(UNIT_STATE_CASTING))
+                        {
+                            events.RescheduleEvent(EVENT_AIM, 1000);
+                            break;
+                        }
+						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+						{
+							me->SetFacingToObject(target);
+                            CalculateSpellVisual(target);
+							DoCast(target, SPELL_AIM);
+							events.ScheduleEvent(EVENT_AIM, urand(15000, 25000));
+						}
+						break;
+					case EVENT_OOKSPLOSIONS:
+                        if (me->HasUnitState(UNIT_STATE_CASTING))
+                        {
+                            events.RescheduleEvent(EVENT_OOKSPLOSIONS, 1000);
+                            break;
+                        }
+						DoCast(SPELL_OOKSPLOSIONS);
+						events.ScheduleEvent(EVENT_OOKSPLOSIONS, urand(25000, 35000));
+						break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	private:
+		EventMap events;
+        Position pos;
+
+        void CalculateSpellVisual(Unit* target)
+        {
+            float ori = me->GetOrientation();
+            float z = me->GetPositionZ();
+            float target_dist = target->GetExactDist(me->GetPosition());
+
+            for (int radius = 1; ; radius++)
+            {
+                if (radius <= ceilf(target_dist))
+                {
+                    float x = me->GetPositionX() + radius * cos(ori);
+                    float y = me->GetPositionY() + radius * sin(ori);
+                    me->UpdateGroundPositionZ(x, y, z);
+                    pos = { x, y, z };
+                    me->SendPlaySpellVisual(pos, 0.0f, SPELL_AIM_VISUAL, 0, 0, 2.0f);
+                }
+                else
+                    break;
+            }
+        }
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new npc_ruk_rukAI(creature);
+	}
+};
+
+typedef npc_ruk_ruk::npc_ruk_rukAI RukRukAI;
+
+enum RukRukRocketEvents
+{
+    EVENT_FIRE              = 1
+};
+
+enum RukRukRocketSpells
+{
+    SPELL_EXPLOSSION_VISUAL = 125612,
+    SPELL_EXPLOSSION_DMG    = 125619
+};
+
+class npc_ruk_ruk_rocket : public CreatureScript
+{
+public:
+    npc_ruk_ruk_rocket() : CreatureScript("npc_ruk_ruk_rocket") { }
+
+    struct npc_ruk_ruk_rocketAI : public ScriptedAI
+    {
+        npc_ruk_ruk_rocketAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            me->SetDisplayId(11686);
+            events.ScheduleEvent(EVENT_FIRE, 500);
+        }
+
+        void IsSummonedBy(Unit* owner) override
+        {
+            if (RukRukAI* rukRukAI = CAST_AI(RukRukAI, owner->GetAI()))
+            {
+                rocket_target_pos = rukRukAI->GetRocketTargetPos();
+
+                if (me->GetExactDist2d(rocket_target_pos) > 30)
+                    RecalculateTargetPos();
+            }
+        }
+
+        void MovementInform(uint32 /*type*/, uint32 id) override
+        {
+            if (id == 1)
+            {
+                DoCast(SPELL_EXPLOSSION_VISUAL);
+                DoCast(SPELL_EXPLOSSION_DMG);
+                me->DespawnOrUnsummon(1000);
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_FIRE:
+                        me->GetMotionMaster()->MovePoint(1, rocket_target_pos);
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        Position rocket_target_pos;
+
+        void RecalculateTargetPos()
+        {
+            float ori = me->GetOrientation();
+            float x = me->GetPositionX() + 30 * cos(ori);
+            float y = me->GetPositionY() + 30 * sin(ori);
+            float z = me->GetPositionZ();
+            me->UpdateGroundPositionZ(x, y, z);
+            rocket_target_pos = { x, y, z };
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_ruk_ruk_rocketAI(creature);
     }
 };
 
@@ -1696,6 +1925,9 @@ void AddSC_the_wandering_isle()
     new spell_aysa_congrats_trigger_aura();
     new at_temple_of_five_dawns_summon_zhaoren();
     new spell_monkey_wisdom_text();
+    new spell_ruk_ruk_ooksplosions();
+    new npc_ruk_ruk();
+    new npc_ruk_ruk_rocket();
     new npc_zhaoren();
     new spell_master_shang_final_escort_say();
     new npc_shen_zin_shu_bunny();
