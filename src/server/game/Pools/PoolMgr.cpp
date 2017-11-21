@@ -333,7 +333,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
                 --count;
                 float roll = (float)rand_chance();
 
-                for (auto obj : ExplicitlyChanced)
+                for (PoolObject& obj : ExplicitlyChanced)
                 {
                     roll -= obj.chance;
                     // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
@@ -363,7 +363,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
         }
 
         // try to spawn rolled objects
-        for (auto obj : rolledObjects)
+        for (PoolObject& obj : rolledObjects)
         {
             if (spawns.IsActiveObject<T>(obj.guid))
                 continue;
