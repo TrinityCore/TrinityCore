@@ -252,16 +252,15 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
 
     if (!_nextMoveTime.Passed())
     {
-        _nextMoveTime.Update(diff);
-        if (_nextMoveTime.Passed())
-            return StartMoveNow(creature);
+        if (creature->movespline->Finalized())
+        {
+            _nextMoveTime.Update(diff);
+            if (_nextMoveTime.Passed())
+                return StartMoveNow(creature);
+        }
     }
     else
     {
-        // Set home position at place on waypoint movement.
-        if (!creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || creature->GetTransGUID().IsEmpty())
-            creature->SetHomePosition(creature->GetPosition());
-
         if (creature->movespline->Finalized())
         {
             OnArrived(creature);
@@ -270,14 +269,21 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
             if (_nextMoveTime.Passed())
                 return StartMove(creature);
         }
-        else if (_recalculateSpeed)
+        else
         {
-            if (_nextMoveTime.Passed())
-                StartMove(creature);
+            // Set home position at place on waypoint movement.
+            if (!creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || creature->GetTransGUID().IsEmpty())
+                creature->SetHomePosition(creature->GetPosition());
+
+            if (_recalculateSpeed)
+            {
+                if (_nextMoveTime.Passed())
+                    StartMove(creature);
+            }
         }
     }
     return true;
- }
+}
 
 void WaypointMovementGenerator<Creature>::MovementInform(Creature* creature)
 {
