@@ -19,8 +19,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "ScriptMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
@@ -225,46 +223,6 @@ class spell_tricky_treat: public SpellScriptLoader
         }
 };
 
-enum HallowsEnd
-{
-    ITEM_WATER_BUCKET      = 32971,
-    SPELL_HAS_WATER_BUCKET = 42336,
-};
-
-class spell_hallows_end_has_water_bucket : public SpellScriptLoader
-{
-public:
-    spell_hallows_end_has_water_bucket() : SpellScriptLoader("spell_hallows_end_has_water_bucket") {}
-
-    class spell_hallows_end_has_water_bucket_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_hallows_end_has_water_bucket_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_HAS_WATER_BUCKET });
-        }
-
-        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
-                if (caster->GetTypeId() == TYPEID_PLAYER)
-                    if (!caster->ToPlayer()->HasItemCount(ITEM_WATER_BUCKET, 1, false))
-                        caster->RemoveAurasDueToSpell(SPELL_HAS_WATER_BUCKET);
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_hallows_end_has_water_bucket_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_hallows_end_has_water_bucket_AuraScript();
-    }
-};
-
 void AddSC_event_hallows_end()
 {
     new npc_costumed_orphan_matron();
@@ -272,5 +230,4 @@ void AddSC_event_hallows_end()
     new spell_trick();
     new spell_trick_or_treat();
     new spell_tricky_treat();
-    new spell_hallows_end_has_water_bucket();
 }
