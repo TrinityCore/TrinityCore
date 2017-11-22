@@ -2505,6 +2505,7 @@ void ScriptMgr::OnQuestStatusChange(Player* player, Quest const* quest, QuestSta
 void ScriptMgr::OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount)
 {
     ASSERT(player);
+    ASSERT(quest);
 
     GET_SCRIPT(QuestScript, quest->GetScriptId(), tmpscript);
     tmpscript->OnQuestObjectiveChange(player, quest, objective, oldAmount, newAmount);
