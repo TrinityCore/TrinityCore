@@ -221,7 +221,7 @@ struct npc_guard_shattrath_faction : public GuardAI
             {
                 DoCast(temp, me->GetEntry() == NPC_ALDOR_VINDICATOR ? SPELL_BANISHED_SHATTRATH_S : SPELL_BANISHED_SHATTRATH_A);
                 ObjectGuid playerGUID = temp->GetGUID();
-                banishContext.Schedule(Seconds(9), [this, playerGUID](TaskContext exileContext)
+                banishContext.Schedule(Seconds(9), [this, playerGUID](TaskContext /*exileContext*/)
                 {
                     if (Unit* temp = ObjectAccessor::GetUnit(*me, playerGUID))
                     {
@@ -242,6 +242,6 @@ private:
 
 void AddSC_npc_guard()
 {
-    RegisterCreatureAI(npc_guard_generic());
-    RegisterCreatureAI(npc_guard_shattrath_faction());
+    RegisterCreatureAI(npc_guard_generic);
+    RegisterCreatureAI(npc_guard_shattrath_faction);
 }
