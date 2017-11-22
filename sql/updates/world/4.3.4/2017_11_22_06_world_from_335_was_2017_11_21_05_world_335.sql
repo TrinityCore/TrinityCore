@@ -1,3 +1,4 @@
+/*
 -- 
 -- Arikara
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10882;
@@ -10,3 +11,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=10882;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (10882,0,0,"%s becomes enraged!",16,0,100,0,0,0,10677,0,"Arikara");
+*/

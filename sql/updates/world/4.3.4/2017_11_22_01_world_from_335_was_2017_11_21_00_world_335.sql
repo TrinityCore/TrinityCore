@@ -1,3 +1,4 @@
+/*
 -- 
 -- Valusha Gossip Text
 DELETE FROM `gossip_menu` WHERE `MenuID`=7408 AND `TextID` IN (8887,8888);
@@ -15,3 +16,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14,7408,8887,0,0,8,0,9536,0,0,1,0,0,"","Show gossip text 8887 if quest 'Never Again!' is NOT rewarded"),
 (14,7408,8888,0,0,8,0,9534,0,0,0,0,0,"","Show gossip text 8888 if quest 'Destroy the Legion' is rewarded"),
 (14,7408,8888,0,0,8,0,9536,0,0,0,0,0,"","Show gossip text 8888 if quest 'Never Again!' is rewarded");
+*/

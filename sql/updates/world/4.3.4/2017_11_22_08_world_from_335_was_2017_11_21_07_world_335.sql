@@ -1,3 +1,4 @@
+/*
 -- 
 -- Quest "Blood Feeders"
 DELETE FROM `quest_details` WHERE `ID`=6461;
@@ -250,3 +251,4 @@ UPDATE `quest_offer_reward` SET `Emote1`=1, `Emote2`=2 WHERE `ID`=6504;
 
 -- Quest "Torek's Assault"
 UPDATE `quest_offer_reward` SET `Emote1`=4, `Emote2`=1 WHERE `ID`=6544;
+*/

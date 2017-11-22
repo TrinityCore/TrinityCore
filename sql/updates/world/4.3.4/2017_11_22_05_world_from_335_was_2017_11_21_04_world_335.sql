@@ -1,3 +1,4 @@
+/*
 -- 
 -- Pathing for Motega Firemane
 UPDATE `creature` SET `MovementType`=2 WHERE `guid`=21693;
@@ -17,3 +18,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 DELETE FROM `waypoint_scripts` WHERE `id`=216930;
 INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
 (216930,1,1,23,0,0,0,0,0,0,953);
+*/

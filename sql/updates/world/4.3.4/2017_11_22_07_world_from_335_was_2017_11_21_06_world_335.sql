@@ -1,3 +1,4 @@
+/*
 -- 
 -- Feegly the Exiled
 DELETE FROM `creature_text` WHERE `CreatureID`=3421;
@@ -32,3 +33,4 @@ DELETE FROM `waypoint_data` WHERE `id`=141380;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
 (141380,1,-4217.83,-2341.47,91.7458,2.02701,60000,0,0,100,0),
 (141380,2,-4219.46,-2336.15,91.8028,2.02701,60000,0,0,100,0);
+*/
