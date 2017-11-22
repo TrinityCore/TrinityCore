@@ -923,6 +923,8 @@ public:
 
         WorldDatabase.Execute(stmt);
 
+        TC_LOG_DEBUG("sql.dev", "UPDATE creature SET position_x = %f, position_y = %f, position_z = %f, orientation = %f WHERE guid = %s;", x, y, z, o, std::to_string(creature->GetSpawnId()).c_str());
+
         handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
         return true;
     }
@@ -1172,6 +1174,8 @@ public:
         creature->SetDBPhase(phaseID);
 
         creature->SaveToDB();
+
+        TC_LOG_DEBUG("sql.dev", "UPDATE creature SET PhaseId = %u WHERE guid = %s;", phaseID, std::to_string(creature->GetSpawnId()).c_str());
 
         return true;
     }
@@ -1721,6 +1725,7 @@ public:
 
         uint32 entry = creature->GetEntry();
         WorldDatabase.PExecute("UPDATE creature_template SET InhabitType = %u WHERE entry = %u", inhabitType, entry);
+        TC_LOG_DEBUG("sql.dev", "UPDATE creature_template SET InhabitType = %u WHERE entry = %u;", inhabitType, entry);
 
         handler->PSendSysMessage("InhabitType updated in database, reboot needed");
         return true;

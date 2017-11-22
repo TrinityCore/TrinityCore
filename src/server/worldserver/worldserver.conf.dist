@@ -3860,6 +3860,7 @@ Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
 Appender.GM=2,2,15,gm/gm_%s.log
 Appender.DBErrors=2,2,0,DBErrors.log
+Appender.SQLUpdateLog=2,1,16,SQLUpdate.log,w
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -3933,7 +3934,7 @@ Logger.mmaps=3,Server
 #Logger.server.bnetserver=3,Console Server
 #Logger.spells=3,Console Server
 #Logger.spells.periodic=3,Console Server
-#Logger.sql.dev=3,Console Server
+#Logger.sql.dev=1,SQLUpdateLog
 #Logger.sql.driver=3,Console Server
 #Logger.warden=3,Console Server
 
