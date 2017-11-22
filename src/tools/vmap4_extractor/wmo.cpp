@@ -351,10 +351,8 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
         {
             // Skip no collision triangles
             bool isRenderFace = (MOPY[2 * i] & WMO_MATERIAL_RENDER) && !(MOPY[2 * i] & WMO_MATERIAL_DETAIL);
-            bool isDetail = (MOPY[2 * i] & WMO_MATERIAL_DETAIL) != 0;
-            bool isCollision = (MOPY[2 * i] & WMO_MATERIAL_COLLISION) != 0;
-
-            if (!isRenderFace && !isDetail && !isCollision)
+            bool isCollision = MOPY[2 * i] & WMO_MATERIAL_COLLISION || isRenderFace;
+            if (!isCollision)
                 continue;
 
             // Use this triangle
