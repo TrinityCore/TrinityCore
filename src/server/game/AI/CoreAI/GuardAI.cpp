@@ -66,9 +66,7 @@ void GuardAI::EnterEvadeMode(EvadeReason /*why*/)
     me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
 
-    // Remove ChaseMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
-    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
-        me->GetMotionMaster()->MoveTargetedHome();
+    me->GetMotionMaster()->MoveTargetedHome();
 }
 
 void GuardAI::JustDied(Unit* killer)
