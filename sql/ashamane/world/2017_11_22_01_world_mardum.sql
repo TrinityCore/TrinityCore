@@ -31,12 +31,12 @@ UPDATE creature SET PhaseId = 171 WHERE guid = 20541114;
 UPDATE creature SET PhaseId = 171 WHERE guid = 20541087;
 UPDATE creature SET PhaseId = 171 WHERE guid = 20543739;
 
-UPDATE scene_script SET scriptname = "scene_mardum_change_legion_banner" WHERE SceneId = 1116;
+UPDATE scene_template SET scriptname = "scene_mardum_change_legion_banner" WHERE SceneId = 1116;
 UPDATE creature SET PhaseId = 171 WHERE guid = 20543735;
 UPDATE creature SET PhaseId = 172 WHERE guid = 20541143;
 UPDATE creature SET position_x = 1016.252747, position_y = 2848.764648, position_z = 5.272532, orientation = 1.274962 WHERE guid = 20541143;
 
 DELETE FROM spell_script_names WHERE spell_id IN (200176, 192709);
 INSERT INTO spell_script_names VALUES
-(200176, "spell_learn_felsaber")
+(200176, "spell_learn_felsaber"),
 (192709, "spell_mardum_infernal_smash");
