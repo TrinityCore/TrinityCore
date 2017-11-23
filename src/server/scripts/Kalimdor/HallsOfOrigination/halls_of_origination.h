@@ -71,6 +71,10 @@ enum HOOCreatures
     NPC_WATER_WARDEN                = 39802,
     NPC_AIR_WARDEN                  = 39803,
 
+    BOSS_RAJH                       = 39378,
+    NPC_INFERNO_LEAP                = 47040,
+    NPC_BLAZING_INFERNO             = 40927,
+
     WARDEN_ENTRY_DATA_DELTA         = NPC_FIRE_WARDEN - DATA_FIRE_WARDEN,
 
     NPC_BRANN_BRONZEBEARD_0         = 39908,

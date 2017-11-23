@@ -130,6 +130,9 @@ class instance_halls_of_origination : public InstanceMapScript
                     case BOSS_ANRAPHET:
                         AnraphetGUID = creature->GetGUID();
                         break;
+                    case BOSS_RAJH:
+                        RajhGUID = creature->GetGUID();
+                        break;
                 }
             }
 
@@ -164,6 +167,8 @@ class instance_halls_of_origination : public InstanceMapScript
                         return BrannBronzebeardGUID;
                     case DATA_ANRAPHET_GUID:
                         return AnraphetGUID;
+                    case DATA_RAJH:
+                        return RajhGUID;
                 }
 
                 return ObjectGuid::Empty;
@@ -225,6 +230,7 @@ class instance_halls_of_origination : public InstanceMapScript
             ObjectGuid AnraphetGUID;
             ObjectGuid AnraphetDoorGUID;
             ObjectGuid SunMirrorGUID;
+            ObjectGuid RajhGUID;
             uint32 _deadElementals;
         };
 

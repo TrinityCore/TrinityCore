@@ -3626,6 +3626,15 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
                 break;
+            // Rajh
+            case 89133: // Solar Fire
+            case 89878: // Solar Fire
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
+                break;
+            case 74108: // Solar Winds
+            case 89130: // Solar Winds
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
+                break;
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
                 break;
