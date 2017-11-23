@@ -334,12 +334,12 @@ enum UnitMods
     UNIT_MOD_STAT_STAMINA,
     UNIT_MOD_STAT_INTELLECT,
     UNIT_MOD_HEALTH,
-    UNIT_MOD_MANA,                                          // UNIT_MOD_MANA..UNIT_MOD_RUNIC_POWER must be in existed order, it's accessed by index values of Powers enum.
+    UNIT_MOD_MANA,                                          // UNIT_MOD_MANA..UNIT_MOD_PAIN must be listed in existing order, it is accessed by index values of Powers enum.
     UNIT_MOD_RAGE,
     UNIT_MOD_FOCUS,
     UNIT_MOD_ENERGY,
-    UNIT_MOD_UNUSED,                                        // Old UNIT_MOD_HAPPINESS
-    UNIT_MOD_RUNE,
+    UNIT_MOD_COMBO_POINTS,
+    UNIT_MOD_RUNES,
     UNIT_MOD_RUNIC_POWER,
     UNIT_MOD_SOUL_SHARDS,
     UNIT_MOD_ECLIPSE,
@@ -374,6 +374,8 @@ enum UnitMods
     UNIT_MOD_POWER_START = UNIT_MOD_MANA,
     UNIT_MOD_POWER_END = UNIT_MOD_PAIN + 1
 };
+
+static_assert(UNIT_MOD_POWER_END - UNIT_MOD_POWER_START == MAX_POWERS, "UnitMods powers section does not match Powers enum!");
 
 enum BaseModGroup
 {
@@ -1631,7 +1633,6 @@ class TC_GAME_API Unit : public WorldObject
         float GetTotalAuraModValue(UnitMods unitMod) const;
         SpellSchools GetSpellSchoolByAuraGroup(UnitMods unitMod) const;
         Stats GetStatByAuraGroup(UnitMods unitMod) const;
-        Powers GetPowerTypeByAuraGroup(UnitMods unitMod) const;
         bool CanModifyStats() const { return m_canModifyStats; }
         void SetCanModifyStats(bool modifyStats) { m_canModifyStats = modifyStats; }
         virtual bool UpdateStats(Stats stat) = 0;
