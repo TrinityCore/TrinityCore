@@ -3615,6 +3615,15 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 87723: // Beam C
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
+                // The Lost City of the Tol'Vir Spells
+                //  General Husam
+            case 83131: // Summon Shockwave Target N
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
+                break;
+            case 83235: // Hurl
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+                break;
             // Halls Of Origination spells
             // Temple Guardian Anhuur
             case 76606: // Disable Beacon Beams L

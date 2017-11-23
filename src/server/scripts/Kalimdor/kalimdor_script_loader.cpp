@@ -93,6 +93,8 @@ void AddSC_boss_skum();
 void AddSC_boss_zum_rah();                   //Zul'Farrak
 void AddSC_zulfarrak();
 void AddSC_instance_zulfarrak();
+void AddSC_instance_lost_city_of_the_tolvir(); // Lost City of the Tol'Vir
+void AddSC_boss_general_husam();
 void AddSC_instance_halls_of_origination();  //Halls of Origination
 void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
@@ -203,6 +205,8 @@ void AddKalimdorScripts()
     AddSC_boss_zum_rah();                   //Zul'Farrak
     AddSC_zulfarrak();
     AddSC_instance_zulfarrak();
+    AddSC_instance_lost_city_of_the_tolvir(); // Lost City of the Tol'Vir
+    AddSC_boss_general_husam();
     AddSC_instance_halls_of_origination();  //Halls of Origination
     AddSC_boss_temple_guardian_anhuur();
     AddSC_boss_earthrager_ptah();
