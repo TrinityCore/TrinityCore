@@ -1799,9 +1799,11 @@ uint32 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& even
         }
     }
 
+    bool success = roll_chance_f(CalcProcChance(*procEntry, eventInfo));
+
     const_cast<Aura*>(this)->SetLastProcAttemptTime(now);
 
-    if (roll_chance_f(CalcProcChance(*procEntry, eventInfo)))
+    if (success)
         return procEffectMask;
 
     return 0;
