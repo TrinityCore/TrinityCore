@@ -643,8 +643,8 @@ void ObjectMgr::LoadCreatureScalingData()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0            1
-    QueryResult result = WorldDatabase.Query("SELECT Entry, LevelScalingMin, LevelScalingMax, LevelScalingDelta FROM creature_template_scaling");
+    //                                               0      1
+    QueryResult result = WorldDatabase.Query("SELECT Entry, LevelScalingDelta FROM creature_template_scaling");
 
     if (!result)
     {
@@ -667,9 +667,7 @@ void ObjectMgr::LoadCreatureScalingData()
         }
 
         CreatureLevelScaling creatureLevelScaling;
-        creatureLevelScaling.MinLevel              = fields[1].GetUInt16();
-        creatureLevelScaling.MaxLevel              = fields[2].GetUInt16();
-        creatureLevelScaling.DeltaLevel            = fields[3].GetInt16();
+        creatureLevelScaling.DeltaLevel            = fields[1].GetInt16();
         itr->second.levelScaling                   = creatureLevelScaling;
 
         ++count;
