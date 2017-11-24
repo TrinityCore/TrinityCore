@@ -409,7 +409,7 @@ public:
             GetCaster()->CastSpell(GetHitUnit(), SPELL_SHOCKWAVE_VISUAL, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_husam_shockwave_SpellScript::EffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }

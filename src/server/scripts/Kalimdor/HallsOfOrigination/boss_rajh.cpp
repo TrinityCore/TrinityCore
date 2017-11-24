@@ -437,7 +437,7 @@ public:
     {
         PrepareSpellScript(spell_rajh_summon_sun_orb_SpellScript);
 
-        void SetDestPosition(SpellEffIndex effIndex)
+        void SetDestPosition(SpellEffIndex /*effIndex*/)
         {
             float x = GetExplTargetDest()->GetPositionX();
             float y = GetExplTargetDest()->GetPositionY();
