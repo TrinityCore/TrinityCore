@@ -483,7 +483,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //415
     &AuraEffect::HandleNoImmediateEffect,                         //416 SPELL_AURA_MOD_COOLDOWN_BY_HASTE_REGEN implemented in SpellHistory::StartCooldown
     &AuraEffect::HandleNoImmediateEffect,                         //417 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_REGEN implemented in Spell::TriggerGlobalCooldown
-    &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_MOD_MAX_POWER
+    &AuraEffect::HandleAuraModMaxPower,                           //418 SPELL_AURA_MOD_MAX_POWER
     &AuraEffect::HandleAuraModIncreaseBaseManaPercent,            //419 SPELL_AURA_MOD_BASE_MANA_PCT
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_MOD_BATTLE_PET_XP_PCT
     &AuraEffect::HandleNULL,                                      //421 SPELL_AURA_MOD_ABSORB_EFFECTS_AMOUNT_PCT
@@ -3936,6 +3936,18 @@ void AuraEffect::HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 
         target->ToPlayer()->SetStatFloatValue(PLAYER_VERSATILITY_BONUS, (value - GetAmount()));
 
     target->ToPlayer()->UpdateVersatility();
+}
+
+void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    Powers power = Powers(GetMiscValue());
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+
+    target->HandleStatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
 
 /********************************/

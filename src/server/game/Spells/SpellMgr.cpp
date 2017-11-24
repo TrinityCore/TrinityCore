@@ -2799,7 +2799,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         47134  // Quest Complete
     }, [](SpellInfo* spellInfo)
     {
-        //! HACK: This spell break quest complete for alliance and on retail not used °_O
+        //! HACK: This spell break quest complete for alliance and on retail not used
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->Effect = 0;
     });
 
