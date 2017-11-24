@@ -147,7 +147,7 @@ void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* invoker)
         if (invoker && invoker->GetTypeId() == TYPEID_PLAYER)
         {
             mEscortNPCFlags = me->GetUInt32Value(UNIT_NPC_FLAGS);
-            me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+            // me->SetUInt32Value(UNIT_NPC_FLAGS, 0); this is incorrect, it needs cp of wp rewrite from 3.3.5a
         }
 
         mLastOOCPos = me->GetPosition();
