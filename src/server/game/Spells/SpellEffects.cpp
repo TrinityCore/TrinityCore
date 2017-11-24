@@ -1737,6 +1737,11 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
                 if (uint32 trapEntry = gameObjTarget->GetGOInfo()->chest.linkedTrap)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry, m_caster);
 
+                if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(gameObjTarget->GetGOInfo()->chest.conditionID1))
+                    if (playerCondition->PrevQuestID[1] != 0)
+                        if (Quest const* quest = sObjectMgr->GetQuestTemplate(playerCondition->PrevQuestID[1]))
+                            player->RewardQuest(quest, 0, player);
+
                 // Don't return, let loots been taken
             default:
                 break;
@@ -1800,6 +1805,11 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         // these objects must have been spawned by outdoorpvp!
         else if (gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_GOOBER && sOutdoorPvPMgr->HandleOpenGo(player, gameObjTarget))
             return;
+        else if (player && gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST)
+            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(goInfo->chest.conditionID1))
+                if (!sConditionMgr->IsPlayerMeetingCondition(player, playerCondition))
+                    return;
+
         lockId = goInfo->GetLockId();
         guid = gameObjTarget->GetGUID();
     }

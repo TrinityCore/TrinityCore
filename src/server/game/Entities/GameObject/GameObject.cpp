@@ -1096,6 +1096,11 @@ bool GameObject::IsNeverVisibleFor(WorldObject const* seer) const
     if (!GetUInt32Value(GAMEOBJECT_DISPLAYID))
         return true;
 
+    if (seer->IsPlayer() && GetGoType() == GAMEOBJECT_TYPE_CHEST)
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(GetGOInfo()->chest.conditionID1))
+            if (!sConditionMgr->IsPlayerMeetingCondition(seer->ToPlayer(), playerCondition))
+                return true;
+
     return false;
 }
 
