@@ -444,7 +444,7 @@ public:
                 GetCaster()->CastSpell(GetCaster(), SPELL_SHOCKWAVE_SUMMON_EFFECT, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_husam_shockwave_summon_search_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
         }
