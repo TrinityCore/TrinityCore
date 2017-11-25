@@ -17,7 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Deadmines.h"
+#include "deadmines.h"
 
 enum VanCleefData
 {
