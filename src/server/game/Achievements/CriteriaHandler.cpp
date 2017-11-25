@@ -1557,9 +1557,30 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
 
 bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tree, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const
 {
-    for (ModifierTreeNode const* node : tree->Children)
-        if (!AdditionalRequirementsSatisfied(node, miscValue1, miscValue2, unit, referencePlayer))
+    const uint64 requiredCount = tree->Entry->Amount;
+
+    switch (tree->Entry->Operator)
+    {
+        case CRITERIA_TREE_OPERATOR_ANY:
+        {
+            uint64 progress = 0;
+            for (ModifierTreeNode const* node : tree->Children)
+                if (AdditionalRequirementsSatisfied(node, miscValue1, miscValue2, unit, referencePlayer))
+                    if (++progress >= requiredCount)
+                        return true;
+
             return false;
+        }
+        case CRITERIA_TREE_OPERATOR_ALL:
+        default:
+        {
+            for (ModifierTreeNode const* node : tree->Children)
+                if (!AdditionalRequirementsSatisfied(node, miscValue1, miscValue2, unit, referencePlayer))
+                    return false;
+
+            break;
+        }
+    }
 
     uint32 reqType = tree->Entry->Type;
     if (!reqType)
@@ -1712,6 +1733,10 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
             break;
         case CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES: // 91
             if (miscValue1 != reqValue)
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_REPUTATION: // 95
+            if (referencePlayer->GetReputation(reqValue) < tree->Entry->Asset[1])
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY: // 144
