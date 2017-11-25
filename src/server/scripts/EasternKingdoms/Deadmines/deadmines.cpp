@@ -24,7 +24,7 @@ SDCategory: Deadmines
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "Deadmines.h"
+#include "deadmines.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Item.h"
