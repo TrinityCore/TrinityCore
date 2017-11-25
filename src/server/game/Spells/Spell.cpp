@@ -910,6 +910,9 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
         case TARGET_SELECT_CATEGORY_AREA:
             SelectImplicitAreaTargets(effIndex, targetType, effectMask);
             break;
+        case TARGET_SELECT_CATEGORY_SPECIAL:
+            SelectImplicitSpecialTargets(effIndex, targetType, effectMask);
+            break;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetType.GetObjectType())
             {
@@ -1264,6 +1267,38 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 AddGOTarget(gObjTarget, effMask);
         }
     }
+}
+
+void Spell::SelectImplicitSpecialTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask)
+{
+    std::list<WorldObject*> targets;
+    
+    switch (targetType.GetTarget())
+    {
+        case TARGET_UNIT_VEHICLE_AND_PASSENGERS:
+        {
+            Unit* vehicle = m_caster->GetVehicleBase();
+            if (!vehicle)
+                return;
+
+            targets.push_back(vehicle);
+
+            for (uint8 i = 0; i < 8; ++i)
+                if (Unit* passenger = vehicle->GetVehicleKit()->GetPassenger(i))
+                    targets.push_back(passenger);
+            
+            break;
+        }
+        default:
+            ASSERT(false && "Spell::SelectImplicitSpecialTargets: received not implemented target type");
+            return;
+    }
+    
+    CallScriptObjectMultiTargetSelectHandlers(targets, effIndex, targetType);
+
+    for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+        if (Unit* unit = (*itr)->ToUnit())
+            AddUnitTarget(unit, effMask, true);
 }
 
 void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
@@ -7436,6 +7471,20 @@ void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& ta
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_OBJECT_AREA_TARGET_SELECT);
         auto hookItrEnd = (*scritr)->OnObjectAreaTargetSelect.end(), hookItr = (*scritr)->OnObjectAreaTargetSelect.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            if (hookItr->IsEffectAffected(m_spellInfo, effIndex) && targetType.GetTarget() == hookItr->GetTarget())
+                hookItr->Call(*scritr, targets);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptObjectMultiTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_OBJECT_MULTI_TARGET_SELECT);
+        auto hookItrEnd = (*scritr)->OnObjectMultiTargetSelect.end(), hookItr = (*scritr)->OnObjectMultiTargetSelect.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
             if (hookItr->IsEffectAffected(m_spellInfo, effIndex) && targetType.GetTarget() == hookItr->GetTarget())
                 hookItr->Call(*scritr, targets);

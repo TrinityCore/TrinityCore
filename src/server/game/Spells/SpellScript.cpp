@@ -276,6 +276,8 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
         case TARGET_SELECT_CATEGORY_CONE: // AREA
         case TARGET_SELECT_CATEGORY_AREA: // AREA
             return area;
+        case TARGET_SELECT_CATEGORY_SPECIAL:
+            return true;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetInfo.GetObjectType())
             {
@@ -312,6 +314,17 @@ SpellScript::ObjectAreaTargetSelectHandler::ObjectAreaTargetSelectHandler(SpellO
 void SpellScript::ObjectAreaTargetSelectHandler::Call(SpellScript* spellScript, std::list<WorldObject*>& targets)
 {
     (spellScript->*pObjectAreaTargetSelectHandlerScript)(targets);
+}
+
+SpellScript::ObjectMultiTargetSelectHandler::ObjectMultiTargetSelectHandler(SpellObjectMultiTargetSelectFnType _pObjectMultiTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
+    : TargetHook(_effIndex, _targetType, true, false)
+{
+    pObjectMultiTargetSelectHandlerScript = _pObjectMultiTargetSelectHandlerScript;
+}
+
+void SpellScript::ObjectMultiTargetSelectHandler::Call(SpellScript* spellScript, std::list<WorldObject*>& targets)
+{
+    (spellScript->*pObjectMultiTargetSelectHandlerScript)(targets);
 }
 
 SpellScript::ObjectTargetSelectHandler::ObjectTargetSelectHandler(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)

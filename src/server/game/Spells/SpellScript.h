@@ -168,6 +168,7 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_HIT,
     SPELL_SCRIPT_HOOK_AFTER_HIT,
     SPELL_SCRIPT_HOOK_OBJECT_AREA_TARGET_SELECT,
+    SPELL_SCRIPT_HOOK_OBJECT_MULTI_TARGET_SELECT,
     SPELL_SCRIPT_HOOK_OBJECT_TARGET_SELECT,
     SPELL_SCRIPT_HOOK_DESTINATION_TARGET_SELECT,
     SPELL_SCRIPT_HOOK_CHECK_CAST,
@@ -194,6 +195,7 @@ class TC_GAME_API SpellScript : public _SpellScript
             typedef void(CLASSNAME::*SpellHitFnType)(); \
             typedef void(CLASSNAME::*SpellCastFnType)(); \
             typedef void(CLASSNAME::*SpellObjectAreaTargetSelectFnType)(std::list<WorldObject*>&); \
+            typedef void(CLASSNAME::*SpellObjectMultiTargetSelectFnType)(std::list<WorldObject*>&); \
             typedef void(CLASSNAME::*SpellObjectTargetSelectFnType)(WorldObject*&); \
             typedef void(CLASSNAME::*SpellDestinationTargetSelectFnType)(SpellDestination&);
 
@@ -267,6 +269,16 @@ class TC_GAME_API SpellScript : public _SpellScript
             private:
                 SpellObjectAreaTargetSelectFnType pObjectAreaTargetSelectHandlerScript;
         };
+
+        class TC_GAME_API ObjectMultiTargetSelectHandler : public TargetHook
+        {
+            public:
+                ObjectMultiTargetSelectHandler(SpellObjectMultiTargetSelectFnType _pObjectMultiTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType);
+                void Call(SpellScript* spellScript, std::list<WorldObject*>& targets);
+            private:
+                SpellObjectMultiTargetSelectFnType pObjectMultiTargetSelectHandlerScript;
+        };
+        
 
         class TC_GAME_API ObjectTargetSelectHandler : public TargetHook
         {
@@ -356,6 +368,11 @@ class TC_GAME_API SpellScript : public _SpellScript
         // where function is void function(std::list<WorldObject*>& targets)
         HookList<ObjectAreaTargetSelectHandler> OnObjectAreaTargetSelect;
         #define SpellObjectAreaTargetSelectFn(F, I, N) ObjectAreaTargetSelectHandlerFunction(&F, I, N)
+
+        // example: OnObjectMultiTargetSelect += SpellObjectMultiTargetSelectFn(class::function, EffectIndexSpecifier, TargetsNameSpecifier);
+        // where function is void function(std::list<WorldObject*>& targets)
+        HookList<ObjectMultiTargetSelectHandler> OnObjectMultiTargetSelect;
+        #define SpellObjectMultiTargetSelectFn(F, I, N) ObjectMultiTargetSelectHandlerFunction(&F, I, N)
 
         // example: OnObjectTargetSelect += SpellObjectTargetSelectFn(class::function, EffectIndexSpecifier, TargetsNameSpecifier);
         // where function is void function(WorldObject*& target)
