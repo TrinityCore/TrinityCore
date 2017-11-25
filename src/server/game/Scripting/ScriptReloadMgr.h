@@ -79,4 +79,3 @@ public:
 #define sScriptReloadMgr ScriptReloadMgr::instance()
 
 #endif // SCRIPT_RELOADER_H
-

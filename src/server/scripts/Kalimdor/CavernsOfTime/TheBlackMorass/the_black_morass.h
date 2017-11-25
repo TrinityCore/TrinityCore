@@ -66,4 +66,3 @@ enum TBMCreatureIds
 };
 
 #endif
-

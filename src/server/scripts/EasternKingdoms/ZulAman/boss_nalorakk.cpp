@@ -440,4 +440,3 @@ void AddSC_boss_nalorakk()
 {
     new boss_nalorakk();
 }
-

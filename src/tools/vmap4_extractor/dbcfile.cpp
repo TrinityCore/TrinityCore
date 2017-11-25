@@ -116,4 +116,3 @@ DBCFile::Iterator DBCFile::end()
     assert(_data);
     return Iterator(*this, _stringTable);
 }
-

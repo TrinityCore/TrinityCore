@@ -198,4 +198,3 @@ class TC_GAME_API ArenaTeam
         ArenaTeamStats Stats;
 };
 #endif
-

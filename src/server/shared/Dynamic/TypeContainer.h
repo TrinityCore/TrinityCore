@@ -141,4 +141,3 @@ class TypeUnorderedMapContainer
 };
 
 #endif
-

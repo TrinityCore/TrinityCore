@@ -62,4 +62,3 @@ TC_SCRIPT_API char const* GetBuildDirective()
 #ifdef TRINITY_IS_DYNAMIC_SCRIPTLOADER
 } // extern "C"
 #endif
-

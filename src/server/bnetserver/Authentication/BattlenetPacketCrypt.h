@@ -33,4 +33,3 @@ namespace Battlenet
     };
 }
 #endif // BattlenetPacketCrypt_h__
-

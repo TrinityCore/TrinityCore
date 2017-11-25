@@ -97,4 +97,3 @@ enum STRMisc
 };
 
 #endif
-

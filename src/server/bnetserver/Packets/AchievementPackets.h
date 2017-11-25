@@ -39,4 +39,3 @@ namespace Battlenet
 }
 
 #endif // AchievementPackets_h__
-

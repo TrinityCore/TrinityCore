@@ -107,4 +107,3 @@ class TC_DATABASE_API PreparedResultSet
 typedef std::shared_ptr<PreparedResultSet> PreparedQueryResult;
 
 #endif
-

@@ -241,4 +241,3 @@ if (DISABLED_SCRIPT_MODULE_PROJECTS)
 endif()
 
 message("")
-

@@ -44,4 +44,3 @@ class HomeMovementGenerator : public MovementGeneratorMedium< T, HomeMovementGen
 };
 
 #endif
-

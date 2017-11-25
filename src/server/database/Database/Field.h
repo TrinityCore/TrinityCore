@@ -451,4 +451,3 @@ class TC_DATABASE_API Field
 };
 
 #endif
-

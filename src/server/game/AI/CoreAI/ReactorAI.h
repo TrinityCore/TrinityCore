@@ -35,4 +35,3 @@ class TC_GAME_API ReactorAI : public CreatureAI
         static int32 Permissible(Creature const* creature);
 };
 #endif
-

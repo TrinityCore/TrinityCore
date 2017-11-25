@@ -28,4 +28,3 @@ inline MovementGenerator* MovementGeneratorFactory<Movement>::Create(void * /*da
 }
 
 #endif
-

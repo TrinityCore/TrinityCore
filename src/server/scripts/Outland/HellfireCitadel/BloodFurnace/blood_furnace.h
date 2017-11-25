@@ -87,4 +87,3 @@ AI* GetBloodFurnaceAI(Creature* creature)
 }
 
 #endif // BLOOD_FURNACE_H_
-

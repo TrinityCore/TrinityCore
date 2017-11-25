@@ -123,4 +123,3 @@ class UpdateMask
 };
 
 #endif
-

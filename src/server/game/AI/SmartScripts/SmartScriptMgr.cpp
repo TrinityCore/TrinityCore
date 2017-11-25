@@ -1504,4 +1504,3 @@ CacheSpellContainerBounds SmartAIMgr::GetCreateItemSpellContainerBounds(uint32 i
 {
     return CreateItemSpellStore.equal_range(itemId);
 }
-

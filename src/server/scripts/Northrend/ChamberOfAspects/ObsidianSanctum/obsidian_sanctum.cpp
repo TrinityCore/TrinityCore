@@ -1065,4 +1065,3 @@ void AddSC_obsidian_sanctum()
     new achievement_twilight_duo();
     new achievement_twilight_zone();
 }
-

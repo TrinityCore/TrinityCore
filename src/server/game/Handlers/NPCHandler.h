@@ -57,4 +57,3 @@ struct NpcTextLocale
     StringVector Text_1[MAX_GOSSIP_TEXT_OPTIONS];
 };
 #endif
-

@@ -254,4 +254,3 @@ inline void Cell::VisitAllObjects(float x, float y, Map* map, T& visitor, float 
     cell.Visit(p, gnotifier, *map, x, y, radius);
 }
 #endif
-
