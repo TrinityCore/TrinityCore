@@ -646,9 +646,9 @@ bool Map::AddToMap(T* obj)
 
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual
-    obj->SetItsNewObject(true);
+    obj->SetIsNewObject(true);
     obj->UpdateObjectVisibilityOnCreate();
-    obj->SetItsNewObject(false);
+    obj->SetIsNewObject(false);
     return true;
 }
 
