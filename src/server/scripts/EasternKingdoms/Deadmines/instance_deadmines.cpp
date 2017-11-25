@@ -25,7 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
-#include "Deadmines.h"
+#include "deadmines.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
