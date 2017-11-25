@@ -2552,4 +2552,3 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
     else
         slot->flags &= ~flag;
 }
-

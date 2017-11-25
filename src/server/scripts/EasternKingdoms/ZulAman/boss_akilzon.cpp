@@ -463,4 +463,3 @@ void AddSC_boss_akilzon()
     new boss_akilzon();
     new npc_akilzon_eagle();
 }
-

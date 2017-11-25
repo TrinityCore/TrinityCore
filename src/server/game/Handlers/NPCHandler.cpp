@@ -851,4 +851,3 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
         _player->DurabilityRepairAll(true, discountMod, guildBank != 0);
     }
 }
-
