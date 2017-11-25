@@ -1805,7 +1805,7 @@ void ObjectMgr::LoadCreatures()
 
     //                                               0              1   2    3        4             5           6           7           8            9              10
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //   11               12         13       14            15         16         17          18          19                20                   21                         22
+    //   11               12         13       14            15         16         17          18          19                20                   21                     22
         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.phaseid, "
     //   23                   24
         "creature.phasegroup, creature.ScriptName "
@@ -1867,7 +1867,7 @@ void ObjectMgr::LoadCreatures()
         data.dynamicflags   = fields[21].GetUInt32();
         data.phaseid        = fields[22].GetUInt32();
         data.phaseGroup     = fields[23].GetUInt32();
-        data.ScriptId       = GetScriptId(fields[23].GetString());
+        data.ScriptId       = GetScriptId(fields[24].GetString());
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -2115,11 +2115,11 @@ void ObjectMgr::LoadGameobjects()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0                1   2    3           4           5           6
+    //                                               0                1   2    3           4           5           6
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
     //   7          8          9          10         11             12            13     14         15         16          17
         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, phaseMask, eventEntry, pool_entry, "
-    //   18        19
+    //   18        19         20
         "phaseid, phasegroup, ScriptName "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
         "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
@@ -2236,7 +2236,7 @@ void ObjectMgr::LoadGameobjects()
             data.phaseGroup = 0;
         }
 
-        data.ScriptId = GetScriptId(fields[19].GetString());
+        data.ScriptId = GetScriptId(fields[20].GetString());
 
         if (std::abs(data.orientation) > 2 * float(M_PI))
         {
