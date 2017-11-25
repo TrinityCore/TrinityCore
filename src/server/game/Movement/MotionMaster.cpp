@@ -456,7 +456,7 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
-    _owner->GetClosePoint(x, y, z, _owner->GetCombatReach(), dist, angle);
+    _owner->GetClosePoint(x, y, z, 0.0f, dist, angle);
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
 }
 
