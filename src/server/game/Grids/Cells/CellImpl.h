@@ -255,4 +255,3 @@ inline void Cell::VisitAllObjects(float x, float y, Map* map, T& visitor, float 
 }
 
 #endif
-

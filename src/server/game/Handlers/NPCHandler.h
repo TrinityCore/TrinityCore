@@ -57,4 +57,3 @@ struct NpcTextLocale
     std::vector<std::string> Text_1[MAX_GOSSIP_TEXT_OPTIONS];
 };
 #endif
-

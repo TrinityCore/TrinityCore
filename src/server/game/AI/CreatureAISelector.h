@@ -33,4 +33,3 @@ namespace FactorySelector
     TC_GAME_API GameObjectAI* SelectGameObjectAI(GameObject* go);
 }
 #endif
-

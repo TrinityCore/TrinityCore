@@ -112,7 +112,7 @@ class boss_selin_fireheart : public CreatureScript
 
                     DoCast(crystal, SPELL_FEL_CRYSTAL_DUMMY);
                     CrystalGUID = crystal->GetGUID();
-                    
+
                     float x, y, z;
                     crystal->GetClosePoint(x, y, z, me->GetCombatReach(), CONTACT_DISTANCE);
 

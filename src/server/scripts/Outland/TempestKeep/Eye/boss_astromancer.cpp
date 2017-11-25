@@ -546,4 +546,3 @@ void AddSC_boss_high_astromancer_solarian()
     new npc_solarium_priest();
     new spell_astromancer_wrath_of_the_astromancer();
 }
-

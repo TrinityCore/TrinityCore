@@ -6020,7 +6020,7 @@ void ObjectMgr::LoadQuestGreetings()
         uint32 id                   = fields[0].GetUInt32();
         uint8 type                  = fields[1].GetUInt8();
         // overwrite
-        switch (type) 
+        switch (type)
         {
             case 0: // Creature
                 type = TYPEID_UNIT;

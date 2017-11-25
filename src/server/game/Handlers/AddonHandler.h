@@ -36,4 +36,3 @@ class AddonHandler
 };
 #define sAddOnHandler AddonHandler::instance()
 #endif
-
