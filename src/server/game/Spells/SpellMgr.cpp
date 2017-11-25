@@ -3016,9 +3016,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // should also affect Flash Heal
                 spellInfo->Effects[EFFECT_0].SpellClassMask[0] |= 0x800;
                 break;
-            case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
-                spellInfo->Effects[EFFECT_0].MiscValue |= 1;
-                break;
             case 51912: // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
                 spellInfo->Effects[EFFECT_0].Amplitude = 3000;
                 break;
