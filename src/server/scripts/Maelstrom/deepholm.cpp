@@ -111,12 +111,6 @@ public:
             me->CastSpell((Unit*)nullptr, SPELL_CAMERA_1, true);
         }
 
-        void IsSummonedBy(Unit* summoner) override
-        {
-            if (!summoner->IsOnVehicle(me))
-                summoner->EnterVehicle(me->GetVehicleBase(), 1);
-        }
-
         void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
         {
             if (passenger->GetTypeId() != TYPEID_PLAYER || !apply)
