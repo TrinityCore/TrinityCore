@@ -75,4 +75,3 @@ inline AI* GetBlackMorassAI(Creature* creature)
 }
 
 #endif
-

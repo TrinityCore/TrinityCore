@@ -82,4 +82,3 @@ class TC_GAME_API TriggerAI : public NullCreatureAI
 };
 
 #endif
-

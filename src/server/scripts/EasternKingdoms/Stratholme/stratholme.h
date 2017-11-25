@@ -91,4 +91,3 @@ inline AI* GetStratholmeAI(Creature* creature)
 }
 
 #endif
-

@@ -370,4 +370,3 @@ Field const& PreparedResultSet::operator[](std::size_t index) const
     ASSERT(index < m_fieldCount);
     return m_rows[uint32(m_rowPosition) * m_fieldCount + index];
 }
-

@@ -64,4 +64,3 @@ void ArenaTeamScore::Assign(uint32 preMatchRating, uint32 postMatchRating, uint3
     PreMatchMMR = preMatchMMR;
     PostMatchMMR = postMatchMMR;
 }
-
