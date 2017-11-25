@@ -55,7 +55,7 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
     _fieldNotifyFlags   = UF_FLAG_DYNAMIC;
 
     m_inWorld           = false;
-    m_isNewObject      = false;
+    m_isNewObject       = false;
     m_objectUpdated     = false;
 }
 
