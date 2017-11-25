@@ -1,4 +1,4 @@
-/*
+_/*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -4259,9 +4259,9 @@ class spell_item_universal_remote : public SpellScriptLoader
                 {
                     uint8 chance = urand(0, 99);
                     if (chance < 15)
-                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem()); 
+                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem());
                     else if (chance < 25)
-                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem()); 
+                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem());
                     else
                         GetCaster()->CastSpell(target, SPELL_CONTROL_MACHINE, true, GetCastItem());
                 }
