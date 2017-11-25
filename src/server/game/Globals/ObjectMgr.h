@@ -1505,7 +1505,7 @@ class TC_GAME_API ObjectMgr
         PetLevelInfoContainer _petInfoStore;                            // [creature_id][level]
 
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
-        
+
         PlayerInfo* _playerInfo[MAX_RACES][MAX_CLASSES];
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]

@@ -1495,7 +1495,7 @@ class spell_mage_arcane_missiles_trigger : public SpellScriptLoader
 {
 public:
     spell_mage_arcane_missiles_trigger() : SpellScriptLoader("spell_mage_arcane_missiles_trigger") { }
- 
+
     class spell_mage_arcane_missiles_trigger_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_mage_arcane_missiles_trigger_AuraScript);
@@ -1504,7 +1504,7 @@ public:
         {
             return GetCaster()->GetTypeId() == TYPEID_PLAYER;
         }
- 
+
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES_AURASTATE))
@@ -1534,7 +1534,7 @@ public:
             AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles_trigger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
- 
+
     AuraScript* GetAuraScript() const override
     {
         return new spell_mage_arcane_missiles_trigger_AuraScript();

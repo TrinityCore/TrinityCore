@@ -4125,9 +4125,9 @@ class spell_item_universal_remote : public SpellScriptLoader
                 {
                     uint8 chance = urand(0, 99);
                     if (chance < 15)
-                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem()); 
+                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem());
                     else if (chance < 25)
-                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem()); 
+                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem());
                     else
                         GetCaster()->CastSpell(target, SPELL_CONTROL_MACHINE, true, GetCastItem());
                 }
@@ -4788,7 +4788,7 @@ void AddSC_item_spell_scripts()
     new spell_item_universal_remote();
     new spell_item_zandalarian_charm("spell_item_unstable_power", SPELL_UNSTABLE_POWER_AURA_STACK);
     new spell_item_zandalarian_charm("spell_item_restless_strength", SPELL_RESTLESS_STRENGTH_AURA_STACK);
-    
+
     new spell_item_mad_alchemists_potion();
     new spell_item_crazy_alchemists_potion();
 }

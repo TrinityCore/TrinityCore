@@ -218,7 +218,7 @@ class instance_stonecore : public InstanceMapScript
             GuidVector millhouseLastGroupGUIDs;
             ObjectGuid corborusRockDoorGUID;
             GuidVector slabhideRockWallGUIDs;
-            
+
             EncounterState slabhideIntro = NOT_STARTED;
         };
 

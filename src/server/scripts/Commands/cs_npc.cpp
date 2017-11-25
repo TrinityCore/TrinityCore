@@ -1579,13 +1579,13 @@ public:
                 handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "Per-player quest items");
                 _IterateNotNormalLootMap(handler, loot.GetPlayerQuestItems(), loot.quest_items);
             }
-            
+
             if (!loot.GetPlayerFFAItems().empty())
             {
                 handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "FFA items per allowed player");
                 _IterateNotNormalLootMap(handler, loot.GetPlayerFFAItems(), loot.items);
             }
-            
+
             if (!loot.GetPlayerNonQuestNonFFAConditionalItems().empty())
             {
                 handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "Per-player conditional items");

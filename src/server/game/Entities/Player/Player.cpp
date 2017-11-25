@@ -4628,7 +4628,7 @@ void Player::DeleteOldCharacters()
 void Player::DeleteOldCharacters(uint32 keepDays)
 {
     TC_LOG_INFO("entities.player", "Player::DeleteOldCharacters: Deleting all characters which have been deleted %u days before...", keepDays);
- 
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_OLD_CHARS);
     stmt->setUInt32(0, uint32(time(nullptr) - time_t(keepDays * DAY)));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -5512,7 +5512,7 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
             ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
             ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
             ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
-                if (getClass() == CLASS_DEATH_KNIGHT)        
+                if (getClass() == CLASS_DEATH_KNIGHT)
                     UpdateAllRunesRegen();
             break;
         case CR_HASTE_RANGED:
@@ -27776,7 +27776,7 @@ void Player::SetRestFlag(RestFlag restFlag, uint32 triggerId /*= 0*/)
         _restTime = time(nullptr);
         SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
     }
-    
+
     if (triggerId)
         inn_triggerId = triggerId;
     }

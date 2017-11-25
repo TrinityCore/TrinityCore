@@ -3066,7 +3066,7 @@ enum CreatureTypeFlags
     CREATURE_TYPE_FLAG_HIDE_NAME_PLATE                      = 0x00100000,
     CREATURE_TYPE_FLAG_DO_NOT_PLAY_MOUNTED_ANIMATIONS       = 0x00200000,
     CREATURE_TYPE_FLAG_IS_LINK_ALL                          = 0x00400000,
-    CREATURE_TYPE_FLAG_INTERACT_ONLY_WITH_CREATOR           = 0x00800000, 
+    CREATURE_TYPE_FLAG_INTERACT_ONLY_WITH_CREATOR           = 0x00800000,
     CREATURE_TYPE_FLAG_DO_NOT_PLAY_UNIT_EVENT_SOUNDS        = 0x01000000,
     CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB                   = 0x02000000,
     CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT                   = 0x04000000,   //! Creature can be targeted by spells that require target to be in caster's party/raid

@@ -44,7 +44,7 @@ enum Spells
     SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND = 81220,
     SPELL_IMPENDING_DOOM                  = 86838,
     SPELL_IMPENDING_DOOM_CHANNEL          = 86830,
-    
+
 //  SPELL_PORTAL_VISUAL                   = 79754,
 };
 

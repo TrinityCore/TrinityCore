@@ -2119,7 +2119,7 @@ void ObjectMgr::LoadGameobjects()
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
     //   7          8          9          10         11             12            13     14         15         16          17
         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, phaseMask, eventEntry, pool_entry, "
-    //   18        19 
+    //   18        19
         "phaseid, phasegroup, ScriptName "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
         "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
@@ -5906,7 +5906,7 @@ void ObjectMgr::LoadQuestGreetings()
         uint32 id                   = fields[0].GetUInt32();
         uint8 type                  = fields[1].GetUInt8();
         // overwrite
-        switch (type) 
+        switch (type)
         {
             case 0: // Creature
                 type = TYPEID_UNIT;
@@ -9638,7 +9638,7 @@ GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry) const
 
     return nullptr;
 }
-  
+
 GameObjectTemplateAddon const* ObjectMgr::GetGameObjectTemplateAddon(uint32 entry) const
 {
     auto itr = _gameObjectTemplateAddonStore.find(entry);

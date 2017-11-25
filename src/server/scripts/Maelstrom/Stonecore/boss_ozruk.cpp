@@ -160,7 +160,7 @@ class boss_ozruk : public CreatureScript
                             me->AttackStop();
                             DoCast(me, SPELL_SHATTER);
                             events.ScheduleEvent(EVENT_START_ATTACK, 4600);
-                            // Spells are cast in same order everytime after Shatter, so we schedule them here 
+                            // Spells are cast in same order everytime after Shatter, so we schedule them here
                             events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, urand(3000,4000));
                             events.ScheduleEvent(EVENT_GROUND_SLAM, urand(7000,9000));
                             events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, urand(10000,12000));

@@ -150,7 +150,7 @@ class SocialMgr
 
         // Loading
         PlayerSocial* LoadFromDB(PreparedQueryResult result, ObjectGuid const& guid);
- 
+
     private:
         typedef std::map<ObjectGuid, PlayerSocial> SocialMap;
         SocialMap _socialMap;

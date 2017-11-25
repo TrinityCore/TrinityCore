@@ -520,12 +520,12 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& p
         init.SetFly();
         init.SetUncompressed();
     }
- 
+
     init.MovebyPath(path);
     init.SetSmooth();
     init.SetWalk(walk);
     init.Launch();
- 
+
     // This code is not correct
     // EffectMovementGenerator does not affect UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE
     // need to call PointMovementGenerator with various pointIds

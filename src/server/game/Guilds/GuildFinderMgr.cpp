@@ -190,7 +190,7 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
     // Notify the guild master and officers the list changed
     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
         SendApplicantListUpdate(*guild);
-        
+
     _membershipRequests[guildId].erase(itr);
 }
 

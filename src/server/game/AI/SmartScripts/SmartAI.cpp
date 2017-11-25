@@ -296,7 +296,7 @@ void SmartAI::UpdatePath(const uint32 diff)
 {
     if (mEscortInvokerCheckTimer < diff)
     {
-        // Escort failed, no players in range 
+        // Escort failed, no players in range
         if (!IsEscortInvokerInRange())
         {
             StopPath(0, mEscortQuestID, true);

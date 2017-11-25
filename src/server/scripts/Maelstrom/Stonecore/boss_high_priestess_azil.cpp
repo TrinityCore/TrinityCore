@@ -116,7 +116,7 @@ Position const GroundPos = { 1331.82f, 980.314f, 207.542f };
 Position const AbovePlatformPos = { 1336.21f, 960.813f, 215.0f };
 
 // TO-DO:
-// - Find more sniffs and script Force Grip spell (79351) 
+// - Find more sniffs and script Force Grip spell (79351)
 
 class boss_high_priestess_azil : public CreatureScript
 {
@@ -300,7 +300,7 @@ class boss_high_priestess_azil : public CreatureScript
         }
 };
 
-// 42428 - Devout Follower 
+// 42428 - Devout Follower
 class npc_devout_follower : public CreatureScript
 {
 public:

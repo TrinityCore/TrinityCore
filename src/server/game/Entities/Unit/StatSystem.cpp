@@ -915,7 +915,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
 
     SetInt32Value(index, uint32(baseAttackPower));                                    // UNIT_FIELD_(RANGED)_ATTACK_POWER
     SetInt32Value(indexModPos, uint32(attackPowerMod > 0.f ? attackPowerMod : 0.f));  // UNIT_FIELD_(RANGED)_ATTACK_POWER_MOD_POS
-    SetInt32Value(indexModNeg, uint32(attackPowerMod < 0.f ? -attackPowerMod : 0.f)); // UNIT_FIELD_(RANGED)_ATTACK_POWER_MOD_NEG 
+    SetInt32Value(indexModNeg, uint32(attackPowerMod < 0.f ? -attackPowerMod : 0.f)); // UNIT_FIELD_(RANGED)_ATTACK_POWER_MOD_NEG
     SetFloatValue(indexMulti, attackPowerMultiplier);                                 // UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER
 
     // automatically update weapon damage after attack power modification

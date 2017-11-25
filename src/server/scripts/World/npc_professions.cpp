@@ -1014,7 +1014,7 @@ enum MultiProfessionTrainer
     GOSSIP_OPTION_SKINNING       = 9,
     GOSSIP_OPTION_TAILORING      = 10,
     GOSSIP_OPTION_MULTI          = 11,
- 
+
     GOSSIP_MENU_HERBALISM        = 12188,
     GOSSIP_MENU_MINING           = 12189,
     GOSSIP_MENU_SKINNING         = 12190,

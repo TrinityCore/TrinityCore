@@ -46,7 +46,7 @@ enum Spells
 };
 
 enum Entries
-{   
+{
     NPC_LAVA_FISSURE              = 43242,
     NPC_STALACTITE_TRIGGER_GROUND = 43357,
     NPC_STALACTITE_TRIGGER        = 43159,
@@ -182,7 +182,7 @@ class boss_slabhide : public CreatureScript
             {
                 if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
                     return;
-                
+
                 switch (id)
                 {
                     case POINT_SLABHIDE_INTRO:
@@ -567,7 +567,7 @@ public:
             caster->GetGameObjectListWithEntryInGrid(goList, GO_STALACTITE, 40.0f);
             if (goList.empty())
                 return;
-            
+
             unitList.remove_if(BehindObjectCheck(caster, goList));
         }
 
@@ -592,5 +592,5 @@ void AddSC_boss_slabhide()
     new spell_s81028_s80650_stalactite();
     new spell_stalactite_mod_dest_height();
     new spell_s92306_crystal_storm();
-    new spell_s92300_crystal_storm(); 
+    new spell_s92300_crystal_storm();
 }

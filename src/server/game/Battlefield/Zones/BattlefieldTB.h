@@ -51,7 +51,7 @@ enum TolBaradSpells
     SPELL_REWARD_TOWER_INTACT = 89794,
     SPELL_REWARD_TOWER_DAMAGED = 89795,
     SPELL_REWARD_TOWER_DESTROYED = 89796,
-    
+
     // Player buffs
     SPELL_TB_SLOW_FALL = 88473,
     SPELL_TB_VETERAN = 84655,
@@ -64,7 +64,7 @@ enum TolBaradSpells
     SPELL_RIDE_TOL_BARAD_VEHICLE = 84754,
     SPELL_DEPLOY_SIEGE_MODE = 84974,
     SPELL_SIEGE_CANNON_AURA = 85167, // aura, periodically triggers spell 85122
-//  SPELL_SIEGE_CANNON_EFFECT = 85122, // targets random 
+//  SPELL_SIEGE_CANNON_EFFECT = 85122, // targets random
 //  SPELL_SIEGE_CANNON_DAMAGE = 85125,
     SPELL_LEAVE_SIEGE_MODE = 85078,
 
@@ -109,7 +109,7 @@ enum TolBaradNpcs
     NPC_TB_GY_SPIRIT_WARDENS_VIGIL_A                = 45069,
     NPC_TB_GY_SPIRIT_EAST_SPIRE_A                   = 45070,
     NPC_TB_GY_SPIRIT_SOUTH_SPIRE_A                  = 45071,
-    NPC_TB_GY_SPIRIT_WEST_SPIRE_A                   = 45072,  
+    NPC_TB_GY_SPIRIT_WEST_SPIRE_A                   = 45072,
     NPC_TB_GY_SPIRIT_SLAGWORKS_A                    = 45073,
     NPC_TB_GY_SPIRIT_IRONCLAD_GARRISON_H            = 45074,
     NPC_TB_GY_SPIRIT_WARDENS_VIGIL_H                = 45075,
@@ -165,7 +165,7 @@ enum TolBaradWorldStates
     TB_WS_HORDE_CONTROLS_SHOW = 5384,
     TB_WS_ALLIANCE_ATTACKING_SHOW = 5546,
     TB_WS_HORDE_ATTACKING_SHOW = 5547,
-    
+
     TB_WS_BUILDINGS_CAPTURED = 5348,
     TB_WS_BUILDINGS_CAPTURED_SHOW = 5349,
     TB_WS_TOWERS_DESTROYED = 5347,
@@ -263,7 +263,7 @@ enum TolBaradText
     TB_TEXT_SLAGWORKS_ALLIANCE_GAINED       = 15,
     TB_TEXT_SLAGWORKS_ALLIANCE_LOST         = 16,
     TB_TEXT_SLAGWORKS_HORDE_GAINED          = 17,
-    TB_TEXT_SLAGWORKS_HORDE_LOST            = 18,   
+    TB_TEXT_SLAGWORKS_HORDE_LOST            = 18,
     TB_TEXT_FORTRESS_DEFEND_ALLIANCE        = 19,
     TB_TEXT_FORTRESS_DEFEND_HORDE           = 20,
     TB_TEXT_FORTRESS_CAPTURE_ALLIANCE       = 21,
@@ -481,7 +481,7 @@ class TC_GAME_API BattlefieldTB : public Battlefield
 
         bool updatedNPCAndObjects;
         uint32 m_updateObjectsTimer;
-        
+
         uint32 m_BonusTime;
 
         GuidSet BattleInactiveNPCs;
@@ -490,7 +490,7 @@ class TC_GAME_API BattlefieldTB : public Battlefield
         GuidSet TemporaryNPCs;
         GuidSet TemporaryGOs;
 
-        GuidSet Towers;       
+        GuidSet Towers;
 
         uint8 m_iCellblockRandom;
 

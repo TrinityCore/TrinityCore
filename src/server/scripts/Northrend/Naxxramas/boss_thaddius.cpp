@@ -555,7 +555,7 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Talk(EMOTE_FEIGN_REVIVE);
                         isFeignDeath = false;
-                        
+
                         refreshBeam = true; // force beam refresh
 
                         if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))

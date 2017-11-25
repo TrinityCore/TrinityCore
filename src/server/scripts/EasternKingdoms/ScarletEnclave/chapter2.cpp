@@ -688,7 +688,7 @@ public:
 
                     switch (ExecuteSpeech_Counter)
                     {
-                        case 0: 
+                        case 0:
                             Talk(SAY_EXEC_START, player);
                             break;
                         case 1:

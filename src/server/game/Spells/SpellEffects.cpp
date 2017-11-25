@@ -3803,13 +3803,13 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
 
     if (player->IsInFlight())
         return;
-    
+
     // if player is dead without death timer is teleported to graveyard, otherwise not apply the effect
     if (player->isDead())
     {
         if (!player->GetDeathTimer())
             player->RepopAtGraveyard();
-            
+
         return;
     }
 
@@ -3819,7 +3819,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
         player->Kill(player);
         return;
     }
-    
+
     player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation(), TELE_TO_SPELL);
 
     // Stuck spell trigger Hearthstone cooldown

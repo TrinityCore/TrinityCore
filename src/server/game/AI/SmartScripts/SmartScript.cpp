@@ -3718,7 +3718,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
 
             if (gameobject)
                  ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat, nullptr, 0, 0, false, nullptr, gameobject);
-  
+
             break;
         }
         case SMART_EVENT_COUNTER_SET:

@@ -918,7 +918,7 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
 {
     public:
         spell_gatewatcher_subboss_trigger() : SpellScriptLoader("spell_gatewatcher_subboss_trigger") { }
-        
+
         class spell_gatewatcher_subboss_trigger_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gatewatcher_subboss_trigger_SpellScript);

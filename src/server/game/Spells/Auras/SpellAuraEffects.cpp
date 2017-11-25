@@ -2181,7 +2181,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                         {
                             if (caster->HasAura(52648))         // Glyph of the Penguin
                                 model_id = 26452;
-                            else if (caster->HasAura(57927))	// Glyph of the Monkey 
+                            else if (caster->HasAura(57927))	// Glyph of the Monkey
                                 model_id = 21362;
                         }
                     }
@@ -6253,7 +6253,7 @@ void AuraEffect::HandleProcOnPowerAmountAuraProc(AuraApplication* aurApp, ProcEv
 
     if (triggerCaster->GetPower(powerRequired) != powerAmountRequired)
         return;
-    
+
     uint32 triggerSpellId = GetSpellInfo()->Effects[GetEffIndex()].TriggerSpell;
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
