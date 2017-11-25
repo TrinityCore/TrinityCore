@@ -36,11 +36,11 @@ enum Speech
     SAY_THREE  = 5     // The Brotherhood shall prevail!
 };
 
-// Sniffed - 3.3.0 11159
+// TDB coords
 Position const BlackguardPositions[] =
 {
-        { -69.30876f, -819.8949f, 40.67694f, 6.055284f },
-        { -68.65159f, -822.0574f, 40.76994f, 6.265795f }
+    { -78.2791f, -824.784f, 40.0007f, 2.93215f },
+    { -77.8071f, -815.097f, 40.0188f, 3.26377f }
 };
 
 struct boss_vancleef : public BossAI
