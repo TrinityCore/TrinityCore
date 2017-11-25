@@ -2774,7 +2774,7 @@ class CastFoodSpell : public BasicEvent
         bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
             _owner->CastSpell(_owner, _spellId, true);
-            return false;
+            return true;
         }
 
     private:
