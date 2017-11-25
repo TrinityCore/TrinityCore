@@ -111,7 +111,7 @@ public:
             me->CastSpell((Unit*)nullptr, SPELL_CAMERA_1, true);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             if (!summoner->IsOnVehicle(me))
                 summoner->EnterVehicle(me->GetVehicleBase(), 1);
