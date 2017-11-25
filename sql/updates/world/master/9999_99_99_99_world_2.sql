@@ -119,14 +119,14 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (45027, 45028);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(45028, 0, 0, 'I hope you have a strong stomach.  Travelling through the breach is not for the weak.', 12, 0, 100, 4, 0, 22606, 851, 0, 'Aggra'),
-(45028, 1, 0, 'We''re at the center of the Maelstrom, the rift between Deepholm and our world.  Watch as it threatens to tear our world apart!', 12, 0, 100, 4, 0, 22607, 851, 0, 'Aggra'),
-(45028, 2, 0, 'Let us hope Thrall and the others can contain it while you''re inside.', 12, 0, 100, 4, 0, 22608, 851, 0, 'Aggra'),
-(45028, 3, 0, 'This is it!  Brace yourself!', 14, 0, 100, 4, 0, 22609, 851, 0, 'Aggra'),
-(45027, 0, 0, 'You made it!  Good!', 12, 0, 100, 4, 0, 22610, 851, 0, 'Aggra'),
-(45027, 1, 0, 'This is the Temple of Earth.  It''s the most important structure in Deepholm.', 12, 0, 100, 0, 0, 22611, 851, 0, 'Aggra'),
-(45027, 2, 0, 'There was once a Titan-made stone inside.  It was known as the World Pillar.  The name was literal.  It bore the weight of all the elemental and magnetic forces in Deepholm.', 12, 0, 100, 0, 0, 22612, 851, 0, 'Aggra'),
-(45027, 3, 0, 'It was shattered when Deathwing broke through the dome above and created the rift between the two worlds.  All of Deepholm is going to collapse into Azeroth if we do not put the World Pillar back together.', 12, 0, 100, 0, 0, 22613, 851, 0, 'Aggra'),
-(45027, 4, 0, 'The first fragment was going to be delivered to us by a Horde gunship known as the Storm''s Fury.  It never made it here.', 12, 0, 100, 0, 0, 22614, 851, 0, 'Aggra'),
-(45027, 5, 0, 'We''ve taken control of the temple and we''re containing as much of the damage as we can.  Go inside and speak to Maruut; he''s in charge.', 12, 0, 100, 0, 0, 22615, 851, 0, 'Aggra'),
-(45027, 6, 0, 'We are all counting on you.', 12, 0, 100, 0, 0, 22616, 851, 0, 'Aggra');
+(45028, 0, 0, 'I hope you have a strong stomach.  Travelling through the breach is not for the weak.', 12, 0, 100, 4, 0, 22606, 45169, 0, 'Aggra'),
+(45028, 1, 0, 'We''re at the center of the Maelstrom, the rift between Deepholm and our world.  Watch as it threatens to tear our world apart!', 12, 0, 100, 4, 0, 22607, 45170, 0, 'Aggra'),
+(45028, 2, 0, 'Let us hope Thrall and the others can contain it while you''re inside.', 12, 0, 100, 4, 0, 22608, 45171, 0, 'Aggra'),
+(45028, 3, 0, 'This is it!  Brace yourself!', 14, 0, 100, 4, 0, 22609, 45172, 0, 'Aggra'),
+(45027, 0, 0, 'You made it!  Good!', 12, 0, 100, 4, 0, 22610, 45175, 0, 'Aggra'),
+(45027, 1, 0, 'This is the Temple of Earth.  It''s the most important structure in Deepholm.', 12, 0, 100, 0, 0, 22611, 45176, 0, 'Aggra'),
+(45027, 2, 0, 'There was once a Titan-made stone inside.  It was known as the World Pillar.  The name was literal.  It bore the weight of all the elemental and magnetic forces in Deepholm.', 12, 0, 100, 0, 0, 22612, 45180, 0, 'Aggra'),
+(45027, 3, 0, 'It was shattered when Deathwing broke through the dome above and created the rift between the two worlds.  All of Deepholm is going to collapse into Azeroth if we do not put the World Pillar back together.', 12, 0, 100, 0, 0, 22613, 45182, 0, 'Aggra'),
+(45027, 4, 0, 'The first fragment was going to be delivered to us by a Horde gunship known as the Storm''s Fury.  It never made it here.', 12, 0, 100, 0, 0, 22614, 45186, 0, 'Aggra'),
+(45027, 5, 0, 'We''ve taken control of the temple and we''re containing as much of the damage as we can.  Go inside and speak to Maruut; he''s in charge.', 12, 0, 100, 0, 0, 22615, 45187, 0, 'Aggra'),
+(45027, 6, 0, 'We are all counting on you.', 12, 0, 100, 0, 0, 22616, 45191, 0, 'Aggra');
