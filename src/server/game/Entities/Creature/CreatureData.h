@@ -344,8 +344,8 @@ struct TC_GAME_API CreatureTemplate
     uint32  lootid;
     uint32  pickpocketLootId;
     uint32  SkinLootId;
-    int32   resistance[MAX_SPELL_SCHOOL];
-    uint32  spells[MAX_CREATURE_SPELLS];
+    int32   resistance[MAX_SPELL_SCHOOL] = {};
+    uint32  spells[MAX_CREATURE_SPELLS] = {};
     uint32  VehicleId;
     uint32  mingold;
     uint32  maxgold;
