@@ -6069,13 +6069,13 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                     if ((*j)->GetMiscValue() == int32(id))
                         (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
 
-                // Learn all spells for skill
-                LearnSkillRewardedSpells(id, newVal);
-                return;
-
                 // archaeology skill learned
                 if (id == SKILL_ARCHAEOLOGY)
                     _archaeology.Learn();
+
+                // Learn all spells for skill
+                LearnSkillRewardedSpells(id, newVal);
+                return;
             }
         }
     }
