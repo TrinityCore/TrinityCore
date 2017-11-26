@@ -4005,6 +4005,10 @@ void Spell::SendSpellStart()
     if (m_spellInfo->RuneCostID && m_spellInfo->PowerType == POWER_RUNE)
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
+    if (m_casttime && m_spellInfo->HasEffect(SPELL_EFFECT_HEAL) || m_spellInfo->HasEffect(SPELL_EFFECT_HEAL_PCT) ||
+        m_spellInfo->HasAura(SPELL_AURA_PERIODIC_HEAL))
+        castFlags |= CAST_FLAG_HEAL_PREDICTION;
+
     WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
     if (m_CastItem)
         data << m_CastItem->GetPackGUID();
@@ -4061,10 +4065,24 @@ void Spell::SendSpellStart()
 
     if (castFlags & CAST_FLAG_HEAL_PREDICTION)
     {
-        data << uint32(0);
-        data << uint8(0); // unkByte
-        // if (unkByte == 2)
-            // data.append(0);
+        uint8 type = DOT;
+        int32 amt = 0;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+        {
+            if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_HEAL || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_HEAL_PCT)
+            {
+                type = 0;
+                Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
+                amt = CalculateDamage(i, target);
+                amt = m_caster->SpellHealingBonusDone(target, m_spellInfo, amt, HEAL);
+                break;
+            }
+        }
+
+        data << uint32(amt);
+        data << uint8(type);
+        if (type == DOT)
+            data.appendPackGUID(m_caster->GetGUID());
     }
 
     m_caster->SendMessageToSet(&data, true);
