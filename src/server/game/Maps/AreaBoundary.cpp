@@ -103,6 +103,11 @@ BoundaryUnionBoundary::BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundar
 {
     ASSERT(b1 && b2);
 }
+BoundaryUnionBoundary::~BoundaryUnionBoundary()
+{
+    delete _b1;
+    delete _b2;
+}
 bool BoundaryUnionBoundary::IsWithinBoundaryArea(Position const* pos) const
 {
     return (_b1->IsWithinBoundary(pos) || _b2->IsWithinBoundary(pos));
