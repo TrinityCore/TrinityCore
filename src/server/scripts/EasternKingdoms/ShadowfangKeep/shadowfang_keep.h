@@ -39,4 +39,3 @@ inline AI* GetShadowfangKeepAI(Creature* creature)
 }
 
 #endif
-

@@ -209,4 +209,3 @@ std::string BigNumber::AsDecStr() const
     OPENSSL_free(ch);
     return ret;
 }
-

@@ -43,4 +43,3 @@ struct TypeList
 #define TYPELIST_6(T1, T2, T3, T4, T5, T6)      TypeList<T1, TYPELIST_5(T2, T3, T4, T5, T6) >
 #define TYPELIST_7(T1, T2, T3, T4, T5, T6, T7)  TypeList<T1, TYPELIST_6(T2, T3, T4, T5, T6, T7) >
 #endif
-
