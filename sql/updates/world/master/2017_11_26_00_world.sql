@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_resistance` (
   `resistance4` smallint(6) DEFAULT NULL,
   `resistance5` smallint(6) DEFAULT NULL,
   `resistance6` smallint(6) DEFAULT NULL,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_spell` (
   `spell6` mediumint(8) unsigned DEFAULT NULL,
   `spell7` mediumint(8) unsigned DEFAULT NULL,
   `spell8` mediumint(8) unsigned DEFAULT NULL,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -34,10 +36,10 @@ CREATE TABLE IF NOT EXISTS `creature_template_spell` (
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 
-INSERT INTO creature_template_resistance SELECT entry, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6 FROM creature_template
+INSERT INTO creature_template_resistance SELECT entry, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, VerifiedBuild FROM creature_template
 WHERE resistance1 <> 0 OR resistance2 <> 0 OR resistance3 <> 0 OR resistance4 <> 0 OR resistance5 <> 0 OR resistance5 <> 0 OR resistance6 <> 0;
 
-INSERT INTO creature_template_spell SELECT entry, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8 FROM creature_template
+INSERT INTO creature_template_spell SELECT entry, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VerifiedBuild FROM creature_template
 WHERE spell1 <> 0 OR spell2 <> 0 OR spell3 <> 0 OR spell4 <> 0 OR spell5 <> 0 OR spell5 <> 0 OR spell6 <> 0 OR spell7 <> 0 OR spell8 <> 0;
 
 ALTER TABLE `creature_template`
