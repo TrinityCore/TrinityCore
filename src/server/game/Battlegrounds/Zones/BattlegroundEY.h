@@ -446,4 +446,3 @@ protected:
         uint32 m_HonorTics;
 };
 #endif
-
