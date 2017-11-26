@@ -425,4 +425,3 @@ void AddSC_boss_archaedas()
     new npc_stonekeepers();
     new go_altar_of_archaedas();
 }
-

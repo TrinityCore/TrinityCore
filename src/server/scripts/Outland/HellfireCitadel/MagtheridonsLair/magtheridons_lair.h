@@ -40,4 +40,3 @@ inline AI* GetMagtheridonsLairAI(Creature* creature)
 }
 
 #endif
-
