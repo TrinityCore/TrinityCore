@@ -64,8 +64,8 @@ public:
     void setX(const float &x)                   { _pointX = x; _round_p(); }
     void setY(const float &y)                   { _pointY = y; _round_p(); }
 
-    const float getX() const                    { return _pointX; }
-    const float getY() const                    { return _pointY; }
+    float getX() const                          { return _pointX; }
+    float getY() const                          { return _pointY; }
 
     const SitePolygonGraphNode get() const      { return (*this); }
 
@@ -191,7 +191,7 @@ public:
     const SitePolygonGraphArch     getBottom() const  { return _archB; }
     const SitePolygonGraphArch     getRight()  const  { return _archR; }
     const SitePolygonGraphArch     getTop()    const  { return _archT; }
-    const bool isNull()                        const  { return _isNull; }
+    bool isNull()                              const  { return _isNull; }
 
 private:
     SitePolygonGraphArch _archL;
