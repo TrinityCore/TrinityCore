@@ -82,15 +82,15 @@ DROP TABLE IF EXISTS `achievement_reward`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `achievement_reward` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `title_A` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `title_H` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `sender` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `subject` varchar(255) DEFAULT NULL,
-  `text` text,
-  `mailTemplate` mediumint(8) unsigned DEFAULT '0',
-  PRIMARY KEY (`entry`)
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `TitleA` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `TitleH` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `ItemID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Sender` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Subject` varchar(255) DEFAULT NULL,
+  `Text` text,
+  `MailTemplateID` mediumint(8) unsigned DEFAULT '0',
+  PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
