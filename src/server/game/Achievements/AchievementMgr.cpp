@@ -1258,6 +1258,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
         case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
         case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
             SetCriteriaProgress(achievementCriteria, miscValue2, referencePlayer, PROGRESS_ACCUMULATE);
             break;
             // std case: high value at miscValue1
@@ -1486,7 +1487,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
         case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
             break;                                   // Not implemented yet :(
@@ -1543,6 +1543,8 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
             return progress->counter >= achievementCriteria->win_bg.winCount;
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
             return progress->counter >= achievementCriteria->kill_creature.creatureCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
+            return progress->counter >= achievementCriteria->archaeology.count;
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL:
             return progress->counter >= achievementCriteria->reach_level.level;
@@ -2913,6 +2915,32 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 if (!unit || unit->GetHealthPct() >= reqValue)
                     return false;
                 break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_PROJECT_RARITY: // 65
+            {
+                if (!miscValue1)
+                    return false;
+
+                ResearchProjectEntry const* rp = sResearchProjectStore.LookupEntry(miscValue1);
+                if (!rp) return false;
+
+                if (rp->hasReward != reqValue)
+                    return false;
+
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_PROJECT_RACE: // 66
+            {
+                if (!miscValue1)
+                    return false;
+
+                ResearchProjectEntry const* rp = sResearchProjectStore.LookupEntry(miscValue1);
+                if (!rp) return false;
+
+                if (rp->ResearchBranchID != reqValue)
+                    return false;
+
+                break;
+            }
             default:
                 break;
         }

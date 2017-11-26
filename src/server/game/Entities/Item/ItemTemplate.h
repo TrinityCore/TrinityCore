@@ -240,6 +240,7 @@ enum CurrencyFlags
 enum CurrencyCategory
 {
     // ...
+    CURRENCY_CATEGORY_ARCHAEOLOGY   = 82,
     CURRENCY_CATEGORY_META_CONQUEST = 89,
     // ...
 };

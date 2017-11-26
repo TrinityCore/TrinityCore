@@ -87,6 +87,8 @@ enum LootType : uint8
     LOOT_PROSPECTING            = 7,
     LOOT_MILLING                = 8,
 
+    LOOT_ARCHAEOLOGY            = 10,
+
     LOOT_FISHINGHOLE            = 20,                       // unsupported by client, sending LOOT_FISHING instead
     LOOT_INSIGNIA               = 21,                       // unsupported by client, sending LOOT_CORPSE instead
     LOOT_FISHING_JUNK           = 22                        // unsupported by client, sending LOOT_FISHING instead
@@ -191,6 +193,20 @@ struct NotNormalLootItem
 
     NotNormalLootItem(uint8 _index, bool _islooted = false)
         : index(_index), is_looted(_islooted) { }
+};
+
+struct LootCurrency
+{
+    uint8 index;
+    uint32 id;
+    uint32 count;
+    bool looted;
+
+    LootCurrency()
+        : index(0), id(0), count(0), looted(false) { }
+
+    LootCurrency(uint32 _id, uint32 _count)
+        : index(0), id(_id), count(_count), looted(false) { }
 };
 
 struct Loot;
@@ -316,8 +332,11 @@ struct TC_GAME_API Loot
 
     std::vector<LootItem> items;
     std::vector<LootItem> quest_items;
+    std::vector<LootCurrency> currencies;
+
     uint32 gold;
     uint8 unlootedCount;
+    uint8 unlootedCurrency;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
@@ -326,7 +345,7 @@ struct TC_GAME_API Loot
     //  Only set for inventory items that can be right-click looted
     uint32 containerID;
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0) { }
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), unlootedCurrency(0), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0) { }
     ~Loot() { clear(); }
 
     // For deleting items at loot removal since there is no backward interface to the Item()
@@ -359,13 +378,14 @@ struct TC_GAME_API Loot
         quest_items.clear();
         gold = 0;
         unlootedCount = 0;
+        unlootedCurrency = 0;
         roundRobinPlayer.Clear();
         loot_type = LOOT_NONE;
         i_LootValidatorRefManager.clearReferences();
     }
 
     bool empty() const { return items.empty() && gold == 0; }
-    bool isLooted() const { return gold == 0 && unlootedCount == 0; }
+    bool isLooted() const { return gold == 0 && unlootedCount == 0 && unlootedCurrency == 0; }
 
     void NotifyItemRemoved(uint8 lootIndex);
     void NotifyQuestItemRemoved(uint8 questIndex);
@@ -385,6 +405,9 @@ struct TC_GAME_API Loot
     bool hasItemForAll() const;
     bool hasItemFor(Player* player) const;
     bool hasOverThresholdItem() const;
+
+    void AddCurrency(uint32 entry, uint32 min, uint32 max);
+    LootCurrency* LootCurrencyInSlot(uint32 lootSlot, Player* player);
 
     private:
         void FillNotNormalLootFor(Player* player, bool presentAtLooting);

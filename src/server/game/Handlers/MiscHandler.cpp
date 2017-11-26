@@ -2096,3 +2096,9 @@ void WorldSession::SendStreamingMovie()
 
     SendPacket(&data);
 }
+
+void WorldSession::HandleRequestResearchHistory(WorldPacket & /*recv_data*/)
+{
+    if (Player* player = GetPlayer())
+        player->NotifyRequestResearchHistory();
+}

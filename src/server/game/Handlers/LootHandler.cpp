@@ -136,7 +136,7 @@ void WorldSession::HandleLootCurrencyOpcode(WorldPacket& recvData)
             return;
     }
 
-    loot->NotifyCurrencyRemoved(lootSlot);
+    player->StoreLootCurrency(lootSlot, loot);
 }
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)

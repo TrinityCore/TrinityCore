@@ -504,8 +504,8 @@ enum EPlayerFields
     PLAYER_FIELD_GLYPHS_1                            = UNIT_END + 0x04B2, // Size: 9, Type: INT, Flags: PRIVATE
     PLAYER_GLYPHS_ENABLED                            = UNIT_END + 0x04BB, // Size: 1, Type: INT, Flags: PRIVATE
     PLAYER_PET_SPELL_POWER                           = UNIT_END + 0x04BC, // Size: 1, Type: INT, Flags: PRIVATE
-    PLAYER_FIELD_RESEARCHING_1                       = UNIT_END + 0x04BD, // Size: 8, Type: TWO_SHORT, Flags: PRIVATE
-    PLAYER_FIELD_RESERACH_SITE_1                     = UNIT_END + 0x04C5, // Size: 8, Type: TWO_SHORT, Flags: PRIVATE
+    PLAYER_FIELD_RESEARCH_PROJECT_1                  = UNIT_END + 0x04BD, // Size: 8, Type: TWO_SHORT, Flags: PRIVATE
+    PLAYER_FIELD_RESEARCH_SITE_1                     = UNIT_END + 0x04C5, // Size: 8, Type: TWO_SHORT, Flags: PRIVATE
     PLAYER_PROFESSION_SKILL_LINE_1                   = UNIT_END + 0x04CD, // Size: 2, Type: INT, Flags: PRIVATE
     PLAYER_FIELD_UI_HIT_MODIFIER                     = UNIT_END + 0x04CF, // Size: 1, Type: FLOAT, Flags: PRIVATE
     PLAYER_FIELD_UI_SPELL_HIT_MODIFIER               = UNIT_END + 0x04D0, // Size: 1, Type: FLOAT, Flags: PRIVATE

@@ -19,6 +19,7 @@
 #include "Player.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
+#include "Archaeology.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "Battlefield.h"
@@ -303,7 +304,7 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
     return ss;
 }
 
-Player::Player(WorldSession* session): Unit(true)
+Player::Player(WorldSession* session): Unit(true), _archaeology(this)
 {
     m_speakTime = 0;
     m_speakCount = 0;
@@ -5668,6 +5669,10 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
 
         UpdateSkillEnchantments(skill_id, value, new_value);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, skill_id);
+
+        if (skill_id == SKILL_ARCHAEOLOGY)
+            _archaeology.Update();
+
         return true;
     }
 
@@ -5727,6 +5732,8 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
     // For skinning and Mining chance decrease with level. 1-74 - no decrease, 75-149 - 2 times, 225-299 - 8 times
     switch (SkillId)
     {
+        case SKILL_ARCHAEOLOGY:
+            return UpdateSkillPro(SkillId, ((SkillValue < 50) ? 1000 : 0) *  Multiplicator, gathering_skill_gain);
         case SKILL_HERBALISM:
         case SKILL_LOCKPICKING:
         case SKILL_JEWELCRAFTING:
@@ -5962,6 +5969,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             if (newVal > currVal)
                 UpdateSkillEnchantments(id, currVal, newVal);
 
+            // archaeology skill updated
+            if (id == SKILL_ARCHAEOLOGY)
+                _archaeology.Update();
+
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
         }
@@ -5994,6 +6005,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1, 0);
             else if (GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1) == id)
                 SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1, 0);
+
+            // archaeology skill unlearned
+            if (id == SKILL_ARCHAEOLOGY)
+                _archaeology.UnLearn();
         }
     }
     else if (newVal)                                        //add
@@ -6057,6 +6072,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 // Learn all spells for skill
                 LearnSkillRewardedSpells(id, newVal);
                 return;
+
+                // archaeology skill learned
+                if (id == SKILL_ARCHAEOLOGY)
+                    _archaeology.Learn();
             }
         }
     }
@@ -7140,6 +7159,10 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count, printLog);
             return;
         }
+
+        if (itr->second.state == PLAYERCURRENCY_NEW && HasSkill(SKILL_ARCHAEOLOGY) &&
+            currency->Category == CURRENCY_CATEGORY_ARCHAEOLOGY)
+            _archaeology.ActivateBranch(sArchaeologyMgr->Currency2BranchId(currency->ID));
 
         WorldPacket packet(SMSG_UPDATE_CURRENCY, 12);
 
@@ -8581,6 +8604,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                 go->getFishLoot(loot, this);
             else if (loot_type == LOOT_FISHING_JUNK)
                 go->getFishLootJunk(loot, this);
+            else if (loot_type == LOOT_ARCHAEOLOGY)
+                go->getArchaeologyLoot(loot, this);
 
             if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules)
             {
@@ -8844,7 +8869,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
     {
         SetLootGUID(guid);
 
-        WorldPacket data(SMSG_LOOT_RESPONSE, (9 + 50));           // we guess size
+        WorldPacket data(SMSG_LOOT_RESPONSE, 8 + 1  + 50 + 1 + 1);           // we guess size
         data << uint64(guid);
         data << uint8(loot_type);
         data << LootView(*loot, this, permission);
@@ -8884,9 +8909,9 @@ void Player::SendNotifyLootItemRemoved(uint8 lootSlot) const
 
 void Player::SendNotifyCurrencyLootRemoved(uint8 lootSlot)
 {
-	WorldPacket data(SMSG_CURRENCY_LOOT_REMOVED, 1);
-	data << uint8(lootSlot);
-	GetSession()->SendPacket(&data);
+    WorldPacket data(SMSG_CURRENCY_LOOT_REMOVED, 1);
+    data << uint8(lootSlot);
+    GetSession()->SendPacket(&data);
 }
 
 void Player::SendUpdateWorldState(uint32 Field, uint32 Value) const
@@ -25210,6 +25235,21 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         SendEquipError(msg, nullptr, nullptr, item->itemid);
 }
 
+
+void Player::StoreLootCurrency(uint8 lootSlot, Loot* loot)
+{
+    LootCurrency* currency = loot->LootCurrencyInSlot(lootSlot, this);
+
+    if (!currency)
+    {
+        SendEquipError(EQUIP_ERR_LOOT_GONE, nullptr, nullptr);
+        return;
+    }
+
+    loot->NotifyCurrencyRemoved(lootSlot);
+    ModifyCurrency(currency->id, currency->count);
+}
+
 uint32 Player::CalculateTalentsPoints() const
 {
     // this dbc file has entries only up to level 100
@@ -25359,6 +25399,9 @@ void Player::_LoadSkills(PreparedQueryResult result)
 
             mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(count, SKILL_UNCHANGED)));
             loadedSkillValues[skill] = value;
+
+            if (skill == SKILL_ARCHAEOLOGY)
+                _archaeology.Initialize();
 
             ++count;
 

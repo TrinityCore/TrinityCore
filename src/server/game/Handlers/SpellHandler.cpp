@@ -54,7 +54,8 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
     }
     else if (castFlags & 0x8)   // Archaeology
     {
-        uint32 count, entry, usedCount;
+        ArchData* archData = new ArchData();
+        uint32 count;
         uint8 type;
         recvPacket >> count;
         for (uint32 i = 0; i < count; ++i)
@@ -63,15 +64,17 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
             switch (type)
             {
                 case 2: // Keystones
-                    recvPacket >> entry;        // Item id
-                    recvPacket >> usedCount;    // Item count
+                    recvPacket >> archData->keyId;       // Item id
+                    recvPacket >> archData->keyCount;    // Item count
                     break;
                 case 1: // Fragments
-                    recvPacket >> entry;        // Currency id
-                    recvPacket >> usedCount;    // Currency count
+                    recvPacket >> archData->fragId;      // Currency id
+                    recvPacket >> archData->fragCount;   // Currency count
                     break;
             }
         }
+        if (Player* player = GetPlayer())
+            player->SetArchData(archData);
     }
 }
 
@@ -389,7 +392,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         caster = _player;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->IsRaidMarker())
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->IsRaidMarker() &&
+        !caster->ToPlayer()->HasArchProject(spellInfo->ResearchProjectId))
     {
         // not have spell in spellbook
         recvPacket.rfinish(); // prevent spam at ignore packet
