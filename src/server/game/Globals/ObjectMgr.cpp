@@ -5878,7 +5878,7 @@ QuestGreeting const* ObjectMgr::GetQuestGreeting(ObjectGuid guid) const
     if (questItr == itr->second.end())
         return nullptr;
 
-    return questItr->second;
+    return &questItr->second;
 }
 
 void ObjectMgr::LoadQuestGreetings()
@@ -5940,7 +5940,7 @@ void ObjectMgr::LoadQuestGreetings()
         uint32 greetEmoteDelay      = fields[3].GetUInt32();
         std::string greeting        = fields[4].GetString();
 
-        _questGreetingStore[type][id] = new QuestGreeting(greetEmoteType, greetEmoteDelay, greeting);
+        _questGreetingStore[type][id] = QuestGreeting(greetEmoteType, greetEmoteDelay, greeting);
 
         ++count;
     }
