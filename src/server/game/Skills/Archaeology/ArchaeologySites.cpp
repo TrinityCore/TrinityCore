@@ -19,7 +19,7 @@
 #include "DBCStore.h"
 #include "Player.h"
 #include "Language.h"
-#include <G3D\Quat.h>
+#include <G3D/Quat.h>
 
 
 // use squared distances so we don't have to use the squareroot
