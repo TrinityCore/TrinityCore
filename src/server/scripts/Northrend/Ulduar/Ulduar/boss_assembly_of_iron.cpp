@@ -133,9 +133,6 @@ enum Misc
     DATA_PHASE_3                                 = 1
 };
 
-#define FLOOR_Z                                  427.28f
-#define FINAL_FLIGHT_Z                           435.0f
-
 class boss_steelbreaker : public CreatureScript
 {
     public:
@@ -476,7 +473,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 _Reset();
                 Initialize();
                 me->RemoveAllAuras();
-                me->SetDisableGravity(false);
+                me->SetHover(false);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);  // Should be interruptable unless overridden by spell (Overload)
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);       // Reset immumity, Brundir should be stunnable by default
             }
@@ -547,10 +544,6 @@ class boss_stormcaller_brundir : public CreatureScript
                         if (Steelbreaker->IsAlive())
                             Steelbreaker->AI()->DoAction(ACTION_SUPERCHARGE);
                 }
-
-                // Prevent to have Brundir somewhere in the air when he die in Air phase
-                if (me->GetPositionZ() > FLOOR_Z)
-                    me->GetMotionMaster()->MoveFall();
             }
 
             void KilledUnit(Unit* who) override
@@ -598,9 +591,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             DoCast(me, SPELL_LIGHTNING_TENDRILS);
                             DoCast(me, SPELL_LIGHTNING_TENDRILS_VISUAL);
                             me->AttackStop();
-                            //me->SetLevitate(true);
-                            me->GetMotionMaster()->Initialize();
-                            me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), FINAL_FLIGHT_Z);
+                            me->SetHover(true);
                             events.DelayEvents(35000);
                             events.ScheduleEvent(EVENT_FLIGHT, 2500);
                             events.ScheduleEvent(EVENT_ENDFLIGHT, 32500);
@@ -608,24 +599,22 @@ class boss_stormcaller_brundir : public CreatureScript
                             break;
                         case EVENT_FLIGHT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), FINAL_FLIGHT_Z);
+                                me->GetMotionMaster()->MovePoint(0, *target);
                             events.ScheduleEvent(EVENT_FLIGHT, 6000);
                             break;
                         case EVENT_ENDFLIGHT:
                             me->GetMotionMaster()->Initialize();
-                            me->GetMotionMaster()->MovePoint(0, 1586.920166f, 119.848984f, FINAL_FLIGHT_Z);
+                            me->GetMotionMaster()->MovePoint(0, 1586.920166f, 119.848984f, me->GetPositionZ());
                             events.CancelEvent(EVENT_FLIGHT);
                             events.CancelEvent(EVENT_ENDFLIGHT);
                             events.ScheduleEvent(EVENT_LAND, 4000);
                             break;
                         case EVENT_LAND:
-                            me->GetMotionMaster()->Initialize();
-                            me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), FLOOR_Z);
+                            me->SetHover(false);
                             events.CancelEvent(EVENT_LAND);
                             events.ScheduleEvent(EVENT_GROUND, 2500);
                             break;
                         case EVENT_GROUND:
-                            //me->SetLevitate(false);
                             me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_TENDRILS, me));
                             me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_VISUAL);
                             DoStartMovement(me->GetVictim());
@@ -637,11 +626,11 @@ class boss_stormcaller_brundir : public CreatureScript
                             {
                                 float x = float(irand(-25, 25));
                                 float y = float(irand(-25, 25));
-                                me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + x, me->GetPositionY() + y, FLOOR_Z);
+                                me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + x, me->GetPositionY() + y, me->GetPositionZ());
                                 // Prevention to go outside the room or into the walls
                                 if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f, true))
                                     if (me->GetDistance(trigger) >= 50.0f)
-                                        me->GetMotionMaster()->MovePoint(0, trigger->GetPositionX(), trigger->GetPositionY(), FLOOR_Z);
+                                        me->GetMotionMaster()->MovePoint(0, *trigger);
                             }
                             events.ScheduleEvent(EVENT_MOVE_POSITION, urand(7500, 10000));
                             break;
