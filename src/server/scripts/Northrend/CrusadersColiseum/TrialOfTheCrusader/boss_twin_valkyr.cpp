@@ -228,7 +228,6 @@ struct boss_twin_baseAI : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         Talk(SAY_DEATH);
-        me->SetHover(false);
         if (Creature* pSister = GetSister())
         {
             if (!pSister->IsAlive())
