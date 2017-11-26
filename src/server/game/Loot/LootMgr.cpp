@@ -449,7 +449,7 @@ void Loot::AddCurrency(uint32 entry, uint32 min, uint32 max)
     unlootedCurrency++;
 }
 
-LootCurrency* Loot::LootCurrencyInSlot(uint32 lootSlot, Player* player)
+LootCurrency* Loot::LootCurrencyInSlot(uint32 lootSlot, Player* /*player*/)
 {
     if (currencies[lootSlot].looted)
         return NULL;
