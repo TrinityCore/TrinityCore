@@ -1736,7 +1736,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_REPUTATION: // 95
-            if (referencePlayer->GetReputation(reqValue) < tree->Entry->Asset[1])
+            if (referencePlayer->GetReputation(reqValue) < int32(tree->Entry->Asset[1]))
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY: // 144
