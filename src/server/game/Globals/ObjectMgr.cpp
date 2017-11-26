@@ -533,8 +533,8 @@ void ObjectMgr::LoadCreatureTemplateResistances()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0      1            2            3            4            5            6
-    QueryResult result = WorldDatabase.Query("SELECT entry, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6 FROM creature_template_resistance");
+    //                                               0           1            2            3            4            5            6
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, Resistance1, Resistance2, Resistance3, Resistance4, Resistance5, Resistance6 FROM creature_template_resistance");
 
     if (!result)
     {
@@ -548,12 +548,12 @@ void ObjectMgr::LoadCreatureTemplateResistances()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 creatureID = fields[0].GetUInt32();
 
-        CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(entry);
+        CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(creatureID);
         if (itr == _creatureTemplateStore.end())
         {
-            TC_LOG_INFO("sql.sql", "creature_template_resistance has resistance definitions for creature %u but this creature doesn't exist", entry);
+            TC_LOG_INFO("sql.sql", "creature_template_resistance has resistance definitions for creature %u but this creature doesn't exist", creatureID);
             continue;
         }
 
@@ -573,8 +573,8 @@ void ObjectMgr::LoadCreatureTemplateSpells()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0      1       2       3       4       5       6       7       8
-    QueryResult result = WorldDatabase.Query("SELECT entry, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8 FROM creature_template_spell");
+    //                                               0           1       2       3       4       5       6       7       8
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, Spell1, Spell2, Spell3, Spell4, Spell5, Spell6, Spell7, Spell8 FROM creature_template_spell");
 
     if (!result)
     {
@@ -588,12 +588,12 @@ void ObjectMgr::LoadCreatureTemplateSpells()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 creatureID = fields[0].GetUInt32();
 
-        CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(entry);
+        CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(creatureID);
         if (itr == _creatureTemplateStore.end())
         {
-            TC_LOG_INFO("sql.sql", "creature_template_spell has spell definitions for creature %u but this creature doesn't exist", entry);
+            TC_LOG_INFO("sql.sql", "creature_template_spell has spell definitions for creature %u but this creature doesn't exist", creatureID);
             continue;
         }
 

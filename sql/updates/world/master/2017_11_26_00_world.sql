@@ -6,30 +6,30 @@
 
 DROP TABLE IF EXISTS `creature_template_resistance`;
 CREATE TABLE IF NOT EXISTS `creature_template_resistance` (
-  `entry` mediumint(8) unsigned NOT NULL,
-  `resistance1` smallint(6) DEFAULT NULL,
-  `resistance2` smallint(6) DEFAULT NULL,
-  `resistance3` smallint(6) DEFAULT NULL,
-  `resistance4` smallint(6) DEFAULT NULL,
-  `resistance5` smallint(6) DEFAULT NULL,
-  `resistance6` smallint(6) DEFAULT NULL,
+  `CreatureID` mediumint(8) unsigned NOT NULL,
+  `Resistance1` smallint(6) DEFAULT NULL,
+  `Resistance2` smallint(6) DEFAULT NULL,
+  `Resistance3` smallint(6) DEFAULT NULL,
+  `Resistance4` smallint(6) DEFAULT NULL,
+  `Resistance5` smallint(6) DEFAULT NULL,
+  `Resistance6` smallint(6) DEFAULT NULL,
   `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
+  PRIMARY KEY (`CreatureID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `creature_template_spell`;
 CREATE TABLE IF NOT EXISTS `creature_template_spell` (
-  `entry` mediumint(8) unsigned NOT NULL,
-  `spell1` mediumint(8) unsigned DEFAULT NULL,
-  `spell2` mediumint(8) unsigned DEFAULT NULL,
-  `spell3` mediumint(8) unsigned DEFAULT NULL,
-  `spell4` mediumint(8) unsigned DEFAULT NULL,
-  `spell5` mediumint(8) unsigned DEFAULT NULL,
-  `spell6` mediumint(8) unsigned DEFAULT NULL,
-  `spell7` mediumint(8) unsigned DEFAULT NULL,
-  `spell8` mediumint(8) unsigned DEFAULT NULL,
+  `CreatureID` mediumint(8) unsigned NOT NULL,
+  `Spell1` mediumint(8) unsigned DEFAULT NULL,
+  `Spell2` mediumint(8) unsigned DEFAULT NULL,
+  `Spell3` mediumint(8) unsigned DEFAULT NULL,
+  `Spell4` mediumint(8) unsigned DEFAULT NULL,
+  `Spell5` mediumint(8) unsigned DEFAULT NULL,
+  `Spell6` mediumint(8) unsigned DEFAULT NULL,
+  `Spell7` mediumint(8) unsigned DEFAULT NULL,
+  `Spell8` mediumint(8) unsigned DEFAULT NULL,
   `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
+  PRIMARY KEY (`CreatureID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
