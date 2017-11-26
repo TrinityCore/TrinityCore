@@ -1217,7 +1217,7 @@ bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, 
 
 Position WorldObject::GetHitSpherePointFor(Position const& dest) const
 {
-    G3D::Vector3 vThis(GetPositionX(), GetPositionY(), GetPositionZ());
+    G3D::Vector3 vThis(GetPositionX(), GetPositionY(), GetPositionZ() + GetMidsectionHeight());
     G3D::Vector3 vObj(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
     G3D::Vector3 contactPoint = vThis + (vObj - vThis).directionOrZero() * std::min(dest.GetExactDist(GetPosition()), GetCombatReach());
 
@@ -1230,11 +1230,14 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz, LineOfSightChecks ch
     {
         float x, y, z;
         if (GetTypeId() == TYPEID_PLAYER)
+        {
             GetPosition(x, y, z);
+            z += GetMidsectionHeight();
+        }
         else
             GetHitSpherePointFor({ ox, oy, oz }, x, y, z);
 
-        return GetMap()->isInLineOfSight(x, y, z + GetMidsectionHeight(), ox, oy, oz, GetPhaseMask(), checks, ignoreFlags);
+        return GetMap()->isInLineOfSight(x, y, z, ox, oy, oz, GetPhaseMask(), checks, ignoreFlags);
     }
 
     return true;
@@ -1247,11 +1250,14 @@ bool WorldObject::IsWithinLOSInMap(WorldObject const* obj, LineOfSightChecks che
 
     float x, y, z;
     if (obj->GetTypeId() == TYPEID_PLAYER)
+    {
         obj->GetPosition(x, y, z);
+        z += GetMidsectionHeight();
+    }
     else
-        obj->GetHitSpherePointFor(GetPosition(), x, y, z);
+        obj->GetHitSpherePointFor({ GetPositionX(), GetPositionY(), GetPositionZ() + GetMidsectionHeight() }, x, y, z);
 
-    return IsWithinLOS(x, y, z + obj->GetMidsectionHeight(), checks, ignoreFlags);
+    return IsWithinLOS(x, y, z, checks, ignoreFlags);
 }
 
 void WorldObject::GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const
@@ -2154,7 +2160,7 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
 void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const
 {
     GetNearPoint2D(x, y, distance2d+searcher_size, absAngle);
-    z = GetPositionZ() + GetMidsectionHeight();
+    z = GetPositionZ();
     // Should "searcher" be used instead of "this" when updating z coordinate ?
     UpdateAllowedPositionZ(x, y, z);
 
@@ -2175,7 +2181,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     for (float angle = float(M_PI) / 8; angle < float(M_PI) * 2; angle += float(M_PI) / 8)
     {
         GetNearPoint2D(x, y, distance2d + searcher_size, absAngle + angle);
-        z = GetPositionZ() + GetMidsectionHeight();
+        z = GetPositionZ();
         UpdateAllowedPositionZ(x, y, z);
         if (IsWithinLOS(x, y, z))
             return;
