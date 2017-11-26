@@ -464,11 +464,15 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     if (!fields[62].IsNull())
         creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[62].GetUInt8());
 
-    creatureTemplate.Movement.Swim = fields[63].GetBool();
+    if (!fields[63].IsNull())
+        creatureTemplate.Movement.Swim = fields[63].GetBool();
+
     if (!fields[64].IsNull())
         creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[64].GetUInt8());
 
-    creatureTemplate.Movement.Rooted = fields[65].GetBool();
+    if (!fields[65].IsNull())
+        creatureTemplate.Movement.Rooted = fields[65].GetBool();
+
     creatureTemplate.HoverHeight    = fields[66].GetFloat();
     creatureTemplate.ModHealth      = fields[67].GetFloat();
     creatureTemplate.ModMana        = fields[68].GetFloat();
