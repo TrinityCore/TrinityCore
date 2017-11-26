@@ -1470,7 +1470,7 @@ void ObjectMgr::LoadCreatureModelInfo()
         }
 
         if (CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(creatureDisplay->ModelId))
-            modelInfo.is_trigger = strstr(modelData->ModelPath, "InvisibleStalker") != nullptr;
+            modelInfo.is_trigger = strstr(modelData->ModelPath, "INVISIBLESTALKER");
 
         ++count;
     }
