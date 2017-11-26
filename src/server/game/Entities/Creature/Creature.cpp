@@ -56,6 +56,22 @@
 #include <G3D/g3dmath.h>
 #include <sstream>
 
+std::string CreatureMovementData::ToString() const
+{
+    char const* const GroundStates[] = { "None", "Run", "Hover" };
+    char const* const FlightStates[] = { "None", "DisableGravity", "CanFly" };
+
+    std::ostringstream str;
+    str << std::boolalpha
+        << "Ground: " << GroundStates[AsUnderlyingType(Ground)]
+        << ", Swim: " << Swim
+        << ", Flight: " << FlightStates[AsUnderlyingType(Flight)];
+    if (Rooted)
+        str << ", Rooted";
+
+    return str.str();
+}
+
 VendorItemCount::VendorItemCount(uint32 _item, uint32 _count)
     : itemId(_item), count(_count), lastIncrementTime(GameTime::GetGameTime()) { }
 
@@ -664,7 +680,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    if (cInfo->InhabitType & INHABIT_ROOT)
+    if (GetMovementTemplate().IsRooted())
         SetControlled(true, UNIT_STATE_ROOT);
 
     UpdateMovementFlags();
@@ -2616,7 +2632,7 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
         dist += GetCombatReach() + victim->GetCombatReach();
 
         // to prevent creatures in air ignore attacks because distance is already too high...
-        if (GetCreatureTemplate()->InhabitType & INHABIT_AIR)
+        if (GetMovementTemplate().IsFlightAllowed())
             return victim->IsInDist2d(&m_homePosition, dist);
         else
             return victim->IsInDist(&m_homePosition, dist);
@@ -2661,7 +2677,7 @@ bool Creature::LoadCreaturesAddon()
         //! Check using InhabitType as movement flags are assigned dynamically
         //! basing on whether the creature is in air or not
         //! Set MovementFlag_Hover. Otherwise do nothing.
-        if (m_unitData->AnimTier & UNIT_BYTE1_FLAG_HOVER && !(GetCreatureTemplate()->InhabitType & INHABIT_AIR))
+        if (CanHover())
             AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
@@ -2770,6 +2786,14 @@ void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, floa
         if (dist)
             *dist = 0;
     }
+}
+
+CreatureMovementData const& Creature::GetMovementTemplate() const
+{
+    if (CreatureMovementData const* movementOverride = sObjectMgr->GetCreatureMovementOverride(m_spawnId))
+        return *movementOverride;
+
+    return GetCreatureTemplate()->Movement;
 }
 
 void Creature::AllLootRemovedFromCorpse()
@@ -3109,25 +3133,31 @@ void Creature::UpdateMovementFlags()
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
     float ground = GetFloorZ();
 
-    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
+    bool canHover = CanHover();
+    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (canHover ? *m_unitData->HoverHeight : 0.0f) + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
 
-    if (GetCreatureTemplate()->InhabitType & INHABIT_AIR && isInAir && !IsFalling())
+    if (GetMovementTemplate().IsFlightAllowed() && isInAir && !IsFalling())
     {
-        if (GetCreatureTemplate()->InhabitType & INHABIT_GROUND)
+        if (GetMovementTemplate().Flight == CreatureFlightMovementType::CanFly)
             SetCanFly(true);
         else
             SetDisableGravity(true);
+
+        if (!HasAuraType(SPELL_AURA_HOVER))
+            SetHover(false);
     }
     else
     {
         SetCanFly(false);
         SetDisableGravity(false);
+        if (CanHover() || HasAuraType(SPELL_AURA_HOVER))
+            SetHover(true);
     }
 
     if (!isInAir)
         SetFall(false);
 
-    SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
+    SetSwim(GetMovementTemplate().IsSwimAllowed() && IsInWater());
 }
 
 void Creature::SetObjectScale(float scale)
