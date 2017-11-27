@@ -1294,7 +1294,7 @@ public:
                 SPELL_SHAMAN_LAVA_BURST, SPELL_SHAMAN_LAVA_BURST_TRIGGERED });
         }
 
-        bool CheckProc(ProcEventInfo& eventInfo)
+        bool CheckProc(ProcEventInfo& /*eventInfo*/)
         {
             return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
         }
