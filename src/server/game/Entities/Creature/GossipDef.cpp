@@ -740,7 +740,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         }
     }
 
-    packet.AutoLaunched = closeOnCancel;
+    packet.AutoLaunched = autoLaunched;
 
     _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
