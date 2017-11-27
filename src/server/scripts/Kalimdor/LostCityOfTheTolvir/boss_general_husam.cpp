@@ -245,6 +245,8 @@ public:
 
         void IsSummonedBy(Unit* /*summoner*/) override
         {
+            me->SetReactState(REACT_PASSIVE);
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             if (Creature* husam = _instance->GetCreature(DATA_GENERAL_HUSAM))
                 husam->AI()->JustSummoned(me);
 
@@ -375,7 +377,7 @@ public:
                     caster->CastSpell(GetCaster()->GetVictim(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_husam_hammer_fist_AuraScript::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
@@ -473,7 +475,7 @@ public:
             Trinity::Containers::RandomResize(targets, 3);
         }
 
-        void Register()
+        void Register() override
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_husam_mystic_trap_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         }
@@ -500,7 +502,7 @@ public:
                 target->AI()->DoAction(ACTION_DETONATE_MINE);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_husam_detonate_traps_SpellScript::EffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
@@ -527,7 +529,7 @@ public:
             GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[EFFECT_1].BasePoints, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_husam_bad_intentions_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
         }
@@ -561,7 +563,7 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_husam_hurl_SpellScript::EffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
