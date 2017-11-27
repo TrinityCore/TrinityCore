@@ -29,7 +29,6 @@ void Archaeology::LoadCompletedProjectsFromDB()
     if (!result)
         return;
 
-    uint32 count = 0;
     do {
         Field *fields = result->Fetch();
         uint16 project = fields[0].GetUInt16();
@@ -68,7 +67,6 @@ void Archaeology::LoadCurrentProjectsFromDB()
     if (!result)
         return;
 
-    uint32 count = 0;
     do {
         Field *fields = result->Fetch();
         uint8 branch = fields[0].GetUInt8();

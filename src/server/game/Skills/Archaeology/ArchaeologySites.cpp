@@ -122,7 +122,7 @@ void Archaeology::UseSite()
         float ground = _player->GetMap()->GetWaterOrGroundLevel(_player->GetPhases(), x, y, z, &ground, _player->IsInWater());
 
         G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(angle, 0.f, 0.f);
-        if (abs(z - ground) < 1.5f)
+        if (std::abs(z - ground) < 1.5f)
         {
             _player->SummonGameObject(surveyGoID, Position(x, y, ground, angle), rot, 4);
             return;
