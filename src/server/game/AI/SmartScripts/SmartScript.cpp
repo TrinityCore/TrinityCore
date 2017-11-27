@@ -473,7 +473,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                                 if (WorldSession* session = pTarget->GetSession())
                                 {
                                     PlayerMenu menu(session);
-                                    menu.SendQuestGiverQuestDetails(q, me->GetGUID(), true);
+                                    menu.SendQuestGiverQuestDetails(q, me->GetGUID(), true, false);
                                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player %s - offering quest %u", pTarget->GetGUID().ToString().c_str(), e.action.questOffer.questID);
                                 }
                         }
