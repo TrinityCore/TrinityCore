@@ -34,6 +34,8 @@ enum ShamanSpells
     SPELL_SHAMAN_ANCESTRAL_AWAKENING            = 52759,
     SPELL_SHAMAN_ANCESTRAL_AWAKENING_PROC       = 52752,
     SPELL_SHAMAN_BIND_SIGHT                     = 6277,
+    SPELL_SHAMAN_CHAIN_LIGHTNING                = 421,
+    SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED      = 45297,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
@@ -46,9 +48,12 @@ enum ShamanSpells
     SPELL_SHAMAN_GLYPH_OF_MANA_TIDE             = 55441,
     SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM          = 62132,
     SPELL_SHAMAN_LAVA_BURST                     = 51505,
+    SPELL_SHAMAN_LAVA_BURST_TRIGGERED           = 77451,
     SPELL_SHAMAN_LAVA_FLOWS_R1                  = 51480,
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 65264,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
+    SPELL_SHAMAN_LIGHTNING_BOLT                 = 403,
+    SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED       = 45284,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE   = 27635,
     SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
@@ -1272,6 +1277,65 @@ public:
     }
 };
 
+// 77222 - Elemental Overload
+class spell_sha_elemental_overload : public SpellScriptLoader
+{
+public:
+    spell_sha_elemental_overload() : SpellScriptLoader("spell_sha_elemental_overload") { }
+
+    class spell_sha_elemental_overload_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_elemental_overload_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_SHAMAN_LIGHTNING_BOLT, SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED,
+                SPELL_SHAMAN_CHAIN_LIGHTNING, SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED,
+                SPELL_SHAMAN_LAVA_BURST, SPELL_SHAMAN_LAVA_BURST_TRIGGERED });
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+        }
+
+        void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            if (Unit* target = eventInfo.GetProcTarget())
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    switch (eventInfo.GetProcSpell()->GetSpellInfo()->Id)
+                    {
+                        case SPELL_SHAMAN_LIGHTNING_BOLT:
+                            caster->CastSpell(target, SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED, true);
+                            break;
+                        case SPELL_SHAMAN_CHAIN_LIGHTNING:
+                            caster->CastSpell(target, SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED, true);
+                            break;
+                        case SPELL_SHAMAN_LAVA_BURST:
+                            caster->CastSpell(target, SPELL_SHAMAN_LAVA_BURST_TRIGGERED, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_sha_elemental_overload_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_sha_elemental_overload_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_sha_elemental_overload_AuraScript();
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -1281,6 +1345,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earth_shield();
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
+    new spell_sha_elemental_overload();
     new spell_sha_feedback();
     new spell_sha_fire_nova();
     new spell_sha_flame_shock();
