@@ -515,9 +515,10 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         stmt->setUInt32(2, auction->Id);
         trans->Append(stmt);
 
-        if (auction->bidderlist.find(auction->bidder) == auction->bidderlist.end()) {
+        if (auction->bidders.find(player->GetGUID()) == auction->bidders.end())
+        {
             // save new bidder in list, and save record to db
-            auction->bidderlist.insert(auction->bidder);
+            auction->bidders.insert(player->GetGUID());
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION_BIDDERS);
             stmt->setUInt32(0, auction->Id);
             stmt->setUInt32(1, auction->bidder);

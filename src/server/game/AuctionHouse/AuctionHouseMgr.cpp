@@ -365,16 +365,16 @@ void AuctionHouseMgr::LoadAuctions()
     }
 
     // parse bidder list
-    std::unordered_map<uint32, std::unordered_set<ObjectGuid::LowType>> bidderlists;
+    std::unordered_map<uint32, std::unordered_set<ObjectGuid>> biddersByAuction;
     PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_BIDDERS);
-    
+
     uint32 countBidders = 0;
     if (PreparedQueryResult resultBidders = CharacterDatabase.Query(stmt2))
     {
         do
         {
             Field* fields = resultBidders->Fetch();
-            bidderlists[fields[0].GetUInt32()].insert(fields[1].GetUInt32());
+            biddersByAuction[fields[0].GetUInt32()].insert(ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt32()));
             ++countBidders;
         }
         while (resultBidders->NextRow());
@@ -395,9 +395,9 @@ void AuctionHouseMgr::LoadAuctions()
             continue;
         }
 
-        auto it = bidderlists.find(aItem->Id);
-        if (it != bidderlists.end())
-            aItem->bidderlist = std::move(it->second);
+        auto it = biddersByAuction.find(aItem->Id);
+        if (it != biddersByAuction.end())
+            aItem->bidders = std::move(it->second);
 
         GetAuctionsMapByHouseId(aItem->houseId)->AddAuction(aItem);
         ++countAuctions;
@@ -406,7 +406,6 @@ void AuctionHouseMgr::LoadAuctions()
     CharacterDatabase.CommitTransaction(trans);
 
     TC_LOG_INFO("server.loading", ">> Loaded %u auctions with %u bidders in %u ms", countAuctions, countBidders, GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 void AuctionHouseMgr::AddAItem(Item* it)
@@ -676,7 +675,7 @@ void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player,
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry* Aentry = itr->second;
-        if (Aentry && Aentry->bidderlist.find(player->GetGUID().GetCounter()) != Aentry->bidderlist.end())
+        if (Aentry && Aentry->bidders.find(player->GetGUID()) != Aentry->bidders.end())
         {
             if (itr->second->BuildAuctionInfo(data))
                 ++count;
