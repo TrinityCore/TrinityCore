@@ -114,10 +114,11 @@ public:
             Talk(SAY_AGGRO);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             me->SetReactState(REACT_AGGRESSIVE);
+            _randomTimerCase = RAND(0, 1);
             events.ScheduleEvent(EVENT_SOLAR_WINDS, Seconds(5));
-            events.ScheduleEvent(EVENT_SUMMON_SUN_ORB, Seconds(10));
+            events.ScheduleEvent(EVENT_SUMMON_SUN_ORB, _randomTimerCase == 0 ? Seconds(10) : Seconds(25));
+            events.ScheduleEvent(EVENT_SUN_STRIKE, _randomTimerCase == 0 ? Seconds(20) : Seconds(8));
             events.ScheduleEvent(EVENT_SUMMON_INFERNO_LEAP, Seconds(14));
-            events.ScheduleEvent(EVENT_SUN_STRIKE, Seconds(20));
         }
 
         void JustSummoned(Creature* summon) override
@@ -199,7 +200,7 @@ public:
 
             if (me->GetPower(POWER_ENERGY) <= 10 && _energized)
             {
-                events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 1000);
+                events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, Seconds(1));
                 _energized = false;
             }
 
@@ -212,15 +213,11 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_SUN_STRIKE:
-                        DoCastVictim(SPELL_SUN_STRIKE);
-                        events.Repeat(Seconds(35), Seconds(37));
-                        break;
                     case EVENT_SOLAR_WINDS:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         {
                             DoCast(target, SPELL_SOLAR_WINDS_DUMMY);
-                            events.Repeat(Seconds(15), Seconds(21));
+                            events.Repeat(Seconds(15), Seconds(23));
                             events.ScheduleEvent(EVENT_SUMMON_SOLAR_WINDS, Seconds(1));
                         }
                         break;
@@ -231,8 +228,13 @@ public:
                         MakeInterruptable(true);
                         me->StopMoving();
                         DoCastSelf(SPELL_SUMMON_SUN_ORB);
-                        events.Repeat(Seconds(35), Seconds(36));
+                        events.Repeat(_randomTimerCase == 0 ? Seconds(35), Seconds(36) : Seconds(31), Seconds(37));
                         events.ScheduleEvent(EVENT_APPLY_IMMUNITY, Seconds(3));
+                        break;
+                    case EVENT_SUN_STRIKE:
+                        if (Unit* target = me->GetVictim())
+                            me->CastSpell(target, SPELL_SUN_STRIKE, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+                        events.Repeat(_randomTimerCase == 0 ? Seconds(35) : Seconds(27));
                         break;
                     case EVENT_APPLY_IMMUNITY:
                         MakeInterruptable(false);
@@ -257,10 +259,11 @@ public:
                     case EVENT_ATTACK:
                         _achievementEnabled = false;
                         _energized = true;
+                        _randomTimerCase = RAND(0, 1);
                         events.ScheduleEvent(EVENT_SOLAR_WINDS, Seconds(5));
-                        events.ScheduleEvent(EVENT_SUMMON_SUN_ORB, Seconds(10));
+                        events.ScheduleEvent(EVENT_SUMMON_SUN_ORB, _randomTimerCase == 0 ? Seconds(10) : Seconds(25));
+                        events.ScheduleEvent(EVENT_SUN_STRIKE, _randomTimerCase == 0 ? Seconds(20) : Seconds(8));
                         events.ScheduleEvent(EVENT_SUMMON_INFERNO_LEAP, Seconds(14));
-                        events.ScheduleEvent(EVENT_SUN_STRIKE, Seconds(20));
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     case EVENT_SUMMON_INFERNO_LEAP:
@@ -275,11 +278,12 @@ public:
                         break;
                 }
             }
-                DoMeleeAttackIfReady();
+            DoMeleeAttackIfReady();
         }
         private:
             bool _energized;
             bool _achievementEnabled;
+            uint8 _randomTimerCase;
     };
     CreatureAI* GetAI(Creature *creature) const override
     {
@@ -459,6 +463,33 @@ public:
     }
 };
 
+class spell_rajh_summon_sun_orb_power_cost : public SpellScriptLoader
+{
+public:
+    spell_rajh_summon_sun_orb_power_cost() : SpellScriptLoader("spell_rajh_summon_sun_orb_power_cost") { }
+
+    class spell_rajh_summon_sun_orb_power_cost_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rajh_summon_sun_orb_power_cost_AuraScript);
+
+        void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+        {
+            PreventDefaultAction();
+            GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_rajh_summon_sun_orb_power_cost_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_rajh_summon_sun_orb_power_cost_AuraScript();
+    }
+};
+
 class achievement_sun_of_a : public AchievementCriteriaScript
 {
 public:
@@ -483,5 +514,6 @@ void AddSC_boss_rajh()
     new npc_orb_of_the_sun();
     new spell_rajh_summon_meteor();
     new spell_rajh_summon_sun_orb();
+    new spell_rajh_summon_sun_orb_power_cost();
     new achievement_sun_of_a();
 }
