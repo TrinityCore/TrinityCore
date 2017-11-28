@@ -8,6 +8,17 @@
 #include "PlayerbotCommandServer.h"
 #include "GuildTaskMgr.h"
 #include "../../game/Battlegrounds/Battleground.h"
+#include "FleeManager.h"
+#include "NearestNonBotPlayersValue.h"
+
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+
+using namespace ai;
+using namespace Trinity;
 
 RandomPlayerbotMgr::RandomPlayerbotMgr() : PlayerbotHolder(), processTicks(0)
 {
@@ -106,9 +117,11 @@ void RandomPlayerbotMgr::ScheduleRandomize(uint32 bot, uint32 time)
     SetEventValue(bot, "logout", 1, time + 30 + urand(sPlayerbotAIConfig.randomBotUpdateInterval, sPlayerbotAIConfig.randomBotUpdateInterval * 3));
 }
 
-void RandomPlayerbotMgr::ScheduleTeleport(uint32 bot)
+void RandomPlayerbotMgr::ScheduleTeleport(uint32 bot, uint32 time)
 {
-    SetEventValue(bot, "teleport", 1, 60 + urand(sPlayerbotAIConfig.randomBotUpdateInterval, sPlayerbotAIConfig.randomBotUpdateInterval * 3));
+	if (!time)
+		time = 60 + urand(sPlayerbotAIConfig.randomBotUpdateInterval, sPlayerbotAIConfig.randomBotUpdateInterval * 3);
+	SetEventValue(bot, "teleport", 1, time);
 }
 
 bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
@@ -132,6 +145,7 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
         if (!GetEventValue(bot, "online"))
         {
             SetEventValue(bot, "online", 1, sPlayerbotAIConfig.minRandomBotInWorldTime);
+			ScheduleTeleport(bot, 30);
         }
         return true;
     }
@@ -188,14 +202,11 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
             return false;
         }
 
-        if (!GetEventValue(bot, "revive"))
-        {
-            sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Reviving dead bot %d", bot);
-            SetEventValue(bot, "dead", 0, 0);
-            SetEventValue(bot, "revive", 0, 0);
-            RandomTeleport(player, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
-            return true;
-        }
+		if (!GetEventValue(bot, "revive"))
+		{
+			Revive(player);
+			return true;
+		}
 
         return false;
     }
@@ -336,7 +347,7 @@ void RandomPlayerbotMgr::Revive(Player* player)
 	sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Reviving dead bot %d", bot);
 	SetEventValue(bot, "dead", 0, 0);
 	SetEventValue(bot, "revive", 0, 0);
-	RandomTeleport(player, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+	RandomTeleport(player);
 }
 
 void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs)
@@ -442,30 +453,37 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
     RandomTeleport(bot, locsPerLevelCache[bot->getLevel()]);
 }
 
-void RandomPlayerbotMgr::RandomTeleport(Player* bot, uint16 mapId, float teleX, float teleY, float teleZ)
+void RandomPlayerbotMgr::RandomTeleport(Player* bot)
 {
-	if (bot->InBattleground())
+	vector<WorldLocation> locs;
+
+	FleeManager manager(bot, sPlayerbotAIConfig.randomBotTeleportDistance, 0);
+	float rx, ry, rz;
+	if (manager.CalculateDestination(&rx, &ry, &rz))
+	{
+		WorldLocation loc(bot->GetMapId(), rx, ry, rz);
+		locs.push_back(loc);
 		return;
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Preparing location to random teleporting bot %s", bot->GetName().c_str());
+	}
 
-    vector<WorldLocation> locs;
-    QueryResult results = WorldDatabase.PQuery("select position_x, position_y, position_z from creature where map = '%u' and abs(position_x - '%f') < '%u' and abs(position_y - '%f') < '%u'",
-            mapId, teleX, sPlayerbotAIConfig.randomBotTeleportDistance / 2, teleY, sPlayerbotAIConfig.randomBotTeleportDistance / 2);
-    if (results)
-    {
-        do
-        {
-            Field* fields = results->Fetch();
-            float x = fields[0].GetFloat();
-            float y = fields[1].GetFloat();
-            float z = fields[2].GetFloat();
-            WorldLocation loc(mapId, x, y, z, 0);
-            locs.push_back(loc);
-        } while (results->NextRow());
-    }
+	list<Unit*> targets;
+	float range = sPlayerbotAIConfig.randomBotTeleportDistance;
+	Trinity::AnyUnitInObjectRangeCheck u_check(bot, range);
+	Trinity::UnitListSearcher<AnyUnitInObjectRangeCheck> searcher(bot, targets, u_check);
+	bot->VisitNearbyObject(bot->GetMap()->GetVisibilityRange(), searcher);
 
-    RandomTeleport(bot, locs);
-    Refresh(bot);
+	for (list<Unit *>::iterator i = targets.begin(); i != targets.end(); ++i)
+	{
+		Unit* unit = *i;
+		WorldLocation loc;
+		float x = loc.m_positionX;
+		float y = loc.m_positionY;
+		float z = loc.m_positionZ;
+		locs.push_back(loc);
+	}
+
+	RandomTeleport(bot, locs);
+	Refresh(bot);
 }
 
 void RandomPlayerbotMgr::Randomize(Player* bot)
@@ -525,7 +543,7 @@ void RandomPlayerbotMgr::RandomizeFirst(Player* bot)
 
         PlayerbotFactory factory(bot, level);
         factory.CleanRandomize();
-        RandomTeleport(bot, tele->mapId, tele->position_x, tele->position_y, tele->position_z);
+		RandomTeleportForLevel(bot);
         break;
     }
 }
@@ -851,7 +869,7 @@ void RandomPlayerbotMgr::OnPlayerLogout(Player* player)
     {
         vector<Player*>::iterator i = find(players.begin(), players.end(), player);
         if (i != players.end())
-            players.erase(i);
+        players.erase(i);
     }
 }
 
@@ -884,10 +902,11 @@ void RandomPlayerbotMgr::OnPlayerLogin(Player* player)
         }
     }
 
-    if (player->GetPlayerbotAI())
-        return;
-
-    players.push_back(player);
+	if (!IsRandomBot(player))
+	{
+		players.push_back(player);
+		sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Including non-random bot player %s into random bot update", player->GetName());
+	}
 }
 
 Player* RandomPlayerbotMgr::GetRandomPlayer()

@@ -40,6 +40,7 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
     if (!player->IsFriendlyTo(guildMaster))
         return;
 
+    Guild *guild = sGuildMgr->GetGuildById(guildMaster->GetGuildId());
     DenyReason reason = PLAYERBOT_DENY_NONE;
     PlayerbotSecurityLevel secLevel = guildMaster->GetPlayerbotAI()->GetSecurity()->LevelFor(player, &reason);
     if (secLevel == PLAYERBOT_SECURITY_DENY_ALL || (secLevel == PLAYERBOT_SECURITY_TALK && reason != PLAYERBOT_DENY_FAR))
@@ -48,6 +49,8 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
                 guildMaster->GetGuild()->GetName().c_str(), player->GetName().c_str(), reason);
         return;
     }
+
+	sLog->outMessage("gtask", LOG_LEVEL_DEBUG, "%s: guild task update for player %s", guild->GetName(), player->GetName());
 
     uint32 owner = (uint32)player->GetGUID().GetRawValue();
 
