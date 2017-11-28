@@ -183,4 +183,3 @@ void AddSC_boss_watchkeeper_gargolmar()
 {
     new boss_watchkeeper_gargolmar();
 }
-

@@ -110,4 +110,3 @@ void AddSC_boss_ascendant_lord_obsidius()
 {
     new boss_ascendant_lord_obsidius();
 }
-

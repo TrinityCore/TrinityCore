@@ -236,7 +236,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGi
         if (quest->IsAutoComplete())
             _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), _player->CanCompleteQuest(quest->GetQuestId()), true);
         else
-            _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true);
+            _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true, false);
     }
 }
 
@@ -365,7 +365,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                             if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
                                 _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true);
+                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
                         }
                     }
 
@@ -388,7 +388,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                             if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
                                 _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true);
+                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
                         }
                     }
 
@@ -637,7 +637,7 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
         else
         {
             receiver->SetDivider(sender->GetGUID());
-            receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true);
+            receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true, false);
         }
     }
 }
