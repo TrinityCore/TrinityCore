@@ -332,16 +332,18 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         if (me && e.action.questOffer.directAdd == 0)
                         {
-                            if (pTarget->CanTakeQuest(q, true) && q->IsAutoAccept())
+                            if (pTarget->CanTakeQuest(q, true))
                             {
-                                pTarget->AddQuestAndCheckCompletion(q, nullptr);
-                                pTarget->PlayerTalkClass->SendQuestGiverQuestDetails(q, pTarget->GetGUID(), true, true);
-                                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player guidLow %u - discovering quest %u", pTarget->GetGUID().GetCounter(), e.action.questOffer.questID);
+                                pTarget->PlayerTalkClass->SendQuestGiverQuestDetails(q, pTarget->GetGUID(), true, false);
+                                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player guidLow %u - offered quest %u",
+                                    pTarget->GetGUID().GetCounter(), e.action.questOffer.questID);
                             }
                         }
                         else
                         {
                             pTarget->AddQuestAndCheckCompletion(q, nullptr);
+                            if (q->IsAutoAccept())
+                                pTarget->PlayerTalkClass->SendQuestGiverQuestDetails(q, pTarget->GetGUID(), true, true);
                             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player guidLow %u - quest %u added",
                                 pTarget->GetGUID().GetCounter(), e.action.questOffer.questID);
                         }
