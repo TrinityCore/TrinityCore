@@ -396,7 +396,7 @@ void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) co
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC=%s, status=%u", npcGUID.ToString().c_str(), questStatus);
 }
 
-void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const
+void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const
 {
     std::string questTitle           = quest->GetTitle();
     std::string questDetails         = quest->GetDetails();
@@ -439,11 +439,11 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << questTurnTargetName;                            // 4.x
     data << uint32(quest->GetQuestGiverPortrait());         // 4.x
     data << uint32(quest->GetQuestTurnInPortrait());        // 4.x
-    data << uint8(activateAccept ? 1 : 0);                  // auto finish
+    data << uint8(autoLaunched);                            // auto finish
     data << uint32(quest->GetFlags() & (sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? ~QUEST_FLAGS_AUTO_ACCEPT : ~0)); // 3.3.3 questFlags
     data << uint32(quest->GetSuggestedPlayers());
     data << uint8(0);                                       // IsFinished? value is sent back to server in quest accept packet
-    data << uint8(quest->IsStartAtAreaTrigger() ? 1 : 0);   // 4.x Starts at AreaTrigger?
+    data << uint8(displayPopup);                            // 4.x Starts at AreaTrigger?
     data << uint32(quest->GetRequiredSpell());              // 4.x
 
     quest->BuildExtraQuestInfo(data, _session->GetPlayer());
@@ -630,7 +630,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
 }
 
-void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const
+void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const
 {
     std::string questTitle = quest->GetTitle();
     std::string questOfferRewardText = quest->GetOfferRewardText();
@@ -669,7 +669,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->GetQuestGiverPortrait());
     data << uint32(quest->GetQuestTurnInPortrait());
 
-    data << uint8(enableNext ? 1 : 0);                      // Auto Finish
+    data << uint8(autoLaunched);                            // Auto Finish
     data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
     data << uint32(quest->GetSuggestedPlayers());           // SuggestedGroupNum
 
@@ -694,7 +694,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
 }
 
-void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool closeOnCancel) const
+void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const
 {
     // We can always call to RequestItems, but this packet only goes out if there are actually
     // items.  Otherwise, we'll skip straight to the OfferReward
@@ -735,7 +735,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         data << quest->GetIncompleteEmote();
 
     // Close Window after cancel
-    data << uint32(closeOnCancel);
+    data << uint32(autoLaunched);
 
     data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
     data << uint32(quest->GetSuggestedPlayers());           // SuggestedGroupNum
