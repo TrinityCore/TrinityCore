@@ -137,4 +137,3 @@ void AddSC_duel_reset()
 {
     new DuelResetScript();
 }
-

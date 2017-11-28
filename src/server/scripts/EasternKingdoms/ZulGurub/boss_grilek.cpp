@@ -117,4 +117,3 @@ void AddSC_boss_grilek()
 {
     new boss_grilek();
 }
-
