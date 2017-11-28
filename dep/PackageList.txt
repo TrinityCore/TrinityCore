@@ -22,7 +22,7 @@ efws (Entropia File System Watcher - crossplatform file system watcher)
 
 fmt (a small, safe and fast formatting library)
   https://github.com/fmtlib/fmt
-  Version: 4.0.0 5f39721c0a41be404a23c3893cdea89e598c9531
+  Version: 4.0.0 f9c97de46b9914c86366ddcb3474a36e654cbd42
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
