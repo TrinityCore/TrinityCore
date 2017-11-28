@@ -11,6 +11,9 @@
 # An interface library to make the target com available to other targets
 add_library(trinity-compile-option-interface INTERFACE)
 
+# Use -std=c++11 instead of -std=gnu++11
+set(CXX_EXTENSIONS OFF)
+
 # An interface library to make the target features available to other targets
 add_library(trinity-feature-interface INTERFACE)
 
