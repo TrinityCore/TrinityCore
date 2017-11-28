@@ -23213,7 +23213,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (GetPlayerSharingQuest())
     {
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(GetSharedQuestID()))
-            PlayerTalkClass->SendQuestGiverQuestDetails(quest, GetGUID(), true);
+            PlayerTalkClass->SendQuestGiverQuestDetails(quest, GetGUID(), true, false);
         else
             ClearQuestSharingInfo();
     }
