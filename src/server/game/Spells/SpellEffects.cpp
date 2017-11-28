@@ -5035,9 +5035,12 @@ void Spell::EffectQuestStart(SpellEffIndex /*effIndex*/)
             return;
 
         if (quest->IsAutoAccept() && player->CanAddQuest(quest, false))
+        {
             player->AddQuestAndCheckCompletion(quest, player);
-
-        player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true);
+            player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true, true);
+        }
+        else
+            player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true, false);
     }
 }
 
