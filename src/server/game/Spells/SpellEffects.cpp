@@ -5183,8 +5183,8 @@ void Spell::EffectQuestStart(SpellEffIndex effIndex)
             player->AddQuestAndCheckCompletion(quest, player);
             player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true, true);
         }
-
-        player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true, false);
+        else
+            player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true, false);
     }
 }
 
