@@ -12,6 +12,10 @@ bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
   Version: 1.0.6
 
+cotire (CMake module to speed up builds)
+  https://github.com/sakra/cotire
+  Version: 1.7.10 516d78476f6dda336181fc5514f72774e1e0a8e2
+
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
   Version: 1.0.0 9a7cbec70b8a88b2e876a382f57c59f3796da0d9
