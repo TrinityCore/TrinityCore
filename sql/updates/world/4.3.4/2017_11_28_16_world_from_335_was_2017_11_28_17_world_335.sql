@@ -1,3 +1,4 @@
+/*
 -- Molok the Crusher
 SET @GUID := 43465;
 DELETE FROM `creature` WHERE `guid`=@GUID;
@@ -140,3 +141,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 ((@GUID+1)*10,12,-1672.47,-3263.53,25.0571,0,0,0,0,100,213878),
 ((@GUID+1)*10,13,-1668.16,-3255.58,25.73,0,0,0,0,100,213879),
 ((@GUID+1)*10,14,-1673.27,-3253.71,25.7309,0,0,0,0,100,213880);
+*/

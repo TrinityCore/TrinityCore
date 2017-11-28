@@ -1,3 +1,4 @@
+/*
 -- Forsaken Raider
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=17108;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=17108 AND `source_type`=0;
@@ -223,3 +224,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (907830,6,-1331.07,-1278.83,49.9017,0,0,0,0,100,0),
 (907830,7,-1357.24,-1246.72,49.9025,0,0,0,0,100,0),
 (907830,8,-1334.4,-1227.01,49.9047,0,0,0,0,100,0);
+*/

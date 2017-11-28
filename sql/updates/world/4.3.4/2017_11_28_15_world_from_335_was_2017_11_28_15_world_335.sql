@@ -1,3 +1,4 @@
+/*
 -- Demon Spirit
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=11876;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=11876 AND `source_type`=0;
@@ -228,3 +229,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (290690,50,-2156.65,1975.9,81.5158,0,0,0,0,100,0),
 (290690,51,-2145.71,1971.54,84.3149,0,0,0,0,100,0),
 (290690,52,-2143.66,1964.77,84.0694,0,0,0,0,100,0);
+*/
