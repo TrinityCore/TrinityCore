@@ -682,4 +682,3 @@ WorldPacket const* WorldPackets::Party::PartyKillLog::Write()
 
     return &_worldPacket;
 }
-
