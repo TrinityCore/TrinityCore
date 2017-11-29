@@ -15,9 +15,12 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "tanaan_intro.h"
-#include "ScriptedFollowerAI.h"
 #include "GameObject.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedFollowerAI.h"
+#include "tanaan_intro.h"
 
 /// Passive Scene Object
 class playerScript_cavern_teleport : public PlayerScript
@@ -25,20 +28,20 @@ class playerScript_cavern_teleport : public PlayerScript
 public:
     playerScript_cavern_teleport() : PlayerScript("playerScript_cavern_teleport") { }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceID, std::string triggerEvent) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceID, TanaanSceneObjects::SceneNerZhulReveal))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceID, TanaanSceneObjects::SceneNerZhulReveal))
             return;
 
-        if (p_Event == "Teleport")
+        if (triggerEvent == "Teleport")
         {
-            p_Player->TeleportTo(TanaanZones::MapTanaan, 4537.817f, -2291.243f, 32.451f, 0.728175f);
+            player->TeleportTo(TanaanZones::MapTanaan, 4537.817f, -2291.243f, 32.451f, 0.728175f);
 
             // Ces phases seront ajoutées après la fin de la scene
-            p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockSlaves);
-            p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockMainNpcs);
+            player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockSlaves);
+            player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockMainNpcs);
 
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFromCaveToRidge);
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFromCaveToRidge);
         }
     }
 };
@@ -51,16 +54,16 @@ public:
     {
     }
 
-    bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/) override
+    bool OnQuestReward(Player* player, Creature* creature, const Quest* quest, uint32 /*option*/) override
     {
-        switch (p_Quest->GetQuestId())
+        switch (quest->GetQuestId())
         {
             case TanaanQuests::QuestKillYourHundred:
             {
-                if (p_Creature->GetAI())
+                if (creature->GetAI())
                 {
-                    p_Creature->AI()->SetData(0, 1500);
-                    p_Creature->AI()->SetGUID(p_Player->GetGUID(), 0);
+                    creature->AI()->SetData(0, 1500);
+                    creature->AI()->SetGUID(player->GetGUID(), 0);
                 }
                 break;
             }
@@ -81,11 +84,11 @@ public:
         npc_archmage_khadgar_shadowmoonAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint16 m_SceneTimer;
-        ObjectGuid p_PlayerGuid;
+        ObjectGuid playerGuid;
 
         void Reset() override
         {
-            p_PlayerGuid = ObjectGuid::Empty;
+            playerGuid = ObjectGuid::Empty;
             m_SceneTimer = 0;
         }
 
@@ -96,7 +99,7 @@ public:
 
         void SetGUID(ObjectGuid p_Guid, int32 /*p_Id*/) override
         {
-            p_PlayerGuid = p_Guid;
+            playerGuid = p_Guid;
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -105,9 +108,9 @@ public:
             {
                 if (m_SceneTimer <= p_Diff)
                 {
-                    if (!p_PlayerGuid.IsEmpty())
+                    if (!playerGuid.IsEmpty())
                     {
-                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, p_PlayerGuid))
+                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, playerGuid))
                         {
                             l_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseShadowmoonQuianaMaladaar);
                             l_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseShadowmoonLiadrinOlin);
@@ -184,9 +187,7 @@ public:
 class npc_ankova_the_fallen : public CreatureScript
 {
 public:
-    npc_ankova_the_fallen() : CreatureScript("npc_ankova_the_fallen")
-    {
-    }
+    npc_ankova_the_fallen() : CreatureScript("npc_ankova_the_fallen") { }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -223,10 +224,10 @@ class npc_tanaan_yrel : public CreatureScript
 public:
     npc_tanaan_yrel() : CreatureScript("npc_tanaan_yrel") { }
 
-    bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
-        if (p_Quest->GetQuestId() == TanaanQuests::QuestYrelTanaan || p_Quest->GetQuestId() == TanaanQuests::QuestYrelHorde)
-            p_Player->SummonCreature(TanaanCreatures::NpcYrelSummon, p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+        if (quest->GetQuestId() == TanaanQuests::QuestYrelTanaan || quest->GetQuestId() == TanaanQuests::QuestYrelHorde)
+            player->SummonCreature(TanaanCreatures::NpcYrelSummon, creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
 
         return false;
     }
@@ -365,10 +366,10 @@ class npc_maladaar_liadrin_tanaan_cave : public CreatureScript
 public:
     npc_maladaar_liadrin_tanaan_cave() : CreatureScript("npc_maladaar_liadrin_tanaan_cave") { }
 
-    bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
-        if (p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly || p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde)
-            p_Player->GetSceneMgr().PlaySceneByPackageId(p_Creature->GetEntry() == TanaanCreatures::NpcExarchMaladaar ? TanaanSceneObjects::SceneYrelLeaveAlliance : TanaanSceneObjects::SceneYrelLeaveHorde);
+        if (quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly || quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde)
+            player->GetSceneMgr().PlaySceneByPackageId(creature->GetEntry() == TanaanCreatures::NpcExarchMaladaar ? TanaanSceneObjects::SceneYrelLeaveAlliance : TanaanSceneObjects::SceneYrelLeaveHorde);
 
         return false;
     }
@@ -420,14 +421,14 @@ class npc_keli_dan_the_breaker : public CreatureScript
 public:
     npc_keli_dan_the_breaker() : CreatureScript("npc_keli_dan_the_breaker") { }
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_keli_dan_the_breakerAI(p_Creature);
+        return new npc_keli_dan_the_breakerAI(creature);
     }
 
     struct npc_keli_dan_the_breakerAI : public ScriptedAI
     {
-        npc_keli_dan_the_breakerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        npc_keli_dan_the_breakerAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap m_events;
 

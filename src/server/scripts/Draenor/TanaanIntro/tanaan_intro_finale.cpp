@@ -15,13 +15,14 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "MotionMaster.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "GameObject.h"
-#include "GameObjectAI.h"
-#include "NPCHandler.h"
 #include "tanaan_intro.h"
 
 /// Passive Scene Object
@@ -317,6 +318,9 @@ public:
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(1, 4072.98f, -2006.38f, 67.97f);
                 }
+
+                if (Player* l_EscortedPlayer = ObjectAccessor::FindPlayer(m_PlayerGuid))
+                    me->SetSpeed(MOVE_RUN, l_EscortedPlayer->GetSpeed(MOVE_RUN));
             }
             else if (p_Type == POINT_MOTION_TYPE)
             {
