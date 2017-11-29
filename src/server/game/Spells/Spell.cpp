@@ -6406,44 +6406,6 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 }
             }
         }
-
-        // check totem-item requirements (items presence in inventory)
-        uint32 totems = 2;
-        for (uint8 i = 0; i < 2; ++i)
-        {
-            if (m_spellInfo->Totem[i] != 0)
-            {
-                if (player->HasItemCount(m_spellInfo->Totem[i]))
-                {
-                    totems -= 1;
-                    continue;
-                }
-            }
-            else
-                totems -= 1;
-        }
-
-        if (totems != 0)
-            return SPELL_FAILED_TOTEMS;
-
-        // Check items for TotemCategory (items presence in inventory)
-        uint32 totemCategory = 2;
-        for (uint8 i = 0; i < 2; ++i)
-        {
-            if (m_spellInfo->TotemCategory[i] != 0)
-            {
-                if (player->HasItemTotemCategory(m_spellInfo->TotemCategory[i]))
-                {
-                    totemCategory -= 1;
-                    continue;
-                }
-            }
-            else
-                totemCategory -= 1;
-        }
-
-        if (totemCategory != 0)
-            return SPELL_FAILED_TOTEM_CATEGORY;
     }
 
     // special checks for spell effects
