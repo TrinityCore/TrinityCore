@@ -18,7 +18,9 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "GameObject.h"
+#include "Player.h"
 #include "tanaan_intro.h"
+#include "TemporarySummon.h"
 
 enum eCreatures
 {
@@ -164,7 +166,7 @@ public:
             else
                 GetPositionWithDistInOrientation(me, 2.0f, me->GetOrientation() + frand(-3.0f, 3.0f), ennemySpawnPos);
 
-            if (Creature* ennemy = me->SummonCreature(ennemyId, ennemySpawnPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+            if (TempSummon* ennemy = me->SummonCreature(ennemyId, ennemySpawnPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
             {
                 if (ennemyId == NPC_SHADOWMOON_RITUALIST)
                     ennemy->CastSpell(ennemy, SPELL_RITUALIST_SPAWN, true);
@@ -264,8 +266,8 @@ public:
 
         void Reset() override
         {
-            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL ||
-                !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE)))
+            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL) ||
+                !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

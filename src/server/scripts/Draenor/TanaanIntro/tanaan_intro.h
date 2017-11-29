@@ -126,23 +126,24 @@ namespace TanaanPhaseSpell
 {
     enum
     {
-        PHASE_1         = 172329,
-        PHASE_2         = 59073,
-        PHASE_4         = 59074,
-        PHASE_8         = 59087,
-        PHASE_16        = 54341,
-        //PHASE_32      = 56617, //Probleme d'area actuellement, à chercher
-        PHASE_64        = 57569,
-        PHASE_128       = 74789,
-        PHASE_256       = 69819,
-        //PHASE_512     = 0,
-        PHASE_1024      = 67789,
-        PHASE_2048      = 68480,
-        PHASE_4096      = 68481,
-        PHASE_8192      = 68482,
-        PHASE_16384     = 68483,
-        PHASE_32768     = 69077,
-        PHASE_65536     = 69078
+        PHASE_169       = 172329,
+        PHASE_170       = 59073,
+        PHASE_171       = 59074,
+        PHASE_172       = 59087,
+        PHASE_173       = 54341,
+        //PHASE_174      = 0,
+        PHASE_175       = 57569,
+        PHASE_176       = 74789,
+        PHASE_177       = 69819,
+        //PHASE_178     = 0,
+        PHASE_179       = 67789,
+        PHASE_180       = 68480,
+        PHASE_181       = 68481,
+        PHASE_182       = 68482,
+        PHASE_183       = 68483,
+        PHASE_184       = 69077,
+        PHASE_185       = 69078,
+        PHASE_186       = 69484
     };
 }
 
@@ -151,41 +152,41 @@ namespace TanaanPhases
     enum
     {
         // Devant porte
-        PhaseChoGallSpell               = TanaanPhaseSpell::PHASE_64,
-        PhaseTeronGorSpell              = TanaanPhaseSpell::PHASE_128,
+        PhaseChoGallSpell               = TanaanPhaseSpell::PHASE_175,
+        PhaseTeronGorSpell              = TanaanPhaseSpell::PHASE_176,
 
         // Orbite Sanglante
-        PhaseSouthernCageAlly           = TanaanPhaseSpell::PHASE_8,
-        PhaseEasternCageAlly            = TanaanPhaseSpell::PHASE_16,
-        PhaseSouthernCageHorde          = TanaanPhaseSpell::PHASE_64,
-        PhaseEasternCageHorde           = TanaanPhaseSpell::PHASE_128,
-        PhaseAfterBlazeGlobal           = TanaanPhaseSpell::PHASE_256,
-        PhaseAfterBlazeAlliance         = TanaanPhaseSpell::PHASE_1024,
-        PhaseAfterBlazeHorde            = TanaanPhaseSpell::PHASE_2048,
-        PhaseAfterBlazeAriok            = TanaanPhaseSpell::PHASE_4096,
+        PhaseSouthernCageAlly           = TanaanPhaseSpell::PHASE_172,
+        PhaseEasternCageAlly            = TanaanPhaseSpell::PHASE_173,
+        PhaseSouthernCageHorde          = TanaanPhaseSpell::PHASE_175,
+        PhaseEasternCageHorde           = TanaanPhaseSpell::PHASE_176,
+        PhaseAfterBlazeGlobal           = TanaanPhaseSpell::PHASE_177,
+        PhaseAfterBlazeAlliance         = TanaanPhaseSpell::PHASE_179,
+        PhaseAfterBlazeHorde            = TanaanPhaseSpell::PHASE_180,
+        PhaseAfterBlazeAriok            = TanaanPhaseSpell::PHASE_181,
 
-        PhaseBridgeIntact               = TanaanPhaseSpell::PHASE_8192,
-        PhaseBridgeDestroyed            = TanaanPhaseSpell::PHASE_16384,
+        PhaseBridgeIntact               = TanaanPhaseSpell::PHASE_185,
+        PhaseBridgeDestroyed            = TanaanPhaseSpell::PHASE_186,
 
-        PhaseArenaEntranceGateClose     = TanaanPhaseSpell::PHASE_1024,
-        PhaseArenaFight                 = TanaanPhaseSpell::PHASE_2048,
-        PhaseArenaIced                  = TanaanPhaseSpell::PHASE_4096,
-        PhaseArenaExitGateClose         = TanaanPhaseSpell::PHASE_8192,
-        PhaseArenaFightAlliance         = TanaanPhaseSpell::PHASE_16384,
-        PhaseArenaFightHorde            = TanaanPhaseSpell::PHASE_32768,
+        PhaseArenaEntranceGateClose     = TanaanPhaseSpell::PHASE_179,
+        PhaseArenaFight                 = TanaanPhaseSpell::PHASE_180,
+        PhaseArenaIced                  = TanaanPhaseSpell::PHASE_181,
+        PhaseArenaExitGateClose         = TanaanPhaseSpell::PHASE_182,
+        PhaseArenaFightAlliance         = TanaanPhaseSpell::PHASE_183,
+        PhaseArenaFightHorde            = TanaanPhaseSpell::PHASE_184,
 
-        PhaseShadowmoonQuianaMaladaar   = TanaanPhaseSpell::PHASE_128,
-        PhaseShadowmoonLiadrinOlin      = TanaanPhaseSpell::PHASE_256,
+        PhaseShadowmoonQuianaMaladaar   = TanaanPhaseSpell::PHASE_176,
+        PhaseShadowmoonLiadrinOlin      = TanaanPhaseSpell::PHASE_177,
 
-        PhaseBlackrockSlaves            = TanaanPhaseSpell::PHASE_8,
-        PhaseBlackrockMainNpcs          = TanaanPhaseSpell::PHASE_16,
-        PhaseBlackrockKhadgarRock       = TanaanPhaseSpell::PHASE_256,
-        PhaseBlackrockKhadgarUpper      = TanaanPhaseSpell::PHASE_4096,
-        PhaseBlackrockThaelinLow        = TanaanPhaseSpell::PHASE_32768,
+        PhaseBlackrockSlaves            = TanaanPhaseSpell::PHASE_172,
+        PhaseBlackrockMainNpcs          = TanaanPhaseSpell::PHASE_173,
+        PhaseBlackrockKhadgarRock       = TanaanPhaseSpell::PHASE_177,
+        PhaseBlackrockKhadgarUpper      = TanaanPhaseSpell::PHASE_181,
+        PhaseBlackrockThaelinLow        = TanaanPhaseSpell::PHASE_184,
 
-        PhaseFinalThaelinCanon          = TanaanPhaseSpell::PHASE_8,
-        PhaseFinalSideCanons            = TanaanPhaseSpell::PHASE_64,
-        PhaseFinalCanonDeco             = TanaanPhaseSpell::PHASE_128,
+        PhaseFinalThaelinCanon          = TanaanPhaseSpell::PHASE_172,
+        PhaseFinalSideCanons            = TanaanPhaseSpell::PHASE_175,
+        PhaseFinalCanonDeco             = TanaanPhaseSpell::PHASE_176,
     };
 }
 
@@ -196,7 +197,6 @@ namespace TanaanKillCredits
         CreditDarkPortalKill            = 78419,
         CreditStatisRuneDestroyed       = 78333,
         CreditEnterGuldanPrison         = 82573,
-        CreditCostOfWar                 = 78559,
         CreditAriokEscort               = 78975,
         CreditFindKhadgarAtBridge       = 84456,
         CreditFollowKhadgar             = 80244,

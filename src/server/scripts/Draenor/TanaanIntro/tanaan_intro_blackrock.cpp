@@ -16,6 +16,8 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "MotionMaster.h"
+#include "Player.h"
 #include "tanaan_intro.h"
 #include "WorldSession.h"
 
@@ -25,13 +27,19 @@ class playerScript_from_cave_to_ridge : public PlayerScript
 public:
     playerScript_from_cave_to_ridge() : PlayerScript("playerScript_from_cave_to_ridge") { }
 
-    void OnSceneComplete(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneStart(Player* player, uint32 /*scenePackageId*/, uint32 /*sceneInstanceId*/) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneFromCaveToRidge))
+        player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockSlaves);
+        player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockMainNpcs);
+    }
+
+    void OnSceneComplete(Player* player, uint32 sceneInstanceId) override
+    {
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneFromCaveToRidge))
             return;
 
-        p_Player->AddAura(TanaanPhases::PhaseBlackrockSlaves, p_Player);
-        p_Player->AddAura(TanaanPhases::PhaseBlackrockMainNpcs, p_Player);
+        player->AddAura(TanaanPhases::PhaseBlackrockSlaves, player);
+        player->AddAura(TanaanPhases::PhaseBlackrockMainNpcs, player);
     }
 };
 
@@ -41,22 +49,22 @@ class playerScript_blackhand_reveal : public PlayerScript
 public:
     playerScript_blackhand_reveal() : PlayerScript("playerScript_blackhand_reveal") { }
 
-    void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneCancel(Player* player, uint32 sceneInstanceId) override
     {
-        StartBattle(p_Player, p_SceneInstanceId);
+        StartBattle(player, sceneInstanceId);
     }
 
-    void OnSceneComplete(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneComplete(Player* player, uint32 sceneInstanceId) override
     {
-        StartBattle(p_Player, p_SceneInstanceId);
+        StartBattle(player, sceneInstanceId);
     }
 
-    void StartBattle(Player* p_Player, uint32 p_SceneInstanceId)
+    void StartBattle(Player* player, uint32 sceneInstanceId)
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneBlackHandReveal))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneBlackHandReveal))
             return;
 
-        p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneKhadgarGoesToDam);
+        player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneKhadgarGoesToDam);
     }
 };
 
@@ -66,13 +74,13 @@ class playerScript_khadgar_goes_to_dam : public PlayerScript
 public:
     playerScript_khadgar_goes_to_dam() : PlayerScript("playerScript_khadgar_goes_to_dam") { }
 
-    void OnSceneComplete(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneComplete(Player* player, uint32 sceneInstanceId) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneKhadgarGoesToDam))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneKhadgarGoesToDam))
             return;
 
-        p_Player->AddAura(TanaanPhases::PhaseBlackrockKhadgarRock, p_Player);
-        p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneKhadgarAtDam);
+        player->AddAura(TanaanPhases::PhaseBlackrockKhadgarRock, player);
+        player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneKhadgarAtDam);
     }
 };
 
@@ -82,47 +90,46 @@ class playerScript_dam_explosion : public PlayerScript
 public:
     playerScript_dam_explosion() : PlayerScript("playerScript_dam_explosion") { }
 
-    void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
+    void OnQuestReward(Player* player, const Quest* p_Quest) override
     {
-        if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
+        if (player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
         {
-            p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneKhadgarAtDam);
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneDamExplosion);
+            player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneKhadgarAtDam);
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneDamExplosion);
         }
     }
 
-    void OnSceneCancel(Player* p_Player, uint32 p_sceneInstanceId) override
+    void OnSceneCancel(Player* player, uint32 sceneInstanceId) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_sceneInstanceId, TanaanSceneObjects::SceneDamExplosion))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneDamExplosion))
             return;
 
-        SwitchPhaseMapAfterDamExplosion(p_Player);
-        p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneWaterPortal);
+        SwitchPhaseMapAfterDamExplosion(player);
+        player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneWaterPortal);
     }
 
-    void OnSceneComplete(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneComplete(Player* player, uint32 sceneInstanceId) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneDamExplosion))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneDamExplosion))
             return;
 
-        p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneWaterPortal);
+        player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneWaterPortal);
     }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string p_Event) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceID, TanaanSceneObjects::SceneDamExplosion))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneDamExplosion))
             return;
 
         if (p_Event == "Force Phase")
-            SwitchPhaseMapAfterDamExplosion(p_Player);
+            SwitchPhaseMapAfterDamExplosion(player);
     }
 
-    void SwitchPhaseMapAfterDamExplosion(Player* p_Player)
+    void SwitchPhaseMapAfterDamExplosion(Player* player)
     {
         std::set<uint32> l_PhaseId, l_Terrainswap, l_InactiveTerrainSwap;
         l_Terrainswap.insert((uint32)TanaanZones::TerrainSwapID);
-        l_InactiveTerrainSwap.insert((uint32)TanaanZones::TerrainSwapID);
-        p_Player->GetSession()->SendSetPhaseShift(l_PhaseId, l_Terrainswap, l_InactiveTerrainSwap);
+        player->GetSession()->SendSetPhaseShift(l_PhaseId, l_Terrainswap, l_InactiveTerrainSwap);
     }
 };
 
@@ -132,12 +139,12 @@ class playerScript_khadgar_water_portal : public PlayerScript
 public:
     playerScript_khadgar_water_portal() : PlayerScript("playerScript_khadgar_water_portal") { }
 
-    void OnSceneComplete(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneComplete(Player* player, uint32 sceneInstanceId) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneWaterPortal))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneWaterPortal))
             return;
 
-        p_Player->AddAura(TanaanPhases::PhaseBlackrockKhadgarUpper, p_Player);
+        player->AddAura(TanaanPhases::PhaseBlackrockKhadgarUpper, player);
     }
 };
 
@@ -162,7 +169,7 @@ public:
         else if (p_Event == "TalkB")
         /// TALK
         else if (p_Event == "TalkC")
-        /// TALK ///< p_Player->PlayScene(893, p_Player);
+        /// TALK ///< player->PlayScene(893, player);
         else if (p_Event == "TalkD")
         /// TALK*/
     }
@@ -177,12 +184,12 @@ public:
     {
     }
 
-    bool OnQuestReward(Player* p_Player, Creature* /*p_Creature*/, const Quest* p_Quest, uint32 /*p_Option*/) override
+    bool OnQuestReward(Player* player, Creature* /*p_Creature*/, const Quest* p_Quest, uint32 /*p_Option*/) override
     {
         if (p_Quest->GetQuestId() == TanaanQuests::QuestABattleToPrepareAlly)
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersAlly);
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersAlly);
         else if (p_Quest->GetQuestId() == TanaanQuests::QuestABattleToPrepareHorde)
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersHorde);
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersHorde);
 
         return false;
     }
@@ -194,23 +201,23 @@ class npc_blackrock_follower : public CreatureScript
 public:
     npc_blackrock_follower() : CreatureScript("npc_blackrock_follower") { }
 
-    bool OnQuestAccept(Player* p_Player, Creature* /*p_Creature*/, const Quest* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* /*p_Creature*/, const Quest* p_Quest) override
     {
         if (p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
         {
-            Position playerPosition = p_Player->GetPosition();
+            Position playerPosition = player->GetPosition();
 
-            p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersAlly);
-            p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersHorde);
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBlackHandReveal);
+            player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersAlly);
+            player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersHorde);
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBlackHandReveal);
 
-            p_Player->SummonCreature(TanaanCreatures::NpcLadyLiadrinBlackrockSummon, playerPosition);
-            p_Player->SummonCreature(TanaanCreatures::NpcCordanaFelsong, playerPosition);
+            player->SummonCreature(TanaanCreatures::NpcLadyLiadrinBlackrockSummon, playerPosition);
+            player->SummonCreature(TanaanCreatures::NpcCordanaFelsong, playerPosition);
 
-            if (p_Player->GetTeamId() == TEAM_ALLIANCE)
-                p_Player->SummonCreature(TanaanCreatures::NpcQiana, playerPosition);
+            if (player->GetTeamId() == TEAM_ALLIANCE)
+                player->SummonCreature(TanaanCreatures::NpcQiana, playerPosition);
             else
-                p_Player->SummonCreature(TanaanCreatures::NpcOlin, playerPosition);
+                player->SummonCreature(TanaanCreatures::NpcOlin, playerPosition);
         }
 
         return false;
@@ -398,12 +405,12 @@ public:
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new npc_lady_liadrin_blackrockAI(p_Creature);
+        return new npc_blackrock_gruntAI(p_Creature);
     }
 
-    struct npc_lady_liadrin_blackrockAI : public ScriptedAI
+    struct npc_blackrock_gruntAI : public ScriptedAI
     {
-        npc_lady_liadrin_blackrockAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        npc_blackrock_gruntAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
         void JustDied(Unit* p_Killer) override
         {
@@ -428,10 +435,10 @@ class npc_tanaan_ganar : public CreatureScript
 public:
     npc_tanaan_ganar() : CreatureScript("npc_tanaan_ganar") { }
 
-    bool OnQuestAccept(Player* p_Player, Creature* /*p_Creature*/, Quest const* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* /*p_Creature*/, Quest const* p_Quest) override
     {
         if (p_Quest->GetQuestId() == TanaanQuests::QuestTheProdigalFrostwolf)
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFreeGanar);
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFreeGanar);
 
         return true;
     }
@@ -506,15 +513,15 @@ class gob_powder_keg : public GameObjectScript
 public:
     gob_powder_keg() : GameObjectScript("gob_powder_keg") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
+    bool OnGossipHello(Player* player, GameObject* /*p_Gameobject*/) override
     {
-        if (p_Player->GetQuestStatus(TanaanQuests::QuestTheGunpowderPlot) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(TanaanQuests::QuestTheGunpowderPlot) == QUEST_STATUS_INCOMPLETE)
         {
-            if (p_Player->GetQuestObjectiveCounter(273294))
+            if (player->GetQuestObjectiveCounter(273294))
                 return true;
 
-            p_Player->AddAura(SPELL_LEAKY_GUNPOWDER_BARREL, p_Player);
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBuildingExplosion);
+            player->AddAura(SPELL_LEAKY_GUNPOWDER_BARREL, player);
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBuildingExplosion);
         }
 
         return false;
@@ -527,21 +534,21 @@ class gob_makeshift_plunger : public GameObjectScript
 public:
     gob_makeshift_plunger() : GameObjectScript("gob_makeshift_plunger") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
+    bool OnGossipHello(Player* player, GameObject* /*p_Gameobject*/) override
     {
-        if (p_Player->GetQuestStatus(TanaanQuests::QuestTheGunpowderPlot) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(TanaanQuests::QuestTheGunpowderPlot) == QUEST_STATUS_INCOMPLETE)
         {
-            if (!p_Player->GetQuestObjectiveCounter(273294))
+            if (!player->GetQuestObjectiveCounter(273294))
                 return true;
 
-            p_Player->KilledMonsterCredit(TanaanKillCredits::CreditMakeShiftPlunger);
+            player->KilledMonsterCredit(TanaanKillCredits::CreditMakeShiftPlunger);
 
-            if (p_Player->HasAura(SPELL_LEAKY_GUNPOWDER_BARREL))
-                p_Player->RemoveAurasDueToSpell(SPELL_LEAKY_GUNPOWDER_BARREL);
+            if (player->HasAura(SPELL_LEAKY_GUNPOWDER_BARREL))
+                player->RemoveAurasDueToSpell(SPELL_LEAKY_GUNPOWDER_BARREL);
             else
             {
-                p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneBuildingExplosion);
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBuildingExplosionFallBack);
+                player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneBuildingExplosion);
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBuildingExplosionFallBack);
             }
         }
 

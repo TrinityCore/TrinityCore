@@ -15,9 +15,14 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "tanaan_intro.h"
 #include "GameObject.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "SpellInfo.h"
+#include "tanaan_intro.h"
+#include "TemporarySummon.h"
 
 /// Passive Scene Object
 class playerScript_cost_of_war : public PlayerScript
@@ -25,12 +30,12 @@ class playerScript_cost_of_war : public PlayerScript
 public:
     playerScript_cost_of_war() : PlayerScript("playerScript_cost_of_war") {}
 
-    void OnSceneComplete(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneComplete(Player* player, uint32 sceneInstanceId) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneCostOfWarEscort))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneCostOfWarEscort))
             return;
 
-        p_Player->KilledMonsterCredit(TanaanKillCredits::CreditCostOfWar);
+        player->CompleteQuest(TanaanQuests::QuestCostOfWar);
     }
 };
 
@@ -192,7 +197,7 @@ public:
             if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjAriokGossip) < 1)
                 p_Player->KilledMonsterCredit(TanaanKillCredits::CreditAriokGossip);
 
-            if (Creature* l_Ariok = p_Player->SummonCreature(p_Creature->GetEntry(), p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+            if (TempSummon* l_Ariok = p_Player->SummonCreature(p_Creature->GetEntry(), p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 if (l_Ariok->GetAI())
                     l_Ariok->AI()->SetGUID(p_Player->GetGUID());
         }

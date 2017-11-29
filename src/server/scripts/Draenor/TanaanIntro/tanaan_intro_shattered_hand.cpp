@@ -15,7 +15,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "tanaan_intro.h"
+#include "TemporarySummon.h"
 
 Position g_ShatteredHandSpawn[4] =
 {
@@ -31,15 +35,15 @@ class playerscript_bridge_destruction : public PlayerScript
 public:
     playerscript_bridge_destruction() : PlayerScript("playerscript_bridge_destruction") { }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceID, TanaanSceneObjects::SceneBridgeDestruction))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneBridgeDestruction))
             return;
 
-        if (p_Event == "Bridge")
+        if (triggerEvent == "Bridge")
         {
-            p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseBridgeIntact);
-            p_Player->AddAura(TanaanPhases::PhaseBridgeDestroyed, p_Player);
+            player->RemoveAurasDueToSpell(TanaanPhases::PhaseBridgeIntact);
+            player->AddAura(TanaanPhases::PhaseBridgeDestroyed, player);
         }
     }
 };
@@ -50,47 +54,47 @@ class playerScript_a_potential_ally : public PlayerScript
 public:
     playerScript_a_potential_ally() : PlayerScript("playerScript_a_potential_ally") { }
 
-    void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
+    void OnQuestReward(Player* player, const Quest* p_Quest) override
     {
         switch (p_Quest->GetQuestId())
         {
             case TanaanQuests::QuestAPotentialAlly:
             case TanaanQuests::QuestAPotentialAllyHorde:
-                p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneRingOfFire);
+                player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneRingOfFire);
             default:
                 break;
         }
     }
 
-    void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
+    void OnQuestAbandon(Player* player, const Quest* p_Quest) override
     {
         switch (p_Quest->GetQuestId())
         {
             case TanaanQuests::QuestAPotentialAlly:
             case TanaanQuests::QuestAPotentialAllyHorde:
-                p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneRingOfFire);
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneRingOfFire);
+                player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneRingOfFire);
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneRingOfFire);
             default:
                 break;
         }
     }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceID, TanaanSceneObjects::SceneRingOfFire))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneRingOfFire))
             return;
 
-        if (p_Event == "Fire Gone" || p_Event == "Credit")
+        if (triggerEvent == "Fire Gone" || triggerEvent == "Credit")
         {
-            if (p_Player->GetTeamId() == TEAM_ALLIANCE)
+            if (player->GetTeamId() == TEAM_ALLIANCE)
             {
-                if (!p_Player->GetQuestObjectiveCounter(272833))
-                    p_Player->KilledMonsterCredit(79537);
+                if (!player->GetQuestObjectiveCounter(272833))
+                    player->KilledMonsterCredit(79537);
             }
             else
             {
-                if (!p_Player->GetQuestObjectiveCounter(272869))
-                    p_Player->KilledMonsterCredit(78996);
+                if (!player->GetQuestObjectiveCounter(272869))
+                    player->KilledMonsterCredit(78996);
             }
         }
     }
@@ -102,7 +106,6 @@ class playerScript_kill_your_hundred : public PlayerScript
 public:
     playerScript_kill_your_hundred() : PlayerScript("playerScript_kill_your_hundred") { }
 
-    // TODO : A l'abandon, on re-tp le joueur au donneur de quête
     void OnQuestAbandon(Player* player, const Quest* quest) override
     {
         if (player && quest && quest->GetQuestId() == TanaanQuests::QuestKillYourHundred)
@@ -112,35 +115,35 @@ public:
         }
     }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceId, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
     {
-        if (p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneEnterKarGathArena))
+        if (player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneEnterKarGathArena))
         {
-            if (p_Event == "Phase")
+            if (triggerEvent == "Phase")
             {
-                if (!p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjEnterTheArena))
-                    p_Player->KilledMonsterCredit(TanaanKillCredits::CreditEnterTheArena);
+                if (!player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjEnterTheArena))
+                    player->KilledMonsterCredit(TanaanKillCredits::CreditEnterTheArena);
 
-                p_Player->AddAura(TanaanPhases::PhaseArenaFight, p_Player);
-                p_Player->AddAura(p_Player->GetTeamId() == TEAM_ALLIANCE ? TanaanPhases::PhaseArenaFightAlliance : TanaanPhases::PhaseArenaFightHorde, p_Player);
-                p_Player->AddAura(TanaanPhases::PhaseArenaEntranceGateClose, p_Player);
-                p_Player->AddAura(TanaanPhases::PhaseArenaExitGateClose, p_Player);
+                player->AddAura(TanaanPhases::PhaseArenaFight, player);
+                player->AddAura(player->GetTeamId() == TEAM_ALLIANCE ? TanaanPhases::PhaseArenaFightAlliance : TanaanPhases::PhaseArenaFightHorde, player);
+                player->AddAura(TanaanPhases::PhaseArenaEntranceGateClose, player);
+                player->AddAura(TanaanPhases::PhaseArenaExitGateClose, player);
             }
-            else if (p_Event == "Credit")
-                p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneEnterKarGathArena);
+            else if (triggerEvent == "Credit")
+                player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneEnterKarGathArena);
         }
 
-        if (p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneEscapingTheArena))
+        if (player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneEscapingTheArena))
         {
-            if (p_Event == "Hundred")
-                p_Player->KilledMonsterCredit(TanaanKillCredits::CreditCombattantSlainInArena);
-            else if (p_Event == "Update")
-                p_Player->AddAura(TanaanPhases::PhaseArenaIced, p_Player);
-            else if (p_Event == "Credit")
+            if (triggerEvent == "Hundred")
+                player->KilledMonsterCredit(TanaanKillCredits::CreditCombattantSlainInArena);
+            else if (triggerEvent == "Update")
+                player->AddAura(TanaanPhases::PhaseArenaIced, player);
+            else if (triggerEvent == "Credit")
             {
-                p_Player->GetSceneMgr().CancelScene(p_SceneInstanceId);
+                player->GetSceneMgr().CancelScene(sceneInstanceId);
                 // Scene flags taken from sniffs except SCENEFLAG_NOT_CANCELABLE
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneCaveIn, SCENEFLAG_UNK1 | SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK8 | SCENEFLAG_UNK16);
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneCaveIn, SCENEFLAG_UNK1 | SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK8 | SCENEFLAG_UNK16);
             }
         }
     }
@@ -152,13 +155,13 @@ class playerScript_cave_in : public PlayerScript
 public:
     playerScript_cave_in() : PlayerScript("playerScript_cave_in") { }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceId, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneCaveIn))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneCaveIn))
             return;
 
-        if (p_Event == "EarlyPhase")
-            p_Player->KilledMonsterCredit(TanaanKillCredits::CreditEscapeKargathArena);
+        if (triggerEvent == "EarlyPhase")
+            player->KilledMonsterCredit(TanaanKillCredits::CreditEscapeKargathArena);
     }
 };
 
@@ -168,23 +171,23 @@ class npc_archmage_khadgar_bridge : public CreatureScript
 public:
     npc_archmage_khadgar_bridge() : CreatureScript("npc_archmage_khadgar_bridge") { }
 
-    bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* p_Creature, const Quest* p_Quest) override
     {
         switch (p_Quest->GetQuestId())
         {
             case TanaanQuests::QuestKargatharProvingGrounds:
             {
-                if (Creature* creature = p_Player->SummonCreature(TanaanCreatures::NpcArchmageKhadgarSum, p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+                if (TempSummon* creature = player->SummonCreature(TanaanCreatures::NpcArchmageKhadgarSum, p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
-                    creature->AI()->SetGUID(p_Player->GetGUID());
-                    p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBridgeDestruction);
+                    creature->AI()->SetGUID(player->GetGUID());
+                    player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBridgeDestruction);
                 }
 
                 break;
             }
             case TanaanQuests::QuestKillYourHundred:
             {
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneEnterKarGathArena, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneEnterKarGathArena, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
                 break;
             }
             default:
