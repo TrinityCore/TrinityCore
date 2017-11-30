@@ -53,6 +53,7 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
     SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
+    SPELL_PALADIN_ILLUMINATED_HEALING            = 86273,
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
     SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA   = 63510,
     SPELL_PALADIN_IMPROVED_DEVOTION_AURA         = 63514,
@@ -1271,6 +1272,45 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
         }
 };
 
+// 76669 - Illuminated Healing
+class spell_pal_illuminated_healing : public SpellScriptLoader
+{
+    public:
+        spell_pal_illuminated_healing() : SpellScriptLoader("spell_pal_illuminated_healing") { }
+
+        class spell_pal_illuminated_healing_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_illuminated_healing_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_PALADIN_ILLUMINATED_HEALING });
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = eventInfo.GetProcTarget())
+                    {
+                        uint32 shieldAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+                        caster->CastCustomSpell(SPELL_PALADIN_ILLUMINATED_HEALING, SPELLVALUE_BASE_POINT0, shieldAmount, target, true, nullptr, aurEff);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_illuminated_healing_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_illuminated_healing_AuraScript();
+        }
+};
 
 void AddSC_paladin_spell_scripts()
 {
@@ -1288,6 +1328,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_grand_crusader();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_holy_shock();
+    new spell_pal_illuminated_healing();
     new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
