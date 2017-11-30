@@ -665,7 +665,7 @@ class spell_mage_frostbolt : public SpellScriptLoader
                }
            }
 
-           void Register()
+           void Register() override
            {
                OnCast += SpellCastFn(spell_mage_frostbolt_SpellScript::HandleEarlyFrost);
                OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
@@ -1662,7 +1662,7 @@ public:
     {
         PrepareAuraScript(spell_mage_early_frost_AuraScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_MAGE_EARLY_FROST_VISUAL });
         }
