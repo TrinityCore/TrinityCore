@@ -505,7 +505,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Scenario* GetScenario() const;
 
         TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, uint32 vehId = 0, bool visibleBySummonerOnly = false);
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType, Milliseconds const& despawnTime, uint32 vehId = 0, bool visibleBySummonerOnly = false) { SummonCreature(entry, pos, despawnType, uint32(despawnTime.count()), vehId, visibleBySummonerOnly); }
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType, Milliseconds const& despawnTime, uint32 vehId = 0, bool visibleBySummonerOnly = false) { return SummonCreature(entry, pos, despawnType, uint32(despawnTime.count()), vehId, visibleBySummonerOnly); }
         TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, bool visibleBySummonerOnly = false);
         GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime /* s */);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime /* s */);
