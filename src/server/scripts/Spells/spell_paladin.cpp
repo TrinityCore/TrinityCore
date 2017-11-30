@@ -39,6 +39,7 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
+    SPELL_PALADIN_CRUSADER_STRIKE                = 35395,
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
     SPELL_PALADIN_DIVINE_STORM                   = 53385,
@@ -48,6 +49,7 @@ enum PaladinSpells
     SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
     SPELL_PALADIN_FORBEARANCE                    = 25771,
     SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
+    SPELL_PALADIN_HAND_OF_LIGHT                  = 96172,
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
     SPELL_PALADIN_HOLY_LIGHT                     = 635,
     SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
@@ -65,7 +67,8 @@ enum PaladinSpells
     SPELL_PALADIN_SANCTIFIED_WRATH               = 57318,
     SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1     = 53375,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
-    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379
+    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
+    SPELL_PALADIN_TEMPLARS_VERDICT               = 85256
 };
 
 enum MiscSpells
@@ -1312,6 +1315,62 @@ class spell_pal_illuminated_healing : public SpellScriptLoader
         }
 };
 
+// 76672 - Hand of Light
+class spell_pal_hand_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_hand_of_light() : SpellScriptLoader("spell_pal_hand_of_light") { }
+
+        class spell_pal_hand_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_hand_of_light_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                {
+                    SPELL_PALADIN_TEMPLARS_VERDICT,
+                    SPELL_PALADIN_CRUSADER_STRIKE,
+                    SPELL_PALADIN_DIVINE_STORM
+                });
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_PALADIN_TEMPLARS_VERDICT ||
+                    eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_PALADIN_CRUSADER_STRIKE ||
+                    eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_PALADIN_DIVINE_STORM)
+                    return true;
+
+                return false;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = eventInfo.GetProcTarget())
+                    {
+                        uint32 damageAmount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+                        caster->CastCustomSpell(SPELL_PALADIN_HAND_OF_LIGHT, SPELLVALUE_BASE_POINT0, damageAmount, target, true, NULL, aurEff);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pal_hand_of_light_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pal_hand_of_light_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_hand_of_light_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1326,6 +1385,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_eye_for_an_eye();
     new spell_pal_glyph_of_holy_light();
     new spell_pal_grand_crusader();
+    new spell_pal_hand_of_light();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_holy_shock();
     new spell_pal_illuminated_healing();
