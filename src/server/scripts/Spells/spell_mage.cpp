@@ -1047,13 +1047,18 @@ class spell_mage_nether_vortex : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_SLOW))
-                    return false;
-               return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_MAGE_SLOW,
+                    SPELL_MAGE_ARCANE_BLAST
+                });
             }
 
             bool DoCheck(ProcEventInfo& eventInfo)
             {
+                if (eventInfo.GetProcSpell()->GetSpellInfo()->Id != SPELL_MAGE_ARCANE_BLAST)
+                    return false;
+
                 if (Aura* aura = eventInfo.GetProcTarget()->GetAura(SPELL_MAGE_SLOW))
                     if (aura->GetCasterGUID() != GetTarget()->GetGUID())
                         return false;
