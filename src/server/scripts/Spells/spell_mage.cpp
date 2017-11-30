@@ -44,6 +44,11 @@ enum MageSpells
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
+    SPELL_MAGE_EARLY_FROST_R1                    = 83049,
+    SPELL_MAGE_EARLY_FROST_R2                    = 83050,
+    SPELL_MAGE_EARLY_FROST_TRIGGERED_R1          = 83162,
+    SPELL_MAGE_EARLY_FROST_TRIGGERED_R2          = 83239,
+    SPELL_MAGE_EARLY_FROST_VISUAL                = 94315,
     SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
@@ -101,6 +106,8 @@ enum MageIcons
     ICON_MAGE_IMPROVED_FREEZE                    = 94,
     ICON_MAGE_INCANTER_S_ABSORPTION              = 2941,
     ICON_MAGE_IMPROVED_MANA_GEM                  = 1036,
+    ICON_MAGE_EARLY_FROST_SKILL                  = 189,
+    ICON_MAGE_EARLY_FROST                        = 2114,
     SPELL_ICON_MAGE_LIVING_BOMB                  = 3000
 };
 
@@ -614,6 +621,37 @@ class spell_mage_frostbolt : public SpellScriptLoader
        {
            PrepareSpellScript(spell_mage_frostbolt_SpellScript);
 
+           bool Validate(SpellInfo const* /*spellInfo*/) override
+           {
+               return ValidateSpellInfo(
+               {
+                    SPELL_MAGE_EARLY_FROST_R1,
+                    SPELL_MAGE_EARLY_FROST_R2,
+                    SPELL_MAGE_EARLY_FROST_TRIGGERED_R1,
+                    SPELL_MAGE_EARLY_FROST_TRIGGERED_R2,
+                    SPELL_MAGE_EARLY_FROST_VISUAL
+               });
+           }
+
+           void HandleEarlyFrost()
+           {
+               if (Unit* caster = GetCaster())
+               {
+                   if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_MAGE, ICON_MAGE_EARLY_FROST_SKILL, 0))
+                   {
+                       if (!caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_MAGE, ICON_MAGE_EARLY_FROST, 0))
+                       {
+                           if (aurEff->GetId() == SPELL_MAGE_EARLY_FROST_R1)
+                               caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_TRIGGERED_R1, true);
+                           else if (aurEff->GetId() == SPELL_MAGE_EARLY_FROST_R2)
+                               caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_TRIGGERED_R2, true);
+
+                           caster->RemoveAurasDueToSpell(SPELL_MAGE_EARLY_FROST_VISUAL);
+                       }
+                   }
+               }
+           }
+
            void RecalculateDamage(SpellEffIndex /*effIndex*/)
            {
                if (GetHitUnit() && GetHitUnit()->HasAuraState(AURA_STATE_FROZEN, GetSpellInfo(), GetCaster()))
@@ -629,6 +667,7 @@ class spell_mage_frostbolt : public SpellScriptLoader
 
            void Register()
            {
+               OnCast += SpellCastFn(spell_mage_frostbolt_SpellScript::HandleEarlyFrost);
                OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
            }
        };
@@ -1609,6 +1648,38 @@ public:
     }
 };
 
+class spell_mage_early_frost : public SpellScriptLoader
+{
+public:
+    spell_mage_early_frost() : SpellScriptLoader("spell_mage_early_frost") { }
+
+    class spell_mage_early_frost_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_early_frost_AuraScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            return ValidateSpellInfo({ SPELL_MAGE_EARLY_FROST_VISUAL });
+        }
+
+        void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_VISUAL , true, NULL, aurEff);
+        }
+
+        void Register() override
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_mage_early_frost_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_early_frost_AuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
@@ -1619,6 +1690,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
     RegisterAuraScript(spell_mage_dragon_breath);
+    new spell_mage_early_frost();
     new spell_mage_fire_frost_ward();
     new spell_mage_focus_magic();
     new spell_mage_frostbolt();
