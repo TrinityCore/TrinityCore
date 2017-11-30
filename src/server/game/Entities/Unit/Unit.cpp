@@ -6692,6 +6692,13 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     switch (spellProto->SpellFamilyName)
     {
         case SPELLFAMILY_MAGE:
+            // Mastery: Frostburn
+            if (AuraEffect* aurEff = GetAuraEffect(76613, 0))
+                if (victim->HasAuraState(AURA_STATE_FROZEN))
+                    if (aurEff->IsAffectingSpell(spellProto))
+                        AddPct(DoneTotalMod, aurEff->GetAmount());
+
+
             // Ice Lance
             if (spellProto->SpellIconID == 186)
                 if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
