@@ -2517,7 +2517,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 (@CGUID+1456, 55640, 860, 0, 0, 1, 1329, 0, 0, 0, 611.1754, 4389.811, 196.7055, 5.117938, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55640 (Area: 5886) (possible waypoints or random movement)
 (@CGUID+1457, 55640, 860, 0, 0, 1, 1329, 0, 0, 0, 623.4827, 4382.543, 197.1497, 2.024631, 120, 0, 0, 0, 0, 2, 0, 0, 0, 20886), -- 55640 (Area: 5886) (possible waypoints or random movement)
 (@CGUID+1458, 55595, 860, 0, 0, 1, 1329, 0, 0, 0, 543.9462, 4317.313, 212.3221, 1.675516, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55595 (Area: 5886) (Auras: 82343 - 82343)
-(@CGUID+1459, 55786, 860, 0, 0, 1, 524, 0, 0, 0, 713.9167, 4168.126, 213.846, 2.70526, 15, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55786 (Area: 5886) (Auras: 125992 - 125992)
+(@CGUID+1459, 55786, 860, 0, 0, 1, 524, 0, 0, 0, 713.9167, 4168.126, 213.846, 2.70526, 10, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55786 (Area: 5886) (Auras: 125992 - 125992)
 (@CGUID+1460, 64507, 860, 0, 0, 1, 524, 0, 0, 0, 704.7743, 4190.157, 198.3277, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
 (@CGUID+1461, 64507, 860, 0, 0, 1, 524, 0, 0, 0, 684.5347, 4173.243, 197.0644, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
 (@CGUID+1462, 64507, 860, 0, 0, 1, 524, 0, 0, 0, 736.9011, 4183.853, 201.4932, 6.257929, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
@@ -8695,7 +8695,7 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (7087, 'at_wreck_of_the_skyseeker_injured_sailor'),
 (7265, 'SmartTrigger');
 
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceEntry` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944)) OR (`SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (524, 592, 593, 594, 595, 596, 597, 598, 964, 1430, 1510, 1518, 1523, 1526, 1527, 1836, 1885, 879, 903, 1835) AND `SourceEntry`=0);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceEntry` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944)) OR (`SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (524, 592, 593, 594, 595, 596, 597, 598, 964, 1329, 1430, 1510, 1518, 1523, 1526, 1527, 1836, 1885, 879, 903, 1835) AND `SourceEntry`=0);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=25 AND `SourceEntry` IN (975, 976);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7709, 7714, 7265) AND `SourceId`=2;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118029, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497);
@@ -8756,14 +8756,16 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26, 964, 0, 0, 1, 8, 0, 29663, 0, 0, 0, 0, 0, '', 'The Singing Pools Phase 964 when Quest 29663 rewarded'),
 (26, 964, 0, 0, 1, 8, 0, 29676, 0, 0, 1, 0, 0, '', 'The Singing Pools Phase 964 when Quest 29676 not rewarded'),
 (26, 1510, 0, 0, 0, 9, 0, 29768, 0, 0, 0, 0, 0, '', 'The Rows Phase 1510 when Quest 29768 taken'),
-(26, 524, 0, 0, 0, 9, 0, 29786, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 524 when Quest 29786 taken'),
+-- (26, 524, 0, 0, 0, 47, 0, 29786, 9, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 524 when Quest 29786 available or taken'),
+(26, 524, 0, 0, 0, 9, 0, 29786, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 524 when Quest 29786 taken'), -- uncomment above and remove this when fixed
+-- (26, 1329, 0, 0, 0, 47, 0, 29786, 9, 0, 1, 0, 0, '', 'Ridge of Laughing Winds Phase 1329 when Quest 29786 not taken or not in pogress'),
+(26, 1329, 0, 0, 0, 9, 0, 29786, 0, 0, 1, 0, 0, '', 'Ridge of Laughing Winds Phase 1329 when Quest 29786 not taken'), -- uncomment above and remove this when fixed
 (26, 1430, 0, 0, 0, 8, 0, 29776, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 1430 when Quest 29776 rewarded'),
-(26, 1430, 0, 0, 0, 8, 0, 29786, 0, 0, 1, 0, 0, '', 'Ridge of Laughing Winds Phase 1430 when Quest 29786 not rewarded'),
-(26, 1430, 0, 0, 0, 9, 0, 29786, 0, 0, 1, 0, 0, '', 'Ridge of Laughing Winds Phase 1430 when Quest 29786 not taken'),
-(26, 1430, 0, 0, 0, 28, 0, 29786, 0, 0, 1, 0, 0, '', 'Ridge of Laughing Winds Phase 1430 when Quest 29786 not complete'),
+(26, 1430, 0, 0, 0, 47, 0, 29786, 75, 0, 1, 0, 0, '', 'Ridge of Laughing Winds Phase 1430 when Quest 29776 not available, not taken, not complete and not rewarded'),
 (26, 1836, 0, 0, 0, 28, 0, 29785, 0, 0, 1, 0, 0, '', 'Chamber of Whispers Phase 1836 when Quest 29785 not complete'),
 (26, 1836, 0, 0, 0, 8, 0, 29785, 0, 0, 1, 0, 0, '', 'Chamber of Whispers Phase 1836 when Quest 29785 not rewarded'),
 (26, 1518, 0, 0, 0, 8, 0, 29776, 0, 0, 0, 0, 0, '', 'Morning Breeze Village Phase 1518 when Quest 29776 rewarded'),
+(26, 1518, 0, 0, 0, 47, 0, 29786, 74, 0, 1, 0, 0, '', 'Morning Breeze Village Phase 1518 when Quest 29786 not in progress, not complete and not rewarded'), -- should be until quest is available, not in pogress, not completed and not rewarded - but available doesnt work
 (26, 1523, 0, 0, 0, 8, 0, 29780, 0, 0, 0, 0, 0, '', 'Morning Breeze Lake Phase 1523 when Quest 29780 rewarded'),
 (26, 1526, 0, 0, 0, 28, 0, 29786, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 1526 when Quest 29786 complete'),
 (26, 1526, 0, 0, 1, 8, 0, 29786, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 1526 when Quest 29786 rewarded'),
@@ -9050,7 +9052,7 @@ INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (5829, 1836, 'Ridge of Laughing Winds - before quest 29785 complete or rewarded'),
 -- Morning Breeze Village
 (5830, 1430, 'Morning Breeze Village - after quest 29776 rewarded and quest 29786 not taken, complete or rewarded'),
-(5830, 1518, 'Morning Breeze Village - after quest 29776 rewarded'),
+(5830, 1518, 'Morning Breeze Village - after quest 29776 rewarded and before quest 29786 taken, complete or rewarded'),
 (5830, 1519, 'Morning Breeze Village - x'),
 (5830, 1523, 'Morning Breeze Village - quest 29780 rewarded'),
 (5830, 1836, 'Morning Breeze Village - before quest 29785 complete or rewarded'),
@@ -9059,7 +9061,7 @@ INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (5831, 1714, 'Fe-Feng Village - before quest 29782 complete or rewarded'),
 -- Morning Breeze Lake
 (5946, 1430, 'Morning Breeze Village - after quest 29776 rewarded and quest 29786 not taken, complete or rewarded'),
-(5946, 1518, 'Morning Breeze Lake - after quest 29776 rewarded'),
+(5946, 1518, 'Morning Breeze Lake - after quest 29776 rewarded and before quest 29786 taken, complete or rewarded'),
 (5946, 1519, 'Morning Breeze Lake - x'),
 (5946, 1523, 'Morning Breeze Lake - quest 29780 rewarded'),
 -- Chamber of Whispers
@@ -9245,7 +9247,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid` BETWEEN -@CGUID-2849 AND -@CGUID
 -- Temp Spawns
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (59637, 54856, 59652, 56503, 57750, 54631, 61126, 61127, 54958, 56550, 60250, 60249, 57636, 57638, 60488, 55213, 57208, 57207, 64258, 57667, 57669, 55558, 60916, 59496, 59498, 56566, 55685, 55694, 57668, 57670, 65558, 56134, 57465, 57690, 57692, 64530, 55744, 64543, 64532, 56159, 65476, 65477, 56686, 57874, 56679, 56663, 55649, 56660, 56661, 65102, 65107, 57781, 59986, 59988, 59989, 60900, 56236, 60685, 60729, 60741, 57803) AND `source_type`=0;
 -- Action Lists > x*100 || Temp Spawns' Actionlists
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5485603, 5965200, 5650300, 5461101, 5461102, 5458701, 5458702, 5458703, 5458704, 5458705, 5458706, 5458707, 5458708, 5458601, 5356501, 5356502, 5356503, 5356504, 5774801, 5774802, 5774803, 6141101, 6141102, 6141103, 5413001, 5413002, 5413003, 5413004, 5413005, 5413006, 5413007, 5413008, 5413009, 5673001, 5673002, 5673003, 5463100, 6112600, 6112700, 5495800, 6025000, 6024900, 5763800, 5639301, 5639302, 6048800, 5720800, 5720700, 5766900, 5639303, 6546701, 5547701, 5555800, 6091600, 5949600, 6668901, 6669101, 6669201, 5656600, 5569400, 5560101, 5560102, 5767000, 5639304, 5639305, 5639306, 5639307, 6546702, 5639401, 5639402, 5639403, 6555800, 5769200, 6454300, 5566501, 6453200, 6450501, 5615900, 5668600, 5668601, 5668602, 5668603, 5564900, 5564901, 5564902, 5666100, 5666101, 5666000, 5666001, 5998600, 5998601, 5998602, 5998603, 5998800, 5998900, 5998901, 6090000, 5623600, 5641601, 5600901, 6072900, 6074100, 5780300) AND `source_type`=9;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5485603, 5965200, 5650300, 5461101, 5461102, 5458701, 5458702, 5458703, 5458704, 5458705, 5458706, 5458707, 5458708, 5458601, 5356501, 5356502, 5356503, 5356504, 5774801, 5774802, 5774803, 6141101, 6141102, 6141103, 5413001, 5413002, 5413003, 5413004, 5413005, 5413006, 5413007, 5413008, 5413009, 5673001, 5673002, 5673003, 5463100, 6112600, 6112700, 5495800, 6025000, 6024900, 5763800, 5639301, 5639302, 6048800, 5720800, 5720700, 5766900, 5639303, 6546701, 5547701, 5555800, 6091600, 5949600, 6668901, 6669101, 6669201, 5656600, 5569400, 5560101, 5560102, 5767000, 5639304, 5639305, 5639306, 5639307, 6546702, 5639401, 5639402, 5639403, 6555800, 5769200, 6454300, 5566501, 6453200, 5615900, 5668600, 5668601, 5668602, 5668603, 5564900, 5564901, 5564902, 5666100, 5666101, 5666000, 5666001, 5998600, 5998601, 5998602, 5998603, 5998800, 5998900, 5998901, 6090000, 5623600, 5641601, 5600901, 6072900, 6074100, 5780300) AND `source_type`=9;
 -- Area Triggers
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (7746, 7737, 7747, 7748, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7042, 7037, 7106, 7710, 7709, 7714, 7265) AND `source_type`=2;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
@@ -10488,7 +10490,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5639402, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 53, 1, 5639404, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Mesmerized Child - Start WP'),
 (-@CGUID-1342, 0, 1, 0, 40, 0, 100, 0, 13, 5639404, 0, 0, 59, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Mesmerized Child - WP Reached - Set Run'),
 (-@CGUID-1342, 0, 2, 0, 58, 0, 100, 0, 14, 5639404, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 2.130749, 'Mesmerized Child - WP Ended - Set Orientation'),
-/* after update template, SAI is not working
+/* Summoner should see Ji Firepaw and other players Huojin Monk
 -- Huojin Monk / Ji Firepaw
 (65558, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 36, 56134, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huojin Monk - Just Spawned - Update Template'),
 (65558, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 29, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Just Spawned - Stop Follow'),
@@ -10657,51 +10659,52 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (6453200, 9, 0, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 53, 1, 64532, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dafeng - Start WP'),
 (64532, 0, 2, 0, 38, 0, 100, 0, 5, 5, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 709.238, 4177.15, 198.7956, 0, 'Dafeng - On Data Set - Move to Pos'),
 -- Firework Launcher
-(64507, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Respawn - Set Event Phase 1'),
-(64507, 0, 1, 2, 8, 1, 100, 0, 125961, 0, 0, 0, 11, 125970, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Cast AICast Overpacked Firework'),
-(64507, 0, 2, 3, 61, 1, 100, 0, 0, 0, 0, 0, 128, 2538, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Play Oneshot AnimKit'),
-(64507, 0, 3, 4, 61, 1, 100, 0, 0, 0, 0, 0, 11, 125964, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Cast Firework Launcher Inactive'),
-(64507, 0, 4, 5, 61, 1, 100, 0, 0, 0, 0, 0, 11, 104080, 0, 0, 0, 0, 0, 10, @CGUID+1463, 64505, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Set Data'),
-(64507, 0, 5, 6, 61, 1, 100, 0, 0, 0, 0, 0, 80, 6450700, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Run Script'),
-(64507, 0, 6, 0, 61, 1, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Set Event Phase 2'),
-(6450700, 9, 0, 0, 0, 0, 100, 0, 21000, 21000, 0, 0, 22, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - Set Event Phase 1'),
-(64507, 0, 7, 0, 60, 2, 100, 0, 5000, 5000, 5000, 5000, 11, 104080, 0, 0, 0, 0, 0, 10, @CGUID+1463, 64505, 0, 0, 0, 0, 0, 'Firework Launcher - Update - Cast Firework Launcher Inactive'),
-(64507, 0, 8, 0, 38, 0, 100, 0, 1, 1, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Data Set - Set Event Phase 1'),
+(64507, 0, 0, 1, 8, 0, 100, 0, 125961, 0, 0, 0, 11, 125970, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Cast AICast Overpacked Firework'),
+(64507, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 128, 2538, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Play Oneshot AnimKit'),
+(64507, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 11, 125964, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Cast Firework Launcher Inactive'),
+(64507, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 11, 104080, 0, 0, 0, 0, 0, 10, @CGUID+1463, 64505, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Set Data'),
+(64507, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Set Event Phase 1'),
+(64507, 0, 5, 0, 60, 1, 100, 0, 5000, 5000, 5000, 5000, 11, 104080, 0, 0, 0, 0, 0, 10, @CGUID+1463, 64505, 0, 0, 0, 0, 0, 'Firework Launcher - Update - Cast Firework Launcher Inactive'),
+(64507, 0, 6, 0, 38, 0, 100, 0, 1, 1, 0, 0, 22, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Data Set - Reset Event Phase'),
 -- Ji Firepaw
 (64505, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Reset - Set React State'),
-(64505, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Respawn - Set Event Phase 1'),
-(64505, 0, 2, 3, 8, 1, 100, 0, 104080, 0, 0, 0, 69, 1, 0, 0, 1, 1, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Move to Pos'),
-(64505, 0, 3, 0, 61, 1, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Set Event Phase 2'),
-(64505, 0, 4, 0, 34, 2, 100, 0, 8, 1, 0, 0, 80, 6450500, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Movement Inform - Run Script'),
+(64505, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 59, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Reset - Set Run'),
+(64505, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Respawn - Set Event Phase 1'),
+(64505, 0, 3, 4, 8, 1, 100, 0, 104080, 0, 0, 0, 69, 1, 0, 0, 1, 1, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Move to Pos'),
+(64505, 0, 4, 0, 61, 1, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Set Event Phase 2'),
+(64505, 0, 5, 0, 34, 2, 100, 0, 8, 1, 0, 0, 80, 6450500, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Movement Inform - Run Script'),
 (6450500, 9, 0, 0, 0, 0, 100, 0, 200, 200, 0, 0, 66, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Orientation'),
 (6450500, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 381, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Play Emote'),
 (6450500, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 125964, 0, 0, 0, 0, 0, 11, 64507, 3, 0, 0, 0, 0, 0, 'Ji Firepaw - Remove Aura'),
-(6450500, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 64507, 3, 0, 0, 0, 0, 0, 'Ji Firepaw - Remove Aura'),
+(6450500, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 64507, 3, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Data'),
 (6450500, 9, 4, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Event Phase 1'),
-(64505, 0, 5, 6, 38, 0, 100, 0, 1, 1, 0, 0, 49, 0, 0, 0, 0, 0, 0, 10, @CGUID+1459, 55786, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Start Attack'),
-(64505, 0, 6, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Event Phase 3'),
-(64505, 0, 7, 0, 0, 4, 100, 0, 3000, 5000, 3000, 5000, 11, 128630, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Jab'),
-(64505, 0, 8, 0, 0, 4, 100, 0, 5000, 8000, 8000, 12000, 11, 128631, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Blackout Kick'),
-(64505, 0, 9, 10, 38, 4, 100, 0, 4, 4, 0, 0, 20, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Stop Attack'),
-(64505, 0, 10, 0, 61, 4, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Event Phase 1'),
-(64505, 0, 11, 12, 38, 0, 100, 0, 5, 5, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 714.385, 4163.74, 195.8898, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
-(64505, 0, 12, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 6450501, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Run Script'),
-(6450501, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 22, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Event Phase 4'),
-(6450501, 9, 1, 0, 0, 0, 100, 0, 15000, 15000, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Evade'),
+(64505, 0, 6, 7, 38, 0, 100, 0, 2, 2, 0, 0, 8, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set React State'),
+(64505, 0, 7, 8, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 10, @CGUID+1459, 55786, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Start Attack'),
+(64505, 0, 8, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Event Phase 3'),
+(64505, 0, 9, 0, 9, 4, 100, 0, 10, 40, 0, 10000, 11, 117312, 1, 0, 0, 0, 0, 10, @CGUID+1459, 55786, 0, 0, 0, 0, 0, 'Ji Firepaw - On Range - Cast Combat Roll'),
+(64505, 0, 10, 0, 0, 4, 100, 0, 3000, 5000, 3000, 5000, 11, 128630, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Jab'),
+(64505, 0, 11, 0, 0, 4, 100, 0, 5000, 8000, 8000, 12000, 11, 128631, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Blackout Kick'),
+(64505, 0, 12, 13, 38, 4, 100, 0, 4, 4, 0, 0, 20, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Stop Attack'),
+(64505, 0, 13, 14, 61, 4, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set React State'),
+(64505, 0, 14, 15, 61, 4, 100, 0, 0, 0, 0, 0, 18, 32768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Unit Flags'),
+(64505, 0, 15, 16, 61, 4, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 1, 1, 0, 19, 64507, 40, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
+(64505, 0, 16, 0, 61, 4, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Event Phase 1'),
+(64505, 0, 17, 18, 38, 0, 100, 0, 5, 5, 0, 0, 69, 3, 0, 0, 0, 0, 0, 8, 0, 0, 0, 714.385, 4163.74, 195.8898, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
+(64505, 0, 18, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Event Phase 4'),
+(64505, 0, 19, 0, 34, 0, 100, 0, 8, 3, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 6.015011, 'Ji Firepaw - Movement Inform - Set Orientation'),
+(64505, 0, 20, 0, 38, 0, 100, 0, 6, 6, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Evade'),
 -- Aysa Cloudsinger
 (64506, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Respawn - Set React State'),
-(64506, 0, 1, 0, 11, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Respawn - Set Event Phase 1'),
+(64506, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Respawn - Set Event Phase 1'),
 (64506, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
 (64506, 0, 3, 4, 38, 0, 100, 0, 2, 2, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
-(64506, 0, 4, 6, 61, 0, 100, 0, 0, 0, 0, 0, 91, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Remove Bytes 1'),
-(64506, 0, 5, 6, 38, 0, 100, 0, 3, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
-(64506, 0, 6, 0, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 10, @CGUID+1459, 55786, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Start Attack'),
+(64506, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 91, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Remove Bytes 1'),
+(64506, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 10, @CGUID+1459, 55786, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Start Attack'),
+(64506, 0, 6, 0, 38, 0, 100, 0, 3, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
 (64506, 0, 7, 8, 38, 0, 100, 0, 4, 4, 0, 0, 20, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Stop Attack'),
 (64506, 0, 8, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Set Event Phase 2'),
 (64506, 0, 9, 0, 60, 2, 100, 0, 4000, 8000, 8000, 12000, 11, 117312, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Update - Cast Combat Roll'),
-(64506, 0, 10, 11, 38, 0, 100, 0, 5, 5, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 714.385, 4163.74, 195.8898, 0, 'Aysa Cloudsinger - On Data Set - Move to Pos'),
-(64506, 0, 11, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 6450600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Run Script'),
-(6450600, 9, 0, 0, 0, 0, 100, 0, 15000, 15000, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Evade'),
+(64506, 0, 10, 0, 38, 0, 100, 0, 5, 5, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Evade'),
 -- Master Shang Xi
 (64530, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 2, 2395, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Just Spawned - Set Faction'), -- temp
 (64530, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 711.335, 4178.05, 197.7852, 0, 'Master Shang - Just Spawned - Move to Pos'),
