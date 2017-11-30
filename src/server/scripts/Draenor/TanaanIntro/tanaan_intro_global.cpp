@@ -15,8 +15,9 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "tanaan_intro.h"
 #include "GameObject.h"
+#include "Player.h"
+#include "tanaan_intro.h"
 #include "WorldSession.h"
 
 /// Tanaan entering
@@ -25,79 +26,75 @@ class playerScript_enter_tanaan : public PlayerScript
 public:
     playerScript_enter_tanaan() : PlayerScript("playerScript_enter_tanaan") { }
 
-    void OnUpdateArea(Player* p_Player, uint32 p_NewAreaId, uint32 /*p_OldAreaID*/) override
+    void OnUpdateArea(Player* player, uint32 newAreaId, uint32 /*oldAreaID*/) override
     {
-        if (p_Player->GetZoneId() != TanaanZones::ZoneTanaanJungle)
+        if (player->GetZoneId() != TanaanZones::ZoneTanaanJungle)
             return;
 
-        switch (p_NewAreaId)
+        switch (newAreaId)
         {
             case TanaanZones::AreaTheDarkPortal:
             {
-                p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneLoomingArmy);
-                p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneSoulTrain);
+                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneLoomingArmy);
+                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneSoulTrain);
                 break;
             }
             case TanaanZones::AreaHearthBlood:
             {
-                p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneCuriousHatchets);
+                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneCuriousHatchets);
                 break;
             }
             case TanaanZones::AreaBleedingAltar:
             {
-                p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneEyeOfKilrogg);
-                p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneBloodBowl);
+                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneEyeOfKilrogg);
+                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneBloodBowl);
                 break;
             }
             case TanaanZones::AreaKargatharProvingGrounds:
             {
-                if (p_Player->GetQuestStatus(TanaanQuests::QuestAPotentialAlly) != QUEST_STATUS_COMPLETE &&
-                    p_Player->GetQuestStatus(TanaanQuests::QuestAPotentialAlly) != QUEST_STATUS_REWARDED &&
-                    p_Player->GetQuestStatus(TanaanQuests::QuestAPotentialAllyHorde) != QUEST_STATUS_COMPLETE &&
-                    p_Player->GetQuestStatus(TanaanQuests::QuestAPotentialAllyHorde) != QUEST_STATUS_REWARDED)
-                    p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneRingOfFire);
+                if (player->GetQuestStatus(TanaanQuests::QuestAPotentialAlly) != QUEST_STATUS_COMPLETE &&
+                    player->GetQuestStatus(TanaanQuests::QuestAPotentialAlly) != QUEST_STATUS_REWARDED &&
+                    player->GetQuestStatus(TanaanQuests::QuestAPotentialAllyHorde) != QUEST_STATUS_COMPLETE &&
+                    player->GetQuestStatus(TanaanQuests::QuestAPotentialAllyHorde) != QUEST_STATUS_REWARDED)
+                    player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneRingOfFire);
                 break;
             }
             case TanaanZones::AreaUmbralHalls:
             {
-                p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneUmbralHallsPortals);
-                p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual1);
-                p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual2);
+                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneUmbralHallsPortals);
+                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual1);
+                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual2);
                 break;
             }
             case TanaanZones::AreaBlackRockQuarry:
             {
-                if (p_Player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
+                if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
                 {
-                    p_Player->AddAura(TanaanPhases::PhaseBlackrockKhadgarRock, p_Player);
-                    p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKhadgarAtDam);
+                    player->AddAura(TanaanPhases::PhaseBlackrockKhadgarRock, player);
+                    player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKhadgarAtDam);
 
-                    Position playerPosition = p_Player->GetPosition();
-                    p_Player->SummonCreature(TanaanCreatures::NpcLadyLiadrinBlackrockSummon, playerPosition);
-                    p_Player->SummonCreature(TanaanCreatures::NpcCordanaFelsong, playerPosition);
-
-                    if (p_Player->GetTeamId() == TEAM_ALLIANCE)
-                        p_Player->SummonCreature(TanaanCreatures::NpcQiana, playerPosition);
-                    else
-                        p_Player->SummonCreature(TanaanCreatures::NpcOlin, playerPosition);
-                }
-                else if (p_Player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_REWARDED)
-                {
-                    // On met l'eau & le barrage détruit
-                    std::set<uint32> l_PhaseId, l_Terrainswap, l_InactiveTerrainSwap;
-                    l_Terrainswap.insert((uint32)TanaanZones::TerrainSwapID);
-                    l_InactiveTerrainSwap.insert((uint32)TanaanZones::TerrainSwapID);
-                    p_Player->GetSession()->SendSetPhaseShift(l_PhaseId, l_Terrainswap, l_InactiveTerrainSwap);
+                    player->SummonCreature(TanaanCreatures::NpcLadyLiadrinBlackrockSummon, *player);
+                    player->SummonCreature(TanaanCreatures::NpcCordanaFelsong, *player);
+                    player->SummonCreature(player->GetTeamId() == TEAM_ALLIANCE ? TanaanCreatures::NpcQiana: TanaanCreatures::NpcOlin, *player);
                 }
                 break;
             }
+            default:
+                break;
+        }
+
+        if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_REWARDED)
+        {
+            std::set<uint32> phaseId, terrainswap, inactiveTerrainSwap;
+            terrainswap.insert((uint32)TanaanZones::TerrainSwapID);
+            player->GetSession()->SendSetPhaseShift(phaseId, terrainswap, inactiveTerrainSwap);
         }
     }
 
-    void OnObjectiveValidate(Player* p_Player, uint32 p_QuestId, uint32 p_ObjectiveId) override
+    void OnObjectiveValidate(Player* player, uint32 questId, uint32 objectiveId) override
     {
-        if (p_QuestId == TanaanQuests::QuestThePortalPower && p_ObjectiveId == TanaanQuestObjectives::ObjEnterGulDanPrison)
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneGulDanReavel);
+        if (questId == TanaanQuests::QuestThePortalPower && objectiveId == TanaanQuestObjectives::ObjEnterGulDanPrison)
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneGulDanReavel);
     }
 };
 
@@ -107,29 +104,31 @@ class npc_archmage_khadgar : public CreatureScript
 public:
     npc_archmage_khadgar() : CreatureScript("npc_archmage_khadgar") { }
 
-    bool OnQuestAccept(Player* p_Player, Creature* /*p_Creature*/, Quest const* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
-        switch (p_Quest->GetQuestId())
+        switch (quest->GetQuestId())
         {
             case TanaanQuests::QuestCostOfWar:
             {
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneCostOfWarEscort);
-                p_Player->PlayerTalkClass->SendCloseGossip();
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneCostOfWarEscort);
+                player->PlayerTalkClass->SendCloseGossip();
                 break;
             }
             case TanaanQuests::QuestBlazeOfGlory:
             {
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneHoldout);
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneHoldout);
 
-                // Les phases seront mises au moment de la completion de la scene
-                p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeGlobal);
-                p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeAriok);
-                p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeAlliance);
-                p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeHorde);
+                // Phases will be set at quest completion
+                player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeGlobal);
+                player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeAriok);
+                player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeAlliance);
+                player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeHorde);
 
-                p_Player->PlayerTalkClass->SendCloseGossip();
+                player->PlayerTalkClass->SendCloseGossip();
                 break;
             }
+            default:
+                break;
         }
 
         return false;
@@ -146,7 +145,7 @@ public:
     {
         go_platform_tanaanAI(GameObject* p_Go) : GameObjectAI(p_Go) { }
 
-        void Reset()
+        void Reset() override
         {
             go->SetGoState(GO_STATE_ACTIVE);
             go->SetLootState(GO_ACTIVATED);
