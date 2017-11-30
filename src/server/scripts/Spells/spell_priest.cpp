@@ -68,7 +68,8 @@ enum PriestSpellIcons
 {
     PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_DIVINE_TOUCH_TALENT              = 3021,
-    PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874
+    PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
+    PRIEST_ICON_ID_SHIELD_DISCIPLINE                = 566
 };
 
 enum MiscSpells
@@ -928,6 +929,10 @@ class spell_pri_power_word_shield : public SpellScriptLoader
 
                     // Focused Power
                     amount *= caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+
+                    // Mastery: Shield Discipline
+                    if (AuraEffect const* shieldDiscipline = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, PRIEST_ICON_ID_SHIELD_DISCIPLINE, EFFECT_0))
+                        AddPct(amount, shieldDiscipline->GetAmount());
                 }
             }
 
