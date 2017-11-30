@@ -31,36 +31,39 @@ class playerScript_taste_of_iron : public PlayerScript
 public:
     playerScript_taste_of_iron() : PlayerScript("playerScript_taste_of_iron") { }
 
-    void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneCancel(Player* player, uint32 sceneInstanceId) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneShootingGallery))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneShootingGallery))
             return;
 
-        p_Player->AddAura(TanaanPhases::PhaseFinalSideCanons, p_Player);
-        p_Player->AddAura(TanaanPhases::PhaseFinalCanonDeco, p_Player);
-        p_Player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
+        player->AddAura(TanaanPhases::PhaseFinalSideCanons, player);
+        player->AddAura(TanaanPhases::PhaseFinalCanonDeco, player);
+        player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
     }
 
-    void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
+    void OnQuestAbandon(Player* player, const Quest* p_Quest) override
     {
-        if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
+        if (player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
         {
-            p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneShootingGallery);
-            p_Player->AddAura(TanaanPhases::PhaseFinalSideCanons, p_Player);
-            p_Player->AddAura(TanaanPhases::PhaseFinalCanonDeco, p_Player);
-            p_Player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
+            player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneShootingGallery);
+            player->AddAura(TanaanPhases::PhaseFinalSideCanons, player);
+            player->AddAura(TanaanPhases::PhaseFinalCanonDeco, player);
+            player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
         }
     }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceId, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneShootingGallery))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneShootingGallery))
             return;
 
-        if (p_Event == "Credit")
-            p_Player->KilledMonsterCredit(TanaanKillCredits::CreditIronHordeSlain);
-        else if (p_Event == "CancelGame")
-            p_Player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
+        if (triggerEvent == "Credit")
+            player->KilledMonsterCredit(TanaanKillCredits::CreditIronHordeSlain);
+        else if (triggerEvent == "CancelGame")
+        {
+            player->RemoveAurasDueToSpell(TanaanSpells::SpellTasteOfIronGameAura);
+            player->GetSceneMgr().CancelScene(sceneInstanceId);
+        }
     }
 };
 
@@ -96,64 +99,64 @@ public:
         TanaanSpells::SpellIronBastionProgressF
     };
 
-    void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
+    void OnQuestReward(Player* player, const Quest* p_Quest) override
     {
-        if (p_Player && p_Quest && (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
+        if (player && p_Quest && (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
         {
-            p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
+            player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
 
-            if (p_Player->GetTeamId() == TEAM_ALLIANCE)
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneAllianceBoat);
+            if (player->GetTeamId() == TEAM_ALLIANCE)
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneAllianceBoat);
             else
-                p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneHordeBoat);
+                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneHordeBoat);
         }
     }
 
-    void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
+    void OnQuestAbandon(Player* player, const Quest* p_Quest) override
     {
-        if (p_Player && p_Quest && (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
-            p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
+        if (player && p_Quest && (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
+            player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
     }
  
-    void OnSceneStart(Player* p_Player, uint32 p_ScenePackageId, uint32 /*p_SceneInstanceId*/) override
+    void OnSceneStart(Player* player, uint32 p_ScenePackageId, uint32 /*sceneInstanceId*/) override
     {
         if (p_ScenePackageId != TanaanSceneObjects::SceneFinaleIronBastion)
             return;
 
-        Clean(p_Player);
+        Clean(player);
     }
 
-    void OnSceneComplete(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneComplete(Player* player, uint32 sceneInstanceId) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneFinaleIronBastion))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneFinaleIronBastion))
             return;
 
-        p_Player->KilledMonsterCredit(TanaanKillCredits::CreditBoatsReached);
+        player->KilledMonsterCredit(TanaanKillCredits::CreditBoatsReached);
 
-        if (p_Player->GetPositionX() > 3558.0f)
-            p_Player->TeleportTo(TanaanZones::MapTanaan, 3558.0f, -2119.70f, 17.74f, 3.396844f);
+        if (player->GetPositionX() > 3558.0f)
+            player->TeleportTo(TanaanZones::MapTanaan, 3558.0f, -2119.70f, 17.74f, 3.396844f);
 
-        Clean(p_Player);
+        Clean(player);
     }
 
-    void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneCancel(Player* player, uint32 sceneInstanceId) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneFinaleIronBastion))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneFinaleIronBastion))
             return;
 
-        Clean(p_Player);
+        Clean(player);
     }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceId, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneFinaleIronBastion))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneFinaleIronBastion))
             return;
 
-        if (p_Event == "Damage")
-            p_Player->EnvironmentalDamage(DAMAGE_FIRE, urand(11230, 14320));
+        if (triggerEvent == "Damage")
+            player->EnvironmentalDamage(DAMAGE_FIRE, urand(11230, 14320));
     }
 
-    void OnUpdate(Player* p_Player, uint32 p_Diff) override
+    void OnUpdate(Player* player, uint32 p_Diff) override
     {
         if (m_timer > p_Diff)
         {
@@ -163,18 +166,18 @@ public:
 
         m_timer = 1000;
 
-        if (!p_Player->GetSceneMgr().HasScene(TanaanSceneObjects::SceneFinaleIronBastion))
+        if (!player->GetSceneMgr().HasScene(TanaanSceneObjects::SceneFinaleIronBastion))
             return;
 
         for (uint8 i = 0; i < MAX_IRON_BASTION_PROGRESS; ++i)
-            if (p_Player->GetPositionX() < m_minX[i] && !p_Player->HasAura(m_Auras[i]))
-                p_Player->AddAura(m_Auras[i], p_Player);
+            if (player->GetPositionX() < m_minX[i] && !player->HasAura(m_Auras[i]))
+                player->AddAura(m_Auras[i], player);
     }
 
-    void Clean(Player* p_Player)
+    void Clean(Player* player)
     {
         for (uint8 i = 0; i < MAX_IRON_BASTION_PROGRESS; ++i)
-            p_Player->RemoveAurasDueToSpell(m_Auras[i]);
+            player->RemoveAurasDueToSpell(m_Auras[i]);
     }
 };
 
@@ -184,34 +187,34 @@ class playerScript_tanaan_scene_boat : public PlayerScript
 public:
     playerScript_tanaan_scene_boat() : PlayerScript("playerScript_tanaan_scene_boat") { }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceId, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
     {
-        if (p_Event == "Teleport")
+        if (triggerEvent == "Teleport")
         {
-            if (p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneAllianceBoat))
+            if (player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneAllianceBoat))
             {
-                p_Player->TeleportTo(TanaanZones::MapDraenor, 2308.9621f, 454.9409f, 6.0f, p_Player->GetOrientation());
-                p_Player->CompletedAchievement(TanaanAchievements::AchievementWelcomeToDreanorA);
+                player->TeleportTo(TanaanZones::MapDraenor, 2308.9621f, 454.9409f, 6.0f, player->GetOrientation());
+                player->CompletedAchievement(TanaanAchievements::AchievementWelcomeToDreanorA);
             }
-            else if (p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneHordeBoat))
+            else if (player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneHordeBoat))
             {
-                p_Player->TeleportTo(TanaanZones::MapDraenor, 5538.213379f, 5015.2690f, 13.0f, p_Player->GetOrientation());
-                p_Player->CompletedAchievement(TanaanAchievements::AchievementWelcomeToDreanorH);
+                player->TeleportTo(TanaanZones::MapDraenor, 5538.213379f, 5015.2690f, 13.0f, player->GetOrientation());
+                player->CompletedAchievement(TanaanAchievements::AchievementWelcomeToDreanorH);
             }
         }
     }
 
-    void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId) override
+    void OnSceneCancel(Player* player, uint32 sceneInstanceId) override
     {
-        if (p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneAllianceBoat))
+        if (player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneAllianceBoat))
         {
-            p_Player->TeleportTo(TanaanZones::MapDraenor, 2308.9621f, 454.9409f, 6.0f, p_Player->GetOrientation());
-            p_Player->CompletedAchievement(TanaanAchievements::AchievementWelcomeToDreanorA);
+            player->TeleportTo(TanaanZones::MapDraenor, 2308.9621f, 454.9409f, 6.0f, player->GetOrientation());
+            player->CompletedAchievement(TanaanAchievements::AchievementWelcomeToDreanorA);
         }
-        else if (p_Player->GetSceneMgr().HasScene(p_SceneInstanceId, TanaanSceneObjects::SceneHordeBoat))
+        else if (player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneHordeBoat))
         {
-            p_Player->TeleportTo(TanaanZones::MapDraenor, 5538.213379f, 5015.2690f, 13.0f, p_Player->GetOrientation());
-            p_Player->CompletedAchievement(TanaanAchievements::AchievementWelcomeToDreanorH);
+            player->TeleportTo(TanaanZones::MapDraenor, 5538.213379f, 5015.2690f, 13.0f, player->GetOrientation());
+            player->CompletedAchievement(TanaanAchievements::AchievementWelcomeToDreanorH);
         }
     }
 };
@@ -222,35 +225,35 @@ class npc_thaelin_darkanvil_tanaan : public CreatureScript
 public:
     npc_thaelin_darkanvil_tanaan() : CreatureScript("npc_thaelin_darkanvil_tanaan") { }
 
-    bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+    bool OnGossipHello(Player* player, Creature* p_Creature) override
     {
-        if (p_Player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) == QUEST_STATUS_INCOMPLETE)
         {
-            AddGossipItemFor(p_Player, GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            SendGossipMenuFor(p_Player, 1, p_Creature->GetGUID());
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, 1, p_Creature->GetGUID());
             return true;
         }
 
         return false;
     }
 
-    bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 p_Action) override
+    bool OnGossipSelect(Player* player, Creature* p_Creature, uint32 /*sender*/, uint32 p_Action) override
     {
-        p_Player->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
 
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
         {
-            if (p_Player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) != QUEST_STATUS_INCOMPLETE && p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjTopOfTheTank) >= 1)
+            if (player->GetQuestStatus(TanaanQuests::QuestTakingATripToTheTopOfTheTank) != QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjTopOfTheTank) >= 1)
             {
-                CloseGossipMenuFor(p_Player);
+                CloseGossipMenuFor(player);
                 return true;
             }
 
-            p_Player->KilledMonsterCredit(TanaanKillCredits::CreditSpeakWithThaelin);
-            CloseGossipMenuFor(p_Player);
+            player->KilledMonsterCredit(TanaanKillCredits::CreditSpeakWithThaelin);
+            CloseGossipMenuFor(player);
 
-            p_Player->SummonCreature(p_Creature->GetEntry(), p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockThaelinLow);
+            player->SummonCreature(p_Creature->GetEntry(), p_Creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+            player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockThaelinLow);
         }
 
 
@@ -555,21 +558,21 @@ public:
     {
     }
 
-    bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+    bool OnQuestAccept(Player* player, Creature* p_Creature, const Quest* p_Quest) override
     {
         if (p_Quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
         {
             // On enlève Thaelin avant le début de la cinématique, pour qu'il revienne correctement après coté client
-            p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseFinalThaelinCanon);
+            player->RemoveAurasDueToSpell(TanaanPhases::PhaseFinalThaelinCanon);
 
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneShootingGallery, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneShootingGallery, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
         }
         else if (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
         {
-            p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
+            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
 
             if (p_Creature->GetAI())
-                p_Creature->GetAI()->SetGUID(p_Player->GetGUID());
+                p_Creature->GetAI()->SetGUID(player->GetGUID());
         }
 
         return false;
@@ -584,14 +587,14 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
+    bool OnGossipHello(Player* player, GameObject* /*p_Gameobject*/) override
     {
-        if (p_Player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE && p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) < 200)
+        if (player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) < 200)
         {
-            p_Player->RemoveAurasDueToSpell(TanaanPhases::PhaseFinalSideCanons);
-            p_Player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneShootingGallery);
-            p_Player->AddAura(TanaanSpells::SpellTasteOfIronGameAura, p_Player); // Aura pour lancer le scene object
-            p_Player->KilledMonsterCredit(TanaanKillCredits::CreditEnterWorldbreakerTurret);
+            player->RemoveAurasDueToSpell(TanaanPhases::PhaseFinalSideCanons);
+            player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneShootingGallery);
+            player->AddAura(TanaanSpells::SpellTasteOfIronGameAura, player); // Aura pour lancer le scene object
+            player->KilledMonsterCredit(TanaanKillCredits::CreditEnterWorldbreakerTurret);
         }
         return true;
     }
@@ -621,16 +624,16 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
+    bool OnGossipHello(Player* player, GameObject* /*p_Gameobject*/) override
     {
-        if (p_Player->GetQuestStatus(TanaanQuests::QuestATasteOfIron) == QUEST_STATUS_INCOMPLETE && p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) >= 200)
+        if (player->GetQuestStatus(TanaanQuests::QuestATasteOfIron) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) >= 200)
         {
-            p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneShootingGallery);
-            p_Player->AddAura(TanaanPhases::PhaseFinalSideCanons, p_Player);
-            p_Player->AddAura(TanaanPhases::PhaseFinalCanonDeco, p_Player);
+            player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneShootingGallery);
+            player->AddAura(TanaanPhases::PhaseFinalSideCanons, player);
+            player->AddAura(TanaanPhases::PhaseFinalCanonDeco, player);
 
-            p_Player->KillCreditGO(TanaanKillCredits::CreditMainCannonTrigger);
-            p_Player->CastSpell(p_Player, TanaanSpells::SpellFinaleCinematic, true);
+            player->KillCreditGO(TanaanKillCredits::CreditMainCannonTrigger);
+            player->CastSpell(player, TanaanSpells::SpellFinaleCinematic, true);
         }
 
         return true;

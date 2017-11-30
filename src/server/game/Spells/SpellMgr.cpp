@@ -3028,7 +3028,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Lock Players and Tap Chest
     ApplySpellFix({ 72347 }, [](SpellInfo* spellInfo)
     {
-                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
     });
 
     // Resistant Skin (Deathbringer Saurfang adds)
@@ -3370,6 +3370,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+    });
+
+    // Taste of Iron Game Aura
+    ApplySpellFix({ 164042 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->Effect = 0;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->Effect = 0;
     });
 
     SpellInfo* spellInfo = NULL;

@@ -121,6 +121,8 @@ INSERT INTO spell_area (spell, area, quest_start, quest_end, teamid, quest_start
 
 
 
+(@PHASE_169,        @ZONE_TANAAN,           0,                                      0,                                      @TEAM_BOTH,         0,                                  0                                   ),
+
 
 
 (@PHASE_170,        @ZONE_TANAAN,           0,                                      @QUEST_TASTE_OF_IRON,                   @TEAM_BOTH,         0,                                  @QUEST_STATUS_COMPLETED_REWARDED    ),
