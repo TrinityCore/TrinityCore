@@ -44,6 +44,7 @@ enum WarriorSpells
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
+    SPELL_WARRIOR_OPPORTUNITY_STRIKE                = 76858,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_REND                              = 94009,
     SPELL_WARRIOR_RETALIATION_DAMAGE                = 22858,
@@ -1056,6 +1057,48 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
         }
 };
 
+// 76838 - Strikes of Opportunity
+class spell_warr_strikes_of_opportunity : public SpellScriptLoader
+{
+    public:
+        spell_warr_strikes_of_opportunity() : SpellScriptLoader("spell_warr_strikes_of_opportunity") { }
+
+        class spell_warr_strikes_of_opportunity_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_strikes_of_opportunity_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_WARRIOR_OPPORTUNITY_STRIKE });
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = eventInfo.GetActionTarget())
+                        caster->CastSpell(target, SPELL_WARRIOR_OPPORTUNITY_STRIKE, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_warr_strikes_of_opportunity_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_warr_strikes_of_opportunity_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_strikes_of_opportunity_AuraScript();
+        }
+};
+
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -1077,6 +1120,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_second_wind_trigger();
     new spell_warr_shattering_throw();
     new spell_warr_slam();
+    new spell_warr_strikes_of_opportunity();
     new spell_warr_sudden_death();
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
