@@ -28,6 +28,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -287,8 +288,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
     //playerbot
     if (GetPlayer() && GetPlayer()->GetPlayerbotAI()) return true;
-    /// Update Timeout timer.
-    UpdateTimeOutTime(diff);
 
     ///- Before we process anything:
     /// If necessary, kick the player because the client didn't send anything for too long
@@ -689,9 +688,14 @@ char const* WorldSession::GetTrinityString(uint32 entry) const
 void WorldSession::ResetTimeOutTime(bool onlyActive)
 {
     if (GetPlayer())
-        m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME_ACTIVE));
+        m_timeOutTime = GameTime::GetGameTime() + time_t(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME_ACTIVE));
     else if (!onlyActive)
-        m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
+        m_timeOutTime = GameTime::GetGameTime() + time_t(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
+}
+
+bool WorldSession::IsConnectionIdle() const
+{
+    return m_timeOutTime < GameTime::GetGameTime() && !m_inQueue;
 }
 
 void WorldSession::Handle_NULL(WorldPacket& null)

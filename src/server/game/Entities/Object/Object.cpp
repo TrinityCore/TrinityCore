@@ -2014,13 +2014,13 @@ void WorldObject::ClearZoneScript()
     m_zoneScript = nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType spwtype /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 duration /*= 0*/, uint32 /*vehId = 0*/) const
+TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, uint32 /*vehId = 0*/)
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, duration, isType(TYPEMASK_UNIT) ? (Unit*)this : nullptr))
+        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, ToUnit()))
         {
-            summon->SetTempSummonType(spwtype);
+            summon->SetTempSummonType(despawnType);
             return summon;
         }
     }
@@ -2028,17 +2028,13 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
     return nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang /*= 0*/, TempSummonType spwtype /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despwtime /*= 0*/) const
+TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/)
 {
     if (!x && !y && !z)
-    {
         GetClosePoint(x, y, z, GetCombatReach());
-        ang = GetOrientation();
-    }
-
-    Position pos;
-    pos.Relocate(x, y, z, ang);
-    return SummonCreature(id, pos, spwtype, despwtime, 0);
+    if (!o)
+        o = GetOrientation();
+    return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime);
 }
 
 GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime)
