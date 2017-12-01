@@ -2197,6 +2197,7 @@ void Player::RegenerateAll()
 
     Regenerate(POWER_ENERGY);
     Regenerate(POWER_MANA);
+    Regenerate(POWER_FOCUS);
 
     // Runes act as cooldowns, and they don't need to send any data
     if (getClass() == CLASS_DEATH_KNIGHT)
@@ -2206,6 +2207,7 @@ void Player::RegenerateAll()
             uint8 runeToRegen = i;
             uint32 cd = GetRuneCooldown(i);
             uint32 secondRuneCd = GetRuneCooldown(i + 1);
+            float cdmod = GetFloatValue(PLAYER_RUNE_REGEN_1) * 10.0f;
             // Regenerate second rune of the same type only after first rune is off the cooldown
             if (secondRuneCd && (cd > secondRuneCd || !cd))
             {
@@ -2214,14 +2216,8 @@ void Player::RegenerateAll()
             }
 
             if (cd)
-                SetRuneCooldown(runeToRegen, (cd > m_regenTimer) ? cd - m_regenTimer : 0);
+                SetRuneCooldown(runeToRegen, (cd > (m_regenTimer * cdmod)) ? cd - (m_regenTimer * cdmod) : 0);
         }
-    }
-
-    if (m_focusRegenTimerCount >= 1000 && getClass() == CLASS_HUNTER)
-    {
-        Regenerate(POWER_FOCUS);
-        m_focusRegenTimerCount -= 1000;
     }
 
     if (m_regenTimerCount >= 2000)
@@ -2284,8 +2280,8 @@ void Player::Regenerate(Powers power)
                 addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
             else
                 addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
+            break;
         }
-        break;
         case POWER_RAGE:                                                // Regenerate rage
         {
             if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
@@ -2293,14 +2289,21 @@ void Player::Regenerate(Powers power)
                 float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
                 addvalue += -25 * RageDecreaseRate / meleeHaste;                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
             }
+            break;
         }
-        break;
         case POWER_FOCUS:
-            addvalue += (6.0f + CalculatePct(6.0f, rangedHaste)) * sWorld->getRate(RATE_POWER_FOCUS);
+        {
+            float haste = (1.0f / GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN) - 1.0f) * 100.0f;
+            addvalue += (5.0f + CalculatePct(5.0f, haste)) * (m_regenTimer / 1000.0f);
+            addvalue *= GetTotalAuraMultiplier(SPELL_AURA_HASTE_SPELLS);
             break;
+        }
         case POWER_ENERGY:                                              // Regenerate energy (rogue)
-            addvalue += ((0.01f * m_regenTimer) + CalculatePct(0.01f, meleeHaste)) * sWorld->getRate(RATE_POWER_ENERGY);
+        {
+            float haste = (1.0f / GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN) - 1.0f) * 100.0f;
+            addvalue += (10.0f + CalculatePct(10.0f, haste)) * (m_regenTimer / 1000.0f);
             break;
+        }
         case POWER_RUNIC_POWER:
         {
             if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
@@ -2308,14 +2311,14 @@ void Player::Regenerate(Powers power)
                 float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
                 addvalue += -30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
             }
+            break;
         }
-        break;
         case POWER_HOLY_POWER:                                          // Regenerate holy power
         {
             if (!IsInCombat())
                 addvalue += -1.0f;      // remove 1 each 10 sec
+            break;
         }
-        break;
         case POWER_RUNE:
             break;
         case POWER_HEALTH:
@@ -2325,7 +2328,7 @@ void Player::Regenerate(Powers power)
     }
 
     // Mana regen calculated in Player::UpdateManaRegen()
-    if (power != POWER_MANA)
+    if (power != POWER_MANA && power != POWER_FOCUS && power != POWER_ENERGY)
     {
         AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
         for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
@@ -3002,6 +3005,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     }
 
     SetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PCT, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, 1.0f);
 
     //reset attack power, damage and attack speed fields
     SetFloatValue(UNIT_FIELD_BASEATTACKTIME, 2000.0f);
@@ -5499,34 +5503,38 @@ float Player::OCTRegenMPPerSpirit() const
 
 void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 {
-    float oldRating = m_baseRatingValue[combatRating];
-    m_baseRatingValue[combatRating] += (apply ? value : -value);
-
     // explicit affected values
-    float const multiplier = GetRatingMultiplier(combatRating);
-    float const oldVal = oldRating * multiplier;
-    float const newVal = m_baseRatingValue[combatRating] * multiplier;
     switch (combatRating)
     {
         case CR_HASTE_MELEE:
-            ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
-            ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
-                if (getClass() == CLASS_DEATH_KNIGHT)
-                    UpdateAllRunesRegen();
+        {
+            ApplyAttackTimePercentMod(BASE_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
+            ApplyAttackTimePercentMod(BASE_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
+            ApplyAttackTimePercentMod(OFF_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
+            ApplyAttackTimePercentMod(OFF_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
+            ApplyRegenMod(BASE_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
+            ApplyRegenMod(BASE_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
             break;
+        }
         case CR_HASTE_RANGED:
-            ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
+        {
+            ApplyAttackTimePercentMod(RANGED_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
+            ApplyAttackTimePercentMod(RANGED_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
+            ApplyRegenMod(RANGED_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
+            ApplyRegenMod(RANGED_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
             break;
+        }
         case CR_HASTE_SPELL:
-            ApplyCastTimePercentMod(oldVal, false);
-            ApplyCastTimePercentMod(newVal, true);
+        {
+            ApplyCastTimePercentMod(m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
+            ApplyCastTimePercentMod((m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
             break;
+        }
         default:
             break;
     }
+
+    m_baseRatingValue[combatRating] +=(apply ? value : -value);
 
     UpdateRating(combatRating);
 }
@@ -24961,25 +24969,7 @@ bool Player::isTotalImmunity() const
 
 uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 {
-    float cooldown = RUNE_BASE_COOLDOWN;
-    float hastePct = 0.0f;
-
-    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNE && (*i)->GetMiscValueB() == runeType)
-            cooldown *= 1.0f - (*i)->GetAmount() / 100.0f;
-
-    // Runes cooldown are now affected by player's haste from equipment ...
-    hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
-
-    // ... and some auras.
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_2);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_3);
-
-    cooldown *=  1.0f - (hastePct / 100.0f);
-
-    return cooldown;
+    return RUNE_BASE_COOLDOWN;
 }
 
 void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false*/)
