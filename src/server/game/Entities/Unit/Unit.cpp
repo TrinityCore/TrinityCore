@@ -2695,6 +2695,25 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victi
         if (!(ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
         {
             chance = 5.0f;
+
+            if (IsPet() || IsHunterPet() || IsGuardian())
+            {
+                switch (attackType)
+                {
+                case BASE_ATTACK:
+                    chance = GetOwner()->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                    break;
+                case OFF_ATTACK:
+                    chance = GetOwner()->GetFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE);
+                    break;
+                case RANGED_ATTACK:
+                    chance = GetOwner()->GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
+                    break;
+                default:
+                    chance = 0.0f;
+                    break;
+                }
+            }
             chance += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
             chance += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
         }

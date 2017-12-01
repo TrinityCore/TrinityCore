@@ -19,6 +19,7 @@
 #include "Unit.h"
 #include "DB2Stores.h"
 #include "Item.h"
+#include "Log.h"
 #include "Player.h"
 #include "Pet.h"
 #include "Creature.h"
@@ -99,13 +100,6 @@ bool Player::UpdateStats(Stats stat)
     float value  = GetTotalStatValue(stat);
 
     SetStat(stat, int32(value));
-
-    if (stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
-    {
-        Pet* pet = GetPet();
-        if (pet)
-            pet->UpdateStats(stat);
-    }
 
     switch (stat)
     {
@@ -298,6 +292,10 @@ void Player::UpdateMaxHealth()
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxHealth((uint32)value);
+
+    Pet* pet = GetPet();
+    if (pet)
+        pet->UpdateMaxHealth();
 }
 
 void Player::UpdateMaxPower(Powers power)
@@ -938,16 +936,28 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
 ########                         ########
 #######################################*/
 
-#define ENTRY_IMP               416
-#define ENTRY_VOIDWALKER        1860
-#define ENTRY_SUCCUBUS          1863
-#define ENTRY_FELHUNTER         417
-#define ENTRY_FELGUARD          17252
-#define ENTRY_WATER_ELEMENTAL   510
-#define ENTRY_TREANT            1964
-#define ENTRY_FIRE_ELEMENTAL    15438
-#define ENTRY_GHOUL             26125
-#define ENTRY_BLOODWORM         28017
+enum PetEntries
+{
+    ENTRY_IMP                       = 416,
+    ENTRY_VOIDWALKER                = 1860,
+    ENTRY_SUCCUBUS                  = 1863,
+    ENTRY_FELHUNTER                 = 417,
+    ENTRY_FELGUARD                  = 17252,
+
+    ENTRY_WATER_ELEMENTAL           = 78116,
+
+    ENTRY_FIRE_ELEMENTAL            = 95061,
+
+    ENTRY_GHOUL                     = 26125,
+    ENTRY_BLOODWORM                 = 99773,
+    ENTRY_RISEN_SKULKER             = 99541,
+
+    ENTRY_XUEN                      = 63508,
+    ENTRY_NIUZAO                    = 73967,
+    ENTRY_CHI_JI                    = 100868,
+
+    ENTRY_TREANT                    = 1964
+};
 
 bool Guardian::UpdateStats(Stats stat)
 {
@@ -1039,19 +1049,53 @@ void Guardian::UpdateResistances(uint32 school)
 
 void Guardian::UpdateArmor()
 {
-    float value = 0.0f;
-    float bonus_armor = 0.0f;
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
-    // hunter pets gain 35% of owner's armor value, warlock pets gain 100% of owner's armor
-    if (IsHunterPet())
-        bonus_armor = float(CalculatePct(m_owner->GetArmor(), 70));
-    else if (IsPet())
-        bonus_armor = m_owner->GetArmor();
+    float value = 0.0f;
+    float pctFromOwnerArmor = 0.0f;
+    float ownerPart = 1.0f;
+
+    PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
+
+    switch (petType)
+    {
+    case SUMMON_PET:
+        switch (GetEntry())
+        {
+            // Mage
+        case ENTRY_WATER_ELEMENTAL:
+            pctFromOwnerArmor = 300.f;
+            break;
+            // Warlock
+        case ENTRY_FELGUARD:
+        case ENTRY_VOIDWALKER:
+            pctFromOwnerArmor = 400.f;
+            break;
+        case ENTRY_FELHUNTER:
+        case ENTRY_IMP:
+        case ENTRY_SUCCUBUS:
+            pctFromOwnerArmor = 300.f;
+            break;
+        default:
+            break;
+        }
+        break;
+    case HUNTER_PET:
+        pctFromOwnerArmor = 170.f;
+        break;
+    default:
+        break;
+    }
+
+    if (pctFromOwnerArmor)
+        ownerPart = CalculatePct(m_owner->GetArmor(), pctFromOwnerArmor);
+    else
+        TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) has no pctFromOwnerArmor defined. Armor set to 1.",
+            GetGUID().ToString().c_str(), GetEntry());
 
     value  = GetModifierValue(unitMod, BASE_VALUE);
     value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE) + bonus_armor;
+    value += GetModifierValue(unitMod, TOTAL_VALUE) + ownerPart;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetArmor(int32(value));
@@ -1060,25 +1104,77 @@ void Guardian::UpdateArmor()
 void Guardian::UpdateMaxHealth()
 {
     UnitMods unitMod = UNIT_MOD_HEALTH;
-    float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
 
-    float multiplicator;
-    switch (GetEntry())
+    float pctFromOwnerHealth = 0.0f;
+    float health = 1.0f; // indicates missing data
+    float value = 0.0f;
+
+    PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
+
+    switch (petType)
     {
-        case ENTRY_IMP:         multiplicator = 8.4f;   break;
-        case ENTRY_VOIDWALKER:  multiplicator = 11.0f;  break;
-        case ENTRY_SUCCUBUS:    multiplicator = 9.1f;   break;
-        case ENTRY_FELHUNTER:   multiplicator = 9.5f;   break;
-        case ENTRY_FELGUARD:    multiplicator = 11.0f;  break;
-        case ENTRY_BLOODWORM:   multiplicator = 1.0f;   break;
-        default:                multiplicator = 10.0f;  break;
+    case SUMMON_PET:
+    {
+        switch (GetEntry())
+        {
+        case ENTRY_BLOODWORM:
+            pctFromOwnerHealth = 15.f;
+            break;
+        case ENTRY_RISEN_SKULKER:
+            pctFromOwnerHealth = 20.f;
+            break;
+        case ENTRY_GHOUL:
+            pctFromOwnerHealth = 35.f;
+            break;
+        case ENTRY_WATER_ELEMENTAL:
+            pctFromOwnerHealth = 50.f;
+            break;
+        case ENTRY_XUEN:
+        case ENTRY_NIUZAO:
+        case ENTRY_CHI_JI:
+            pctFromOwnerHealth = 100.f;
+            break;
+        case ENTRY_FIRE_ELEMENTAL:
+            pctFromOwnerHealth = 75.f;
+            break;
+        case ENTRY_FELGUARD:
+        case ENTRY_VOIDWALKER:
+            pctFromOwnerHealth = 50.f;
+            break;
+        case ENTRY_FELHUNTER:
+        case ENTRY_SUCCUBUS:
+            pctFromOwnerHealth = 40.f;
+            break;
+        case ENTRY_IMP:
+            pctFromOwnerHealth = 30.f;
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+    case HUNTER_PET:
+        pctFromOwnerHealth = 70.f;
+        break;
+    default:
+        break;
     }
 
-    float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+    if (m_Properties && m_Properties->ID == 3236)
+        pctFromOwnerHealth = 20.f;
+
+    if (pctFromOwnerHealth)
+        health = CalculatePct(m_owner->GetMaxHealth(), pctFromOwnerHealth);
+    else
+        TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) has no pctFromOwnerHealth defined. Health set to 1.",
+            GetGUID().ToString().c_str(), GetEntry());
+
+    value = GetModifierValue(unitMod, BASE_VALUE) + health;
     value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
+    value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
+    SetCreateHealth((uint32)value); // Blizz is doing it... dont ask why
     SetMaxHealth((uint32)value);
 }
 
