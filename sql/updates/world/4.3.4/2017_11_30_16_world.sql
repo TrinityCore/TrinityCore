@@ -1,0 +1,10 @@
+--
+UPDATE `creature` SET `PhaseGroup`=400 WHERE `phaseMask`=197; -- phasemask 1, 4, 64, 128 (phaseid 169, 171, 175, 176)
+UPDATE `creature` SET `PhaseGroup`=404 WHERE `phaseMask`=229; -- phasemask 1, 4, 32, 64, 128 (phaseid 169, 171, 174, 175, 176)
+UPDATE `creature` SET `PhaseGroup`=376 WHERE `phaseMask`=487; -- phasemask 1, 2, 4, 32, 64, 128, 256 (phaseid 169, 170, 171, 174, 175, 176,177)
+UPDATE `creature` SET `PhaseGroup`=404 WHERE `phaseMask`=231; -- phasemask 1, 2, 4, 32, 64, 128 (phaseid 169, 170, 171, 174, 175, 176)
+UPDATE `gameobject` SET `PhaseGroup`=382 WHERE `phaseMask`=131; -- phasemask 1, 2, 128 (phaseid 169, 170, 176)
+UPDATE `gameobject` SET `PhaseGroup`=400 WHERE `phaseMask`=197; -- phasemask 1, 4, 64, 128 (phaseid 169, 171, 175, 176)
+UPDATE `gameobject` SET `PhaseGroup`=404 WHERE `phaseMask`=229; -- phasemask 1, 4, 32, 64, 128 (phaseid 169, 171, 174, 175, 176)
+UPDATE `gameobject` SET `PhaseGroup`=404 WHERE `phaseMask`=231; -- phasemask 1, 2, 4, 32, 64, 128 (phaseid 169, 170, 171, 174, 175, 176)
+UPDATE `gameobject` SET `PhaseGroup`=376 WHERE `phaseMask`=487; -- phasemask 1, 2, 4, 32, 64, 128, 256 (phaseid 169, 170, 171, 174, 175, 176, 177)

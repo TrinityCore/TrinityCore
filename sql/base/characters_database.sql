@@ -182,6 +182,30 @@ LOCK TABLES `arena_team_member` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `auctionbidders`
+--
+
+DROP TABLE IF EXISTS `auctionbidders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auctionbidders` (
+  `id` INT(10) unsigned NOT NULL DEFAULT '0',
+  `bidderguid` INT(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`,`bidderguid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auctionbidders`
+--
+
+LOCK TABLES `auctionbidders` WRITE;
+/*!40000 ALTER TABLE `auctionbidders` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auctionbidders` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+--
 -- Table structure for table `auctionhouse`
 --
 
@@ -2848,7 +2872,8 @@ INSERT INTO `updates` VALUES
 ('2017_09_17_00_characters.sql','48AF8F4A6A656EF0CCEA406B4AEF71A54A5DA98E','ARCHIVED','2017-09-17 00:00:00',0),
 ('2017_10_16_00_characters.sql','74500AFF41A5FB2EEE24B0BFAD750C988136BA6B','ARCHIVED','2017-10-16 00:00:00',0),
 ('2017_11_15_00_characters.sql','22D0C3854EE6D0983CD8C43DF0AC4269386F587C','ARCHIVED','2017-11-15 00:00:00',0),
-('2017_11_26_00_characters.sql','4609CDC122E0A7F27A09C2605B329A06FC7FB7C2','ARCHIVED','2017-11-27 00:00:00',0);
+('2017_11_26_00_characters.sql','4609CDC122E0A7F27A09C2605B329A06FC7FB7C2','ARCHIVED','2017-11-27 00:00:00',0),
+('2017_11_28_00_characters.sql','6FF1F84B8985ADFC7FF97F0BF8E53403CF13C320','ARCHIVED','2017-11-28 00:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

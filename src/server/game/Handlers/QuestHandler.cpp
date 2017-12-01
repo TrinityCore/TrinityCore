@@ -243,7 +243,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& recvData)
         if (quest->IsAutoComplete())
             _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), _player->CanCompleteQuest(quest->GetQuestId()), true);
         else
-            _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true);
+            _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true, false);
     }
 }
 
@@ -321,7 +321,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                             if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
                                 _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true, false);
                         }
                     }
 
@@ -344,7 +344,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                             if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
                                 _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true, false);
                         }
                     }
 
@@ -637,7 +637,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
         else
         {
             receiver->SetQuestSharingInfo(sender->GetGUID(), questId);
-            receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true);
+            receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true, false);
         }
     }
 }

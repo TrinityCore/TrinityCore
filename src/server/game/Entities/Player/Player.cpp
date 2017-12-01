@@ -14579,7 +14579,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                 if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
                     PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
                 else
-                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true);
+                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true, false);
             }
         }
     }
@@ -23213,7 +23213,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (GetPlayerSharingQuest())
     {
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(GetSharedQuestID()))
-            PlayerTalkClass->SendQuestGiverQuestDetails(quest, GetGUID(), true);
+            PlayerTalkClass->SendQuestGiverQuestDetails(quest, GetGUID(), true, false);
         else
             ClearQuestSharingInfo();
     }

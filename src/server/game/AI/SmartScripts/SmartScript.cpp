@@ -333,16 +333,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         if (me && e.action.questOffer.directAdd == 0)
                         {
                             if (pTarget->CanTakeQuest(q, true))
-                                if (WorldSession* session = pTarget->GetSession())
-                                {
-                                    PlayerMenu menu(session);
-                                    menu.SendQuestGiverQuestDetails(q, me->GetGUID(), true);
-                                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player guidLow %u - offering quest %u", pTarget->GetGUID().GetCounter(), e.action.questOffer.questID);
-                                }
+                            {
+                                pTarget->PlayerTalkClass->SendQuestGiverQuestDetails(q, pTarget->GetGUID(), true, false);
+                                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player guidLow %u - offered quest %u",
+                                    pTarget->GetGUID().GetCounter(), e.action.questOffer.questID);
+                            }
                         }
                         else
                         {
-                            (*itr)->ToPlayer()->AddQuestAndCheckCompletion(q, nullptr);
+                            pTarget->AddQuestAndCheckCompletion(q, nullptr);
+                            if (q->IsAutoAccept())
+                                pTarget->PlayerTalkClass->SendQuestGiverQuestDetails(q, pTarget->GetGUID(), true, true);
                             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player guidLow %u - quest %u added",
                                 pTarget->GetGUID().GetCounter(), e.action.questOffer.questID);
                         }

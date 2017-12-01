@@ -6676,10 +6676,29 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         }
     }
 
+    // Add SPELL_AURA_MOD_DAMAGE_FROM_MANA percent bonus
+    AuraEffectList const& mDamageFromManaPct = owner->GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_MANA);
+    for (AuraEffectList::const_iterator i = mDamageFromManaPct.begin(); i != mDamageFromManaPct.end(); ++i)
+    {
+        if (GetPower(POWER_MANA))
+        {
+            uint32 masteryBonus = (*i)->GetAmount();
+            float manaPct = 100.f * GetPower(POWER_MANA) / GetMaxPower(POWER_MANA);
+            AddPct(DoneTotalMod, CalculatePct(masteryBonus, manaPct));
+        }
+    }
+
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
     {
         case SPELLFAMILY_MAGE:
+            // Mastery: Frostburn
+            if (AuraEffect* aurEff = GetAuraEffect(76613, 0))
+                if (victim->HasAuraState(AURA_STATE_FROZEN))
+                    if (aurEff->IsAffectingSpell(spellProto))
+                        AddPct(DoneTotalMod, aurEff->GetAmount());
+
+
             // Ice Lance
             if (spellProto->SpellIconID == 186)
                 if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))

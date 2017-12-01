@@ -2666,6 +2666,24 @@ CREATE TABLE `quest_details` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `quest_greeting`
+--
+
+DROP TABLE IF EXISTS `quest_greeting`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quest_greeting` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `GreetEmoteType` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `GreetEmoteDelay` int(10) unsigned NOT NULL DEFAULT '0',
+  `Greeting` text,
+  `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`Type`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `quest_offer_reward`
 --
 

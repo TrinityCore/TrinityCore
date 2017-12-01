@@ -57,6 +57,7 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED     = 53220,
     SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
+    SPELL_HUNTER_WILD_QUIVER_DAMAGE                 = 76663,
     SPELL_LOCK_AND_LOAD_TRIGGER                     = 56453,
     SPELL_LOCK_AND_LOAD_MARKER                      = 67544
 };
@@ -1204,6 +1205,47 @@ class spell_hun_tnt : public SpellScriptLoader
         }
 };
 
+// 76659 - Wild Quiver
+class spell_hun_wild_quiver : public SpellScriptLoader
+{
+    public:
+        spell_hun_wild_quiver() : SpellScriptLoader("spell_hun_wild_quiver") { }
+
+        class spell_hun_wild_quiver_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_wild_quiver_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_HUNTER_WILD_QUIVER_DAMAGE });
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = eventInfo.GetActionTarget())
+                        caster->CastSpell(target, SPELL_HUNTER_WILD_QUIVER_DAMAGE, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_wild_quiver_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_hun_wild_quiver_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_wild_quiver_AuraScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
@@ -1232,4 +1274,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_tnt();
+    new spell_hun_wild_quiver();
 }

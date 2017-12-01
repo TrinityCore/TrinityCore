@@ -37,6 +37,7 @@ enum PriestSpells
     SPELL_PRIEST_DISPEL_MAGIC_HOSTILE               = 97691,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_DIVINE_TOUCH                       = 63544,
+    SPELL_PRIEST_ECHO_OF_LIGHT                      = 77489,
     SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING         = 55675,
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC              = 55677,
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL         = 56131,
@@ -68,7 +69,8 @@ enum PriestSpellIcons
 {
     PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_DIVINE_TOUCH_TALENT              = 3021,
-    PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874
+    PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
+    PRIEST_ICON_ID_SHIELD_DISCIPLINE                = 566
 };
 
 enum MiscSpells
@@ -928,6 +930,10 @@ class spell_pri_power_word_shield : public SpellScriptLoader
 
                     // Focused Power
                     amount *= caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+
+                    // Mastery: Shield Discipline
+                    if (AuraEffect const* shieldDiscipline = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, PRIEST_ICON_ID_SHIELD_DISCIPLINE, EFFECT_0))
+                        AddPct(amount, shieldDiscipline->GetAmount());
                 }
             }
 
@@ -1242,6 +1248,47 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
+class spell_pri_echo_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pri_echo_of_light() : SpellScriptLoader("spell_pri_echo_of_light") { }
+
+        class spell_pri_echo_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_echo_of_light_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_PRIEST_ECHO_OF_LIGHT });
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = eventInfo.GetProcTarget())
+                    {
+                        uint32 healAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+                        uint8 tickNumber = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ECHO_OF_LIGHT)->GetMaxTicks();
+                        if (healAmount && tickNumber)
+                            caster->CastCustomSpell(SPELL_PRIEST_ECHO_OF_LIGHT, SPELLVALUE_BASE_POINT0, healAmount / tickNumber, target, true, NULL, aurEff);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_echo_of_light_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pri_echo_of_light_AuraScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_body_and_soul();
@@ -1249,6 +1296,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_dispel_magic();
     new spell_pri_divine_aegis();
     new spell_pri_divine_hymn();
+    new spell_pri_echo_of_light();
     new spell_pri_glyph_of_prayer_of_healing();
     new spell_pri_hymn_of_hope();
     new spell_pri_improved_power_word_shield();
