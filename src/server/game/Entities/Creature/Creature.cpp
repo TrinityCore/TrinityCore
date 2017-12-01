@@ -560,10 +560,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
 
-    if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK)
-        SetCanDualWield(true);
-    else if (CanDualWield())
-        SetCanDualWield(false);
+    SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
     SetAttackTime(BASE_ATTACK,   cInfo->BaseAttackTime);
     SetAttackTime(OFF_ATTACK,    cInfo->BaseAttackTime);
