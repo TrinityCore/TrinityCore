@@ -11,7 +11,7 @@ UPDATE `creature` SET `position_x`=6448.90, `position_y`=-6382.36, `position_z`=
 -- Delete wrong spawns
 DELETE FROM `creature` WHERE `guid` IN (82879, 82899, 82870, 82841, 82823, 82864, 82915);
 DELETE FROM `creature_addon` WHERE `guid` IN (82879, 82899, 82870, 82841, 82823, 82864, 82915); 
-DELETE FROM `spawn_group` WHERE `groupId`=2 AND `spawnType`=0 AND `spawnId`=82870;
+-- DELETE FROM `spawn_group` WHERE `groupId`=2 AND `spawnType`=0 AND `spawnId`=82870;
 
 -- Add 3 Deatholme Necromancer and 3 Eyes of Dar'Khan
 DELETE FROM `creature` where `guid` BETWEEN @CGUID AND @CGUID + 5;
