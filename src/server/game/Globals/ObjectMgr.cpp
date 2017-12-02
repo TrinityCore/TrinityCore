@@ -7674,7 +7674,7 @@ void ObjectMgr::LoadQuestPOI()
             _questPOIStore[QuestID].push_back(POI);
         }
         else
-            TC_LOG_ERROR("server.loading", "Table quest_poi references unknown quest points for quest %i POI id %i", QuestID, BlobIndex);
+            TC_LOG_ERROR("sql.sql", "Table quest_poi references unknown quest points for quest %i POI id %i", QuestID, BlobIndex);
 
         ++count;
     } while (result->NextRow());
