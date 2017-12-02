@@ -212,7 +212,12 @@ void Metric::ForceSend()
 {
     // Send what's queued only if io_service is stopped (so only on shutdown)
     if (_enabled && _batchTimer->get_io_service().stopped())
+    {
+        _enabled = false;
         SendBatch();
+        _batchTimer->cancel();
+        _overallStatusTimer->cancel();
+    }
 }
 
 void Metric::ScheduleOverallStatusLog()
