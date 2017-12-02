@@ -2547,13 +2547,13 @@ void SpellMgr::LoadSpellInfoStore()
         if (!mSpellInfoMap[spellIndex])
             continue;
 
-        for (uint32 effectIndex = 0; effectIndex < MAX_SPELL_EFFECTS; ++effectIndex)
+        for (auto const& effect : mSpellInfoMap[spellIndex]->Effects)
         {
-            if (mSpellInfoMap[spellIndex]->Effects[effectIndex].Effect >= TOTAL_SPELL_EFFECTS)
-            {
-                TC_LOG_ERROR("sql.sql", "Spell (Entry: %u) has `Effect` '%u' greater than max allowed value '%u', removing", spellIndex, mSpellInfoMap[spellIndex]->Effects[effectIndex].Effect, (TOTAL_SPELL_EFFECTS - 1));
-                mSpellInfoMap[spellIndex]->Effects[effectIndex].Effect = 0;
-            }
+            //ASSERT(effect.EffectIndex < MAX_SPELL_EFFECTS, "MAX_SPELL_EFFECTS must be at least %u", effect.EffectIndex + 1);
+            ASSERT(effect.Effect < TOTAL_SPELL_EFFECTS, "TOTAL_SPELL_EFFECTS must be at least %u", effect.Effect + 1);
+            ASSERT(effect.ApplyAuraName < TOTAL_AURAS, "TOTAL_AURAS must be at least %u", effect.ApplyAuraName + 1);
+            ASSERT(effect.TargetA.GetTarget() < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect.TargetA.GetTarget() + 1);
+            ASSERT(effect.TargetB.GetTarget() < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect.TargetB.GetTarget() + 1);
         }
     }
 
