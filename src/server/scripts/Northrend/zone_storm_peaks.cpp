@@ -116,7 +116,7 @@ public:
 ## npc_roxi_ramrocket
 ######*/
 
-enum RoxiRamrocket
+/*enum RoxiRamrocket
 {
     SPELL_MECHANO_HOG               = 60866,
     SPELL_MEKGINEERS_CHOPPER        = 60867,
@@ -147,7 +147,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender, uint32 action) override
     {
         ClearGossipMenuFor(player);
         switch (action)
@@ -161,7 +161,7 @@ public:
         }
         return true;
     }
-};
+};*/
 
 /*######
 ## npc_brunnhildar_prisoner
@@ -849,7 +849,7 @@ class spell_close_rift : public SpellScriptLoader
 void AddSC_storm_peaks()
 {
     new npc_injured_goblin();
-    new npc_roxi_ramrocket();
+    //new npc_roxi_ramrocket();
     new npc_brunnhildar_prisoner();
     new npc_freed_protodrake();
     new npc_icefang();
