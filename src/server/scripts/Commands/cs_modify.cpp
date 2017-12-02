@@ -1021,7 +1021,7 @@ public:
         if (!*args)
             return false;
 
-        uint64 display_id = (uint64)atoi((char*)args);
+        uint32 display_id = (uint32)atoi((char*)args);
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
