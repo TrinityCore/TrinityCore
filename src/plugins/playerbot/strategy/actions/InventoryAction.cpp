@@ -50,7 +50,7 @@ public:
     virtual bool Accept(const ItemTemplate* proto)
     {
         return proto->Class == ITEM_CLASS_CONSUMABLE &&
-            proto->SubClass == ITEM_SUBCLASS_FOOD &&
+            (proto->SubClass == ITEM_SUBCLASS_CONSUMABLE || proto->SubClass == ITEM_SUBCLASS_FOOD) &&
             proto->Spells[0].SpellCategory == spellCategory;
     }
 
