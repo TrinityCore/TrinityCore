@@ -2254,10 +2254,10 @@ void World::SetInitialWorldSettings()
 
     if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
         sLog->SetRealmId(realmId);
-    //TC_LOG_INFO("server.loading", "Initializing AuctionHouseBot...");
-    //auctionbot.Init();
 
+    TC_LOG_INFO("server.loading", "Initializing AuctionHouseBot...");
     sPlayerbotAIConfig.Initialize();
+    auctionbot.Init();
 }
 
 void World::DetectDBCLang()
@@ -2402,7 +2402,7 @@ void World::Update(uint32 diff)
         ///- Handle expired auctions
         sAuctionMgr->Update();
         // ahbot mod
-        //auctionbot.Update();
+        auctionbot.Update();
     }
 
     // playerbot mod
@@ -2420,6 +2420,7 @@ void World::Update(uint32 diff)
     if (m_timers[WUPDATE_AHBOT].Passed())
     {
         sAuctionBot->Update();
+		auctionbot.Update();
         m_timers[WUPDATE_AHBOT].Reset();
     }
     // end of playerbot mod

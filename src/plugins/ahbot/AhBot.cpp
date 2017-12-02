@@ -11,6 +11,8 @@
 #include "../playerbot/PlayerbotAIConfig.h"
 #include "../playerbot/playerbot.h"
 #include "GameTime.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 
 using namespace ahbot;
 
