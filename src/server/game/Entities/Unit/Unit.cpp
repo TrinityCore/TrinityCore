@@ -9343,11 +9343,14 @@ void Unit::ModSpellCastTime(SpellInfo const* spellInfo, int32 & castTime, Spell*
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod<SPELLMOD_CASTING_TIME>(spellInfo->Id, castTime, spell);
 
+    float castSpeedMod = 1;
+    castSpeedMod = castSpeedMod - GetTotalAuraMultiplier(SPELL_AURA_HASTE_SPELLS) + 1.0f;
+
     if (!(spellInfo->HasAttribute(SPELL_ATTR0_ABILITY) || spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) || spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS)) &&
         ((GetTypeId() == TYPEID_PLAYER && spellInfo->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
         castTime = int32(float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
     else if (spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) && !spellInfo->HasAttribute(SPELL_ATTR2_AUTOREPEAT_FLAG))
-        castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
+        castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK] * castSpeedMod);
     else if (spellInfo->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
         castTime = 500;
 }
@@ -10964,7 +10967,7 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
     if (val > 0)
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], val, !apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val, !apply);
+        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME + att, val, !apply);
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
@@ -10977,7 +10980,7 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
     else
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], -val, apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, -val, apply);
+        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME + att, -val, apply);
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
@@ -10987,7 +10990,54 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
                 ApplyPercentModFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE, -val, apply);
         }
     }
+
     m_attackTimer[att] = uint32(GetAttackTime(att) * m_modAttackSpeedPct[att] * remainingTimePct);
+}
+
+void Unit::ApplyRegenMod(WeaponAttackType att, float val, bool apply)
+{
+    if (val > 0)
+    {
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            if (att == BASE_ATTACK)
+            {
+                if (GetTypeId() == TYPEID_PLAYER && getClass() != CLASS_HUNTER)
+                    ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
+
+                // Modify rune regeneration based on haste
+                if (getClass() == CLASS_DEATH_KNIGHT)
+                    for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
+                        ApplyPercentModFloatValue(PLAYER_RUNE_REGEN_1 + i, val, apply);
+            }
+            else if (att == RANGED_ATTACK)
+            {
+                if (getClass() == CLASS_HUNTER)
+                    ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
+            }
+        }
+    }
+    else
+    {
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            if (att == BASE_ATTACK)
+            {
+                if (GetTypeId() == TYPEID_PLAYER && getClass() != CLASS_HUNTER)
+                    ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
+
+                // Modify rune regeneration based on haste
+                if (getClass() == CLASS_DEATH_KNIGHT)
+                    for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
+                        ApplyPercentModFloatValue(PLAYER_RUNE_REGEN_1 + i, val, !apply);
+            }
+            else if (att == RANGED_ATTACK)
+            {
+                if (getClass() == CLASS_HUNTER)
+                    ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
+            }
+        }
+    }
 }
 
 void Unit::ApplyCastTimePercentMod(float val, bool apply)
