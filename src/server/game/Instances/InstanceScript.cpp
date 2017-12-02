@@ -663,7 +663,11 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
             completedEncounters |= 1 << encounter->dbcEntry->encounterIndex;
             if (encounter->lastEncounterDungeon)
             {
-                dungeonId = encounter->lastEncounterDungeon;
+                if (instance->GetDifficulty() != sLFGDungeonStore.LookupEntry(encounter->lastEncounterDungeon)->difficulty)
+                    dungeonId = sLFGMgr->GetDungeonIdForDifficulty(encounter->lastEncounterDungeon, instance->GetDifficulty());
+                else
+                    dungeonId = encounter->lastEncounterDungeon;
+
                 TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName, dungeonId);
                 break;
             }

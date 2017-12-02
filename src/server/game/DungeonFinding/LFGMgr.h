@@ -48,7 +48,8 @@ enum LFGMgrEnum
     LFG_SPELL_DUNGEON_COOLDOWN                   = 71328,
     LFG_SPELL_DUNGEON_DESERTER                   = 71041,
     LFG_SPELL_LUCK_OF_THE_DRAW                   = 72221,
-    LFG_GROUP_KICK_VOTES_NEEDED                  = 3
+    LFG_GROUP_KICK_VOTES_NEEDED                  = 4,
+    LFR_GROUP_KICK_VOTES_NEEDED                  = 15
 };
 
 enum LfgFlags
@@ -56,7 +57,7 @@ enum LfgFlags
     LFG_FLAG_UNK1                                = 0x1,
     LFG_FLAG_UNK2                                = 0x2,
     LFG_FLAG_SEASONAL                            = 0x4,
-    LFG_FLAG_UNK3                                = 0x8
+    LFG_FLAG_UNK3                                = 0x8,
 };
 
 /// Determines the type of instance
@@ -87,7 +88,8 @@ enum LfgTeleportError
     LFG_TELEPORTERROR_IN_VEHICLE                 = 3,
     LFG_TELEPORTERROR_FATIGUE                    = 4,
     LFG_TELEPORTERROR_INVALID_LOCATION           = 6,
-    LFG_TELEPORTERROR_CHARMING                   = 8       // FIXME - It can be 7 or 8 (Need proper data)
+    LFG_TELEPORTERROR_CHARMING                   = 7,
+    LFG_TELEPORTERROR_IN_COMBAT                  = 8
 };
 
 /// Queue join results
@@ -125,6 +127,8 @@ enum LfgRoleCheckState
     LFG_ROLECHECK_ABORTED                        = 5,      // Someone leave the group
     LFG_ROLECHECK_NO_ROLE                        = 6       // Someone selected no role
 };
+
+#define LFG_CALL_TO_ARMS_QUEST 29339
 
 // Forward declaration (just to have all typedef together)
 struct LFGDungeonData;
@@ -268,15 +272,14 @@ struct LfgPlayerBoot
 
 struct LFGDungeonData
 {
-    LFGDungeonData(): id(0), name(""), map(0), type(0), expansion(0), group(0), minlevel(0),
-        maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-        requiredItemLevel(0)
-        { }
+    LFGDungeonData() = delete;
+
     LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name), map(dbc->map),
         type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
         minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
         seasonal((dbc->flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-        requiredItemLevel(0)
+        requiredItemLevel(0), requiredTanks(dbc->requiredTanks), requiredHealers(dbc->requiredHealers),
+        requiredDamageDealers(dbc->requiredDamageDealers)
         { }
 
     uint32 id;
@@ -291,9 +294,14 @@ struct LFGDungeonData
     bool seasonal;
     float x, y, z, o;
     uint16 requiredItemLevel;
+    uint32 requiredTanks;
+    uint32 requiredHealers;
+    uint32 requiredDamageDealers;
 
     // Helpers
     uint32 Entry() const { return id + (type << 24); }
+    uint32 GetMaxGroupSize() const { return requiredTanks + requiredHealers + requiredDamageDealers; }
+    bool IsRaid() const;
 };
 
 class TC_GAME_API LFGMgr
@@ -331,6 +339,8 @@ class TC_GAME_API LFGMgr
         uint32 GetDungeon(ObjectGuid guid, bool asId = true);
         /// Get the map id of the current dungeon
         uint32 GetDungeonMapId(ObjectGuid guid);
+        //// Get the heroic version of the current dungeon Id
+        uint32 GetDungeonIdForDifficulty(uint32 dungeonId, Difficulty difficulty);
         /// Get kicks left in current group
         uint8 GetKicksLeft(ObjectGuid gguid);
         /// Load Lfg group info from DB
@@ -339,6 +349,12 @@ class TC_GAME_API LFGMgr
         void SetupGroupMember(ObjectGuid guid, ObjectGuid gguid);
         /// Return Lfg dungeon entry for given dungeon id
         uint32 GetLFGDungeonEntry(uint32 id);
+        /// Handles Call to Arms bonuses
+        bool IsCallToArmEligible(uint32 level, uint32 dungeonId);
+        uint8 GetRolesForCallToArms() { return _callToArmsRoles; }
+        void AddCallToArmsRole(uint8 role) { _callToArmsRoles |= role; }
+        void RemoveCallToArmsRole(uint8 role) { _callToArmsRoles = _callToArmsRoles & ~role; }
+        void SetCallToArmEligible(bool val) { _isCallToArmEligible = val; }
 
         // cs_lfg
         /// Get current player roles
@@ -386,7 +402,7 @@ class TC_GAME_API LFGMgr
         /// Returns all random and seasonal dungeons for given level and expansion
         LfgDungeonSet GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion);
         /// Teleport a player to/from selected dungeon
-        void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
+        void TeleportPlayer(Player* player, bool out, bool fromOpcode = false, bool saveEntryPoint = true);
         /// Inits new proposal to boot a player
         void InitBoot(ObjectGuid gguid, ObjectGuid kguid, ObjectGuid vguid, std::string const& reason);
         /// Updates player boot proposal with new player answer
@@ -420,11 +436,13 @@ class TC_GAME_API LFGMgr
         /// Gets queue join time
         time_t GetQueueJoinTime(ObjectGuid guid);
         /// Checks if given roles match, modifies given roles map with new roles
-        static bool CheckGroupRoles(LfgRolesMap &groles);
+        static bool CheckGroupRoles(LfgRolesMap& groles, LFGDungeonData const* dungeon);
         /// Checks if given players are ignoring each other
         static bool HasIgnore(ObjectGuid guid1, ObjectGuid guid2);
         /// Sends queue status to player
         static void SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData const& data);
+        /// Returns dungeon datas based on the dungeon ID
+        LFGDungeonData const* GetLFGDungeon(uint32 id);
 
     private:
         uint8 GetTeam(ObjectGuid guid);
@@ -438,7 +456,6 @@ class TC_GAME_API LFGMgr
         void RemovePlayerData(ObjectGuid guid);
         void GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& players, LfgLockPartyMap& lockMap, bool isContinue);
         void _SaveToDB(ObjectGuid guid, uint32 db_guid);
-        LFGDungeonData const* GetLFGDungeon(uint32 id);
 
         // Proposals
         void RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdateType type);
@@ -475,6 +492,9 @@ class TC_GAME_API LFGMgr
         LfgPlayerBootContainer BootsStore;                 ///< Current player kicks
         LfgPlayerDataContainer PlayersStore;               ///< Player data
         LfgGroupDataContainer GroupsStore;                 ///< Group data
+        // Call to Arms System
+        bool _isCallToArmEligible;
+        uint8 _callToArmsRoles;
 };
 
 } // namespace lfg

@@ -206,6 +206,7 @@ class TC_GAME_API Group
         void   SetLootThreshold(ItemQualities threshold);
         void   Disband(bool hideDestroy = false);
         void   SetLfgRoles(ObjectGuid guid, uint8 roles);
+        uint8  GetLfgRoles(ObjectGuid guid);
 
         void   SetGroupMarkerMask(uint32 mask) { m_markerMask = mask; }
         void   AddGroupMarkerMask(uint32 mask) { m_markerMask |= mask; }
@@ -222,6 +223,7 @@ class TC_GAME_API Group
         // properties accessories
         bool IsFull() const;
         bool isLFGGroup()  const;
+        bool isLFRGroup()  const;
         bool isRaidGroup() const;
         bool isBGGroup()   const;
         bool isBFGroup()   const;
@@ -265,6 +267,7 @@ class TC_GAME_API Group
         uint8 GetMemberGroup(ObjectGuid guid) const;
 
         void ConvertToLFG();
+        void ConvertToLFR();
         void ConvertToRaid();
         void ConvertToGroup();
 
