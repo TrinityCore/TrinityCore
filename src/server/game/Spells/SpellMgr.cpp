@@ -2542,6 +2542,22 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellEntry const* spellEntry : sSpellStore)
         mSpellInfoMap[spellEntry->Id] = new SpellInfo(spellEntry);
 
+    for (uint32 spellIndex = 0; spellIndex < GetSpellInfoStoreSize(); ++spellIndex)
+    {
+        if (!mSpellInfoMap[spellIndex])
+            continue;
+
+        for (uint32 effectIndex = 0; effectIndex < MAX_SPELL_EFFECTS; ++effectIndex)
+        {
+            if (mSpellInfoMap[spellIndex]->Effects[effectIndex].Effect >= TOTAL_SPELL_EFFECTS)
+            {
+                TC_LOG_ERROR("sql.sql", "Spell (Entry: %u) has `Effect` '%u' greater than max allowed value '%u', removing", spellIndex, mSpellInfoMap[spellIndex]->Effects[effectIndex].Effect, (TOTAL_SPELL_EFFECTS - 1));
+                mSpellInfoMap[spellIndex]->Effects[effectIndex].Effect = 0;
+            }
+        }
+    }
+
+
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
