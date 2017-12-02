@@ -1,6 +1,7 @@
 #include "../pchdef.h"
 #include "AhBotConfig.h"
 #include "World.h"
+#include "Log.h"
 
 std::vector<std::string> split(const std::string &s, char delim);
 

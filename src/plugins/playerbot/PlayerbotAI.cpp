@@ -20,6 +20,8 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include <cstdarg>
+#include "Log.h"
+#include "ObjectAccessor.h"
 
 using namespace ai;
 using namespace std;

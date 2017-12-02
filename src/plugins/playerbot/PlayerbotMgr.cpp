@@ -4,6 +4,9 @@
 #include "PlayerbotFactory.h"
 #include "RandomPlayerbotMgr.h"
 #include "CharacterCache.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+
 
 class LoginQueryHolder;
 class CharacterHandler;
@@ -604,6 +607,8 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
         }
     }
 
+	std::vector<std::string> split(const std::string &s, char delim);
+
     vector<string> chars = split(charnameStr, ',');
     for (vector<string>::iterator i = chars.begin(); i != chars.end(); i++)
     {
@@ -701,7 +706,7 @@ string PlayerbotHolder::ListBots(Player* master)
 
     if (master)
     {
-        QueryResult results = CharacterDatabase.PQuery("SELECT class,name FROM tc_characters_19.characters where account = '%u'",
+        QueryResult results = CharacterDatabase.PQuery("SELECT class,name FROM characters where account = '%u'",
                 master->GetSession()->GetAccountId());
         if (results != NULL)
         {
