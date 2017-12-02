@@ -59,14 +59,14 @@ public:
     {
         if (quest->GetQuestId() == QUEST_FINDING_A_FOOTHOLD)
         {
-            if (TempSummon* waypointVelen = creature->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+            if (TempSummon* waypointVelen = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
             {
                 waypointVelen->AI()->SetGUID(player->GetGUID());
             }
 
             if (Creature* normalMaraad = creature->FindNearestCreature(NPC_VELEN_FOLLOWER_MARAAD, 50.0f))
             {
-                if (TempSummon* waypointMaraad = creature->SummonCreature(NPC_VELEN_FOLLOWER_MARAAD, normalMaraad->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+                if (TempSummon* waypointMaraad = player->SummonCreature(NPC_VELEN_FOLLOWER_MARAAD, normalMaraad->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
                     waypointMaraad->AI()->SetGUID(player->GetGUID());
                 }
@@ -74,7 +74,7 @@ public:
 
             if (Creature* normalYrel = creature->FindNearestCreature(NPC_VELEN_FOLLOWER_YREL, 50.0f))
             {
-                if (TempSummon* waypointYrel = creature->SummonCreature(NPC_VELEN_FOLLOWER_YREL, normalYrel->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+                if (TempSummon* waypointYrel = player->SummonCreature(NPC_VELEN_FOLLOWER_YREL, normalYrel->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
                     waypointYrel->AI()->SetGUID(player->GetGUID());
                 }
@@ -100,10 +100,10 @@ public:
             playerGuid = ObjectGuid::Empty;
         }
 
-        void SetGUID(ObjectGuid p_Guid, int32 /*p_Id*/) override
+        void SetGUID(ObjectGuid guid, int32 /*id*/) override
         {
-            playerGuid = p_Guid;
-            Start(true, true, p_Guid);
+            playerGuid = guid;
+            Start(true, true, guid);
         }
 
         void WaypointReached(uint32 pointId) override
@@ -185,7 +185,7 @@ public:
         if (player->GetQuestStatus(QUEST_ESTABLISH_YOUR_GARRISON) == QUEST_STATUS_INCOMPLETE)
             AddGossipItemFor(player, 60002, 1, 0, 0);
 
-        SendGossipMenuFor(player, creature->GetEntry(), creature->GetGUID());
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
@@ -197,11 +197,9 @@ public:
             CloseGossipMenuFor(player);
             player->CreateGarrison(player->IsInAlliance() ? GARRISON_SITE_WOD_ALLIANCE : GARRISON_SITE_WOD_HORDE);
 
-            uint32 movieID = player->GetGarrison(GARRISON_TYPE_GARRISON)->GetSiteLevel()->MovieID;
-            uint32 mapID = player->GetGarrison(GARRISON_TYPE_GARRISON)->GetSiteLevel()->MapID;
-
-            player->AddMovieDelayedTeleport(movieID, mapID, 1766.761475f, 191.2846830f, 72.115326f, 0.4649370f);
-            player->SendMovieStart(movieID);
+            GarrSiteLevelEntry const* garSiteLevel = player->GetGarrison(GARRISON_TYPE_GARRISON)->GetSiteLevel();
+            player->AddMovieDelayedTeleport(garSiteLevel->MovieID, garSiteLevel->MapID, 1766.761475f, 191.2846830f, 72.115326f, 0.4649370f);
+            player->SendMovieStart(garSiteLevel->MovieID);
 
             player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
         }
