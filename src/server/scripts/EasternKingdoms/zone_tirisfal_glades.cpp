@@ -15,6 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
+#include "Player.h"
+#include "QuestDef.h"
+#include "ScriptMgr.h"
+
+class npc_agatha : public CreatureScript
+{
+public:
+    npc_agatha() : CreatureScript("npc_agatha") { }
+
+    enum
+    {
+        QUEST_FRESH_OUT_OF_THE_GRAVE    = 24959,
+        SPELL_RIGOR_MORTIS              = 73523
+    };
+
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_FRESH_OUT_OF_THE_GRAVE)
+            player->RemoveAurasDueToSpell(SPELL_RIGOR_MORTIS);
+
+        return true;
+    }
+};
+
 void AddSC_tirisfal_glades()
 {
+    new npc_agatha();
 }
