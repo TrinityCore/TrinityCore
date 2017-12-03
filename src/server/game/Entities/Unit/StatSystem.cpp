@@ -1076,6 +1076,10 @@ void Guardian::UpdateArmor()
         case ENTRY_SUCCUBUS:
             pctFromOwnerArmor = 300.f;
             break;
+        case ENTRY_NIUZAO:
+            pctFromOwnerArmor = 400.f;
+        case ENTRY_XUEN:
+            pctFromOwnerArmor = 100.f;
         default:
             break;
         }
@@ -1208,59 +1212,43 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
         return;
 
-    float val = 0.0f;
     float bonusAP = 0.0f;
     UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
 
-    if (GetEntry() == ENTRY_IMP)                                   // imp's attack power
-        val = GetStat(STAT_STRENGTH) - 10.0f;
-    else
-        val = 2 * GetStat(STAT_STRENGTH) - 20.0f;
+    PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
 
-    Unit* owner = GetOwner();
-    if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+    switch (petType)
     {
-        if (IsHunterPet())                      //hunter pets benefit from owner's attack power
+    case SUMMON_PET:
+    {
+        switch (GetEntry())
         {
-            float mod = 1.0f;                                                 //Hunter contribution modifier
-            bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
-            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod));
+        case ENTRY_XUEN:
+            bonusAP = CalculatePct(m_owner->GetTotalAttackPowerValue(BASE_ATTACK), 600.f);
+            // Bluetracker says 600% (needs ingame data)
+            break;
+        case ENTRY_NIUZAO:
+            bonusAP = CalculatePct(m_owner->GetTotalAttackPowerValue(BASE_ATTACK), 100.f);
+            // Bluetracker says 100% (needs ingame data)
+            break;
+        default:
+            break;
         }
-        else if (IsPetGhoul()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
-        {
-            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
-            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
-        }
-        else if (IsSpiritWolf()) //wolf benefit from shaman's attack power
-        {
-            float dmg_multiplier = 0.31f;
-            if (m_owner->GetAuraEffect(63271, 0)) // Glyph of Feral Spirit
-                dmg_multiplier = 0.61f;
-            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier;
-            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier));
-        }
-        //demons benefit from warlocks shadow or fire damage
-        else if (IsPet())
-        {
-            int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-            int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
-            int32 maximum  = (fire > shadow) ? fire : shadow;
-            if (maximum < 0)
-                maximum = 0;
-            SetBonusDamage(int32(maximum * 0.15f));
-            bonusAP = maximum * 0.57f;
-        }
-        //water elementals benefit from mage's frost damage
-        else if (GetEntry() == ENTRY_WATER_ELEMENTAL)
-        {
-            int32 frost = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST)) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FROST);
-            if (frost < 0)
-                frost = 0;
-            SetBonusDamage(int32(frost * 0.4f));
-        }
+        break;
+    }
+    case HUNTER_PET:
+        bonusAP = CalculatePct(m_owner->GetTotalAttackPowerValue(RANGED_ATTACK), 60.f);
+        SetBonusDamage(CalculatePct(m_owner->GetTotalAttackPowerValue(RANGED_ATTACK), 60.f));
+        break;
+    default:
+        break;
     }
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val + bonusAP);
+    if (!bonusAP)
+        TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) has no pctFromOwnerAP defined. AttackPower set to 0.",
+            GetGUID().ToString().c_str(), GetEntry());
+
+    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, bonusAP);
 
     //in BASE_VALUE of UNIT_MOD_ATTACK_POWER for creatures we store data of meleeattackpower field in DB
     float base_attPower  = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
