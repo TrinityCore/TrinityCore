@@ -5916,6 +5916,10 @@ void Player::UpdateWorldQuestPosition(float x, float y)
 
             if (quest->IsWorldQuest())
             {
+                // Uniting the Isles, required for Legion world quests
+                if (GetQuestStatus(43341) != QUEST_STATUS_REWARDED)
+                    continue;
+
                 if (WorldQuestTemplate* temp = sWorldQuestMgr->GetQuest(quest->GetQuestId()))
                 {
                     if (!temp->active)
