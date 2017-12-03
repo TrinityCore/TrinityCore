@@ -1964,6 +1964,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Vendors...");
     sObjectMgr->LoadVendors();                                  // must be after load CreatureTemplate and ItemTemplate
 
+    TC_LOG_INFO("server.loading", "Loading Trainers...");
+    sObjectMgr->LoadTrainerSpell();                              // must be after load CreatureTemplate
+
     TC_LOG_INFO("server.loading", "Loading Waypoints...");
     sWaypointMgr->Load();
 

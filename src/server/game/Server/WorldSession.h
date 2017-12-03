@@ -985,6 +985,8 @@ class TC_GAME_API WorldSession
         void SendNameQueryOpcode(ObjectGuid guid);
 
         void SendTrainerList(Creature* npc, uint32 trainerId);
+        void SendTrainerListLegacy(ObjectGuid guid, uint32 index);
+
         void SendListInventory(ObjectGuid guid);
         void SendShowBank(ObjectGuid guid);
         bool CanOpenMailBox(ObjectGuid guid);
@@ -1339,6 +1341,7 @@ class TC_GAME_API WorldSession
         void HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet);
         void HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet);
+        void HandleTrainerBuySpellOpcodeLegacy(WorldPackets::NPC::TrainerBuySpell& packet);
         void HandlePetitionShowList(WorldPackets::Petition::PetitionShowList& packet);
         void HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet);
         void HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet);

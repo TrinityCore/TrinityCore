@@ -246,6 +246,14 @@ typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
 
 typedef std::unordered_map<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTimeMap;
 
+enum TrainerSpellState
+{
+    TRAINER_SPELL_GRAY  = 0,
+    TRAINER_SPELL_GREEN = 1,
+    TRAINER_SPELL_RED   = 2,
+    TRAINER_SPELL_GREEN_DISABLED = 10                       // custom value, not send to client: formally green but learn not allowed
+};
+
 enum ActionButtonUpdateState
 {
     ACTIONBUTTON_UNCHANGED = 0,
@@ -1589,6 +1597,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasSpell(uint32 spell) const override;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const override;
+        TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;

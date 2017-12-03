@@ -25,7 +25,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "GridNotifiers.h"
-#include "Pet.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
