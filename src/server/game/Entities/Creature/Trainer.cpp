@@ -21,9 +21,6 @@
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "WorldSession.h"
-#include "BattlePetMgr.h"
-#include "DB2Stores.h"
 
 namespace Trainer
 {
@@ -90,17 +87,6 @@ namespace Trainer
         else
             player->LearnSpell(trainerSpell->SpellId, false);
 
-        uint32 BattlePetSpell = trainerSpell->SpellId;
-        for (BattlePetSpeciesEntry const* entry : sBattlePetSpeciesStore)
-        {
-            if (entry->SummonSpellID == BattlePetSpell)
-            {
-                BattlePetMgr* battlePetMgr = player->GetSession()->GetBattlePetMgr();
-                battlePetMgr->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
-                player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
-                break;
-            }
-        }
     }
 
     Spell const* Trainer::GetSpell(uint32 spellId) const
