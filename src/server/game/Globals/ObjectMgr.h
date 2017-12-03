@@ -751,6 +751,7 @@ typedef std::pair<GraveYardContainer::const_iterator, GraveYardContainer::const_
 typedef std::pair<GraveYardContainer::iterator, GraveYardContainer::iterator> GraveYardMapBoundsNonConst;
 
 typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemContainer;
+typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellContainer;
 
 typedef std::unordered_map<uint32, std::string> RealmNameContainer;
 
@@ -1196,6 +1197,11 @@ class TC_GAME_API ObjectMgr
         void LoadGossipMenuItems();
 
         void LoadVendors();
+
+        /* OLD SYSTEM TEMP PURPOSE */
+        void LoadTrainerSpell();
+        void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel, uint32 Index);
+
         void LoadTrainers();
         void LoadCreatureDefaultTrainers();
 
@@ -1411,6 +1417,15 @@ class TC_GAME_API ObjectMgr
         GameTeleContainer const& GetGameTeleMap() const { return _gameTeleStore; }
         bool AddGameTele(GameTele& data);
         bool DeleteGameTele(std::string const& name);
+
+        TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
+        {
+            CacheTrainerSpellContainer::const_iterator  iter = _cacheTrainerSpellStore.find(entry);
+            if (iter == _cacheTrainerSpellStore.end())
+                return nullptr;
+
+            return &iter->second;
+        }
 
         Trainer::Trainer const* GetTrainer(uint32 trainerId) const;
         uint32 GetCreatureDefaultTrainer(uint32 creatureId) const;
@@ -1697,6 +1712,7 @@ class TC_GAME_API ObjectMgr
         TrinityStringContainer _trinityStringStore;
 
         CacheVendorItemContainer _cacheVendorItemStore;
+        CacheTrainerSpellContainer _cacheTrainerSpellStore;
         std::unordered_map<uint32, Trainer::Trainer> _trainers;
         std::unordered_map<uint32, uint32> _creatureDefaultTrainers;
 

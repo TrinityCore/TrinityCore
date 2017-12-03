@@ -27976,6 +27976,70 @@ SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo) const
     return Unit::GetCastSpellInfo(spellInfo);
 }
 
+TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell) const
+{
+    if (!trainer_spell)
+        return TRAINER_SPELL_RED;
+
+    bool hasSpell = true;
+    for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
+    {
+        if (!trainer_spell->ReqAbility[i])
+            continue;
+
+        if (!HasSpell(trainer_spell->ReqAbility[i]))
+        {
+            hasSpell = false;
+            break;
+        }
+    }
+    // known spell
+    if (hasSpell)
+        return TRAINER_SPELL_GRAY;
+
+    // check skill requirement
+    if (trainer_spell->ReqSkillLine && GetBaseSkillValue(trainer_spell->ReqSkillLine) < trainer_spell->ReqSkillRank)
+        return TRAINER_SPELL_RED;
+
+    // check level requirement
+    if (getLevel() < trainer_spell->ReqLevel)
+        return TRAINER_SPELL_RED;
+
+    for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
+    {
+        if (!trainer_spell->ReqAbility[i])
+            continue;
+
+        // check race/class requirement
+        if (!IsSpellFitByClassAndRace(trainer_spell->ReqAbility[i]))
+            return TRAINER_SPELL_RED;
+
+        if (uint32 prevSpell = sSpellMgr->GetPrevSpellInChain(trainer_spell->ReqAbility[i]))
+        {
+            // check prev.rank requirement
+            if (prevSpell && !HasSpell(prevSpell))
+                return TRAINER_SPELL_RED;
+        }
+
+        for (auto const& requirePair : sSpellMgr->GetSpellsRequiredForSpellBounds(trainer_spell->ReqAbility[i]))
+            if (!HasSpell(requirePair.second))
+                return TRAINER_SPELL_RED;
+    }
+
+    // check primary prof. limit
+    // first rank of primary profession spell when there are no professions available is disabled
+    for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
+    {
+        if (!trainer_spell->ReqAbility[i])
+            continue;
+        SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainer_spell->ReqAbility[i]);
+        if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank() && (GetFreePrimaryProfessionPoints() == 0))
+            return TRAINER_SPELL_GREEN_DISABLED;
+    }
+
+    return TRAINER_SPELL_GREEN;
+}
+
 void Player::AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId)
 {
     m_overrideSpells[overridenSpellId].insert(newSpellId);

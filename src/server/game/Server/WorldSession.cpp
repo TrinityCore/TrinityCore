@@ -1265,6 +1265,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_WHO:                                  //   0               7
         case CMSG_RIDE_VEHICLE_INTERACT:                //   0               8
         case CMSG_MOVE_HEARTBEAT:
+        case CMSG_OBJECT_UPDATE_FAILED:
         {
             maxPacketCounterAllowed = 200;
             break;
