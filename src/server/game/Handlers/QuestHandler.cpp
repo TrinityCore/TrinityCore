@@ -438,8 +438,11 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
                 return;                                     // can't un-equip some items, reject quest cancel
 
             Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+
             if (!quest)
                 return;
+
+            QuestStatus oldStatus = _player->GetQuestStatus(questId);
 
             if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
                 _player->RemoveTimedQuest(questId);
@@ -469,6 +472,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
             }
 
             sScriptMgr->OnQuestStatusChange(_player, questId);
+            sScriptMgr->OnQuestStatusChange(_player, quest, oldStatus, QUEST_STATUS_NONE);
         }
 
         _player->SetQuestSlot(packet.Entry, 0);

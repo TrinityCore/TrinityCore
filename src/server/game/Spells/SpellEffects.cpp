@@ -3119,6 +3119,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                 {
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->GetSpellHistory()->LockSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
+                    m_originalCaster->ProcSkillsAndAuras(unitTarget, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_INTERRUPT, nullptr, nullptr, nullptr);
                 }
                 ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
@@ -4405,8 +4406,10 @@ void Spell::EffectQuestClear(SpellEffIndex /*effIndex*/)
     if (!quest)
         return;
 
+    QuestStatus oldStatus = player->GetQuestStatus(quest_id);
+
     // Player has never done this quest
-    if (player->GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
+    if (oldStatus == QUEST_STATUS_NONE)
         return;
 
     // remove all quest entries for 'entry' from quest log
@@ -4432,6 +4435,7 @@ void Spell::EffectQuestClear(SpellEffIndex /*effIndex*/)
     player->RemoveRewardedQuest(quest_id);
 
     sScriptMgr->OnQuestStatusChange(player, quest_id);
+    sScriptMgr->OnQuestStatusChange(player, quest, oldStatus, QUEST_STATUS_NONE);
 }
 
 void Spell::EffectSendTaxi(SpellEffIndex /*effIndex*/)
