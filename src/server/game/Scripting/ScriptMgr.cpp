@@ -118,6 +118,10 @@ template<>
 struct is_script_database_bound<SceneScript>
     : std::true_type { };
 
+template<>
+struct is_script_database_bound<QuestScript>
+    : std::true_type { };
+
 enum Spells
 {
     SPELL_HOTSWAP_VISUAL_SPELL_EFFECT = 40162 // 59084
@@ -722,6 +726,35 @@ private:
 /// This hook is responsible for swapping SceneScript's
 template<typename Base>
 class ScriptRegistrySwapHooks<SceneScript, Base>
+    : public ScriptRegistrySwapHookBase
+{
+public:
+    ScriptRegistrySwapHooks() : swapped(false) { }
+
+    void BeforeReleaseContext(std::string const& context) final override
+    {
+        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+        if (bounds.first != bounds.second)
+            swapped = true;
+    }
+
+    void BeforeSwapContext(bool /*initialize*/) override
+    {
+        swapped = false;
+    }
+
+    void BeforeUnload() final override
+    {
+        ASSERT(!swapped);
+    }
+
+private:
+    bool swapped;
+};
+
+/// This hook is responsible for swapping QuestScript's
+template<typename Base>
+class ScriptRegistrySwapHooks<QuestScript, Base>
     : public ScriptRegistrySwapHookBase
 {
 public:
@@ -2460,6 +2493,24 @@ void ScriptMgr::OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTem
     tmpscript->OnSceneComplete(player, sceneInstanceID, sceneTemplate);
 }
 
+void ScriptMgr::OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus)
+{
+    ASSERT(player);
+    ASSERT(quest);
+
+    GET_SCRIPT(QuestScript, quest->GetScriptId(), tmpscript);
+    tmpscript->OnQuestStatusChange(player, quest, oldStatus, newStatus);
+}
+
+void ScriptMgr::OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount)
+{
+    ASSERT(player);
+    ASSERT(quest);
+
+    GET_SCRIPT(QuestScript, quest->GetScriptId(), tmpscript);
+    tmpscript->OnQuestObjectiveChange(player, quest, objective, oldAmount, newAmount);
+}
+
 SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {
@@ -2639,6 +2690,12 @@ SceneScript::SceneScript(const char* name)
     ScriptRegistry<SceneScript>::Instance()->AddScript(this);
 }
 
+QuestScript::QuestScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<QuestScript>::Instance()->AddScript(this);
+}
+
 GuildScript::GuildScript(const char* name)
     : ScriptObject(name)
 {
@@ -2693,3 +2750,4 @@ template class TC_GAME_API ScriptRegistry<AccountScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
 template class TC_GAME_API ScriptRegistry<ConversationScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;
+template class TC_GAME_API ScriptRegistry<QuestScript>;
