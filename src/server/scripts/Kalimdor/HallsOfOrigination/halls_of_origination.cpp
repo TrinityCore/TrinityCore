@@ -15,10 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+ /* To-do: */
+ // - Find out what Dummy Nuke (68991) spell does.
+ // - Spatial Flux won't enter combat on second aggro from creature group (but it should).
+
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
+#include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -44,10 +49,74 @@ enum Events
     EVENT_FOLLOW_SUMMONER,
 };
 
+// The Maker's Lift
+enum ElevatorMisc
+{
+    GOSSIP_MENU_HOO_LIFT                    = 12646,
+    GOSSIP_NPC_TEXT_CHOOSE_A_DESTINATION    = 17791,
+    GOSSIP_OPTION_FIRST_FLOOR               = 0,
+    GOSSIP_OPTION_HOO_LIFT_SECOND_FLOOR     = 1,
+    GOSSIP_OPTION_HOO_LIFT_THIRD_FLOOR      = 2
+};
+
+// 207669 - The Maker's Lift Controller
+class go_hoo_the_makers_lift_controller : public GameObjectScript
+{
+public:
+    go_hoo_the_makers_lift_controller() : GameObjectScript("go_hoo_the_makers_lift_controller") { }
+
+    bool OnGossipHello(Player* player, GameObject* go) override
+    {
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance)
+            return false;
+
+        // Build menu.
+        // First floor: Option available from start.
+        AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_FIRST_FLOOR,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 0);
+        
+        // Second floor: Anraphet must be defeated first.
+        if (instance->GetBossState(DATA_ANRAPHET) == DONE)
+            AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_HOO_LIFT_SECOND_FLOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        
+        // Third floor: Constructs of The Four Seats must be defeated first.
+        if (instance->GetBossState(DATA_ISISET) == DONE && instance->GetBossState(DATA_AMMUNAE) == DONE &&
+            instance->GetBossState(DATA_SETESH) == DONE && instance->GetBossState(DATA_RAJH) == DONE)
+            AddGossipItemFor(player, GOSSIP_MENU_HOO_LIFT, GOSSIP_OPTION_HOO_LIFT_THIRD_FLOOR,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+        SendGossipMenuFor(player, GOSSIP_NPC_TEXT_CHOOSE_A_DESTINATION, go->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*sender*/, uint32 action) override
+    {
+        ClearGossipMenuFor(player);
+        player->PlayerTalkClass->SendCloseGossip();
+
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance)
+            return true;
+
+        // Handle elevator: gossip item index => stopFrame (floor index).
+        uint32 stopFrame = action - GOSSIP_ACTION_INFO_DEF;
+        GameObject* elevator = instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS);
+        if (!elevator) // To-do: implement and check at what stopFrame transport is right now (GetTransportState or GetTransportStopFrame).
+            return true;
+
+        elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+        elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, stopFrame);
+
+        // Mechanism below the elevator (cosmetic). 
+        /* Note: It never activates in sniffs, neither on live.
+        if (GameObject* star = instance->GetGameObject(DATA_LIFT_GLASS_STAR))
+            star->SetGoState(GO_STATE_ACTIVE);
+        */     
+
+        return true;
+    }
+};
+
 // 39612 - Spatial Flux (trash)
-// To-do: 
-//  - Find out what Dummy Nuke (68991) spell does.
-//  - Spatial Flux won't enter combat on second aggro from creature group.
 class npc_hoo_spatial_flux : public CreatureScript
 {
 public:
@@ -177,7 +246,7 @@ public:
         {
             // Remove tank
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                if (Creature* Isiset = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_ISISET)))
+                if (Creature* Isiset = instance->GetCreature(DATA_ISISET))
                     if (WorldObject* tank = Isiset->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
                         targets.remove(tank);
 
@@ -221,7 +290,7 @@ public:
         {
             if (GetTarget()->GetPowerPct(POWER_ENERGY) == 100.0f)
             {
-                GetTarget()->CastSpell((Unit*)nullptr, SPELL_ARCANE_BURST, false);
+                GetTarget()->CastSpell((Unit*)nullptr, SPELL_ARCANE_BURST);
 
                 // Stacks should probably be consumed, right? (note: this ability doesn't work on retail)
                 GetTarget()->RemoveAurasDueToSpell(SPELL_ARCANE_ENERGY);
@@ -243,6 +312,7 @@ public:
 
 void AddSC_halls_of_origination()
 {
+    new go_hoo_the_makers_lift_controller();
     new npc_hoo_spatial_flux();
     new npc_hoo_energy_flux();
     new spell_hoo_energy_flux_target_selector();

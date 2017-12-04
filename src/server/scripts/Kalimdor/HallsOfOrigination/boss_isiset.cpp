@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "ObjectAccessor.h"
 #include "GridNotifiers.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -78,7 +77,7 @@ enum Spells
     SPELL_CALL_OF_SKY                       = 90750, // Summons Spatial Flux
     SPELL_SPAWN_ENERGY_FLUX_ISISET          = 90735, // Makes random player cast Summon Energy Flux
     SPELL_ENERGY_FLUX_BEAM_ISISET           = 90741, // Makes nearby Spatial Flux cast visual beam
-    SPELL_ENERGY_FLUX_PERIODIC              = 74044,
+    SPELL_ENERGY_FLUX_PERIODIC              = 74044
 };
 
 enum NPCs
@@ -87,7 +86,7 @@ enum NPCs
     NPC_ASTRAL_RAIN                         = 39720, // N
     NPC_CELESTIAL_CALL                      = 39721, // E
     NPC_VEIL_OF_SKY                         = 39722, // W
-    NPC_ISISET_SPATIAL_FLUX                 = 48707, // heroic only
+    NPC_ISISET_SPATIAL_FLUX                 = 48707  // heroic only
 };
 
 enum Texts
@@ -96,12 +95,11 @@ enum Texts
     SAY_SUPERNOVA                           = 1,
     SAY_SUPERNOVA_WARNING                   = 2,
     SAY_PLAYER_KILL                         = 3,
-    SAY_DEATH                               = 4,
+    SAY_DEATH                               = 4
 };
 
 enum Events
 {
-    EVENT_NONE,
     EVENT_SUPERNOVA,
     EVENT_ASTRAL_RAIN,
     EVENT_ASTRAL_FAMILIAR,
@@ -124,16 +122,15 @@ enum Events
     EVENT_SPAWN_ENERGY_FLUX,
 
     // Energy Flux
-    EVENT_FOLLOW_SUMMONER,
+    EVENT_FOLLOW_SUMMONER
 };
 
 enum Actions
 {
-    ACTION_NONE,
     ACTION_IMAGES_SET_AGGRESSIVE,
     ACTION_MIRROR_IMAGE_DIED,
     ACTION_IMAGES_SET_PASSIVE,
-    ACTION_IMAGES_DESPAWN,
+    ACTION_IMAGES_DESPAWN
 };
 
 class boss_isiset : public CreatureScript
@@ -150,8 +147,7 @@ public:
             _Reset();
 
             me->SetReactState(REACT_AGGRESSIVE);
-
-            transitionPhase = false;
+            _transitionPhase = false;
             instance->SetData(DATA_ISISET_PHASE, 1);
             instance->SetData(DATA_ISISET_ASTRAL_RAIN_ALIVE, 1);
             instance->SetData(DATA_ISISET_CELESTIAL_CALL_ALIVE, 1);
@@ -170,7 +166,7 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
         {
-            if (transitionPhase)
+            if (_transitionPhase)
                 return;
 
             // Second transition
@@ -185,15 +181,15 @@ public:
         void DoAction(int32 action) override
         {
             // We only accept action from the first dying image
-            if (mirrorImageDied || action != ACTION_MIRROR_IMAGE_DIED)
+            if (_mirrorImageDied || action != ACTION_MIRROR_IMAGE_DIED)
                 return;
 
-            mirrorImageDied = true;
+            _mirrorImageDied = true;
             
             // Handle despawning
             DummyEntryCheckPredicate pred;
             summons.DoAction(ACTION_IMAGES_SET_PASSIVE, pred);
-            events.ScheduleEvent(EVENT_DESPAWN_IMAGES, 2400);
+            events.ScheduleEvent(EVENT_DESPAWN_IMAGES, Seconds(2));
         }
 
         void KilledUnit(Unit* who) override
@@ -204,7 +200,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            //instance->SendEncounterUnit(ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT, ?me?, 1);
+            //instance->SendEncounterUnit(ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT, ?me?, 1); //from sniff, not sure what it does
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me, 0);
             _JustDied();
             Talk(SAY_DEATH);
@@ -253,7 +249,7 @@ public:
                         DummyEntryCheckPredicate pred;
                         summons.DoAction(ACTION_IMAGES_DESPAWN, pred);
                         instance->SetData(DATA_ISISET_PHASE, instance->GetData(DATA_ISISET_PHASE) + 1);
-                        transitionPhase = false;
+                        _transitionPhase = false;
                         me->RemoveAurasDueToSpell(SPELL_ASTRAL_SHIFT);
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 1);
                         RescheduleEvents();
@@ -262,6 +258,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -271,11 +270,11 @@ public:
         void RescheduleEvents()
         {
             events.Reset();
-            if (instance->GetData(DATA_ISISET_ASTRAL_RAIN_ALIVE) == 1)
+            if (instance->GetData(DATA_ISISET_ASTRAL_RAIN_ALIVE))
                 events.ScheduleEvent(EVENT_ASTRAL_RAIN, Seconds(4), Seconds(6));
-            if (instance->GetData(DATA_ISISET_CELESTIAL_CALL_ALIVE) == 1)
+            if (instance->GetData(DATA_ISISET_CELESTIAL_CALL_ALIVE))
                 events.ScheduleEvent(EVENT_ASTRAL_FAMILIAR, Seconds(7));
-            if (instance->GetData(DATA_ISISET_VEIL_OF_SKY_ALIVE) == 1)
+            if (instance->GetData(DATA_ISISET_VEIL_OF_SKY_ALIVE))
                 events.ScheduleEvent(EVENT_VEIL_OF_SKY, Seconds(8), Seconds(10));
             events.ScheduleEvent(EVENT_SUPERNOVA, Seconds(12), Seconds(17));
         }
@@ -283,11 +282,11 @@ public:
         // Mirror Image transition phase
         void MirrorImage()
         {
-            transitionPhase = true;
+            _transitionPhase = true;
 
             events.Reset();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 0);
-            mirrorImageDied = false;
+            _mirrorImageDied = false;
 
             DoCastSelf(SPELL_ASTRAL_SHIFT);
             DoCastSelf(SPELL_ASTRAL_SHIFT_EXPLOSION);
@@ -297,8 +296,8 @@ public:
             events.ScheduleEvent(EVENT_IMAGES_ATTACK, Seconds(2));
         }
 
-        bool transitionPhase;
-        bool mirrorImageDied;
+        bool _transitionPhase;
+        bool _mirrorImageDied;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -315,13 +314,16 @@ public:
 
     struct npc_celestial_familiarAI : public ScriptedAI
     {
-        npc_celestial_familiarAI(Creature* creature) : ScriptedAI(creature)
+        npc_celestial_familiarAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetInCombatWithZone();
-            events.ScheduleEvent(EVENT_ORB_ADD_VISUAL, 1200);
-            events.ScheduleEvent(EVENT_ORB_SET_AGGRESSIVE, 2400);
-            events.ScheduleEvent(EVENT_ORB_ARCANE_BARRAGE, Seconds(urand(4,6)));
+            events.Reset();
+            events.ScheduleEvent(EVENT_ORB_ADD_VISUAL, Seconds(1));
+            events.ScheduleEvent(EVENT_ORB_SET_AGGRESSIVE, Seconds(2));
+            events.ScheduleEvent(EVENT_ORB_ARCANE_BARRAGE, Seconds(4), Seconds(6));
         }
 
         void UpdateAI(uint32 diff) override
@@ -347,9 +349,13 @@ public:
                     case EVENT_ORB_ARCANE_BARRAGE:
                         DoCastSelf(SPELL_ARCANE_BARRAGE);
                         events.Repeat(Seconds(6), Seconds(7));
+                        break;
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
         }
 
@@ -374,11 +380,8 @@ public:
         npc_astral_shift_explosion_visualAI(Creature* creature) : ScriptedAI(creature)
         {
             DoCastSelf(SPELL_ASTRAL_SHIFT_EXPLOSION_VISUAL);
-            me->DespawnOrUnsummon(21300);
+            me->DespawnOrUnsummon(Seconds(21));
         }
-
-    private:
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -395,10 +398,13 @@ public:
 
     struct npc_starry_skyAI : public ScriptedAI
     {
-        npc_starry_skyAI(Creature* creature) : ScriptedAI(creature)
+        npc_starry_skyAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            events.Reset();
             events.ScheduleEvent(EVENT_STARRY_SKY_ADD_VISUAL, 800); // Sniffed timers
             me->DespawnOrUnsummon(3600);
         }
@@ -443,8 +449,10 @@ public:
 
     struct npc_isiset_mirror_imageAI : public ScriptedAI
     {
-        npc_isiset_mirror_imageAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
-        {
+        npc_isiset_mirror_imageAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+
+        void Reset() override
+        {            
             me->SetReactState(REACT_PASSIVE);
             _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
@@ -482,7 +490,8 @@ public:
                 case ACTION_IMAGES_SET_AGGRESSIVE:
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
-                    AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        AttackStart(target);
                     break;
                 case ACTION_IMAGES_SET_PASSIVE:
                     me->SetReactState(REACT_PASSIVE);
@@ -519,11 +528,13 @@ public:
                         break;
                     case EVENT_IMAGE_VEIL_OF_SKY_ABILITY:
                         DoCastSelf(SPELL_VEIL_OF_SKY_1); // Veil of Sky npc does not cast controller spell!
-                        //_events.Repeat(Seconds(20), Seconds(25)); // It does probably not repeat.
                         break;
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -554,7 +565,7 @@ public:
         {
             me->SetInCombatWithZone();
             events.Reset();
-            events.ScheduleEvent(EVENT_DUMMY_NUKE, Seconds(0));
+            //events.ScheduleEvent(EVENT_DUMMY_NUKE, Seconds(0)); // Unknown purpose. Collecting threat? Stops combat when no targets?
             events.ScheduleEvent(EVENT_SPAWN_ENERGY_FLUX, Seconds(3));
         }
 
@@ -572,11 +583,11 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_DUMMY_NUKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    /*case EVENT_DUMMY_NUKE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             DoCast(target, SPELL_DUMMY_NUKE);
                         events.Repeat(Seconds(1));
-                        break;
+                        break;*/
                     case EVENT_SPAWN_ENERGY_FLUX:
                         DoCastSelf(SPELL_SPAWN_ENERGY_FLUX_ISISET);
                         events.Repeat(Seconds(12));
@@ -584,6 +595,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
         }
 
@@ -669,13 +683,17 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_ASTRAL_RAIN_1, SPELL_ASTRAL_RAIN_2, SPELL_ASTRAL_RAIN_3 });
+            return ValidateSpellInfo({
+                SPELL_ASTRAL_RAIN_1,
+                SPELL_ASTRAL_RAIN_2,
+                SPELL_ASTRAL_RAIN_3
+            });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             InstanceScript* instance = GetCaster()->GetInstanceScript();
-            if (!instance || instance->GetData(DATA_ISISET_ASTRAL_RAIN_ALIVE) == 0)
+            if (!instance || !instance->GetData(DATA_ISISET_ASTRAL_RAIN_ALIVE))
                 return;
 
             uint32 phase = instance->GetData(DATA_ISISET_PHASE);
@@ -711,22 +729,26 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_VEIL_OF_SKY_1, SPELL_VEIL_OF_SKY_2, SPELL_VEIL_OF_SKY_3 });
+            return ValidateSpellInfo({
+                SPELL_VEIL_OF_SKY_1,
+                SPELL_VEIL_OF_SKY_2,
+                SPELL_VEIL_OF_SKY_3
+            });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             InstanceScript* instance = GetCaster()->GetInstanceScript();
-            if (!instance || instance->GetData(DATA_ISISET_VEIL_OF_SKY_ALIVE) == 0)
+            if (!instance || !instance->GetData(DATA_ISISET_VEIL_OF_SKY_ALIVE))
                 return;
 
             uint32 phase = instance->GetData(DATA_ISISET_PHASE);
             if (phase == 1)
-                GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_SKY_1, false);
+                GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_SKY_1);
             else if (phase == 2)
-                GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_SKY_2, false);
+                GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_SKY_2);
             else if (phase == 3)
-                GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_SKY_3, false);
+                GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_SKY_3);
         }
 
         void Register() override
@@ -753,13 +775,17 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_CELESTIAL_CALL_1, SPELL_CELESTIAL_CALL_2, SPELL_CELESTIAL_CALL_3 });
+            return ValidateSpellInfo({
+                SPELL_CELESTIAL_CALL_1,
+                SPELL_CELESTIAL_CALL_2,
+                SPELL_CELESTIAL_CALL_3
+            });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             InstanceScript* instance = GetCaster()->GetInstanceScript();
-            if (!instance || instance->GetData(DATA_ISISET_CELESTIAL_CALL_ALIVE) == 0)
+            if (!instance || !instance->GetData(DATA_ISISET_CELESTIAL_CALL_ALIVE))
                 return;
 
             uint32 phase = instance->GetData(DATA_ISISET_PHASE);
@@ -878,11 +904,11 @@ public:
             if (!instance)
                 return;
 
-            if (instance->GetData(DATA_ISISET_CELESTIAL_CALL_ALIVE) == 1)
+            if (instance->GetData(DATA_ISISET_CELESTIAL_CALL_ALIVE))
                 GetCaster()->CastSpell(GetCaster(), SPELL_MIRROR_IMAGE_STARRY_SKY_N, true);
-            if (instance->GetData(DATA_ISISET_ASTRAL_RAIN_ALIVE) == 1)
+            if (instance->GetData(DATA_ISISET_ASTRAL_RAIN_ALIVE))
                 GetCaster()->CastSpell(GetCaster(), SPELL_MIRROR_IMAGE_STARRY_SKY_E, true);
-            if (instance->GetData(DATA_ISISET_VEIL_OF_SKY_ALIVE) == 1)
+            if (instance->GetData(DATA_ISISET_VEIL_OF_SKY_ALIVE))
                 GetCaster()->CastSpell(GetCaster(), SPELL_MIRROR_IMAGE_STARRY_SKY_W, true);
         }
 
@@ -919,11 +945,11 @@ public:
             if (!instance)
                 return;
 
-            if (instance->GetData(DATA_ISISET_CELESTIAL_CALL_ALIVE) == 1)
+            if (instance->GetData(DATA_ISISET_CELESTIAL_CALL_ALIVE))
                 GetCaster()->CastSpell(GetCaster(), SPELL_MIRROR_IMAGE_N, true);
-            if (instance->GetData(DATA_ISISET_ASTRAL_RAIN_ALIVE) == 1)
+            if (instance->GetData(DATA_ISISET_ASTRAL_RAIN_ALIVE))
                 GetCaster()->CastSpell(GetCaster(), SPELL_MIRROR_IMAGE_E, true);
-            if (instance->GetData(DATA_ISISET_VEIL_OF_SKY_ALIVE) == 1)
+            if (instance->GetData(DATA_ISISET_VEIL_OF_SKY_ALIVE))
                 GetCaster()->CastSpell(GetCaster(), SPELL_MIRROR_IMAGE_W, true);
         }
 
@@ -969,7 +995,7 @@ public:
                     break;
             }
 
-            if (Creature* Isiset = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_ISISET)))
+            if (Creature* Isiset = instance->GetCreature(DATA_ISISET))
                 Isiset->AI()->DoAction(ACTION_MIRROR_IMAGE_DIED);
         }
 
@@ -998,7 +1024,7 @@ public:
         void OnMissleHit(SpellEffIndex /*effIndex*/)
         {
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                if (Creature* Isiset = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_ISISET)))
+                if (Creature* Isiset = instance->GetCreature(DATA_ISISET))
                     Isiset->SummonCreature(NPC_ISISET_SPATIAL_FLUX, GetHitDest()->GetPositionX(), GetHitDest()->GetPositionY(), GetHitDest()->GetPositionZ(), 2.775074f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
         }
 
@@ -1028,7 +1054,7 @@ public:
         {
             // Remove tank
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                if (Creature* Isiset = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_ISISET)))
+                if (Creature* Isiset = instance->GetCreature(DATA_ISISET))
                     if (WorldObject* tank = Isiset->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
                         targets.remove(tank);
 

@@ -29,7 +29,7 @@
 enum Texts
 {
     SAY_AGGRO                       = 0,
-    SAY_DEATH                       = 1,
+    SAY_DEATH                       = 1
 };
 
 enum Events
@@ -38,7 +38,7 @@ enum Events
     EVENT_FLAME_BOLT                = 2,
     EVENT_EARTH_SPIKE               = 3,
     EVENT_PTAH_EXPLODE              = 4,
-    EVENT_QUICKSAND                 = 5,
+    EVENT_QUICKSAND                 = 5
 };
 
 enum Spells
@@ -55,7 +55,7 @@ enum Spells
     SPELL_BEETLE_BURROW             = 75463,
 
     SPELL_SUMMON_JEWELED_SCARAB     = 75462,
-    SPELL_SUMMON_DUSTBONE_HORROR    = 75521,
+    SPELL_SUMMON_DUSTBONE_HORROR    = 75521
 };
 
 enum Phases
@@ -64,7 +64,7 @@ enum Phases
     PHASE_DISPERSE                  = 2,
 
     PHASE_MASK_DISPERSE             = (1 << PHASE_DISPERSE),
-    PHASE_MASK_NORMAL               = (1 << PHASE_NORMAL),
+    PHASE_MASK_NORMAL               = (1 << PHASE_NORMAL)
 };
 
 enum PtahData
@@ -121,9 +121,9 @@ public:
             Cleanup();
             _Reset();
             events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_RAGING_SMASH, Seconds(7), Seconds(12), 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_FLAME_BOLT, Seconds(15), 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_EARTH_SPIKE, Seconds(16), Seconds(21), 0, PHASE_NORMAL);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -136,8 +136,8 @@ public:
                 me->AttackStop();
                 DoCast(me, SPELL_SANDSTORM);
                 me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
-                events.ScheduleEvent(EVENT_PTAH_EXPLODE, 6000, 0, PHASE_DISPERSE);
-                events.ScheduleEvent(EVENT_QUICKSAND, 10000, 0, PHASE_DISPERSE);
+                events.ScheduleEvent(EVENT_PTAH_EXPLODE, Seconds(6), 0, PHASE_DISPERSE);
+                events.ScheduleEvent(EVENT_QUICKSAND, Seconds(10), 0, PHASE_DISPERSE);
 
                 std::list<Creature*> stalkers;
                 GetCreatureListWithEntryInGrid(stalkers, me, NPC_BEETLE_STALKER, 100.0f);
@@ -170,9 +170,9 @@ public:
                     me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
                     me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
                     events.SetPhase(PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+                    events.ScheduleEvent(EVENT_RAGING_SMASH, Seconds(7), Seconds(12), 0, PHASE_NORMAL);
+                    events.ScheduleEvent(EVENT_FLAME_BOLT, Seconds(15), 0, PHASE_NORMAL);
+                    events.ScheduleEvent(EVENT_EARTH_SPIKE, Seconds(16), Seconds(21), 0, PHASE_NORMAL);
                 }
             }
         }
@@ -215,16 +215,16 @@ public:
                 {
                     case EVENT_RAGING_SMASH:
                         DoCastVictim(SPELL_RAGING_SMASH);
-                        events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_RAGING_SMASH, Seconds(7), Seconds(12), 0, PHASE_NORMAL);
                         break;
                     case EVENT_FLAME_BOLT:
                         DoCast(me, SPELL_FLAME_BOLT);
-                        events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_FLAME_BOLT, Seconds(15), 0, PHASE_NORMAL);
                         break;
                     case EVENT_EARTH_SPIKE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             DoCast(target, SPELL_EARTH_SPIKE_WARN);
-                        events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_EARTH_SPIKE, Seconds(16), Seconds(21), 0, PHASE_NORMAL);
                         break;
                     case EVENT_PTAH_EXPLODE:
                         DoCast(me, SPELL_PTAH_EXPLOSION);
@@ -234,9 +234,12 @@ public:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             if (Creature* quicksand = me->SummonCreature(NPC_QUICKSAND, *target))
                                 quicksand->SetUInt32Value(UNIT_CREATED_BY_SPELL, SPELL_SUMMON_QUICKSAND);
-                        events.ScheduleEvent(EVENT_QUICKSAND, 10000, 0, PHASE_DISPERSE);
+                        events.ScheduleEvent(EVENT_QUICKSAND, Seconds(10), 0, PHASE_DISPERSE);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             if (events.GetPhaseMask() & PHASE_MASK_NORMAL) // Do not melee in the disperse phase

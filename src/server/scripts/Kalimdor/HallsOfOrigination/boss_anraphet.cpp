@@ -21,7 +21,6 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -48,39 +47,45 @@ enum Texts
     BRANN_3_ELEMENTAL_DEAD          = 9,  // One more elemental to go! The door is almost open!
     BRANN_4_ELEMENTAL_DEAD          = 10, // That''s it, you''ve done it! The vault door is opening! Now we can... oh, no!
     BRANN_SAY_ANRAPHET_DIED         = 11, // We''ve done it! The control room is breached!
-    BRANN_SAY_MOMENT                = 12 // Here we go! Now this should only take a moment...
+    BRANN_SAY_MOMENT                = 12, // Here we go! Now this should only take a moment...
+    BRANN_SAY_BLASTED_TITANS        = 13, // Blasted titans... Why do they use a different set of mechanisms at each of their installations?
+    BRANN_SAY_THIS_SYMBOL           = 14  // This symbol, I think I've seen this before...
 };
 
 enum Gossip
 {
-    GOSSIP_MENU_WE_ARE_READY          = 11339,
+    GOSSIP_MENU_NO_TIME_TO_WASTE    = 11339, // Great, ye found yer way here!$b$bNo time to waste. Ye ready?
+    GOSSIP_OPTION_WE_ARE_READY      = 0,     //   We're ready! Go, Brann!
+    GOSSIP_MENU_DESTROY_ELEMENTAL   = 11348, // Yep, destroy the four elementals, then the door will open. ...
+    GOSSIP_MENU_OCH_ITS_NOT_EASY    = 12512  // Och!$b$bWhy can''t it just be easy fer once?!
 };
 
 enum Events
 {
-    EVENT_BRANN_IDLE_EMOTE            = 1,
-    EVENT_BRANN_START_INTRO           = 2,
-    EVENT_BRANN_MOVE_INTRO            = 3,
-    EVENT_BRANN_UNLOCK_DOOR           = 4,
-    EVENT_BRANN_THINK                 = 5,
-    EVENT_BRANN_SET_ORIENTATION_1     = 6,
-    EVENT_BRANN_SET_ORIENTATION_2     = 7,
-    EVENT_BRANN_SET_ORIENTATION_3     = 8,
-    EVENT_BRANN_SAY_ELEMENTALS        = 9,
-    EVENT_BRANN_SAY_GET_IT            = 10,
-    EVENT_BRANN_4_ELEMENTAL_DEAD_SAY  = 11,
-    EVENT_BRANN_4_ELEMENTAL_DEAD_DOOR = 12,
-    EVENT_BRANN_SET_ORIENTATION_4     = 13,
-
-    EVENT_ANRAPHET_APPEAR             = 14,
-    EVENT_ANRAPHET_ACTIVATE           = 15,
-    EVENT_ANRAPHET_DESTROY            = 16,
-    EVENT_ANRAPHET_READY              = 17,
-    EVENT_ANRAPHET_NEMESIS_STRIKE     = 18,
-    EVENT_ANRAPHET_ALPHA_BEAMS        = 19,
-    EVENT_ANRAPHET_OMEGA_STANCE       = 20,
-    EVENT_ANRAPHET_CRUMBLING_RUIN     = 21,
-    EVENT_ANRAPHET_ACTIVATE_OMEGA     = 22
+    EVENT_BRANN_IDLE_EMOTE             = 1,
+    EVENT_BRANN_START_INTRO            = 2,
+    EVENT_BRANN_UNLOCK_DOOR            = 3,
+    EVENT_BRANN_MOVE_INTRO             = 4,
+    EVENT_BRANN_THINK                  = 5,
+    EVENT_BRANN_LOOK_RIGHT             = 6,
+    EVENT_BRANN_LOOK_LEFT              = 7,
+    EVENT_BRANN_SAY_ELEMENTALS         = 8,
+    EVENT_BRANN_SAY_GET_IT             = 9,
+    EVENT_BRANN_SET_FLAG_GOSSIP        = 10,
+    EVENT_BRANN_ACTIVATE_LASERBEAMS    = 11,
+    EVENT_BRANN_SAY_ALL_ELEMENTAL_DEAD = 12,
+    EVENT_BRANN_MOVE_OUTRO             = 13,
+    EVENT_BRANN_MOVE_FINAL             = 14,
+    EVENT_BRANN_TURN_BACK              = 15,
+    EVENT_ANRAPHET_APPEAR              = 16,
+    EVENT_ANRAPHET_ACTIVATE            = 17,
+    EVENT_ANRAPHET_DESTRUCTION         = 18,
+    EVENT_ANRAPHET_READY               = 19,
+    EVENT_ANRAPHET_NEMESIS_STRIKE      = 20,
+    EVENT_ANRAPHET_ALPHA_BEAMS         = 21,
+    EVENT_ANRAPHET_OMEGA_STANCE        = 22,
+    EVENT_ANRAPHET_CRUMBLING_RUIN      = 23,
+    EVENT_ANRAPHET_ACTIVATE_OMEGA      = 24
 };
 
 enum Spells
@@ -97,44 +102,73 @@ enum Spells
 
     SPELL_OMEGA_STANCE_SUMMON           = 77106,
     SPELL_OMEGA_STANCE                  = 75622,
-    SPELL_OMEGA_STANCE_SPIDER_TRIGGER   = 77121,
+    SPELL_OMEGA_STANCE_SPIDER_TRIGGER   = 77121
 };
 
 enum Phases
 {
     PHASE_INTRO         = 1,
-    PHASE_COMBAT        = 2,
-
-    PHASE_MASK_COMBAT   = (1 << PHASE_COMBAT),
+    PHASE_COMBAT        = 2
 };
 
 enum Points
 {
-    POINT_ANRAPHET_ACTIVATE     = 0,
-    MAX_BRANN_WAYPOINTS_INTRO   = 17
+    POINT_ANRAPHET_ACTIVATE,
+    POINT_BRANN_SAY_TROGGS, 
+    POINT_BRANN_SAY_MOMENT,
+    POINT_BRANN_TURN_BACK,
 };
 
-Position const AnraphetActivatePos = {-193.656f, 366.689f, 75.91001f, 3.138207f};
+// Anraphet's intro
+Position const AnraphetActivatePos = { -193.656f, 366.689f, 75.91001f, 3.138207f };
 
-Position const BrannIntroWaypoint[MAX_BRANN_WAYPOINTS_INTRO] =
+uint32 const AnraphetPathSize = 6;
+Position const AnraphetPath[AnraphetPathSize] =
 {
-    {-429.583f,  367.019f,  89.79282f, 0.0f},
-    {-409.9531f, 367.0469f, 89.81111f, 0.0f},
-    {-397.8246f, 366.967f,  86.37722f, 0.0f},
-    {-383.7813f, 366.8229f, 82.07919f, 0.0f},
-    {-368.2604f, 366.7448f, 77.0984f,  0.0f},
-    {-353.6458f, 366.4896f, 75.92504f, 0.0f},
-    {-309.0608f, 366.7205f, 75.91345f, 0.0f},
-    {-276.3303f, 367.0f,    75.92413f, 0.0f},
-    {-246.5104f, 366.6389f, 75.87791f, 0.0f},
-    {-202.0417f, 366.7517f, 75.92508f, 0.0f},
-    {-187.6024f, 366.7656f, 76.23077f, 0.0f},
-    {-155.0938f, 366.783f,  86.45834f, 0.0f},
-    {-143.5694f, 366.8177f, 89.73354f, 0.0f},
-    {-128.5608f, 366.8629f, 89.74199f, 0.0f},
-    {-103.559f,  366.5938f, 89.79725f, 0.0f},
-    {-71.58507f, 367.0278f, 89.77069f, 0.0f},
-    {-35.04861f, 366.6563f, 89.77447f, 0.0f},
+    { -125.4643f, 366.5138f, 89.88697f },
+    { -132.7143f, 366.5138f, 89.88697f },
+    { -143.9643f, 366.5138f, 89.88697f },
+    { -159.2143f, 366.5138f, 85.38697f },
+    { -188.2143f, 366.7638f, 76.38697f },
+    { -193.656f,  366.689f,  75.91001f }
+};
+
+// Brann's intro
+Position const BrannBossHomePos = { -409.9531f, 367.0469f, 89.81111f, 0.01745329f };
+
+uint32 const BrannIntroPathSize = 2;
+Position const BrannIntroPath[BrannIntroPathSize] =
+{
+    { -429.583f,  367.019f,  89.79282f, 0.0f },
+    { -409.9531f, 367.0469f, 89.81111f, 0.0f }
+};
+
+// Brann's outro
+uint32 const BrannOutroPathSize = 12;
+Position const BrannOutroPath[BrannOutroPathSize] =
+{
+    { -397.8246f, 366.967f,  86.37722f, 0.0f },
+    { -383.7813f, 366.8229f, 82.07919f, 0.0f },
+    { -368.2604f, 366.7448f, 77.0984f,  0.0f },
+    { -353.6458f, 366.4896f, 75.92504f, 0.0f },
+    { -309.0608f, 366.7205f, 75.91345f, 0.0f },
+    { -276.3303f, 367.0f,    75.92413f, 0.0f },
+    { -246.5104f, 366.6389f, 75.87791f, 0.0f },
+    { -202.0417f, 366.7517f, 75.92508f, 0.0f },
+    { -187.6024f, 366.7656f, 76.23077f, 0.0f },
+    { -155.0938f, 366.783f,  86.45834f, 0.0f },
+    { -143.5694f, 366.8177f, 89.73354f, 0.0f },
+    { -128.5608f, 366.8629f, 89.74199f, 0.0f }
+};
+
+Position const BrannFinalHomePos = { -35.04861f, 366.6563f, 89.77447f, 3.141593f };
+
+uint32 const BrannFinalPathSize = 3;
+Position const BrannFinalPath[BrannFinalPathSize] =
+{
+    { -103.559f,  366.5938f, 89.79725f, 0.0f },
+    { -71.58507f, 367.0278f, 89.77069f, 0.0f },
+    { -35.04861f, 366.6563f, 89.77447f, 0.0f }
 };
 
 class boss_anraphet : public CreatureScript
@@ -146,26 +180,19 @@ public:
     {
         boss_anraphetAI(Creature* creature) : BossAI(creature, DATA_ANRAPHET) { }
 
-        void ScheduleCombatEvents()
-        {
-            events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 8000, 0, PHASE_COMBAT);
-            events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, 10000, 0, PHASE_COMBAT);
-            events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, 35000, 0, PHASE_COMBAT);
-        }
-
         void Reset() override
         {
             _Reset();
-            me->SetWalk(false);
-            events.SetPhase(PHASE_INTRO);
-            if (instance->GetData(DATA_DEAD_ELEMENTALS) == 4)
-            {
-                // Set to combat automatically, Brann's event won't repeat
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                events.SetPhase(PHASE_COMBAT);
-                ScheduleCombatEvents();
-                me->SetHomePosition(AnraphetActivatePos);
-            }
+
+            // Vault of Lights not yet done?
+            if (instance->GetData(DATA_DEAD_ELEMENTALS) < 4)
+                return;
+ 
+            me->SetHomePosition(AnraphetActivatePos);
+            me->GetMotionMaster()->MoveTargetedHome();
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            events.SetPhase(PHASE_COMBAT);
+            ScheduleCombatEvents();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -180,7 +207,7 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             Talk(ANRAPHET_SAY_DEATH);
 
-            if (Creature* brann = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BRANN_0_GUID)))
+            if (Creature* brann = instance->GetCreature(DATA_BRANN_0))
                 brann->AI()->DoAction(ACTION_ANRAPHET_DIED);
 
             _JustDied();
@@ -201,25 +228,27 @@ public:
 
         void DoAction(int32 action) override
         {
-            if (action == ACTION_ANRAPHET_INTRO)
-                events.ScheduleEvent(EVENT_ANRAPHET_APPEAR, 6000, 0, PHASE_INTRO);
+            if (action != ACTION_ANRAPHET_INTRO)
+                return;
+            
+            // Intro
+            events.SetPhase(PHASE_INTRO);
+            events.ScheduleEvent(EVENT_ANRAPHET_APPEAR, Seconds(6), 0, PHASE_INTRO); // Note: 5800 ms
         }
 
         void MovementInform(uint32 type, uint32 point) override
         {
-            if (type != POINT_MOTION_TYPE)
+            if (type != EFFECT_MOTION_TYPE || point != POINT_ANRAPHET_ACTIVATE)
                 return;
 
-            if (point == POINT_ANRAPHET_ACTIVATE)
-            {
-                events.ScheduleEvent(EVENT_ANRAPHET_ACTIVATE, 1500, 0, PHASE_INTRO);
-                me->SetHomePosition(AnraphetActivatePos);
-            }
+            // Activate point
+            me->SetHomePosition(AnraphetActivatePos);
+            events.ScheduleEvent(EVENT_ANRAPHET_ACTIVATE, Seconds(1), 0, PHASE_INTRO);
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if ((events.GetPhaseMask() & PHASE_MASK_COMBAT) && (!UpdateVictim() || !CheckInRoom()))
+            if (!events.IsInPhase(PHASE_INTRO) && (!UpdateVictim() || !CheckInRoom()))
                 return;
 
             events.Update(diff);
@@ -232,17 +261,15 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ANRAPHET_APPEAR:
-                        me->SetWalk(true);
-                        me->GetMotionMaster()->MovePoint(POINT_ANRAPHET_ACTIVATE, AnraphetActivatePos);
+                        me->GetMotionMaster()->MoveSmoothPath(POINT_ANRAPHET_ACTIVATE, AnraphetPath, AnraphetPathSize);
                         break;
                     case EVENT_ANRAPHET_ACTIVATE:
-                        me->SetWalk(false);
                         Talk(ANRAPHET_SAY_INTRO);
-                        events.ScheduleEvent(EVENT_ANRAPHET_DESTROY, 17500, 0, PHASE_INTRO);
-                        return;
-                    case EVENT_ANRAPHET_DESTROY:
+                        events.ScheduleEvent(EVENT_ANRAPHET_DESTRUCTION, Seconds(10), 0, PHASE_INTRO); // Note: 10800 ms
+                        break;
+                    case EVENT_ANRAPHET_DESTRUCTION:
                         DoCastAOE(SPELL_DESTRUCTION_PROTOCOL);
-                        events.ScheduleEvent(EVENT_ANRAPHET_READY, 6000, 0, PHASE_INTRO);
+                        events.ScheduleEvent(EVENT_ANRAPHET_READY, Seconds(6), 0, PHASE_INTRO); // Note: 6400 ms
                         break;
                     case EVENT_ANRAPHET_READY:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -251,28 +278,39 @@ public:
                         break;
                     case EVENT_ANRAPHET_NEMESIS_STRIKE:
                         DoCastVictim(SPELL_NEMESIS_STRIKE);
-                        events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 21500, 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, Seconds(21), 0, PHASE_COMBAT);
                         break;
                     case EVENT_ANRAPHET_ALPHA_BEAMS:
                         DoCastSelf(SPELL_ALPHA_BEAMS);
-                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 12500, 0, PHASE_COMBAT);
-                        events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, urand(40000, 45000), 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, Seconds(12), 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, Seconds(40), Seconds(45), 0, PHASE_COMBAT);
                         break;
                     case EVENT_ANRAPHET_OMEGA_STANCE:
                         DoCastSelf(SPELL_OMEGA_STANCE_SUMMON);
                         DoCastSelf(SPELL_OMEGA_STANCE);
                         Talk(ANRAPHET_SAY_OMEGA_STANCE);
-                        events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, urand(45000, 50000), 0, PHASE_COMBAT);
-                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 13000, 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, Seconds(45), Seconds(50), 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, Seconds(13), 0, PHASE_COMBAT);
                         break;
                     case EVENT_ANRAPHET_CRUMBLING_RUIN:
                         DoCastSelf(SPELL_CRUMBLING_RUIN);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
-            if (events.GetPhaseMask() & PHASE_MASK_COMBAT)
+            if (UpdateVictim())
                 DoMeleeAttackIfReady();
+        }
+
+    private:
+        void ScheduleCombatEvents()
+        {
+            events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, Seconds(8), 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, Seconds(10), 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, Seconds(35), 0, PHASE_COMBAT);
         }
     };
 
@@ -316,7 +354,7 @@ class npc_alpha_beam : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
-                if (Creature* anraphet = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ANRAPHET_GUID)))
+                if (Creature* anraphet = _instance->GetCreature(DATA_ANRAPHET))
                     anraphet->CastSpell(me, SPELL_ALPHA_BEAMS_BACK_CAST);
             }
 
@@ -337,29 +375,52 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
     public:
         npc_brann_bronzebeard_anraphet() : CreatureScript("npc_brann_bronzebeard_anraphet") { }
 
+        bool OnGossipHello(Player* player, Creature* creature) override
+        {
+            InstanceScript* instance = creature->GetInstanceScript();
+            if (!instance)
+                return true;
+    
+            // What gossip menu shall we send?
+            uint32 gossipMenuId = GOSSIP_MENU_NO_TIME_TO_WASTE;
+
+            if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE) // gossipMenuId already set, only add gossip option
+                AddGossipItemFor(player, gossipMenuId, GOSSIP_OPTION_WE_ARE_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            else if (instance->GetBossState(DATA_ANRAPHET) != DONE)
+                gossipMenuId = GOSSIP_MENU_DESTROY_ELEMENTAL;
+            else
+                gossipMenuId = GOSSIP_MENU_OCH_ITS_NOT_EASY;
+            
+            SendGossipMenuFor(player, player->GetGossipTextId(gossipMenuId, creature), creature->GetGUID());
+            return true;
+        }
+
         struct npc_brann_bronzebeard_anraphetAI : public CreatureAI
         {
-            npc_brann_bronzebeard_anraphetAI(Creature* creature) : CreatureAI(creature), _currentPoint(0), _instance(creature->GetInstanceScript()) { }
+            npc_brann_bronzebeard_anraphetAI(Creature* creature) : CreatureAI(creature), _instance(creature->GetInstanceScript()) { }
 
             void Reset() override
             {
-                events.ScheduleEvent(EVENT_BRANN_IDLE_EMOTE, Seconds(45));
+                if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE) // Vault of Lights not yet started?
+                    events.ScheduleEvent(EVENT_BRANN_IDLE_EMOTE, Seconds(45));
+                else if (_instance->GetBossState(DATA_ANRAPHET) != DONE) // Anraphet not yet killed?
+                    me->SetHomePosition(BrannBossHomePos);
+                else
+                    me->SetHomePosition(BrannFinalHomePos);
+
+                me->GetMotionMaster()->MoveTargetedHome();
             }
 
-            void sGossipSelect(Player* /*player*/, uint32 menuId, uint32 /*gossipListId*/) override
+            void sGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
                     return;
 
-                if (menuId == GOSSIP_MENU_WE_ARE_READY)
-                {
-                    _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
-                    _currentPoint = 0;
-                    events.Reset();
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    me->SetWalk(true);
-                    events.ScheduleEvent(EVENT_BRANN_START_INTRO, 1000);
-                }
+                _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                events.Reset(); // Removes EVENT_BRANN_IDLE_EMOTE.
+                events.ScheduleEvent(EVENT_BRANN_START_INTRO, Seconds(1));
             }
 
             void DoAction(int32 action) override
@@ -369,20 +430,16 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                     case ACTION_ELEMENTAL_DIED:
                     {
                         uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
-                        
-                        if (dead < 4)
+                        if (dead < 4) // Say that an elemental has died.
                             Talk(BRANN_1_ELEMENTAL_DEAD + dead - 1);
-                        else
-                        {
-                            events.ScheduleEvent(EVENT_BRANN_4_ELEMENTAL_DEAD_DOOR, Seconds(9));
-                            events.ScheduleEvent(EVENT_BRANN_4_ELEMENTAL_DEAD_SAY, 13500);
+                        else // Cast achievement credit rightaway.
                             _instance->DoCastSpellOnPlayers(SPELL_VAULT_OF_LIGHTS_CREDIT);
-                        }
+                        events.RescheduleEvent(EVENT_BRANN_ACTIVATE_LASERBEAMS, Seconds(9));
                         break;
                     }
                     case ACTION_ANRAPHET_DIED:
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1000);
+                        events.ScheduleEvent(EVENT_BRANN_MOVE_OUTRO, Seconds(5));
                         break;
                 }
             }
@@ -396,61 +453,87 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BRANN_IDLE_EMOTE:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_USE_STANDING);
+                            Talk(urand(0, 1) ? BRANN_SAY_BLASTED_TITANS : BRANN_SAY_THIS_SYMBOL);
                             events.Repeat(Seconds(45));
                             break;
                         case EVENT_BRANN_START_INTRO:
                             Talk(BRANN_SAY_DOOR_INTRO);
-                            events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, 7500);
-                            break;
-                        case EVENT_BRANN_MOVE_INTRO:
-                            if (_currentPoint < MAX_BRANN_WAYPOINTS_INTRO)
-                                me->GetMotionMaster()->MovePoint(_currentPoint, BrannIntroWaypoint[_currentPoint]);
+                            events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, Seconds(7));
                             break;
                         case EVENT_BRANN_UNLOCK_DOOR:
                             Talk(BRANN_SAY_UNLOCK_DOOR);
                             _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
                             _instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_VAULT_OF_LIGHTS_EVENT);
-                            events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 3500);
+                            events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, Seconds(3));
+                            break;
+                        case EVENT_BRANN_MOVE_INTRO:
+                            me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_SAY_TROGGS, BrannIntroPath, BrannIntroPathSize, true);
                             break;
                         case EVENT_BRANN_THINK:
                             Talk(BRANN_SAY_THINK);
-                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_1, Seconds(6));
+                            events.ScheduleEvent(EVENT_BRANN_LOOK_RIGHT, Seconds(6));
                             break;
-                        case EVENT_BRANN_SET_ORIENTATION_1:
-                            me->SetFacingTo(5.445427f);
+                        case EVENT_BRANN_LOOK_RIGHT:
+                            me->SetFacingTo(DegToRad(312.0f)); // Sniff: o = 5.445427f
                             Talk(BRANN_SAY_MIRRORS);
-                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_2, 1000);
+                            events.ScheduleEvent(EVENT_BRANN_LOOK_LEFT, Seconds(1));
                             break;
-                        case EVENT_BRANN_SET_ORIENTATION_2:
-                            me->SetFacingTo(0.6283185f);
-                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_3, 2500);
-                            break;
-                        case EVENT_BRANN_SET_ORIENTATION_3:
-                            me->SetFacingTo(0.01745329f);
-                            events.ScheduleEvent(EVENT_BRANN_SAY_ELEMENTALS, 200);
+                        case EVENT_BRANN_LOOK_LEFT:
+                            me->SetFacingTo(DegToRad(36.0f)); // Sniff: o = 0.6283185f
+                            events.ScheduleEvent(EVENT_BRANN_SAY_ELEMENTALS, Seconds(3));
                             break;
                         case EVENT_BRANN_SAY_ELEMENTALS:
+                            me->SetFacingTo(DegToRad(1.0f)); // Sniff: o = 0.01745329f
                             Talk(BRANN_SAY_ELEMENTALS);
-                            events.ScheduleEvent(EVENT_BRANN_SAY_GET_IT, 3500);
+                            events.ScheduleEvent(EVENT_BRANN_SAY_GET_IT, Seconds(4));
                             break;
                         case EVENT_BRANN_SAY_GET_IT:
                             Talk(BRANN_SAY_GET_IT);
+                            events.ScheduleEvent(EVENT_BRANN_SET_FLAG_GOSSIP, Seconds(16));
+                            break;
+                        case EVENT_BRANN_SET_FLAG_GOSSIP:
                             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             break;
-                        case EVENT_BRANN_4_ELEMENTAL_DEAD_DOOR:
-                            if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_ANRAPHET_SUN_MIRROR)))
-                                mirror->SetGoState(GO_STATE_ACTIVE);
-                            if (GameObject* door = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_ANRAPHET_DOOR)))
-                                door->SetGoState(GO_STATE_ACTIVE);
+                        case EVENT_BRANN_ACTIVATE_LASERBEAMS:
+                        {
+                            // Activate laserbeams
+                            if (_instance->GetBossState(DATA_EARTH_WARDEN) == DONE)
+                                _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_EARTH_WARDEN));
+                            if (_instance->GetBossState(DATA_WATER_WARDEN) == DONE)
+                                _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_WATER_WARDEN));
+                            if (_instance->GetBossState(DATA_AIR_WARDEN) == DONE)
+                                _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_AIR_WARDEN));
+                            if (_instance->GetBossState(DATA_FIRE_WARDEN) == DONE)
+                                _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_FIRE_WARDEN));
+
+                            uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
+                            if (dead == 4) {
+                                // Note: In some old sniff file Sun Mirror gets activated every time an elemental dies (for 10 seconds).
+                                // Needs to be checked on live. It makes sense that it is only activated after all four beams are active.
+                                if (GameObject* mirror = _instance->GetGameObject(DATA_ANRAPHET_SUN_MIRROR))
+                                    mirror->SetGoState(GO_STATE_ACTIVE);
+                                if (GameObject* door = _instance->GetGameObject(DATA_ANRAPHET_DOOR))
+                                    door->SetGoState(GO_STATE_ACTIVE);
+                                events.ScheduleEvent(EVENT_BRANN_SAY_ALL_ELEMENTAL_DEAD, Seconds(4)); // Note: 4600 ms
+                            }
                             break;
-                        case EVENT_BRANN_4_ELEMENTAL_DEAD_SAY:
+                        }
+                        case EVENT_BRANN_SAY_ALL_ELEMENTAL_DEAD:
                             Talk(BRANN_4_ELEMENTAL_DEAD);
-                            if (Creature* anraphet = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ANRAPHET_GUID)))
+                            if (Creature* anraphet = _instance->GetCreature(DATA_ANRAPHET))
                                 anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
                             break;
-                        case EVENT_BRANN_SET_ORIENTATION_4:
-                            me->SetFacingTo(3.141593f);
+                        case EVENT_BRANN_MOVE_OUTRO:
+                            Talk(BRANN_SAY_ANRAPHET_DIED);
+                            me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_SAY_MOMENT, BrannOutroPath, BrannOutroPathSize, false);
+                            break;
+                        case EVENT_BRANN_MOVE_FINAL:
+                            me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_TURN_BACK, BrannFinalPath, BrannFinalPathSize, false);
+                            break;
+                        case EVENT_BRANN_TURN_BACK:
+                            me->SetFacingTo(DegToRad(180.0f)); // Sniff: 3.141593f
+                            // To-do: Change Brann's gossip menu ID here.
+                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             break;
                     }
                 }
@@ -458,46 +541,36 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
 
             void MovementInform(uint32 movementType, uint32 pointId) override
             {
-                if (movementType != POINT_MOTION_TYPE)
+                if (movementType != EFFECT_MOTION_TYPE)
                     return;
-
-                _currentPoint = pointId + 1;
-                uint32 delay = 1;
 
                 switch (pointId)
                 {
-                    case 0:
+                    case POINT_BRANN_SAY_TROGGS:
                         Talk(BRANN_SAY_TROGGS);
-                        events.ScheduleEvent(EVENT_BRANN_THINK, 15000);
-                        return;
-                    case 1:
-                        Talk(BRANN_SAY_ANRAPHET_DIED);
-                        delay = 1000;
+                        events.ScheduleEvent(EVENT_BRANN_THINK, Seconds(15));
                         break;
-                    case 14:
+                    case POINT_BRANN_SAY_MOMENT:
                         Talk(BRANN_SAY_MOMENT);
-                        delay = 2200;
+                        events.ScheduleEvent(EVENT_BRANN_MOVE_FINAL, Seconds(2));
                         break;
-                    case 16:
-                        events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_4, 6000);
-                        return;
+                    case POINT_BRANN_TURN_BACK:
+                        events.ScheduleEvent(EVENT_BRANN_TURN_BACK, Seconds(6));
+                        break;
                     default:
                         break;
                 }
-
-                events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, delay);
             }
 
         protected:
             EventMap events;
-            uint32 _currentPoint;
             InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetHallsOfOriginationAI<npc_brann_bronzebeard_anraphetAI>(creature);
-        }
+        } 
 };
 
 class spell_anraphet_alpha_beams : public SpellScriptLoader
