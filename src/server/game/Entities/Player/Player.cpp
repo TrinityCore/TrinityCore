@@ -3149,13 +3149,17 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     if (sDB2Manager.GetMount(spellId))
         GetSession()->GetCollectionMgr()->AddMount(spellId, MOUNT_STATUS_NONE, false, IsInWorld() ? false : true);
 
+    // need to add Battle pets automatically into pet journal
     for (BattlePetSpeciesEntry const* entry : sBattlePetSpeciesStore)
     {
-        if (entry->SummonSpellID == spellId)
+        if (GetSession()->GetBattlePetMgr()->GetPetCount(entry->ID) == 0)
         {
-            GetSession()->GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
-            UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
-            break;
+            if (entry->SummonSpellID == spellId)
+            {
+                GetSession()->GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+                UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
+                break;
+            }
         }
     }
 

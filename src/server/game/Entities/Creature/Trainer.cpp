@@ -86,7 +86,6 @@ namespace Trainer
             player->CastSpell(player, trainerSpell->SpellId, true);
         else
             player->LearnSpell(trainerSpell->SpellId, false);
-
     }
 
     Spell const* Trainer::GetSpell(uint32 spellId) const
