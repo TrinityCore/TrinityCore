@@ -334,16 +334,22 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baltharus_enervating_brand_trigger_SpellScript);
 
-            void CheckDistance()
+            bool Validate(SpellInfo const* /*spell*/) override
             {
-                Unit* caster = GetCaster();
-                Unit* target = GetHitUnit();
-                target->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
+                return ValidateSpellInfo({ SPELL_SIPHONED_MIGHT });
+            }
+
+            void HandleSiphonedMight()
+            {
+                if (SpellInfo const* spellInfo = GetTriggeringSpell())
+                    if (Aura* triggerAura = GetCaster()->GetAura(spellInfo->Id))
+                        if (Unit* caster = triggerAura->GetCaster())
+                            GetHitUnit()->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_baltharus_enervating_brand_trigger_SpellScript::CheckDistance);
+                OnHit += SpellHitFn(spell_baltharus_enervating_brand_trigger_SpellScript::HandleSiphonedMight);
             }
         };
 
