@@ -15033,6 +15033,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     // if not exist then created with set uState == NEW and rewarded=false
     QuestStatusData& questStatusData = m_QuestStatus[quest_id];
+    QuestStatus oldStatus = questStatusData.Status;
 
     // check for repeatable quests status reset
     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
@@ -15112,6 +15113,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     }
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
+    sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -15214,6 +15216,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SetCanDelayTeleport(true);
 
     uint32 quest_id = quest->GetQuestId();
+    QuestStatus oldStatus = GetQuestStatus(quest_id);
 
     for (QuestObjective const& obj : quest->GetObjectives())
     {
@@ -15480,6 +15483,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             }
         }
     }
+
+    sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);
+
 }
 
 void Player::SetRewardedQuest(uint32 quest_id)
@@ -16141,16 +16147,18 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
 {
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
     {
+        QuestStatus oldStatus = m_QuestStatus[questId].Status;
         m_QuestStatus[questId].Status = status;
 
         if (!quest->IsAutoComplete())
             m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
+
+        sScriptMgr->OnQuestStatusChange(this, questId);
+        sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, status);
     }
 
     if (update)
         SendQuestUpdate(questId);
-
-    sScriptMgr->OnQuestStatusChange(this, questId);
 }
 
 void Player::RemoveActiveQuest(Quest const* quest, bool update /*= true*/)
@@ -17106,11 +17114,16 @@ void Player::SetQuestObjectiveData(QuestObjective const& objective, int32 data)
     }
 
     // No change
-    if (status.ObjectiveData[objective.StorageIndex] == data)
+    int32 oldData = status.ObjectiveData[objective.StorageIndex];
+    if (oldData == data)
         return;
 
     if (data >= objective.Amount)
         sScriptMgr->OnObjectiveValidate(this, objective.QuestID, objective.ID);
+
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID))
+        sScriptMgr->OnQuestObjectiveChange(this, quest, objective, oldData, data);
+
 
     // Set data
     status.ObjectiveData[objective.StorageIndex] = data;
