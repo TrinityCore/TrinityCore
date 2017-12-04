@@ -15,16 +15,12 @@ UPDATE `quest_template_addon` SET `PrevQuestID` = 27203, `NextQuestID` = 26245, 
 -- 26246/captains-log
 -- 26247/diplomacy-first
 
--- Quest Invisibilities
+-- Quest Invisibility (18-1000)
 -- Portal to the Maelstrom object (Quest 27203 - Quest 27123)
--- To-do:
---  - Find out what other two invisibilities are there for. All three are cast at the same time on quest accept.
---    Only Maelstrom portal spawns (at least in Orgrimmar). Not sure about Stormwind.
-DELETE FROM `spell_area` WHERE `area` = 5429 AND `spell` IN (84481); -- 100616, 94570,
+DELETE FROM `spell_area` WHERE `area` IN (5428, 5429) AND `spell` = 84481;
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES
--- (100616, 5429, 27203, 27123, 0, 0, 2, 1, 74, 11),  -- 35-1000
--- (94570, 5429, 27203, 27123, 0, 0, 2, 1, 74, 11), -- 17-100
-(84481, 5429, 27203, 27123, 0, 0, 2, 1, 74, 11); -- 18-1000 guessed, all three are cast at the same time, but the two above act strange
+(84481, 5428, 27203, 27123, 0, 0, 2, 1, 74, 11), -- Stormwind
+(84481, 5429, 27203, 27123, 0, 0, 2, 1, 74, 11); -- Orgrimmar
 
 -- To-do: Set up quest_end fields (notes: 43397/seer-kormo, 42573/earthcaller-yevaa, 43405/mariahn-the-soulcleanser (aura 83323))
 -- Generic Quest Invisibility 12
