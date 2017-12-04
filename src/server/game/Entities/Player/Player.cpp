@@ -3153,9 +3153,10 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         if (entry->SummonSpellID == spellId)
         {
-            GetSession()->GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID)); 
+            GetSession()->GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
             break;
         }
+        break;
     }
 
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
