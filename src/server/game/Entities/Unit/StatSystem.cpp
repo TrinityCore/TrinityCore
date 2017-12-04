@@ -1051,9 +1051,9 @@ void Guardian::UpdateArmor()
 {
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
+    float armor = GetArmor();
     float value = 0.0f;
     float pctFromOwnerArmor = 0.0f;
-    float ownerPart = 1.0f;
 
     PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
 
@@ -1092,14 +1092,18 @@ void Guardian::UpdateArmor()
     }
 
     if (pctFromOwnerArmor)
-        ownerPart = CalculatePct(m_owner->GetArmor(), pctFromOwnerArmor);
+        armor = CalculatePct(m_owner->GetArmor(), pctFromOwnerArmor);
     else
         TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) has no pctFromOwnerArmor defined. Armor set to 1.",
             GetGUID().ToString().c_str(), GetEntry());
 
-    value  = GetModifierValue(unitMod, BASE_VALUE);
+    // Pets do not have static base values
+    if (!(GetModifierValue(unitMod, BASE_VALUE) == armor))
+        SetModifierValue(unitMod, BASE_VALUE, armor);
+
+    value += GetModifierValue(unitMod, BASE_VALUE);
     value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE) + ownerPart;
+    value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetArmor(int32(value));
@@ -1109,9 +1113,9 @@ void Guardian::UpdateMaxHealth()
 {
     UnitMods unitMod = UNIT_MOD_HEALTH;
 
-    float pctFromOwnerHealth = 0.0f;
-    float health = 1.0f; // indicates missing data
+    float health = GetMaxHealth();
     float value = 0.0f;
+    float pctFromOwnerHealth = 0.0f;
 
     PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
 
@@ -1169,11 +1173,12 @@ void Guardian::UpdateMaxHealth()
 
     if (pctFromOwnerHealth)
         health = CalculatePct(m_owner->GetMaxHealth(), pctFromOwnerHealth);
-    else
-        TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) has no pctFromOwnerHealth defined. Health set to 1.",
-            GetGUID().ToString().c_str(), GetEntry());
 
-    value = GetModifierValue(unitMod, BASE_VALUE) + health;
+    // Pets do not have static base values
+    if (!(GetModifierValue(unitMod, BASE_VALUE) == health))
+        SetModifierValue(unitMod, BASE_VALUE, health);
+
+    value += GetModifierValue(unitMod, BASE_VALUE);
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
