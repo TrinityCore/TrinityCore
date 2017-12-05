@@ -808,7 +808,28 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     SetLevel(petlevel);
 
     //Determine pet type
-    PetType petType = IsHunterPet() ? HUNTER_PET : SUMMON_PET;
+    PetType petType = MAX_PET_TYPE;
+    if (IsPet() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (GetOwner()->getClass() == CLASS_WARLOCK
+            || GetOwner()->getClass() == CLASS_SHAMAN        // Fire Elemental
+            || GetOwner()->getClass() == CLASS_DEATH_KNIGHT) // Risen Ghoul
+        {
+            petType = SUMMON_PET;
+        }
+        else if (GetOwner()->getClass() == CLASS_HUNTER)
+        {
+            petType = HUNTER_PET;
+            m_unitTypeMask |= UNIT_MASK_HUNTER_PET;
+        }
+        else
+        {
+            TC_LOG_ERROR("entities.pet", "Unknown type pet %u is summoned by player class %u",
+                           GetEntry(), GetOwner()->getClass());
+        }
+    }
+
+    uint32 creature_ID = (petType == HUNTER_PET) ? 1 : cinfo->Entry;
 
     SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
 
@@ -828,7 +849,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     //scale
     CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family);
-    if (cFamily && cFamily->MinScale > 0.0f && IsHunterPet())
+    if (cFamily && cFamily->MinScale > 0.0f && petType == HUNTER_PET)
     {
         float scale;
         if (getLevel() >= cFamily->MaxScaleLevel)
@@ -845,7 +866,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
 
-    if (IsHunterPet())
+    if (petType == HUNTER_PET)
     {
         SetMaxHealth(CalculatePct(m_owner->GetMaxHealth(), 70.f));
         SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, CalculatePct(m_owner->GetArmor(), 170.f));
