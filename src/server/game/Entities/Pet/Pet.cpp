@@ -829,8 +829,6 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         }
     }
 
-    uint32 creature_ID = (petType == HUNTER_PET) ? 1 : cinfo->Entry;
-
     SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
 
     SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, stats->BaseArmor);
