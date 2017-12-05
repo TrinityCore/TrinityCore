@@ -48,6 +48,7 @@ public:
             { "auras",    rbac::RBAC_PERM_COMMAND_LIST_AURAS,   false, &HandleListAurasCommand,    "" },
             { "mail",     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     true, &HandleListMailCommand,     "" },
             { "scenes",   rbac::RBAC_PERM_COMMAND_LIST_SCENES,  false, &HandleListScenesCommand,   "" },
+            { "quests",   rbac::RBAC_PERM_COMMAND_LIST_QUESTS,  false, &HandleListQuestsCommand,   "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -606,6 +607,27 @@ public:
         for (auto instanceByPackage : instanceByPackageMap)
             handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_DETAIL, instanceByPackage.second.ScenePackageId, instanceByPackage.first);
 
+        return true;
+    }
+
+    static bool HandleListQuestsCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* target = handler->getSelectedPlayerOrSelf();
+
+        uint32 activeQuestCount = 0;
+        for (uint16 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+        {
+            uint32 questId = target->GetQuestSlotQuestId(i);
+
+            if (questId == 0)
+                continue;
+
+            ++activeQuestCount;
+            QuestStatus status = target->GetQuestStatus(questId);
+            handler->PSendSysMessage(LANG_LIST_QUESTS_DETAIL, questId, target->GetQuestStatusString(status).c_str());
+        }
+
+        handler->PSendSysMessage(LANG_LIST_QUESTS, activeQuestCount);
         return true;
     }
 };
