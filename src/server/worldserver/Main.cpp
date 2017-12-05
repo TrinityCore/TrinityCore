@@ -364,9 +364,10 @@ extern int main(int argc, char** argv)
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
 
 #ifdef WITH_CPR
+    std::shared_ptr<WorldToDiscord> worldToDiscord;
     if (sConfigMgr->GetBoolDefault("WorldToDiscord.Enabled", false))
     {
-        std::shared_ptr<WorldToDiscord> worldToDiscord = std::make_shared<WorldToDiscord>(*ioService);
+        worldToDiscord = std::make_shared<WorldToDiscord>(*ioService);
         WorldToDiscord::Start(worldToDiscord);
         TC_LOG_INFO("server.worldserver", "Starting up world to discord thread...");
     }
