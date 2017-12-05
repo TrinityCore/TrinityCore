@@ -41,7 +41,6 @@ if(SERVERS)
   add_subdirectory(protobuf)
 
   if (WITH_CPR)
-    add_definitions(-DWITH_CPR)
     add_subdirectory(cpr)
   endif(WITH_CPR)
 endif()
