@@ -47,7 +47,7 @@ endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
-if (WITH_PCR)
+if (WITH_CPR)
     target_link_libraries(worldserver
       PUBLIC
         scripts
@@ -68,7 +68,7 @@ CollectIncludeDirectories(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-if (WITH_PCR)
+if (WITH_CPR)
     target_include_directories(worldserver
       PUBLIC
         ${PUBLIC_INCLUDES}
