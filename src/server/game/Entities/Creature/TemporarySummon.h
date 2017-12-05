@@ -75,7 +75,6 @@ class TC_GAME_API Guardian : public Minion
         bool InitStatsForLevel(uint8 level);
         void InitSummon() override;
 
-        bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;
         void UpdateResistances(uint32 school) override;
         void UpdateArmor() override;
