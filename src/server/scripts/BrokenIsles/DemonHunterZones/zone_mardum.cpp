@@ -32,7 +32,8 @@ enum eQuests
     QUEST_ASHTONGUE_FORCES      = 40378,
     QUEST_COILSKAR_FORCES       = 40379,
     QUEST_MEETING_WITH_QUEEN    = 39050,
-    QUEST_SHIVARRA_FORCES       = 38765
+    QUEST_SHIVARRA_FORCES       = 38765,
+    QUEST_BEFORE_OVERRUN        = 38766
 };
 
 enum eScenes
@@ -42,7 +43,7 @@ enum eScenes
     SPELL_SCENE_MARDUM_ASHTONGUE_FORCES = 189261,
     SPELL_SCENE_MARDUM_COILSKAR_FORCES  = 190793,
     SPELL_SCENE_MEETING_WITH_QUEEN      = 188539,
-    SPELL_SCENE_MARDUM_SHIVARRA_FORCES  = 190793,
+    SPELL_SCENE_MARDUM_SHIVARRA_FORCES  = 190851,
 };
 
 enum ePhaseSpells
@@ -64,7 +65,6 @@ enum ePhaseSpells
 enum ePhases
 {
     SPELL_PHASE_MARDUM_WELCOME      = SPELL_PHASE_170,
-    SPELL_PHASE_MARDUM_AFTER_BANNER = SPELL_PHASE_171,
     SPELL_PHASE_MARDUM_FELSABBER    = SPELL_PHASE_172,
 };
 
@@ -140,17 +140,6 @@ public:
     }
 };
 
-class scene_mardum_change_legion_banner : public SceneScript
-{
-public:
-    scene_mardum_change_legion_banner() : SceneScript("scene_mardum_change_legion_banner") { }
-
-    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
-    {
-        player->AddAura(SPELL_PHASE_MARDUM_AFTER_BANNER);
-    }
-};
-
 class go_mardum_portal_ashtongue : public GameObjectScript
 {
 public:
@@ -202,7 +191,7 @@ public:
             GetCaster()->RemoveAurasDueToSpell(SPELL_PHASE_MARDUM_FELSABBER);
 
             // We schedule this to let hover animation pass
-            GetCaster()->GetScheduler().Schedule(Seconds(1), [](TaskContext context)
+            GetCaster()->GetScheduler().Schedule(Milliseconds(900), [](TaskContext context)
             {
                 Unit* contextUnit = context.GetContextUnit();
                 contextUnit->CastSpell(contextUnit, 200175, true); // Felsaber mount
@@ -218,6 +207,31 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_learn_felsaber_SpellScript();
+    }
+};
+
+// 94410 - Allari the Souleater
+class npc_mardum_allari : public CreatureScript
+{
+public:
+    npc_mardum_allari() : CreatureScript("npc_mardum_allari") { }
+
+    struct npc_mardum_allariAI : public ScriptedAI
+    {
+        npc_mardum_allariAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void MoveInLineOfSight(Unit* unit) override
+        {
+            if (Player* player = unit->ToPlayer())
+                if (player->GetDistance(me) < 5.0f)
+                    if (!player->GetQuestObjectiveData(QUEST_ASHTONGUE_FORCES, 2))
+                        player->KilledMonsterCredit(me->GetEntry());
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_mardum_allariAI(creature);
     }
 };
 
@@ -476,7 +490,7 @@ public:
 
             for (Player* player : players)
             {
-                player->KilledMonsterCredit(106003);
+                player->CompleteQuest(QUEST_BEFORE_OVERRUN);
 
                 if (!player->HasSpell(SPELL_LEARN_CONSUME_MAGIC))
                     player->CastSpell(player, SPELL_LEARN_CONSUME_MAGIC);
@@ -490,6 +504,32 @@ public:
     }
 };
 
+// 99915 - Sevis Brightflame
+class npc_mardum_sevis_brightflame_shivarra : public CreatureScript
+{
+public:
+    npc_mardum_sevis_brightflame_shivarra() : CreatureScript("npc_mardum_sevis_brightflame_shivarra") { }
+
+    struct npc_mardum_sevis_brightflame_shivarraAI : public ScriptedAI
+    {
+        npc_mardum_sevis_brightflame_shivarraAI(Creature* creature) : ScriptedAI(creature) { }
+
+        // TEMP FIX, will need gossip
+        void MoveInLineOfSight(Unit* unit) override
+        {
+            if (Player* player = unit->ToPlayer())
+                if (player->GetDistance(me) < 5.0f)
+                    if (!player->GetQuestObjectiveData(QUEST_SHIVARRA_FORCES, 0))
+                        player->KilledMonsterCredit(me->GetEntry());
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_mardum_sevis_brightflame_shivarraAI(creature);
+    }
+};
+
 class go_mardum_portal_shivarra : public GameObjectScript
 {
 public:
@@ -497,7 +537,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
-        if (!player->HasQuest(QUEST_SHIVARRA_FORCES))
+        if (player->GetQuestObjectiveData(QUEST_SHIVARRA_FORCES, 0))
         {
             player->CompleteQuest(QUEST_SHIVARRA_FORCES);
             player->CastSpell(player, SPELL_SCENE_MARDUM_SHIVARRA_FORCES, true);
@@ -507,16 +547,52 @@ public:
     }
 };
 
+class npc_mardum_captain : public CreatureScript
+{
+public:
+    npc_mardum_captain() : CreatureScript("npc_mardum_captain") { }
+
+    enum
+    {
+        NPC_ASHTONGUE_CAPTAIN   = 90247,
+        NPC_COILSKAR_CAPTAIN    = 93693,
+        NPC_SHIVARRA_CAPTAIN    = 94435,
+
+        SCENE_ASHTONGUE         = 191315,
+        SCENE_COILSKAR          = 191400,
+        SCENE_SHIVARRA          = 191402
+    };
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    {
+        player->KilledMonsterCredit(creature->GetEntry());
+
+        uint32 sceneSpellId = 0;
+        switch (creature->GetEntry())
+        {
+            case NPC_ASHTONGUE_CAPTAIN: sceneSpellId = SCENE_ASHTONGUE; break;
+            case NPC_COILSKAR_CAPTAIN:  sceneSpellId = SCENE_COILSKAR;  break;
+            case NPC_SHIVARRA_CAPTAIN:  sceneSpellId = SCENE_SHIVARRA;  break;
+            default: break;
+        }
+
+        if (sceneSpellId)
+            player->CastSpell(player, sceneSpellId, true);
+
+        return true;
+    }
+};
+
 void AddSC_mardum()
 {
     new PlayerScript_mardum_welcome_scene_trigger();
     new scene_mardum_welcome();
     new npc_kayn_sunfury_welcome();
     new go_mardum_legion_banner_1();
-    new scene_mardum_change_legion_banner();
     new go_mardum_portal_ashtongue();
     new scene_mardum_welcome_ashtongue();
     new spell_learn_felsaber();
+    new npc_mardum_allari();
     new go_mardum_cage("go_mardum_cage_belath",     94400);
     new go_mardum_cage("go_mardum_cage_cyana",      94377);
     new go_mardum_cage("go_mardum_cage_izal",       93117);
@@ -528,5 +604,7 @@ void AddSC_mardum()
     new go_meeting_with_queen_ritual();
     new scene_mardum_meeting_with_queen();
     new npc_mardum_doom_commander_beliash();
+    new npc_mardum_sevis_brightflame_shivarra();
     new go_mardum_portal_shivarra();
+    new npc_mardum_captain();
 }
