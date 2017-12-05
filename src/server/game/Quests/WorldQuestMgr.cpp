@@ -227,7 +227,8 @@ void WorldQuestMgr::ActivateQuest(WorldQuestTemplate* quest, bool create /* = fl
             SessionMap const& smap = sWorld->GetAllSessions();
             for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
                 if (Player* player = iter->second->GetPlayer())
-                    player->AddQuest(quest_template, nullptr);
+                    if (player->HasWorldQuestEnabled())
+                        player->AddQuest(quest_template, nullptr);
         }
 
         quest->active = true;
@@ -365,7 +366,7 @@ void WorldQuestMgr::RefreshEmissaryQuests()
 
 void WorldQuestMgr::AddEmissaryQuestOnPlayerIfNeeded(Player* player)
 {
-    if (player->GetQuestStatus(43341) != QUEST_STATUS_REWARDED)
+    if (!player->HasWorldQuestEnabled())
         return;
 
     for (auto temp : _emissaryQuests)
