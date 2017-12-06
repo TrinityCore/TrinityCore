@@ -64,8 +64,12 @@ enum ePhaseSpells
 
 enum ePhases
 {
-    SPELL_PHASE_MARDUM_WELCOME      = SPELL_PHASE_170,
-    SPELL_PHASE_MARDUM_FELSABBER    = SPELL_PHASE_172,
+    SPELL_PHASE_MARDUM_WELCOME              = SPELL_PHASE_170,
+    SPELL_PHASE_MARDUM_FELSABBER            = SPELL_PHASE_172,
+
+    SPELL_PHASE_ILLIDARI_OUTPOST_ASHTONGUE  = SPELL_PHASE_175,
+    SPELL_PHASE_ILLIDARI_OUTPOST_COILSKAR   = SPELL_PHASE_176,
+    SPELL_PHASE_ILLIDARI_OUTPOST_SHIVARRA   = SPELL_PHASE_177
 };
 
 class PlayerScript_mardum_welcome_scene_trigger : public PlayerScript
@@ -547,6 +551,7 @@ public:
     }
 };
 
+// 90247, 93693, 94435
 class npc_mardum_captain : public CreatureScript
 {
 public:
@@ -568,18 +573,85 @@ public:
         player->KilledMonsterCredit(creature->GetEntry());
 
         uint32 sceneSpellId = 0;
+        uint32 phaseSpellId = 0;
         switch (creature->GetEntry())
         {
-            case NPC_ASHTONGUE_CAPTAIN: sceneSpellId = SCENE_ASHTONGUE; break;
-            case NPC_COILSKAR_CAPTAIN:  sceneSpellId = SCENE_COILSKAR;  break;
-            case NPC_SHIVARRA_CAPTAIN:  sceneSpellId = SCENE_SHIVARRA;  break;
+            case NPC_ASHTONGUE_CAPTAIN: sceneSpellId = SCENE_ASHTONGUE; phaseSpellId = SPELL_PHASE_ILLIDARI_OUTPOST_ASHTONGUE;  break;
+            case NPC_COILSKAR_CAPTAIN:  sceneSpellId = SCENE_COILSKAR;  phaseSpellId = SPELL_PHASE_ILLIDARI_OUTPOST_COILSKAR;   break;
+            case NPC_SHIVARRA_CAPTAIN:  sceneSpellId = SCENE_SHIVARRA;  phaseSpellId = SPELL_PHASE_ILLIDARI_OUTPOST_SHIVARRA;   break;
             default: break;
         }
 
         if (sceneSpellId)
             player->CastSpell(player, sceneSpellId, true);
 
+        if (phaseSpellId)
+            player->RemoveAurasDueToSpell(phaseSpellId);
+
+        player->GetScheduler().Schedule(Seconds(5), [player, creature](TaskContext context)
+        {
+            creature->DestroyForPlayer(player);
+        });
         return true;
+    }
+};
+
+// 96436
+class npc_mardum_jace_darkweaver : public CreatureScript
+{
+public:
+    npc_mardum_jace_darkweaver() : CreatureScript("npc_mardum_jace_darkweaver") { }
+
+    enum
+    {
+        GOB_CAVERN_STONES = 245045
+    };
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    {
+        player->KilledMonsterCredit(creature->GetEntry());
+        return true;
+    }
+
+    bool OnQuestReward(Player* player, Creature* creature, Quest const* /*quest*/, uint32 /*item*/) override
+    {
+        if (GameObject* cavernStone = GetClosestGameObjectWithEntry(creature, GOB_CAVERN_STONES, 50.0))
+            if (GameObject* personnalCavernStone = player->SummonGameObject(GOB_CAVERN_STONES, cavernStone->GetPosition(), QuaternionData(), 0, true))
+                personnalCavernStone->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
+                {
+                    context.GetContextGameObject()->SetLootState(GO_READY);
+                    context.GetContextGameObject()->UseDoorOrButton(10000);
+                });
+
+        return true;
+    }
+};
+
+// 188501 spectral sight
+class spell_mardum_spectral_sight : public SpellScriptLoader
+{
+public:
+    spell_mardum_spectral_sight() : SpellScriptLoader("spell_mardum_spectral_sight") { }
+
+    class spell_mardum_spectral_sight_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mardum_spectral_sight_SpellScript);
+
+        void HandleOnCast()
+        {
+            if (GetCaster()->IsPlayer() && GetCaster()->GetAreaId() == 7754)
+                GetCaster()->ToPlayer()->KilledMonsterCredit(96437);
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_mardum_spectral_sight_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mardum_spectral_sight_SpellScript();
     }
 };
 
@@ -607,4 +679,6 @@ void AddSC_mardum()
     new npc_mardum_sevis_brightflame_shivarra();
     new go_mardum_portal_shivarra();
     new npc_mardum_captain();
+    new npc_mardum_jace_darkweaver();
+    new spell_mardum_spectral_sight();
 }
