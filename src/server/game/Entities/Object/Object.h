@@ -431,6 +431,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         std::set<uint32> const& GetWorldMapAreaSwaps() const { return _worldMapAreaSwaps; }
         int32 GetDBPhase() const { return _dbPhase; }
 
+        void SetVisibleBySummonerOnly(bool visibleBySummonerOnly) { m_visibleBySummonerOnly = visibleBySummonerOnly; }
+        bool IsVisibleBySummonerOnly() const { return m_visibleBySummonerOnly; }
+
         // if negative it is used as PhaseGroupId
         void SetDBPhase(int32 p) { _dbPhase = p; }
 
@@ -520,8 +523,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         TempSummon* SummonCreature(uint32 id, Position const& pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0, bool visibleBySummonerOnly = false) const;
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, bool visibleBySummonerOnly = false) const;
-        GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime /* s */);
-        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime /* s */);
+        GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime /* s */, bool visibleBySummonerOnly = false);
+        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime /* s */, bool visibleBySummonerOnly = false);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
 
@@ -625,6 +628,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         std::set<uint32> _terrainSwaps;
         std::set<uint32> _worldMapAreaSwaps;
         int32 _dbPhase;
+        bool m_visibleBySummonerOnly;
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;
