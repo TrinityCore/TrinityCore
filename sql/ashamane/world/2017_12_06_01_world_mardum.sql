@@ -1,0 +1,66 @@
+UPDATE creature_template SET scriptname = "npc_mardum_jace_darkweaver" WHERE entry = 96436;
+
+DELETE FROM spell_script_names WHERE spell_id = 188501 AND scriptname = "spell_mardum_spectral_sight";
+INSERT INTO spell_script_names VALUES (188501, "spell_mardum_spectral_sight");
+
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541632;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541629;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541626;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541633;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541634;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541630;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541628;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541631;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541631;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541642;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541640;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541624;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541641;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541644;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541627;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541637;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541638;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541649;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541639;
+UPDATE creature SET PhaseId = 175 WHERE guid = 20541645;
+
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541550;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541579;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541553;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541573;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541572;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541557;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541554;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541560;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541575;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541556;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541570;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541581;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541558;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541555;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541580;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541567;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541551;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541546;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541569;
+UPDATE creature SET PhaseId = 176 WHERE guid = 20541559;
+
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541621;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541611;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541616;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541620;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541609;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541622;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541612;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541605;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541599;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541597;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541600;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541604;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541591;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541613;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541595;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541590;
+UPDATE creature SET PhaseId = 177 WHERE guid = 20541593;
+
+UPDATE gameobject SET PhaseID = 179 WHERE guid = 20372944;

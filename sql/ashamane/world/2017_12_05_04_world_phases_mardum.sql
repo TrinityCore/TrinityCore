@@ -30,6 +30,13 @@ SET @PHASE_188  = 69486;
 SET @PHASE_189  = 70695;
 
 SET @QUEST_INVASTION_BEGIN      = 40077;
+SET @QUEST_ASHTONGUE_FORCES     = 40378;
+SET @QUEST_COILSKAR_FORCES      = 40379;
+SET @QUEST_MEETING_WITH_QUEEN   = 39050;
+SET @QUEST_SHIVARRA_FORCES      = 38765;
+SET @QUEST_BEFORE_OVERRUN       = 38766;
+SET @QUEST_ORDER_FOR_CAPTAINS   = 38813;
+SET @QUEST_SIGHT_BEYOND_SIGHT   = 39262;
 
 SET @ZONE_MARDUM                = 7705;
 SET @AREA_TWISTING_NETHER       = 7826;
@@ -50,7 +57,11 @@ DELETE FROM spell_area WHERE area IN (@ZONE_MARDUM, @AREA_TWISTING_NETHER, @AREA
 
 INSERT INTO spell_area (spell, area, quest_start, quest_end, quest_start_status, quest_end_status) VALUES
 (@PHASE_169,        @ZONE_MARDUM,           0,                                      0,                                      0,                                  0                                   ),
-(@PHASE_171,        @ZONE_MARDUM,           @QUEST_INVASTION_BEGIN,                 0,                                      @QUEST_STATUS_COMPLETED_REWARDED,   0                                   );
+(@PHASE_171,        @ZONE_MARDUM,           @QUEST_INVASTION_BEGIN,                 0,                                      @QUEST_STATUS_COMPLETED_REWARDED,   0                                   ),
+(@PHASE_175,        @AREA_ILLIDARI_OUTPOST, @QUEST_ASHTONGUE_FORCES,                @QUEST_ORDER_FOR_CAPTAINS,              @QUEST_STATUS_COMPLETED_REWARDED,   @QUEST_STATUS_COMPLETED_REWARDED    ),
+(@PHASE_176,        @AREA_ILLIDARI_OUTPOST, @QUEST_COILSKAR_FORCES,                 @QUEST_ORDER_FOR_CAPTAINS,              @QUEST_STATUS_COMPLETED_REWARDED,   @QUEST_STATUS_COMPLETED_REWARDED    ),
+(@PHASE_177,        @AREA_ILLIDARI_OUTPOST, @QUEST_SHIVARRA_FORCES,                 @QUEST_ORDER_FOR_CAPTAINS,              @QUEST_STATUS_COMPLETED_REWARDED,   @QUEST_STATUS_COMPLETED_REWARDED    ),
+(@PHASE_179,        @AREA_CRYPTIC_HOLLOW,   0,                                      @QUEST_SIGHT_BEYOND_SIGHT,              0,                                  @QUEST_STATUS_REWARDED              );
 
 UPDATE spell_area SET autocast = 1 WHERE area IN (@ZONE_MARDUM, @AREA_TWISTING_NETHER, @AREA_DESPAIR_RIDGE, @AREA_MOLTEN_SHORE, @AREA_COMMAND_HEADQUARTERS, @AREA_INFERNO_PEAK,
                                                   @AREA_ILLIDARI_OUTPOST, @AREA_CRYPTIC_HOLLOW, @AREA_DOOM_FORTRESS, @AREA_CORRUPTION_FORGE, @AREA_FOUL_CRECHE, @AREA_SOUL_ENGINE, @AREA_FEL_HAMMER);
