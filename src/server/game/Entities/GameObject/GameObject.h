@@ -25,6 +25,7 @@
 #include "Loot.h"
 #include "MapObject.h"
 #include "SharedDefines.h"
+#include "TaskScheduler.h"
 
 class GameObjectAI;
 class GameObjectModel;
@@ -301,6 +302,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void setShouldIntersectWithAllPhases(bool value) { m_shouldIntersectWithAllPhases = value; }
         bool shouldIntersectWithAllPhases() const { return m_shouldIntersectWithAllPhases; }
 
+        TaskScheduler& GetScheduler() { return _scheduler; }
+
     protected:
         GameObjectModel* CreateModel();
         void UpdateModel();                                 // updates model in case displayId were changed
@@ -356,5 +359,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectAI* m_AI;
         uint16 _animKitId;
         uint32 _worldEffectID;
+
+        TaskScheduler _scheduler;
 };
 #endif

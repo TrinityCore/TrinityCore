@@ -31,6 +31,7 @@
 
 class TaskContext;
 class Unit;
+class GameObject;
 
 /// The TaskScheduler class provides the ability to schedule std::function's in the near future.
 /// Use TaskScheduler::Update to update the scheduler.
@@ -180,18 +181,25 @@ class TC_COMMON_API TaskScheduler
 
 public:
     TaskScheduler()
-        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(EmptyValidator), _schedulerUnit(nullptr) { }
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(EmptyValidator), _schedulerUnit(nullptr), _schedulerGob(nullptr) { }
 
     template<typename P>
     TaskScheduler(P&& predicate)
-        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(std::forward<P>(predicate)), _schedulerUnit(nullptr) { }
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(std::forward<P>(predicate)), _schedulerUnit(nullptr), _schedulerGob(nullptr) { }
 
     TaskScheduler(Unit* unit)
-        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(EmptyValidator), _schedulerUnit(unit) { }
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(EmptyValidator), _schedulerUnit(unit), _schedulerGob(nullptr) { }
+
+    TaskScheduler(GameObject* gob)
+        : self_reference(this, [](TaskScheduler const*) {}), _now(clock_t::now()), _predicate(EmptyValidator), _schedulerUnit(nullptr), _schedulerGob(gob) { }
 
     template<typename P>
     TaskScheduler(Unit* unit, P&& predicate)
-        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(std::forward<P>(predicate)), _schedulerUnit(unit) { }
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(std::forward<P>(predicate)), _schedulerUnit(unit), _schedulerGob(nullptr) { }
+
+    template<typename P>
+    TaskScheduler(GameObject* gob, P&& predicate)
+        : self_reference(this, [](TaskScheduler const*) {}), _now(clock_t::now()), _predicate(std::forward<P>(predicate)), _schedulerUnit(nullptr), _schedulerGob(gob) { }
 
     TaskScheduler(TaskScheduler const&) = delete;
     TaskScheduler(TaskScheduler&&) = delete;
@@ -398,6 +406,9 @@ public:
     /// Allow to retrieve Unit currently updating TaskScheduler
     Unit* GetSchedulerUnit() const { return _schedulerUnit; }
 
+    /// Allow to retrieve GameObject currently updating TaskScheduler
+    GameObject* GetSchedulerGameObject() const { return _schedulerGob; }
+
 private:
     /// Insert a new task to the enqueued tasks.
     TaskScheduler& InsertTask(TaskContainer task);
@@ -437,6 +448,7 @@ private:
     void Dispatch(success_t const& callback);
 
     Unit* _schedulerUnit;
+    GameObject* _schedulerGob;
 };
 
 class TC_COMMON_API TaskContext
@@ -458,19 +470,22 @@ class TC_COMMON_API TaskContext
 public:
     // Empty constructor
     TaskContext()
-        : _task(), _owner(), _consumed(std::make_shared<bool>(true)), _contextUnit(nullptr) { }
+        : _task(), _owner(), _consumed(std::make_shared<bool>(true)), _contextUnit(nullptr), _contextGob(nullptr) { }
 
     // Construct from task and owner
-    explicit TaskContext(TaskScheduler::TaskContainer&& task, std::weak_ptr<TaskScheduler>&& owner, Unit* schedulerUnit)
-        : _task(task), _owner(owner), _consumed(std::make_shared<bool>(false)), _contextUnit(schedulerUnit) { }
+    explicit TaskContext(TaskScheduler::TaskContainer&& task, std::weak_ptr<TaskScheduler>&& owner, Unit* schedulerUnit, GameObject* schedulerGob)
+        : _task(task), _owner(owner), _consumed(std::make_shared<bool>(false)),
+            _contextUnit(schedulerUnit), _contextGob(schedulerGob) { }
 
     // Copy construct
     TaskContext(TaskContext const& right)
-        : _task(right._task), _owner(right._owner), _consumed(right._consumed), _contextUnit(right._contextUnit) { }
+        : _task(right._task), _owner(right._owner), _consumed(right._consumed),
+            _contextUnit(right._contextUnit), _contextGob(right._contextGob) { }
 
     // Move construct
     TaskContext(TaskContext&& right)
-        : _task(std::move(right._task)), _owner(std::move(right._owner)), _consumed(std::move(right._consumed)), _contextUnit(std::move(right._contextUnit)) { }
+        : _task(std::move(right._task)), _owner(std::move(right._owner)), _consumed(std::move(right._consumed)),
+            _contextUnit(std::move(right._contextUnit)), _contextGob(std::move(right._contextGob)) { }
 
     // Copy assign
     TaskContext& operator= (TaskContext const& right)
@@ -479,6 +494,7 @@ public:
         _owner = right._owner;
         _consumed = right._consumed;
         _contextUnit = right._contextUnit;
+        _contextGob = right._contextGob;
         return *this;
     }
 
@@ -489,6 +505,7 @@ public:
         _owner = std::move(right._owner);
         _consumed = std::move(right._consumed);
         _contextUnit = std::move(right._contextUnit);
+        _contextGob = std::move(right._contextGob);
         return *this;
     }
 
@@ -675,6 +692,9 @@ public:
     /// Allow to retrieve Unit currently updating TaskScheduler
     Unit* GetContextUnit() const { return _contextUnit; }
 
+    /// Allow to retrieve GameObject currently updating TaskScheduler
+    GameObject* GetContextGameObject() const { return _contextGob; }
+
 private:
     /// Asserts if the task was consumed already.
     void AssertOnConsumed() const;
@@ -683,6 +703,7 @@ private:
     void Invoke();
 
     Unit* _contextUnit;
+    GameObject* _contextGob;
 };
 
 #endif /// _TASK_SCHEDULER_H_
