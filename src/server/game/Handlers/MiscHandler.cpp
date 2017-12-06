@@ -1233,7 +1233,6 @@ void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::Adventure
                 if (_player->CanTakeQuest(quest, true))
                     if (WorldSession* session = _player->GetSession())
                     {
-                        _player->SetDivider(_player->GetGUID());
                         PlayerMenu menu(session);
                         menu.SendQuestGiverQuestDetails(quest, _player->GetGUID(), true, false);
                     }
