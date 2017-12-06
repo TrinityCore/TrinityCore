@@ -55,7 +55,8 @@ QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0), _worldEffectID(0)
+    m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0),
+    _worldEffectID(0), _scheduler(this)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -132,6 +133,7 @@ void GameObject::CleanupsBeforeDelete(bool finalCleanup)
         RemoveFromOwner();
 
     m_Events.KillAllEvents(false);
+    _scheduler.CancelAll();
 }
 
 void GameObject::RemoveFromOwner()
@@ -400,6 +402,7 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 phaseMask, Position con
 void GameObject::Update(uint32 diff)
 {
     m_Events.Update(diff);
+    _scheduler.Update(diff);
 
     if (AI())
         AI()->UpdateAI(diff);
