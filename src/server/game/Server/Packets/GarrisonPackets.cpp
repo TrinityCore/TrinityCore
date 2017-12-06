@@ -410,8 +410,3 @@ WorldPacket const* WorldPackets::Garrison::GarrisonScoutingMapResult::Write()
 
     return &_worldPacket;
 }
-
-void WorldPackets::Garrison::AdventureJournalStartQuest::Read()
-{
-    _worldPacket >> QuestID;
-}
