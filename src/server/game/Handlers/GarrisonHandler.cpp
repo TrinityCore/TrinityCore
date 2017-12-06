@@ -91,10 +91,3 @@ void WorldSession::HandleGarrisonRequestScoutingMap(WorldPackets::Garrison::Garr
     result.Active = true;
     SendPacket(result.Write());
 }
-
-void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Garrison::AdventureJournalStartQuest& packet)
-{
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
-        if (!_player->hasQuest(packet.QuestID))
-            _player->AddQuest(quest, nullptr);
-}

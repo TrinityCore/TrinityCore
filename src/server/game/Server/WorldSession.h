@@ -298,7 +298,6 @@ namespace WorldPackets
         class GarrisonOpenMissionNpc;
         class GarrisonRequestScoutingMap;
         class GarrisonScoutingMapResult;
-        class AdventureJournalStartQuest;
     }
 
     namespace Guild
@@ -474,6 +473,8 @@ namespace WorldPackets
         class MountSetFavorite;
         class PvpPrestigeRankUp;
         class CloseInteraction;
+        class AdventureJournalOpenQuest;
+        class AdventureJournalStartQuest;
     }
 
     namespace Movement
@@ -1664,6 +1665,8 @@ class TC_GAME_API WorldSession
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
         void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
+        void HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& packet);
+        void HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& packet);
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);
@@ -1692,7 +1695,6 @@ class TC_GAME_API WorldSession
         void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& garrisonGetBuildingLandmarks);
         void HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpcClient& garrisonOpenMissionNpc);
         void HandleGarrisonRequestScoutingMap(WorldPackets::Garrison::GarrisonRequestScoutingMap& scoutingMap);
-        void HandleAdventureJournalStartQuest(WorldPackets::Garrison::AdventureJournalStartQuest& packet);
 
         // Battle Pets
         void HandleBattlePetRequestJournal(WorldPackets::BattlePet::BattlePetRequestJournal& battlePetRequestJournal);

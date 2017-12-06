@@ -36,6 +36,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "CriteriaTree, Faction, Points, MinimumCriteria, ID, IconFileDataID FROM achievement ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ACHIEVEMENT, "SELECT ID, Title_lang, Description_lang, Reward_lang FROM achievement_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // AdventureJournal.db2
+    PrepareStatement(HOTFIX_SEL_ADVENTURE_JOURNAL, "SELECT ID, Title, Description, ButtonText, Unk1, Unk2, Unk3, ObjectiveText, Unk4, QuestID, Unk5_1, Unk5_2, Unk6, Unk7, Unk8, Unk9, "
+        "Unk10, Unk11, Unk12, Unk13, Unk14_1, Unk14_2, Unk15, Unk16, Unk17 FROM adventure_journal ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ADVENTURE_JOURNAL, "SELECT ID, Title_lang, Description_lang, ButtonText_lang, Unk3_lang, ObjectiveText_lang FROM adventure_journal_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // AnimKit.db2
     PrepareStatement(HOTFIX_SEL_ANIM_KIT, "SELECT ID, OneShotDuration, OneShotStopAnimKitID, LowDefAnimKitID FROM anim_kit ORDER BY ID DESC", CONNECTION_SYNCH);
 

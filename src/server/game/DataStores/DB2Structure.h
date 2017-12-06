@@ -45,6 +45,33 @@ struct AchievementEntry
     uint32 IconFileDataID;
 };
 
+struct AdventureJournalEntry
+{
+    uint32 ID;
+    LocalizedString* Title;
+    LocalizedString* Description;
+    LocalizedString* ButtonText;
+    uint32 Unk1;
+    uint32 Unk2;
+    LocalizedString* Unk3;
+    LocalizedString* ObjectiveText;
+    uint16 Unk4;
+    uint16 QuestID;
+    uint16 Unk5[2];
+    uint16 Unk6;
+    uint16 Unk7;
+    uint16 Unk8;
+    uint8 Unk9;
+    uint8 Unk10;
+    uint8 Unk11;
+    uint8 Unk12;
+    uint8 Unk13;
+    uint8 Unk14[2];
+    uint8 Unk15;
+    uint32 Unk16;
+    uint32 Unk17;
+};
+
 struct AnimKitEntry
 {
     uint32 ID;
