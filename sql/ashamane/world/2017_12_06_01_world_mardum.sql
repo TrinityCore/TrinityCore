@@ -64,3 +64,7 @@ UPDATE creature SET PhaseId = 177 WHERE guid = 20541590;
 UPDATE creature SET PhaseId = 177 WHERE guid = 20541593;
 
 UPDATE gameobject SET PhaseID = 179 WHERE guid = 20372944;
+UPDATE creature SET PhaseId = 179 WHERE guid = 20541698;
+UPDATE creature SET PhaseId = 179 WHERE guid = 20541696;
+UPDATE creature SET PhaseId = 179 WHERE guid = 20541697;
+UPDATE creature SET PhaseId = 179 WHERE guid = 20541695;
