@@ -32,6 +32,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum MageSpells
 {
@@ -68,6 +69,7 @@ enum MageSpells
     SPELL_MAGE_ARCANE_MISSILES_PROC              = 79684,
     SPELL_MAGE_ARCANE_MISSILES_POWER             = 208030,
     SPELL_MAGE_ARCANE_MISSILES_TRIGGER           = 7268,
+    SPELL_MAGE_ARCANE_MISSILES_VISUAL            = 79808,
     SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091,
     SPELL_MAGE_CAUTERIZE                         = 87023,
     SPELL_MAGE_MIRROR_IMAGE_LEFT                 = 58834,
@@ -380,6 +382,34 @@ public:
     }
 };
 
+// Arcane Missiles Damage - 7268
+class spell_mage_arcane_missiles_damage : public SpellScriptLoader
+{
+public:
+    spell_mage_arcane_missiles_damage() : SpellScriptLoader("spell_mage_arcane_missiles_damage") {}
+
+    class spell_mage_arcane_missiles_damage_SpellScript :public SpellScript
+    {
+        PrepareSpellScript(spell_mage_arcane_missiles_damage_SpellScript);
+
+        void CheckTarget(WorldObject*& target)
+        {
+            if (target == GetCaster())
+                target = nullptr;
+        }
+
+        void Register() override
+        {
+            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_mage_arcane_missiles_damage_SpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_CHANNEL_TARGET);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mage_arcane_missiles_damage_SpellScript();
+    }
+};
+
 // Arcane Missiles Proc - 79684
 class spell_mage_arcane_missiles_proc : public SpellScriptLoader
 {
@@ -407,6 +437,39 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_mage_arcane_missiles_proc_AuraScript();
+    }
+};
+
+// Arcane Missiles charges - 79683
+class spell_mage_arcane_missiles_charges : public SpellScriptLoader
+{
+public:
+    spell_mage_arcane_missiles_charges() : SpellScriptLoader("spell_mage_arcane_missiles_charges") {}
+
+    class spell_mage_arcane_missiles_charges_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_arcane_missiles_charges_AuraScript);
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_ARCANE_MISSILES_VISUAL, true);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_ARCANE_MISSILES_VISUAL);
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_mage_arcane_missiles_charges_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles_charges_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_arcane_missiles_charges_AuraScript();
     }
 };
 
@@ -1857,7 +1920,7 @@ public:
             if (!caster)
                 return;
 
-            if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
@@ -1873,7 +1936,7 @@ public:
             if (!caster)
                 return;
 
-            if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
@@ -2168,7 +2231,9 @@ void AddSC_mage_spell_scripts()
     new spell_mage_combustion();
     new spell_mage_arcane_explosion();
     new spell_mage_arcane_missiles();
+    new spell_mage_arcane_missiles_damage();
     new spell_mage_arcane_missiles_proc();
+    new spell_mage_arcane_missiles_charges();
     new spell_mage_arcane_barrage();
     new spell_mage_incanters_flow();
     new spell_mage_fireball();
