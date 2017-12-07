@@ -33,7 +33,8 @@ enum eQuests
     QUEST_COILSKAR_FORCES       = 40379,
     QUEST_MEETING_WITH_QUEEN    = 39050,
     QUEST_SHIVARRA_FORCES       = 38765,
-    QUEST_BEFORE_OVERRUN        = 38766
+    QUEST_BEFORE_OVERRUN        = 38766,
+    QUEST_HIDDEN_NO_MORE        = 39495
 };
 
 enum eScenes
@@ -661,6 +662,52 @@ public:
     }
 };
 
+// 197180
+class npc_mardum_fel_lord_caza : public CreatureScript
+{
+public:
+    npc_mardum_fel_lord_caza() : CreatureScript("npc_mardum_fel_lord_caza") { }
+
+    struct npc_mardum_fel_lord_cazaAI : public ScriptedAI
+    {
+        npc_mardum_fel_lord_cazaAI(Creature* creature) : ScriptedAI(creature) { }
+
+        enum Spells
+        {
+            SPELL_FEL_INFUSION          = 197180,
+            SPELL_LEARN_CONSUME_MAGIC   = 195441
+        };
+
+        void EnterCombat(Unit*) override
+        {
+            me->GetScheduler().Schedule(Seconds(10), [this](TaskContext context)
+            {
+                me->CastSpell(me, SPELL_FEL_INFUSION, true);
+                context.Repeat(Seconds(10));
+            });
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            std::list<Player*> players;
+            me->GetPlayerListInGrid(players, 50.0f);
+
+            for (Player* player : players)
+            {
+                player->CompleteQuest(QUEST_HIDDEN_NO_MORE);
+
+                if (!player->HasSpell(SPELL_LEARN_CONSUME_MAGIC))
+                    player->CastSpell(player, SPELL_LEARN_CONSUME_MAGIC);
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_mardum_fel_lord_cazaAI(creature);
+    }
+};
+
 void AddSC_mardum()
 {
     new PlayerScript_mardum_welcome_scene_trigger();
@@ -687,4 +734,5 @@ void AddSC_mardum()
     new npc_mardum_captain();
     new npc_mardum_jace_darkweaver();
     new spell_mardum_spectral_sight();
+    new npc_mardum_fel_lord_caza();
 }

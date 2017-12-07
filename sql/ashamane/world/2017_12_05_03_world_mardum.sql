@@ -13,11 +13,11 @@ UPDATE creature_template SET scriptname = "npc_mardum_sevis_brightflame_shivarra
 UPDATE creature SET PhaseId = 50 WHERE guid IN (20541415, 20542284);
 
 UPDATE `quest_template_addon` SET `PrevQuestID` = '39663', `ExclusiveGroup` = '0' WHERE `id` = 38728;
-UPDATE `quest_template_addon` SET `PrevQuestID` = '38727', `ExclusiveGroup` = '0' WHERE `id` = 39663;
+UPDATE `quest_template_addon` SET `PrevQuestID` = '39515', `ExclusiveGroup` = '0' WHERE `id` = 39663;
+UPDATE `quest_template_addon` SET `PrevQuestID` = '38727', `ExclusiveGroup` = '-39515' WHERE `id` = 39515;
+UPDATE `quest_template_addon` SET `PrevQuestID` = '38727', `ExclusiveGroup` = '-39515' WHERE `id` = 39516;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '39495', `ExclusiveGroup` = '-38727' WHERE `id` = 38727;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '39495', `ExclusiveGroup` = '-38727' WHERE `id` = 38819;
-UPDATE `quest_template_addon` SET `PrevQuestID` = '39495', `ExclusiveGroup` = '-38727' WHERE `id` = 39515;
-UPDATE `quest_template_addon` SET `PrevQuestID` = '39495', `ExclusiveGroup` = '-38727' WHERE `id` = 39516;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '39262', `ExclusiveGroup` = '0' WHERE `id` = 39495;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '38813', `ExclusiveGroup` = '0' WHERE `id` = 39262;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '38765', `ExclusiveGroup` = '0' WHERE `id` = 38813;
@@ -26,7 +26,7 @@ UPDATE `quest_template_addon` SET `ExclusiveGroup` = '-38765' WHERE `id` = 38766
 
 UPDATE `quest_template_addon` SET `PrevQuestID` = '40222', `ExclusiveGroup` = '0' WHERE `id` = 40051;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '38725', `ExclusiveGroup` = '0' WHERE `id` = 40222;
-UPDATE `quest_template_addon` SET `ExclusiveGroup` = '0' WHERE `id` = 38725;
+UPDATE `quest_template_addon` SET `PrevQuestID` = '39495', `ExclusiveGroup` = '0' WHERE `id` = 38725;
 
 UPDATE creature_template SET gossip_menu_id = 19075 WHERE entry = 100429;
 UPDATE creature_template SET gossip_menu_id = 20216 WHERE entry = 112198;
