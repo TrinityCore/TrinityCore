@@ -588,7 +588,7 @@ public:
         if (phaseSpellId)
             player->RemoveAurasDueToSpell(phaseSpellId);
 
-        player->GetScheduler().Schedule(Seconds(5), [player, creature](TaskContext context)
+        player->GetScheduler().Schedule(Seconds(15), [player, creature](TaskContext /*context*/)
         {
             creature->DestroyForPlayer(player);
         });
