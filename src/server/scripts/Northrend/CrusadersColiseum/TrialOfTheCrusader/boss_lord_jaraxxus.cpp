@@ -147,7 +147,7 @@ class boss_jaraxxus : public CreatureScript
                     events.SetPhase(PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO, Seconds(1));
                 }
-                if (action == ACTION_JARAXXUS_ENGAGE)
+                else if (action == ACTION_JARAXXUS_ENGAGE)
                 {
                     me->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
                     me->SetImmuneToPC(false);
