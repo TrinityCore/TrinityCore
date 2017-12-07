@@ -447,6 +447,11 @@ public:
     {
         player->KilledMonsterCredit(100722);
     }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->KilledMonsterCredit(100722);
+    }
 };
 
 class npc_mardum_doom_commander_beliash : public CreatureScript
@@ -682,7 +687,7 @@ public:
         {
             me->GetScheduler().Schedule(Seconds(10), [this](TaskContext context)
             {
-                me->CastSpell(me, SPELL_FEL_INFUSION, true);
+                me->CastSpell(me->GetVictim(), SPELL_FEL_INFUSION, true);
                 context.Repeat(Seconds(10));
             });
         }
@@ -705,6 +710,41 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_mardum_fel_lord_cazaAI(creature);
+    }
+};
+
+// 243968 - Banner near 96732 - Destroyed by Ashtongue
+// 243967 - Banner near 96731 - Destroyed by Shivarra
+// 243965 - Banner near 93762 - Destroyed by Coilskar
+class go_mardum_illidari_banner : public GameObjectScript
+{
+public:
+    go_mardum_illidari_banner() : GameObjectScript("go_mardum_illidari_banner") { }
+
+    bool OnGossipHello(Player* player, GameObject* go) override
+    {
+        uint32 devastatorEntry = 0;
+        switch (go->GetEntry())
+        {
+            case 243968: devastatorEntry = 96732; break;
+            case 243967: devastatorEntry = 96731; break;
+            case 243965: devastatorEntry = 93762; break;
+            default: break;
+        }
+
+        if (Creature* devastator = player->FindNearestCreature(devastatorEntry, 50.0f))
+        {
+            if (Creature* personnalCreature = player->SummonCreature(devastatorEntry, devastator->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN, 5000, 0, true))
+            {
+                player->KilledMonsterCredit(devastatorEntry);
+                devastator->DestroyForPlayer(player);
+
+                //TODO : Script destruction event
+                personnalCreature->Kill(personnalCreature);
+            }
+        }
+
+        return false;
     }
 };
 
@@ -735,4 +775,5 @@ void AddSC_mardum()
     new npc_mardum_jace_darkweaver();
     new spell_mardum_spectral_sight();
     new npc_mardum_fel_lord_caza();
+    new go_mardum_illidari_banner();
 }
