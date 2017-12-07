@@ -133,11 +133,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 else
                     player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 0);
 
-                // make sure Anub'arak isnt missing
-                if (GetBossState(DATA_LICH_KING) == DONE && TrialCounter && GetBossState(DATA_ANUBARAK) != DONE)
-                    if (!GetCreature(DATA_ANUBARAK))
-                        player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-
                 if (Team == TEAM_OTHER)
                     Team = player->GetTeam();
             }
@@ -171,6 +166,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case NPC_BARRETT_FACTION:
                     case NPC_BARRETT_VALKYR:
                     case NPC_BARRETT_LK:
+                    case NPC_ANUBARAK:
                         if (!TrialCounter)
                             creature->DespawnOrUnsummon();
                         break;

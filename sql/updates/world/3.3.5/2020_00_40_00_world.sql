@@ -1,11 +1,8 @@
-SET @CGUID := 2000000;
-DELETE FROM `creature` WHERE `guid`= @CGUID; -- Lich King voice
+SET @CGUID := 2000000; -- 2 Guids needed
+DELETE FROM `creature` WHERE `guid` IN(@CGUID,  @CGUID+1);
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(@CGUID,16980,649,0,0,15,1,0,0,646.073,60.3333,394.856,0,7200,0,0,4120,0,0,0,0,0,'',0);
-
-DELETE FROM `creature` WHERE `guid`= @CGUID+1; -- Anub'arak
-INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
-(@CGUID+1,34564,649,0,0,15,1,0,0,783.9305,132.9722,142.6711,3.141593,7200,0,0,4120,0,0,0,0,0,'',0);
+(@CGUID,16980,649,0,0,15,1,0,0,646.073,60.3333,394.856,0,7200,0,0,4120,0,0,0,0,0,'',0), -- Lich King voice
+(@CGUID+1,34564,649,0,0,15,1,0,0,783.9305,132.9722,142.6711,3.141593,7200,0,0,4120,0,0,0,0,0,'',0); -- Anub'arak
 
 DELETE FROM `creature_text` WHERE `CreatureID`=16980 AND `GroupId` IN (4,5); -- The Lich King Voice
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
