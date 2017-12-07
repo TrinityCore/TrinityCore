@@ -615,13 +615,19 @@ public:
 
     bool OnQuestReward(Player* player, Creature* creature, Quest const* /*quest*/, uint32 /*item*/) override
     {
-        if (GameObject* cavernStone = GetClosestGameObjectWithEntry(creature, GOB_CAVERN_STONES, 50.0))
-            if (GameObject* personnalCavernStone = player->SummonGameObject(GOB_CAVERN_STONES, cavernStone->GetPosition(), QuaternionData(), 0, true))
-                personnalCavernStone->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
-                {
-                    context.GetContextGameObject()->SetLootState(GO_READY);
-                    context.GetContextGameObject()->UseDoorOrButton(10000);
-                });
+        if (GameObject* personnalCavernStone = player->SummonGameObject(GOB_CAVERN_STONES, 1237.150024f, 1642.619995f, 103.152f, 5.80559f, QuaternionData(0, 0, 20372944, 20372944), 0, true))
+        {
+            personnalCavernStone->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
+            {
+                context.GetContextGameObject()->SetLootState(GO_READY);
+                context.GetContextGameObject()->UseDoorOrButton(10000);
+            });
+
+            personnalCavernStone->GetScheduler().Schedule(Seconds(4), [](TaskContext context)
+            {
+                context.GetContextGameObject()->Delete();
+            });
+        }
 
         return true;
     }
