@@ -413,7 +413,7 @@ struct npc_snobold_vassal : public ScriptedAI
         SetCombatMovement(false);
     }
 
-    bool CanAIAttack(Unit const* who) const
+    bool CanAIAttack(Unit const* who) const override
     {
         if (_mountedOnPlayer && who->GetGUID() != _targetGUID)
             return false;
