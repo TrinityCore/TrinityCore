@@ -998,6 +998,35 @@ public:
     }
 };
 
+// Arcane Barrier - 235450
+class spell_mage_arcane_barrier : public SpellScriptLoader
+{
+public:
+    spell_mage_arcane_barrier() : SpellScriptLoader("spell_mage_arcane_barrier") { }
+
+    class spell_mage_arcane_barrier_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_arcane_barrier_AuraScript);
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+        {
+            canBeRecalculated = false;
+            if (Unit* caster = GetCaster())
+                amount += int32(7.0f * caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()));
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_arcane_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_arcane_barrier_AuraScript();
+    }
+};
+
 // Polymorph - 118
 class spell_mage_polymorph : public SpellScriptLoader
 {
@@ -2245,6 +2274,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_conjure_refreshment();
     new spell_mage_frostbolt();
     new spell_mage_ice_barrier();
+    new spell_mage_arcane_barrier();
     new spell_mage_polymorph();
     new spell_mage_time_warp();
     new spell_mage_fire_mage_passive();
