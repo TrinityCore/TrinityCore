@@ -174,7 +174,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         if (!TrialCounter)
                             creature->DespawnOrUnsummon();
                         break;
-                    case  NPC_SNOBOLD_VASSAL:
+                    case NPC_SNOBOLD_VASSAL:
                         snoboldGUIDS.push_back(creature->GetGUID());
                         break;
                 }
