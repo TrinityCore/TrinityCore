@@ -10527,6 +10527,10 @@ void Unit::UpdateAttackTimeField(WeaponAttackType att)
 
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
 {
+    if (Player* player = ToPlayer())
+        if (Pet* pet = player->GetPet())
+            pet->ApplyAttackTimePercentMod(att, val, apply);
+
     float remainingTimePct = float(m_attackTimer[att]) / (m_baseAttackSpeed[att] * m_modAttackSpeedPct[att]);
     if (val > 0)
     {
