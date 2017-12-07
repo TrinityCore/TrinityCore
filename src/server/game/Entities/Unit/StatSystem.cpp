@@ -293,8 +293,7 @@ void Player::UpdateMaxHealth()
 
     SetMaxHealth((uint32)value);
 
-    Pet* pet = GetPet();
-    if (pet)
+    if (Pet* pet = GetPet())
         pet->UpdateMaxHealth();
 }
 
@@ -1280,7 +1279,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 void Guardian::SetBonusDamage(int32 damage)
 {
     m_bonusSpellDamage = damage;
-    if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
+    if (GetOwner() ->IsPlayer())
         GetOwner()->SetUInt32Value(PLAYER_PET_SPELL_POWER, damage);
 }
 
