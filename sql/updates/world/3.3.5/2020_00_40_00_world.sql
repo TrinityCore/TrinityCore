@@ -62,7 +62,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
 'spell_icehowl_trample',
 'spell_icehowl_massive_crash',
 'spell_lich_king_teleport_corpse');
-INSERT INTO `world`.`spell_script_names` (`spell_id`, `ScriptName`) VALUES
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (66688,'spell_icehowl_arctic_breath'),
 (66734,'spell_icehowl_trample'),
 (66683,'spell_icehowl_massive_crash'),
