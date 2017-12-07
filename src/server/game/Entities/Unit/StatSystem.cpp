@@ -1283,3 +1283,9 @@ void Guardian::SetBonusDamage(int32 damage)
     if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
         GetOwner()->SetUInt32Value(PLAYER_PET_SPELL_POWER, damage);
 }
+
+void Guardian::UpdatePlayFieldModPetHaste()
+{
+    if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
+        GetOwner()->SetUInt32Value(PLAYER_FIELD_MOD_PET_HASTE, GetUInt32Value(UNIT_FIELD_MOD_RANGED_HASTE));
+}
