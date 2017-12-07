@@ -29,11 +29,6 @@
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
 
-enum Yells
-{
-    SAY_KILL_PLAYER     = 6
-};
-
 enum AIs
 {
     AI_MELEE    = 0,
@@ -210,7 +205,7 @@ enum Events
     EVENT_REGROWTH                  = 3,
     EVENT_REJUVENATION              = 4,
     EVENT_TRANQUILITY               = 5,
-    EVENT_HEAL_BARKSKIN                  = 6,
+    EVENT_HEAL_BARKSKIN             = 6,
     EVENT_THORNS                    = 7,
     EVENT_NATURE_GRASP              = 8,
 
@@ -585,7 +580,7 @@ class boss_toc_champion_controller : public CreatureScript
 
 struct boss_faction_championsAI : public BossAI
 {
-    boss_faction_championsAI(Creature* creature, uint32 aitype) : BossAI(creature, DATA_FACTION_CHAMPIONS)
+    boss_faction_championsAI(Creature* creature, uint32 aitype) : BossAI(creature, DATA_FACTION_CHAMPIONS), _teamInstance(0)
     {
         _aiType = aitype;
         SetBoundary(instance->GetBossBoundary(DATA_FACTION_CRUSADERS));
@@ -593,6 +588,7 @@ struct boss_faction_championsAI : public BossAI
 
     void Reset() override
     {
+        _teamInstance = instance->GetData(DATA_TEAM);
         _events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
         if (IsHeroic() && (_aiType != AI_PET))
             _events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
@@ -657,22 +653,13 @@ struct boss_faction_championsAI : public BossAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            Map::PlayerList const& players = me->GetMap()->GetPlayers();
-            uint32 TeamInInstance = 0;
-
-            if (!players.isEmpty())
-                if (Player* player = players.begin()->GetSource())
-                    TeamInInstance = player->GetTeam();
-
-            if (TeamInInstance == ALLIANCE)
+            if (_teamInstance == ALLIANCE)
             {
                 if (Creature* varian = instance->GetCreature(DATA_VARIAN))
-                    varian->AI()->Talk(SAY_KILL_PLAYER);
+                    varian->AI()->DoAction(ACTION_SAY_KILLED_PLAYER);
             }
-            else
-                if (Creature* garrosh = instance->GetCreature(DATA_GARROSH))
-                    garrosh->AI()->Talk(SAY_KILL_PLAYER);
-
+            else if (Creature* garrosh = instance->GetCreature(DATA_GARROSH))
+                garrosh->AI()->DoAction(ACTION_SAY_KILLED_PLAYER);
         }
     }
 
@@ -758,6 +745,7 @@ struct boss_faction_championsAI : public BossAI
 
     private:
         uint32 _aiType;
+        uint32 _teamInstance;
         // make sure that every bosses separate events dont mix with these _events
         EventMap _events;
 };

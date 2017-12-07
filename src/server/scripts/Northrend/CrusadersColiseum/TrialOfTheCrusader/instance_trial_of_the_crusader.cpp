@@ -24,6 +24,7 @@
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
 
@@ -38,23 +39,25 @@ BossBoundaryData const boundaries =
 
 ObjectData const creatureData[] =
 {
-    { NPC_GORMOK,                   DATA_GORMOK_THE_IMPALER },
-    { NPC_ACIDMAW,                  DATA_ACIDMAW            },
-    { NPC_DREADSCALE,               DATA_DREADSCALE         },
-    { NPC_ICEHOWL,                  DATA_ICEHOWL            },
-    { NPC_JARAXXUS,                 DATA_JARAXXUS           },
-    { NPC_CHAMPIONS_CONTROLLER,     DATA_FACTION_CRUSADERS  },
-    { NPC_FJOLA_LIGHTBANE,          DATA_FJOLA_LIGHTBANE    },
-    { NPC_EYDIS_DARKBANE,           DATA_EYDIS_DARKBANE     },
-    { NPC_LICH_KING,                DATA_LICH_KING          },
-    { NPC_ANUBARAK,                 DATA_ANUBARAK           },
-    { NPC_BARRET_RAMSEY,            DATA_BARRET_RAMSEY      },
-    { NPC_TIRION_FORDRING,          DATA_FORDRING           },
-    { NPC_TIRION_FORDRING_ANUBARAK, DATA_FORDRING_ANUBARAK  },
-    { NPC_VARIAN,                   DATA_VARIAN             },
-    { NPC_GARROSH,                  DATA_GARROSH            },
-    { NPC_FIZZLEBANG,               DATA_FIZZLEBANG         },
-    { 0,                            0                       } // END
+    { NPC_GORMOK,                   DATA_GORMOK_THE_IMPALER    },
+    { NPC_ACIDMAW,                  DATA_ACIDMAW               },
+    { NPC_DREADSCALE,               DATA_DREADSCALE            },
+    { NPC_ICEHOWL,                  DATA_ICEHOWL               },
+    { NPC_BEASTS_COMBAT_STALKER,    DATA_BEASTS_COMBAT_STALKER },
+    { NPC_FURIOUS_CHARGE_STALKER,   DATA_FURIOUS_CHARGE        },
+    { NPC_JARAXXUS,                 DATA_JARAXXUS              },
+    { NPC_CHAMPIONS_CONTROLLER,     DATA_FACTION_CRUSADERS     },
+    { NPC_FJOLA_LIGHTBANE,          DATA_FJOLA_LIGHTBANE       },
+    { NPC_EYDIS_DARKBANE,           DATA_EYDIS_DARKBANE        },
+    { NPC_LICH_KING,                DATA_LICH_KING             },
+    { NPC_ANUBARAK,                 DATA_ANUBARAK              },
+    { NPC_TIRION_FORDRING,          DATA_FORDRING              },
+    { NPC_TIRION_FORDRING_ANUBARAK, DATA_FORDRING_ANUBARAK     },
+    { NPC_VARIAN,                   DATA_VARIAN                },
+    { NPC_GARROSH,                  DATA_GARROSH               },
+    { NPC_FIZZLEBANG,               DATA_FIZZLEBANG            },
+    { NPC_LICH_KING_VOICE,          DATA_LICH_KING_VOICE       },
+    { 0,                            0                          } // END
 };
 
 ObjectData const gameObjectData[] =
@@ -94,6 +97,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 TrialCounter = 50;
                 EventStage = 0;
                 NorthrendBeasts = NOT_STARTED;
+                NorthrendBeastsCount = 4;
+                Team = TEAM_OTHER;
+                JormungarsSummoned = false;
+                IcehowlSummoned = false;
                 EventTimer = 1000;
                 NotOneButTwoJormungarsTimer = 0;
                 ResilienceWillFixItTimer = 0;
@@ -130,6 +137,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 if (GetBossState(DATA_LICH_KING) == DONE && TrialCounter && GetBossState(DATA_ANUBARAK) != DONE)
                     if (!GetCreature(DATA_ANUBARAK))
                         player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+
+                if (Team == TEAM_OTHER)
+                    Team = player->GetTeam();
             }
 
             void OpenDoor(ObjectGuid guid)
@@ -153,9 +163,21 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             void OnCreatureCreate(Creature* creature) override
             {
                 InstanceScript::OnCreatureCreate(creature);
-                if (creature->GetEntry() == NPC_BARRET_RAMSEY)
-                    if (!TrialCounter)
-                        creature->DespawnOrUnsummon();
+                switch (creature->GetEntry())
+                {
+                    case NPC_BARRETT_BEASTS:
+                    case NPC_BARRETT_BEASTS_HC:
+                    case NPC_BARRETT_JARAXXUS:
+                    case NPC_BARRETT_FACTION:
+                    case NPC_BARRETT_VALKYR:
+                    case NPC_BARRETT_LK:
+                        if (!TrialCounter)
+                            creature->DespawnOrUnsummon();
+                        break;
+                    case  NPC_SNOBOLD_VASSAL:
+                        snoboldGUIDS.push_back(creature->GetGUID());
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -183,22 +205,27 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case DATA_NORTHREND_BEASTS:
                         break;
                     case DATA_JARAXXUS:
-                        // Cleanup Icehowl
-                        if (Creature* icehowl = GetCreature(DATA_ICEHOWL))
-                            icehowl->DespawnOrUnsummon();
-                        if (state == DONE)
+                        if (state == FAIL)
+                        {
+                            if (Creature* fordring = GetCreature(DATA_FORDRING))
+                                fordring->AI()->DoAction(ACTION_JARAXXUS_WIPE);
+                        }
+                        else if (state == DONE)
+                        {
+                            if (Creature* fordring = GetCreature(DATA_FORDRING))
+                                fordring->AI()->DoAction(ACTION_JARAXXUS_DEFEATED);
                             EventStage = 2000;
+                        }
                         break;
                     case DATA_FACTION_CRUSADERS:
-                        // Cleanup Jaraxxus
-                        if (Creature* jaraxxus = GetCreature(DATA_JARAXXUS))
-                            jaraxxus->DespawnOrUnsummon();
-                        if (Creature* fizzlebang = GetCreature(DATA_FIZZLEBANG))
-                            fizzlebang->DespawnOrUnsummon();
                         switch (state)
                         {
                             case IN_PROGRESS:
                                 ResilienceWillFixItTimer = 0;
+                                break;
+                            case FAIL:
+                                if (Creature* fordring = GetCreature(DATA_FORDRING))
+                                    fordring->AI()->DoAction(ACTION_FACTION_WIPE);
                                 break;
                             case SPECIAL: //Means the first blood
                                 ResilienceWillFixItTimer = 60*IN_MILLISECONDS;
@@ -211,6 +238,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 DoRespawnGameObject(GetGuidData(DATA_CRUSADERS_CHEST), 7*DAY);
                                 if (GameObject* cache = GetGameObject(DATA_CRUSADERS_CHEST))
                                     cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                if (Creature* fordring = GetCreature(DATA_FORDRING))
+                                    fordring->AI()->DoAction(ACTION_CHAMPIONS_DEFEATED);
                                 EventStage = 3100;
                                 break;
                             default:
@@ -224,12 +253,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         switch (state)
                         {
                             case FAIL:
-                                if (GetBossState(DATA_TWIN_VALKIRIES) == NOT_STARTED)
-                                    state = NOT_STARTED;
+                                if (Creature* fordring = GetCreature(DATA_FORDRING))
+                                    fordring->AI()->DoAction(ACTION_VALKYR_WIPE);
                                 break;
-                            case SPECIAL:
-                                if (GetBossState(DATA_TWIN_VALKIRIES) == SPECIAL)
-                                    state = DONE;
+                            case DONE:
+                                if (Creature* fordring = GetCreature(DATA_FORDRING))
+                                    fordring->AI()->DoAction(ACTION_VALKYR_DEFEATED);
                                 break;
                             default:
                                 break;
@@ -321,9 +350,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             // if theres no more attemps allowed
                             if (!TrialCounter)
                             {
-                                if (Unit* announcer = GetCreature(DATA_BARRET_RAMSEY))
-                                    announcer->ToCreature()->DespawnOrUnsummon();
-
                                 if (Creature* anubarak = GetCreature(DATA_ANUBARAK))
                                     anubarak->DespawnOrUnsummon();
                             }
@@ -334,13 +360,24 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     }
 
                     if (state == DONE || NeedSave)
-                    {
-                        if (Unit* announcer = GetCreature(DATA_BARRET_RAMSEY))
-                            announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         Save();
-                    }
                 }
                 return true;
+            }
+
+            void HandleNorthrendBeastsDone()
+            {
+                --NorthrendBeastsCount;
+                if (!NorthrendBeastsCount)
+                {
+                    SetData(TYPE_NORTHREND_BEASTS, DONE);
+                    SetBossState(DATA_NORTHREND_BEASTS, DONE);
+                    EventStage = 400;
+                    if (Creature* combatStalker = GetCreature(DATA_BEASTS_COMBAT_STALKER))
+                        combatStalker->DespawnOrUnsummon();
+                    if (Creature* fordring = GetCreature(DATA_FORDRING))
+                        fordring->AI()->DoAction(ACTION_NORTHREND_BEASTS_DEFEATED);
+                }
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -363,33 +400,55 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         NorthrendBeasts = data;
                         switch (data)
                         {
+                            case GORMOK_IN_PROGRESS:
+                                SetBossState(DATA_NORTHREND_BEASTS, IN_PROGRESS);
+                                NorthrendBeastsCount = 4;
+                                break;
                             case GORMOK_DONE:
-                                EventStage = 200;
-                                SetData(TYPE_NORTHREND_BEASTS, IN_PROGRESS);
+                                if (!JormungarsSummoned)
+                                    if (Creature* tirion = GetCreature(DATA_FORDRING))
+                                        tirion->AI()->DoAction(ACTION_START_JORMUNGARS);
+
+                                HandleNorthrendBeastsDone();
                                 break;
                             case SNAKES_IN_PROGRESS:
+                                JormungarsSummoned = true;
                                 NotOneButTwoJormungarsTimer = 0;
                                 break;
                             case SNAKES_SPECIAL:
                                 NotOneButTwoJormungarsTimer = 10*IN_MILLISECONDS;
+                                HandleNorthrendBeastsDone();
                                 break;
                             case SNAKES_DONE:
                                 if (NotOneButTwoJormungarsTimer > 0)
                                     DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
-                                EventStage = 300;
-                                SetData(TYPE_NORTHREND_BEASTS, IN_PROGRESS);
+                                if (!IcehowlSummoned)
+                                    if (Creature* tirion = GetCreature(DATA_FORDRING))
+                                        tirion->AI()->DoAction(ACTION_START_ICEHOWL);
+                                HandleNorthrendBeastsDone();
+                                break;
+                            case ICEHOWL_IN_PROGRESS:
+                                IcehowlSummoned = true;
                                 break;
                             case ICEHOWL_DONE:
-                                EventStage = 400;
-                                SetData(TYPE_NORTHREND_BEASTS, DONE);
-                                SetBossState(DATA_NORTHREND_BEASTS, DONE);
+                                HandleNorthrendBeastsDone();
                                 break;
                             case FAIL:
+                                JormungarsSummoned = false;
+                                IcehowlSummoned = false;
                                 SetBossState(DATA_NORTHREND_BEASTS, FAIL);
+                                if (Creature* tirion = GetCreature(DATA_FORDRING))
+                                    tirion->AI()->DoAction(ACTION_NORTHREND_BEASTS_WIPE);
                                 break;
                             default:
                                 break;
                         }
+                        break;
+                    case DATA_DESPAWN_SNOBOLDS:
+                        for (ObjectGuid const guid : snoboldGUIDS)
+                            if (Creature* snobold = instance->GetCreature(guid))
+                                snobold->DespawnOrUnsummon();
+                        snoboldGUIDS.clear();
                         break;
                     //Achievements
                     case DATA_SNOBOLD_COUNT:
@@ -413,6 +472,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 switch (type)
                 {
+                    case DATA_TEAM:
+                        return Team;
                     case TYPE_COUNTER:
                         return TrialCounter;
                     case TYPE_EVENT:
@@ -625,15 +686,20 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint32 EventStage;
                 uint32 EventTimer;
                 uint32 NorthrendBeasts;
-                bool   NeedSave;
+                uint32 Team;
+                bool NeedSave;
                 std::string SaveDataBuffer;
+                GuidVector snoboldGUIDS;
 
                 // Achievement stuff
                 uint32 NotOneButTwoJormungarsTimer;
                 uint32 ResilienceWillFixItTimer;
-                uint8  SnoboldCount;
-                uint8  MistressOfPainCount;
-                bool   TributeToImmortalityEligible;
+                uint8 SnoboldCount;
+                uint8 MistressOfPainCount;
+                uint8 NorthrendBeastsCount;
+                bool JormungarsSummoned;
+                bool IcehowlSummoned;
+                bool TributeToImmortalityEligible;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

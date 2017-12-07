@@ -46,10 +46,14 @@ enum Texts
     SAY_DEATH               = 8
 };
 
-enum Equipment
+enum Misc
 {
-    EQUIP_MAIN_1         = 9423,
-    EQUIP_MAIN_2         = 37377
+    EQUIP_MAIN_1            = 9423,
+    EQUIP_MAIN_2            = 37377,
+    POINT_INITIAL_MOVEMENT  = 1,
+    SPLINE_INITIAL_MOVEMENT = 1,
+    PHASE_EVENT             = 1,
+    PHASE_COMBAT            = 2
 };
 
 enum Summons
@@ -101,7 +105,8 @@ enum Events
     EVENT_TWIN_SPIKE      = 1,
     EVENT_TOUCH           = 2,
     EVENT_SPECIAL_ABILITY = 3,
-    EVENT_BERSERK         = 4
+    EVENT_BERSERK         = 4,
+    EVENT_START_MOVE      = 5
 };
 
 enum Stages
@@ -133,9 +138,7 @@ enum Actions
 class OrbsDespawner : public BasicEvent
 {
     public:
-        explicit OrbsDespawner(Creature* creature) : _creature(creature)
-        {
-        }
+        explicit OrbsDespawner(Creature* creature) : _creature(creature) { }
 
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
@@ -186,7 +189,6 @@ struct boss_twin_baseAI : public BossAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         me->ModifyAuraState(AuraState, true);
         /* Uncomment this once that they are floating above the ground
@@ -194,6 +196,8 @@ struct boss_twin_baseAI : public BossAI
         me->SetFlying(true); */
 
         summons.DespawnAll();
+        events.SetPhase(PHASE_EVENT);
+        events.ScheduleEvent(EVENT_START_MOVE, Seconds(4));
     }
 
     void JustReachedHome() override
@@ -204,20 +208,17 @@ struct boss_twin_baseAI : public BossAI
         me->DespawnOrUnsummon();
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId) override
+    void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (uiType != POINT_MOTION_TYPE)
+        if (type != SPLINE_CHAIN_MOTION_TYPE)
             return;
 
-        switch (uiId)
+        if (pointId == POINT_INITIAL_MOVEMENT)
         {
-            case 1:
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetImmuneToPC(false);
-                me->SetReactState(REACT_AGGRESSIVE);
-                break;
-            default:
-                break;
+            me->SetImmuneToPC(false);
+            me->SetReactState(REACT_AGGRESSIVE);
+            if (me->GetEntry() == NPC_FJOLA_LIGHTBANE) // avoid call twice
+                instance->DoCloseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
         }
     }
 
@@ -341,9 +342,33 @@ struct boss_twin_baseAI : public BossAI
                 DoCast(me, SPELL_BERSERK);
                 Talk(SAY_BERSERK);
                 break;
+            case EVENT_START_MOVE:
+                events.SetPhase(PHASE_COMBAT);
+                me->GetMotionMaster()->MoveAlongSplineChain(POINT_INITIAL_MOVEMENT, SPLINE_INITIAL_MOVEMENT, false);
+                break;
             default:
                 break;
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            ExecuteEvent(eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
     }
 
     protected:

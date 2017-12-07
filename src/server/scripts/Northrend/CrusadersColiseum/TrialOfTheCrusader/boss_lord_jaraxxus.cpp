@@ -18,6 +18,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -63,6 +64,8 @@ enum BossSpells
     SPELL_INFERNAL_ERUPTION_EFFECT    = 66252, // summons Felflame Infernal (3 at Normal and inifinity at Heroic)
     SPELL_NETHER_PORTAL               = 66269, // summons Nether Portal
     SPELL_NETHER_PORTAL_EFFECT        = 66263, // summons Mistress of Pain (1 at Normal and infinity at Heroic)
+    SPELL_LORD_JARAXXUS_HITTIN_YA     = 66327, // No idea what it does
+    SPELL_FEL_LIGHTNING               = 67888,
 
     SPELL_BERSERK                     = 64238, // unused
 
@@ -81,18 +84,31 @@ enum BossSpells
 enum Events
 {
     // Lord Jaraxxus
-    EVENT_FEL_FIREBALL              = 1,
-    EVENT_FEL_LIGHTNING             = 2,
-    EVENT_INCINERATE_FLESH          = 3,
-    EVENT_NETHER_POWER              = 4,
-    EVENT_LEGION_FLAME              = 5,
-    EVENT_SUMMONO_NETHER_PORTAL     = 6,
-    EVENT_SUMMON_INFERNAL_ERUPTION  = 7,
+    EVENT_INTRO = 1,
+    EVENT_FEL_FIREBALL,
+    EVENT_FEL_LIGHTNING,
+    EVENT_INCINERATE_FLESH,
+    EVENT_NETHER_POWER,
+    EVENT_LEGION_FLAME,
+    EVENT_SUMMONO_NETHER_PORTAL,
+    EVENT_SUMMON_INFERNAL_ERUPTION,
+    EVENT_TAUNT_GNOME,
+    EVENT_KILL_GNOME,
+    EVENT_CHANGE_ORIENTATION,
+    EVENT_START_COMBAT,
 
     // Mistress of Pain
-    EVENT_SHIVAN_SLASH              = 8,
-    EVENT_SPINNING_STRIKE           = 9,
-    EVENT_MISTRESS_KISS             = 10
+    EVENT_SHIVAN_SLASH,
+    EVENT_SPINNING_STRIKE,
+    EVENT_MISTRESS_KISS
+};
+
+enum Misc
+{
+    PHASE_INTRO             = 1,
+    PHASE_COMBAT            = 2,
+    SPLINE_INITIAL_MOVEMENT = 1,
+    POINT_SUMMONED          = 1
 };
 
 class boss_jaraxxus : public CreatureScript
@@ -106,23 +122,53 @@ class boss_jaraxxus : public CreatureScript
 
             void Reset() override
             {
-                _Reset();
-                events.ScheduleEvent(EVENT_FEL_FIREBALL, 5*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_NETHER_POWER, 40*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_LEGION_FLAME, 30*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMONO_NETHER_PORTAL, 20*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMON_INFERNAL_ERUPTION, 80*IN_MILLISECONDS);
+                events.Reset();
+                summons.DespawnAll();
+                me->SetCombatPulseDelay(0);
+                me->ResetLootMode();
+                if (instance->GetBossState(DATA_JARAXXUS) == NOT_STARTED)
+                    DoAction(ACTION_JARAXXUS_INTRO);
             }
 
             void JustReachedHome() override
             {
                 _JustReachedHome();
                 instance->SetBossState(DATA_JARAXXUS, FAIL);
-                DoCast(me, SPELL_JARAXXUS_CHAINS);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                DoCastSelf(SPELL_JARAXXUS_CHAINS);
                 me->SetImmuneToPC(true);
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            void DoAction(int32 action) override
+            {
+                if (action == ACTION_JARAXXUS_INTRO)
+                {
+                    me->SetReactState(REACT_PASSIVE);
+                    events.SetPhase(PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_INTRO, Seconds(1));
+                }
+                if (action == ACTION_JARAXXUS_ENGAGE)
+                {
+                    me->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
+                    me->SetImmuneToPC(false);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
+                }
+            }
+
+            void MovementInform(uint32 type, uint32 pointId) override
+            {
+                if (type != SPLINE_CHAIN_MOTION_TYPE)
+                    return;
+
+                if (pointId == POINT_SUMMONED)
+                {
+                    if (Creature* wilfred = instance->GetCreature(DATA_FIZZLEBANG))
+                    {
+                        me->SetFacingToObject(wilfred);
+                        events.ScheduleEvent(EVENT_TAUNT_GNOME, Seconds(9));
+                    }
+                }
             }
 
             void KilledUnit(Unit* who) override
@@ -141,11 +187,18 @@ class boss_jaraxxus : public CreatureScript
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_FEL_FIREBALL, 5 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_NETHER_POWER, 40 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_LEGION_FLAME, 30 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMONO_NETHER_PORTAL, 20 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMON_INFERNAL_ERUPTION, 80 * IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim())
+                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
 
                 events.Update(diff);
@@ -160,12 +213,12 @@ class boss_jaraxxus : public CreatureScript
                         case EVENT_FEL_FIREBALL:
                             DoCastVictim(SPELL_FEL_FIREBALL);
                             events.ScheduleEvent(EVENT_FEL_FIREBALL, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
-                            return;
+                            break;
                         case EVENT_FEL_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_LORD_HITTIN))
                                 DoCast(target, SPELL_FEL_LIGHTING);
                             events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
-                            return;
+                            break;
                         case EVENT_INCINERATE_FLESH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_LORD_HITTIN))
                             {
@@ -174,11 +227,11 @@ class boss_jaraxxus : public CreatureScript
                                 DoCast(target, SPELL_INCINERATE_FLESH);
                             }
                             events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                            return;
+                            break;
                         case EVENT_NETHER_POWER:
                             me->CastCustomSpell(SPELL_NETHER_POWER, SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5, 10, 5, 10), me, true);
                             events.ScheduleEvent(EVENT_NETHER_POWER, 40*IN_MILLISECONDS);
-                            return;
+                            break;
                         case EVENT_LEGION_FLAME:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_LORD_HITTIN))
                             {
@@ -186,19 +239,42 @@ class boss_jaraxxus : public CreatureScript
                                 DoCast(target, SPELL_LEGION_FLAME);
                             }
                             events.ScheduleEvent(EVENT_LEGION_FLAME, 30*IN_MILLISECONDS);
-                            return;
+                            break;
                         case EVENT_SUMMONO_NETHER_PORTAL:
                             Talk(EMOTE_NETHER_PORTAL);
                             Talk(SAY_MISTRESS_OF_PAIN);
                             DoCast(SPELL_NETHER_PORTAL);
                             events.ScheduleEvent(EVENT_SUMMONO_NETHER_PORTAL, 2*MINUTE*IN_MILLISECONDS);
-                            return;
+                            break;
                         case EVENT_SUMMON_INFERNAL_ERUPTION:
                             Talk(EMOTE_INFERNAL_ERUPTION);
                             Talk(SAY_INFERNAL_ERUPTION);
                             DoCast(SPELL_INFERNAL_ERUPTION);
                             events.ScheduleEvent(EVENT_SUMMON_INFERNAL_ERUPTION, 2*MINUTE*IN_MILLISECONDS);
-                            return;
+                            break;
+                        case EVENT_INTRO:
+                            DoCastSelf(SPELL_LORD_JARAXXUS_HITTIN_YA, true);
+                            me->GetMotionMaster()->MoveAlongSplineChain(POINT_SUMMONED, SPLINE_INITIAL_MOVEMENT, true);
+                            break;
+                        case EVENT_TAUNT_GNOME:
+                            Talk(SAY_INTRO);
+                            events.ScheduleEvent(EVENT_KILL_GNOME, Seconds(7));
+                            break;
+                        case EVENT_KILL_GNOME:
+                            DoCastSelf(SPELL_FEL_LIGHTNING);
+                            events.ScheduleEvent(EVENT_CHANGE_ORIENTATION, Seconds(3));
+                            break;
+                        case EVENT_CHANGE_ORIENTATION:
+                            me->SetFacingTo(4.729842f);
+                            events.ScheduleEvent(EVENT_START_COMBAT, Seconds(7));
+                            break;
+                        case EVENT_START_COMBAT:
+                            me->SetImmuneToPC(false);
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            DoZoneInCombat();
+                            break;
+                        default:
+                            break;
                     }
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
