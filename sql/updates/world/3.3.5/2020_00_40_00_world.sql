@@ -78,7 +78,7 @@ DELETE FROM `creature_template_addon`WHERE `entry`=17965;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (17965,0,0,16908544,50331648,0,'');
 
-UPDATE `creature_template` SET `modelid1`=29890, `modelid2`=0, `modelid3`=0, `flags_extra`=128 WHERE `entry`=35651; -- Purple Ground Rune Argent Raid
+UPDATE `creature_template` SET `modelid1`=29890, `modelid2`=0, `modelid3`=0 WHERE `entry`=35651; -- Purple Ground Rune Argent Raid
 
 DELETE FROM `creature_summon_groups` WHERE `summonerId`=34996;
 INSERT INTO `creature_summon_groups` (`summonerId`,`summonerType`,`groupId`,`entry`,`position_x`,`position_y`,`position_z`,`orientation`,`summonType`,`summonTime`) VALUES

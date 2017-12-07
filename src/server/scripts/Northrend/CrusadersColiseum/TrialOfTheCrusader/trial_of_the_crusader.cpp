@@ -390,7 +390,7 @@ struct npc_tirion_toc : public ScriptedAI
             me->SummonCreature(NPC_BARRETT_FACTION, BarretSpawnPosition);
         else if (_instance->GetBossState(DATA_TWIN_VALKIRIES) != DONE)
             me->SummonCreature(NPC_BARRETT_VALKYR, BarretSpawnPosition);
-        else
+        else if (_instance->GetBossState(DATA_LICH_KING) != DONE)
             me->SummonCreature(NPC_BARRETT_LK, BarretSpawnPosition);
     }
 
@@ -684,8 +684,7 @@ struct npc_fizzlebang_toc : public ScriptedAI
                     break;
                 case EVENT_OBLIVION:
                     me->SummonCreature(NPC_WILFRED_PORTAL, PortalTargetSpawnPosition);
-                    if (Creature* purpleGround = me->SummonCreature(NPC_PURPLE_GROUND, PurpleGroundSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, Seconds(16)))
-                        purpleGround->SetDisplayId(purpleGround->GetCreatureTemplate()->Modelid3);
+                    me->SummonCreature(NPC_PURPLE_GROUND, PurpleGroundSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, Seconds(16));
                     Talk(WILFRED_SAY_OBLIVION);
                     DoCastSelf(SPELL_OPEN_PORTAL);
                     _events.ScheduleEvent(EVENT_SUMMON_JARAXXUS, Seconds(11));
