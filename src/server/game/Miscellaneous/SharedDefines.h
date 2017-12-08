@@ -3365,6 +3365,7 @@ enum BanMode
 /// Ban function return codes
 enum BanReturn
 {
+    BAN_EXISTS,
     BAN_SUCCESS,
     BAN_SYNTAX_ERROR,
     BAN_NOTFOUND
