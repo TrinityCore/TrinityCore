@@ -641,7 +641,6 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponse const& response)
     data.WriteBits(response.Confirmation.length(), 7);
 
     data.WriteBit(response.Reward.is_initialized());
-    data.FlushBits();
 
     if (response.Reward.is_initialized())
         data << (*response.Reward);
@@ -691,7 +690,7 @@ WorldPacket const* WorldPackets::Quest::DisplayPlayerChoice::Write()
     _worldPacket << uint32(Choice.Responses.size());
     _worldPacket << SenderGUID;
     _worldPacket.WriteBits(Choice.Question.length(), 8);
-    _worldPacket.FlushBits();
+    _worldPacket.WriteBit(0); // CloseChoiceFrame
 
     for (auto response : Choice.Responses)
         _worldPacket << response.second;
