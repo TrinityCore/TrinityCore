@@ -2417,6 +2417,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             MovieDelayedTeleports.push_back(data);
         }
 
+        void SendPlayerChoice(ObjectGuid sender, uint32 choiceID);
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;

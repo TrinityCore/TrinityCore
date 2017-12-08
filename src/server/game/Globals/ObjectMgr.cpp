@@ -36,6 +36,7 @@
 #include "LootMgr.h"
 #include "Mail.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
@@ -10214,4 +10215,102 @@ void ObjectMgr::LoadQuestTasks()
             }
         }
     }
+}
+
+void ObjectMgr::LoadPlayerChoices()
+{
+    uint32 oldMSTime = getMSTime();
+    _playerChoiceContainer.clear();
+
+    QueryResult choices = WorldDatabase.Query("SELECT ChoiceID, Question FROM playerchoice");
+
+    if (!choices)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 player choices. DB table `playerchoice` is empty.");
+        return;
+    }
+
+
+    uint32 choiceCount = 0;
+    uint32 responseCount = 0;
+    uint32 rewardCount = 0;
+
+    do
+    {
+        ++choiceCount;
+        Field* fields = choices->Fetch();
+
+        int32 choiceId = fields[0].GetInt32();
+
+        PlayerChoice& choice = _playerChoiceContainer[choiceId];
+        choice.ChoiceId = choiceId;
+        choice.Question = fields[1].GetString();
+    } while (choices->NextRow());
+
+    QueryResult responses = WorldDatabase.Query("SELECT ChoiceID, ResponseID, ChoiceArtFileID, Header, Answer, Description, Confirmation FROM playerchoice_response");
+
+    if (responses)
+    {
+        do
+        {
+            ++responseCount;
+            Field* fields = responses->Fetch();
+
+            int32 choiceId      = fields[0].GetInt32();
+            int32 ResponseID    = fields[1].GetInt32();
+
+            PlayerChoice& choice = _playerChoiceContainer[choiceId];
+            PlayerChoiceResponse& response = choice.Responses[ResponseID];
+
+            response.ResponseID         = ResponseID;
+            response.ChoiceArtFileID    = fields[2].GetInt32();
+            response.Header             = fields[3].GetString();
+            response.Answer             = fields[4].GetString();
+            response.Description        = fields[5].GetString();
+            response.Confirmation       = fields[6].GetString();
+        } while (responses->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 player choices responses. DB table `playerchoice_response` is empty.");
+    }
+
+    QueryResult rewards = WorldDatabase.Query("SELECT ChoiceID, ResponseID, TitleID, PackageID, SkillLineID, SkillPointCount, ArenaPointCount, HonorPointCount, Money, Xp FROM playerchoice_response_reward");
+
+    if (rewards)
+    {
+        do
+        {
+            ++rewardCount;
+            Field* fields = rewards->Fetch();
+
+            int32 choiceId      = fields[0].GetInt32();
+            int32 ResponseID    = fields[1].GetInt32();
+
+            PlayerChoice& choice = _playerChoiceContainer[choiceId];
+            PlayerChoiceResponse& response = choice.Responses[ResponseID];
+
+            PlayerChoiceResponseReward reward;
+
+            reward.TitleID          = fields[2].GetInt32();
+            reward.PackageID        = fields[3].GetInt32();
+            reward.SkillLineID      = fields[4].GetUInt32();
+            reward.SkillPointCount  = fields[5].GetUInt32();
+            reward.ArenaPointCount  = fields[6].GetUInt32();
+            reward.HonorPointCount  = fields[7].GetUInt32();
+            reward.Money            = fields[8].GetUInt64();
+            reward.Xp               = fields[9].GetUInt32();
+
+            response.Reward = reward;
+
+        } while (rewards->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 player choices responses reward. DB table `playerchoice_response_reward` is empty.");
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u player choices in %u ms.",          choiceCount,    GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u player choices response in %u ms.", responseCount,  GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u player choices reward in %u ms.",   rewardCount,    GetMSTimeDiffToNow(oldMSTime));
 }

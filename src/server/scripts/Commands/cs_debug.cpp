@@ -72,6 +72,7 @@ public:
             { "sellerror",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR,     false, &HandleDebugSendSellErrorCommand,       "" },
             { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "" },
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
+            { "playerchoice",  rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendPlayerChoiceCommand,    "" },
         };
         static std::vector<ChatCommand> debugMovementForceCommandTable =
         {
@@ -250,6 +251,18 @@ public:
         castFailed.FailedArg2 = failArg2;
         handler->GetSession()->SendPacket(castFailed.Write());
 
+        return true;
+    }
+
+    static bool HandleDebugSendPlayerChoiceCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        int32 choiceId = atoi(args);
+        Player* player = handler->GetSession()->GetPlayer();
+
+        player->SendPlayerChoice(player->GetGUID(), choiceId);
         return true;
     }
 
