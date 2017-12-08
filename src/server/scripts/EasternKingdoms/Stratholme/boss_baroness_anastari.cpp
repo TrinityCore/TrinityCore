@@ -112,8 +112,8 @@ public:
                         _events.ScheduleEvent(EVENT_SPELL_BANSHEEWAIL, Seconds(4));
                         break;
                     case EVENT_SPELL_BANSHEECURSE:
-                        DoCast(me->GetVictim(), SPELL_BANSHEECURSE);
-                        _events.ScheduleEvent(EVENT_SPELL_BANSHEECURSE, Seconds(18));
+                        DoCastVictim(SPELL_BANSHEECURSE);
+                        _events.Repeat(Seconds(18));
                         break;
                     case EVENT_SPELL_SILENCE:
                         DoCast(me->GetVictim(), SPELL_SILENCE);
