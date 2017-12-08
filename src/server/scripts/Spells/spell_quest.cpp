@@ -924,7 +924,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
-                    if (target && !target->HasAura(SPELL_FLAMES))
+                    if (!target->HasAura(SPELL_FLAMES))
                     {
                         caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
                         target->CastSpell(target, SPELL_FLAMES, true);

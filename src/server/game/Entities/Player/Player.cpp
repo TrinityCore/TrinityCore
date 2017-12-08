@@ -3285,7 +3285,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
                 }
 
                 // now re-learn if need re-activate
-                if (cur_active && !prev_itr->second->active && learn_low_rank)
+                if (!prev_itr->second->active && learn_low_rank)
                 {
                     if (AddSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
                     {
@@ -13751,7 +13751,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
 
-        if (!released && IsBagPos(dst) && pDstItem)
+        if (!released && IsBagPos(dst))
         {
             Bag* bag = pDstItem->ToBag();
             for (uint32 i = 0; i < bag->GetBagSize(); ++i)
@@ -14179,7 +14179,7 @@ void Player::AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 dur
             break;
         }
     }
-    if (item && duration > 0)
+    if (duration > 0)
     {
         GetSession()->SendItemEnchantTimeUpdate(GetGUID(), item->GetGUID(), slot, uint32(duration/1000));
         m_enchantDuration.push_back(EnchantDuration(item, slot, duration));
@@ -18298,7 +18298,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
         RelocateToHomebind();
     }
     // Player was saved in Arena or Bg
-    else if (mapEntry && mapEntry->IsBattlegroundOrArena())
+    else if (mapEntry->IsBattlegroundOrArena())
     {
         Battleground* currentBg = nullptr;
         if (m_bgData.bgInstanceID)                                                //saved in Battleground
@@ -21986,7 +21986,7 @@ Pet* Player::GetPet() const
         if (!pet)
             return nullptr;
 
-        if (IsInWorld() && pet)
+        if (IsInWorld())
             return pet;
 
         // there may be a guardian in this slot
