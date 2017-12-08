@@ -1750,6 +1750,8 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
         timeInfo.tm_hour = (date >> 6) & 0x1F;
         timeInfo.tm_min = date & 0x3F;
         timeInfo.tm_sec = 0;
+        timeInfo.tm_wday = 0;
+        timeInfo.tm_yday = 0;
         timeInfo.tm_isdst = -1;
         tm tmCopy = timeInfo;
 
