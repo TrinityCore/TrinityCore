@@ -421,7 +421,7 @@ struct npc_snobold_vassal : public ScriptedAI
     void AttackStart(Unit* victim) override
     {
         Creature* gormok = _instance->GetCreature(DATA_GORMOK_THE_IMPALER);
-        if (!_mountedOnPlayer && ((gormok && !gormok->IsAlive()) || !gormok))
+        if (!_mountedOnPlayer && (!gormok || !gormok->IsAlive()))
             AttackStartCaster(victim, 30.0f);
         else
             ScriptedAI::AttackStart(victim);
