@@ -98,9 +98,6 @@ public:
 
             while (uint32 eventId = _events.ExecuteEvent())
             {
-                Unit* possessTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false);    // Random target to be possessed
-                Unit* possessedTarget = me->GetMap()->GetPlayer(_possessedTargetGuid);          // When there's a possessed target
-
                 if (_invisible)
                     if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->GetHealthPct() <= 50)
                         _events.ScheduleEvent(EVENT_INVISIBLE, Seconds(0));
