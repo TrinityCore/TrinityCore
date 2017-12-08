@@ -332,9 +332,6 @@ struct boss_northrend_beastsAI : public BossAI
 
         DoMeleeAttackIfReady();
     }
-
-    private:
-        GuidSet _snoboldGuidds;
 };
 
 struct boss_gormok : public boss_northrend_beastsAI
