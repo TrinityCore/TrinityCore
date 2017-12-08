@@ -2807,7 +2807,7 @@ class spell_gen_spectator_cheer_trigger : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        if (roll_chance_i(30))
+        if (roll_chance_i(40))
             GetCaster()->HandleEmoteCommand(EmoteArray[urand(0, 2)]);
     }
 

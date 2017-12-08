@@ -421,6 +421,15 @@ struct npc_snobold_vassal : public ScriptedAI
         return ScriptedAI::CanAIAttack(who);
     }
 
+    void AttackStart(Unit* victim) override
+    {
+        Creature* gormok = _instance->GetCreature(DATA_GORMOK_THE_IMPALER);
+        if (!_mountedOnPlayer && ((gormok && !gormok->IsAlive()) || !gormok))
+            AttackStartCaster(victim, 30.0f);
+        else
+            ScriptedAI::AttackStart(victim);
+    }
+
     void EnterCombat(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_CHECK_MOUNT, Seconds(3));
@@ -490,7 +499,7 @@ struct npc_snobold_vassal : public ScriptedAI
             _events.CancelEvent(EVENT_CHECK_MOUNT);
             me->AttackStop();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                AttackStartCaster(target, 30.0f);
+                AttackStart(target);
             SetCombatMovement(true);
         }
     }
