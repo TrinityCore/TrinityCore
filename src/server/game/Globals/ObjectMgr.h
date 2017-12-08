@@ -767,6 +767,45 @@ typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
 typedef std::unordered_map<uint32, std::vector<uint32>> WorldQuestContainer;
 
+struct PlayerChoiceResponseReward
+{
+    int32 TitleID;
+    int32 PackageID;
+    int32 SkillLineID;
+    uint32 SkillPointCount;
+    uint32 ArenaPointCount;
+    uint32 HonorPointCount;
+    uint64 Money;
+    uint32 Xp;
+
+    //std::vector<Item> Items;
+    //std::vector<Currency> Currency;
+    //std::vector<Faction> Faction;
+    //std::vector<ItemChoice> ItemChoice;
+};
+
+struct PlayerChoiceResponse
+{
+    int32 ResponseID;
+    int32 ChoiceArtFileID;
+
+    std::string Header;
+    std::string Answer;
+    std::string Description;
+    std::string Confirmation;
+
+    Optional<PlayerChoiceResponseReward> Reward;
+};
+
+struct PlayerChoice
+{
+    int32 ChoiceId;
+    std::string Question;
+    std::unordered_map<int32 /*ResponseID*/, PlayerChoiceResponse> Responses;
+};
+
+typedef std::unordered_map<int32 /*choiceId*/, PlayerChoice> PlayerChoiceContainer;
+
 enum SkillRangeType
 {
     SKILL_RANGE_LANGUAGE,                                   // 300..300
@@ -1212,6 +1251,8 @@ class TC_GAME_API ObjectMgr
 
         void LoadSceneTemplates();
 
+        void LoadPlayerChoices();
+
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
@@ -1562,6 +1603,15 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        PlayerChoice const* GetPlayerChoice(int32 choiceId) const
+        {
+            auto itr = _playerChoiceContainer.find(choiceId);
+            if (itr != _playerChoiceContainer.end())
+                return &itr->second;
+
+            return nullptr;
+        }
+
         WorldQuestContainer const& GetWorldQuestStore() const{ return _worldQuestStore; }
 
     private:
@@ -1699,6 +1749,7 @@ class TC_GAME_API ObjectMgr
         TempSummonDataContainer _tempSummonDataStore;
         ScriptParamContainer _scriptParamContainer;
         TemplateScriptParamContainer _templateScriptParamContainer;
+        PlayerChoiceContainer _playerChoiceContainer;
 
         ItemTemplateContainer _itemTemplateStore;
         QuestTemplateLocaleContainer _questTemplateLocaleStore;

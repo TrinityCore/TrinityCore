@@ -27653,6 +27653,18 @@ void Player::SendMovementSetCollisionHeight(float height)
     SendMessageToSet(updateCollisionHeight.Write(), false);
 }
 
+void Player::SendPlayerChoice(ObjectGuid sender, uint32 choiceID)
+{
+    PlayerChoice const* playerChoice = sObjectMgr->GetPlayerChoice(choiceID);
+    if (!playerChoice)
+        return;
+
+    WorldPackets::Quest::DisplayPlayerChoice displayPlayerChoice;
+    displayPlayerChoice.Choice = *playerChoice;
+    displayPlayerChoice.SenderGUID = sender;
+    SendDirectMessage(displayPlayerChoice.Write());
+}
+
 float Player::GetCollisionHeight(bool mounted) const
 {
     if (mounted)

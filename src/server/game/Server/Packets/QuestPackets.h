@@ -22,6 +22,7 @@
 #include "ItemPacketsCommon.h"
 #include "QuestDef.h"
 #include "ObjectGuid.h"
+#include "ObjectMgr.h"
 
 namespace WorldPackets
 {
@@ -668,8 +669,22 @@ namespace WorldPackets
             std::vector<CurrencyReward> CurrencyRewards;
             std::vector<ItemReward> ItemRewards;
         };
+
+        class DisplayPlayerChoice final : public ServerPacket
+        {
+        public:
+            DisplayPlayerChoice() : ServerPacket(SMSG_DISPLAY_PLAYER_CHOICE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            PlayerChoice Choice;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponse const& response);
+ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponseReward const& reward);
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestGiverOfferReward const& offer);
