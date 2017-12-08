@@ -713,9 +713,9 @@ public:
     }
 };
 
-// 243968 - Banner near 96732 - Destroyed by Ashtongue
-// 243967 - Banner near 96731 - Destroyed by Shivarra
-// 243965 - Banner near 93762 - Destroyed by Coilskar
+// 243968 - Banner near 96732 - Destroyed by Ashtongue - KillCredit 96734
+// 243967 - Banner near 96731 - Destroyed by Shivarra - KillCredit 96733
+// 243965 - Banner near 93762 - Destroyed by Coilskar - KillCredit 96692
 class go_mardum_illidari_banner : public GameObjectScript
 {
 public:
@@ -724,11 +724,12 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) override
     {
         uint32 devastatorEntry = 0;
+        uint32 killCreditEntry = 0;
         switch (go->GetEntry())
         {
-            case 243968: devastatorEntry = 96732; break;
-            case 243967: devastatorEntry = 96731; break;
-            case 243965: devastatorEntry = 93762; break;
+            case 243968: devastatorEntry = 96732; killCreditEntry = 96734; break;
+            case 243967: devastatorEntry = 96731; killCreditEntry = 96733; break;
+            case 243965: devastatorEntry = 93762; killCreditEntry = 96692; break;
             default: break;
         }
 
@@ -737,10 +738,14 @@ public:
             if (Creature* personnalCreature = player->SummonCreature(devastatorEntry, devastator->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN, 5000, 0, true))
             {
                 player->KilledMonsterCredit(devastatorEntry);
+                player->KilledMonsterCredit(killCreditEntry);
                 devastator->DestroyForPlayer(player);
 
                 //TODO : Script destruction event
-                personnalCreature->Kill(personnalCreature);
+                personnalCreature->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
+                {
+                    context.GetContextUnit()->KillSelf();
+                });
             }
         }
 
