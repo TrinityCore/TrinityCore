@@ -2943,8 +2943,10 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
     if (vmapData.areaInfo)
         data.areaInfo = boost::in_place(vmapData.areaInfo->adtId, vmapData.areaInfo->rootId, vmapData.areaInfo->groupId, vmapData.areaInfo->mogpFlags);
 
+    float mapHeight = VMAP_INVALID_HEIGHT;
     GridMap* gmap = GetGrid(terrainMapId, x, y);
-    float mapHeight = gmap->getHeight(x, y);
+    if (gmap)
+        mapHeight = gmap->getHeight(x, y);
 
     // area lookup
     AreaTableEntry const* areaEntry = nullptr;
