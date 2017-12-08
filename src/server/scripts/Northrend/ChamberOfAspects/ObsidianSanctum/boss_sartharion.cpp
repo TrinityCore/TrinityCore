@@ -321,7 +321,7 @@ public:
 
             if (Creature* fetchVesp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
             {
-                if (fetchVesp && fetchVesp->IsAlive() && !fetchVesp->GetVictim())
+                if (fetchVesp->IsAlive() && !fetchVesp->GetVictim())
                 {
                     _canUseWill = true;
                     if (!fetchVesp->IsInCombat())
