@@ -15824,6 +15824,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
 
     // Remove seasonal quest also
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+    ASSERT(qInfo);
     if (qInfo->IsSeasonal())
     {
         uint16 eventId = qInfo->GetEventIdForQuest();
