@@ -14,8 +14,8 @@ UPDATE creature SET PhaseId = 50 WHERE guid IN (20541415, 20542284);
 
 UPDATE `quest_template_addon` SET `PrevQuestID` = '39663', `ExclusiveGroup` = '0' WHERE `id` = 38728;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '39515', `ExclusiveGroup` = '0' WHERE `id` = 39663;
-UPDATE `quest_template_addon` SET `PrevQuestID` = '38727', `ExclusiveGroup` = '-39515' WHERE `id` = 39515;
-UPDATE `quest_template_addon` SET `PrevQuestID` = '38727', `ExclusiveGroup` = '-39515' WHERE `id` = 39516;
+UPDATE `quest_template_addon` SET `PrevQuestID` = '40051', `ExclusiveGroup` = '39515' WHERE `id` = 39515;
+UPDATE `quest_template_addon` SET `PrevQuestID` = '40051', `ExclusiveGroup` = '39515' WHERE `id` = 39516;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '39495', `ExclusiveGroup` = '-38727' WHERE `id` = 38727;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '39495', `ExclusiveGroup` = '-38727' WHERE `id` = 38819;
 UPDATE `quest_template_addon` SET `PrevQuestID` = '39262', `ExclusiveGroup` = '0' WHERE `id` = 39495;
