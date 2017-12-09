@@ -933,7 +933,7 @@ public:
     }
 };
 
-void AddSC_mardum()
+void AddSC_zone_mardum()
 {
     new PlayerScript_mardum_welcome_scene_trigger();
     new scene_mardum_welcome();
