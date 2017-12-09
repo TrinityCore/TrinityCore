@@ -802,7 +802,7 @@ class TC_GAME_API PlayerScript : public UnitScript
         // Called when a player completes a movie
         virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
 
-        // Called when a player completes a movie
+        // Called when a player choose a response from a PlayerChoice
         virtual void OnPlayerChoiceResponse(Player* /*player*/, uint32 /*choiceID*/, uint32 /*responseID*/) { }
 };
 
