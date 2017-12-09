@@ -43,7 +43,8 @@ enum BaronessAnastariEvents
     EVENT_SPELL_BANSHEECURSE    = 2,
     EVENT_SPELL_SILENCE         = 3,
     EVENT_SPELL_POSSESS         = 4,
-    EVENT_INVISIBLE             = 5
+    EVENT_INVISIBLE             = 5,
+    EVENT_CHECK_POSSESSED       = 6
 };
 
 class boss_baroness_anastari : public CreatureScript
@@ -98,10 +99,6 @@ public:
 
             while (uint32 eventId = _events.ExecuteEvent())
             {
-                if (_invisible)
-                    if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->GetHealthPct() <= 50)
-                        _events.ScheduleEvent(EVENT_INVISIBLE, Seconds(0));
-                
                 switch (eventId)
                 {
                     case EVENT_SPELL_BANSHEEWAIL:
@@ -129,6 +126,7 @@ public:
                                 me->SetVisible(false);
                                 _invisible = true;
                                 _possessedTargetGuid = possessTarget->GetGUID();
+                                _events.ScheduleEvent(EVENT_CHECK_POSSESSED, Seconds(0));
                             }
                             else
                                 _events.ScheduleEvent(EVENT_SPELL_POSSESS, Seconds(20), Seconds(30));
@@ -144,6 +142,18 @@ public:
                             me->SetVisible(true);
                             _invisible = false;
                             _events.ScheduleEvent(EVENT_SPELL_POSSESS, Seconds(20), Seconds(30));
+                        }
+                        break;
+                    case EVENT_CHECK_POSSESSED:
+                        if (_invisible)
+                        {
+                            if (Unit* possessedTarget = me->GetMap()->GetPlayer(_possessedTargetGuid))
+                            {
+                                if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->GetHealthPct() <= 50)
+                                    _events.ScheduleEvent(EVENT_INVISIBLE, Seconds(0));
+                                else
+                                    _events.ScheduleEvent(EVENT_CHECK_POSSESSED, Seconds(1));
+                            }
                         }
                         break;
                 }
