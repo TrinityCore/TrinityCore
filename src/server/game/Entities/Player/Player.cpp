@@ -22197,10 +22197,14 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // check node starting pos data set case if provided
     if (node->Pos.X != 0.0f || node->Pos.Y != 0.0f || node->Pos.Z != 0.0f)
     {
-        if (node->MapID != GetMapId() || !IsInDist(node->Pos.X, node->Pos.Y, node->Pos.Z, 2 * INTERACTION_DISTANCE))
+        // Check only if start != end
+        if (nodes.size() > 2 || nodes[0] != nodes[1])
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
-            return false;
+            if (node->MapID != GetMapId() || !IsInDist(node->Pos.X, node->Pos.Y, node->Pos.Z, 2 * INTERACTION_DISTANCE))
+            {
+                GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
+                return false;
+            }
         }
     }
     // node must have pos if taxi master case (npc != NULL)
