@@ -128,6 +128,12 @@ public:
                     o = 3.4f;
                     path = 235436;
                     break;
+                default:
+                    x = 0.0f;
+                    y = 0.0f;
+                    z = 0.0f;
+                    path = 0;
+                    break;
             }
         }
 
@@ -267,6 +273,11 @@ public:
                     x = 9532.9f;
                     y = -6833.8f;
                     z = 18.5f;
+                    break;
+                default:
+                    x = 0.0f;
+                    y = 0.0f;
+                    z = 0.0f;
                     break;
             }
         }
