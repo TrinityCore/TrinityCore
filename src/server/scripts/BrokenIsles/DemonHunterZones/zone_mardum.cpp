@@ -34,7 +34,9 @@ enum eQuests
     QUEST_MEETING_WITH_QUEEN    = 39050,
     QUEST_SHIVARRA_FORCES       = 38765,
     QUEST_BEFORE_OVERRUN        = 38766,
-    QUEST_HIDDEN_NO_MORE        = 39495
+    QUEST_HIDDEN_NO_MORE        = 39495,
+    QUEST_ON_FELBAT_WINGS       = 39663,
+    QUEST_THE_KEYSTONE          = 38728,
 };
 
 enum eScenes
@@ -71,6 +73,13 @@ enum ePhases
     SPELL_PHASE_ILLIDARI_OUTPOST_ASHTONGUE  = SPELL_PHASE_175,
     SPELL_PHASE_ILLIDARI_OUTPOST_COILSKAR   = SPELL_PHASE_176,
     SPELL_PHASE_ILLIDARI_OUTPOST_SHIVARRA   = SPELL_PHASE_177
+};
+
+enum eMisc
+{
+    PLAYER_CHOICE_DH_SPEC_SELECTION             = 231,
+    PLAYER_CHOICE_DH_SPEC_SELECTION_DEVASTATION = 478,
+    PLAYER_CHOICE_DH_SPEC_SELECTION_VENGEANCE   = 479,
 };
 
 class PlayerScript_mardum_welcome_scene_trigger : public PlayerScript
@@ -753,6 +762,177 @@ public:
     }
 };
 
+class go_mardum_tome_of_fel_secrets : public GameObjectScript
+{
+public:
+    go_mardum_tome_of_fel_secrets() : GameObjectScript("go_mardum_tome_of_fel_secrets") { }
+
+    bool OnGossipHello(Player* player, GameObject* go) override
+    {
+        player->CastSpell(player, 194938, true); // Display player spec choice
+        return false;
+    }
+};
+
+class PlayerScript_mardum_spec_choice : public PlayerScript
+{
+public:
+    PlayerScript_mardum_spec_choice() : PlayerScript("PlayerScript_mardum_spec_choice") {}
+
+    void OnPlayerChoiceResponse(Player* player, uint32 choiceID, uint32 responseID) override
+    {
+        if (choiceID != PLAYER_CHOICE_DH_SPEC_SELECTION)
+            return;
+
+        player->LearnSpell(200749, false); // Allow to choose specialization
+
+        switch (responseID)
+        {
+            case PLAYER_CHOICE_DH_SPEC_SELECTION_DEVASTATION:
+                player->CastSpell(player, 194940, true);
+                break;
+            case PLAYER_CHOICE_DH_SPEC_SELECTION_VENGEANCE:
+                player->CastSpell(player, 194939, true);
+
+                if (ChrSpecializationEntry const* spec = sChrSpecializationStore.AssertEntry(581))
+                    player->ActivateTalentGroup(spec);
+
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// 96655, 93127, 99045, 96420, 96652
+class npc_mardum_dh_learn_spec : public CreatureScript
+{
+public:
+    npc_mardum_dh_learn_spec() : CreatureScript("npc_mardum_dh_learn_spec") { }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    {
+        player->KilledMonsterCredit(creature->GetEntry());
+
+        if (creature->GetEntry() == 96652)
+        {
+            // TODO Animation power overwhel & kill creature
+        }
+        else
+        {
+            //TODO : Script animation
+        }
+
+        return true;
+    }
+};
+
+// 96653
+class npc_mardum_izal_whitemoon : public CreatureScript
+{
+public:
+    npc_mardum_izal_whitemoon() : CreatureScript("npc_mardum_izal_whitemoon") { }
+
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
+    {
+        if (player->HasQuest(QUEST_ON_FELBAT_WINGS))
+            player->CastSpell(player, 192136, true); // KillCredit & SendTaxi
+
+        return true;
+    }
+};
+
+// 93802
+class npc_mardum_tyranna : public CreatureScript
+{
+public:
+    npc_mardum_tyranna() : CreatureScript("npc_mardum_tyranna") { }
+
+    struct npc_mardum_tyrannaAI : public ScriptedAI
+    {
+        npc_mardum_tyrannaAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            std::list<Player*> players;
+            me->GetPlayerListInGrid(players, 50.0f);
+
+            for (Player* player : players)
+                player->KilledMonsterCredit(101760);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_mardum_tyrannaAI(creature);
+    }
+};
+
+// 97303
+class npc_mardum_kayn_sunfury_end : public CreatureScript
+{
+public:
+    npc_mardum_kayn_sunfury_end() : CreatureScript("npc_mardum_kayn_sunfury_end") { }
+
+    bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* quest, uint32 /*opt*/) override
+    {
+        // This Scene make the mobs disappear ATM
+        //if (quest->GetQuestId() == QUEST_THE_KEYSTONE)
+        //    player->CastSpell(player, 193387, true); // Scene
+
+        return true;
+    }
+};
+
+// 245728
+class go_mardum_the_keystone : public GameObjectScript
+{
+public:
+    go_mardum_the_keystone() : GameObjectScript("go_mardum_the_keystone") { }
+
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
+    {
+        player->KilledMonsterCredit(100651);
+        return false;
+    }
+};
+
+// 192140 back to black temple
+class spell_mardum_back_to_black_temple : public SpellScriptLoader
+{
+public:
+    spell_mardum_back_to_black_temple() : SpellScriptLoader("spell_mardum_back_to_black_temple") { }
+
+    class spell_mardum_back_to_black_temple_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mardum_back_to_black_temple_SpellScript);
+
+        void HandleOnCast()
+        {
+            if (GetCaster()->IsPlayer())
+            {
+                // Should be spell 192141 but we can't cast after a movie right now
+                GetCaster()->ToPlayer()->AddMovieDelayedTeleport(471, 1468, 4325.94, -620.21, -281.41, 1.658936);
+
+                GetCaster()->ToPlayer()->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
+                {
+                    context.GetContextUnit()->RemoveAurasDueToSpell(192140); // Remove black screen
+                });
+            }
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_mardum_back_to_black_temple_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mardum_back_to_black_temple_SpellScript();
+    }
+};
+
 void AddSC_mardum()
 {
     new PlayerScript_mardum_welcome_scene_trigger();
@@ -781,4 +961,12 @@ void AddSC_mardum()
     new spell_mardum_spectral_sight();
     new npc_mardum_fel_lord_caza();
     new go_mardum_illidari_banner();
+    new go_mardum_tome_of_fel_secrets();
+    new PlayerScript_mardum_spec_choice();
+    new npc_mardum_dh_learn_spec();
+    new npc_mardum_izal_whitemoon();
+    new npc_mardum_tyranna();
+    new npc_mardum_kayn_sunfury_end();
+    new go_mardum_the_keystone();
+    new spell_mardum_back_to_black_temple();
 }
