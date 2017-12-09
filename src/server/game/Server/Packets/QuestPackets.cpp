@@ -606,6 +606,12 @@ void WorldPackets::Quest::QueryQuestReward::Read()
     _worldPacket >> Unk;
 }
 
+void WorldPackets::Quest::PlayerChoiceResponse::Read()
+{
+    _worldPacket >> ChoiceID;
+    _worldPacket >> ResponseID;
+}
+
 WorldPacket const* WorldPackets::Quest::QueryQuestRewardResponse::Write()
 {
     _worldPacket << QuestID;

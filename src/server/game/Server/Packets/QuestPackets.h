@@ -680,6 +680,17 @@ namespace WorldPackets
             ObjectGuid SenderGUID;
             PlayerChoice Choice;
         };
+
+        class PlayerChoiceResponse final : public ClientPacket
+        {
+        public:
+            PlayerChoiceResponse(WorldPacket&& packet) : ClientPacket(CMSG_CHOICE_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 ChoiceID;
+            int32 ResponseID;
+        };
     }
 }
 
