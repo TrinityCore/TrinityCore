@@ -7779,8 +7779,8 @@ UPDATE `creature_template` SET `InhabitType`=4, `ScriptName`='npc_shen_zin_shu_b
 UPDATE `creature_template` SET `npcflag`=16777216, `unit_flags`=33280, `unit_flags2`=67110912, `BaseAttackTime`=2000, `RangeAttackTime`=2000 WHERE `entry`=57778;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33587720, `unit_flags2`=2048, `VehicleId`=1956, `AIName`='SmartAI', `InhabitType`=4 WHERE `entry`=57781;
 UPDATE `creature_template` SET `npcflag`=16777216, `unit_flags`=537166592, `unit_flags2`=1, `AIName`='SmartAI', `RegenHealth`=0 WHERE `entry`=55999;
-UPDATE `creature_template` SET `npcflag`=0, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=56416;
-UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2099200, `mingold`=6, `maxgold`=10, `AIName`='SmartAI', `mechanic_immune_mask`=65536 WHERE `entry`=56009;
+UPDATE `creature_template` SET `npcflag`=0, `BaseAttackTime`=700, `RangeAttackTime`=700, `unit_flags`=32768, `unit_flags2`=2048, `AIName`='', `ScriptName`='npc_aysa_vordraka_fight' WHERE `entry`=56416;
+UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2099200, `mingold`=6, `maxgold`=10, `ScriptName`='npc_vordraka', `mechanic_immune_mask`=65536 WHERE `entry`=56009;
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=542720, `unit_flags2`=2048, `AIName`='SmartAI', `DamageModifier`=0.5 WHERE `entry`=60685;
 UPDATE `creature_template` SET `AIName`='SmartAI', `InhabitType`=4 WHERE `entry`=40789;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33544, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry` IN (60729, 60741);
@@ -8734,7 +8734,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26, 536, 5829, 0, 1, 8, 0, 29786, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 536 when Quest 29786 rewarded'),
 (26, 878, 5828, 0, 0, 9, 0, 29792, 0, 0, 0, 0, 0, '', 'Mandori Village Phase 878 when Quest 29792 taken'),
 (26, 878, 5828, 0, 0, 48, 0, 263982, 0, 0, 1, 0, 0, '', 'Mandori Village Phase 878 when Quest objective not complete'),
-(26, 543, 5833, 0, 0, 14, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 543 when Quest 29798 available'),
+-- (26, 543, 5833, 0, 0, 14, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 543 when Quest 29798 available'),
 (26, 543, 5833, 0, 1, 9, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 543 when Quest 29798 taken'),
 (26, 993, 5833, 0, 0, 28, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 993 when Quest 29798 complete'), -- delayed
 (26, 993, 5833, 0, 1, 8, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 993 when Quest 29798 rewarded'),
@@ -8784,7 +8784,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26, 903, 0, 0, 0, 8, 0, 29792, 0, 0, 0, 0, 0, '', 'Pei-Wu Forest Phase 903 when Quest 29792 rewarded'),
 (26, 903, 0, 0, 0, 28, 0, 30589, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 903 when Quest 30589 not complete'),
 (26, 903, 0, 0, 0, 8, 0, 30589, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 903 when Quest 30589 not rewarded'),
-(26, 1835, 0, 0, 0, 14, 0, 29798, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 1835 when Quest 29798 not available'),
+-- (26, 1835, 0, 0, 0, 14, 0, 29798, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 1835 when Quest 29798 not available'),
 (26, 1835, 0, 0, 0, 9, 0, 29798, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 1835 when Quest 29798 not taken'),
 (26, 1835, 0, 0, 0, 28, 0, 29798, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 1835 when Quest 29798 not complete'),
 (26, 1835, 0, 0, 0, 8, 0, 29798, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 1835 when Quest 29798 not rewarded'),
@@ -8980,7 +8980,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 115493, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Aysa when Aysa not within 50y'),
 (17, 0, 115494, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Ji when Aysa not within 50y'),
 (17, 0, 115495, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Jojo when Aysa not within 50y'),
-(18, 55999, 56685, 0, 0, 9, 0, 29794, 0, 0, 0, 0, 0, '', 'Show spellclick only when player has taken quest');
+(18, 55999, 56685, 0, 0, 9, 0, 29794, 0, 0, 0, 0, 0, '', 'Show spellclick only when player has taken quest'),
+(18, 55999, 56685, 0, 0, 1, 0, 105520, 0, 0, 1, 0, 0, '', 'Show spellclick only when player has not aura'),
+(18, 55999, 56685, 0, 0, 1, 0, 129340, 0, 0, 1, 0, 0, '', 'Show spellclick only when player has not aura');
 
 DELETE FROM `phase_area` WHERE `AreaId` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944);
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
@@ -9200,7 +9202,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (108931, 5833, 0, 0, 0, 0, 2, 1, 0, 0), -- See Quest Invis 2 (Cart - Wreck of the Skyseeker)
 (117501, 5833, 0, 29799, 0, 0, 2, 1, 0, 1); -- See Quest Invis 11 (Aysa Cloudsinger - after Vordraka fight)
 
-DELETE FROM `spell_target_position` WHERE `ID` IN (102499, 118499, 118500, 116190, 116191, 108786, 108827, 104450, 108847, 108858, 104571, 115426, 115334, 115336, 115338, 115435, 115493, 115494, 115495, 117597, 117615);
+DELETE FROM `spell_target_position` WHERE `ID` IN (102499, 118499, 118500, 116190, 116191, 108786, 108827, 104450, 108847, 108858, 104571, 126040, 115426, 115334, 115336, 115338, 115435, 115493, 115494, 115495, 117597, 117615);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
 (102499, 0, 860, 1351.333, 3939.035, 109.324, 0),
 (118499, 0, 860, 992.0035, 3600.757, 193.0315, 0),
@@ -9213,6 +9215,7 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 (108847, 0, 860, 1075.602, 4177.969, 204.6298, 0),
 (108858, 0, 860, 1075.535, 4177.896, 205.5825, 0),
 (104571, 0, 860, 666.514, 4218.27, 200.851, 0),
+(126040, 0, 860, 756.2014, 4168.137, 202.2617, 0),
 (115426, 0, 860, 695.26, 3600.99, 142.381, 20886),
 (115334, 0, 860, 571.2014, 3584.595, 94.84367, 0),
 (115336, 0, 860, 573.84, 3577.94, 95.0413, 0),
@@ -9247,7 +9250,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid` BETWEEN -@CGUID-2849 AND -@CGUID
 -- Temp Spawns
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (59637, 54856, 59652, 56503, 57750, 54631, 61126, 61127, 54958, 56550, 60250, 60249, 57636, 57638, 60488, 55213, 57208, 57207, 64258, 57667, 57669, 55558, 60916, 59496, 59498, 56566, 55685, 55694, 57668, 57670, 65558, 56134, 57465, 57690, 57692, 64530, 55744, 64543, 64532, 56159, 65476, 65477, 56686, 57874, 56679, 56663, 55649, 56660, 56661, 65102, 65107, 57781, 59986, 59988, 59989, 60900, 56236, 60685, 60729, 60741, 57803) AND `source_type`=0;
 -- Action Lists > x*100 || Temp Spawns' Actionlists
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5485603, 5965200, 5650300, 5461101, 5461102, 5458701, 5458702, 5458703, 5458704, 5458705, 5458706, 5458707, 5458708, 5458601, 5356501, 5356502, 5356503, 5356504, 5774801, 5774802, 5774803, 6141101, 6141102, 6141103, 5413001, 5413002, 5413003, 5413004, 5413005, 5413006, 5413007, 5413008, 5413009, 5673001, 5673002, 5673003, 5463100, 6112600, 6112700, 5495800, 6025000, 6024900, 5763800, 5639301, 5639302, 6048800, 5720800, 5720700, 5766900, 5639303, 6546701, 5547701, 5555800, 6091600, 5949600, 6668901, 6669101, 6669201, 5656600, 5569400, 5560101, 5560102, 5767000, 5639304, 5639305, 5639306, 5639307, 6546702, 5639401, 5639402, 5639403, 6555800, 5769200, 6454300, 5566501, 6453200, 5615900, 5668600, 5668601, 5668602, 5668603, 5564900, 5564901, 5564902, 5666100, 5666101, 5666000, 5666001, 5998600, 5998601, 5998602, 5998603, 5998800, 5998900, 5998901, 6090000, 5623600, 5641601, 5600901, 6072900, 6074100, 5780300) AND `source_type`=9;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5485603, 5965200, 5650300, 5461101, 5461102, 5458701, 5458702, 5458703, 5458704, 5458705, 5458706, 5458707, 5458708, 5458601, 5356501, 5356502, 5356503, 5356504, 5774801, 5774802, 5774803, 6141101, 6141102, 6141103, 5413001, 5413002, 5413003, 5413004, 5413005, 5413006, 5413007, 5413008, 5413009, 5673001, 5673002, 5673003, 5463100, 6112600, 6112700, 5495800, 6025000, 6024900, 5763800, 5639301, 5639302, 6048800, 5720800, 5720700, 5766900, 5639303, 6546701, 5547701, 5555800, 6091600, 5949600, 6668901, 6669101, 6669201, 5656600, 5569400, 5560101, 5560102, 5767000, 5639304, 5639305, 5639306, 5639307, 6546702, 5639401, 5639402, 5639403, 6555800, 5769200, 6454300, 5566501, 6453200, 5615900, 5668600, 5668601, 5668602, 5668603, 5564900, 5564901, 5564902, 5666100, 5666101, 5666000, 5666001, 5998600, 5998601, 5998602, 5998603, 5998800, 5998900, 5998901, 6090000, 5623600, 6072900, 6074100, 5780300) AND `source_type`=9;
 -- Area Triggers
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (7746, 7737, 7747, 7748, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7042, 7037, 7106, 7710, 7709, 7714, 7265) AND `source_type`=2;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
@@ -10689,10 +10692,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (64505, 0, 14, 15, 61, 4, 100, 0, 0, 0, 0, 0, 18, 32768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Unit Flags'),
 (64505, 0, 15, 16, 61, 4, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 1, 1, 0, 19, 64507, 40, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
 (64505, 0, 16, 0, 61, 4, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Event Phase 1'),
-(64505, 0, 17, 18, 38, 0, 100, 0, 5, 5, 0, 0, 69, 3, 0, 0, 0, 0, 0, 8, 0, 0, 0, 714.385, 4163.74, 195.8898, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
-(64505, 0, 18, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Event Phase 4'),
-(64505, 0, 19, 0, 34, 0, 100, 0, 8, 3, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 6.015011, 'Ji Firepaw - Movement Inform - Set Orientation'),
-(64505, 0, 20, 0, 38, 0, 100, 0, 6, 6, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Evade'),
+(64505, 0, 17, 0, 38, 0, 100, 0, 5, 5, 0, 0, 69, 3, 0, 0, 0, 0, 0, 8, 0, 0, 0, 714.385, 4163.74, 195.8898, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
+(64505, 0, 18, 19, 34, 0, 100, 0, 8, 3, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 6.015011, 'Ji Firepaw - Movement Inform - Set Orientation'),
+(64505, 0, 19, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Movement Inform - Set Event Phase 4'),
+(64505, 0, 20, 0, 38, 8, 100, 0, 6, 6, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Evade'),
 -- Aysa Cloudsinger
 (64506, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Respawn - Set React State'),
 (64506, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Respawn - Set Event Phase 1'),
@@ -11105,65 +11108,16 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (56360, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 9, 56362, 0, 5, 0, 0, 0, 0, 'Deepscale Tormentor - Update OOC - Start Attack'),
 (56360, 0, 1, 0, 0, 0, 100, 0, 3000, 5000, 8000, 12000, 11, 128270, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Deepscale Tormentor - Update IC - Cast Smash'),
 -- Skyseeker Sailor
-(56362, 0, 0, 0, 0, 0, 100, 0, 3000, 5000, 8000, 12000, 11, 128440, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Skyseeker Sailor - Update IC - Cast Piercing Strikes'),
+(56362, 0, 0, 0, 0, 0, 100, 0, 3000, 5000, 3000, 5000, 11, 128440, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Skyseeker Sailor - Update IC - Cast Piercing Strikes'),
 -- Jojo Ironbrow
 (55940, 0, 0, 1, 19, 0, 100, 0, 29798, 0, 0, 0, 44, 543, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On Quest Accepted - Add Phase'),
 (55940, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 44, 993, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On Quest Accepted - Remove Phase'),
 (55940, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 1835, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On Quest Accepted - Remove Phase'),
--- Aysa Cloudsinger
-/*
- * This NPC needs to be scripted in core, but beware, there are two with same entry and required AI!
- * At the end of the fight after Aysa reaches home, phases and auras should be updated for all participated players
- * Execute following when core script is complete:
- *      UPDATE creature_template SET AIName='' WHERE entry=56416;
- *      DELETE FROM smart_scripts WHERE entryorguid IN (56416, 5641600);
- */
-(-@CGUID-2002, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Respawn - Set React State'),
-(-@CGUID-2002, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 42, 0, 100, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Respawn - Set Invincibility'),
-(-@CGUID-2002, 0, 2, 0, 10, 0, 100, 0, 1, 50, 1000, 1000, 49, 0, 0, 0, 0, 0, 0, 10, @CGUID+1997, 56009, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On OOC LOS - Start Attack'),
-(-@CGUID-2002, 0, 3, 0, 4, 0, 100, 1, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Aggro - Set Event Phase 1'),
-(-@CGUID-2002, 0, 4, 0, 33, 0, 100, 1, 50, 250, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Target Damaged - Talk'),
-(-@CGUID-2002, 0, 5, 0, 38, 1, 100, 0, 1, 1, 0, 0, 80, 5641600, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Run Script'),
-(5641600, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Set Event Phase 2'),
-(-@CGUID-2002, 0, 6, 7, 38, 2, 100, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
-(-@CGUID-2002, 0, 7, 0, 61, 2, 100, 0, 0, 0, 0, 0, 22, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Set Event phase 3'),
-(-@CGUID-2002, 0, 8, 0, 38, 0, 100, 0, 2, 2, 0, 0, 1, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
-(-@CGUID-2002, 0, 9, 0, 12, 0, 100, 1, 0, 20, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Target Health Pct - Talk'),
-(-@CGUID-2002, 0, 10, 11, 38, 0, 100, 0, 3, 3, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Kill - Talk'),
-(-@CGUID-2002, 0, 11, 0, 61, 0, 100, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Kill - Evade'),
-(-@CGUID-2002, 0, 12, 0, 21, 0, 100, 0, 0, 0, 0, 0, 80, 5641601, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Reached Home - Run Script'),
-(5641601, 9, 0, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 44, 993, 1, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Add Phase'),
-(5641601, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 44, 543, 0, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Remove Phase'),
-(5641601, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Reset Event Phase'),
-(5641601, 9, 3, 0, 0, 0, 100, 0, 30000, 30000, 0, 0, 70, 0, 0, 0, 0, 0, 0, 10, @CGUID+1997, 56009, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Respawn Target'),
-(-@CGUID-2002, 0, 13, 0, 9, 7, 100, 0, 10, 40, 20000, 30000, 11, 117312, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Update IC - Cast Combat Roll'),
-(-@CGUID-2002, 0, 14, 0, 0, 0, 100, 0, 8000, 12000, 16000, 24000, 11, 117401, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Update IC - Cast Spinning Crane Kick'),
-(-@CGUID-2002, 0, 15, 0, 13, 7, 75, 0, 5000, 5000, 117287, 0, 11, 117275, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Update IC - Cast Tempered Fury'),
--- Vordraka, the Deep Sea Nightmare
-(56009, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 44, 543, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - On Respawn - Add Phase'),
-(56009, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - On Respawn - Set React State'),
-(56009, 0, 2, 3, 0, 0, 100, 0, 8000, 8000, 12000, 12000, 45, 1, 1, 0, 0, 0, 0, 10, @CGUID+2002, 56416, 0, 0, 0, 0, 0, 'Vordraka - Update IC - Set Data'),
-(56009, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 117287, 0, 0, 0, 0, 0, 10, @CGUID+2002, 56416, 0, 0, 0, 0, 0, 'Vordraka - Update IC - Cast Deep Sea Smash'),
-(56009, 0, 4, 0, 0, 0, 100, 0, 12000, 16000, 12000, 16000, 11, 117456, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - Update IC - Cast Deep Sea Rupture'),
-(56009, 0, 5, 6, 2, 0, 100, 1, 0, 60, 0, 0, 11, 117403, 2, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - On Health Pct - Cast Forcecast Summon Deep Sea Aggressor'),
-(56009, 0, 6, 7, 61, 0, 100, 1, 0, 0, 0, 0, 11, 117403, 2, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - On Health Pct - Cast Forcecast Summon Deep Sea Aggressor'),
-(56009, 0, 7, 0, 61, 0, 100, 1, 0, 0, 0, 0, 45, 2, 2, 0, 0, 0, 0, 10, @CGUID+2002, 56416, 0, 0, 0, 0, 0, 'Vordraka - On Health Pct - Set Data'),
-(56009, 0, 8, 0, 2, 0, 100, 1, 0, 30, 0, 0, 80, 5600900, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - On Health Pct - Run Script'),
-(5600900, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 117403, 2, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - Cast Forcecast Summon Deep Sea Aggressor'),
-(5600900, 9, 1, 0, 0, 0, 100, 0, 1000, 5000, 0, 0, 11, 117403, 2, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - Cast Forcecast Summon Deep Sea Aggressor'),
-(56009, 0, 9, 10, 6, 0, 100, 0, 0, 0, 0, 0, 33, 56009, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - On Death - Quest Credit'),
-(56009, 0, 10, 11, 61, 0, 100, 0, 0, 0, 0, 0, 64, 1, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - On Death - Store Target'),
-(56009, 0, 11, 12, 61, 0, 100, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 10, @CGUID+2002, 56416, 0, 0, 0, 0, 0, 'Vordraka - On Death - Send Target'),
-(56009, 0, 12, 0, 61, 0, 100, 0, 0, 0, 0, 0, 45, 3, 3, 0, 0, 0, 0, 10, @CGUID+2002, 56416, 0, 0, 0, 0, 0, 'Vordraka - On Death - Set Data'),
--- (56009, 0, 12, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5600901, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - On Death - Run Script'),
--- (5600901, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 11, 117555, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Vordraka - Cast Deep Sea Boss Death Invis/Phase'),
 -- Deepscale Agressor
 (60685, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 117, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Deepscale Agressor - Just Spawned - Disable Evade'),
 (60685, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 117407, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Deepscale Agressor - Just Spawned - Cast Aggresive Leap'),
 (60685, 0, 2, 0, 31, 0, 100, 0, 117407, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Deepscale Agressor - On Spellhit Target - Start Attack'),
 (60685, 0, 3, 0, 1, 0, 100, 1, 5000, 5000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Deepscale Agressor - Update OOC - Despawn'),
--- Aysa Cloudsinger
-(-@CGUID-2011, 0, 0, 0, 19, 0, 100, 0, 30767, 0, 0, 0, 11, 117499, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Quest Accepted - Cast Forcecast Summon Aysa, Cinematic Intro'),
 -- Aysa Cloudsinger
 (60729, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 6072900, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Just Spawned - Run Script'),
 (6072900, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Talk'),
@@ -12187,6 +12141,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (108806, 'spell_injured_sailor_feign_death'),
 (129341, 'spell_rescue_injured_sailor'),
 (117400, 'spell_summon_deep_sea_aggressor');
+
+DELETE FROM `disables` WHERE `sourceType`=0 AND `entry`=117407;
+INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
+(0, 117407, 64, '', '', 'Ignore LOS on Aggresive Leap');
 
 -- UPDATE `spell_area` SET `quest_end`=0 WHERE `spell` IN (108834, 108835, 108844);
 /*
