@@ -928,10 +928,6 @@ class spell_mage_frostbolt : public SpellScriptLoader
                if (!caster || !target)
                    return;
 
-               Unit* pet = caster->GetGuardianPet();
-               if (!pet)
-                   return;
-
                caster->CastSpell(target, SPELL_MAGE_CHILLED, true);
 
                // Brain Freeze
@@ -947,6 +943,10 @@ class spell_mage_frostbolt : public SpellScriptLoader
                        caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_VISUAL_UI, true);
                    caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_AURA, true);
                }
+
+               Unit* pet = caster->GetGuardianPet();
+               if (!pet)
+                   return;
 
                // Water Jet
                if (target->HasAura(SPELL_MAGE_WATER_JET, pet->GetGUID()))
