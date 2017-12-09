@@ -395,7 +395,7 @@ public:
             std::list<Player*> players;
             Trinity::AnyPlayerInObjectRangeCheck checker(me, radius);
             Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-            me->VisitNearbyWorldObject(radius, searcher);
+            me->VisitNearbyObject(radius, searcher);
 
             for (Player* player : players)
             {
