@@ -29,7 +29,8 @@ void AddSC_suramar();
 void AddSC_valsharah();
 
 // Demon Hunter start zone
-void AddSC_mardum();
+void AddSC_zone_mardum();
+void AddSC_zone_vault_of_wardens();
 
 // Class Halls
 void AddSC_class_hall_dh();
@@ -142,7 +143,8 @@ void AddBrokenIslesScripts()
     AddSC_valsharah();
 
     // Demon Hunter start zone
-    AddSC_mardum();
+    AddSC_zone_mardum();
+    AddSC_zone_vault_of_wardens();
 
     // Class Halls
     AddSC_class_hall_dh();
