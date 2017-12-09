@@ -820,7 +820,7 @@ public:
         }
         else
         {
-            //TODO : Script animation
+            // TODO Animation
         }
 
         return true;
@@ -909,12 +909,17 @@ public:
 
         void HandleOnCast()
         {
-            if (GetCaster()->IsPlayer())
+            if (Player* player = GetCaster()->ToPlayer())
             {
                 // Should be spell 192141 but we can't cast after a movie right now
-                GetCaster()->ToPlayer()->AddMovieDelayedTeleport(471, 1468, 4325.94, -620.21, -281.41, 1.658936);
+                //player->AddMovieDelayedTeleport(471, 1468, 4325.94, -620.21, -281.41, 1.658936);
 
-                GetCaster()->ToPlayer()->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
+                if (player->GetTeam() == ALLIANCE)
+                    player->AddMovieDelayedTeleport(471, 0, -8838.72f,   616.29f, 93.06f, 0.779564f);
+                else
+                    player->AddMovieDelayedTeleport(471, 1,  1569.96f, -4397.41f, 16.05f, 0.527317f);
+
+                player->GetScheduler().Schedule(Seconds(2), [](TaskContext context)
                 {
                     context.GetContextUnit()->RemoveAurasDueToSpell(192140); // Remove black screen
                 });
