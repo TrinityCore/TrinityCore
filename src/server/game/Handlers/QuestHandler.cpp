@@ -685,3 +685,11 @@ void WorldSession::HandleQueryQuestRewards(WorldPackets::Quest::QueryQuestReward
     response.ItemRewards.push_back(item); */
     SendPacket(response.Write());
 }
+
+void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::PlayerChoiceResponse& packet)
+{
+    if (!GetPlayer())
+        return;
+
+    sScriptMgr->OnPlayerChoiceResponse(GetPlayer(), packet.ChoiceID, packet.ResponseID);
+}

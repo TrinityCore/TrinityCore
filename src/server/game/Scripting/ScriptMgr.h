@@ -801,6 +801,9 @@ class TC_GAME_API PlayerScript : public UnitScript
 
         // Called when a player completes a movie
         virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
+
+        // Called when a player completes a movie
+        virtual void OnPlayerChoiceResponse(Player* /*player*/, uint32 /*choiceID*/, uint32 /*responseID*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -1216,6 +1219,7 @@ class TC_GAME_API ScriptMgr
         void OnSceneCancel(Player* player, uint32 sceneInstanceId);
         void OnSceneComplete(Player* player, uint32 sceneInstanceId);
         void OnMovieComplete(Player* player, uint32 movieId);
+        void OnPlayerChoiceResponse(Player* player, uint32 choiceID, uint32 responseID);
 
     public: /* AccountScript */
 
