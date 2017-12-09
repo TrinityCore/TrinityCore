@@ -65,9 +65,9 @@ WorldPacket const* WorldPackets::Pet::PetStableList::Write()
         _worldPacket << int32(pet.CreatureID);
         _worldPacket << int32(pet.DisplayID);
         _worldPacket << int32(pet.ExperienceLevel);
-        _worldPacket << int32(pet.PetFlags);
+        _worldPacket << int8(pet.PetFlags);
 
-        _worldPacket << int8(pet.PetName.length());
+        _worldPacket.WriteBits(pet.PetName.length(), 8);
         _worldPacket.WriteString(pet.PetName);
     }
 
