@@ -158,22 +158,17 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             void OnCreatureCreate(Creature* creature) override
             {
                 InstanceScript::OnCreatureCreate(creature);
-                switch (creature->GetEntry())
-                {
-                    case NPC_BARRETT_BEASTS:
-                    case NPC_BARRETT_BEASTS_HC:
-                    case NPC_BARRETT_JARAXXUS:
-                    case NPC_BARRETT_FACTION:
-                    case NPC_BARRETT_VALKYR:
-                    case NPC_BARRETT_LK:
-                    case NPC_ANUBARAK:
-                        if (!TrialCounter)
-                            creature->DespawnOrUnsummon();
-                        break;
-                    case NPC_SNOBOLD_VASSAL:
-                        snoboldGUIDS.push_back(creature->GetGUID());
-                        break;
-                }
+                if (creature->GetEntry() == NPC_SNOBOLD_VASSAL)
+                    snoboldGUIDS.push_back(creature->GetGUID());
+            }
+
+            // Summon prevention to heroic modes
+            uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
+            {
+                if (!TrialCounter)
+                    return 0;
+
+                return data->id;
             }
 
             void OnGameObjectCreate(GameObject* go) override

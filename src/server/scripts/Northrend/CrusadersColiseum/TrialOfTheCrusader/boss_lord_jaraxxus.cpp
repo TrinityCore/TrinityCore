@@ -122,10 +122,7 @@ class boss_jaraxxus : public CreatureScript
 
             void Reset() override
             {
-                events.Reset();
-                summons.DespawnAll();
-                me->SetCombatPulseDelay(0);
-                me->ResetLootMode();
+                _Reset();
                 if (instance->GetBossState(DATA_JARAXXUS) == NOT_STARTED)
                     DoAction(ACTION_JARAXXUS_INTRO);
             }
