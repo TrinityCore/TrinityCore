@@ -17,6 +17,7 @@
 
 #include "Player.h"
 #include "PassiveAI.h"
+#include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -395,7 +396,7 @@ public:
             std::list<Player*> players;
             Trinity::AnyPlayerInObjectRangeCheck checker(me, radius);
             Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-            me->VisitNearbyObject(radius, searcher);
+            Cell::VisitWorldObjects(me, searcher, radius);
 
             for (Player* player : players)
             {
