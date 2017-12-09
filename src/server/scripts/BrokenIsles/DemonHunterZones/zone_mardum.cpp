@@ -767,7 +767,7 @@ class go_mardum_tome_of_fel_secrets : public GameObjectScript
 public:
     go_mardum_tome_of_fel_secrets() : GameObjectScript("go_mardum_tome_of_fel_secrets") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         player->CastSpell(player, 194938, true); // Display player spec choice
         return false;
@@ -874,7 +874,7 @@ class npc_mardum_kayn_sunfury_end : public CreatureScript
 public:
     npc_mardum_kayn_sunfury_end() : CreatureScript("npc_mardum_kayn_sunfury_end") { }
 
-    bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* quest, uint32 /*opt*/) override
+    bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) override
     {
         // This Scene make the mobs disappear ATM
         //if (quest->GetQuestId() == QUEST_THE_KEYSTONE)
