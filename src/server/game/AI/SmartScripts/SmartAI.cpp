@@ -595,13 +595,6 @@ void SmartAI::JustRespawned()
     mFollowCreditType = 0;
 }
 
-int SmartAI::Permissible(const Creature* creature)
-{
-    if (creature->GetAIName() == "SmartAI")
-        return PERMIT_BASE_SPECIAL;
-    return PERMIT_BASE_NO;
-}
-
 void SmartAI::JustReachedHome()
 {
     GetScript()->OnReset();
@@ -963,13 +956,6 @@ void SmartAI::CheckConditions(uint32 diff)
     }
     else
         mConditionsTimer -= diff;
-}
-
-int SmartGameObjectAI::Permissible(const GameObject* g)
-{
-    if (g->GetAIName() == "SmartGameObjectAI")
-        return PERMIT_BASE_SPECIAL;
-    return PERMIT_BASE_NO;
 }
 
 void SmartGameObjectAI::UpdateAI(uint32 diff)
