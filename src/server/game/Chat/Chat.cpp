@@ -33,6 +33,7 @@
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include <boost/algorithm/string/replace.hpp>
 
 ChatCommand::ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands /*= std::vector<ChatCommand>()*/)
     : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands))
@@ -347,6 +348,7 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
                 SendSysMessage(table[i].Help.c_str());
             else
                 SendSysMessage(LANG_CMD_SYNTAX);
+            SetSentErrorMessage(true);
         }
 
         return true;
@@ -410,41 +412,39 @@ bool ChatHandler::SetDataForCommandInTable(std::vector<ChatCommand>& table, char
     return false;
 }
 
+bool ChatHandler::_ParseCommands(char const* text)
+{
+    if (ExecuteCommandInTable(getCommandTable(), text, text))
+        return true;
+
+    // Pretend commands don't exist for regular players
+    if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
+        return false;
+
+    // Send error message for GMs
+    SendSysMessage(LANG_NO_CMD);
+    SetSentErrorMessage(true);
+    return true;
+}
+
 bool ChatHandler::ParseCommands(char const* text)
 {
     ASSERT(text);
     ASSERT(*text);
 
-    std::string fullcmd = text;
-
     /// chat case (.command or !command format)
-    if (m_session)
-    {
-        if (text[0] != '!' && text[0] != '.')
-            return false;
-    }
+    if (text[0] != '!' && text[0] != '.')
+        return false;
 
     /// ignore single . and ! in line
-    if (strlen(text) < 2)
+    if (!text[1])
         return false;
-    // original `text` can't be used. It content destroyed in command code processing.
 
     /// ignore messages staring from many dots.
-    if ((text[0] == '.' && text[1] == '.') || (text[0] == '!' && text[1] == '!'))
+    if (text[1] == '!' || text[1] == '.')
         return false;
 
-    /// skip first . or ! (in console allowed use command with . and ! and without its)
-    if (text[0] == '!' || text[0] == '.')
-        ++text;
-
-    if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
-    {
-        if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
-            return false;
-
-        SendSysMessage(LANG_NO_CMD);
-    }
-    return true;
+    return _ParseCommands(text+1);
 }
 
 bool ChatHandler::isValidChatMessage(char const* message)
@@ -1232,6 +1232,16 @@ void CliHandler::SendSysMessage(const char *str, bool /*escapeCharacters*/)
     m_print(m_callbackArg, "\r\n");
 }
 
+bool CliHandler::ParseCommands(char const* str)
+{
+    if (!str[0])
+        return false;
+    // Console allows using commands both with and without leading indicator
+    if (str[0] == '.' || str[0] == '!')
+        ++str;
+    return _ParseCommands(str);
+}
+
 std::string CliHandler::GetNameLink() const
 {
     return GetTrinityString(LANG_CONSOLE_COMMAND);
@@ -1294,4 +1304,103 @@ LocaleConstant CliHandler::GetSessionDbcLocale() const
 int CliHandler::GetSessionDbLocaleIndex() const
 {
     return sObjectMgr->GetDBCLocaleIndex();
+}
+
+bool AddonChannelCommandHandler::ParseCommands(char const* str)
+{
+    if (memcmp(str, "TrinityCore\t", 12))
+        return false;
+    char opcode = str[12];
+    if (!opcode) // str[12] is opcode
+        return false;
+    if (!str[13] || !str[14] || !str[15] || !str[16]) // str[13] through str[16] is 4-character command counter
+        return false;
+    echo = str+13;
+
+    switch (opcode)
+    {
+        case 'p': // p Ping
+            SendAck();
+            return true;
+        case 'h': // h Issue human-readable command
+        case 'i': // i Issue command
+            if (!str[17])
+                return false;
+            humanReadable = (opcode == 'h');
+            if (_ParseCommands(str + 17)) // actual command starts at str[17]
+            {
+                if (!hadAck)
+                    SendAck();
+                if (HasSentErrorMessage())
+                    SendFailed();
+                else
+                    SendOK();
+            }
+            else
+            {
+                SendSysMessage(LANG_NO_CMD);
+                SendFailed();
+            }
+            return true;
+        default:
+            return false;
+    }
+}
+
+void AddonChannelCommandHandler::Send(std::string const& msg)
+{
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_ADDON, GetSession()->GetPlayer(), GetSession()->GetPlayer(), msg);
+    GetSession()->SendPacket(&data);
+}
+
+void AddonChannelCommandHandler::SendAck() // a Command acknowledged, no body
+{
+    ASSERT(echo);
+    char ack[18] = "TrinityCore\ta";
+    memcpy(ack+13, echo, 4);
+    ack[17] = '\0';
+    Send(ack);
+    hadAck = true;
+}
+
+void AddonChannelCommandHandler::SendOK() // o Command OK, no body
+{
+    ASSERT(echo);
+    char ok[18] = "TrinityCore\to";
+    memcpy(ok+13, echo, 4);
+    ok[17] = '\0';
+    Send(ok);
+}
+
+void AddonChannelCommandHandler::SendFailed() // f Command failed, no body
+{
+    ASSERT(echo);
+    char fail[18] = "TrinityCore\tf";
+    memcpy(fail + 13, echo, 4);
+    fail[17] = '\0';
+    Send(fail);
+}
+
+// m Command message, message in body
+void AddonChannelCommandHandler::SendSysMessage(char const* str, bool escapeCharacters)
+{
+    ASSERT(echo);
+    if (!hadAck)
+        SendAck();
+
+    std::string msg = "TrinityCore\tm";
+    msg.append(echo, 4);
+    std::string body(str);
+    if (escapeCharacters)
+        boost::replace_all(body, "|", "||");
+    size_t pos, lastpos;
+    for (lastpos = 0, pos = body.find('\n', lastpos); pos != std::string::npos; lastpos = pos + 1, pos = body.find('\n', lastpos))
+    {
+        std::string line(msg);
+        line.append(body, lastpos, pos - lastpos);
+        Send(line);
+    }
+    msg.append(body, lastpos, pos - lastpos);
+    Send(msg);
 }

@@ -375,7 +375,7 @@ class RunicSmashExplosionEvent : public BasicEvent
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
         {
-            _owner->CastSpell((Unit*)nullptr, SPELL_RUNIC_SMASH);
+            _owner->CastSpell(nullptr, SPELL_RUNIC_SMASH);
             return true;
         }
 
@@ -393,7 +393,7 @@ class TrashJumpEvent : public BasicEvent
             switch (_stage)
             {
                 case 0:
-                    _owner->CastSpell((Unit*)nullptr, SPELL_LEAP);
+                    _owner->CastSpell(nullptr, SPELL_LEAP);
                     ++_stage;
                     _owner->m_Events.AddEvent(this, eventTime + 2000);
                     return false;
@@ -425,7 +425,7 @@ class LightningFieldEvent : public BasicEvent
             {
                 if (instance->GetBossState(BOSS_THORIM) == IN_PROGRESS)
                 {
-                    _owner->CastSpell((Unit*)nullptr, SPELL_LIGHTNING_FIELD);
+                    _owner->CastSpell(nullptr, SPELL_LIGHTNING_FIELD);
                     _owner->m_Events.AddEvent(this, eventTime + 1000);
                     return false;
                 }
@@ -515,7 +515,7 @@ class boss_thorim : public CreatureScript
                     if (Creature* pillar = ObjectAccessor::GetCreature(*me, _activePillarGUID))
                     {
                         pillar->CastSpell(pillar, SPELL_LIGHTNING_ORB_CHARGED, true);
-                        pillar->CastSpell((Unit*)nullptr, SPELL_LIGHTNING_PILLAR_2);
+                        pillar->CastSpell(nullptr, SPELL_LIGHTNING_PILLAR_2);
                         events.ScheduleEvent(EVENT_LIGHTNING_CHARGE, 8000, 0, PHASE_2);
                     }
                 }
@@ -1778,7 +1778,7 @@ class spell_thorim_charge_orb : public SpellScriptLoader
             void HandleScript()
             {
                 if (Unit* target = GetHitUnit())
-                    target->CastSpell((Unit*)nullptr, SPELL_LIGHTNING_PILLAR_1, true);
+                    target->CastSpell(nullptr, SPELL_LIGHTNING_PILLAR_1, true);
             }
 
             void Register() override

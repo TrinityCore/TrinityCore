@@ -457,8 +457,7 @@ public:
 
 enum TorchTossingTarget
 {
-    NPC_TORCH_TOSSING_TARGET_BUNNY      = 25535,
-    SPELL_TARGET_INDICATOR              = 45723
+    SPELL_TORCH_TARGET_PICKER      = 45907
 };
 
 class npc_torch_tossing_target_bunny_controller : public CreatureScript
@@ -468,42 +467,28 @@ public:
 
     struct npc_torch_tossing_target_bunny_controllerAI : public ScriptedAI
     {
-        npc_torch_tossing_target_bunny_controllerAI(Creature* creature) : ScriptedAI(creature)
-        {
-            _targetTimer = 3000;
-        }
+        npc_torch_tossing_target_bunny_controllerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        ObjectGuid DoSearchForTargets(ObjectGuid lastTargetGUID)
+        void Reset() override
         {
-            std::list<Creature*> targets;
-            me->GetCreatureListWithEntryInGrid(targets, NPC_TORCH_TOSSING_TARGET_BUNNY, 60.0f);
-            targets.remove_if([lastTargetGUID](Creature* creature) { return creature->GetGUID() == lastTargetGUID; });
-
-            if (!targets.empty())
+            _scheduler.Schedule(Seconds(2), [this](TaskContext context)
             {
-                _lastTargetGUID = Trinity::Containers::SelectRandomContainerElement(targets)->GetGUID();
-
-                return _lastTargetGUID;
-            }
-            return ObjectGuid::Empty;
+                me->CastCustomSpell(SPELL_TORCH_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1);
+                _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+                {
+                    me->CastCustomSpell(SPELL_TORCH_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1);
+                });
+                context.Repeat(Seconds(5));
+            });
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (_targetTimer < diff)
-            {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, DoSearchForTargets(_lastTargetGUID)))
-                    target->CastSpell(target, SPELL_TARGET_INDICATOR, true);
-
-                _targetTimer = 3000;
-            }
-            else
-                _targetTimer -= diff;
+            _scheduler.Update(diff);
         }
 
     private:
-        uint32 _targetTimer;
-        ObjectGuid _lastTargetGUID;
+        TaskScheduler _scheduler;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1040,9 +1025,9 @@ class npc_garments_of_quests : public CreatureScript
 public:
     npc_garments_of_quests() : CreatureScript("npc_garments_of_quests") { }
 
-    struct npc_garments_of_questsAI : public npc_escortAI
+    struct npc_garments_of_questsAI : public EscortAI
     {
-        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature)
+        npc_garments_of_questsAI(Creature* creature) : EscortAI(creature)
         {
             switch (me->GetEntry())
             {
@@ -1130,11 +1115,6 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override
-        {
-
-        }
-
         void UpdateAI(uint32 diff) override
         {
             if (CanRun && !me->IsInCombat())
@@ -1165,7 +1145,7 @@ public:
                     RunAwayTimer -= diff;
             }
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 
@@ -1603,7 +1583,7 @@ class npc_tournament_mount : public CreatureScript
                 if (apply)
                 {
                     _pennantSpellId = GetPennantSpellId(player);
-                    player->CastSpell((Unit*)nullptr, _pennantSpellId, true);
+                    player->CastSpell(nullptr, _pennantSpellId, true);
                 }
                 else
                     player->RemoveAurasDueToSpell(_pennantSpellId);
@@ -2898,7 +2878,7 @@ class CastFoodSpell : public BasicEvent
         bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
             _owner->CastSpell(_owner, _spellId, true);
-            return false;
+            return true;
         }
 
     private:

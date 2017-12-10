@@ -827,7 +827,7 @@ PVOID         UserContext)
     {
         ClearSymbols();
         FormatSymbolValue(pSymInfo, (STACKFRAME64*)UserContext);
-            
+
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
@@ -1028,7 +1028,7 @@ bool logChildren)
                         ULONG64 length;
                         SymGetTypeInfo(m_hProcess, modBase, innerTypeID, TI_GET_LENGTH, &length);
                         char buffer2[50];
-                        FormatOutputValue(buffer2, basicType, length, (PVOID)address, sizeof(buffer));
+                        FormatOutputValue(buffer2, basicType, length, (PVOID)address, sizeof(buffer2));
                         symbolDetails.top().Value = buffer2;
                     }
                     bHandled = true;

@@ -22,6 +22,7 @@
 #include "Define.h"
 #include "Creature.h"
 #include "GameObject.h"
+#include "SpawnData.h"
 #include "QuestDef.h"
 
 struct PoolTemplateData
@@ -76,7 +77,6 @@ class TC_GAME_API PoolGroup
         bool isEmpty() const { return ExplicitlyChanced.empty() && EqualChanced.empty(); }
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool() const;
-        PoolObject* RollOne(ActivePoolData& spawns, uint32 triggerFrom);
         void DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid=0);
         void Despawn1Object(ObjectGuid::LowType guid);
         void SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom);
@@ -118,6 +118,7 @@ class TC_GAME_API PoolMgr
 
         template<typename T>
         uint32 IsPartOfAPool(uint32 db_guid_or_pool_id) const;
+        uint32 IsPartOfAPool(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
 
         template<typename T>
         bool IsSpawnedObject(uint32 db_guid_or_pool_id) const { return mSpawnedData.IsActiveObject<T>(db_guid_or_pool_id); }

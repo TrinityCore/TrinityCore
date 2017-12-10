@@ -57,7 +57,7 @@ enum RBACPermissions
     RBAC_PERM_JOIN_RANDOM_BG                                 = 4,
     RBAC_PERM_JOIN_ARENAS                                    = 5,
     RBAC_PERM_JOIN_DUNGEON_FINDER                            = 6,
-    //  7 - reuse
+    RBAC_PERM_IGNORE_IDLE_CONNECTION                         = 7,
     //  8 - reuse
     //  9 - reuse
     RBAC_PERM_USE_CHARACTER_TEMPLATES                        = 10, // not on 3.3.5a
@@ -748,7 +748,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SERVER_RESTART_FORCE                   = 840,
     RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
     RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842, // not on 3.3.5a
-    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843, // not on 3.3.5a
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843,
     RBAC_PERM_COMMAND_SCENE                                  = 844, // not on 3.3.5a
     RBAC_PERM_COMMAND_SCENE_DEBUG                            = 845, // not on 3.3.5a
     RBAC_PERM_COMMAND_SCENE_PLAY                             = 846, // not on 3.3.5a
@@ -761,16 +761,18 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_CONVERSATION_TEMPLATE           = 853, // not on 3.3.5a
     RBAC_PERM_COMMAND_DEBUG_CONVERSATION                     = 854, // not on 3.3.5a
     RBAC_PERM_COMMAND_DEBUG_PLAY_MUSIC                       = 855,
-    RBAC_PERM_COMMAND_NPC_SPAWNGROUP                         = 856, // reserved for dynamic_spawning
-    RBAC_PERM_COMMAND_NPC_DESPAWNGROUP                       = 857, // reserved for dynamic_spawning
-    RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP                     = 858, // reserved for dynamic_spawning
-    RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP                   = 859, // reserved for dynamic_spawning
-    RBAC_PERM_COMMAND_LIST_RESPAWNS                          = 860, // reserved for dynamic_spawning
+    RBAC_PERM_COMMAND_NPC_SPAWNGROUP                         = 856,
+    RBAC_PERM_COMMAND_NPC_DESPAWNGROUP                       = 857,
+    RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP                     = 858,
+    RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP                   = 859,
+    RBAC_PERM_COMMAND_LIST_RESPAWNS                          = 860,
     RBAC_PERM_COMMAND_GROUP_SET                              = 861,
     RBAC_PERM_COMMAND_GROUP_ASSISTANT                        = 862,
     RBAC_PERM_COMMAND_GROUP_MAINTANK                         = 863,
     RBAC_PERM_COMMAND_GROUP_MAINASSIST                       = 864,
     RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865,
+    RBAC_PERM_COMMAND_LIST_SPAWNPOINTS                       = 866,
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING_LOCALE           = 867,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

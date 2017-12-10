@@ -190,7 +190,7 @@ void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
     if (!triggered && me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
-    me->CastSpell((Unit*)nullptr, spellId, triggered);
+    me->CastSpell(nullptr, spellId, triggered);
 }
 
 uint32 UnitAI::GetDialogStatus(Player* /*player*/)

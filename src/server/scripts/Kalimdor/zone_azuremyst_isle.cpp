@@ -348,9 +348,9 @@ class npc_magwin : public CreatureScript
 public:
     npc_magwin() : CreatureScript("npc_magwin") { }
 
-    struct npc_magwinAI : public npc_escortAI
+    struct npc_magwinAI : public EscortAI
     {
-        npc_magwinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_magwinAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -371,7 +371,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -410,7 +410,7 @@ public:
                         break;
                     case EVENT_START_ESCORT:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            npc_escortAI::Start(true, false, player->GetGUID());
+                            EscortAI::Start(true, false, player->GetGUID());
                         _events.ScheduleEvent(EVENT_STAND, Seconds(2));
                         break;
                     case EVENT_STAND: // Remove kneel standstate. Using a separate delayed event because it causes unwanted delay before starting waypoint movement.
@@ -428,7 +428,7 @@ public:
                 }
             }
 
-            npc_escortAI::UpdateEscortAI(diff);
+            EscortAI::UpdateEscortAI(diff);
         }
 
     private:
@@ -718,128 +718,6 @@ public:
     }
 };
 
-/*########
-## Quest: The Prophecy of Akida
-########*/
-
-enum BristlelimbCage
-{
-    QUEST_THE_PROPHECY_OF_AKIDA         = 9544,
-    NPC_STILLPINE_CAPITIVE              = 17375,
-    GO_BRISTELIMB_CAGE                  = 181714,
-
-    CAPITIVE_SAY                        = 0,
-
-    POINT_INIT                          = 1,
-    EVENT_DESPAWN                       = 1,
-};
-
-class npc_stillpine_capitive : public CreatureScript
-{
-    public:
-        npc_stillpine_capitive() : CreatureScript("npc_stillpine_capitive") { }
-
-        struct npc_stillpine_capitiveAI : public ScriptedAI
-        {
-            npc_stillpine_capitiveAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _playerGUID.Clear();
-                _movementComplete = false;
-            }
-
-            void Reset() override
-            {
-                if (GameObject* cage = me->FindNearestGameObject(GO_BRISTELIMB_CAGE, 5.0f))
-                {
-                    cage->SetLootState(GO_JUST_DEACTIVATED);
-                    cage->SetGoState(GO_STATE_READY);
-                }
-                _events.Reset();
-                Initialize();
-            }
-
-            void StartMoving(Player* owner)
-            {
-                if (owner)
-                {
-                    Talk(CAPITIVE_SAY, owner);
-                    _playerGUID = owner->GetGUID();
-                }
-                Position pos = me->GetNearPosition(3.0f, 0.0f);
-                me->GetMotionMaster()->MovePoint(POINT_INIT, pos);
-            }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type != POINT_MOTION_TYPE || id != POINT_INIT)
-                    return;
-
-                if (Player* _player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    _player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
-
-                _movementComplete = true;
-                _events.ScheduleEvent(EVENT_DESPAWN, 3500);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!_movementComplete)
-                    return;
-
-                _events.Update(diff);
-
-                if (_events.ExecuteEvent() == EVENT_DESPAWN)
-                    me->DespawnOrUnsummon();
-            }
-
-        private:
-            ObjectGuid _playerGUID;
-            EventMap _events;
-            bool _movementComplete;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_stillpine_capitiveAI(creature);
-        }
-};
-
-class go_bristlelimb_cage : public GameObjectScript
-{
-    public:
-        go_bristlelimb_cage() : GameObjectScript("go_bristlelimb_cage") { }
-
-        struct go_bristlelimb_cageAI : public GameObjectAI
-        {
-            go_bristlelimb_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool GossipHello(Player* player) override
-            {
-                me->SetGoState(GO_STATE_READY);
-                if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
-                {
-                    if (Creature* capitive = me->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))
-                    {
-                        me->ResetDoorOrButton();
-                        ENSURE_AI(npc_stillpine_capitive::npc_stillpine_capitiveAI, capitive->AI())->StartMoving(player);
-                        return false;
-                    }
-                }
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_bristlelimb_cageAI(go);
-        }
-};
-
 void AddSC_azuremyst_isle()
 {
     new npc_draenei_survivor();
@@ -849,6 +727,4 @@ void AddSC_azuremyst_isle()
     new npc_geezle();
     new npc_death_ravager();
     new go_ravager_cage();
-    new npc_stillpine_capitive();
-    new go_bristlelimb_cage();
 }

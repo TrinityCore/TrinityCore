@@ -576,7 +576,7 @@ bool AuthSession::HandleLogonProof()
 
         PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         stmt->setString(0, K.AsHexStr());
-        stmt->setString(1, GetRemoteIpAddress().to_string().c_str());
+        stmt->setString(1, GetRemoteIpAddress().to_string());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
         stmt->setString(4, _accountInfo.Login);
@@ -885,6 +885,8 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
     hdr.append(RealmListSizeBuffer);                        // append RealmList's size buffer
     hdr.append(pkt);                                        // append realms in the realmlist
     SendPacket(hdr);
+
+    _status = STATUS_AUTHED;
 }
 
 // Make the SRP6 calculation from hash in dB

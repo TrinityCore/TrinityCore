@@ -342,7 +342,7 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             me->SetSpeedRate(MOVE_RUN, 2.5f);
         }
 
@@ -855,7 +855,7 @@ class spell_summon_gauntlet_mobs_periodic : public SpellScriptLoader
                 for (uint8 i = 0; i < 2; ++i)
                 {
                     uint32 spellId = SummonSpellsList.front();
-                    GetTarget()->CastSpell((Unit*)nullptr, spellId, true);
+                    GetTarget()->CastSpell(nullptr, spellId, true);
                     SummonSpellsList.push_back(spellId);
                     SummonSpellsList.pop_front();
                 }

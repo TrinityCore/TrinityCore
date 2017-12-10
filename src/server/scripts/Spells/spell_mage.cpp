@@ -74,7 +74,8 @@ enum MageSpellIcons
 {
     SPELL_ICON_MAGE_SHATTERED_BARRIER = 2945,
     SPELL_ICON_MAGE_PRESENCE_OF_MIND  = 139,
-    SPELL_ICON_MAGE_CLEARCASTING      = 212
+    SPELL_ICON_MAGE_CLEARCASTING      = 212,
+    SPELL_ICON_MAGE_LIVING_BOMB       = 3000
 };
 
 // Incanter's Absorbtion
@@ -357,7 +358,7 @@ class spell_mage_combustion : public SpellScriptLoader
                 // Do not take charges, add a stack of crit buff
                 if (!(eventInfo.GetHitMask() & PROC_HIT_CRITICAL))
                 {
-                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_COMBUSTION_PROC, true);
+                    eventInfo.GetActor()->CastSpell(nullptr, SPELL_MAGE_COMBUSTION_PROC, true);
                     return false;
                 }
 
@@ -406,6 +407,26 @@ class spell_mage_combustion_proc : public SpellScriptLoader
         {
             return new spell_mage_combustion_proc_AuraScript();
         }
+};
+
+// -31661 - Dragon's Breath
+class spell_mage_dragon_breath : public AuraScript
+{
+    PrepareAuraScript(spell_mage_dragon_breath);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        // Dont proc with Living Bomb explosion
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (spellInfo && spellInfo->SpellIconID == SPELL_ICON_MAGE_LIVING_BOMB && spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
+            return false;
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_dragon_breath::CheckProc);
+    }
 };
 
 // -11185 - Improved Blizzard
@@ -461,7 +482,7 @@ class spell_mage_imp_mana_gems : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_MANA_SURGE, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, SPELL_MAGE_MANA_SURGE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -712,7 +733,7 @@ class spell_mage_gen_extra_effects : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
 
                 if (caster->HasAura(SPELL_MAGE_T10_2P_BONUS))
-                    caster->CastSpell((Unit*)nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, true);
+                    caster->CastSpell(nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, true);
             }
 
             void Register() override
@@ -1295,6 +1316,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cold_snap();
     new spell_mage_combustion();
     new spell_mage_combustion_proc();
+    RegisterAuraScript(spell_mage_dragon_breath);
     new spell_mage_imp_blizzard();
     new spell_mage_imp_mana_gems();
     new spell_mage_empowered_fire();

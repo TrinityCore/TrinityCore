@@ -1855,7 +1855,7 @@ class spell_gen_moss_covered_feet : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.GetActionTarget()->CastSpell((Unit*)nullptr, SPELL_FALL_DOWN, true, nullptr, aurEff);
+        eventInfo.GetActionTarget()->CastSpell(nullptr, SPELL_FALL_DOWN, true, nullptr, aurEff);
     }
 
     void Register() override
@@ -2116,7 +2116,7 @@ class spell_gen_paralytic_poison : public AuraScript
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
-        GetTarget()->CastSpell((Unit*)nullptr, SPELL_PARALYSIS, true, nullptr, aurEff);
+        GetTarget()->CastSpell(nullptr, SPELL_PARALYSIS, true, nullptr, aurEff);
     }
 
     void Register() override
@@ -2709,7 +2709,7 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
                 */
 
                 // Spell flags need further research, until then just cast not triggered
-                GetCaster()->CastSpell((Unit*)nullptr, Triggered, false);
+                GetCaster()->CastSpell(nullptr, Triggered, false);
             }
 
             void Register() override
@@ -2937,7 +2937,7 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public AuraScript
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell((Unit*)nullptr, SPELL_YOGG_SARON_WHISPER_DUMMY, true);
+        GetTarget()->CastSpell(nullptr, SPELL_YOGG_SARON_WHISPER_DUMMY, true);
     }
 
     void Register() override

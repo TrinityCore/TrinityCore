@@ -610,7 +610,7 @@ class boss_freya : public CreatureScript
                     /* 25N */    {62955, 62956, 62957, 62958}
                 };
 
-                me->CastSpell((Unit*)nullptr, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
+                me->CastSpell(nullptr, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
 
                 Talk(SAY_DEATH);
 

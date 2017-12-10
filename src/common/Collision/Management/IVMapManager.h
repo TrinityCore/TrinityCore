@@ -66,7 +66,7 @@ namespace VMAP
             uint32 const type;
             float const level;
         };
-        
+
         float floorZ = VMAP_INVALID_HEIGHT;
         Optional<AreaInfo> areaInfo;
         Optional<LiquidInfo> liquidInfo;

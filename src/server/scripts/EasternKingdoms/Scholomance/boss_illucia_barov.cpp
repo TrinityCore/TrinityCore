@@ -28,10 +28,11 @@ Category: Scholomance
 
 enum Spells
 {
-    SPELL_CURSEOFAGONY          = 34794,
-    SPELL_SHADOWSHOCK           = 34799,
-    SPELL_SILENCE               = 34803,
-    SPELL_FEAR                  = 34803
+    SPELL_CURSEOFAGONY          = 18671,
+    SPELL_DOMINATE              = 7645, // UNUSED YET added for documentation
+    SPELL_FEAR                  = 12542,
+    SPELL_SHADOWSHOCK           = 17234,
+    SPELL_SILENCE               = 12528
 };
 
 enum Events

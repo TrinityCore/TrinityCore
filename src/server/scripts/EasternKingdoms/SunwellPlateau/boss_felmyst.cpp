@@ -186,7 +186,7 @@ public:
             Talk(YELL_KILL);
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             Talk(YELL_BIRTH);
         }

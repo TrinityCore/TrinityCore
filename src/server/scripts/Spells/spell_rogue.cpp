@@ -1022,7 +1022,7 @@ public:
                 return;
 
             if (Player* player = caster->ToPlayer())
-                player->CastSpell((Unit*)nullptr, SPELL_ROGUE_HONOR_AMONG_THIEVES_2, true);
+                player->CastSpell(nullptr, SPELL_ROGUE_HONOR_AMONG_THIEVES_2, true);
         }
 
         void Register() override
@@ -1060,7 +1060,7 @@ class spell_rog_turn_the_tables : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                caster->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff);
             }
 
             void Register() override

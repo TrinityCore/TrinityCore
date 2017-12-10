@@ -37,4 +37,3 @@ class GridRefManager : public RefManager<GridRefManager<OBJECT>, OBJECT>
         iterator end() { return iterator(nullptr); }
 };
 #endif
-

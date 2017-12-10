@@ -548,7 +548,7 @@ public:
                 Player* targetGroupLeader = nullptr;
                 if (Group* targetGroup = target->GetGroup())
                     targetGroupLeader = ObjectAccessor::GetPlayer(map, targetGroup->GetLeaderGUID());
-                
+
                 // check if far teleport is allowed
                 if (!targetGroupLeader || (targetGroupLeader->GetMapId() != map->GetId()) || (targetGroupLeader->GetInstanceId() != map->GetInstanceId()))
                     if ((targetMap->GetId() != map->GetId()) || (targetMap->GetInstanceId() != map->GetInstanceId()))
@@ -1911,9 +1911,21 @@ public:
             return true;
         }
 
+        // First handle any creatures that still have a corpse around
         Trinity::RespawnDo u_do;
         Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(player, u_do);
         Cell::VisitGridObjects(player, worker, player->GetGridActivationRange());
+
+        // Now handle any that had despawned, but had respawn time logged.
+        RespawnVector data;
+        player->GetMap()->GetRespawnInfo(data, SPAWN_TYPEMASK_ALL, 0);
+        if (!data.empty())
+        {
+            uint32 const gridId = Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId();
+            for (RespawnInfo* info : data)
+                if (info->gridId == gridId)
+                    player->GetMap()->RemoveRespawnTime(info, true);
+        }
 
         return true;
     }
@@ -1978,15 +1990,15 @@ public:
             stmt->setInt64(0, muteTime);
         }
 
-        stmt->setString(1, muteReasonStr.c_str());
-        stmt->setString(2, muteBy.c_str());
+        stmt->setString(1, muteReasonStr);
+        stmt->setString(2, muteBy);
         stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MUTE);
         stmt->setUInt32(0, accountId);
         stmt->setUInt32(1, notSpeakTime);
-        stmt->setString(2, muteBy.c_str());
-        stmt->setString(3, muteReasonStr.c_str());
+        stmt->setString(2, muteBy);
+        stmt->setString(3, muteReasonStr);
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
@@ -2123,9 +2135,9 @@ public:
         float x, y, z;
         motionMaster->GetDestination(x, y, z);
 
-        for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
+        for (uint8 itr = 0; itr < MAX_MOTION_SLOT; ++itr)
         {
-            MovementGenerator* movementGenerator = motionMaster->GetMotionSlot(i);
+            MovementGenerator* movementGenerator = motionMaster->GetMotionSlot(MovementSlot(itr));
             if (!movementGenerator)
             {
                 handler->SendSysMessage("Empty");

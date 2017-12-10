@@ -176,9 +176,9 @@ class npc_dalinda : public CreatureScript
 public:
     npc_dalinda() : CreatureScript("npc_dalinda") { }
 
-    struct npc_dalindaAI : public npc_escortAI
+    struct npc_dalindaAI : public EscortAI
     {
-        npc_dalindaAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_dalindaAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
@@ -191,7 +191,7 @@ public:
             return;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
 
@@ -209,7 +209,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;

@@ -955,11 +955,9 @@ private:
 
 // Utility macros for looping over scripts.
 #define FOR_SCRIPTS(T, C, E) \
-    if (SCR_REG_LST(T).empty()) \
-        return; \
-    \
-    for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
-        C != SCR_REG_LST(T).end(); ++C)
+    if (!SCR_REG_LST(T).empty()) \
+        for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
+            C != SCR_REG_LST(T).end(); ++C)
 
 #define FOR_SCRIPTS_RET(T, C, E, R) \
     if (SCR_REG_LST(T).empty()) \
@@ -1566,16 +1564,32 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
     return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
 }
 
-bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemplate const* actTemplate, CreatureData const* cData, Map const* map)
+bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureData const* cData, Map const* map)
 {
-    ASSERT(actTemplate);
-
+    ASSERT(map);
     CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
-    if (!baseTemplate)
-        baseTemplate = actTemplate;
+    ASSERT(baseTemplate);
+
+    // find out which template we'd be using
+    CreatureTemplate const* actTemplate = baseTemplate;
+    for (uint8 diff = uint8(map->GetSpawnMode()); diff > 0;)
+    {
+        if (uint32 diffEntry = baseTemplate->DifficultyEntry[diff - 1])
+            if (CreatureTemplate const* diffTemplate = sObjectMgr->GetCreatureTemplate(diffEntry))
+            {
+                actTemplate = diffTemplate;
+                break;
+            }
+        if (diff >= RAID_DIFFICULTY_10MAN_HEROIC && map->IsRaid())
+            diff -= 2;
+        else
+            diff -= 1;
+    }
+
     uint32 scriptId = baseTemplate->ScriptID;
-    if (cData && cData->ScriptId)
-        scriptId = cData->ScriptId;
+    if (cData && cData->scriptId)
+        scriptId = cData->scriptId;
+
     GET_SCRIPT_RET(CreatureScript, scriptId, tmpscript, true);
     return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
 }
@@ -2214,6 +2228,21 @@ AreaTriggerScript::AreaTriggerScript(char const* name)
 {
     ScriptRegistry<AreaTriggerScript>::Instance()->AddScript(this);
 }
+
+bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+{
+    uint32 const triggerId = trigger->id;
+    if (InstanceScript* instance = player->GetInstanceScript())
+    {
+        if (instance->IsAreaTriggerDone(triggerId))
+            return true;
+        else
+            instance->MarkAreaTriggerDone(triggerId);
+    }
+    return _OnTrigger(player, trigger);
+}
+void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(InstanceScript* script, uint32 triggerId) { script->ResetAreaTriggerDone(triggerId); }
+void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger) { if (InstanceScript* instance = player->GetInstanceScript()) ResetAreaTriggerDone(instance, trigger->id); }
 
 BattlegroundScript::BattlegroundScript(char const* name)
     : ScriptObject(name)

@@ -93,7 +93,7 @@ void FormationMgr::LoadCreatureFormations()
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
+        TC_LOG_INFO("server.loading", ">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
         return;
     }
 
@@ -236,7 +236,7 @@ void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/,
             continue;
 
         if (itr->second->point_1)
-            if (m_leader->GetCurrentWaypointID() == itr->second->point_1 - 1 || m_leader->GetCurrentWaypointID() == itr->second->point_2 - 1)
+            if (m_leader->GetCurrentWaypointInfo().first == itr->second->point_1 || m_leader->GetCurrentWaypointInfo().first == itr->second->point_2)
                 itr->second->follow_angle = float(M_PI) * 2 - itr->second->follow_angle;
 
         float angle = itr->second->follow_angle;
@@ -257,4 +257,18 @@ void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/,
         member->GetMotionMaster()->MoveFormation(id, point, moveType, !member->IsWithinDist(m_leader, dist + MAX_DESYNC), orientation);
         member->SetHomePosition(dx, dy, dz, pathangle);
     }
+}
+
+bool CreatureGroup::CanLeaderStartMoving() const
+{
+    for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
+    {
+        if (itr->first != m_leader && itr->first->IsAlive())
+        {
+            if (itr->first->IsEngaged() || itr->first->IsReturningHome())
+                return false;
+        }
+    }
+
+    return true;
 }

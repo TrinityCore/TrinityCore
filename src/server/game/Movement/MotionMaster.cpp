@@ -17,25 +17,28 @@
  */
 
 #include "MotionMaster.h"
+#include "ConfusedMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "DBCStores.h"
-#include "Log.h"
-#include "Map.h"
-#include "PathGenerator.h"
-#include "ScriptSystem.h"
-#include "ConfusedMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
+#include "FormationMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
-#include "PointMovementGenerator.h"
-#include "TargetedMovementGenerator.h"
-#include "WaypointMovementGenerator.h"
-#include "RandomMovementGenerator.h"
-#include "SplineChainMovementGenerator.h"
-#include "FormationMovementGenerator.h"
+#include "Log.h"
+#include "Map.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "PathGenerator.h"
+#include "Player.h"
+#include "PointMovementGenerator.h"
+#include "RandomMovementGenerator.h"
+#include "ScriptSystem.h"
+#include "SplineChainMovementGenerator.h"
+#include "TargetedMovementGenerator.h"
+#include "Unit.h"
+#include "WaypointDefines.h"
+#include "WaypointMovementGenerator.h"
 
 inline MovementGenerator* GetIdleMovementGenerator()
 {
@@ -70,7 +73,7 @@ void MotionMaster::Initialize()
     // clear ALL movement generators (including default)
     while (!empty())
     {
-        MovementGenerator *curr = top();
+        MovementGenerator* curr = top();
         pop();
         if (curr)
             DirectDelete(curr);
@@ -119,21 +122,15 @@ void MotionMaster::Clear(bool reset /*= true*/)
         DirectClean(reset);
 }
 
-void MotionMaster::ClearExpireList()
+void MotionMaster::Clear(MovementSlot slot)
 {
-    for (auto itr : _expireList)
-        DirectDelete(itr);
+    if (empty() || slot >= MAX_MOTION_SLOT)
+        return;
 
-    _expireList.clear();
-
-    if (empty())
-        Initialize();
-    else if (NeedInitTop())
-        InitTop();
-    else if (_cleanFlag & MMCF_RESET)
-        top()->Reset(_owner);
-
-    _cleanFlag &= ~MMCF_RESET;
+    if (_cleanFlag & MMCF_UPDATE)
+        DelayedClean(slot);
+    else
+        DirectClean(slot);
 }
 
 void MotionMaster::MovementExpired(bool reset /*= true*/)
@@ -158,27 +155,32 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
     return top()->GetMovementGeneratorType();
 }
 
-MovementGeneratorType MotionMaster::GetMotionSlotType(int slot) const
+MovementGeneratorType MotionMaster::GetMotionSlotType(MovementSlot slot) const
 {
-    if (!_slot[slot])
+    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
         return MAX_MOTION_TYPE;
-    else
-        return _slot[slot]->GetMovementGeneratorType();
+
+    return _slot[slot]->GetMovementGeneratorType();
 }
 
-MovementGenerator* MotionMaster::GetMotionSlot(int slot) const
+MovementGenerator* MotionMaster::GetMotionSlot(MovementSlot slot) const
 {
-    ASSERT(slot >= 0);
+    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
+        return nullptr;
+
     return _slot[slot];
 }
 
 void MotionMaster::PropagateSpeedChange()
 {
-    for (int i = 0; i <= _top; ++i)
-    {
-        if (_slot[i])
-            _slot[i]->UnitSpeedChanged();
-    }
+    if (empty())
+        return;
+
+    MovementGenerator* movement = top();
+    if (!movement)
+        return;
+
+    movement->UnitSpeedChanged();
 }
 
 bool MotionMaster::GetDestination(float &x, float &y, float &z)
@@ -675,16 +677,21 @@ void MotionMaster::MoveDistract(uint32 timer)
     Mutate(mgen, MOTION_SLOT_CONTROLLED);
 }
 
-void MotionMaster::MovePath(uint32 path_id, bool repeatable)
+void MotionMaster::MovePath(uint32 pathId, bool repeatable)
 {
-    if (!path_id)
+    if (!pathId)
         return;
 
-    Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
+    Mutate(new WaypointMovementGenerator<Creature>(pathId, repeatable), MOTION_SLOT_IDLE);
 
-    TC_LOG_DEBUG("misc", "%s (GUID: %u) starts moving over path(Id:%u, repeatable: %s).",
-        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
-        _owner->GetGUID().GetCounter(), path_id, repeatable ? "YES" : "NO");
+    TC_LOG_DEBUG("misc", "%s (GUID: %u) starts moving over path(Id:%u, repeatable: %s).", _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature", _owner->GetGUID().GetCounter(), pathId, repeatable ? "YES" : "NO");
+}
+
+void MotionMaster::MovePath(WaypointPath& path, bool repeatable)
+{
+    Mutate(new WaypointMovementGenerator<Creature>(path, repeatable), MOTION_SLOT_IDLE);
+
+    TC_LOG_DEBUG("misc", "%s (GUID: %u) start moving over path(repeatable: %s)", _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature", _owner->GetGUID().GetCounter(), repeatable ? "YES" : "NO");
 }
 
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
@@ -731,7 +738,7 @@ void MotionMaster::InitTop()
 
 void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
 {
-    if (MovementGenerator *curr = _slot[slot])
+    if (MovementGenerator* curr = _slot[slot])
     {
         _slot[slot] = nullptr; // in case a new one is generated in this slot during directdelete
         if (_top == slot && (_cleanFlag & MMCF_UPDATE))
@@ -758,9 +765,10 @@ void MotionMaster::DirectClean(bool reset)
 {
     while (size() > 1)
     {
-        MovementGenerator *curr = top();
+        MovementGenerator* curr = top();
         pop();
-        if (curr) DirectDelete(curr);
+        if (curr)
+            DirectDelete(curr);
     }
 
     if (empty())
@@ -776,18 +784,47 @@ void MotionMaster::DelayedClean()
 {
     while (size() > 1)
     {
-        MovementGenerator *curr = top();
+        MovementGenerator* curr = top();
         pop();
         if (curr)
             DelayedDelete(curr);
     }
 }
 
+void MotionMaster::DirectClean(MovementSlot slot)
+{
+    if (MovementGenerator* motion = GetMotionSlot(slot))
+    {
+        _slot[slot] = nullptr;
+        DirectDelete(motion);
+    }
+
+    while (!empty() && !top())
+        --_top;
+
+    if (empty())
+        Initialize();
+    else if (NeedInitTop())
+        InitTop();
+}
+
+void MotionMaster::DelayedClean(MovementSlot slot)
+{
+    if (MovementGenerator* motion = GetMotionSlot(slot))
+    {
+        _slot[slot] = nullptr;
+        DelayedDelete(motion);
+    }
+
+    while (!empty() && !top())
+        --_top;
+}
+
 void MotionMaster::DirectExpire(bool reset)
 {
     if (size() > 1)
     {
-        MovementGenerator *curr = top();
+        MovementGenerator* curr = top();
         pop();
         DirectDelete(curr);
     }
@@ -807,7 +844,7 @@ void MotionMaster::DelayedExpire()
 {
     if (size() > 1)
     {
-        MovementGenerator *curr = top();
+        MovementGenerator* curr = top();
         pop();
         DelayedDelete(curr);
     }
@@ -826,9 +863,26 @@ void MotionMaster::DirectDelete(MovementGenerator* curr)
 
 void MotionMaster::DelayedDelete(MovementGenerator* curr)
 {
-    TC_LOG_FATAL("misc", "Unit (Entry %u) is trying to delete its updating Movement Generator (Type %u)!", _owner->GetEntry(), curr->GetMovementGeneratorType());
+    TC_LOG_DEBUG("misc", "MotionMaster::DelayedDelete: unit (%u) delayed deleting movement generator (type %u)", _owner->GetEntry(), curr->GetMovementGeneratorType());
     if (IsStatic(curr))
         return;
 
     _expireList.push_back(curr);
+}
+
+void MotionMaster::ClearExpireList()
+{
+    for (auto itr : _expireList)
+        DirectDelete(itr);
+
+    _expireList.clear();
+
+    if (empty())
+        Initialize();
+    else if (NeedInitTop())
+        InitTop();
+    else if (_cleanFlag & MMCF_RESET)
+        top()->Reset(_owner);
+
+    _cleanFlag &= ~MMCF_RESET;
 }

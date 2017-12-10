@@ -33,7 +33,7 @@ enum ZADataTypes
     BOSS_HEXLORD                        = 4,
     BOSS_ZULJIN                         = 5,
     MAX_ENCOUNTER,
-    
+
     DATA_GONGEVENT,
     DATA_CHESTLOOTED,
     TYPE_RAND_VENDOR_1,

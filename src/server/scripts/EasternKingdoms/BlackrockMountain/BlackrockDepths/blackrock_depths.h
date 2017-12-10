@@ -73,4 +73,6 @@ inline AI* GetBlackrockDepthsAI(T* obj)
     return GetInstanceAI<AI>(obj, BRDScriptName);
 }
 
+#define RegisterBlackrockDepthsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackrockDepthsAI)
+
 #endif
