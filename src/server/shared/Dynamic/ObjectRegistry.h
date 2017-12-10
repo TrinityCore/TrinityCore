@@ -64,6 +64,12 @@ class ObjectRegistry final
             return true;
         }
 
+        /// Returns true if registry contains an item
+        bool HasItem(Key const& key) const
+        {
+            return (_registeredObjects.count(key) > 0);
+        }
+
         /// Return the map of registered items
         RegistryMapType const& GetRegisteredItems() const
         {
