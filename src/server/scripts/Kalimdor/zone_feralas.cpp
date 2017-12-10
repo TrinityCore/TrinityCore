@@ -54,9 +54,7 @@ enum OOX
     NPC_WOODPAW_ALPHA       = 5258,
     NPC_WOODPAW_MYSTIC      = 5254,
 
-    QUEST_RESCUE_OOX22FE    = 2767,
-    FACTION_ESCORTEE_A      = 774,
-    FACTION_ESCORTEE_H      = 775
+    QUEST_RESCUE_OOX22FE    = 2767
 };
 
 class npc_oox22fe : public CreatureScript
@@ -130,10 +128,10 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 if (player->GetTeam() == ALLIANCE)
-                    me->SetFaction(FACTION_ESCORTEE_A);
+                    me->SetFaction(FACTION_ESCORTEE_A_PASSIVE);
 
                 if (player->GetTeam() == HORDE)
-                    me->SetFaction(FACTION_ESCORTEE_H);
+                    me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
 
                 Start(true, false, player->GetGUID());
             }

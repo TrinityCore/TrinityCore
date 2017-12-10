@@ -52,8 +52,7 @@ enum ProfessorPhizzlethorpe
     // Quests
     QUEST_SUNKEN_TREASURE   = 665,
     // Creatures
-    NPC_VENGEFUL_SURGE      = 2776,
-    FACTION_SUNKEN_TREASURE = 113
+    NPC_VENGEFUL_SURGE      = 2776
 };
 
 class npc_professor_phizzlethorpe : public CreatureScript
@@ -120,7 +119,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 {
                     Talk(SAY_PROGRESS_1, player);
                     npc_escortAI::Start(false, false, player->GetGUID(), quest);
-                    me->SetFaction(FACTION_SUNKEN_TREASURE);
+                    me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 }
             }
 

@@ -1885,11 +1885,12 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
 {
     if (timeMSToDespawn)
     {
-        ForcedDespawnDelayEvent* pEvent = new ForcedDespawnDelayEvent(*this, forceRespawnTimer);
-
-        m_Events.AddEvent(pEvent, m_Events.CalculateTime(timeMSToDespawn));
+        m_Events.AddEvent(new ForcedDespawnDelayEvent(*this, forceRespawnTimer), m_Events.CalculateTime(timeMSToDespawn));
         return;
     }
+
+    uint32 corpseDelay = GetCorpseDelay();
+    uint32 respawnDelay = GetRespawnDelay();
 
     // do it before killing creature
     DestroyForNearbyPlayers();
@@ -1897,17 +1898,21 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
     bool overrideRespawnTime = true;
     if (IsAlive())
     {
-        setDeathState(JUST_DIED);
-
         if (forceRespawnTimer > Seconds::zero())
         {
-            SetRespawnTime(forceRespawnTimer.count());
+            SetCorpseDelay(0);
+            SetRespawnDelay(forceRespawnTimer.count());
             overrideRespawnTime = false;
         }
+
+        setDeathState(JUST_DIED);
     }
 
     // Skip corpse decay time
     RemoveCorpse(overrideRespawnTime, false);
+
+    SetCorpseDelay(corpseDelay);
+    SetRespawnDelay(respawnDelay);
 }
 
 void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& forceRespawnTimer /*= 0*/)
@@ -2286,13 +2291,8 @@ bool Creature::_IsTargetAcceptable(Unit const* target) const
     Unit const* targetVictim = target->getAttackerForHelper();
 
     // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
-    if (GetVictim() == target || IsHostileTo(target))
+    if (IsInCombatWith(target) || IsHostileTo(target))
         return true;
-
-    // a player is targeting me, but I'm not hostile towards it, and not currently attacking it, the target is not acceptable
-    // (players may set their victim from a distance, and doesn't mean we should attack)
-    if (target->GetTypeId() == TYPEID_PLAYER && targetVictim == this)
-        return false;
 
     // if the target's victim is friendly, and the target is neutral, the target is acceptable
     if (targetVictim && IsFriendlyTo(targetVictim))

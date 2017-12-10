@@ -193,7 +193,6 @@ enum Remtravel
     SAY_REM_REMEMBER            = 11,
     EMOTE_REM_END               = 12,
 
-    FACTION_ESCORTEE            = 10,
     QUEST_ABSENT_MINDED_PT2     = 731,
     NPC_GRAVEL_SCOUT            = 2158,
     NPC_GRAVEL_BONE             = 2159,
@@ -289,7 +288,7 @@ public:
             if (quest->GetQuestId() == QUEST_ABSENT_MINDED_PT2)
             {
                 Start(false, false, player->GetGUID());
-                me->SetFaction(FACTION_ESCORTEE);
+                me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
             }
         }
     };
@@ -309,8 +308,7 @@ enum Threshwackonator
     EMOTE_START             = 0,
     SAY_AT_CLOSE            = 0,
     QUEST_GYROMAST_REV      = 2078,
-    NPC_GELKAK              = 6667,
-    FACTION_HOSTILE         = 14
+    NPC_GELKAK              = 6667
 };
 
 #define GOSSIP_ITEM_INSERT_KEY  "[PH] Insert key"
@@ -343,7 +341,7 @@ public:
 
         void DoAtEnd()
         {
-            me->SetFaction(FACTION_HOSTILE);
+            me->SetFaction(FACTION_MONSTER);
 
             if (Player* pHolder = GetLeaderForFollower())
                 AttackStart(pHolder);

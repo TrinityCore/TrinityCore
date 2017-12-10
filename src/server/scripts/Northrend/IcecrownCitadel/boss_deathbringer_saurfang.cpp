@@ -202,7 +202,6 @@ enum Actions
 enum Misc
 {
     DATA_MADE_A_MESS                    = 45374613, // 4537, 4613 are achievement IDs
-    FACTION_SCOURGE                     = 974,
 
     GOSSIP_MENU_MURADIN_BRONZEBEARD     = 10934,
     GOSSIP_MENU_HIGH_OVERLORD_SAURFANG  = 10952
@@ -461,7 +460,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     {
                         case EVENT_INTRO_ALLIANCE_2:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetFaction(FACTION_SCOURGE);
+                            me->SetFaction(FACTION_UNDEAD_SCOURGE);
                             Talk(SAY_INTRO_ALLIANCE_2);
                             break;
                         case EVENT_INTRO_ALLIANCE_3:
@@ -474,7 +473,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             break;
                         case EVENT_INTRO_HORDE_2:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetFaction(FACTION_SCOURGE);
+                            me->SetFaction(FACTION_UNDEAD_SCOURGE);
                             Talk(SAY_INTRO_HORDE_2);
                             break;
                         case EVENT_INTRO_HORDE_4:

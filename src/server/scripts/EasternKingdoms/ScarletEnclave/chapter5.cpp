@@ -617,7 +617,7 @@ public:
                             {
                                 Unit* temp = me->SummonCreature(NPC_ACHERUS_GHOUL, (me->GetPositionX() - 20) + rand32() % 40, (me->GetPositionY() - 20) + rand32() % 40, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
                                 temp->SetWalk(false);
-                                temp->SetFaction(2084);
+                                temp->SetFaction(FACTION_UNDEAD_SCOURGE_3);
                                 uiGhoulGUID[uiSummon_counter] = temp->GetGUID();
                                 ++uiSummon_counter;
                             }
@@ -635,7 +635,7 @@ public:
                             {
                                 Unit* temp = me->SummonCreature(NPC_RAMPAGING_ABOMINATION, (me->GetPositionX() - 20) + rand32() % 40, (me->GetPositionY() - 20) + rand32() % 40, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
                                 temp->SetWalk(false);
-                                temp->SetFaction(2084);
+                                temp->SetFaction(FACTION_UNDEAD_SCOURGE_3);
                                 uiAbominationGUID[uiSummon_counter] = temp->GetGUID();
                                 ++uiSummon_counter;
                             }
@@ -653,7 +653,7 @@ public:
                             {
                                 Unit* temp = me->SummonCreature(NPC_WARRIOR_OF_THE_FROZEN_WASTES, (me->GetPositionX() - 20) + rand32() % 40, (me->GetPositionY() - 20) + rand32() % 40, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
                                 temp->SetWalk(false);
-                                temp->SetFaction(2084);
+                                temp->SetFaction(FACTION_UNDEAD_SCOURGE_3);
                                 uiWarriorGUID[uiSummon_counter] = temp->GetGUID();
                                 ++uiSummon_counter;
                             }
@@ -671,7 +671,7 @@ public:
                             {
                                 Unit* temp = me->SummonCreature(NPC_FLESH_BEHEMOTH, (me->GetPositionX() - 20) + rand32() % 40, (me->GetPositionY() - 20) + rand32() % 40, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
                                 temp->SetWalk(false);
-                                temp->SetFaction(2084);
+                                temp->SetFaction(FACTION_UNDEAD_SCOURGE_3);
                                 uiBehemothGUID[uiSummon_counter] = temp->GetGUID();
                                 ++uiSummon_counter;
                             }
@@ -1503,7 +1503,7 @@ public:
                 if (!temp)
                 {
                     temp = me->SummonCreature(NPC_ACHERUS_GHOUL, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                    temp->SetFaction(2084);
+                    temp->SetFaction(FACTION_UNDEAD_SCOURGE_3);
                     uiGhoulGUID[i] = temp->GetGUID();
                 }
             }
@@ -1513,7 +1513,7 @@ public:
                 if (!temp)
                 {
                     temp = me->SummonCreature(NPC_WARRIOR_OF_THE_FROZEN_WASTES, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                    temp->SetFaction(2084);
+                    temp->SetFaction(FACTION_UNDEAD_SCOURGE_3);
                     uiAbominationGUID[i] = temp->GetGUID();
                 }
             }
@@ -1523,7 +1523,7 @@ public:
                 if (!temp)
                 {
                     temp = me->SummonCreature(NPC_RAMPAGING_ABOMINATION, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                    temp->SetFaction(2084);
+                    temp->SetFaction(FACTION_UNDEAD_SCOURGE_3);
                     uiWarriorGUID[i] = temp->GetGUID();
                 }
             }
@@ -1533,7 +1533,7 @@ public:
                 if (!temp)
                 {
                     temp = me->SummonCreature(NPC_FLESH_BEHEMOTH, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                    temp->SetFaction(2084);
+                    temp->SetFaction(FACTION_UNDEAD_SCOURGE_3);
                     uiBehemothGUID[i] = temp->GetGUID();
                 }
             }
@@ -1545,7 +1545,7 @@ public:
                 if (!temp)
                 {
                     temp = me->SummonCreature(NPC_DEFENDER_OF_THE_LIGHT, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                    temp->SetFaction(2089);
+                    temp->SetFaction(FACTION_SCARLET_CRUSADE);
                     me->AddThreat(temp, 0.0f);
                     uiDefenderGUID[i] = temp->GetGUID();
                 }
@@ -1556,7 +1556,7 @@ public:
                 if (!temp)
                 {
                     temp = me->SummonCreature(NPC_RIMBLAT_EARTHSHATTER, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                    temp->SetFaction(2089);
+                    temp->SetFaction(FACTION_SCARLET_CRUSADE);
                     me->AddThreat(temp, 0.0f);
                     uiEarthshatterGUID[i] = temp->GetGUID();
                 }
@@ -1565,7 +1565,7 @@ public:
             if (!temp)
             {
                 temp = me->SummonCreature(NPC_KORFAX_CHAMPION_OF_THE_LIGHT, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000);
-                temp->SetFaction(2089);
+                temp->SetFaction(FACTION_SCARLET_CRUSADE);
                 me->AddThreat(temp, 0.0f);
                 uiKorfaxGUID = temp->GetGUID();
             }
@@ -1573,7 +1573,7 @@ public:
             if (!temp)
             {
                 temp = me->SummonCreature(NPC_LORD_MAXWELL_TYROSUS, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000);
-                temp->SetFaction(2089);
+                temp->SetFaction(FACTION_SCARLET_CRUSADE);
                 me->AddThreat(temp, 0.0f);
                 uiMaxwellGUID = temp->GetGUID();
             }
@@ -1581,7 +1581,7 @@ public:
             if (!temp)
             {
                 temp = me->SummonCreature(NPC_COMMANDER_ELIGOR_DAWNBRINGER, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000);
-                temp->SetFaction(2089);
+                temp->SetFaction(FACTION_SCARLET_CRUSADE);
                 me->AddThreat(temp, 0.0f);
                 uiEligorGUID = temp->GetGUID();
             }
@@ -1589,7 +1589,7 @@ public:
             if (!temp)
             {
                 temp = me->SummonCreature(NPC_RAYNE, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                temp->SetFaction(2089);
+                temp->SetFaction(FACTION_SCARLET_CRUSADE);
                 me->AddThreat(temp, 0.0f);
                 uiRayneGUID = temp->GetGUID();
             }

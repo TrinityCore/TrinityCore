@@ -137,7 +137,7 @@ public:
                 Talk(SAY_READY, player);
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                 // Change faction so mobs attack
-                me->SetFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
             }
         }
     };

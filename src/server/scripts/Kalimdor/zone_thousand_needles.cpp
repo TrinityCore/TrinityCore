@@ -115,7 +115,6 @@ enum Lakota
 
     QUEST_FREE_AT_LAST    = 4904,
     NPC_GRIM_BANDIT       = 10758,
-    FACTION_ESCORTEE_LAKO = 232,   //guessed
 
     ID_AMBUSH_1           = 0,
     ID_AMBUSH_2           = 2,
@@ -178,7 +177,7 @@ public:
             if (quest->GetQuestId() == QUEST_FREE_AT_LAST)
             {
                 Talk(SAY_LAKO_START, player);
-                me->SetFaction(FACTION_ESCORTEE_LAKO);
+                me->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_ACTIVE);
 
                 Start(false, false, player->GetGUID(), quest);
             }
@@ -202,8 +201,7 @@ enum Packa
     SAY_COMPLETE     = 2,
 
     QUEST_HOMEWARD   = 4770,
-    NPC_WYVERN       = 4107,
-    FACTION_ESCORTEE = 232                               //guessed
+    NPC_WYVERN       = 4107
 };
 
 Position const WyvernLoc[3] =
@@ -253,7 +251,7 @@ public:
             if (quest->GetQuestId() == QUEST_HOMEWARD)
             {
                 Talk(SAY_START, player);
-                me->SetFaction(FACTION_ESCORTEE);
+                me->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_ACTIVE);
 
                 Start(false, false, player->GetGUID(), quest);
             }

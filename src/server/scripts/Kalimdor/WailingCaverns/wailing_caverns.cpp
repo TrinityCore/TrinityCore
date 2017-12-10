@@ -328,7 +328,7 @@ public:
 
                 Talk(SAY_MAKE_PREPARATIONS);
 
-                me->SetFaction(250);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
                 Start(false, false, player->GetGUID());

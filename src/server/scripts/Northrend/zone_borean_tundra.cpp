@@ -115,7 +115,7 @@ public:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         DoCast(me, SPELL_SUMMON_CART, true);
                         if (GameObject* cart = me->FindNearestGameObject(GO_EXPLOSIVES_CART, 3.0f))
-                            cart->SetFaction(14);
+                            cart->SetFaction(FACTION_MONSTER);
                         phaseTimer = 3000;
                         phase = 2;
                         break;
@@ -556,9 +556,6 @@ enum Lurgglbr
 
     GO_CAGE                             = 187369,
 
-    FACTION_ESCORTEE_A                  = 774,
-    FACTION_ESCORTEE_H                  = 775,
-
     SAY_START_1                         = 0,
     SAY_START_2                         = 1,
     SAY_END_1                           = 2,
@@ -680,11 +677,11 @@ public:
                 switch (player->GetTeam())
                 {
                     case ALLIANCE:
-                        me->SetFaction(FACTION_ESCORTEE_A);
+                        me->SetFaction(FACTION_ESCORTEE_A_PASSIVE);
                         break;
                     default:
                     case HORDE:
-                        me->SetFaction(FACTION_ESCORTEE_H);
+                        me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
                         break;
                 }
             }
@@ -1689,10 +1686,10 @@ public:
                 switch (player->GetTeam())
                 {
                     case ALLIANCE:
-                        me->SetFaction(FACTION_ESCORTEE_A);
+                        me->SetFaction(FACTION_ESCORTEE_A_PASSIVE);
                         break;
                     case HORDE:
-                        me->SetFaction(FACTION_ESCORTEE_H);
+                        me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
                         break;
                 }
                 me->SetStandState(UNIT_STAND_STATE_STAND);

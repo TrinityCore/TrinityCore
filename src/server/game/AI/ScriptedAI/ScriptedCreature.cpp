@@ -513,7 +513,7 @@ void BossAI::UpdateAI(uint32 diff)
     DoMeleeAttackIfReady();
 }
 
-void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
+void BossAI::_DespawnAtEvade(uint32 delayToRespawn /*= 30*/, Creature* who /*= nullptr*/)
 {
     if (delayToRespawn < 2)
     {

@@ -144,7 +144,7 @@ class instance_uldaman : public InstanceMapScript
 
             void SetFrozenState(Creature* creature)
             {
-                creature->SetFaction(35);
+                creature->SetFaction(FACTION_FRIENDLY);
                 creature->RemoveAllAuras();
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 creature->SetControlled(true, UNIT_STATE_ROOT);
@@ -179,7 +179,7 @@ class instance_uldaman : public InstanceMapScript
                         if (!target || !target->IsAlive())
                             continue;
                         target->SetControlled(false, UNIT_STATE_ROOT);
-                        target->SetFaction(14);
+                        target->SetFaction(FACTION_MONSTER);
                         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
 
@@ -200,11 +200,11 @@ class instance_uldaman : public InstanceMapScript
                 for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || !target->IsAlive() || target->GetFaction() == 14)
+                    if (!target || !target->IsAlive() || target->GetFaction() == FACTION_MONSTER)
                         continue;
                     target->SetControlled(false, UNIT_STATE_ROOT);
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    target->SetFaction(14);
+                    target->SetFaction(FACTION_MONSTER);
                     target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
                     archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
                     target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN, true);
@@ -267,7 +267,7 @@ class instance_uldaman : public InstanceMapScript
                 if (!ironaya)
                     return;
 
-                ironaya->SetFaction(415);
+                ironaya->SetFaction(FACTION_TITAN);
                 ironaya->SetControlled(false, UNIT_STATE_ROOT);
                 ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 

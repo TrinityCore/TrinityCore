@@ -93,7 +93,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetFaction(35);
+            me->SetFaction(FACTION_FRIENDLY);
         }
 
         void SendItem(Unit* receiver)
@@ -123,7 +123,7 @@ public:
             {
                 if (SwitchFactionTimer <= diff)
                 {
-                    me->SetFaction(91);
+                    me->SetFaction(FACTION_ELEMENTAL);
                     isFriendly = false;
                 } else SwitchFactionTimer -= diff;
             }
@@ -366,7 +366,7 @@ public:
         {
             if (quest->GetQuestId() == Q_OOX17)
             {
-                me->SetFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 me->SetFullHealth();
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

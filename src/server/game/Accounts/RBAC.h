@@ -757,6 +757,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850, // not on 3.3.5a
     RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TEMPLATE            = 851, // not on 3.3.5a
     RBAC_PERM_COMMAND_GO_OFFSET                              = 852,
+    RBAC_PERM_COMMAND_RELOAD_CONVERSATION_TEMPLATE           = 853, // not on 3.3.5a
+    RBAC_PERM_COMMAND_DEBUG_CONVERSATION                     = 854, // not on 3.3.5a
+    RBAC_PERM_COMMAND_DEBUG_PLAY_MUSIC                       = 855,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
