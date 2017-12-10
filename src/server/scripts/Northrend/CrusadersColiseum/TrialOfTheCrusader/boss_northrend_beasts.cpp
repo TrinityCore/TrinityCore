@@ -353,10 +353,7 @@ struct boss_gormok : public boss_northrend_beastsAI
 
     void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (type != SPLINE_CHAIN_MOTION_TYPE)
-            return;
-
-        if (pointId == POINT_INITIAL_MOVEMENT)
+        if (type != SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
             events.ScheduleEvent(EVENT_ENGAGE, Seconds(7));
     }
 
@@ -877,10 +874,7 @@ struct boss_dreadscale : public boss_jormungarAI
 
     void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (type != SPLINE_CHAIN_MOTION_TYPE)
-            return;
-
-        if (pointId == POINT_INITIAL_MOVEMENT)
+        if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
             events.ScheduleEvent(EVENT_ENGAGE, Seconds(3));
     }
 };

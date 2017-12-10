@@ -53,21 +53,21 @@ enum Summons
 
 enum BossSpells
 {
-    SPELL_LEGION_FLAME                = 66197, // player should run away from raid because he triggers Legion Flame
-    SPELL_LEGION_FLAME_EFFECT         = 66201, // used by trigger npc
-    SPELL_NETHER_POWER                = 66228, // +20% of spell damage per stack, stackable up to 5/10 times, must be dispelled/stealed
-    SPELL_FEL_LIGHTING                = 66528, // jumps to nearby targets
-    SPELL_FEL_FIREBALL                = 66532, // does heavy damage to the tank, interruptable
-    SPELL_INCINERATE_FLESH            = 66237, // target must be healed or will trigger Burning Inferno
-    SPELL_BURNING_INFERNO             = 66242, // triggered by Incinerate Flesh
-    SPELL_INFERNAL_ERUPTION           = 66258, // summons Infernal Volcano
-    SPELL_INFERNAL_ERUPTION_EFFECT    = 66252, // summons Felflame Infernal (3 at Normal and inifinity at Heroic)
-    SPELL_NETHER_PORTAL               = 66269, // summons Nether Portal
-    SPELL_NETHER_PORTAL_EFFECT        = 66263, // summons Mistress of Pain (1 at Normal and infinity at Heroic)
-    SPELL_LORD_JARAXXUS_HITTIN_YA     = 66327, // No idea what it does
-    SPELL_FEL_LIGHTNING               = 67888,
+    SPELL_LEGION_FLAME                  = 66197, // player should run away from raid because he triggers Legion Flame
+    SPELL_LEGION_FLAME_EFFECT           = 66201, // used by trigger npc
+    SPELL_NETHER_POWER                  = 66228, // +20% of spell damage per stack, stackable up to 5/10 times, must be dispelled/stealed
+    SPELL_FEL_LIGHTING                  = 66528, // jumps to nearby targets
+    SPELL_FEL_FIREBALL                  = 66532, // does heavy damage to the tank, interruptable
+    SPELL_INCINERATE_FLESH              = 66237, // target must be healed or will trigger Burning Inferno
+    SPELL_BURNING_INFERNO               = 66242, // triggered by Incinerate Flesh
+    SPELL_INFERNAL_ERUPTION             = 66258, // summons Infernal Volcano
+    SPELL_INFERNAL_ERUPTION_EFFECT      = 66252, // summons Felflame Infernal (3 at Normal and inifinity at Heroic)
+    SPELL_NETHER_PORTAL                 = 66269, // summons Nether Portal
+    SPELL_NETHER_PORTAL_EFFECT          = 66263, // summons Mistress of Pain (1 at Normal and infinity at Heroic)
+    SPELL_LORD_JARAXXUS_HITTIN_YA       = 66327,
+    SPELL_FEL_LIGHTNING                 = 67888,
 
-    SPELL_BERSERK                     = 64238, // unused
+    SPELL_BERSERK                       = 64238, // unused
 
     // Mistress of Pain spells
     SPELL_SHIVAN_SLASH                  = 67098,
@@ -155,17 +155,12 @@ class boss_jaraxxus : public CreatureScript
 
             void MovementInform(uint32 type, uint32 pointId) override
             {
-                if (type != SPLINE_CHAIN_MOTION_TYPE)
-                    return;
-
-                if (pointId == POINT_SUMMONED)
-                {
+                if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_SUMMONED)
                     if (Creature* wilfred = instance->GetCreature(DATA_FIZZLEBANG))
                     {
                         me->SetFacingToObject(wilfred);
                         events.ScheduleEvent(EVENT_TAUNT_GNOME, Seconds(9));
                     }
-                }
             }
 
             void KilledUnit(Unit* who) override

@@ -159,7 +159,7 @@ Position const CorpseTeleportPosition    = { 631.9390f, 136.5040f, 142.5540f, 0.
 
 Position const NorthrendBeastsSpawnPositions[] =
 {
-    { 563.9358f, 229.8299f, 394.8061f, 4.694936f }, // Gormok Position \ Icehowl
+    { 563.9358f, 229.8299f, 394.8061f, 4.694936f }, // Gormok \ Icehowl
     { 564.2802f, 233.1322f, 394.7897f, 1.621917f }, // Dreadscale
 };
 
@@ -229,13 +229,12 @@ struct npc_barrett_toc : public ScriptedAI
 {
     npc_barrett_toc(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-    void SendActionToTirion(uint32 action, Player* player)
+    void SendActionToTirion(uint32 action)
     {
         if (Creature* fordring = _instance->GetCreature(DATA_FORDRING))
             fordring->AI()->DoAction(action);
         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         me->GetMotionMaster()->MoveAlongSplineChain(POINT_BARRETT_DESPAWN, SPLINE_INITIAL_MOVEMENT, false);
-        CloseGossipMenuFor(player);
     }
 
     bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
@@ -244,10 +243,10 @@ struct npc_barrett_toc : public ScriptedAI
         {
             case MENUID_NORTHREND_BEASTS:
                 if (gossipListId == GOSSIPID_FAIL)
-                    SendActionToTirion(ACTION_START_GORMOK_FAIL, player);
+                    SendActionToTirion(ACTION_START_GORMOK_FAIL);
                 else
-                    SendActionToTirion(ACTION_START_GORMOK, player);
-                return true;
+                    SendActionToTirion(ACTION_START_GORMOK);
+                break;
             case MENUID_JARAXXUS:
                 if (gossipListId == GOSSIPID_FAIL)
                 {
@@ -258,26 +257,29 @@ struct npc_barrett_toc : public ScriptedAI
                     return true;
                 }
                 else
-                    SendActionToTirion(ACTION_START_JARAXXUS_EVENT, player);
-                return true;
+                    SendActionToTirion(ACTION_START_JARAXXUS_EVENT);
+                break;
             case MENUID_FACTION_CHAMPIONS:
                 if (gossipListId == GOSSIPID_FAIL)
-                    SendActionToTirion(ACTION_START_CHAMPIONS_ENGAGE, player);
+                    SendActionToTirion(ACTION_START_CHAMPIONS_ENGAGE);
                 else
-                    SendActionToTirion(ACTION_START_CHAMPIONS, player);
-                return true;
+                    SendActionToTirion(ACTION_START_CHAMPIONS);
+                break;
             case MENUID_VALKYR:
                 if (gossipListId == GOSSIPID_FAIL)
-                    SendActionToTirion(ACTION_START_VALKYR_ENGAGE, player);
+                    SendActionToTirion(ACTION_START_VALKYR_ENGAGE);
                 else
-                    SendActionToTirion(ACTION_START_VALKYR, player);
+                    SendActionToTirion(ACTION_START_VALKYR);
                 return true;
             case MENUID_LK:
-                SendActionToTirion(ACTION_START_LK_EVENT, player);
-                return true;
+                SendActionToTirion(ACTION_START_LK_EVENT);
+                break;
             default:
                 return false;
         }
+
+        CloseGossipMenuFor(player);
+        return true;
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
@@ -631,7 +633,7 @@ struct npc_open_portal_target_toc : public ScriptedAI
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*wilfredPortal*/)
             {
                 DoCastSelf(SPELL_WILFRED_PORTAL);
-                _scheduler.Schedule(Seconds(9), [this](TaskContext /*despawn*/) { me->DespawnOrUnsummon(); });
+                me->DespawnOrUnsummon(Seconds(9));
             });
         }
     }
@@ -658,10 +660,7 @@ struct npc_fizzlebang_toc : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (type != SPLINE_CHAIN_MOTION_TYPE)
-            return;
-
-        if (pointId == POINT_SUMMON)
+        if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_SUMMON)
         {
             _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
             Talk(WILFRED_SAY_INTRO);

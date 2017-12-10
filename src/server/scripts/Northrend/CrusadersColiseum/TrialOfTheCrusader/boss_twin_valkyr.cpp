@@ -210,10 +210,7 @@ struct boss_twin_baseAI : public BossAI
 
     void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (type != SPLINE_CHAIN_MOTION_TYPE)
-            return;
-
-        if (pointId == POINT_INITIAL_MOVEMENT)
+        if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
         {
             me->SetImmuneToPC(false);
             me->SetReactState(REACT_AGGRESSIVE);
