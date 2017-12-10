@@ -439,7 +439,7 @@ class go_strange_pool : public GameObjectScript
         {
             go_strange_poolAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 // 25%
                 if (InstanceScript* instanceScript = me->GetInstanceScript())

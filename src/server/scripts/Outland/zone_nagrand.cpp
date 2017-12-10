@@ -291,7 +291,7 @@ class go_corkis_prison : public GameObjectScript
       {
           go_corkis_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-          bool GossipHello(Player* player, bool /*reportUse*/) override
+          bool GossipHello(Player* player) override
           {
               me->SetGoState(GO_STATE_READY);
               if (me->GetEntry() == GO_CORKIS_PRISON)
@@ -609,7 +609,7 @@ class go_warmaul_prison : public GameObjectScript
         {
             go_warmaul_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)

@@ -229,7 +229,7 @@ public:
     {
         containment_sphereAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             InstanceScript* instance = me->GetInstanceScript();
 

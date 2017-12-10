@@ -124,7 +124,7 @@ class go_keystone_chamber : public GameObjectScript
         {
             go_keystone_chamberAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                     instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.

@@ -1130,7 +1130,7 @@ class go_wind_stone : public GameObjectScript
         {
             go_wind_stoneAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 uint8 rank = GetPlayerRank(player);
 

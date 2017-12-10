@@ -182,7 +182,7 @@ class go_orb_of_domination : public GameObjectScript
         {
             go_orb_of_dominationAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (instance->GetData(DATA_EGG_EVENT) != DONE)

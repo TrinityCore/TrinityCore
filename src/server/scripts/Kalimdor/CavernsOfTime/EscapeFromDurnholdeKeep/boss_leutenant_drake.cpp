@@ -42,7 +42,7 @@ public:
     {
         go_barrel_old_hillsbradAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             if (InstanceScript* instance = me->GetInstanceScript())
             {

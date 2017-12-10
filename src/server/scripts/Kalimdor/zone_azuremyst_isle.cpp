@@ -636,7 +636,7 @@ class go_ravager_cage : public GameObjectScript
         {
             go_ravager_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)

@@ -132,7 +132,7 @@ class go_broggok_lever : public GameObjectScript
         {
             go_broggok_leverAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)

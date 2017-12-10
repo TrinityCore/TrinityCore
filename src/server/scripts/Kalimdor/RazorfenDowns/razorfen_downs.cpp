@@ -379,7 +379,7 @@ class go_gong : public GameObjectScript
         {
             go_gongAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 InstanceScript* instance = me->GetInstanceScript();
 

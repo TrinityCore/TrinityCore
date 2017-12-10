@@ -401,7 +401,7 @@ class go_altar_of_archaedas : public GameObjectScript
         {
             go_altar_of_archaedasAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 InstanceScript* instance = player->GetInstanceScript();
                 if (!instance)
