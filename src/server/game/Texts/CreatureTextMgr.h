@@ -41,8 +41,8 @@ enum CreatureTextRange
 
 struct CreatureTextEntry
 {
-    uint32 entry;
-    uint8 group;
+    uint32 creatureId;
+    uint8 groupId;
     uint8 id;
     std::string text;
     ChatMsg type;

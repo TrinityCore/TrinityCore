@@ -1115,7 +1115,8 @@ char const* DB2FileLoaderSparseImpl::RecordGetString(unsigned char const* record
 uint32 DB2FileLoaderSparseImpl::RecordGetVarInt(unsigned char const* record, uint32 field, uint32 arrayIndex, bool isSigned) const
 {
     ASSERT(field < _header->FieldCount);
-    uint32 val = *reinterpret_cast<uint32 const*>(record + GetFieldOffset(field, arrayIndex));
+    uint32 val = 0;
+    memcpy(&val, record + GetFieldOffset(field, arrayIndex), GetFieldSize(field));
     EndianConvert(val);
     if (isSigned)
         return int32(val) << fields[field].UnusedBits >> fields[field].UnusedBits;

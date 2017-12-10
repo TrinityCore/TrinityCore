@@ -33,6 +33,7 @@ class Battleground;
 class BattlegroundMap;
 class Channel;
 class ChatCommand;
+class Conversation;
 class Creature;
 class CreatureAI;
 class DynamicObject;
@@ -71,6 +72,7 @@ struct CreatureData;
 struct ItemTemplate;
 struct MapEntry;
 struct OutdoorPvPData;
+struct QuestObjective;
 struct SceneTemplate;
 
 enum BattlegroundTypeId : uint32;
@@ -859,6 +861,17 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
         virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
 };
 
+class TC_GAME_API ConversationScript : public ScriptObject
+{
+    protected:
+        ConversationScript(char const* name);
+
+    public:
+
+        // Called when Conversation is created but not added to Map yet.
+        virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { }
+};
+
 class TC_GAME_API SceneScript : public ScriptObject
 {
     protected:
@@ -877,6 +890,20 @@ class TC_GAME_API SceneScript : public ScriptObject
 
         // Called when a scene is completed
         virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+};
+
+class TC_GAME_API QuestScript : public ScriptObject
+{
+    protected:
+
+        QuestScript(const char* name);
+
+    public:
+        // Called when a quest status change
+        virtual void OnQuestStatusChange(Player* /*player*/, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus /*newStatus*/) { }
+
+        // Called when a quest objective data change
+        virtual void OnQuestObjectiveChange(Player* /*player*/, Quest const* /*quest*/, QuestObjective const& /*objective*/, int32 /*oldAmount*/, int32 /*newAmount*/) { }
 };
 
 // Manages registration, loading, and execution of scripts.
@@ -1161,11 +1188,21 @@ class TC_GAME_API ScriptMgr
 
         AreaTriggerAI* GetAreaTriggerAI(AreaTrigger* areaTrigger);
 
+    public: /* ConversationScript */
+
+        void OnConversationCreate(Conversation* conversation, Unit* creator);
+
     public: /* SceneScript */
+
         void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string const& triggerName);
         void OnSceneCancel(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+
+    public: /* QuestScript */
+
+        void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus);
+        void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount);
 
     private:
         uint32 _scriptCount;

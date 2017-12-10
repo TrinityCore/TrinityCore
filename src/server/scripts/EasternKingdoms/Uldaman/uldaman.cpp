@@ -163,4 +163,3 @@ void AddSC_uldaman()
     new go_keystone_chamber();
     new AreaTrigger_at_map_chamber();
 }
-

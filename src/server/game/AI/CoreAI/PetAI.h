@@ -69,4 +69,3 @@ class TC_GAME_API PetAI : public CreatureAI
         void ClearCharmInfoFlags();
 };
 #endif
-

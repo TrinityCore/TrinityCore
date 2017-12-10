@@ -19,6 +19,7 @@
 #define ConversationDataStore_h__
 
 #include "Define.h"
+#include "ObjectGuid.h"
 
 #include <vector>
 
@@ -47,7 +48,10 @@ struct ConversationTemplate
     uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
 
     std::vector<ConversationActorTemplate const*> Actors;
+    std::vector<ObjectGuid::LowType> ActorGuids;
     std::vector<ConversationLineTemplate const*> Lines;
+
+    uint32 ScriptId;
 };
 
 class TC_GAME_API ConversationDataStore

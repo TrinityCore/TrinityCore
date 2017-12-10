@@ -577,7 +577,7 @@ public:
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/, bool /*entered*/) override
     {
-        if (player && player->IsAlive())
+        if (player->IsAlive())
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (Creature* infiltrator = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SCARSHIELD_INFILTRATOR)))
                 {

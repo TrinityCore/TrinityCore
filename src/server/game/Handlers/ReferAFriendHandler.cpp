@@ -22,30 +22,6 @@
 #include "ReferAFriendPackets.h"
 #include "World.h"
 
-inline uint32 GetMaxLevelForExpansion(uint32 expansion)
-{
-    switch (expansion)
-    {
-        case EXPANSION_CLASSIC:
-            return 60;
-        case EXPANSION_THE_BURNING_CRUSADE:
-            return 70;
-        case EXPANSION_WRATH_OF_THE_LICH_KING:
-            return 80;
-        case EXPANSION_CATACLYSM:
-            return 85;
-        case EXPANSION_MISTS_OF_PANDARIA:
-            return 90;
-        case EXPANSION_WARLORDS_OF_DRAENOR:
-            return 100;
-        case EXPANSION_LEGION:
-            return 110;
-        default:
-            break;
-    }
-    return 0;
-}
-
 void WorldSession::HandleGrantLevel(WorldPackets::RaF::GrantLevel& grantLevel)
 {
     Player* target = ObjectAccessor::GetPlayer(*_player, grantLevel.Target);

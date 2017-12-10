@@ -203,13 +203,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    // Init rune flags
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-    {
-        SetRuneTimer(i, 0xFFFFFFFF);
-        SetLastRuneGraceTimer(i, 0);
-    }
-
     for (uint8 i=0; i < MAX_TIMERS; i++)
         m_MirrorTimer[i] = DISABLED_MIRROR_TIMER;
 
@@ -600,14 +593,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetFullHealth();
     if (getPowerType() == POWER_MANA)
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
-
-    if (getPowerType() == POWER_RUNIC_POWER)
-    {
-        SetPower(POWER_RUNES, 8);
-        SetMaxPower(POWER_RUNES, 8);
-        SetPower(POWER_RUNIC_POWER, 0);
-        SetMaxPower(POWER_RUNIC_POWER, 1000);
-    }
 
     // original spells
     LearnDefaultSkills();
@@ -1347,26 +1332,6 @@ void Player::Update(uint32 p_time)
         }
     }
 
-    if (getClass() == CLASS_DEATH_KNIGHT)
-    {
-        // Update rune timers
-        for (uint8 i = 0; i < MAX_RUNES; ++i)
-        {
-            uint32 timer = GetRuneTimer(i);
-
-            // Don't update timer if rune is disabled
-            if (GetRuneCooldown(i))
-                continue;
-
-            // Timer has began
-            if (timer < 0xFFFFFFFF)
-            {
-                timer += p_time;
-                SetRuneTimer(i, std::min(uint32(2500), timer));
-            }
-        }
-    }
-
     // group update
     SendUpdateToOutOfRangeGroupMembers();
 
@@ -1840,9 +1805,9 @@ void Player::RegenerateAll()
     {
         uint32 regeneratedRunes = 0;
         uint32 regenIndex = 0;
-        while (regeneratedRunes < MAX_RECHARGING_RUNES && !m_runes->CooldownOrder.empty())
+        while (regeneratedRunes < MAX_RECHARGING_RUNES && m_runes->CooldownOrder.size() > regenIndex)
         {
-            uint8 runeToRegen = m_runes->CooldownOrder[regenIndex++];
+            uint8 runeToRegen = m_runes->CooldownOrder[regenIndex];
             uint32 runeCooldown = GetRuneCooldown(runeToRegen);
             if (runeCooldown > m_regenTimer)
             {
@@ -1850,7 +1815,7 @@ void Player::RegenerateAll()
                 ++regenIndex;
             }
             else
-                SetRuneCooldown(runeCooldown, 0);
+                SetRuneCooldown(runeToRegen, 0);
 
             ++regeneratedRunes;
         }
@@ -3183,6 +3148,17 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     // needs to be when spell is already learned, to prevent infinite recursion crashes
     if (sDB2Manager.GetMount(spellId))
         GetSession()->GetCollectionMgr()->AddMount(spellId, MOUNT_STATUS_NONE, false, IsInWorld() ? false : true);
+
+    // need to add Battle pets automatically into pet journal
+    for (BattlePetSpeciesEntry const* entry : sBattlePetSpeciesStore)
+    {
+        if (entry->SummonSpellID == spellId && GetSession()->GetBattlePetMgr()->GetPetCount(entry->ID) == 0)
+        {
+            GetSession()->GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+            UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
+            break;
+        }
+    }
 
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
     return active && !disabled && !superceded_old;
@@ -14139,7 +14115,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         bool canTalk = true;
         if (Creature* creature = source->ToCreature())
         {
-            if (!(itr->second.OptionNpcflag & npcflags))
+            if (!(itr->second.OptionNpcFlag & npcflags))
                 continue;
 
             switch (itr->second.OptionType)
@@ -14197,7 +14173,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                         canTalk = false;
                     break;
                 default:
-                    TC_LOG_ERROR("sql.sql", "Creature entry %u has unknown gossip option %u for menu %u.", creature->GetEntry(), itr->second.OptionType, itr->second.MenuId);
+                    TC_LOG_ERROR("sql.sql", "Creature entry %u has unknown gossip option %u for menu %u.", creature->GetEntry(), itr->second.OptionType, itr->second.MenuID);
                     canTalk = false;
                     break;
             }
@@ -14219,8 +14195,8 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         if (canTalk)
         {
             std::string strOptionText, strBoxText;
-            BroadcastTextEntry const* optionBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.OptionBroadcastTextId);
-            BroadcastTextEntry const* boxBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.BoxBroadcastTextId);
+            BroadcastTextEntry const* optionBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.OptionBroadcastTextID);
+            BroadcastTextEntry const* boxBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.BoxBroadcastTextID);
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
@@ -14238,20 +14214,20 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 if (!optionBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionIndex)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
                 }
 
                 if (!boxBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionIndex)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
                 }
             }
 
-            menu->GetGossipMenu().AddMenuItem(itr->second.OptionIndex, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
-            menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionIndex, itr->second.ActionMenuId, itr->second.ActionPoiId, itr->second.TrainerId);
+            menu->GetGossipMenu().AddMenuItem(itr->second.OptionID, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+            menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionID, itr->second.ActionMenuID, itr->second.ActionPoiID, itr->second.TrainerId);
         }
     }
 }
@@ -14423,8 +14399,8 @@ uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
 
     for (GossipMenusContainer::const_iterator itr = menuBounds.first; itr != menuBounds.second; ++itr)
     {
-        if (sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.conditions))
-            textId = itr->second.text_id;
+        if (sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
+            textId = itr->second.TextID;
     }
 
     return textId;
@@ -14548,7 +14524,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                     if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
                         PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
                     else
-                        PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true);
+                        PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true, false);
                     return;
                 }
             }
@@ -14922,6 +14898,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     // if not exist then created with set uState == NEW and rewarded=false
     QuestStatusData& questStatusData = m_QuestStatus[quest_id];
+    QuestStatus oldStatus = questStatusData.Status;
 
     // check for repeatable quests status reset
     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
@@ -14998,6 +14975,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     }
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
+    sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -15094,6 +15072,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SetCanDelayTeleport(true);
 
     uint32 quest_id = quest->GetQuestId();
+    QuestStatus oldStatus = GetQuestStatus(quest_id);
 
     for (QuestObjective const& obj : quest->GetObjectives())
     {
@@ -15341,6 +15320,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SetCanDelayTeleport(false);
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
+    sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);
 }
 
 void Player::SetRewardedQuest(uint32 quest_id)
@@ -16002,16 +15982,18 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
 {
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
     {
+        QuestStatus oldStatus = m_QuestStatus[questId].Status;
         m_QuestStatus[questId].Status = status;
 
         if (!quest->IsAutoComplete())
             m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
+
+        sScriptMgr->OnQuestStatusChange(this, questId);
+        sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, status);
     }
 
     if (update)
         SendQuestUpdate(questId);
-
-    sScriptMgr->OnQuestStatusChange(this, questId);
 }
 
 void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
@@ -16934,8 +16916,12 @@ void Player::SetQuestObjectiveData(QuestObjective const& objective, int32 data)
     }
 
     // No change
-    if (status.ObjectiveData[objective.StorageIndex] == data)
+    int32 oldData = status.ObjectiveData[objective.StorageIndex];
+    if (oldData == data)
         return;
+
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID))
+        sScriptMgr->OnQuestObjectiveChange(this, quest, objective, oldData, data);
 
     // Set data
     status.ObjectiveData[objective.StorageIndex] = data;
@@ -18037,6 +18023,18 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         SetUInt32Value(UNIT_FIELD_POWER + loadedPowers, 0);
 
     SetPower(POWER_LUNAR_POWER, 0);
+    // Init rune recharge
+    if (GetPowerIndex(POWER_RUNES) != MAX_POWERS)
+    {
+        int32 runes = GetPower(POWER_RUNES);
+        int32 maxRunes = GetMaxPower(POWER_RUNES);
+        uint32 runeCooldown = GetRuneBaseCooldown();
+        while (runes < maxRunes)
+        {
+            SetRuneCooldown(runes, runeCooldown);
+            ++runes;
+        }
+    }
 
     TC_LOG_DEBUG("entities.player.loading", "Player::LoadFromDB: The value of player '%s' after load item and aura is: ", m_name.c_str());
     outDebugValues();
@@ -18320,7 +18318,7 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
 
             AuraLoadEffectInfo& info = effectInfo[key];
             ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
-            if (Aura* aura = Aura::TryCreate(spellInfo, castId, key.EffectMask, this, nullptr, info.BaseAmounts.data(), nullptr, casterGuid, castItemLevel))
+            if (Aura* aura = Aura::TryCreate(spellInfo, castId, key.EffectMask, this, nullptr, info.BaseAmounts.data(), nullptr, casterGuid, itemGuid, castItemLevel))
             {
                 if (!aura->CanBeSaved())
                 {
@@ -25457,6 +25455,11 @@ bool Player::isTotalImmunity() const
     return false;
 }
 
+uint8 Player::GetRunesState() const
+{
+    return uint8(m_runes->RuneState & ((1 << GetMaxPower(POWER_RUNES)) - 1));
+}
+
 uint32 Player::GetRuneBaseCooldown() const
 {
     float cooldown = RUNE_BASE_COOLDOWN;
@@ -25479,24 +25482,13 @@ uint32 Player::GetRuneBaseCooldown() const
     return cooldown;
 }
 
-void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false*/)
+void Player::SetRuneCooldown(uint8 index, uint32 cooldown)
 {
-    uint32 gracePeriod = GetRuneTimer(index);
-
-    if (casted && IsInCombat())
-    {
-        if (gracePeriod < 0xFFFFFFFF && cooldown > 0)
-        {
-            uint32 lessCd = std::min(uint32(2500), gracePeriod);
-            cooldown = (cooldown > lessCd) ? (cooldown - lessCd) : 0;
-            SetLastRuneGraceTimer(index, lessCd);
-        }
-
-        SetRuneTimer(index, 0);
-    }
-
     m_runes->Cooldown[index] = cooldown;
     m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
+    int32 activeRunes = std::count(std::begin(m_runes->Cooldown), &m_runes->Cooldown[std::min(GetMaxPower(POWER_RUNES), MAX_RUNES)], 0);
+    if (activeRunes != GetPower(POWER_RUNES))
+        SetPower(POWER_RUNES, activeRunes);
 }
 
 void Runes::SetRuneState(uint8 index, bool set /*= true*/)
@@ -25505,41 +25497,28 @@ void Runes::SetRuneState(uint8 index, bool set /*= true*/)
     if (set)
     {
         RuneState |= (1 << index);                      // usable
-        if (itr == CooldownOrder.end())
-            CooldownOrder.push_back(index);
+        if (itr != CooldownOrder.end())
+            CooldownOrder.erase(itr);
     }
     else
     {
         RuneState &= ~(1 << index);                     // on cooldown
-        if (itr != CooldownOrder.end())
-            CooldownOrder.erase(itr);
+        if (itr == CooldownOrder.end())
+            CooldownOrder.push_back(index);
     }
 }
 
 void Player::ResyncRunes() const
 {
-    WorldPackets::Spells::ResyncRunes data(MAX_RUNES);
-    data.Runes.Start = 0;
+    uint32 maxRunes = uint32(GetMaxPower(POWER_RUNES));
+
+    WorldPackets::Spells::ResyncRunes data(maxRunes);
+    data.Runes.Start = uint8((1 << maxRunes) - 1);
     data.Runes.Count = GetRunesState();
 
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
-        data.Runes.Cooldowns.push_back(uint8(255 - (GetRuneCooldown(i) * 51)));
-
-    // calculate mask of recharging runes
-    uint32 regeneratedRunes = 0;
-    uint32 regenIndex = 0;
-    while (regeneratedRunes < MAX_RECHARGING_RUNES && !m_runes->CooldownOrder.empty())
-    {
-        uint8 runeToRegen = m_runes->CooldownOrder[regenIndex++];
-        uint32 runeCooldown = GetRuneCooldown(runeToRegen);
-        if (runeCooldown > m_regenTimer)
-        {
-            data.Runes.Start |= 1 << runeToRegen;
-            ++regenIndex;
-        }
-
-        ++regeneratedRunes;
-    }
+    float baseCd = float(GetRuneBaseCooldown());
+    for (uint32 i = 0; i < maxRunes; ++i)
+        data.Runes.Cooldowns.push_back(uint8((baseCd - float(GetRuneCooldown(i))) / baseCd * 255));
 
     GetSession()->SendPacket(data.Write());
 }
@@ -25564,15 +25543,10 @@ void Player::InitRunes()
     m_runes->RuneState = 0;
 
     for (uint8 i = 0; i < MAX_RUNES; ++i)
-    {
         SetRuneCooldown(i, 0);                                          // reset cooldowns
-        SetRuneTimer(i, 0xFFFFFFFF);                                    // Reset rune flags
-        SetLastRuneGraceTimer(i, 0);
-    }
 
-    // set a base regen timer equal to 10 sec
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + runeIndex, 0.1f);
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, 0.1f);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + runeIndex, 0.0f);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, 0.0f);
 }
 
 void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast)
@@ -25604,9 +25578,9 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
 
 void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* = nullptr*/)
 {
-    QuestItem* qitem = nullptr;
-    QuestItem* ffaitem = nullptr;
-    QuestItem* conditem = nullptr;
+    NotNormalLootItem* qitem = nullptr;
+    NotNormalLootItem* ffaitem = nullptr;
+    NotNormalLootItem* conditem = nullptr;
 
     LootItem* item = loot->LootItemInSlot(lootSlot, this, &qitem, &ffaitem, &conditem);
 
@@ -26551,6 +26525,20 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
     UnsummonAllTotems();
     ExitVehicle();
     RemoveAllControlled();
+
+    // remove single target auras at other targets
+    AuraList& scAuras = GetSingleCastAuras();
+    for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
+    {
+        Aura* aura = *iter;
+        if (aura->GetUnitOwner() != this)
+        {
+            aura->Remove();
+            iter = scAuras.begin();
+        }
+        else
+            ++iter;
+    }
     /*RemoveAllAurasOnDeath();
     if (GetPet())
         GetPet()->RemoveAllAurasOnDeath();*/
