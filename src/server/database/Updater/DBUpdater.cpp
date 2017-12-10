@@ -288,7 +288,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             case LOCATION_DOWNLOAD:
             {
                 TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://t.me/trinitycorelegacy\"" \
-                    " Mirror: \"https://github.com/TrinityCoreLegacy/TrinityCore/releases"" \
+                    " Mirror: \"https://github.com/TrinityCoreLegacy/TrinityCore/releases\"" \
                     " uncompress it and place the file TDB_full_world_(a_variable_name).sql where your worldserver binary is located.", base.filename().generic_string().c_str());
                   break;
             }
