@@ -1747,10 +1747,6 @@ void Spell::SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* refere
         x = pos->GetPositionX();
         y = pos->GetPositionY();
 
-        CellCoord p(Trinity::ComputeCellCoord(x, y));
-        Cell cell(p);
-        cell.SetNoCreate();
-
         Map* map = referer->GetMap();
 
         if (searchInWorld)
