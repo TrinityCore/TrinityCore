@@ -168,7 +168,7 @@ void ReputationMgr::SendForceReactions()
 
 void ReputationMgr::SendState(FactionState const* faction)
 {
-    uint32 count = 1;
+    uint32 count = faction ? 1 : 0;
 
     WorldPacket data(SMSG_SET_FACTION_STANDING, 17);
     data << float(0);
@@ -178,15 +178,18 @@ void ReputationMgr::SendState(FactionState const* faction)
     size_t p_count = data.wpos();
     data << uint32(count);
 
-    data << uint32(faction->ReputationListID);
-    data << uint32(faction->Standing);
+    if (faction)
+    {
+        data << uint32(faction->ReputationListID);
+        data << uint32(faction->Standing);
+    }
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
         if (itr->second.needSend)
         {
             itr->second.needSend = false;
-            if (itr->second.ReputationListID != faction->ReputationListID)
+            if (!faction || itr->second.ReputationListID != faction->ReputationListID)
             {
                 data << uint32(itr->second.ReputationListID);
                 data << uint32(itr->second.Standing);
@@ -233,12 +236,6 @@ void ReputationMgr::SendInitialReputations()
     }
 
     _player->SendDirectMessage(&data);
-}
-
-void ReputationMgr::SendStates()
-{
-    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
-        SendState(&(itr->second));
 }
 
 void ReputationMgr::SendVisible(FactionState const* faction) const

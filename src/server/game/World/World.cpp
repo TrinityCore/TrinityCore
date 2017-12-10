@@ -1349,6 +1349,9 @@ void World::LoadConfigSettings(bool reload)
     // Whether to use LoS from game objects
     m_bool_configs[CONFIG_CHECK_GOBJECT_LOS] = sConfigMgr->GetBoolDefault("CheckGameObjectLoS", true);
 
+    // What happens with cheaters that delay their fall
+    m_int_configs[CONFIG_ANTICHEAT_FALL_PUNISHMENT] = sConfigMgr->GetIntDefault("Anticheat.FallDelayed", 1); // 1 - kill
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
