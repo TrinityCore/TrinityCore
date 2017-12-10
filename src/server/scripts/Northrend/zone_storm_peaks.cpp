@@ -42,72 +42,71 @@ enum InjuredGoblinMiner
 
 class npc_injured_goblin : public CreatureScript
 {
-public:
-    npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
+    public:
+        npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
 
-    struct npc_injured_goblinAI : public npc_escortAI
-    {
-        npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId) override
+        struct npc_injured_goblinAI : public npc_escortAI
         {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
+            npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
 
-            switch (waypointId)
+            void WaypointReached(uint32 waypointId) override
             {
-                case 26:
-                    Talk(SAY_END_WP_REACHED, player);
-                    break;
-                case 27:
-                    player->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
-                    break;
+                Player* player = GetPlayerForEscort();
+                if (!player)
+                    return;
+
+                switch (waypointId)
+                {
+                    case 26:
+                        Talk(SAY_END_WP_REACHED, player);
+                        break;
+                    case 27:
+                        player->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
+                        break;
+                }
             }
-        }
 
-        void EnterCombat(Unit* /*who*/) override { }
+            void EnterCombat(Unit* /*who*/) override { }
 
-        void Reset() override { }
+            void Reset() override { }
 
-        void JustDied(Unit* /*killer*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (HasEscortState(STATE_ESCORT_ESCORTING) && player)
-                player->FailQuest(QUEST_BITTER_DEPARTURE);
-        }
-
-       void UpdateAI(uint32 uiDiff) override
-        {
-            npc_escortAI::UpdateAI(uiDiff);
-            if (!UpdateVictim())
-                return;
-            DoMeleeAttackIfReady();
-        }
-
-       void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-        {
-            if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
+            void JustDied(Unit* /*killer*/) override
             {
-                CloseGossipMenuFor(player);
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                Start(true, true, player->GetGUID());
+                Player* player = GetPlayerForEscort();
+                if (HasEscortState(STATE_ESCORT_ESCORTING) && player)
+                    player->FailQuest(QUEST_BITTER_DEPARTURE);
             }
+
+            void UpdateAI(uint32 uiDiff) override
+            {
+                npc_escortAI::UpdateAI(uiDiff);
+                if (!UpdateVictim())
+                    return;
+                DoMeleeAttackIfReady();
+            }
+
+           bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+           {
+               if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
+               {
+                   CloseGossipMenuFor(player);
+                   me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+                   Start(true, true, player->GetGUID());
+               }
+               return false;
+           }
+
+           void QuestAccept(Player* /*player*/, Quest const* quest) override
+           {
+               if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
+                   Talk(SAY_QUEST_ACCEPT);
+           }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_injured_goblinAI(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_injured_goblinAI(creature);
-    }
-
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
-            creature->AI()->Talk(SAY_QUEST_ACCEPT);
-
-        return false;
-    }
 };
 
 /*######
@@ -122,42 +121,53 @@ enum RoxiRamrocket
 
 class npc_roxi_ramrocket : public CreatureScript
 {
-public:
-    npc_roxi_ramrocket() : CreatureScript("npc_roxi_ramrocket") { }
+    public:
+        npc_roxi_ramrocket() : CreatureScript("npc_roxi_ramrocket") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        //Quest Menu
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        //Trainer Menu
-        if ( creature->IsTrainer() )
-            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
-
-        //Vendor Menu
-        if ( creature->IsVendor() )
-            if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (action)
+        struct npc_roxi_ramrocketAI : public ScriptedAI
         {
-        case GOSSIP_ACTION_TRAIN:
-            player->GetSession()->SendTrainerList(creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_TRADE:
-            player->GetSession()->SendListInventory(creature->GetGUID());
-            break;
+            npc_roxi_ramrocketAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool GossipHello(Player* player) override
+            {
+                //Quest Menu
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                //Trainer Menu
+                if (me->IsTrainer())
+                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+                //Vendor Menu
+                if (me->IsVendor())
+                    if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
+                        AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+                return true;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            {
+                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+                ClearGossipMenuFor(player);
+                switch (action)
+                {
+                    case GOSSIP_ACTION_TRAIN:
+                        player->GetSession()->SendTrainerList(me->GetGUID());
+                        break;
+                    case GOSSIP_ACTION_TRADE:
+                        player->GetSession()->SendListInventory(me->GetGUID());
+                        break;
+                }
+                return true;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_roxi_ramrocketAI(creature);
         }
-        return true;
-    }
 };
 
 /*######
@@ -457,151 +467,152 @@ enum BrannBronzebeard
 
 class npc_brann_bronzebeard_keystone : public CreatureScript
 {
-public:
-    npc_brann_bronzebeard_keystone() : CreatureScript("npc_brann_bronzebeard_keystone") { }
+    public:
+        npc_brann_bronzebeard_keystone() : CreatureScript("npc_brann_bronzebeard_keystone") { }
 
-    struct npc_brann_bronzebeard_keystoneAI : public ScriptedAI
-    {
-        npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_brann_bronzebeard_keystoneAI : public ScriptedAI
         {
-            objectCounter = 0;
-        }
-
-        void Reset() override
-        {
-            for (ObjectGuid& guid : objectGUID)
-                guid.Clear();
-
-            playerGUID.Clear();
-            voiceGUID.Clear();
-            objectCounter = 0;
-        }
-
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
-        {
-            CloseGossipMenuFor(player);
-            playerGUID = player->GetGUID();
-            events.ScheduleEvent(EVENT_SCRIPT_1, 100);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature)
             {
-                switch (eventId)
+                objectCounter = 0;
+            }
+
+            void Reset() override
+            {
+                for (ObjectGuid& guid : objectGUID)
+                    guid.Clear();
+
+                playerGUID.Clear();
+                voiceGUID.Clear();
+                objectCounter = 0;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            {
+                CloseGossipMenuFor(player);
+                playerGUID = player->GetGUID();
+                events.ScheduleEvent(EVENT_SCRIPT_1, 100);
+                return false;
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_SCRIPT_1:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                            Talk(SAY_BRANN_1, player);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                        if (Creature* voice = me->SummonCreature(NPC_A_DISTANT_VOICE, 7863.43f, -1396.585f, 1538.076f, 2.949606f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 49000))
-                            voiceGUID = voice->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_2, 4000);
-                        break;
-                    case EVENT_SCRIPT_2:
-                        me->SetWalk(true);
-                        me->GetMotionMaster()->MovePoint(0, 7861.488f, -1396.376f, 1534.059f, false);
-                        events.ScheduleEvent(EVENT_SCRIPT_3, 6000);
-                        break;
-                    case EVENT_SCRIPT_3:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_WORK_MINING);
-                        events.ScheduleEvent(EVENT_SCRIPT_4, 6000);
-                        break;
-                    case EVENT_SCRIPT_4:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                        if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
-                        {
-                            voice->CastSpell(voice, SPELL_RESURRECTION);
+                    switch (eventId)
+                    {
+                        case EVENT_SCRIPT_1:
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                                voice->AI()->Talk(SAY_VOICE_1, player);
-                        }
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_1, 7860.273f, -1383.622f, 1538.302f, -1.658062f, G3D::Quat(0.f, 0.f, -0.737277f, 0.6755905f), 0))
-                            objectGUID[objectCounter++] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_5, 6000);
-                        break;
-                    case EVENT_SCRIPT_5:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                                Talk(SAY_BRANN_1, player);
+                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                            if (Creature* voice = me->SummonCreature(NPC_A_DISTANT_VOICE, 7863.43f, -1396.585f, 1538.076f, 2.949606f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 49000))
+                                voiceGUID = voice->GetGUID();
+                            events.ScheduleEvent(EVENT_SCRIPT_2, 4000);
+                            break;
+                        case EVENT_SCRIPT_2:
+                            me->SetWalk(true);
+                            me->GetMotionMaster()->MovePoint(0, 7861.488f, -1396.376f, 1534.059f, false);
+                            events.ScheduleEvent(EVENT_SCRIPT_3, 6000);
+                            break;
+                        case EVENT_SCRIPT_3:
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_WORK_MINING);
+                            events.ScheduleEvent(EVENT_SCRIPT_4, 6000);
+                            break;
+                        case EVENT_SCRIPT_4:
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
-                                voice->AI()->Talk(SAY_VOICE_2, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_2, 7875.67f, -1387.266f, 1538.323f, -2.373644f, G3D::Quat(0.f, 0.f, -0.9271832f, 0.3746083f), 0))
-                            objectGUID[objectCounter++] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_6, 6000);
-                        break;
-                    case EVENT_SCRIPT_6:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                            {
+                                voice->CastSpell(voice, SPELL_RESURRECTION);
+                                if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                                    voice->AI()->Talk(SAY_VOICE_1, player);
+                            }
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_1, 7860.273f, -1383.622f, 1538.302f, -1.658062f, G3D::Quat(0.f, 0.f, -0.737277f, 0.6755905f), 0))
+                                objectGUID[objectCounter++] = go->GetGUID();
+                            events.ScheduleEvent(EVENT_SCRIPT_5, 6000);
+                            break;
+                        case EVENT_SCRIPT_5:
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                                if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                                    voice->AI()->Talk(SAY_VOICE_2, player);
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_2, 7875.67f, -1387.266f, 1538.323f, -2.373644f, G3D::Quat(0.f, 0.f, -0.9271832f, 0.3746083f), 0))
+                                objectGUID[objectCounter++] = go->GetGUID();
+                            events.ScheduleEvent(EVENT_SCRIPT_6, 6000);
+                            break;
+                        case EVENT_SCRIPT_6:
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                                if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                                    voice->AI()->Talk(SAY_VOICE_3, player);
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_3, 7879.212f, -1401.175f, 1538.279f, 2.967041f, G3D::Quat(0.f, 0.f, 0.9961939f, 0.08716504f), 0))
+                                objectGUID[objectCounter++] = go->GetGUID();
+                            events.ScheduleEvent(EVENT_SCRIPT_7, 6000);
+                            break;
+                        case EVENT_SCRIPT_7:
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                                if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                                    voice->AI()->Talk(SAY_VOICE_4, player);
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_4, 7868.944f, -1411.18f, 1538.213f, 2.111848f, G3D::Quat(0.f, 0.f, 0.8703556f, 0.4924237f), 0))
+                                objectGUID[objectCounter++] = go->GetGUID();
+                            events.ScheduleEvent(EVENT_SCRIPT_8, 6000);
+                            break;
+                        case EVENT_SCRIPT_8:
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                                if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                                    voice->AI()->Talk(SAY_VOICE_5, player);
+                            if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_5, 7855.11f, -1406.839f, 1538.42f, 1.151916f, G3D::Quat(0.f, 0.f, 0.5446386f, 0.8386708f), 0))
+                                objectGUID[objectCounter] = go->GetGUID();
+                            events.ScheduleEvent(EVENT_SCRIPT_9, 6000);
+                            break;
+                        case EVENT_SCRIPT_9:
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
-                                voice->AI()->Talk(SAY_VOICE_3, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_3, 7879.212f, -1401.175f, 1538.279f, 2.967041f, G3D::Quat(0.f, 0.f, 0.9961939f, 0.08716504f), 0))
-                            objectGUID[objectCounter++] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_7, 6000);
-                        break;
-                    case EVENT_SCRIPT_7:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                            if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
-                                voice->AI()->Talk(SAY_VOICE_4, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_4, 7868.944f, -1411.18f, 1538.213f, 2.111848f, G3D::Quat(0.f, 0.f, 0.8703556f, 0.4924237f), 0))
-                            objectGUID[objectCounter++] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_8, 6000);
-                        break;
-                    case EVENT_SCRIPT_8:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                            if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
-                                voice->AI()->Talk(SAY_VOICE_5, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_5, 7855.11f, -1406.839f, 1538.42f, 1.151916f, G3D::Quat(0.f, 0.f, 0.5446386f, 0.8386708f), 0))
-                            objectGUID[objectCounter] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_9, 6000);
-                        break;
-                    case EVENT_SCRIPT_9:
-                        if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
-                            voice->CastSpell(voice, SPELL_RESURRECTION);
-                        events.ScheduleEvent(EVENT_SCRIPT_10, 6000);
-                        break;
-                    case EVENT_SCRIPT_10:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                        {
-                            Talk(SAY_BRANN_2, player);
-                            player->KilledMonsterCredit(me->GetEntry());
-                        }
-                        events.ScheduleEvent(EVENT_SCRIPT_11, 6000);
-                        break;
-                    case EVENT_SCRIPT_11:
-                        me->SetFacingTo(2.932153f);
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                            Talk(SAY_BRANN_3, player);
+                                voice->CastSpell(voice, SPELL_RESURRECTION);
+                            events.ScheduleEvent(EVENT_SCRIPT_10, 6000);
+                            break;
+                        case EVENT_SCRIPT_10:
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                            {
+                                Talk(SAY_BRANN_2, player);
+                                player->KilledMonsterCredit(me->GetEntry());
+                            }
+                            events.ScheduleEvent(EVENT_SCRIPT_11, 6000);
+                            break;
+                        case EVENT_SCRIPT_11:
+                            me->SetFacingTo(2.932153f);
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                                Talk(SAY_BRANN_3, player);
 
-                        for (uint8 i = 0; i < 5; ++i)
-                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, objectGUID[i]))
-                                go->Delete();
+                            for (uint8 i = 0; i < 5; ++i)
+                                if (GameObject* go = ObjectAccessor::GetGameObject(*me, objectGUID[i]))
+                                    go->Delete();
 
-                        events.ScheduleEvent(EVENT_SCRIPT_12, 6000);
-                        break;
-                    case EVENT_SCRIPT_12:
-                        me->GetMotionMaster()->Clear();
-                        me->SetWalk(false);
-                        me->GetMotionMaster()->MovePoint(0, 7799.908f, -1413.561f, 1534.829f, false);
-                        events.ScheduleEvent(EVENT_SCRIPT_13, 10000);
-                        break;
-                    case EVENT_SCRIPT_13:
-                        me->DisappearAndDie();
-                        break;
+                            events.ScheduleEvent(EVENT_SCRIPT_12, 6000);
+                            break;
+                        case EVENT_SCRIPT_12:
+                            me->GetMotionMaster()->Clear();
+                            me->SetWalk(false);
+                            me->GetMotionMaster()->MovePoint(0, 7799.908f, -1413.561f, 1534.829f, false);
+                            events.ScheduleEvent(EVENT_SCRIPT_13, 10000);
+                            break;
+                        case EVENT_SCRIPT_13:
+                            me->DisappearAndDie();
+                            break;
+                    }
                 }
             }
+
+        private:
+            EventMap events;
+            ObjectGuid playerGUID;
+            ObjectGuid objectGUID[5];
+            ObjectGuid voiceGUID;
+            uint8 objectCounter;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_brann_bronzebeard_keystoneAI(creature);
         }
-
-    private:
-        EventMap events;
-        ObjectGuid playerGUID;
-        ObjectGuid objectGUID[5];
-        ObjectGuid voiceGUID;
-        uint8 objectCounter;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_brann_bronzebeard_keystoneAI(creature);
-    }
 };
 
 /*#####

@@ -102,25 +102,24 @@ public:
                 me->DespawnOrUnsummon(60000);
             }
         }
-    };
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+        bool GossipHello(Player* player) override
         {
-            player->TalkedToCreature(creature->GetEntry(), ObjectGuid::Empty);
-            player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
-        }
+            if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+            {
+                player->TalkedToCreature(me->GetEntry(), ObjectGuid::Empty);
+                player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
+            }
 
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
+        }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_aged_dying_ancient_kodoAI(creature);
     }
-
 };
 
 void AddSC_desolace()

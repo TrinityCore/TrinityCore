@@ -40,6 +40,7 @@ EndContentData */
 #include "SpellScript.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "GameObjectAI.h"
 
 /*######
 ## npc_nether_drake
@@ -297,46 +298,56 @@ enum LegionObelisk
 
 class go_legion_obelisk : public GameObjectScript
 {
-public:
-    go_legion_obelisk() : GameObjectScript("go_legion_obelisk") { }
+    public:
+        go_legion_obelisk() : GameObjectScript("go_legion_obelisk") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (player->GetQuestStatus(QUEST_YOURE_FIRED) == QUEST_STATUS_INCOMPLETE)
+        struct go_legion_obeliskAI : public GameObjectAI
         {
-            switch (go->GetEntry())
-            {
-                case GO_LEGION_OBELISK_ONE:
-                      obelisk_one = true;
-                     break;
-                case GO_LEGION_OBELISK_TWO:
-                      obelisk_two = true;
-                     break;
-                case GO_LEGION_OBELISK_THREE:
-                      obelisk_three = true;
-                     break;
-                case GO_LEGION_OBELISK_FOUR:
-                      obelisk_four = true;
-                     break;
-                case GO_LEGION_OBELISK_FIVE:
-                      obelisk_five = true;
-                     break;
-            }
+            go_legion_obeliskAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
+            bool GossipHello(Player* player, bool /*reportUse*/) override
             {
-                go->SummonCreature(NPC_DOOMCRYER, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                //reset global var
-                obelisk_one = false;
-                obelisk_two = false;
-                obelisk_three = false;
-                obelisk_four = false;
-                obelisk_five = false;
+                if (player->GetQuestStatus(QUEST_YOURE_FIRED) == QUEST_STATUS_INCOMPLETE)
+                {
+                    switch (me->GetEntry())
+                    {
+                        case GO_LEGION_OBELISK_ONE:
+                            obelisk_one = true;
+                            break;
+                        case GO_LEGION_OBELISK_TWO:
+                            obelisk_two = true;
+                            break;
+                        case GO_LEGION_OBELISK_THREE:
+                            obelisk_three = true;
+                            break;
+                        case GO_LEGION_OBELISK_FOUR:
+                            obelisk_four = true;
+                            break;
+                        case GO_LEGION_OBELISK_FIVE:
+                            obelisk_five = true;
+                            break;
+                    }
+
+                    if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
+                    {
+                        me->SummonCreature(NPC_DOOMCRYER, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        //reset global var
+                        obelisk_one = false;
+                        obelisk_two = false;
+                        obelisk_three = false;
+                        obelisk_four = false;
+                        obelisk_five = false;
+                    }
+                }
+
+                return true;
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_legion_obeliskAI(go);
         }
-
-        return true;
-    }
 };
 
 enum SimonGame
@@ -877,14 +888,24 @@ class go_simon_cluster : public GameObjectScript
     public:
         go_simon_cluster() : GameObjectScript("go_simon_cluster") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_simon_clusterAI : public GameObjectAI
         {
-            if (Creature* bunny = go->FindNearestCreature(NPC_SIMON_BUNNY, 12.0f, true))
-                bunny->AI()->SetData(go->GetEntry(), 0);
+            go_simon_clusterAI(GameObject* go) : GameObjectAI(go) { }
 
-            player->CastSpell(player, go->GetGOInfo()->goober.spellId, true);
-            go->AddUse();
-            return true;
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                if (Creature* bunny = me->FindNearestCreature(NPC_SIMON_BUNNY, 12.0f, true))
+                    bunny->AI()->SetData(me->GetEntry(), 0);
+
+                player->CastSpell(player, me->GetGOInfo()->goober.spellId, true);
+                me->AddUse();
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_simon_clusterAI(go);
         }
 };
 
@@ -903,27 +924,37 @@ class go_apexis_relic : public GameObjectScript
     public:
         go_apexis_relic() : GameObjectScript("go_apexis_relic") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_apexis_relicAI : public GameObjectAI
         {
-            player->PrepareGossipMenu(go, go->GetGOInfo()->questgiver.gossipID);
-            player->SendPreparedGossip(go);
-            return true;
-        }
+            go_apexis_relicAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/) override
-        {
-            CloseGossipMenuFor(player);
-
-            bool large = (go->GetEntry() == GO_APEXIS_MONUMENT);
-            if (player->HasItemCount(ITEM_APEXIS_SHARD, large ? 35 : 1))
+            bool GossipHello(Player* player, bool /*reportUse*/) override
             {
-                player->CastSpell(player, large ? SPELL_TAKE_REAGENTS_GROUP : SPELL_TAKE_REAGENTS_SOLO, false);
-
-                if (Creature* bunny = player->SummonCreature(NPC_SIMON_BUNNY, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ()))
-                    bunny->AI()->SetGUID(player->GetGUID(), large);
+                player->PrepareGossipMenu(me, me->GetGOInfo()->questgiver.gossipID);
+                player->SendPreparedGossip(me);
+                return true;
             }
 
-            return true;
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            {
+                CloseGossipMenuFor(player);
+
+                bool large = (me->GetEntry() == GO_APEXIS_MONUMENT);
+                if (player->HasItemCount(ITEM_APEXIS_SHARD, large ? 35 : 1))
+                {
+                    player->CastSpell(player, large ? SPELL_TAKE_REAGENTS_GROUP : SPELL_TAKE_REAGENTS_SOLO, false);
+
+                    if (Creature* bunny = player->SummonCreature(NPC_SIMON_BUNNY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()))
+                        bunny->AI()->SetGUID(player->GetGUID(), large);
+                }
+
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_apexis_relicAI(go);
         }
 };
 

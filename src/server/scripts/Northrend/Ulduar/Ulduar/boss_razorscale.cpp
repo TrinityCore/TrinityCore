@@ -24,6 +24,7 @@
 #include "ulduar.h"
 #include "SpellInfo.h"
 #include "Player.h"
+#include "GameObjectAI.h"
 
 enum Says
 {
@@ -316,12 +317,22 @@ class go_razorscale_harpoon : public GameObjectScript
     public:
         go_razorscale_harpoon() : GameObjectScript("go_razorscale_harpoon") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_razorscale_harpoonAI : public GameObjectAI
         {
-            if (InstanceScript* instance = go->GetInstanceScript())
-                if (instance->GetCreature(BOSS_RAZORSCALE))
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            return false;
+            go_razorscale_harpoonAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            {
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance->GetCreature(BOSS_RAZORSCALE))
+                        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_razorscale_harpoonAI(go);
         }
 };
 
@@ -734,36 +745,36 @@ class npc_expedition_commander : public CreatureScript
                 else
                     AttackStartTimer -= Diff;
             }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            {
+                ClearGossipMenuFor(player);
+                switch (gossipListId)
+                {
+                    case GOSSIP_ACTION_INFO_DEF:
+                        CloseGossipMenuFor(player);
+                        ENSURE_AI(npc_expedition_commanderAI, me->AI())->Phase = 1;
+                        return true;
+                }
+                return false;
+            }
+
+            bool GossipHello(Player* player) override
+            {
+                InstanceScript* instance = me->GetInstanceScript();
+                if (instance && instance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED)
+                {
+                    player->PrepareGossipMenu(me);
+
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    SendGossipMenuFor(player, 13853, me->GetGUID());
+                }
+                else
+                    SendGossipMenuFor(player, 13910, me->GetGUID());
+
+                return true;
+            }
         };
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF:
-                    CloseGossipMenuFor(player);
-                    ENSURE_AI(npc_expedition_commanderAI, creature->AI())->Phase = 1;
-                    break;
-            }
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED)
-            {
-                player->PrepareGossipMenu(creature);
-
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                SendGossipMenuFor(player, 13853, creature->GetGUID());
-            }
-            else
-                SendGossipMenuFor(player, 13910, creature->GetGUID());
-
-            return true;
-        }
 
         CreatureAI* GetAI(Creature* creature) const override
         {

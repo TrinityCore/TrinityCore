@@ -56,41 +56,52 @@ class npc_erozion : public CreatureScript
 public:
     npc_erozion() : CreatureScript("npc_erozion") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    struct npc_erozionAI : public ScriptedAI
     {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
+        npc_erozionAI(Creature* creature) : ScriptedAI(creature) { }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_ENTRY_BOMBS, 1);
-            if (msg == EQUIP_ERR_OK)
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
-                 player->StoreNewItem(dest, ITEM_ENTRY_BOMBS, true);
+                ItemPosCountVec dest;
+                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_ENTRY_BOMBS, 1);
+                if (msg == EQUIP_ERR_OK)
+                {
+                    player->StoreNewItem(dest, ITEM_ENTRY_BOMBS, true);
+                }
+                SendGossipMenuFor(player, 9515, me->GetGUID());
             }
-            SendGossipMenuFor(player, 9515, creature->GetGUID());
+            if (gossipListId == GOSSIP_ACTION_INFO_DEF + 2)
+            {
+                CloseGossipMenuFor(player);
+            }
+            return true;
         }
-        if (action == GOSSIP_ACTION_INFO_DEF+2)
+
+        bool GossipHello(Player* player) override
         {
-            CloseGossipMenuFor(player);
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            InstanceScript* instance = me->GetInstanceScript();
+            if (instance->GetData(TYPE_BARREL_DIVERSION) != DONE && !player->HasItemCount(ITEM_ENTRY_BOMBS))
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HELLO_EROZION1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            if (player->GetQuestStatus(QUEST_ENTRY_RETURN) == QUEST_STATUS_COMPLETE)
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HELLO_EROZION2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+            SendGossipMenuFor(player, 9778, me->GetGUID());
+
+            return true;
         }
-        return true;
-    }
+    };
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        InstanceScript* instance = creature->GetInstanceScript();
-        if (instance->GetData(TYPE_BARREL_DIVERSION) != DONE && !player->HasItemCount(ITEM_ENTRY_BOMBS))
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HELLO_EROZION1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        if (player->GetQuestStatus(QUEST_ENTRY_RETURN) == QUEST_STATUS_COMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HELLO_EROZION2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-
-        SendGossipMenuFor(player, 9778, creature->GetGUID());
-
-        return true;
+        return new npc_erozionAI(creature);
     }
 };
 
@@ -190,88 +201,6 @@ public:
         return GetInstanceAI<npc_thrall_old_hillsbradAI>(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        InstanceScript* instance = creature->GetInstanceScript();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                CloseGossipMenuFor(player);
-                if (instance)
-                {
-                    instance->SetData(TYPE_THRALL_EVENT, IN_PROGRESS);
-                    instance->SetData(TYPE_THRALL_PART1, IN_PROGRESS);
-                }
-
-                creature->AI()->Talk(SAY_TH_START_EVENT_PART1);
-
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI()))
-                    pEscortAI->Start(true, true, player->GetGUID());
-
-                ENSURE_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
-                ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
-                ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
-                break;
-
-            case GOSSIP_ACTION_INFO_DEF+2:
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_SKARLOC2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+20);
-                SendGossipMenuFor(player, GOSSIP_ID_SKARLOC2, creature->GetGUID());
-                break;
-
-            case GOSSIP_ACTION_INFO_DEF+20:
-                SendGossipMenuFor(player, GOSSIP_ID_SKARLOC3, creature->GetGUID());
-                creature->SummonCreature(SKARLOC_MOUNT, 2038.81f, 270.26f, 63.20f, 5.41f, TEMPSUMMON_TIMED_DESPAWN, 12000);
-                if (instance)
-                    instance->SetData(TYPE_THRALL_PART2, IN_PROGRESS);
-
-                creature->AI()->Talk(SAY_TH_START_EVENT_PART2);
-
-                ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI())->StartWP();
-                break;
-
-            case GOSSIP_ACTION_INFO_DEF+3:
-                CloseGossipMenuFor(player);
-                if (instance)
-                    instance->SetData(TYPE_THRALL_PART3, IN_PROGRESS);
-                ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI())->StartWP();
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-        {
-            player->PrepareQuestMenu(creature->GetGUID());
-            player->SendPreparedQuest(creature->GetGUID());
-        }
-
-        InstanceScript* instance = creature->GetInstanceScript();
-        if (instance)
-        {
-            if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE && !instance->GetData(TYPE_THRALL_EVENT))
-            {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_WALKING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                SendGossipMenuFor(player, GOSSIP_ID_START, creature->GetGUID());
-            }
-
-            if (instance->GetData(TYPE_THRALL_PART1) == DONE && !instance->GetData(TYPE_THRALL_PART2))
-            {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_SKARLOC1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                SendGossipMenuFor(player, GOSSIP_ID_SKARLOC1, creature->GetGUID());
-            }
-
-            if (instance->GetData(TYPE_THRALL_PART2) == DONE && !instance->GetData(TYPE_THRALL_PART3))
-            {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_TARREN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                SendGossipMenuFor(player, GOSSIP_ID_TARREN, creature->GetGUID());
-            }
-        }
-        return true;
-    }
-
     struct npc_thrall_old_hillsbradAI : public npc_escortAI
     {
         npc_thrall_old_hillsbradAI(Creature* creature) : npc_escortAI(creature)
@@ -291,6 +220,88 @@ public:
 
         bool LowHp;
         bool HadMount;
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            InstanceScript* instance = me->GetInstanceScript();
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    CloseGossipMenuFor(player);
+                    if (instance)
+                    {
+                        instance->SetData(TYPE_THRALL_EVENT, IN_PROGRESS);
+                        instance->SetData(TYPE_THRALL_PART1, IN_PROGRESS);
+                    }
+
+                    Talk(SAY_TH_START_EVENT_PART1);
+
+                    Start(true, true, player->GetGUID());
+
+                    SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
+                    SetDespawnAtEnd(false);
+                    SetDespawnAtFar(false);
+                    break;
+
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_SKARLOC2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
+                    SendGossipMenuFor(player, GOSSIP_ID_SKARLOC2, me->GetGUID());
+                    break;
+
+                case GOSSIP_ACTION_INFO_DEF + 20:
+                    SendGossipMenuFor(player, GOSSIP_ID_SKARLOC3, me->GetGUID());
+                    me->SummonCreature(SKARLOC_MOUNT, 2038.81f, 270.26f, 63.20f, 5.41f, TEMPSUMMON_TIMED_DESPAWN, 12000);
+                    if (instance)
+                        instance->SetData(TYPE_THRALL_PART2, IN_PROGRESS);
+
+                    me->AI()->Talk(SAY_TH_START_EVENT_PART2);
+
+                    StartWP();
+                    break;
+
+                case GOSSIP_ACTION_INFO_DEF + 3:
+                    CloseGossipMenuFor(player);
+                    if (instance)
+                        instance->SetData(TYPE_THRALL_PART3, IN_PROGRESS);
+                    StartWP();
+                    break;
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (me->IsQuestGiver())
+            {
+                player->PrepareQuestMenu(me->GetGUID());
+                player->SendPreparedQuest(me->GetGUID());
+            }
+
+            InstanceScript* instance = me->GetInstanceScript();
+            if (instance)
+            {
+                if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE && !instance->GetData(TYPE_THRALL_EVENT))
+                {
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_WALKING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    SendGossipMenuFor(player, GOSSIP_ID_START, me->GetGUID());
+                }
+
+                if (instance->GetData(TYPE_THRALL_PART1) == DONE && !instance->GetData(TYPE_THRALL_PART2))
+                {
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_SKARLOC1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    SendGossipMenuFor(player, GOSSIP_ID_SKARLOC1, me->GetGUID());
+                }
+
+                if (instance->GetData(TYPE_THRALL_PART2) == DONE && !instance->GetData(TYPE_THRALL_PART3))
+                {
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_TARREN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    SendGossipMenuFor(player, GOSSIP_ID_TARREN, me->GetGUID());
+                }
+            }
+            return true;
+        }
 
         void WaypointReached(uint32 waypointId) override
         {
@@ -568,43 +579,6 @@ public:
         return GetInstanceAI<npc_tarethaAI>(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        InstanceScript* instance = creature->GetInstanceScript();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_EPOCH2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            SendGossipMenuFor(player, GOSSIP_ID_EPOCH2, creature->GetGUID());
-        }
-        if (action == GOSSIP_ACTION_INFO_DEF+2)
-        {
-            CloseGossipMenuFor(player);
-
-            if (instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
-            {
-                instance->SetData(TYPE_THRALL_PART4, IN_PROGRESS);
-                if (instance->GetGuidData(DATA_EPOCH).IsEmpty())
-                     creature->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
-
-                if (Creature* thrall = (ObjectAccessor::GetCreature(*creature, instance->GetGuidData(DATA_THRALL))))
-                    ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, thrall->AI())->StartWP();
-            }
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        InstanceScript* instance = creature->GetInstanceScript();
-        if (instance->GetData(TYPE_THRALL_PART3) == DONE && instance->GetData(TYPE_THRALL_PART4) == NOT_STARTED)
-        {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_EPOCH1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            SendGossipMenuFor(player, GOSSIP_ID_EPOCH1, creature->GetGUID());
-        }
-        return true;
-    }
-
     struct npc_tarethaAI : public npc_escortAI
     {
         npc_tarethaAI(Creature* creature) : npc_escortAI(creature)
@@ -613,6 +587,44 @@ public:
         }
 
         InstanceScript* instance;
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            InstanceScript* instance = me->GetInstanceScript();
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_EPOCH2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                SendGossipMenuFor(player, GOSSIP_ID_EPOCH2, me->GetGUID());
+            }
+            if (action == GOSSIP_ACTION_INFO_DEF + 2)
+            {
+                CloseGossipMenuFor(player);
+
+                if (instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
+                {
+                    instance->SetData(TYPE_THRALL_PART4, IN_PROGRESS);
+                    if (instance->GetGuidData(DATA_EPOCH).IsEmpty())
+                        me->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+
+                    if (Creature* thrall = (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL))))
+                        ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, thrall->AI())->StartWP();
+                }
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            InstanceScript* instance = me->GetInstanceScript();
+            if (instance->GetData(TYPE_THRALL_PART3) == DONE && instance->GetData(TYPE_THRALL_PART4) == NOT_STARTED)
+            {
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_EPOCH1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, GOSSIP_ID_EPOCH1, me->GetGUID());
+            }
+            return true;
+        }
 
         void WaypointReached(uint32 waypointId) override
         {
@@ -635,7 +647,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 /*######

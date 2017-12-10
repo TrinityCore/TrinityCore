@@ -20,6 +20,7 @@
 #include "SpellScript.h"
 #include "Player.h"
 #include "ahnkahet.h"
+#include "GameObjectAI.h"
 
 enum Spells
 {
@@ -380,33 +381,43 @@ class go_prince_taldaram_sphere : public GameObjectScript
     public:
         go_prince_taldaram_sphere() : GameObjectScript("go_prince_taldaram_sphere") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_prince_taldaram_sphereAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
+            go_prince_taldaram_sphereAI(GameObject* go) : GameObjectAI(go) { }
 
-            Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_PRINCE_TALDARAM));
-            if (PrinceTaldaram && PrinceTaldaram->IsAlive())
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
             {
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                go->SetGoState(GO_STATE_ACTIVE);
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return false;
 
-                switch (go->GetEntry())
+                Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PRINCE_TALDARAM));
+                if (PrinceTaldaram && PrinceTaldaram->IsAlive())
                 {
-                    case GO_SPHERE_1:
-                        instance->SetData(DATA_SPHERE_1, IN_PROGRESS);
-                        PrinceTaldaram->AI()->Talk(SAY_1);
-                        break;
-                    case GO_SPHERE_2:
-                        instance->SetData(DATA_SPHERE_2, IN_PROGRESS);
-                        PrinceTaldaram->AI()->Talk(SAY_1);
-                        break;
-                }
+                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    me->SetGoState(GO_STATE_ACTIVE);
 
-                ENSURE_AI(boss_prince_taldaram::boss_prince_taldaramAI, PrinceTaldaram->AI())->CheckSpheres();
+                    switch (me->GetEntry())
+                    {
+                        case GO_SPHERE_1:
+                            instance->SetData(DATA_SPHERE_1, IN_PROGRESS);
+                            PrinceTaldaram->AI()->Talk(SAY_1);
+                            break;
+                        case GO_SPHERE_2:
+                            instance->SetData(DATA_SPHERE_2, IN_PROGRESS);
+                            PrinceTaldaram->AI()->Talk(SAY_1);
+                            break;
+                    }
+
+                    ENSURE_AI(boss_prince_taldaram::boss_prince_taldaramAI, PrinceTaldaram->AI())->CheckSpheres();
+                }
+                return true;
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_prince_taldaram_sphereAI(go);
         }
 };
 

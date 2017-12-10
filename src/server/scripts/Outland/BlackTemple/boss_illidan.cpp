@@ -1055,7 +1055,7 @@ public:
             _isTeleportToMinions = false;
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == GOSSIP_START_INTRO)
             {
@@ -1065,7 +1065,6 @@ public:
                 if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                     illidan->AI()->DoAction(ACTION_INTRO_DONE);
                 CloseGossipMenuFor(player);
-
             }
             else if (gossipListId == GOSSIP_START_FIGHT)
             {
@@ -1074,6 +1073,7 @@ public:
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 CloseGossipMenuFor(player);
             }
+            return false;
         }
 
         bool CanAIAttack(Unit const* who) const override

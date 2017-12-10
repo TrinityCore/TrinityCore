@@ -52,7 +52,7 @@ class npc_tb_spirit_guide : public CreatureScript
                     DoCast(me, SPELL_CHANNEL_SPIRIT_HEAL);
             }
 
-            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 player->PlayerTalkClass->SendCloseGossip();
 
@@ -78,11 +78,12 @@ class npc_tb_spirit_guide : public CreatureScript
                         areaId = TB_GY_SOUTH_SPIRE;
                         break;
                     default:
-                        return;
+                        return true;
                 }
 
                 if (WorldSafeLocsEntry const* safeLoc = sWorldSafeLocsStore.LookupEntry(areaId))
                     player->TeleportTo(safeLoc->map_id, safeLoc->x, safeLoc->y, safeLoc->z, 0);
+                return true;
             }
         };
 

@@ -31,6 +31,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "sunken_temple.h"
 #include "Player.h"
+#include "GameObjectAI.h"
 
 /*#####
 # at_malfurion_Stormrage_trigger
@@ -63,16 +64,25 @@ class at_malfurion_stormrage : public AreaTriggerScript
 
 class go_atalai_statue : public GameObjectScript
 {
-public:
-    go_atalai_statue() : GameObjectScript("go_atalai_statue") { }
+    public:
+        go_atalai_statue() : GameObjectScript("go_atalai_statue") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (InstanceScript* instance = player->GetInstanceScript())
-            instance->SetData(EVENT_STATE, go->GetEntry());
-        return false;
-    }
+        struct go_atalai_statueAI : public GameObjectAI
+        {
+            go_atalai_statueAI(GameObject* go) : GameObjectAI(go) { }
 
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                if (InstanceScript* instance = player->GetInstanceScript())
+                    instance->SetData(EVENT_STATE, me->GetEntry());
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_atalai_statueAI(go);
+        }
 };
 
 void AddSC_sunken_temple()

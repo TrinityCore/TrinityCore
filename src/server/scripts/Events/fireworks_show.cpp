@@ -843,12 +843,12 @@ public:
                 {
                 case EVENT_CHEER:
                 {
-                    go->PlayDistanceSound(CheerPicker());
+                    me->PlayDistanceSound(CheerPicker());
                     break;
                 }
                 case EVENT_FIRE:
                 {
-                    auto it = pos.find(go->GetZoneId());
+                    auto it = pos.find(me->GetZoneId());
                     if (it != pos.end())
                     {
                         Position const& rndpos = Trinity::Containers::SelectRandomContainerElement(it->second);
@@ -857,7 +857,7 @@ public:
 
                         if (_big)
                         {
-                            if (GameObject* firework = go->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
+                            if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
                             {
                                 firework->SetRespawnTime(0);
                                 firework->Delete();
@@ -865,7 +865,7 @@ public:
                         }
                         else
                         {
-                            if (GameObject* firework = go->SummonGameObject(FireworksPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
+                            if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
                             {
                                 firework->SetRespawnTime(0);
                                 firework->Delete();

@@ -40,6 +40,7 @@ EndContentData */
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "GridNotifiers.h"
+#include "GameObjectAI.h"
 
 /*######
 ## npc_draenei_survivor
@@ -228,11 +229,12 @@ public:
             Talk(ATTACK_YELL, who);
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             me->SetFaction(FACTION_MONSTER);
             me->Attack(player, true);
+            return false;
         }
 
         void UpdateAI(uint32 diff) override
@@ -358,7 +360,7 @@ public:
             Talk(SAY_AGGRO, who);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
             {
@@ -627,23 +629,33 @@ enum RavegerCage
 
 class go_ravager_cage : public GameObjectScript
 {
-public:
-    go_ravager_cage() : GameObjectScript("go_ravager_cage") { }
+    public:
+        go_ravager_cage() : GameObjectScript("go_ravager_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        go->UseDoorOrButton();
-        if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
+        struct go_ravager_cageAI : public GameObjectAI
         {
-            if (Creature* ravager = go->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+            go_ravager_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player, bool /*reportUse*/) override
             {
-                ravager->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                ravager->SetReactState(REACT_AGGRESSIVE);
-                ravager->AI()->AttackStart(player);
+                me->UseDoorOrButton();
+                if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
+                {
+                    if (Creature* ravager = me->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+                    {
+                        ravager->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        ravager->SetReactState(REACT_AGGRESSIVE);
+                        ravager->AI()->AttackStart(player);
+                    }
+                }
+                return true;
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_ravager_cageAI(go);
         }
-        return true;
-    }
 };
 
 class npc_death_ravager : public CreatureScript
