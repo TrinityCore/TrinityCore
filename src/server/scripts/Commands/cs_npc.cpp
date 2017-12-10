@@ -226,6 +226,7 @@ public:
             { "follow",    rbac::RBAC_PERM_COMMAND_NPC_FOLLOW,    false, nullptr,           "", npcFollowCommandTable },
             { "set",       rbac::RBAC_PERM_COMMAND_NPC_SET,       false, nullptr,              "", npcSetCommandTable },
             { "evade",     rbac::RBAC_PERM_COMMAND_NPC_EVADE,     false, &HandleNpcEvadeCommand,             ""       },
+            { "showloot",  rbac::RBAC_PERM_COMMAND_NPC_SHOWLOOT,  false, &HandleNpcShowLootCommand,          ""       },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1379,7 +1380,7 @@ public:
         pet->SetReactState(REACT_DEFENSIVE);
 
         // calculate proper level
-        uint8 level = (creatureTarget->getLevel() < (player->getLevel() - 5)) ? (player->getLevel() - 5) : creatureTarget->getLevel();
+        uint8 level = std::max<uint8>(player->getLevel()-5, creatureTarget->getLevel());
 
         // prepare visual effect for levelup
         pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
@@ -1440,6 +1441,100 @@ public:
         if (force)
             creatureTarget->ClearUnitState(UNIT_STATE_EVADE);
         creatureTarget->AI()->EnterEvadeMode(why);
+
+        return true;
+    }
+
+    static void _ShowLootEntry(ChatHandler* handler, uint32 itemId, uint8 itemCount, bool alternateString = false)
+    {
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+        ItemLocale const* itemLocale = sObjectMgr->GetItemLocale(itemId);
+        char const* name = nullptr;
+        if (itemLocale)
+            name = itemLocale->Name[handler->GetSessionDbcLocale()].c_str();
+        if ((!name || !*name) && itemTemplate)
+            name = itemTemplate->Name1.c_str();
+        if (!name)
+            name = "Unknown item";
+        handler->PSendSysMessage(alternateString ? LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2 : LANG_COMMAND_NPC_SHOWLOOT_ENTRY,
+            itemCount, ItemQualityColors[itemTemplate ? itemTemplate->Quality : ITEM_QUALITY_POOR], itemId, name, itemId);
+    }
+    static void _IterateNotNormalLootMap(ChatHandler* handler, NotNormalLootItemMap const& map, std::vector<LootItem> const& items)
+    {
+        for (NotNormalLootItemMap::value_type const& pair : map)
+        {
+            if (!pair.second)
+                continue;
+            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(pair.first);
+            Player const* player = ObjectAccessor::FindConnectedPlayer(guid);
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL, player ? player->GetName() : Trinity::StringFormat("Offline player (GuidLow 0x%08x)", pair.first).c_str(), pair.second->size());
+
+            for (auto it = pair.second->cbegin(); it != pair.second->cend(); ++it)
+            {
+                LootItem const& item = items[it->index];
+                if (!(it->is_looted) && !item.is_looted)
+                    _ShowLootEntry(handler, item.itemid, item.count, true);
+            }
+        }
+    }
+    static bool HandleNpcShowLootCommand(ChatHandler* handler, char const* args)
+    {
+        Creature* creatureTarget = handler->getSelectedCreature();
+        if (!creatureTarget || creatureTarget->IsPet())
+        {
+            handler->PSendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Loot const& loot = creatureTarget->loot;
+        if (!creatureTarget->isDead() || loot.empty())
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NOT_DEAD_OR_NO_LOOT, creatureTarget->GetName());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_HEADER, creatureTarget->GetName(), creatureTarget->GetEntry());
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_MONEY, loot.gold / GOLD, (loot.gold%GOLD) / SILVER, loot.gold%SILVER);
+
+        if (strcmp(args, "all")) // nonzero from strcmp <-> not equal
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot.items.size());
+            for (LootItem const& item : loot.items)
+                if (!item.is_looted)
+                    _ShowLootEntry(handler, item.itemid, item.count);
+
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Quest items", loot.quest_items.size());
+            for (LootItem const& item : loot.quest_items)
+                if (!item.is_looted)
+                    _ShowLootEntry(handler, item.itemid, item.count);
+        }
+        else
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot.items.size());
+            for (LootItem const& item : loot.items)
+                if (!item.is_looted && !item.freeforall && item.conditions.empty())
+                    _ShowLootEntry(handler, item.itemid, item.count);
+
+            if (!loot.GetPlayerQuestItems().empty())
+            {
+                handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "Per-player quest items");
+                _IterateNotNormalLootMap(handler, loot.GetPlayerQuestItems(), loot.quest_items);
+            }
+            
+            if (!loot.GetPlayerFFAItems().empty())
+            {
+                handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "FFA items per allowed player");
+                _IterateNotNormalLootMap(handler, loot.GetPlayerFFAItems(), loot.items);
+            }
+            
+            if (!loot.GetPlayerNonQuestNonFFAConditionalItems().empty())
+            {
+                handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "Per-player conditional items");
+                _IterateNotNormalLootMap(handler, loot.GetPlayerNonQuestNonFFAConditionalItems(), loot.items);
+            }
+        }
 
         return true;
     }
