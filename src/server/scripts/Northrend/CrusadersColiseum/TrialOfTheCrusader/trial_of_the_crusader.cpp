@@ -270,7 +270,7 @@ struct npc_barrett_toc : public ScriptedAI
                     SendActionToTirion(ACTION_START_VALKYR_ENGAGE);
                 else
                     SendActionToTirion(ACTION_START_VALKYR);
-                return true;
+                break;
             case MENUID_LK:
                 SendActionToTirion(ACTION_START_LK_EVENT);
                 break;
