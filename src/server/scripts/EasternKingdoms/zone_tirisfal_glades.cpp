@@ -80,14 +80,6 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void AttackedBy(Unit* pAttacker) override
-        {
-            if (me->GetVictim() || me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
-
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
         {
             if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
