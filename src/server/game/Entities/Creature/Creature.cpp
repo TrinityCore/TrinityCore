@@ -3137,3 +3137,11 @@ void Creature::ClearTextRepeatGroup(uint8 textGroup)
     if (groupItr != m_textRepeat.end())
         groupItr->second.clear();
 }
+
+bool Creature::CanGiveExperience() const
+{
+    return !IsCritter()
+        && !IsPet()
+        && !IsTotem()
+        && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
+}

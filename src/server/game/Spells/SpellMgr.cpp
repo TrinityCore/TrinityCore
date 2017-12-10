@@ -3647,10 +3647,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(155); // Hunter Range (Long)
     });
 
-    // Desecration
     ApplySpellFix({
-        55741, // (Rank 1)
-        68766  // (Rank 2)
+        55741, // Desecration (Rank 1)
+        68766, // Desecration (Rank 2)
+        57842  // Killing Spree (Off hand damage)
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Melee Range
@@ -3671,7 +3671,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Water Globule (Ichoron)
     ApplySpellFix({ 54258, 54264, 54265, 54266, 54267 }, [](SpellInfo* spellInfo)
     {
-        // in 3.3.5 there is only one radius in dbc which is 0 yards in this 
+        // in 3.3.5 there is only one radius in dbc which is 0 yards in this
         // use max radius from 4.3.4
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS);
     });
