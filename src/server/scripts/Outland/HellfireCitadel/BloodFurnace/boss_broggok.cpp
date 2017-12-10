@@ -20,6 +20,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "blood_furnace.h"
+#include "GameObjectAI.h"
 
 enum Yells
 {
@@ -127,18 +128,28 @@ class go_broggok_lever : public GameObjectScript
     public:
         go_broggok_lever() : GameObjectScript("go_broggok_lever") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_broggok_leverAI : public GameObjectAI
         {
-            if (InstanceScript* instance = go->GetInstanceScript())
-                if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)
-                {
-                    instance->SetBossState(DATA_BROGGOK, IN_PROGRESS);
-                    if (Creature* broggok = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_BROGGOK)))
-                        broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
-                }
+            go_broggok_leverAI(GameObject* go) : GameObjectAI(go) { }
 
-            go->UseDoorOrButton();
-            return false;
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            {
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)
+                    {
+                        instance->SetBossState(DATA_BROGGOK, IN_PROGRESS);
+                        if (Creature* broggok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BROGGOK)))
+                            broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
+                    }
+
+                me->UseDoorOrButton();
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_broggok_leverAI(go);
         }
 };
 

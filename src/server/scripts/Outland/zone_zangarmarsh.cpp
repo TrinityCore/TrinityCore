@@ -60,91 +60,102 @@ enum AshyenAndKeleth
 
 class npcs_ashyen_and_keleth : public CreatureScript
 {
-public:
-    npcs_ashyen_and_keleth() : CreatureScript("npcs_ashyen_and_keleth") { }
+    public:
+        npcs_ashyen_and_keleth() : CreatureScript("npcs_ashyen_and_keleth") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetReputationRank(942) > REP_NEUTRAL)
+        struct npcs_ashyen_and_kelethAI : public ScriptedAI
         {
-            if (creature->GetEntry() == NPC_ASHYEN)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_ASH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            npcs_ashyen_and_kelethAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (creature->GetEntry() == NPC_KELETH)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        }
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            creature->setPowerType(POWER_MANA);
-            creature->SetMaxPower(POWER_MANA, 200);             //set a "fake" mana value, we can't depend on database doing it in this case
-            creature->SetPower(POWER_MANA, 200);
-
-            if (creature->GetEntry() == NPC_ASHYEN)                //check which Creature we are dealing with
+            bool GossipHello(Player* player) override
             {
-                uint32 spell = 0;
-                switch (player->GetReputationRank(942))
-                {                                               //mark of lore
-                    case REP_FRIENDLY:
-                        spell = SPELL_BLESS_ASH_FRI;
-                        break;
-                    case REP_HONORED:
-                        spell = SPELL_BLESS_ASH_HON;
-                        break;
-                    case REP_REVERED:
-                        spell = SPELL_BLESS_ASH_REV;
-                        break;
-                    case REP_EXALTED:
-                        spell = SPELL_BLESS_ASH_EXA;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (spell)
+                if (player->GetReputationRank(942) > REP_NEUTRAL)
                 {
-                    creature->CastSpell(player, spell, true);
+                    if (me->GetEntry() == NPC_ASHYEN)
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_ASH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                    if (me->GetEntry() == NPC_KELETH)
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 }
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+
+                return true;
             }
 
-            if (creature->GetEntry() == NPC_KELETH)
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
-                uint32 spell = 0;
-                switch (player->GetReputationRank(942))         //mark of war
+                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+                ClearGossipMenuFor(player);
+                if (action == GOSSIP_ACTION_INFO_DEF + 1)
                 {
-                    case REP_FRIENDLY:
-                        spell = SPELL_BLESS_KEL_FRI;
-                        break;
-                    case REP_HONORED:
-                        spell = SPELL_BLESS_KEL_HON;
-                        break;
-                    case REP_REVERED:
-                        spell = SPELL_BLESS_KEL_REV;
-                        break;
-                    case REP_EXALTED:
-                        spell = SPELL_BLESS_KEL_EXA;
-                        break;
-                    default:
-                        break;
-                }
+                    me->setPowerType(POWER_MANA);
+                    me->SetMaxPower(POWER_MANA, 200);             //set a "fake" mana value, we can't depend on database doing it in this case
+                    me->SetPower(POWER_MANA, 200);
 
-                if (spell)
-                {
-                    creature->CastSpell(player, spell, true);
+                    if (me->GetEntry() == NPC_ASHYEN)                //check which Creature we are dealing with
+                    {
+                        uint32 spell = 0;
+                        switch (player->GetReputationRank(942))
+                        {                                               //mark of lore
+                            case REP_FRIENDLY:
+                                spell = SPELL_BLESS_ASH_FRI;
+                                break;
+                            case REP_HONORED:
+                                spell = SPELL_BLESS_ASH_HON;
+                                break;
+                            case REP_REVERED:
+                                spell = SPELL_BLESS_ASH_REV;
+                                break;
+                            case REP_EXALTED:
+                                spell = SPELL_BLESS_ASH_EXA;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (spell)
+                        {
+                            me->CastSpell(player, spell, true);
+                        }
+                    }
+
+                    if (me->GetEntry() == NPC_KELETH)
+                    {
+                        uint32 spell = 0;
+                        switch (player->GetReputationRank(942))         //mark of war
+                        {
+                            case REP_FRIENDLY:
+                                spell = SPELL_BLESS_KEL_FRI;
+                                break;
+                            case REP_HONORED:
+                                spell = SPELL_BLESS_KEL_HON;
+                                break;
+                            case REP_REVERED:
+                                spell = SPELL_BLESS_KEL_REV;
+                                break;
+                            case REP_EXALTED:
+                                spell = SPELL_BLESS_KEL_EXA;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (spell)
+                        {
+                            me->CastSpell(player, spell, true);
+                        }
+                    }
+                    CloseGossipMenuFor(player);
+                    player->TalkedToCreature(me->GetEntry(), me->GetGUID());
                 }
+                return true;
             }
-            CloseGossipMenuFor(player);
-            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npcs_ashyen_and_kelethAI(creature);
         }
-        return true;
-    }
 };
 
 /*######
@@ -165,64 +176,61 @@ enum Kayra
 
 class npc_kayra_longmane : public CreatureScript
 {
-public:
-    npc_kayra_longmane() : CreatureScript("npc_kayra_longmane") { }
+    public:
+        npc_kayra_longmane() : CreatureScript("npc_kayra_longmane") { }
 
-    struct npc_kayra_longmaneAI : public npc_escortAI
-    {
-        npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void Reset() override { }
-
-        void WaypointReached(uint32 waypointId) override
+        struct npc_kayra_longmaneAI : public npc_escortAI
         {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
+            npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) { }
 
-            switch (waypointId)
+            void Reset() override { }
+
+            void WaypointReached(uint32 waypointId) override
             {
-                case 4:
-                    Talk(SAY_AMBUSH1, player);
-                    DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    break;
-                case 5:
-                    Talk(SAY_PROGRESS, player);
-                    SetRun();
-                    break;
-                case 16:
-                    Talk(SAY_AMBUSH2, player);
-                    DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    break;
-                case 17:
-                    SetRun(false);
-                    break;
-                case 25:
-                    Talk(SAY_END, player);
-                    player->GroupEventHappens(QUEST_ESCAPE_FROM, me);
-                    break;
+                Player* player = GetPlayerForEscort();
+                if (!player)
+                    return;
+
+                switch (waypointId)
+                {
+                    case 4:
+                        Talk(SAY_AMBUSH1, player);
+                        DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        break;
+                    case 5:
+                        Talk(SAY_PROGRESS, player);
+                        SetRun();
+                        break;
+                    case 16:
+                        Talk(SAY_AMBUSH2, player);
+                        DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        break;
+                    case 17:
+                        SetRun(false);
+                        break;
+                    case 25:
+                        Talk(SAY_END, player);
+                        player->GroupEventHappens(QUEST_ESCAPE_FROM, me);
+                        break;
+                }
             }
-        }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ESCAPE_FROM)
+            void QuestAccept(Player* player, Quest const* quest) override
+            {
+                if (quest->GetQuestId() == QUEST_ESCAPE_FROM)
+                {
+                    Talk(SAY_START, player);
+                    Start(false, false, player->GetGUID());
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            creature->AI()->Talk(SAY_START, player);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_kayra_longmane::npc_kayra_longmaneAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID());
+            return new npc_kayra_longmaneAI(creature);
         }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_kayra_longmaneAI(creature);
-    }
 };
 
 /*######

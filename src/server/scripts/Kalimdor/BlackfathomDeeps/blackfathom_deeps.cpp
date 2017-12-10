@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameObjectAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -35,35 +36,53 @@ const Position HomePosition = {-815.817f, -145.299f, -25.870f, 0};
 
 class go_blackfathom_altar : public GameObjectScript
 {
-public:
-    go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
+    public:
+        go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
-    {
-        if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
-            player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
-        return true;
-    }
+        struct go_blackfathom_altarAI : public GameObjectAI
+        {
+            go_blackfathom_altarAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
+                    player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_blackfathom_altarAI(go);
+        }
 };
 
 class go_blackfathom_fire : public GameObjectScript
 {
-public:
-    go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
+    public:
+        go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        InstanceScript* instance = go->GetInstanceScript();
-
-        if (instance)
+        struct go_blackfathom_fireAI : public GameObjectAI
         {
-            go->SetGoState(GO_STATE_ACTIVE);
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
-            return true;
+            go_blackfathom_fireAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            {
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    me->SetGoState(GO_STATE_ACTIVE);
+                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_blackfathom_fireAI(go);
         }
-        return false;
-    }
 };
 
 class npc_blackfathom_deeps_event : public CreatureScript
@@ -226,9 +245,10 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             DoCast(player, SPELL_TELEPORT_DARNASSUS);
+            return false;
         }
     };
 

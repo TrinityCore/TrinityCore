@@ -21,6 +21,7 @@
 #include "SpellScript.h"
 #include "blackwing_lair.h"
 #include "Player.h"
+#include "GameObjectAI.h"
 
 enum Say
 {
@@ -174,20 +175,30 @@ public:
 
 class go_orb_of_domination : public GameObjectScript
 {
-public:
-    go_orb_of_domination() : GameObjectScript("go_orb_of_domination") { }
+    public:
+        go_orb_of_domination() : GameObjectScript("go_orb_of_domination") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (InstanceScript* instance = go->GetInstanceScript())
-            if (instance->GetData(DATA_EGG_EVENT) != DONE)
-                if (Creature* razorgore = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
-                {
-                    razorgore->Attack(player, true);
-                    player->CastSpell(razorgore, SPELL_MINDCONTROL);
-                }
-        return true;
-    }
+        struct go_orb_of_dominationAI : public GameObjectAI
+        {
+            go_orb_of_dominationAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance->GetData(DATA_EGG_EVENT) != DONE)
+                        if (Creature* razorgore = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
+                        {
+                            razorgore->Attack(player, true);
+                            player->CastSpell(razorgore, SPELL_MINDCONTROL);
+                        }
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_orb_of_dominationAI(go);
+        }
 };
 
 class spell_egg_event : public SpellScriptLoader

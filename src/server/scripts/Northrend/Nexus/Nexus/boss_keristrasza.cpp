@@ -21,6 +21,7 @@
 #include "SpellAuraEffects.h"
 #include "Player.h"
 #include "nexus.h"
+#include "GameObjectAI.h"
 
 enum Spells
 {
@@ -224,22 +225,31 @@ class containment_sphere : public GameObjectScript
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct containment_sphereAI : public GameObjectAI
     {
-        InstanceScript* instance = go->GetInstanceScript();
+        containment_sphereAI(GameObject* go) : GameObjectAI(go) { }
 
-        Creature* pKeristrasza = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_KERISTRASZA));
-        if (pKeristrasza && pKeristrasza->IsAlive())
+        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
         {
-            // maybe these are hacks :(
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+            InstanceScript* instance = me->GetInstanceScript();
 
-            ENSURE_AI(boss_keristrasza::boss_keristraszaAI, pKeristrasza->AI())->CheckContainmentSpheres(true);
+            Creature* pKeristrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KERISTRASZA));
+            if (pKeristrasza && pKeristrasza->IsAlive())
+            {
+                // maybe these are hacks :(
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->SetGoState(GO_STATE_ACTIVE);
+
+                ENSURE_AI(boss_keristrasza::boss_keristraszaAI, pKeristrasza->AI())->CheckContainmentSpheres(true);
+            }
+            return true;
         }
-        return true;
-    }
+    };
 
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new containment_sphereAI(go);
+    }
 };
 
 class spell_intense_cold : public SpellScriptLoader

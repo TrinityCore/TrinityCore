@@ -194,22 +194,6 @@ class npc_OOX17 : public CreatureScript
 public:
     npc_OOX17() : CreatureScript("npc_OOX17") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == Q_OOX17)
-        {
-            creature->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-            creature->SetFullHealth();
-            creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            creature->AI()->Talk(SAY_OOX_START);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-        }
-        return true;
-    }
-
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_OOX17AI(creature);
@@ -218,6 +202,19 @@ public:
     struct npc_OOX17AI : public npc_escortAI
     {
         npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == Q_OOX17)
+            {
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+                me->SetFullHealth();
+                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                Talk(SAY_OOX_START);
+                Start(true, false, player->GetGUID());
+            }
+        }
 
         void WaypointReached(uint32 waypointId) override
         {
@@ -286,149 +283,143 @@ Position const ToWaterLoc = {-7032.664551f, -4906.199219f, -1.606446f, 0.0f};
 
 class npc_tooga : public CreatureScript
 {
-public:
-    npc_tooga() : CreatureScript("npc_tooga") { }
+    public:
+        npc_tooga() : CreatureScript("npc_tooga") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_TOOGA)
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (npc_toogaAI* pToogaAI = CAST_AI(npc_tooga::npc_toogaAI, creature->AI()))
-                pToogaAI->StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
+            return new npc_toogaAI(creature);
         }
 
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_toogaAI(creature);
-    }
-
-    struct npc_toogaAI : public FollowerAI
-    {
-        npc_toogaAI(Creature* creature) : FollowerAI(creature)
+        struct npc_toogaAI : public FollowerAI
         {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            CheckSpeechTimer = 2500;
-            PostEventTimer = 1000;
-            PhasePostEvent = 0;
-
-            TortaGUID.Clear();
-        }
-
-        uint32 CheckSpeechTimer;
-        uint32 PostEventTimer;
-        uint32 PhasePostEvent;
-
-        ObjectGuid TortaGUID;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void MoveInLineOfSight(Unit* who) override
-        {
-            FollowerAI::MoveInLineOfSight(who);
-
-            if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && who->GetEntry() == NPC_TORTA)
+            npc_toogaAI(Creature* creature) : FollowerAI(creature)
             {
-                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
-                {
-                    Player* player = GetLeaderForFollower();
-                    if (player && player->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
-                        player->GroupEventHappens(QUEST_TOOGA, me);
-
-                    TortaGUID = who->GetGUID();
-                    SetFollowComplete(true);
-                }
-            }
-        }
-
-        void MovementInform(uint32 MotionType, uint32 PointId) override
-        {
-            FollowerAI::MovementInform(MotionType, PointId);
-
-            if (MotionType != POINT_MOTION_TYPE)
-                return;
-
-            if (PointId == POINT_ID_TO_WATER)
-                SetFollowComplete();
-        }
-
-        void UpdateFollowerAI(uint32 Diff) override
-        {
-            if (!UpdateVictim())
-            {
-                //we are doing the post-event, or...
-                if (HasFollowState(STATE_FOLLOW_POSTEVENT))
-                {
-                    if (PostEventTimer <= Diff)
-                    {
-                        PostEventTimer = 5000;
-
-                        Creature* torta = ObjectAccessor::GetCreature(*me, TortaGUID);
-                        if (!torta || !torta->IsAlive())
-                        {
-                            //something happened, so just complete
-                            SetFollowComplete();
-                            return;
-                        }
-
-                        switch (PhasePostEvent)
-                        {
-                            case 1:
-                                Talk(SAY_TOOG_POST_1);
-                                break;
-                            case 2:
-                                torta->AI()->Talk(SAY_TORT_POST_2);
-                                break;
-                            case 3:
-                                Talk(SAY_TOOG_POST_3);
-                                break;
-                            case 4:
-                                torta->AI()->Talk(SAY_TORT_POST_4);
-                                break;
-                            case 5:
-                                Talk(SAY_TOOG_POST_5);
-                                break;
-                            case 6:
-                                torta->AI()->Talk(SAY_TORT_POST_6);
-                                me->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, ToWaterLoc);
-                                break;
-                        }
-
-                        ++PhasePostEvent;
-                    }
-                    else
-                        PostEventTimer -= Diff;
-                }
-                //...we are doing regular speech check
-                else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
-                {
-                    if (CheckSpeechTimer <= Diff)
-                    {
-                        CheckSpeechTimer = 5000;
-
-                        if (urand(0, 9) > 8)
-                            Talk(SAY_TOOG_WORRIED);
-                    }
-                    else
-                        CheckSpeechTimer -= Diff;
-                }
-
-                return;
+                Initialize();
             }
 
-            DoMeleeAttackIfReady();
-        }
-    };
+            void Initialize()
+            {
+                CheckSpeechTimer = 2500;
+                PostEventTimer = 1000;
+                PhasePostEvent = 0;
 
+                TortaGUID.Clear();
+            }
+
+            uint32 CheckSpeechTimer;
+            uint32 PostEventTimer;
+            uint32 PhasePostEvent;
+
+            ObjectGuid TortaGUID;
+
+            void QuestAccept(Player* player, const Quest* quest) override
+            {
+                if (quest->GetQuestId() == QUEST_TOOGA)
+                    StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
+            }
+
+            void Reset() override
+            {
+                Initialize();
+            }
+
+            void MoveInLineOfSight(Unit* who) override
+            {
+                FollowerAI::MoveInLineOfSight(who);
+
+                if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && who->GetEntry() == NPC_TORTA)
+                {
+                    if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
+                    {
+                        Player* player = GetLeaderForFollower();
+                        if (player && player->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
+                            player->GroupEventHappens(QUEST_TOOGA, me);
+
+                        TortaGUID = who->GetGUID();
+                        SetFollowComplete(true);
+                    }
+                }
+            }
+
+            void MovementInform(uint32 MotionType, uint32 PointId) override
+            {
+                FollowerAI::MovementInform(MotionType, PointId);
+
+                if (MotionType != POINT_MOTION_TYPE)
+                    return;
+
+                if (PointId == POINT_ID_TO_WATER)
+                    SetFollowComplete();
+            }
+
+            void UpdateFollowerAI(uint32 Diff) override
+            {
+                if (!UpdateVictim())
+                {
+                    //we are doing the post-event, or...
+                    if (HasFollowState(STATE_FOLLOW_POSTEVENT))
+                    {
+                        if (PostEventTimer <= Diff)
+                        {
+                            PostEventTimer = 5000;
+
+                            Creature* torta = ObjectAccessor::GetCreature(*me, TortaGUID);
+                            if (!torta || !torta->IsAlive())
+                            {
+                                //something happened, so just complete
+                                SetFollowComplete();
+                                return;
+                            }
+
+                            switch (PhasePostEvent)
+                            {
+                                case 1:
+                                    Talk(SAY_TOOG_POST_1);
+                                    break;
+                                case 2:
+                                    torta->AI()->Talk(SAY_TORT_POST_2);
+                                    break;
+                                case 3:
+                                    Talk(SAY_TOOG_POST_3);
+                                    break;
+                                case 4:
+                                    torta->AI()->Talk(SAY_TORT_POST_4);
+                                    break;
+                                case 5:
+                                    Talk(SAY_TOOG_POST_5);
+                                    break;
+                                case 6:
+                                    torta->AI()->Talk(SAY_TORT_POST_6);
+                                    me->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, ToWaterLoc);
+                                    break;
+                            }
+
+                            ++PhasePostEvent;
+                        }
+                        else
+                            PostEventTimer -= Diff;
+                    }
+                    //...we are doing regular speech check
+                    else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
+                    {
+                        if (CheckSpeechTimer <= Diff)
+                        {
+                            CheckSpeechTimer = 5000;
+
+                            if (urand(0, 9) > 8)
+                                Talk(SAY_TOOG_WORRIED);
+                        }
+                        else
+                            CheckSpeechTimer -= Diff;
+                    }
+
+                    return;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
 };
 
 void AddSC_tanaris()

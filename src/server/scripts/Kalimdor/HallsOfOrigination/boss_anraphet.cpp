@@ -329,12 +329,12 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
         {
             npc_brann_bronzebeard_anraphetAI(Creature* creature) : CreatureAI(creature), _currentPoint(0), _instance(creature->GetInstanceScript()) { }
 
-            void sGossipSelect(Player* /*player*/, uint32 sender, uint32 action) override
+            bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
             {
                 if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
-                    return;
+                    return true;
 
-                if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
+                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
                     _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
                     _currentPoint = 0;
@@ -344,6 +344,8 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                     Talk(BRANN_SAY_DOOR_INTRO);
                     events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, 7500);
                 }
+
+                return true;
             }
 
             void DoAction(int32 action) override
