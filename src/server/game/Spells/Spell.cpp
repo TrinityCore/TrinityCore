@@ -1288,7 +1288,11 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     if (!effect)
         return;
     float radius = effect->CalcRadius(m_caster) * m_spellValue->RadiusMod;
-    SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), effect->ImplicitTargetConditions);
+
+    if (radius)
+        SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), effect->ImplicitTargetConditions);
+    else if (targetType.GetTarget() == TARGET_UNIT_CASTER_PET)
+        targets.push_back(referer);
 
     CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
 
