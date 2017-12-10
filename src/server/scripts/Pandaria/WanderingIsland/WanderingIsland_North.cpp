@@ -1890,7 +1890,7 @@ class playerScript_pandaren_powerlevel : public PlayerScript
 
         void OnLogin(Player* p_Player, bool /*firstLogin*/) override
         {
-            if (p_Player->getRace() == RACE_PANDAREN_NEUTRAL && p_Player->getLevel() >= 75)
+            if (p_Player->getRace() == RACE_PANDAREN_NEUTRAL/* && p_Player->getLevel() >= 75*/)
                 p_Player->ShowNeutralPlayerFactionSelectUI();
         }
 
