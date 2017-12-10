@@ -2698,12 +2698,9 @@ void SpellMgr::LoadSpellInfoCorrections()
         27892, // To Anchor 1
         27928, // To Anchor 1
         27935, // To Anchor 1
-        27915, // Anchor to Skulls
-        27931, // Anchor to Skulls
-        27937  // Anchor to Skulls
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
     });
 
     // Wrath of the Plaguebringer
