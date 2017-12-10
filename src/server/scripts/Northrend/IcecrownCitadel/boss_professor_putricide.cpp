@@ -1204,7 +1204,7 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
 
 
                 targets.remove_if(Trinity::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
-                Trinity::Containers::RandomResizeList(targets, 1);
+                Trinity::Containers::RandomResize(targets, 1);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

@@ -856,7 +856,7 @@ class boss_thorim : public CreatureScript
                     triggerList.push_back(bunny);
                 }
                 else
-                    Trinity::Containers::RandomResizeList(triggerList, count);
+                    Trinity::Containers::RandomResize(triggerList, count);
             }
 
             void SummonWave()

@@ -107,11 +107,11 @@ public:
     }
 
     template <class Predicate>
-    void DoAction(int32 info, Predicate& predicate, uint16 max = 0)
+    void DoAction(int32 info, Predicate&& predicate, uint16 max = 0)
     {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         StorageType listCopy = storage_;
-        Trinity::Containers::RandomResizeList<ObjectGuid, Predicate>(listCopy, predicate, max);
+        Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), max);
         for (StorageType::iterator i = listCopy.begin(); i != listCopy.end(); )
         {
             Creature* summon = ObjectAccessor::GetCreature(*me, *i++);
