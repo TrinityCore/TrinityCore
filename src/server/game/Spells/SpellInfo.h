@@ -491,6 +491,8 @@ class TC_GAME_API SpellInfo
         bool IsAutoRepeatRangedSpell() const;
         bool HasInitialAggro() const;
 
+        bool IsAffected(uint32 familyName, flag128 const& familyFlags) const;
+
         bool IsAffectedBySpellMods() const;
         bool IsAffectedBySpellMod(SpellModifier const* mod) const;
 
