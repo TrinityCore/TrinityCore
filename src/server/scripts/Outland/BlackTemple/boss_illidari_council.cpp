@@ -346,7 +346,7 @@ public:
                     std::list<Unit*> TargetList;
                     Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 100.0f);
                     Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
-                    me->VisitNearbyObject(100.0f, searcher);
+                    Cell::VisitAllObjects(me, searcher, 100.0f);
 
                     if (!TargetList.empty())
                     {

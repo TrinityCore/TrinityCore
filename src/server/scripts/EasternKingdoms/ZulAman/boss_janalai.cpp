@@ -234,18 +234,9 @@ class boss_janalai : public CreatureScript
                 float x, y, z;
                 me->GetPosition(x, y, z);
 
-                {
-                    CellCoord pair(Trinity::ComputeCellCoord(x, y));
-                    Cell cell(pair);
-                    cell.SetNoCreate();
-
-                    Trinity::AllCreaturesOfEntryInRange check(me, NPC_EGG, 100);
-                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-
-                    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
-
-                    cell.Visit(pair, cSearcher, *me->GetMap(), *me, me->GetGridActivationRange());
-                }
+                Trinity::AllCreaturesOfEntryInRange check(me, NPC_EGG, 100);
+                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+                Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
 
                 //TC_LOG_ERROR("scripts", "Eggs %d at middle", templist.size());
                 if (templist.empty())
@@ -267,22 +258,14 @@ class boss_janalai : public CreatureScript
                 float x, y, z;
                 me->GetPosition(x, y, z);
 
-                {
-                    CellCoord pair(Trinity::ComputeCellCoord(x, y));
-                    Cell cell(pair);
-                    cell.SetNoCreate();
+                Trinity::AllCreaturesOfEntryInRange check(me, NPC_FIRE_BOMB, 100);
+                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+                Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
 
-                    Trinity::AllCreaturesOfEntryInRange check(me, NPC_FIRE_BOMB, 100);
-                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-
-                    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
-
-                    cell.Visit(pair, cSearcher, *me->GetMap(), *me, me->GetGridActivationRange());
-                }
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
                 {
-                   (*i)->CastSpell(*i, SPELL_FIRE_BOMB_DAMAGE, true);
-                   (*i)->RemoveAllAuras();
+                    (*i)->CastSpell(*i, SPELL_FIRE_BOMB_DAMAGE, true);
+                    (*i)->RemoveAllAuras();
                 }
             }
 
@@ -525,25 +508,16 @@ class npc_janalai_hatcher : public CreatureScript
                 float x, y, z;
                 me->GetPosition(x, y, z);
 
-                {
-                    CellCoord pair(Trinity::ComputeCellCoord(x, y));
-                    Cell cell(pair);
-                    cell.SetNoCreate();
-
-                    Trinity::AllCreaturesOfEntryInRange check(me, 23817, 50);
-                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-
-                    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
-
-                    cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
-                }
+                Trinity::AllCreaturesOfEntryInRange check(me, 23817, 50);
+                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+                Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
 
                 //TC_LOG_ERROR("scripts", "Eggs %d at %d", templist.size(), side);
 
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end() && num > 0; ++i)
                     if ((*i)->GetDisplayId() != 11686)
                     {
-                       (*i)->CastSpell(*i, SPELL_HATCH_EGG, false);
+                        (*i)->CastSpell(*i, SPELL_HATCH_EGG, false);
                         num--;
                     }
 
