@@ -20,8 +20,10 @@
 #include "Errors.h"
 #include "SFMT.h"
 #include <boost/thread/tss.hpp>
+#include <random>
 
 static boost::thread_specific_ptr<SFMTRand> sfmtRand;
+static SFMTEngine engine;
 
 static SFMTRand* GetRng()
 {
@@ -84,8 +86,13 @@ double rand_chance()
     return GetRng()->Random() * 100.0;
 }
 
+uint32 urandweighted(size_t count, double const* chances)
+{
+    std::discrete_distribution<uint32> dd(chances, chances + count);
+    return dd(SFMTEngine::Instance());
+}
+
 SFMTEngine& SFMTEngine::Instance()
 {
-    static SFMTEngine engine;
     return engine;
 }
