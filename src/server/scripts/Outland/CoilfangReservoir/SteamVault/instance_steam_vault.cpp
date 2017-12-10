@@ -29,7 +29,7 @@ class go_main_chambers_access_panel : public GameObjectScript
         {
             go_main_chambers_access_panelAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 InstanceScript* instance = me->GetInstanceScript();
                 if (!instance)

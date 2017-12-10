@@ -321,7 +321,7 @@ class go_razorscale_harpoon : public GameObjectScript
         {
             go_razorscale_harpoonAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (instance->GetCreature(BOSS_RAZORSCALE))

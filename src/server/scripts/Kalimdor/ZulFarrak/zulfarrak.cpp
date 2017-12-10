@@ -210,7 +210,7 @@ public:
     {
         go_troll_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             if (InstanceScript* instance = me->GetInstanceScript())
             {
@@ -417,7 +417,7 @@ class go_shallow_grave : public GameObjectScript
         {
             go_shallow_graveAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 // randomly summon a zombie or dead hero the first time a grave is used
                 if (me->GetUseCount() == 0)

@@ -72,7 +72,7 @@ class go_cat_figurine : public GameObjectScript
         {
             go_cat_figurineAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
                 return false;
@@ -98,7 +98,7 @@ class go_barov_journal : public GameObjectScript
         {
             go_barov_journalAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !player->HasSpell(26086))
                     player->CastSpell(player, 26095, false);
@@ -132,7 +132,7 @@ class go_gilded_brazier : public GameObjectScript
         {
             go_gilded_brazierAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
                 {
@@ -165,7 +165,7 @@ class go_orb_of_command : public GameObjectScript
         {
             go_orb_of_commandAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestRewardStatus(7761))
                     player->CastSpell(player, 23460, true);
@@ -193,7 +193,7 @@ class go_tablet_of_madness : public GameObjectScript
         {
             go_tablet_of_madnessAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->HasSkill(SKILL_ALCHEMY) && player->GetSkillValue(SKILL_ALCHEMY) >= 300 && !player->HasSpell(24266))
                     player->CastSpell(player, 24267, false);
@@ -222,7 +222,7 @@ class go_tablet_of_the_seven : public GameObjectScript
             go_tablet_of_the_sevenAI(GameObject* go) : GameObjectAI(go) { }
 
             /// @todo use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (me->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
                     return true;
@@ -253,7 +253,7 @@ class go_jump_a_tron : public GameObjectScript
         {
             go_jump_a_tronAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
                     player->CastSpell(player, 33382, true);
@@ -297,7 +297,7 @@ class go_ethereum_prison : public GameObjectScript
         {
             go_ethereum_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 int Random = rand32() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
@@ -357,7 +357,7 @@ class go_ethereum_stasis : public GameObjectScript
         {
             go_ethereum_stasisAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 int Random = rand32() % (sizeof(NpcStasisEntry) / sizeof(uint32));
@@ -393,7 +393,7 @@ class go_resonite_cask : public GameObjectScript
         {
             go_resonite_caskAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
                     me->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
@@ -426,7 +426,7 @@ class go_sacred_fire_of_life : public GameObjectScript
         {
             go_sacred_fire_of_lifeAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
                     player->SummonCreature(NPC_ARIKARA, -5008.338f, -2118.894f, 83.657f, 0.874f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
@@ -464,7 +464,7 @@ class go_shrine_of_the_birds : public GameObjectScript
         {
             go_shrine_of_the_birdsAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 uint32 BirdEntry = 0;
 
@@ -517,7 +517,7 @@ class go_southfury_moonstone : public GameObjectScript
         {
             go_southfury_moonstoneAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
                 //player->CastSpell(player, SPELL_SUMMON_RIZZLE, false);
@@ -556,7 +556,7 @@ class go_tele_to_dalaran_crystal : public GameObjectScript
         {
             go_tele_to_dalaran_crystalAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
                     return false;
@@ -586,7 +586,7 @@ class go_tele_to_violet_stand : public GameObjectScript
         {
             go_tele_to_violet_standAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestRewardStatus(QUEST_LEARN_LEAVE_RETURN) || player->GetQuestStatus(QUEST_LEARN_LEAVE_RETURN) == QUEST_STATUS_INCOMPLETE)
                     return false;
@@ -626,7 +626,7 @@ class go_fel_crystalforge : public GameObjectScript
         {
             go_fel_crystalforgeAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (me->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
                     player->PrepareQuestMenu(me->GetGUID()); /* return true*/
@@ -696,7 +696,7 @@ class go_bashir_crystalforge : public GameObjectScript
         {
             go_bashir_crystalforgeAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (me->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
                     player->PrepareQuestMenu(me->GetGUID()); /* return true*/
@@ -771,7 +771,7 @@ class go_matrix_punchograph : public GameObjectScript
         {
             go_matrix_punchographAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 switch (me->GetEntry())
                 {
@@ -834,7 +834,7 @@ class go_scourge_cage : public GameObjectScript
         {
             go_scourge_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 if (Creature* pNearestPrisoner = me->FindNearestCreature(NPC_SCOURGE_PRISONER, 5.0f, true))
@@ -872,7 +872,7 @@ class go_arcane_prison : public GameObjectScript
         {
             go_arcane_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
                 {
@@ -909,7 +909,7 @@ class go_blood_filled_orb : public GameObjectScript
         {
             go_blood_filled_orbAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
                     player->SummonCreature(NPC_ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
@@ -950,7 +950,7 @@ class go_jotunheim_cage : public GameObjectScript
         {
             go_jotunheim_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 Creature* pPrisoner = me->FindNearestCreature(NPC_EBON_BLADE_PRISONER_HUMAN, 5.0f, true);
@@ -1010,7 +1010,7 @@ class go_table_theka : public GameObjectScript
         {
             go_table_thekaAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestStatus(QUEST_SPIDER_GOLD) == QUEST_STATUS_INCOMPLETE)
                     player->AreaExploredOrEventHappens(QUEST_SPIDER_GOLD);
@@ -1046,7 +1046,7 @@ class go_inconspicuous_landmark : public GameObjectScript
         {
             go_inconspicuous_landmarkAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->HasItemCount(ITEM_CUERGOS_KEY))
                     return false;
@@ -1082,7 +1082,7 @@ class go_soulwell : public GameObjectScript
             /// _and_ CMSG_GAMEOBJECT_REPORT_USE, this GossipHello hook is called
             /// twice. The script's handling is fine as it won't remove two charges
             /// on the well. We have to find how to segregate REPORT_USE and USE.
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 Unit* owner = me->GetOwner();
                 if (!owner || owner->GetTypeId() != TYPEID_PLAYER || !player->IsInSameRaidWith(owner->ToPlayer()))
@@ -1120,7 +1120,7 @@ class go_dragonflayer_cage : public GameObjectScript
         {
             go_dragonflayer_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 if (player->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) != QUEST_STATUS_INCOMPLETE)
@@ -1186,7 +1186,7 @@ class go_amberpine_outhouse : public GameObjectScript
         {
             go_amberpine_outhouseAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 QuestStatus status = player->GetQuestStatus(QUEST_DOING_YOUR_DUTY);
                 if (status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
@@ -1253,7 +1253,7 @@ class go_hive_pod : public GameObjectScript
         {
             go_hive_podAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 player->SendLoot(me->GetGUID(), LOOT_CORPSE);
                 me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), me->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
@@ -1277,7 +1277,7 @@ class go_massive_seaforium_charge : public GameObjectScript
         {
             go_massive_seaforium_chargeAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 me->SetLootState(GO_JUST_DEACTIVATED);
                 return true;
@@ -1310,7 +1310,7 @@ class go_veil_skith_cage : public GameObjectScript
        {
            go_veil_skith_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-           bool GossipHello(Player* player, bool /*reportUse*/) override
+           bool GossipHello(Player* player) override
            {
                me->UseDoorOrButton();
                if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
@@ -1357,7 +1357,7 @@ class go_frostblade_shrine : public GameObjectScript
         {
             go_frostblade_shrineAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 me->UseDoorOrButton(10);
                 if (!player->HasAura(SPELL_RECENT_MEDITATION))
@@ -1394,7 +1394,7 @@ class go_midsummer_bonfire : public GameObjectScript
         {
             go_midsummer_bonfireAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 player->CastSpell(player, STAMP_OUT_BONFIRE_QUEST_COMPLETE, true);
                 CloseGossipMenuFor(player);
@@ -1425,7 +1425,7 @@ class go_midsummer_ribbon_pole : public GameObjectScript
         {
             go_midsummer_ribbon_poleAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (Creature* creature = me->FindNearestCreature(NPC_POLE_RIBBON_BUNNY, 10.0f))
                 {

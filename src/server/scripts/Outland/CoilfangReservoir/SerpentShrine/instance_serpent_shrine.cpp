@@ -69,7 +69,7 @@ class go_bridge_console : public GameObjectScript
         {
             go_bridge_consoleAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 InstanceScript* instance = me->GetInstanceScript();
 

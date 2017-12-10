@@ -385,7 +385,7 @@ class go_prince_taldaram_sphere : public GameObjectScript
         {
             go_prince_taldaram_sphereAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 InstanceScript* instance = me->GetInstanceScript();
                 if (!instance)

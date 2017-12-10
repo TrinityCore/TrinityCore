@@ -71,7 +71,7 @@ class go_atalai_statue : public GameObjectScript
         {
             go_atalai_statueAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (InstanceScript* instance = player->GetInstanceScript())
                     instance->SetData(EVENT_STATE, me->GetEntry());

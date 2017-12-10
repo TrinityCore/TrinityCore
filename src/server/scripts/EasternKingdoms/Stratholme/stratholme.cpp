@@ -51,7 +51,7 @@ public:
     {
         go_gauntlet_gateAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player, bool /*reportUse*/) override
+        bool GossipHello(Player* player) override
         {
             InstanceScript* instance = me->GetInstanceScript();
 

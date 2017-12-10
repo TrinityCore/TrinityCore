@@ -541,7 +541,7 @@ public:
     {
         kalecgos_teleporterAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player, bool /*reportUse*/) override
+        bool GossipHello(Player* player) override
         {
 #if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
             uint8 SpectralPlayers = 0;

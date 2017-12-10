@@ -283,7 +283,7 @@ class go_ossirian_crystal : public GameObjectScript
         {
             go_ossirian_crystalAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 InstanceScript* Instance = player->GetInstanceScript();
                 if (!Instance)

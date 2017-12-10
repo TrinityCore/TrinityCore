@@ -177,7 +177,7 @@ class go_najentus_spine : public GameObjectScript
         {
             go_najentus_spineAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (Creature* najentus = instance->GetCreature(DATA_HIGH_WARLORD_NAJENTUS))

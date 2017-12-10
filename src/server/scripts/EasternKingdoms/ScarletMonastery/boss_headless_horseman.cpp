@@ -884,7 +884,7 @@ class go_loosely_turned_soil : public GameObjectScript
         {
             go_loosely_turned_soilAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (InstanceScript* instance = player->GetInstanceScript())
                     if (instance->GetBossState(DATA_HORSEMAN_EVENT) == IN_PROGRESS || player->GetQuestStatus(QUEST_CALL_THE_HEADLESS_HORSEMAN) != QUEST_STATUS_COMPLETE)
