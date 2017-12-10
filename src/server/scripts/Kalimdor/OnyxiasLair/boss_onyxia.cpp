@@ -26,12 +26,14 @@ SDCategory: Onyxia's Lair
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "onyxias_lair.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -193,7 +195,7 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* Spell) override
+        void SpellHit(Unit* /*pCaster*/, SpellInfo const* Spell) override
         {
             if (Spell->Id == SPELL_BREATH_EAST_TO_WEST ||
                 Spell->Id == SPELL_BREATH_WEST_TO_EAST ||
@@ -271,7 +273,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* Spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* Spell) override
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
             if (((Spell->Id >= 17086 && Spell->Id <= 17095) ||
@@ -301,7 +303,7 @@ public:
                     return &MoveData[i];
             }
 
-            return NULL;
+            return nullptr;
         }
 
         void SetNextRandomPoint()
@@ -353,7 +355,7 @@ public:
                         {
                             DoCastVictim(SPELL_BELLOWING_ROAR);
                             // Eruption
-                            GameObject* Floor = NULL;
+                            GameObject* Floor = nullptr;
                             Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
                             Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
                             Cell::VisitGridObjects(me, searcher, 30.0f);
@@ -492,7 +494,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_onyxiaAI>(creature);
+        return GetOnyxiaAI<boss_onyxiaAI>(creature);
     }
 };
 

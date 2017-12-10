@@ -46,15 +46,15 @@ struct GossipText
 
 struct PageTextLocale
 {
-    StringVector Text;
+    std::vector<std::string> Text;
 };
 
 struct NpcTextLocale
 {
     NpcTextLocale() { }
 
-    StringVector Text_0[MAX_GOSSIP_TEXT_OPTIONS];
-    StringVector Text_1[MAX_GOSSIP_TEXT_OPTIONS];
+    std::vector<std::string> Text_0[MAX_GOSSIP_TEXT_OPTIONS];
+    std::vector<std::string> Text_1[MAX_GOSSIP_TEXT_OPTIONS];
 };
 #endif
 

@@ -16,9 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "ScriptedCreature.h"
 #include "drak_tharon_keep.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -239,7 +243,7 @@ public:
             if (Creature* crystalChannelTarget = crystal->FindNearestCreature(NPC_CRYSTAL_CHANNEL_TARGET, 5.0f))
             {
                 if (active)
-                    crystalChannelTarget->CastSpell((Unit*)NULL, SPELL_BEAM_CHANNEL);
+                    crystalChannelTarget->CastSpell((Unit*)nullptr, SPELL_BEAM_CHANNEL);
                 else if (crystalChannelTarget->HasUnitState(UNIT_STATE_CASTING))
                     crystalChannelTarget->CastStop();
             }
@@ -374,15 +378,13 @@ class spell_novos_summon_minions : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_COPY_OF_MINIONS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_COPY_OF_MINIONS });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 for (uint8 i = 0; i < 2; ++i)
-                    GetCaster()->CastSpell((Unit*)NULL, SPELL_SUMMON_COPY_OF_MINIONS, true);
+                    GetCaster()->CastSpell((Unit*)nullptr, SPELL_SUMMON_COPY_OF_MINIONS, true);
             }
 
             void Register() override

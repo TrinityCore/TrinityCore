@@ -30,10 +30,11 @@ npc_tyrande_whisperwind
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "hyjalAI.h"
+#include "InstanceScript.h"
+#include "Log.h"
 #include "Player.h"
+#include "ScriptedGossip.h"
 
 #define GOSSIP_ITEM_BEGIN_ALLY      "My companions and I are with you, Lady Proudmoore."
 #define GOSSIP_ITEM_ANETHERON       "We are ready for whatever Archimonde might send our way, Lady Proudmoore."
@@ -122,7 +123,7 @@ class npc_jaina_proudmoore : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_jaina_proudmooreAI>(creature);
+            return GetHyjalAI<npc_jaina_proudmooreAI>(creature);
         }
 };
 
@@ -202,7 +203,7 @@ class npc_thrall : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_thrallAI>(creature);
+            return GetHyjalAI<npc_thrallAI>(creature);
         }
 };
 
@@ -250,7 +251,7 @@ class npc_tyrande_whisperwind : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_tyrande_whisperwindAI>(creature);
+            return GetHyjalAI<npc_tyrande_whisperwindAI>(creature);
         }
 };
 

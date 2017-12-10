@@ -19,6 +19,8 @@
 #ifndef DEF_KARAZHAN_H
 #define DEF_KARAZHAN_H
 
+#include "CreatureAIImpl.h"
+
 #define KZScriptName "instance_karazhan"
 #define DataHeader "KZ"
 
@@ -111,7 +113,7 @@ enum KZMisc
     OPTIONAL_BOSS_REQUIRED_DEATH_COUNT = 50
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetKarazhanAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, KZScriptName);

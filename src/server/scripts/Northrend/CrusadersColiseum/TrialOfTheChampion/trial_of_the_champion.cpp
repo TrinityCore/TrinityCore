@@ -27,11 +27,17 @@ npc_announcer_toc5
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 #include "trial_of_the_champion.h"
 #include "Vehicle.h"
-#include "Player.h"
 
 enum Yells
 {
@@ -362,8 +368,7 @@ public:
 
         void AggroAllPlayers(Creature* temp)
         {
-            Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
-
+            Map::PlayerList const& PlList = me->GetMap()->GetPlayers();
             if (PlList.isEmpty())
                 return;
 
@@ -482,7 +487,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_announcer_toc5AI>(creature);
+        return GetTrialOfTheChampionAI<npc_announcer_toc5AI>(creature);
     }
 };
 

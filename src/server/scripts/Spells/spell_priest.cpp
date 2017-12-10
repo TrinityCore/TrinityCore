@@ -21,11 +21,12 @@
  * Scriptnames of files in this file should be prefixed with "spell_pri_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
+#include "Player.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum PriestSpells
 {
@@ -115,9 +116,7 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ORACULAR_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_ORACULAR_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -159,9 +158,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BLESSED_RECOVERY_R1))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_PRIEST_BLESSED_RECOVERY_R1 });
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -205,10 +202,11 @@ class spell_pri_body_and_soul : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BODY_AND_SOUL_POISON_TRIGGER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PRIEST_ABOLISH_DISEASE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_PRIEST_BODY_AND_SOUL_POISON_TRIGGER,
+                    SPELL_PRIEST_ABOLISH_DISEASE
+                });
             }
 
             void HandleProcTriggerSpell(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -264,9 +262,7 @@ class spell_pri_circle_of_healing : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -306,9 +302,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_DIVINE_AEGIS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_AEGIS });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -395,9 +389,7 @@ class spell_pri_glyph_of_dispel_magic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -439,9 +431,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -479,20 +469,11 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_guardian_spirit_AuraScript);
 
-        public:
-            spell_pri_guardian_spirit_AuraScript()
-            {
-                healPct = 0;
-            }
-
-        private:
-            uint32 healPct;
+            uint32 healPct = 0;
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL });
             }
 
             bool Load() override
@@ -516,7 +497,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
                 int32 healAmount = int32(target->CountPctFromMaxHealth(healPct));
                 // remove the aura now, we don't want 40% healing bonus
                 Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                target->CastCustomSpell(target, SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL, &healAmount, NULL, NULL, true);
+                target->CastCustomSpell(target, SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL, &healAmount, nullptr, nullptr, true);
                 absorbAmount = dmgInfo.GetDamage();
             }
 
@@ -610,10 +591,11 @@ class spell_pri_improved_spirit_tap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOW_WORD_DEATH_R1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PRIEST_MIND_BLAST_R1))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_PRIEST_SHADOW_WORD_DEATH_R1,
+                    SPELL_PRIEST_MIND_BLAST_R1
+                });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -654,10 +636,11 @@ class spell_pri_item_t6_trinket : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_DIVINE_BLESSING) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PRIEST_DIVINE_WRATH))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_PRIEST_DIVINE_BLESSING,
+                    SPELL_PRIEST_DIVINE_WRATH
+                });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -780,18 +763,9 @@ class spell_pri_mana_leech : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_mana_leech_AuraScript);
 
-        public:
-            spell_pri_mana_leech_AuraScript()
-            {
-                _procTarget = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_MANA_LEECH_PROC))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_MANA_LEECH_PROC });
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -803,7 +777,7 @@ class spell_pri_mana_leech : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(_procTarget, SPELL_PRIEST_MANA_LEECH_PROC, true, NULL, aurEff);
+                GetTarget()->CastSpell(_procTarget, SPELL_PRIEST_MANA_LEECH_PROC, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -812,8 +786,7 @@ class spell_pri_mana_leech : public SpellScriptLoader
                 OnEffectProc += AuraEffectProcFn(spell_pri_mana_leech_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
 
-        private:
-            Unit* _procTarget;
+            Unit* _procTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
@@ -1003,11 +976,11 @@ class spell_pri_power_word_shield : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_R1))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED,
+                    SPELL_PRIEST_REFLECTIVE_SHIELD_R1
+                });
             }
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
@@ -1049,7 +1022,7 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                 if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
                 {
                     int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
-                    target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+                    target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, nullptr, nullptr, true, nullptr, aurEff);
                 }
             }
 
@@ -1127,7 +1100,8 @@ class spell_pri_renew : public SpellScriptLoader
                 {
                     int32 heal = (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct();
                     if (Player* modOwner = caster->GetSpellModOwner())
-                        modOwner->ApplySpellMod<SPELLMOD_DOT>(GetId(), heal);
+                        modOwner->ApplySpellMod(GetId(), SPELLMOD_DOT, heal);
+
                     heal = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DOT);
 
                     heal *= GetSpellInfo()->GetMaxTicks();
@@ -1161,9 +1135,7 @@ class spell_pri_shadowfiend_death : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1244,9 +1216,7 @@ class spell_pri_vampiric_embrace : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1286,10 +1256,11 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL,
+                    SPELL_REPLENISHMENT
+                });
             }
 
             bool CheckDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -1346,9 +1317,7 @@ class spell_pri_t3_4p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ARMOR_OF_FAITH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_ARMOR_OF_FAITH });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1381,9 +1350,7 @@ class spell_pri_t5_heal_2p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ITEM_EFFICIENCY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_ITEM_EFFICIENCY });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1428,9 +1395,7 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BLESSED_HEALING))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PRIEST_BLESSED_HEALING });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

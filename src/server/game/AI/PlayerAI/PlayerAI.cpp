@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,16 @@
  */
 
 #include "PlayerAI.h"
+#include "Creature.h"
+#include "Item.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
 
 static const uint8 NUM_TALENT_TREES = 3;
 static const uint8 NUM_SPEC_ICONICS = 3;
@@ -496,6 +504,20 @@ static const uint32 SPEC_ICONICS[MAX_CLASSES][NUM_TALENT_TREES][NUM_SPEC_ICONICS
     }
 };
 
+PlayerAI::PlayerAI(Player* player) : UnitAI(player), me(player),
+    _selfSpec(PlayerAI::GetPlayerSpec(player)),
+    _isSelfHealer(PlayerAI::IsPlayerHealer(player)),
+    _isSelfRangedAttacker(PlayerAI::IsPlayerRangedAttacker(player))
+{
+}
+
+Creature* PlayerAI::GetCharmer() const
+{
+    if (me->GetCharmerGUID().IsCreature())
+        return ObjectAccessor::GetCreature(*me, me->GetCharmerGUID());
+    return nullptr;
+}
+
 uint8 PlayerAI::GetPlayerSpec(Player const* who)
 {
     if (!who)
@@ -664,6 +686,13 @@ PlayerAI::TargetedSpell PlayerAI::SelectSpellCast(PossibleSpellVector& spells)
     return selected;
 }
 
+void PlayerAI::DoCastAtTarget(TargetedSpell spell)
+{
+    SpellCastTargets targets;
+    targets.SetUnitTarget(spell.second);
+    spell.first->prepare(&targets);
+}
+
 void PlayerAI::DoRangedAttackIfReady()
 {
     if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -735,13 +764,19 @@ void PlayerAI::CancelAllShapeshifts()
         me->RemoveOwnedAura(aura, AURA_REMOVE_BY_CANCEL);
 }
 
-struct UncontrolledTargetSelectPredicate : public std::unary_function<Unit*, bool>
+Unit* PlayerAI::SelectAttackTarget() const
+{
+    return me->GetCharmer() ? me->GetCharmer()->GetVictim() : nullptr;
+}
+
+struct UncontrolledTargetSelectPredicate
 {
     bool operator()(Unit const* target) const
     {
         return !target->HasBreakableByDamageCrowdControlAura();
     }
 };
+
 Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
 {
     if (Unit* charmer = me->GetCharmer())

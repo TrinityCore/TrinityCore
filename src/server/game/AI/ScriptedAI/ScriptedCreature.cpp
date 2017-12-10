@@ -17,13 +17,19 @@
  */
 
 #include "ScriptedCreature.h"
-#include "Spell.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "AreaBoundary.h"
 #include "Cell.h"
 #include "CellImpl.h"
-#include "ObjectMgr.h"
-#include "AreaBoundary.h"
+#include "DBCStores.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Spell.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary
@@ -31,6 +37,16 @@ struct TSpellSummary
     uint8 Targets;                                          // set of enum SelectTarget
     uint8 Effects;                                          // set of enum SelectEffect
 } extern* SpellSummary;
+
+void SummonList::Summon(Creature const* summon)
+{
+    storage_.push_back(summon->GetGUID());
+}
+
+void SummonList::Despawn(Creature const* summon)
+{
+    storage_.remove(summon->GetGUID());
+}
 
 void SummonList::DoZoneInCombat(uint32 entry, float maxRangeToNearestTarget)
 {
@@ -95,6 +111,16 @@ bool SummonList::HasEntry(uint32 entry) const
     }
 
     return false;
+}
+
+void SummonList::DoActionImpl(int32 action, StorageType const& summons)
+{
+    for (auto const& guid : summons)
+    {
+        Creature* summon = ObjectAccessor::GetCreature(*me, guid);
+        if (summon && summon->IsAIEnabled)
+            summon->AI()->DoAction(action);
+    }
 }
 
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
@@ -177,6 +203,16 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
 Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime)
 {
     return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, TempSummonType(type), despawntime);
+}
+
+bool ScriptedAI::HealthBelowPct(uint32 pct) const
+{
+    return me->HealthBelowPct(pct);
+}
+
+bool ScriptedAI::HealthAbovePct(uint32 pct) const
+{
+    return me->HealthAbovePct(pct);
 }
 
 SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effects)
@@ -444,6 +480,11 @@ void BossAI::_JustDied()
         instance->SetBossState(_bossId, DONE);
 }
 
+void BossAI::_JustReachedHome()
+{
+    me->setActive(false);
+}
+
 void BossAI::_EnterCombat()
 {
     if (instance)
@@ -505,6 +546,11 @@ void BossAI::UpdateAI(uint32 diff)
     }
 
     DoMeleeAttackIfReady();
+}
+
+bool BossAI::CanAIAttack(Unit const* target) const
+{
+    return CheckBoundary(target);
 }
 
 void BossAI::_DespawnAtEvade(uint32 delayToRespawn /*= 30*/, Creature* who /*= nullptr*/)

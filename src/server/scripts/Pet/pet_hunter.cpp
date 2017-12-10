@@ -21,9 +21,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "CreatureAIImpl.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
 
 enum HunterSpells
 {
@@ -168,10 +170,11 @@ class spell_pet_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PET_SWOOP) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PET_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_PET_SWOOP,
+                    SPELL_PET_CHARGE
+                });
             }
 
             void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -214,9 +217,7 @@ class spell_pet_guard_dog : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PET_GUARD_DOG_HAPPINESS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PET_GUARD_DOG_HAPPINESS });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -266,9 +267,7 @@ class spell_pet_silverback : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PET_GUARD_DOG_HAPPINESS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PET_GUARD_DOG_HAPPINESS });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)

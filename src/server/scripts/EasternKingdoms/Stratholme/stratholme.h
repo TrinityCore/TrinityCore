@@ -19,6 +19,9 @@
 #ifndef DEF_STRATHOLME_H
 #define DEF_STRATHOLME_H
 
+#include "CreatureAIImpl.h"
+
+#define StratholmeScriptName "instance_stratholme"
 #define DataHeader "STR"
 
 enum STRDataTypes
@@ -80,5 +83,11 @@ enum STRSpellIds
 {
     SPELL_BARON_ULTIMATUM               = 27861
 };
+
+template <class AI, class T>
+inline AI* GetStratholmeAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, StratholmeScriptName);
+}
 
 #endif

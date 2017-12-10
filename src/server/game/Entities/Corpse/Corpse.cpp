@@ -19,7 +19,10 @@
 #include "CharacterCache.h"
 #include "Common.h"
 #include "Corpse.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "UpdateData.h"
 #include "UpdateMask.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
@@ -34,7 +37,7 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
 
     m_valuesCount = CORPSE_END;
 
-    m_time = time(NULL);
+    m_time = time(nullptr);
 
     lootRecipient = nullptr;
 }

@@ -21,8 +21,6 @@
 
 #include "CreatureAI.h"
 
-class Unit;
-
 class TC_GAME_API ReactorAI : public CreatureAI
 {
     public:

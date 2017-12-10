@@ -18,6 +18,7 @@
 
 #ifndef DBC_FILE_LOADER_H
 #define DBC_FILE_LOADER_H
+
 #include "Define.h"
 #include "Utilities/ByteConverter.h"
 #include <cassert>
@@ -37,7 +38,7 @@ enum DbcFieldFormat
     FT_SQL_ABSENT='a'                                       //Used in sql format to mark column absent in sql dbc
 };
 
-class TC_SHARED_API DBCFileLoader
+class TC_COMMON_API DBCFileLoader
 {
     public:
         DBCFileLoader();
@@ -92,11 +93,11 @@ class TC_SHARED_API DBCFileLoader
         uint32 GetNumRows() const { return recordCount; }
         uint32 GetRowSize() const { return recordSize; }
         uint32 GetCols() const { return fieldCount; }
-        uint32 GetOffset(size_t id) const { return (fieldsOffset != NULL && id < fieldCount) ? fieldsOffset[id] : 0; }
-        bool IsLoaded() const { return data != NULL; }
-        char* AutoProduceData(const char* fmt, uint32& count, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char *& sqlDataTable);
-        char* AutoProduceStrings(const char* fmt, char* dataTable);
-        static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = NULL);
+        uint32 GetOffset(size_t id) const { return (fieldsOffset != nullptr && id < fieldCount) ? fieldsOffset[id] : 0; }
+        bool IsLoaded() const { return data != nullptr; }
+        char* AutoProduceData(char const* fmt, uint32& count, char**& indexTable);
+        char* AutoProduceStrings(char const* fmt, char* dataTable);
+        static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = nullptr);
     private:
 
         uint32 recordSize;

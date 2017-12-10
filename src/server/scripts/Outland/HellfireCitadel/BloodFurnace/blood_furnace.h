@@ -18,6 +18,8 @@
 #ifndef BLOOD_FURNACE_H_
 #define BLOOD_FURNACE_H_
 
+#include "CreatureAIImpl.h"
+
 #define BFScriptName "instance_blood_furnace"
 #define DataHeader   "BF"
 
@@ -80,8 +82,8 @@ enum BFActionIds
     ACTION_PREPARE_BROGGOK      = 3
 };
 
-template<class AI, class T>
-AI* GetBloodFurnaceAI(T* obj)
+template <class AI, class T>
+inline AI* GetBloodFurnaceAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, BFScriptName);
 }

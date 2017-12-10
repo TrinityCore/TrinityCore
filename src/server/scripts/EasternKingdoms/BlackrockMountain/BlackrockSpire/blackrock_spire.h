@@ -18,6 +18,8 @@
 #ifndef DEF_BLACKROCK_SPIRE_H
 #define DEF_BLACKROCK_SPIRE_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount         = 23;
 
 #define BRSScriptName "instance_blackrock_spire"
@@ -119,5 +121,11 @@ enum BRSGameObjectsIds
     GO_PORTCULLIS_ACTIVE            = 164726,
     GO_PORTCULLIS_TOBOSSROOMS       = 175186
 };
+
+template <class AI, class T>
+inline AI* GetBlackrockSpireAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BRSScriptName);
+}
 
 #endif

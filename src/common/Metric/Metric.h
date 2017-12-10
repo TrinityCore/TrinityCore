@@ -18,11 +18,22 @@
 #ifndef METRIC_H__
 #define METRIC_H__
 
-#include "Common.h"
-#include "Threading/MPSCQueue.h"
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/algorithm/string.hpp>
-#include <type_traits>
+#include "Define.h"
+#include "AsioHacksFwd.h"
+#include "MPSCQueue.h"
+#include <chrono>
+#include <functional>
+#include <iosfwd>
+#include <memory>
+#include <string>
+
+namespace boost
+{
+    namespace asio
+    {
+        class io_service;
+    }
+}
 
 enum MetricDataType
 {
@@ -33,7 +44,7 @@ enum MetricDataType
 struct MetricData
 {
     std::string Category;
-    std::chrono::time_point<std::chrono::system_clock> Timestamp;
+    std::chrono::system_clock::time_point Timestamp;
     MetricDataType Type;
 
     // LogValue-specific fields
@@ -47,7 +58,8 @@ struct MetricData
 class TC_COMMON_API Metric
 {
 private:
-    boost::asio::ip::tcp::iostream _dataStream;
+    std::iostream& GetDataStream() { return *_dataStream; }
+    std::unique_ptr<std::iostream> _dataStream;
     MPSCQueue<MetricData> _queuedData;
     std::unique_ptr<boost::asio::deadline_timer> _batchTimer;
     std::unique_ptr<boost::asio::deadline_timer> _overallStatusTimer;
@@ -66,31 +78,24 @@ private:
     void ScheduleSend();
     void ScheduleOverallStatusLog();
 
-    template<class T, typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>
-    static std::string FormatInfluxDBValue(T value) { return std::to_string(value) + 'i'; }
+    static std::string FormatInfluxDBValue(bool value);
+    template <class T>
+    static std::string FormatInfluxDBValue(T value);
+    static std::string FormatInfluxDBValue(std::string const& value);
+    static std::string FormatInfluxDBValue(char const* value);
+    static std::string FormatInfluxDBValue(double value);
+    static std::string FormatInfluxDBValue(float value);
 
-    static std::string FormatInfluxDBValue(std::string const& value)
-    {
-        return '"' + boost::replace_all_copy(value, "\"", "\\\"") + '"';
-    }
-
-    static std::string FormatInfluxDBValue(bool value) { return value ? "t" : "f"; }
-    static std::string FormatInfluxDBValue(const char* value) { return FormatInfluxDBValue(std::string(value)); }
-    static std::string FormatInfluxDBValue(double value) { return std::to_string(value); }
-    static std::string FormatInfluxDBValue(float value) { return FormatInfluxDBValue(double(value)); }
-
-    static std::string FormatInfluxDBTagValue(std::string const& value)
-    {
-        // ToDo: should handle '=' and ',' characters too
-        return boost::replace_all_copy(value, " ", "\\ ");
-    }
+    static std::string FormatInfluxDBTagValue(std::string const& value);
 
     // ToDo: should format TagKey and FieldKey too in the same way as TagValue
 
 public:
+    Metric();
+    ~Metric();
     static Metric* instance();
 
-    void Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger = [](){});
+    void Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger);
     void LoadFromConfigs();
     void Update();
 

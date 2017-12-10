@@ -24,8 +24,8 @@ SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "hellfire_ramparts.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -175,7 +175,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_watchkeeper_gargolmarAI(creature);
+            return GetHellfireRampartsAI<boss_watchkeeper_gargolmarAI>(creature);
         }
 };
 

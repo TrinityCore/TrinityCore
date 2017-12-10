@@ -16,9 +16,11 @@
  */
 
 #include "OutdoorPvPMgr.h"
+#include "DatabaseEnv.h"
+#include "DisableMgr.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "DisableMgr.h"
 #include "ScriptMgr.h"
 
 OutdoorPvPMgr::OutdoorPvPMgr()
@@ -33,8 +35,7 @@ void OutdoorPvPMgr::Die()
 
     m_OutdoorPvPSet.clear();
 
-    for (uint32 i = 0; i < MAX_OUTDOORPVP_TYPES; ++i)
-        m_OutdoorPvPDatas[i] = 0;
+    m_OutdoorPvPDatas.fill(0);
 
     m_OutdoorPvPMap.clear();
 }
@@ -66,7 +67,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
         typeId = fields[0].GetUInt8();
 
-        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, NULL))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, nullptr))
             continue;
 
         if (typeId >= MAX_OUTDOORPVP_TYPES)
@@ -149,7 +150,7 @@ OutdoorPvP* OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
     if (itr == m_OutdoorPvPMap.end())
     {
         // no handle for this zone, return
-        return NULL;
+        return nullptr;
     }
     return itr->second;
 }
@@ -181,7 +182,7 @@ ZoneScript* OutdoorPvPMgr::GetZoneScript(uint32 zoneId)
     if (itr != m_OutdoorPvPMap.end())
         return itr->second;
     else
-        return NULL;
+        return nullptr;
 }
 
 bool OutdoorPvPMgr::HandleOpenGo(Player* player, GameObject* go)

@@ -29,9 +29,11 @@ pyrewood_ambush
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "CreatureAIImpl.h"
 #include "ScriptedEscortAI.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_deathstalker_erland
@@ -224,7 +226,7 @@ public:
         {
             if (Creature* summoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
             {
-                Unit* target = NULL;
+                Unit* target = nullptr;
                 if (PlayerGUID)
                     if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                         if (player->IsAlive() && RAND(0, 1))

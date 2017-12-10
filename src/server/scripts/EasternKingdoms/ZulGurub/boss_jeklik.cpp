@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "zulgurub.h"
 
 enum Says
@@ -257,7 +258,7 @@ class npc_batrider : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_batriderAI(creature);
+            return GetZulGurubAI<npc_batriderAI>(creature);
         }
 };
 

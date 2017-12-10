@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_stone.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 
 enum Yells
 {

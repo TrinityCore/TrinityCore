@@ -16,9 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "AreaBoundary.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
+#include "Map.h"
+#include "ScriptedCreature.h"
 
 BossBoundaryData const boundaries =
 {
@@ -64,7 +67,7 @@ static MLDataTypes const collapseObjectDatas[] =
 class instance_magtheridons_lair : public InstanceMapScript
 {
     public:
-        instance_magtheridons_lair() : InstanceMapScript("instance_magtheridons_lair", 544) { }
+        instance_magtheridons_lair() : InstanceMapScript(MLScriptName, 544) { }
 
         struct instance_magtheridons_lair_InstanceMapScript : public InstanceScript
         {

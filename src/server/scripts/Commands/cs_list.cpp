@@ -23,14 +23,18 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
-#include "SpellAuraEffects.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "CharacterCache.h"
-#include <iostream>
+#include "Random.h"
+#include "RBAC.h"
+#include "SpellAuraEffects.h"
+#include "WorldSession.h"
 
 class list_commandscript : public CommandScript
 {
@@ -49,7 +53,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "list", rbac::RBAC_PERM_COMMAND_LIST,true, NULL, "", listCommandTable },
+            { "list", rbac::RBAC_PERM_COMMAND_LIST,true, nullptr, "", listCommandTable },
         };
         return commandTable;
     }
@@ -80,7 +84,7 @@ public:
             return false;
         }
 
-        char* countStr = strtok(NULL, " ");
+        char* countStr = strtok(nullptr, " ");
         uint32 count = countStr ? atoul(countStr) : 10;
 
         if (count == 0)
@@ -152,7 +156,7 @@ public:
             return false;
         }
 
-        char* countStr = strtok(NULL, " ");
+        char* countStr = strtok(nullptr, " ");
         uint32 count = countStr ? atoul(countStr) : 10;
 
         if (count == 0)
@@ -227,7 +231,7 @@ public:
             result = CharacterDatabase.Query(stmt);
         }
         else
-            result = PreparedQueryResult(NULL);
+            result = PreparedQueryResult(nullptr);
 
         if (result)
         {
@@ -274,7 +278,7 @@ public:
             result = CharacterDatabase.Query(stmt);
         }
         else
-            result = PreparedQueryResult(NULL);
+            result = PreparedQueryResult(nullptr);
 
         if (result)
         {
@@ -369,7 +373,7 @@ public:
             return false;
         }
 
-        char* countStr = strtok(NULL, " ");
+        char* countStr = strtok(nullptr, " ");
         uint32 count = countStr ? atoul(countStr) : 10;
 
         if (count == 0)
@@ -470,7 +474,7 @@ public:
         Player* target;
         ObjectGuid targetGuid;
         std::string targetName;
-        PreparedStatement* stmt = NULL;
+        PreparedStatement* stmt = nullptr;
 
         if (!*args)
             return false;

@@ -16,12 +16,20 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "MoveSplineInit.h"
 #include "CreatureTextMgr.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 enum Yells
@@ -550,7 +558,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                             if (Creature* yogg = instance->GetCreature(BOSS_YOGG_SARON))
                             {
                                 yogg->AI()->Talk(EMOTE_YOGG_SARON_EXTINGUISH_ALL_LIFE, me);
-                                yogg->CastSpell((Unit*)NULL, SPELL_EXTINGUISH_ALL_LIFE, true);
+                                yogg->CastSpell((Unit*)nullptr, SPELL_EXTINGUISH_ALL_LIFE, true);
                             }
                             events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 10000);    // cast it again after a short while, players can survive
                             break;
@@ -1093,7 +1101,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
                         uint8 illusion = _instance->GetData(DATA_ILLUSION);
                         if (++_tentaclesKilled >= (illusion == ICECROWN_ILLUSION ? 9 : 8))
                         {
-                            sCreatureTextMgr->SendChat(me, EMOTE_BRAIN_ILLUSION_SHATTERED, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_AREA);
+                            sCreatureTextMgr->SendChat(me, EMOTE_BRAIN_ILLUSION_SHATTERED, nullptr, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_AREA);
                             _summons.DespawnAll();
                             DoCastAOE(SPELL_SHATTERED_ILLUSION, true);
                             _instance->HandleGameObject(_instance->GetGuidData(GO_BRAIN_ROOM_DOOR_1 + illusion), true);
@@ -2061,9 +2069,7 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MALADY_OF_THE_MIND_JUMP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MALADY_OF_THE_MIND_JUMP });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2133,11 +2139,7 @@ class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BRAIN_LINK_DAMAGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BRAIN_LINK_NO_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BRAIN_LINK_DAMAGE, SPELL_BRAIN_LINK_NO_DAMAGE });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2231,9 +2233,7 @@ class spell_yogg_saron_boil_ominously : public SpellScriptLoader    // 63030
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_GUARDIAN_1))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_GUARDIAN_1 });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2332,15 +2332,13 @@ class spell_yogg_saron_empowering_shadows_missile : public SpellScriptLoader    
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_EMPOWERING_SHADOWS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_EMPOWERING_SHADOWS });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    target->CastSpell((Unit*)NULL, SPELL_EMPOWERING_SHADOWS, true);
+                    target->CastSpell((Unit*)nullptr, SPELL_EMPOWERING_SHADOWS, true);
             }
 
             void Register() override
@@ -2367,9 +2365,7 @@ class spell_yogg_saron_constrictor_tentacle : public SpellScriptLoader     // 64
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CONSTRICTOR_TENTACLE_SUMMON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CONSTRICTOR_TENTACLE_SUMMON });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2400,9 +2396,7 @@ class spell_yogg_saron_lunge : public SpellScriptLoader    // 64131
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SQUEEZE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SQUEEZE });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2495,11 +2489,7 @@ class spell_yogg_saron_empowered : public SpellScriptLoader     // 64161
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_EMPOWERED_BUFF))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_WEAKENED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_EMPOWERED_BUFF, SPELL_WEAKENED });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2600,11 +2590,7 @@ class spell_yogg_saron_death_ray_warning_visual : public SpellScriptLoader     /
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_RAY_PERIODIC))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_RAY_DAMAGE_VISUAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DEATH_RAY_PERIODIC, SPELL_DEATH_RAY_DAMAGE_VISUAL });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2612,7 +2598,7 @@ class spell_yogg_saron_death_ray_warning_visual : public SpellScriptLoader     /
                 if (Unit* caster = GetCaster())
                 {
                     caster->CastSpell(caster, SPELL_DEATH_RAY_PERIODIC, true);
-                    caster->CastSpell((Unit*)NULL, SPELL_DEATH_RAY_DAMAGE_VISUAL, true);
+                    caster->CastSpell((Unit*)nullptr, SPELL_DEATH_RAY_DAMAGE_VISUAL, true);
                     // TODO: set better movement
                     caster->GetMotionMaster()->MoveConfused();
                 }
@@ -2641,9 +2627,7 @@ class spell_yogg_saron_cancel_illusion_room_aura : public SpellScriptLoader    /
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TELEPORT_BACK_TO_MAIN_ROOM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TELEPORT_BACK_TO_MAIN_ROOM });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2704,11 +2688,7 @@ class spell_yogg_saron_revealed_tentacle : public SpellScriptLoader    // 64012
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TENTACLE_VOID_ZONE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_GRIM_REPRISAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TENTACLE_VOID_ZONE, SPELL_GRIM_REPRISAL });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2744,9 +2724,7 @@ class spell_yogg_saron_grim_reprisal : public SpellScriptLoader     // 63305
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GRIM_REPRISAL_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GRIM_REPRISAL_DAMAGE });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -2783,11 +2761,7 @@ class spell_yogg_saron_induce_madness : public SpellScriptLoader    // 64059
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TELEPORT_BACK_TO_MAIN_ROOM))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHATTERED_ILLUSION_REMOVE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TELEPORT_BACK_TO_MAIN_ROOM, SPELL_SHATTERED_ILLUSION_REMOVE });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2802,7 +2776,7 @@ class spell_yogg_saron_induce_madness : public SpellScriptLoader    // 64059
 
             void ClearShatteredIllusion()
             {
-                GetCaster()->CastSpell((Unit*)NULL, SPELL_SHATTERED_ILLUSION_REMOVE);
+                GetCaster()->CastSpell((Unit*)nullptr, SPELL_SHATTERED_ILLUSION_REMOVE);
 
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                     if (Creature* voice = instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))
@@ -2850,11 +2824,7 @@ class spell_yogg_saron_sanity : public SpellScriptLoader     // 63050
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LOW_SANITY_SCREEN_EFFECT))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_INSANE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_LOW_SANITY_SCREEN_EFFECT, SPELL_INSANE });
             }
 
             void DummyTick(AuraEffect const* /*aurEff*/)
@@ -2909,9 +2879,7 @@ class spell_yogg_saron_insane : public SpellScriptLoader     // 63120
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_INSANE_VISUAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_INSANE_VISUAL });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3151,9 +3119,7 @@ class spell_yogg_saron_hodirs_protective_gaze : public SpellScriptLoader     // 
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLASH_FREEZE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLASH_FREEZE });
             }
 
             bool CanApply(Unit* target)

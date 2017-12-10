@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
 #include "blood_furnace.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ScriptedCreature.h"
 
 DoorData const doorData[] =
 {
@@ -79,17 +81,12 @@ class instance_blood_furnace : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
                     case GO_PRISON_DOOR_04:
                         PrisonDoor4GUID = go->GetGUID();
-                        // no break
-                    case GO_PRISON_DOOR_01:
-                    case GO_PRISON_DOOR_02:
-                    case GO_PRISON_DOOR_03:
-                    case GO_PRISON_DOOR_05:
-                    case GO_SUMMON_DOOR:
-                        AddDoor(go, true);
                         break;
                     case GO_BROGGOK_LEVER:
                         BroggokLeverGUID = go->GetGUID();
@@ -117,23 +114,6 @@ class instance_blood_furnace : public InstanceMapScript
                         break;
                     case GO_PRISON_CELL_DOOR_8:
                         PrisonCellGUIDs[DATA_PRISON_CELL8 - DATA_PRISON_CELL1] = go->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_PRISON_DOOR_01:
-                    case GO_PRISON_DOOR_02:
-                    case GO_PRISON_DOOR_03:
-                    case GO_PRISON_DOOR_04:
-                    case GO_PRISON_DOOR_05:
-                    case GO_SUMMON_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

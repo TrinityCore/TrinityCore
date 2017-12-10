@@ -16,12 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "black_temple.h"
+#include "GridNotifiers.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "PassiveAI.h"
-#include "GridNotifiers.h"
-
-#include "black_temple.h"
 
 enum Says
 {
@@ -381,9 +381,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FEL_RAGE_TARGET))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_FEL_RAGE_TARGET });
         }
 
         void FilterTargets(std::list<WorldObject*>& targets)

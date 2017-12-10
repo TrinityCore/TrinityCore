@@ -16,11 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum NightbaneSpells
 {
@@ -375,7 +379,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_nightbaneAI>(creature);
+        return GetKarazhanAI<boss_nightbaneAI>(creature);
     }
 };
 
@@ -391,9 +395,7 @@ class spell_rain_of_bones : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SKELETON });
             }
 
             void OnTrigger(AuraEffect const* aurEff)

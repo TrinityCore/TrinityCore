@@ -18,11 +18,12 @@
 
 #include "Util.h"
 #include "Common.h"
-#include "CompilerDefs.h"
-#include "utf8.h"
-#include "Errors.h" // for ASSERT
-#include <stdarg.h>
-#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/asio/ip/address.hpp>
+#include <utf8.h>
+#include <algorithm>
+#include <sstream>
+#include <cstdarg>
+#include <ctime>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
   #include <sys/socket.h>
@@ -100,7 +101,7 @@ void stripLineInvisibleChars(std::string &str)
 }
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-struct tm* localtime_r(const time_t* time, struct tm *result)
+struct tm* localtime_r(time_t const* time, struct tm *result)
 {
     localtime_s(result, time);
     return result;
@@ -130,7 +131,7 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
     return ss.str();
 }
 
-int32 MoneyStringToMoney(const std::string& moneyString)
+int32 MoneyStringToMoney(std::string const& moneyString)
 {
     int32 money = 0;
 
@@ -149,7 +150,7 @@ int32 MoneyStringToMoney(const std::string& moneyString)
         if (gCount + sCount + cCount != 1)
             return 0;
 
-        uint32 amount = atoi(*itr);
+        uint32 amount = strtoul(*itr, nullptr, 10);
         if (gCount == 1)
             money += amount * 100 * 100;
         else if (sCount == 1)
@@ -161,7 +162,7 @@ int32 MoneyStringToMoney(const std::string& moneyString)
     return money;
 }
 
-uint32 TimeStringToSecs(const std::string& timestring)
+uint32 TimeStringToSecs(std::string const& timestring)
 {
     uint32 secs       = 0;
     uint32 buffer     = 0;
@@ -171,8 +172,8 @@ uint32 TimeStringToSecs(const std::string& timestring)
     {
         if (isdigit(*itr))
         {
-            buffer*=10;
-            buffer+= (*itr)-'0';
+            buffer *= 10;
+            buffer += (*itr) - '0';
         }
         else
         {
@@ -184,9 +185,9 @@ uint32 TimeStringToSecs(const std::string& timestring)
                 case 's': multiplier = 1;       break;
                 default : return 0;                         //bad format
             }
-            buffer*=multiplier;
-            secs+=buffer;
-            buffer=0;
+            buffer *= multiplier;
+            secs += buffer;
+            buffer = 0;
         }
     }
 
@@ -214,16 +215,16 @@ bool IsIPAddress(char const* ipaddress)
     if (!ipaddress)
         return false;
 
-    // Let the big boys do it.
-    // Drawback: all valid ip address formats are recognized e.g.: 12.23, 121234, 0xABCD)
-    return inet_addr(ipaddress) != INADDR_NONE;
+    boost::system::error_code error;
+    boost::asio::ip::address::from_string(ipaddress, error);
+    return !error;
 }
 
 /// create PID file
 uint32 CreatePIDFile(std::string const& filename)
 {
     FILE* pid_file = fopen(filename.c_str(), "w");
-    if (pid_file == NULL)
+    if (pid_file == nullptr)
         return 0;
 
     uint32 pid = GetPID();
@@ -374,6 +375,16 @@ bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str)
 
 typedef wchar_t const* const* wstrlist;
 
+void wstrToUpper(std::wstring& str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), wcharToUpper);
+}
+
+void wstrToLower(std::wstring& str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), wcharToLower);
+}
+
 std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 {
     // supported only Cyrillic cases
@@ -400,12 +411,12 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
     static wchar_t const j_End[]    = { wchar_t(1), wchar_t(0x0439), wchar_t(0x0000)};
 
     static wchar_t const* const dropEnds[6][8] = {
-        { &a_End[1],  &o_End[1],    &ya_End[1],   &ie_End[1],  &soft_End[1], &j_End[1],    NULL,       NULL },
-        { &a_End[1],  &ya_End[1],   &yeru_End[1], &i_End[1],   NULL,         NULL,         NULL,       NULL },
-        { &ie_End[1], &u_End[1],    &yu_End[1],   &i_End[1],   NULL,         NULL,         NULL,       NULL },
-        { &u_End[1],  &yu_End[1],   &o_End[1],    &ie_End[1],  &soft_End[1], &ya_End[1],   &a_End[1],  NULL },
-        { &oj_End[1], &io_j_End[1], &ie_j_End[1], &o_m_End[1], &io_m_End[1], &ie_m_End[1], &yu_End[1], NULL },
-        { &ie_End[1], &i_End[1],    NULL,         NULL,        NULL,         NULL,         NULL,       NULL }
+        { &a_End[1],  &o_End[1],    &ya_End[1],   &ie_End[1],  &soft_End[1], &j_End[1],    nullptr,    nullptr },
+        { &a_End[1],  &ya_End[1],   &yeru_End[1], &i_End[1],   nullptr,      nullptr,      nullptr,    nullptr },
+        { &ie_End[1], &u_End[1],    &yu_End[1],   &i_End[1],   nullptr,      nullptr,      nullptr,    nullptr },
+        { &u_End[1],  &yu_End[1],   &o_End[1],    &ie_End[1],  &soft_End[1], &ya_End[1],   &a_End[1],  nullptr },
+        { &oj_End[1], &io_j_End[1], &ie_j_End[1], &o_m_End[1], &io_m_End[1], &ie_m_End[1], &yu_End[1], nullptr },
+        { &ie_End[1], &i_End[1],    nullptr,      nullptr,     nullptr,      nullptr,      nullptr,    nullptr }
     };
 
     for (wchar_t const* const* itr = &dropEnds[declension][0]; *itr; ++itr)
@@ -552,12 +563,13 @@ void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= fals
     for (int32 i = init; i != end; i += 2 * op)
     {
         char buffer[3] = { str[i], str[i + 1], '\0' };
-        out[j++] = uint8(strtoul(buffer, NULL, 16));
+        out[j++] = uint8(strtoul(buffer, nullptr, 16));
     }
 }
 
 bool StringToBool(std::string const& str)
 {
-    std::string lowerStr = boost::algorithm::to_lower_copy(str);
+    std::string lowerStr = str;
+    std::transform(str.begin(), str.end(), lowerStr.begin(), ::tolower);
     return lowerStr == "1" || lowerStr == "true" || lowerStr == "yes";
 }

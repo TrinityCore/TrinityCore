@@ -16,6 +16,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "vault_of_archavon.h"
 
@@ -117,7 +119,7 @@ class boss_toravon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_toravonAI(creature);
+            return GetVaultOfArchavonAI<boss_toravonAI>(creature);
         }
 };
 
@@ -172,7 +174,7 @@ class npc_frost_warder : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_frost_warderAI(creature);
+            return GetVaultOfArchavonAI<npc_frost_warderAI>(creature);
         }
 };
 
@@ -233,7 +235,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_frozen_orbAI(creature);
+        return GetVaultOfArchavonAI<npc_frozen_orbAI>(creature);
     }
 };
 
@@ -287,7 +289,7 @@ class npc_frozen_orb_stalker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_frozen_orb_stalkerAI>(creature);
+            return GetVaultOfArchavonAI<npc_frozen_orb_stalkerAI>(creature);
         }
 };
 

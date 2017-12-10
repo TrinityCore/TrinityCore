@@ -17,8 +17,9 @@
  */
 
 #include "ObjectGuid.h"
+#include "Hash.h"
+#include "Log.h"
 #include "World.h"
-#include "ObjectMgr.h"
 #include <sstream>
 #include <iomanip>
 
@@ -87,7 +88,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid)
 
 ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid)
 {
-    buf.readPackGUID(*reinterpret_cast<uint64*>(guid.GuidPtr));
+    buf.readPackGUID(reinterpret_cast<uint64&>(guid.Guid));
     return buf;
 }
 

@@ -24,10 +24,14 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "stratholme.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "stratholme.h"
 
 enum Misc
 {
@@ -43,7 +47,7 @@ enum InstanceEvents
 class instance_stratholme : public InstanceMapScript
 {
     public:
-        instance_stratholme() : InstanceMapScript("instance_stratholme", 329) { }
+        instance_stratholme() : InstanceMapScript(StratholmeScriptName, 329) { }
 
         struct instance_stratholme_InstanceMapScript : public InstanceScript
         {
@@ -349,7 +353,7 @@ class instance_stratholme : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in) override
+            void Load(char const* in) override
             {
                 if (!in)
                 {

@@ -15,14 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "Vehicle.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Item.h"
+#include "Map.h"
+#include "Player.h"
+#include "Spell.h"
 #include "SpellScript.h"
-#include "WorldPacket.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
+#include "Vehicle.h"
+#include "WorldPacket.h"
 
 static BossBoundaryData const boundaries =
 {
@@ -885,7 +891,7 @@ class instance_ulduar : public InstanceMapScript
                 return 0;
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) override
+            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = nullptr */, uint32 /* = 0 */) override
             {
                 switch (criteriaId)
                 {

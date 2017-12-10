@@ -15,29 +15,45 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CharacterCache.h"
-#include "Chat.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "ArenaTeamMgr.h"
 #include "CellImpl.h"
+#include "CharacterCache.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
-#include "InstanceSaveMgr.h"
-#include "Language.h"
-#include "MovementGenerator.h"
-#include "Opcodes.h"
-#include "SpellAuras.h"
-#include "TargetedMovementGenerator.h"
-#include "WeatherMgr.h"
-#include "Player.h"
-#include "Pet.h"
-#include "LFG.h"
 #include "GroupMgr.h"
+#include "InstanceSaveMgr.h"
+#include "Item.h"
+#include "Language.h"
+#include "LFG.h"
+#include "Log.h"
 #include "MMapFactory.h"
-#include "DisableMgr.h"
+#include "MovementGenerator.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Pet.h"
+#include "Player.h"
+#include "Realm.h"
+#include "SpellAuras.h"
 #include "SpellHistory.h"
+#include "SpellMgr.h"
+#include "TargetedMovementGenerator.h"
 #include "Transport.h"
+#include "Weather.h"
+#include "WeatherMgr.h"
+#include "World.h"
+#include "WorldSession.h"
+#include <boost/asio/ip/address_v4.hpp>
+
+// temporary hack until includes are sorted out (don't want to pull in Windows.h)
+#ifdef GetClassName
+#undef GetClassName
+#endif
 
 class misc_commandscript : public CommandScript
 {
@@ -410,7 +426,7 @@ public:
                 {
                     Group* group = _player->GetGroup();
                     // if no bind exists, create a solo bind
-                    InstanceGroupBind* gBind = group ? group->GetBoundInstance(target) : NULL;                // if no bind exists, create a solo bind
+                    InstanceGroupBind* gBind = group ? group->GetBoundInstance(target) : nullptr;                // if no bind exists, create a solo bind
                     if (!gBind)
                         if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(target->GetInstanceId()))
                             _player->BindToInstance(save, !save->CanReset());
@@ -444,7 +460,7 @@ public:
         else
         {
             // check offline security
-            if (handler->HasLowerSecurity(NULL, targetGuid))
+            if (handler->HasLowerSecurity(nullptr, targetGuid))
                 return false;
 
             std::string nameLink = handler->playerLink(targetName);
@@ -573,7 +589,7 @@ public:
         else
         {
             // check offline security
-            if (handler->HasLowerSecurity(NULL, targetGuid))
+            if (handler->HasLowerSecurity(nullptr, targetGuid))
                 return false;
 
             std::string nameLink = handler->playerLink(targetName);
@@ -620,7 +636,7 @@ public:
             if (sWorld->getBoolConfig(CONFIG_DIE_COMMAND_MODE))
                 handler->GetSession()->GetPlayer()->Kill(target);
             else
-                handler->GetSession()->GetPlayer()->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                handler->GetSession()->GetPlayer()->DealDamage(target, target->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
         }
 
         return true;
@@ -713,7 +729,7 @@ public:
         if (!param1)
             return false;
 
-        char const* param2 = strtok(NULL, " ");
+        char const* param2 = strtok(nullptr, " ");
         if (!param2)
             return false;
 
@@ -906,9 +922,9 @@ public:
     // kick player
     static bool HandleKickPlayerCommand(ChatHandler* handler, char const* args)
     {
-        Player* target = NULL;
+        Player* target = nullptr;
         std::string playerName;
-        if (!handler->extractPlayerTarget((char*)args, &target, NULL, &playerName))
+        if (!handler->extractPlayerTarget((char*)args, &target, nullptr, &playerName))
             return false;
 
         if (handler->GetSession() && target == handler->GetSession()->GetPlayer())
@@ -925,8 +941,8 @@ public:
         std::string kickReasonStr = handler->GetTrinityString(LANG_NO_REASON);
         if (*args != '\0')
         {
-            char const* kickReason = strtok(NULL, "\r");
-            if (kickReason != NULL)
+            char const* kickReason = strtok(nullptr, "\r");
+            if (kickReason != nullptr)
                 kickReasonStr = kickReason;
         }
 
@@ -959,10 +975,10 @@ public:
             return false;
 
         std::string location_str = "inn";
-        if (char const* loc = strtok(NULL, " "))
+        if (char const* loc = strtok(nullptr, " "))
             location_str = loc;
 
-        Player* player = NULL;
+        Player* player = nullptr;
         if (!handler->extractPlayerTarget(player_str, &player))
             return false;
 
@@ -1014,7 +1030,7 @@ public:
 
         uint32 team;
 
-        char* px2 = strtok(NULL, " ");
+        char* px2 = strtok(nullptr, " ");
 
         if (!px2)
             team = 0;
@@ -1046,7 +1062,7 @@ public:
             return false;
         }
 
-        if (sObjectMgr->AddGraveYardLink(graveyardId, zoneId, team))
+        if (sObjectMgr->AddGraveyardLink(graveyardId, zoneId, team))
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDLINKED, graveyardId, zoneId);
         else
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDALRLINKED, graveyardId, zoneId);
@@ -1072,12 +1088,12 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zone_id = player->GetZoneId();
 
-        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
+        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
         if (graveyard)
         {
             uint32 graveyardId = graveyard->ID;
 
-            GraveYardData const* data = sObjectMgr->FindGraveYardData(graveyardId, zone_id);
+            GraveyardData const* data = sObjectMgr->FindGraveyardData(graveyardId, zone_id);
             if (!data)
             {
                 handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDERROR, graveyardId);
@@ -1229,12 +1245,12 @@ public:
             itemId = atoul(id);
         }
 
-        char const* ccount = strtok(NULL, " ");
+        char const* ccount = strtok(nullptr, " ");
 
         int32 count = 1;
 
         if (ccount)
-            count = strtol(ccount, NULL, 10);
+            count = strtol(ccount, nullptr, 10);
 
         if (count == 0)
             count = 1;
@@ -1278,7 +1294,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId));
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -1348,7 +1364,7 @@ public:
                 }
                 else
                 {
-                    player->SendEquipError(msg, NULL, NULL, itr->second.ItemId);
+                    player->SendEquipError(msg, nullptr, nullptr, itr->second.ItemId);
                     handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itr->second.ItemId, 1);
                 }
             }
@@ -1385,7 +1401,7 @@ public:
 
         // *Change the weather of a cell
         char const* px = strtok((char*)args, " ");
-        char const* py = strtok(NULL, " ");
+        char const* py = strtok(nullptr, " ");
 
         if (!px || !py)
             return false;
@@ -1435,11 +1451,11 @@ public:
         if (!skillStr)
             return false;
 
-        char const* levelStr = strtok(NULL, " ");
+        char const* levelStr = strtok(nullptr, " ");
         if (!levelStr)
             return false;
 
-        char const* maxPureSkill = strtok(NULL, " ");
+        char const* maxPureSkill = strtok(nullptr, " ");
 
         int32 skill = atoi(skillStr);
         if (skill <= 0)
@@ -1508,7 +1524,7 @@ public:
         Player* target;
         ObjectGuid targetGuid;
         std::string targetName;
-        PreparedStatement* stmt = NULL;
+        PreparedStatement* stmt = nullptr;
 
         // To make sure we get a target, we convert our guid to an omniversal...
         ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
@@ -1633,7 +1649,7 @@ public:
         else
         {
             // check offline security
-            if (handler->HasLowerSecurity(NULL, targetGuid))
+            if (handler->HasLowerSecurity(nullptr, targetGuid))
                 return false;
 
             // Query informations from the DB
@@ -1684,7 +1700,7 @@ public:
                 lastIp    = fields[4].GetString();
                 lastLogin = fields[5].GetString();
 
-                uint32 ip = inet_addr(lastIp.c_str());
+                uint32 ip = boost::asio::ip::address_v4::from_string(lastIp).to_ulong();
                 EndianConvertReverse(ip);
 
                 // If ip2nation table is populated, it displays the country
@@ -1779,7 +1795,7 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - time(nullptr), true).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
@@ -1910,9 +1926,9 @@ public:
         if (!delayStr)
             return false;
 
-        char const* muteReason = strtok(NULL, "\r");
+        char const* muteReason = strtok(nullptr, "\r");
         std::string muteReasonStr = handler->GetTrinityString(LANG_NO_REASON);
-        if (muteReason != NULL)
+        if (muteReason != nullptr)
             muteReasonStr = muteReason;
 
         Player* target;
@@ -1944,7 +1960,7 @@ public:
         if (target)
         {
             // Target is online, mute will be in effect right away.
-            int64 muteTime = time(NULL) + notSpeakTime * MINUTE;
+            int64 muteTime = time(nullptr) + notSpeakTime * MINUTE;
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
             std::string nameLink = handler->playerLink(targetName);
@@ -2131,7 +2147,7 @@ public:
                     break;
                 case CHASE_MOTION_TYPE:
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     if (unit->GetTypeId() == TYPEID_PLAYER)
                         target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                     else
@@ -2147,7 +2163,7 @@ public:
                 }
                 case FOLLOW_MOTION_TYPE:
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     if (unit->GetTypeId() == TYPEID_PLAYER)
                         target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                     else
@@ -2220,7 +2236,7 @@ public:
 
         if (strcmp(str, "go") == 0)
         {
-            char* guidStr = strtok(NULL, " ");
+            char* guidStr = strtok(nullptr, " ");
             if (!guidStr)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
@@ -2236,7 +2252,7 @@ public:
                 return false;
             }
 
-            char* damageStr = strtok(NULL, " ");
+            char* damageStr = strtok(nullptr, " ");
             if (!damageStr)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
@@ -2301,12 +2317,12 @@ public:
 
         uint32 damage = damage_int;
 
-        char* schoolStr = strtok((char*)NULL, " ");
+        char* schoolStr = strtok((char*)nullptr, " ");
 
         // flat melee damage without resistence/etc reduction
         if (!schoolStr)
         {
-            handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            handler->GetSession()->GetPlayer()->DealDamage(target, damage, nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             if (target != handler->GetSession()->GetPlayer())
                 handler->GetSession()->GetPlayer()->SendAttackStateUpdate (HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0);
             return true;
@@ -2319,9 +2335,9 @@ public:
         SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
 
         if (Unit::IsDamageReducedByArmor(schoolmask))
-            damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, BASE_ATTACK);
+            damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, nullptr, BASE_ATTACK);
 
-        char* spellStr = strtok((char*)NULL, " ");
+        char* spellStr = strtok((char*)nullptr, " ");
 
         // melee damage by specific school
         if (!spellStr)
@@ -2368,7 +2384,7 @@ public:
 
     static bool HandleCombatStopCommand(ChatHandler* handler, char const* args)
     {
-        Player* target = NULL;
+        Player* target = nullptr;
 
         if (args && args[0] != '\0')
         {
@@ -2448,7 +2464,7 @@ public:
         {
             // Get the args that we might have (up to 2)
             char const* arg1 = strtok((char*)args, " ");
-            char const* arg2 = strtok(NULL, " ");
+            char const* arg2 = strtok(nullptr, " ");
 
             // Analyze them to see if we got either a playerName or duration or both
             if (arg1)

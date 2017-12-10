@@ -19,8 +19,9 @@
 #include "SkillExtraItems.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "Player.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "SpellMgr.h"
 #include <map>
 
 // some type definitions

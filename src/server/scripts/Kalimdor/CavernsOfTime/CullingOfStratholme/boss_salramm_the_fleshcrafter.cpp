@@ -120,7 +120,7 @@ class boss_salramm : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_salrammAI>(creature);
+            return GetCullingOfStratholmeAI<boss_salrammAI>(creature);
         }
 };
 

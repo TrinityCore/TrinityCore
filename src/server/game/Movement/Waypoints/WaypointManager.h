@@ -19,7 +19,9 @@
 #ifndef TRINITY_WAYPOINTMANAGER_H
 #define TRINITY_WAYPOINTMANAGER_H
 
+#include "Define.h"
 #include <vector>
+#include <unordered_map>
 
 enum WaypointMoveType
 {
@@ -62,7 +64,7 @@ class TC_GAME_API WaypointMgr
             if (itr != _waypointStore.end())
                 return &itr->second;
 
-            return NULL;
+            return nullptr;
         }
 
     private:

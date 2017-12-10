@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "scholomance.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
@@ -112,7 +113,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_vectusAI(creature);
+        return GetScholomanceAI<boss_vectusAI>(creature);
     }
 };
 

@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "blackrock_depths.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "GameObjectAI.h"
-#include "blackrock_depths.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 #include "WorldSession.h"
 
 //go_shadowforge_brazier
@@ -54,7 +58,7 @@ class go_shadowforge_brazier : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return GetInstanceAI<go_shadowforge_brazierAI>(go);
+            return GetBlackrockDepthsAI<go_shadowforge_brazierAI>(go);
         }
 };
 
@@ -93,7 +97,7 @@ class at_ring_of_law : public AreaTriggerScript
 public:
     at_ring_of_law() : AreaTriggerScript("at_ring_of_law") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
         {
@@ -128,7 +132,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_grimstoneAI>(creature);
+        return GetBlackrockDepthsAI<npc_grimstoneAI>(creature);
     }
 
     struct npc_grimstoneAI : public npc_escortAI
@@ -224,7 +228,7 @@ public:
                     Event_Timer = 5000;
                     break;
                 case 5:
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
+                    instance->UpdateEncounterStateForKilledCreature(NPC_GRIMSTONE, me);
                     instance->SetData(TYPE_RING_OF_LAW, DONE);
                     TC_LOG_DEBUG("scripts", "npc_grimstone: event reached end and set complete.");
                     break;
@@ -365,7 +369,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_phalanxAI(creature);
+        return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
     }
 
     struct npc_phalanxAI : public ScriptedAI
@@ -489,7 +493,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_lokhtos_darkbargainerAI(creature);
+            return GetBlackrockDepthsAI<npc_lokhtos_darkbargainerAI>(creature);
         }
 };
 
@@ -535,7 +539,7 @@ public:
 
         void DoGo(uint32 id, uint32 state)
         {
-            if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(id)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(id)))
                 go->SetGoState((GOState)state);
         }
 
@@ -622,7 +626,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_rocknotAI>(creature);
+        return GetBlackrockDepthsAI<npc_rocknotAI>(creature);
     }
 };
 

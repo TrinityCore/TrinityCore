@@ -23,8 +23,8 @@ Category: Scholomance
 */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -103,7 +103,7 @@ class boss_illucia_barov : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_illuciabarovAI(creature);
+            return GetScholomanceAI<boss_illuciabarovAI>(creature);
         }
 };
 

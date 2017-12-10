@@ -23,9 +23,14 @@ Category: Auchindoun, Shadow Labyrinth
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum GrandmasterVorpil
 {
@@ -182,7 +187,7 @@ class boss_grandmaster_vorpil : public CreatureScript
                             break;
                         case EVENT_DRAW_SHADOWS:
                             {
-                                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                     if (Player* i_pl = i->GetSource())
                                         if (i_pl->IsAlive() && !i_pl->HasAura(SPELL_BANISH))

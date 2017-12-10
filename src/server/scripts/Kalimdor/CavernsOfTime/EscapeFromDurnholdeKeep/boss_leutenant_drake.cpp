@@ -24,10 +24,12 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
-#include "GameObjectAI.h"
 
 /*######
 ## go_barrel_old_hillsbrad
@@ -56,7 +58,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return GetInstanceAI<go_barrel_old_hillsbradAI>(go);
+        return GetOldHillsbradAI<go_barrel_old_hillsbradAI>(go);
     }
 };
 
@@ -79,7 +81,7 @@ enum LieutenantDrake
     SPELL_FRIGHTENING_SHOUT = 33789
 };
 
-G3D::Vector3 const DrakeWP[]=
+Position const DrakeWP[]=
 {
     { 2125.84f, 88.2535f, 54.8830f },
     { 2111.01f, 93.8022f, 52.6356f },
@@ -109,7 +111,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_lieutenant_drakeAI(creature);
+        return GetOldHillsbradAI<boss_lieutenant_drakeAI>(creature);
     }
 
     struct boss_lieutenant_drakeAI : public ScriptedAI
@@ -163,7 +165,7 @@ public:
             /// @todo make this work
             if (CanPatrol && wpId == 0)
             {
-                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId].x, DrakeWP[wpId].y, DrakeWP[wpId].z);
+                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId]);
                 ++wpId;
             }
 

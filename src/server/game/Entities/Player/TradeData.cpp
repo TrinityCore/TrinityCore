@@ -16,6 +16,7 @@
  */
 
 #include "TradeData.h"
+#include "Item.h"
 #include "Player.h"
 #include "WorldSession.h"
 

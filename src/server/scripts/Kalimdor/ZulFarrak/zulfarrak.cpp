@@ -29,11 +29,15 @@ npc_weegli_blastfuse
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "GameObjectAI.h"
 #include "zulfarrak.h"
-#include "Player.h"
 
 /*######
 ## npc_sergeant_bly
@@ -99,7 +103,7 @@ public:
                     {
                         case 1:
                             //weegli doesn't fight - he goes & blows up the door
-                            if (Creature* pWeegli = instance->instance->GetCreature(instance->GetGuidData(ENTRY_WEEGLI)))
+                            if (Creature* pWeegli = ObjectAccessor::GetCreature(*me, instance->GetGuidData(ENTRY_WEEGLI)))
                                 pWeegli->AI()->DoAction(0);
                             Talk(SAY_1);
                             Text_Timer = 5000;
@@ -188,7 +192,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_sergeant_blyAI>(creature);
+        return GetZulFarrakAI<npc_sergeant_blyAI>(creature);
     }
 };
 
@@ -222,7 +226,7 @@ public:
     private:
         void initBlyCrewMember(uint32 entry, float x, float y, float z)
         {
-            if (Creature* crew = instance->instance->GetCreature(instance->GetGuidData(entry)))
+            if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetGuidData(entry)))
             {
                 crew->SetReactState(REACT_AGGRESSIVE);
                 crew->SetWalk(true);
@@ -235,7 +239,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return GetInstanceAI<go_troll_cageAI>(go);
+        return GetZulFarrakAI<go_troll_cageAI>(go);
     }
 };
 
@@ -269,7 +273,7 @@ public:
         npc_weegli_blastfuseAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            destroyingDoor=false;
+            destroyingDoor = false;
             Bomb_Timer = 10000;
             LandMine_Timer = 30000;
         }
@@ -344,7 +348,7 @@ public:
                 me->GetMotionMaster()->MovePoint(0, 1858.57f, 1146.35f, 14.745f);
                 me->SetHomePosition(1858.57f, 1146.35f, 14.745f, 3.85f); // in case he gets interrupted
                 Talk(SAY_WEEGLI_OK_I_GO);
-                destroyingDoor=true;
+                destroyingDoor = true;
             }
         }
 
@@ -381,7 +385,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_weegli_blastfuseAI>(creature);
+        return GetZulFarrakAI<npc_weegli_blastfuseAI>(creature);
     }
 };
 
@@ -425,7 +429,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return new go_shallow_graveAI(go);
+        return GetZulFarrakAI<go_shallow_graveAI>(go);
     }
 };
 
@@ -444,7 +448,7 @@ class at_zumrah : public AreaTriggerScript
 public:
     at_zumrah() : AreaTriggerScript("at_zumrah") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         Creature* pZumrah = player->FindNearestCreature(ZUMRAH_ID, 30.0f);
 

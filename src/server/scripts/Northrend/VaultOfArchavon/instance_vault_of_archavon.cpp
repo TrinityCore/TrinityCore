@@ -16,7 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "vault_of_archavon.h"
 
 /* Vault of Archavon encounters:
@@ -29,7 +31,7 @@
 class instance_vault_of_archavon : public InstanceMapScript
 {
     public:
-        instance_vault_of_archavon() : InstanceMapScript("instance_vault_of_archavon", 624) { }
+        instance_vault_of_archavon() : InstanceMapScript(VoAScriptName, 624) { }
 
         struct instance_vault_of_archavon_InstanceMapScript : public InstanceScript
         {
@@ -84,13 +86,13 @@ class instance_vault_of_archavon : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_ARCHAVON:
-                        ArchavonDeath = time(NULL);
+                        ArchavonDeath = time(nullptr);
                         break;
                     case DATA_EMALON:
-                        EmalonDeath = time(NULL);
+                        EmalonDeath = time(nullptr);
                         break;
                     case DATA_KORALON:
-                        KoralonDeath = time(NULL);
+                        KoralonDeath = time(nullptr);
                         break;
                     default:
                         return true;

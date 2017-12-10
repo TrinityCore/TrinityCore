@@ -16,15 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "black_temple.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
 #include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -631,9 +630,7 @@ class spell_illidari_council_empyreal_balance : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BALANCE_OF_POWER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BALANCE_OF_POWER });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -698,9 +695,7 @@ class spell_illidari_council_balance_of_power : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHARED_RULE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHARED_RULE });
             }
 
             void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
@@ -734,9 +729,7 @@ class spell_illidari_council_deadly_strike : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEADLY_POISON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DEADLY_POISON });
             }
 
             void OnTrigger(AuraEffect const* aurEff)
@@ -771,9 +764,7 @@ class spell_illidari_council_deadly_poison : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ENVENOM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ENVENOM });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -806,12 +797,10 @@ class spell_illidari_council_reflective_shield : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_REFLECTIVE_SHIELD_DAMAGE });
             }
 
-            void OnAbsorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 Unit* target = GetTarget();
                 if (dmgInfo.GetAttacker() == target)
@@ -845,11 +834,12 @@ class spell_illidari_council_judgement : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_JUDGEMENT_OF_BLOOD)
-                    || !sSpellMgr->GetSpellInfo(SPELL_JUDGEMENT_OF_COMMAND)
-                    || !sSpellMgr->GetSpellInfo(SPELL_JUDGEMENT_PRIMER))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_JUDGEMENT_OF_BLOOD,
+                    SPELL_JUDGEMENT_OF_COMMAND,
+                    SPELL_JUDGEMENT_PRIMER
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -893,10 +883,11 @@ class spell_illidari_council_seal : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SEAL_OF_COMMAND)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SEAL_OF_BLOOD))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SEAL_OF_COMMAND,
+                    SPELL_SEAL_OF_BLOOD
+                });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)

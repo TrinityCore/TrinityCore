@@ -175,7 +175,7 @@ class OPvPCapturePointEP_CGT : public OPvPCapturePoint
         void FillInitialWorldStates(WorldPacket & data);
 
     protected:
-        void LinkGraveYard(uint32 team);
+        void LinkGraveyard(uint32 team);
 
         void UpdateTowerState();
 

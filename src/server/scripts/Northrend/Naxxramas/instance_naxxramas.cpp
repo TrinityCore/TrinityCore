@@ -16,9 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "AreaBoundary.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "TemporarySummon.h"
 
 BossBoundaryData const boundaries =
 {
@@ -104,7 +109,7 @@ ObjectData const objectData[] =
 class instance_naxxramas : public InstanceMapScript
 {
     public:
-        instance_naxxramas() : InstanceMapScript("instance_naxxramas", 533) { }
+        instance_naxxramas() : InstanceMapScript(NaxxramasScriptName, 533) { }
 
         struct instance_naxxramas_InstanceMapScript : public InstanceScript
         {
@@ -490,7 +495,7 @@ class instance_naxxramas : public InstanceMapScript
                             std::list<TempSummon*> spawns;
                             instance->SummonCreatureGroup(nextFroggerWave, &spawns);
                             if (!spawns.empty())
-                                (*spawns.begin())->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
+                                spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
                             events.Repeat(Seconds(1) + Milliseconds(666));
                             nextFroggerWave = (nextFroggerWave+1) % 3;
                             break;
@@ -546,7 +551,7 @@ class instance_naxxramas : public InstanceMapScript
                 return true;
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target = NULL*/, uint32 /*miscvalue1 = 0*/) override
+            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target = nullptr*/, uint32 /*miscvalue1 = 0*/) override
             {
                 switch (criteria_id)
                 {

@@ -16,16 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "OutdoorPvPSI.h"
-#include "WorldPacket.h"
-#include "Player.h"
+#include "DBCStores.h"
 #include "GameObject.h"
-#include "MapManager.h"
+#include "Language.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "OutdoorPvPSI.h"
+#include "Player.h"
 #include "ReputationMgr.h"
-#include "Language.h"
 #include "World.h"
+#include "WorldPacket.h"
 
 uint32 const SI_MAX_RESOURCES = 200;
 
@@ -120,7 +121,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
             // reward player
             player->CastSpell(player, SI_TRACES_OF_SILITHYST, true);
             // add 19 honor
-            player->RewardHonor(NULL, 1, 19);
+            player->RewardHonor(nullptr, 1, 19);
             // add 20 cenarion circle repu
             player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(609), 20);
             // complete quest
@@ -146,7 +147,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
             // reward player
             player->CastSpell(player, SI_TRACES_OF_SILITHYST, true);
             // add 19 honor
-            player->RewardHonor(NULL, 1, 19);
+            player->RewardHonor(nullptr, 1, 19);
             // add 20 cenarion circle repu
             player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(609), 20);
             // complete quest
@@ -176,7 +177,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                         GameObject* go = new GameObject;
                         Map* map = player->GetMap();
 
-                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, G3D::Quat(), 255, GO_STATE_READY))
+                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
                         {
                             delete go;
                             return true;
@@ -205,7 +206,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                         GameObject* go = new GameObject;
                         Map* map = player->GetMap();
 
-                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, G3D::Quat(), 255, GO_STATE_READY))
+                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
                         {
                             delete go;
                             return true;

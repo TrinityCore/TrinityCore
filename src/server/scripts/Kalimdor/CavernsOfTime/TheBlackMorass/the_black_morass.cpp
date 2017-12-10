@@ -17,11 +17,15 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "the_black_morass.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "the_black_morass.h"
 
 enum MedivhBm
 {
@@ -57,7 +61,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_medivh_bmAI>(creature);
+        return GetBlackMorassAI<npc_medivh_bmAI>(creature);
     }
 
     struct npc_medivh_bmAI : public ScriptedAI
@@ -139,7 +143,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (SpellCorrupt_Timer)
                 return;
@@ -250,7 +254,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_time_riftAI>(creature);
+        return GetBlackMorassAI<npc_time_riftAI>(creature);
     }
 
     struct npc_time_riftAI : public ScriptedAI

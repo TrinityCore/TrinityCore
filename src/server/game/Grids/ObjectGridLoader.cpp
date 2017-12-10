@@ -17,15 +17,16 @@
  */
 
 #include "ObjectGridLoader.h"
+#include "CellImpl.h"
+#include "Corpse.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DynamicObject.h"
+#include "Log.h"
+#include "GameObject.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Creature.h"
-#include "GameObject.h"
-#include "DynamicObject.h"
-#include "Corpse.h"
 #include "World.h"
-#include "CellImpl.h"
-#include "CreatureAI.h"
 
 void ObjectGridEvacuator::Visit(CreatureMapType &m)
 {

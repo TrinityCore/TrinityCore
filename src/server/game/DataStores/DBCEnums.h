@@ -19,6 +19,9 @@
 #ifndef DBCENUMS_H
 #define DBCENUMS_H
 
+#include "Define.h"
+#include <array>
+
 #pragma pack(push, 1)
 
 struct DBCPosition2D
@@ -115,7 +118,7 @@ enum AchievementCriteriaFlags
     ACHIEVEMENT_CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020          // Displays counter as money
 };
 
-enum AchievementCriteriaTimedTypes
+enum AchievementCriteriaTimedTypes : uint8
 {
     ACHIEVEMENT_TIMED_TYPE_EVENT            = 1,    // Timer is started by internal event with id in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_QUEST            = 2,    // Timer is started by accepting quest with entry in timerStartEvent
@@ -127,7 +130,7 @@ enum AchievementCriteriaTimedTypes
     ACHIEVEMENT_TIMED_TYPE_MAX
 };
 
-enum AchievementCriteriaTypes
+enum AchievementCriteriaTypes : uint8
 {
     ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE                 = 0,
     ACHIEVEMENT_CRITERIA_TYPE_WIN_BG                        = 1,
@@ -273,7 +276,7 @@ enum AreaFlags
     AREA_FLAG_NO_FLY_ZONE        = 0x20000000                 // Marks zones where you cannot fly
 };
 
-enum Difficulty
+enum Difficulty : uint8
 {
     REGULAR_DIFFICULTY           = 0,
 
@@ -383,6 +386,18 @@ enum SpellCategoryFlags
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04
 };
 
+#define MAX_SPELL_EFFECTS 3
+#define MAX_EFFECT_MASK 7
+#define MAX_SPELL_REAGENTS 8
+
+enum EnchantmentSlotMask
+{
+    ENCHANTMENT_CAN_SOULBOUND = 0x01,
+    ENCHANTMENT_UNK1 = 0x02,
+    ENCHANTMENT_UNK2 = 0x04,
+    ENCHANTMENT_UNK3 = 0x08
+};
+
 // SummonProperties.dbc, col 1
 enum SummonPropGroup
 {
@@ -414,6 +429,13 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK15           = 0x00004000,          // Force of Nature, Shadowfiend, Feral Spirit, Summon Water Elemental
     SUMMON_PROP_FLAG_UNK16           = 0x00008000           // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
 };
+
+#define MAX_TALENT_RANK 5
+#define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
+#define MAX_TALENT_TABS 3
+
+#define TaxiMaskSize 14
+typedef std::array<uint32, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
 {

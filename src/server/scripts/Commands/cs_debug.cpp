@@ -23,20 +23,20 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
-#include "Chat.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "GossipDef.h"
-#include "Transport.h"
-#include "Language.h"
-#include "MapManager.h"
-#include "M2Stores.h"
+#include "Bag.h"
 #include "BattlefieldMgr.h"
-
+#include "BattlegroundMgr.h"
+#include "CellImpl.h"
+#include "Chat.h"
+#include "GossipDef.h"
+#include "GridNotifiersImpl.h"
+#include "Language.h"
+#include "Log.h"
+#include "M2Stores.h"
+#include "MapManager.h"
+#include "ObjectMgr.h"
+#include "RBAC.h"
+#include "Transport.h"
 #include <fstream>
 #include <limits>
 
@@ -121,28 +121,27 @@ public:
         }
 
         uint32 cinematicId = atoul(args);
-        if (!sCinematicSequencesStore.LookupEntry(cinematicId))
+
+        CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(cinematicId);
+        if (!cineSeq)
         {
             handler->PSendSysMessage(LANG_CINEMATIC_NOT_EXIST, cinematicId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
+
         // Dump camera locations
-        if (CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(cinematicId))
+        if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(cineSeq->cinematicCamera))
         {
-            std::unordered_map<uint32, FlyByCameraCollection>::const_iterator itr = sFlyByCameraStore.find(cineSeq->cinematicCamera);
-            if (itr != sFlyByCameraStore.end())
+            handler->PSendSysMessage("Waypoints for sequence %u, camera %u", cinematicId, cineSeq->cinematicCamera);
+            uint32 count = 1;
+            for (FlyByCamera const& cam : *flyByCameras)
             {
-                handler->PSendSysMessage("Waypoints for sequence %u, camera %u", cinematicId, cineSeq->cinematicCamera);
-                uint32 count = 1 ;
-                for (FlyByCamera cam : itr->second)
-                {
-                    handler->PSendSysMessage("%02u - %7ums [%f, %f, %f] Facing %f (%f degrees)", count, cam.timeStamp, cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w, cam.locations.w * (180 / M_PI));
-                    count++;
-                }
-                handler->PSendSysMessage("%u waypoints dumped", itr->second.size());
+                handler->PSendSysMessage("%02u - %7ums [%s (%f degrees)]", count, cam.timeStamp, cam.locations.ToString().c_str(), cam.locations.GetOrientation() * (180 / M_PI));
+                ++count;
             }
+            handler->PSendSysMessage("%u waypoints dumped", flyByCameras->size());
         }
 
         handler->GetSession()->GetPlayer()->SendCinematicStart(cinematicId);
@@ -250,10 +249,10 @@ public:
         if (failNum == 0 && *result != '0')
             return false;
 
-        char* fail1 = strtok(NULL, " ");
+        char* fail1 = strtok(nullptr, " ");
         uint8 failArg1 = fail1 ? (uint8)atoi(fail1) : 0;
 
-        char* fail2 = strtok(NULL, " ");
+        char* fail2 = strtok(nullptr, " ");
         uint8 failArg2 = fail2 ? (uint8)atoi(fail2) : 0;
 
         WorldPacket data(SMSG_CAST_FAILED, 5);
@@ -266,7 +265,6 @@ public:
             data << uint32(failArg2);
 
         handler->GetSession()->SendPacket(&data);
-
         return true;
     }
 
@@ -276,7 +274,7 @@ public:
             return false;
 
         InventoryResult msg = InventoryResult(atoi(args));
-        handler->GetSession()->GetPlayer()->SendEquipError(msg, NULL, NULL);
+        handler->GetSession()->GetPlayer()->SendEquipError(msg, nullptr, nullptr);
         return true;
     }
 
@@ -303,7 +301,7 @@ public:
     static bool HandleDebugSendOpcodeCommand(ChatHandler* handler, char const* /*args*/)
     {
         Unit* unit = handler->getSelectedUnit();
-        Player* player = NULL;
+        Player* player = nullptr;
         if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
             player = handler->GetSession()->GetPlayer();
         else
@@ -466,7 +464,7 @@ public:
         }
         TC_LOG_DEBUG("network", "Sending opcode %u", data.GetOpcode());
         data.hexlike();
-        player->GetSession()->SendPacket(&data);
+        player->SendDirectMessage(&data);
         handler->PSendSysMessage(LANG_COMMAND_OPCODESENT, data.GetOpcode(), unit->GetName().c_str());
         return true;
     }
@@ -474,7 +472,7 @@ public:
     static bool HandleDebugUpdateWorldStateCommand(ChatHandler* handler, char const* args)
     {
         char* w = strtok((char*)args, " ");
-        char* s = strtok(NULL, " ");
+        char* s = strtok(nullptr, " ");
 
         if (!w || !s)
             return false;
@@ -692,7 +690,7 @@ public:
                         continue;
                     }
 
-                    if (updateQueue[qp] == NULL)
+                    if (updateQueue[qp] == nullptr)
                     {
                         handler->PSendSysMessage("The item with slot %d and guid %d has its queuepos (%d) pointing to NULL in the queue!", item->GetSlot(), item->GetGUID().GetCounter(), qp);
                         error = true;
@@ -760,7 +758,7 @@ public:
                                 continue;
                             }
 
-                            if (updateQueue[qp] == NULL)
+                            if (updateQueue[qp] == nullptr)
                             {
                                 handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) that points to NULL in the queue!", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), qp);
                                 error = true;
@@ -809,7 +807,7 @@ public:
 
                 Item* test = player->GetItemByPos(item->GetBagSlot(), item->GetSlot());
 
-                if (test == NULL)
+                if (test == nullptr)
                 {
                     handler->PSendSysMessage("queue(%zu): The bag(%d) and slot(%d) values for %s are incorrect, the player doesn't have any item at that position!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString().c_str());
                     error = true;
@@ -848,7 +846,7 @@ public:
         if (!target || target->IsTotem() || target->IsPet())
             return false;
 
-        ThreatContainer::StorageType const &threatList = target->getThreatManager().getThreatList();
+        ThreatContainer::StorageType const& threatList = target->getThreatManager().getThreatList();
         ThreatContainer::StorageType::const_iterator itr;
         uint32 count = 0;
         handler->PSendSysMessage("Threat list of %s (guid %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
@@ -917,7 +915,7 @@ public:
         if (!i)
             return false;
 
-        char* j = strtok(NULL, " ");
+        char* j = strtok(nullptr, " ");
 
         uint32 entry = (uint32)atoi(i);
         int8 seatId = j ? (int8)atoi(j) : -1;
@@ -926,7 +924,7 @@ public:
             handler->GetSession()->GetPlayer()->EnterVehicle(target, seatId);
         else
         {
-            Creature* passenger = NULL;
+            Creature* passenger = nullptr;
             Trinity::AllCreaturesOfEntryInRange check(handler->GetSession()->GetPlayer(), entry, 20.0f);
             Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(handler->GetSession()->GetPlayer(), passenger, check);
             Cell::VisitAllObjects(handler->GetSession()->GetPlayer(), searcher, 30.0f);
@@ -945,7 +943,7 @@ public:
             return false;
 
         char* e = strtok((char*)args, " ");
-        char* i = strtok(NULL, " ");
+        char* i = strtok(nullptr, " ");
 
         if (!e)
             return false;
@@ -987,7 +985,7 @@ public:
 
     static bool HandleDebugSendLargePacketCommand(ChatHandler* handler, char const* /*args*/)
     {
-        const char* stuffingString = "This is a dummy string to push the packet's size beyond 128000 bytes. ";
+        char const* stuffingString = "This is a dummy string to push the packet's size beyond 128000 bytes. ";
         std::ostringstream ss;
         while (ss.str().size() < 128000)
             ss << stuffingString;
@@ -1011,7 +1009,7 @@ public:
             return false;
 
         char* e = strtok((char*)args, " ");
-        char* f = strtok(NULL, " ");
+        char* f = strtok(nullptr, " ");
 
         if (!e || !f)
             return false;
@@ -1040,8 +1038,8 @@ public:
             return false;
 
         char* e = strtok((char*)args, " ");
-        char* f = strtok(NULL, " ");
-        char* g = strtok(NULL, " ");
+        char* f = strtok(nullptr, " ");
+        char* g = strtok(nullptr, " ");
 
         if (!e || !f || !g)
             return false;
@@ -1147,8 +1145,8 @@ public:
             return false;
 
         char* x = strtok((char*)args, " ");
-        char* y = strtok(NULL, " ");
-        char* z = strtok(NULL, " ");
+        char* y = strtok(nullptr, " ");
+        char* z = strtok(nullptr, " ");
 
         if (!x || !y)
             return false;
@@ -1196,7 +1194,7 @@ public:
             return false;
 
         char* x = strtok((char*)args, " ");
-        char* z = strtok(NULL, " ");
+        char* z = strtok(nullptr, " ");
 
         if (!x)
             return false;
@@ -1242,7 +1240,7 @@ public:
             return false;
 
         char* x = strtok((char*)args, " ");
-        char* y = strtok(NULL, " ");
+        char* y = strtok(nullptr, " ");
 
         if (!x || !y)
             return false;
@@ -1297,7 +1295,7 @@ public:
         else if (updateIndex >= UNIT_END)
             return true;
 
-        char* val = strtok(NULL, " ");
+        char* val = strtok(nullptr, " ");
         if (!val)
         {
             value = unit->GetUInt32Value(updateIndex);
@@ -1329,7 +1327,7 @@ public:
         }
 
         char* x = strtok((char*)args, " ");
-        char* y = strtok(NULL, " ");
+        char* y = strtok(nullptr, " ");
 
         if (!x || !y)
             return false;
@@ -1363,7 +1361,7 @@ public:
             if (!mask1)
                 return false;
 
-            char* mask2 = strtok(NULL, " \n");
+            char* mask2 = strtok(nullptr, " \n");
 
             uint32 moveFlags = (uint32)atoi(mask1);
 
@@ -1552,18 +1550,18 @@ public:
     static bool HandleDebugNearGraveyard(ChatHandler* handler, char const* args)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        const WorldSafeLocsEntry* nearestLoc = nullptr;
+        WorldSafeLocsEntry const* nearestLoc = nullptr;
 
         if (stricmp(args, "linked"))
         {
             if (Battleground* bg = player->GetBattleground())
-                nearestLoc = bg->GetClosestGraveYard(player);
+                nearestLoc = bg->GetClosestGraveyard(player);
             else
             {
                 if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
-                    nearestLoc = bf->GetClosestGraveYard(player);
+                    nearestLoc = bf->GetClosestGraveyard(player);
                 else
-                    nearestLoc = sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
+                    nearestLoc = sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
             }
         }
         else
@@ -1575,7 +1573,7 @@ public:
 
             for (uint32 i = 0; i < sWorldSafeLocsStore.GetNumRows(); ++i)
             {
-                const WorldSafeLocsEntry* loc = sWorldSafeLocsStore.LookupEntry(i);
+                WorldSafeLocsEntry const* loc = sWorldSafeLocsStore.LookupEntry(i);
                 if (loc && loc->map_id == player->GetMapId())
                 {
                     float dist = (loc->x - x) * (loc->x - x) + (loc->y - y) * (loc->y - y) + (loc->z - z) * (loc->z - z);

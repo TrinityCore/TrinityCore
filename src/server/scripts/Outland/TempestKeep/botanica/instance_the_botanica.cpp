@@ -16,13 +16,15 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "the_botanica.h"
 
 class instance_the_botanica : public InstanceMapScript
 {
     public:
-        instance_the_botanica() : InstanceMapScript("instance_the_botanica", 553) { }
+        instance_the_botanica() : InstanceMapScript(BotanicaScriptName, 553) { }
 
         struct instance_the_botanica_InstanceMapScript : public InstanceScript
         {

@@ -20,11 +20,11 @@
 #define TRINITY_GAMEOBJECTAI_H
 
 #include "Define.h"
-#include <list>
-#include "Object.h"
 #include "QuestDef.h"
-#include "GameObject.h"
-#include "CreatureAI.h"
+
+class GameObject;
+class Unit;
+class SpellInfo;
 
 class TC_GAME_API GameObjectAI
 {
@@ -45,7 +45,7 @@ class TC_GAME_API GameObjectAI
         virtual void SetGUID(uint64 /*guid*/, int32 /*id = 0 */) { }
         virtual uint64 GetGUID(int32 /*id = 0 */) const { return 0; }
 
-        static int32 Permissible(GameObject const* /*go*/) { return PERMIT_BASE_NO; }
+        static int32 Permissible(GameObject const* go);
 
         // Called when a player opens a gossip dialog with the gameobject.
         virtual bool GossipHello(Player* /*player*/) { return false; }
@@ -81,7 +81,7 @@ class TC_GAME_API GameObjectAI
         virtual void OnLootStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
         virtual void OnStateChanged(uint32 /*state*/) { }
         virtual void EventInform(uint32 /*eventId*/) { }
-        virtual void SpellHit(Unit* /*unit*/, const SpellInfo* /*spellInfo*/) { }
+        virtual void SpellHit(Unit* /*unit*/, SpellInfo const* /*spellInfo*/) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI
@@ -91,6 +91,6 @@ class TC_GAME_API NullGameObjectAI : public GameObjectAI
 
         void UpdateAI(uint32 /*diff*/) override { }
 
-        static int32 Permissible(GameObject const* /*go*/) { return PERMIT_BASE_IDLE; }
+        static int32 Permissible(GameObject const* go);
 };
 #endif

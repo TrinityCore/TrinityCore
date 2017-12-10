@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
+#include "InstanceScript.h"
 #include "nexus.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -216,7 +219,7 @@ class boss_keristrasza : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_keristraszaAI>(creature);
+            return GetNexusAI<boss_keristraszaAI>(creature);
         }
 };
 
@@ -248,7 +251,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return GetInstanceAI<containment_sphereAI>(go);
+        return GetNexusAI<containment_sphereAI>(go);
     }
 };
 

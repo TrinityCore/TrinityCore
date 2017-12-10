@@ -16,13 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "SpellAuras.h"
+#include "ScriptedCreature.h"
 #include "shattered_halls.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 class at_nethekurse_exit : public AreaTriggerScript
 {
@@ -109,7 +110,7 @@ class boss_shattered_executioner : public CreatureScript
                 if (instance->GetData(DATA_PRISONERS_EXECUTED) > 0)
                     return;
 
-                Map::PlayerList const &players = instance->instance->GetPlayers();
+                Map::PlayerList const& players = instance->instance->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     Player* pl = itr->GetSource();
@@ -128,7 +129,7 @@ class boss_shattered_executioner : public CreatureScript
 
                     if (data == 1)
                     {
-                        Map::PlayerList const &players = instance->instance->GetPlayers();
+                        Map::PlayerList const& players = instance->instance->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             Player* pl = itr->GetSource();
@@ -173,7 +174,7 @@ class boss_shattered_executioner : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_shattered_executionerAI>(creature);
+            return GetShatteredHallsAI<boss_shattered_executionerAI>(creature);
         }
 };
 

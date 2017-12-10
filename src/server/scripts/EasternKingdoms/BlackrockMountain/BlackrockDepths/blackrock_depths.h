@@ -19,6 +19,9 @@
 #ifndef DEF_BRD_H
 #define DEF_BRD_H
 
+#include "CreatureAIImpl.h"
+
+#define BRDScriptName "instance_blackrock_depths"
 #define DataHeader "BRD"
 
 enum BRDFactionIds
@@ -63,5 +66,11 @@ enum BRDDataTypes
     DATA_MOIRA              = 27,
     DATA_COREN              = 28
 };
+
+template <class AI, class T>
+inline AI* GetBlackrockDepthsAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BRDScriptName);
+}
 
 #endif

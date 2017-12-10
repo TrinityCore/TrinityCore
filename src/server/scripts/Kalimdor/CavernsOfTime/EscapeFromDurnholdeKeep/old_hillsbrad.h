@@ -19,6 +19,9 @@
 #ifndef DEF_OLD_HILLSBRAD_H
 #define DEF_OLD_HILLSBRAD_H
 
+#include "CreatureAIImpl.h"
+
+#define OHScriptName "instance_old_hillsbrad"
 #define DataHeader "OH"
 
 enum OHDataTypes
@@ -40,5 +43,11 @@ enum OHWorldStateIds
 {
     WORLD_STATE_OH              = 2436
 };
+
+template <class AI, class T>
+inline AI* GetOldHillsbradAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, OHScriptName);
+}
 
 #endif

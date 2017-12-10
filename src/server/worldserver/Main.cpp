@@ -20,39 +20,43 @@
 /// @{
 /// \file
 
+#include "Common.h"
+#include "AppenderDB.h"
+#include "AsyncAcceptor.h"
+#include "Banner.h"
+#include "BattlegroundMgr.h"
+#include "BigNumber.h"
+#include "CliRunnable.h"
+#include "Configuration/Config.h"
+#include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
+#include "GitRevision.h"
+#include "InstanceSaveMgr.h"
+#include "MapManager.h"
+#include "Metric.h"
+#include "MySQLThreading.h"
+#include "ObjectAccessor.h"
+#include "OpenSSLCrypto.h"
+#include "OutdoorPvP/OutdoorPvPMgr.h"
+#include "ProcessPriority.h"
+#include "RASession.h"
+#include "RealmList.h"
+#include "ScriptLoader.h"
+#include "ScriptMgr.h"
+#include "ScriptReloadMgr.h"
+#include "TCSoap.h"
+#include "World.h"
+#include "WorldSocket.h"
+#include "WorldSocketMgr.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
-#include <boost/filesystem/path.hpp>
+#include <boost/asio/signal_set.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
-
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "AsyncAcceptor.h"
-#include "RASession.h"
-#include "Configuration/Config.h"
-#include "OpenSSLCrypto.h"
-#include "ProcessPriority.h"
-#include "BigNumber.h"
-#include "World.h"
-#include "MapManager.h"
-#include "InstanceSaveMgr.h"
-#include "ObjectAccessor.h"
-#include "ScriptMgr.h"
-#include "ScriptReloadMgr.h"
-#include "ScriptLoader.h"
-#include "OutdoorPvP/OutdoorPvPMgr.h"
-#include "BattlegroundMgr.h"
-#include "TCSoap.h"
-#include "CliRunnable.h"
-#include "GitRevision.h"
-#include "WorldSocket.h"
-#include "WorldSocketMgr.h"
-#include "Realm/Realm.h"
-#include "DatabaseLoader.h"
-#include "AppenderDB.h"
-#include "Metric.h"
+#include <csignal>
+#include <iostream>
 
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
@@ -145,20 +149,18 @@ extern int main(int argc, char** argv)
     // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
     sLog->Initialize(sConfigMgr->GetBoolDefault("Log.Async.Enable", false) ? ioService.get() : nullptr);
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", GitRevision::GetFullVersion());
-    TC_LOG_INFO("server.worldserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.worldserver", " ______                       __");
-    TC_LOG_INFO("server.worldserver", "/\\__  _\\       __          __/\\ \\__");
-    TC_LOG_INFO("server.worldserver", "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
-    TC_LOG_INFO("server.worldserver", "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    TC_LOG_INFO("server.worldserver", "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    TC_LOG_INFO("server.worldserver", "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    TC_LOG_INFO("server.worldserver", "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    TC_LOG_INFO("server.worldserver", "                                 C O R E  /\\___/");
-    TC_LOG_INFO("server.worldserver", "http://TrinityCore.org                    \\/__/\n");
-    TC_LOG_INFO("server.worldserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-    TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+    Trinity::Banner::Show("worldserver-daemon",
+        [](char const* text)
+        {
+            TC_LOG_INFO("server.worldserver", "%s", text);
+        },
+        []()
+        {
+            TC_LOG_INFO("server.worldserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
+            TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+        }
+    );
 
     OpenSSLCrypto::threadsSetup();
 
@@ -207,7 +209,7 @@ extern int main(int argc, char** argv)
         threadPool->push_back(std::thread([ioService]() { ioService->run(); }));
 
     // Set process priority according to configuration settings
-    SetProcessPriority("server.worldserver");
+    SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
 
     // Start the databases
     if (!StartDB())
@@ -513,7 +515,7 @@ bool LoadRealmInfo(boost::asio::io_service& ioService)
         return false;
     }
 
-    realm.ExternalAddress = (*endPoint).endpoint().address();
+    realm.ExternalAddress = Trinity::make_unique<boost::asio::ip::address>((*endPoint).endpoint().address());
 
     boost::asio::ip::tcp::resolver::query localAddressQuery(boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
     endPoint = resolver.resolve(localAddressQuery, ec);
@@ -523,7 +525,7 @@ bool LoadRealmInfo(boost::asio::io_service& ioService)
         return false;
     }
 
-    realm.LocalAddress = (*endPoint).endpoint().address();
+    realm.LocalAddress = Trinity::make_unique<boost::asio::ip::address>((*endPoint).endpoint().address());
 
     boost::asio::ip::tcp::resolver::query localSubmaskQuery(boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
     endPoint = resolver.resolve(localSubmaskQuery, ec);
@@ -533,7 +535,7 @@ bool LoadRealmInfo(boost::asio::io_service& ioService)
         return false;
     }
 
-    realm.LocalSubnetMask = (*endPoint).endpoint().address();
+    realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>((*endPoint).endpoint().address());
 
     realm.Port = fields[5].GetUInt16();
     realm.Type = fields[6].GetUInt8();

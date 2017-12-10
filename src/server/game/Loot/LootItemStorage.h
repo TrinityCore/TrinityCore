@@ -19,7 +19,7 @@
 #define __LOOTITEMSTORAGE_H
 
 #include "Define.h"
-#include "Transaction.h"
+#include "DatabaseEnvFwd.h"
 
 #include <unordered_map>
 

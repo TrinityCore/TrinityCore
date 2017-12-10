@@ -16,12 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"                                      // for normalizePlayerName
+#include "WorldSession.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "DBCStores.h"
+#include "Log.h"
+#include "ObjectMgr.h"                                      // for normalizePlayerName
 #include "Player.h"
-#include "WorldSession.h"
-
 #include <cctype>
 
 static size_t const MAX_CHANNEL_PASS_STR = 31;

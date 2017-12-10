@@ -30,9 +30,11 @@ npc_parqual_fintallas
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 
 /*######
 ## npc_lady_sylvanas_windrunner

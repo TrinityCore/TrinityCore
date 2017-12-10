@@ -16,8 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
+#include "Map.h"
 #include "shadow_labyrinth.h"
 
 DoorData const doorData[] =

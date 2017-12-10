@@ -24,9 +24,13 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 /*
  * This is a 2 phases events. Here follows an explanation of the main events and transition between phases and sub-phases.
@@ -153,7 +157,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<eye_of_cthunAI>(creature);
+        return GetAQ40AI<eye_of_cthunAI>(creature);
     }
 
     struct eye_of_cthunAI : public ScriptedAI
@@ -284,7 +288,7 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            Creature* Spawned = NULL;
+                            Creature* Spawned = nullptr;
 
                             //Spawn claw tentacle on the random target
                             Spawned = me->SummonCreature(NPC_CLAW_TENTACLE, *target, TEMPSUMMON_CORPSE_DESPAWN, 500);
@@ -453,7 +457,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<cthunAI>(creature);
+        return GetAQ40AI<cthunAI>(creature);
     }
 
     struct cthunAI : public ScriptedAI
@@ -545,7 +549,7 @@ public:
         Unit* SelectRandomNotStomach()
         {
             if (Stomach_Map.empty())
-                return NULL;
+                return nullptr;
 
             std::unordered_map<ObjectGuid, bool>::const_iterator i = Stomach_Map.begin();
 
@@ -566,7 +570,7 @@ public:
             }
 
             if (temp.empty())
-                return NULL;
+                return nullptr;
 
             j = temp.begin();
 
@@ -587,7 +591,7 @@ public:
                 if (WisperTimer <= diff)
                 {
                     //Play random sound to the zone
-                    Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                    Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                         me->PlayDirectSound(RANDOM_SOUND_WHISPER, itr->GetSource());
 
@@ -754,7 +758,7 @@ public:
                             //Set target in stomach
                             Stomach_Map[target->GetGUID()] = true;
                             target->InterruptNonMeleeSpells(false);
-                            target->CastSpell(target, SPELL_MOUTH_TENTACLE, true, NULL, NULL, me->GetGUID());
+                            target->CastSpell(target, SPELL_MOUTH_TENTACLE, true, nullptr, nullptr, me->GetGUID());
                             StomachEnterTarget = target->GetGUID();
                             StomachEnterVisTimer = 3800;
                         }
@@ -891,7 +895,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new eye_tentacleAI(creature);
+        return GetAQ40AI<eye_tentacleAI>(creature);
     }
 
     struct eye_tentacleAI : public ScriptedAI
@@ -969,7 +973,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new claw_tentacleAI(creature);
+        return GetAQ40AI<claw_tentacleAI>(creature);
     }
 
     struct claw_tentacleAI : public ScriptedAI
@@ -1083,7 +1087,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new giant_claw_tentacleAI(creature);
+        return GetAQ40AI<giant_claw_tentacleAI>(creature);
     }
 
     struct giant_claw_tentacleAI : public ScriptedAI
@@ -1207,7 +1211,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new giant_eye_tentacleAI(creature);
+        return GetAQ40AI<giant_eye_tentacleAI>(creature);
     }
 
     struct giant_eye_tentacleAI : public ScriptedAI
@@ -1273,7 +1277,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new flesh_tentacleAI(creature);
+        return GetAQ40AI<flesh_tentacleAI>(creature);
     }
 
     struct flesh_tentacleAI : public ScriptedAI

@@ -16,12 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "halls_of_reflection.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
 #include "WorldPacket.h"
-#include "halls_of_reflection.h"
 
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position
 Position const SylvanasSpawnPos        = { 5236.667f, 1929.906f, 707.7781f, 0.8377581f }; // Sylvanas Spawn Position (sniffed)
@@ -344,7 +346,7 @@ class instance_halls_of_reflection : public InstanceMapScript
 
                                 if (Creature* lichking = instance->GetCreature(TheLichKingEscapeGUID))
                                 {
-                                    lichking->CastSpell((Unit*)NULL, SPELL_ACHIEV_CHECK, true);
+                                    lichking->CastSpell((Unit*)nullptr, SPELL_ACHIEV_CHECK, true);
                                     lichking->DespawnOrUnsummon(1);
                                 }
                                 break;
@@ -438,7 +440,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     case DATA_WAVE_COUNT:
                         if (_waveCount && data == NOT_STARTED)
-                            ProcessEvent(NULL, EVENT_DO_WIPE);
+                            ProcessEvent(nullptr, EVENT_DO_WIPE);
                         break;
                     case DATA_FROSTSWORN_GENERAL:
                         if (data == DONE)
@@ -451,7 +453,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             if (_quelDelarState == NOT_STARTED)
                             {
                                 if (Creature* bunny = instance->GetCreature(FrostmourneAltarBunnyGUID))
-                                    bunny->CastSpell((Unit*)NULL, SPELL_ESSENCE_OF_CAPTURED);
+                                    bunny->CastSpell((Unit*)nullptr, SPELL_ESSENCE_OF_CAPTURED);
                                 events.ScheduleEvent(EVENT_QUEL_DELAR_SUMMON_UTHER, 2000);
                             }
                         }
@@ -516,7 +518,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_NEXT_WAVE:
-                        ProcessEvent(NULL, EVENT_ADD_WAVE);
+                        ProcessEvent(nullptr, EVENT_ADD_WAVE);
                         break;
                     case EVENT_SPAWN_ESCAPE_EVENT:
                         SpawnEscapeEvent();

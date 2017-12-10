@@ -24,6 +24,7 @@ SDCategory: Maraudon
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "maraudon.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -40,7 +41,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new celebras_the_cursedAI(creature);
+        return GetMaraudonAI<celebras_the_cursedAI>(creature);
     }
 
     struct celebras_the_cursedAI : public ScriptedAI

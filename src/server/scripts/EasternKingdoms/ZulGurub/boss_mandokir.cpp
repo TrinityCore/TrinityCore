@@ -24,10 +24,13 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "zulgurub.h"
 
 enum Says
@@ -429,7 +432,7 @@ class npc_vilebranch_speaker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_vilebranch_speakerAI>(creature);
+            return GetZulGurubAI<npc_vilebranch_speakerAI>(creature);
         }
 };
 

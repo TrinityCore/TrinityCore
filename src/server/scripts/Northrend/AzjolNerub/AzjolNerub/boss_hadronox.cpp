@@ -16,11 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuras.h"
-#include "SpellAuraEffects.h"
 #include "azjol_nerub.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Events
 {
@@ -391,7 +395,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_hadronoxAI>(creature);
+        return GetAzjolNerubAI<boss_hadronoxAI>(creature);
     }
 };
 
@@ -569,7 +573,7 @@ class npc_anub_ar_crusher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_crusherAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_crusherAI>(creature);
         }
 };
 
@@ -612,7 +616,7 @@ class npc_anub_ar_crusher_champion : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_crusher_championAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_crusher_championAI>(creature);
         }
 };
 
@@ -655,7 +659,7 @@ class npc_anub_ar_crusher_crypt_fiend : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_crusher_crypt_fiendAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_crusher_crypt_fiendAI>(creature);
         }
 };
 
@@ -698,7 +702,7 @@ class npc_anub_ar_crusher_necromancer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_crusher_necromancerAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_crusher_necromancerAI>(creature);
         }
 };
 
@@ -857,7 +861,7 @@ class npc_anub_ar_champion : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_championAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_championAI>(creature);
         }
 };
 
@@ -899,7 +903,7 @@ class npc_anub_ar_crypt_fiend : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_anub_ar_crypt_fiendAI>(creature);
+        return GetAzjolNerubAI<npc_anub_ar_crypt_fiendAI>(creature);
     }
 };
 
@@ -941,7 +945,7 @@ class npc_anub_ar_necromancer : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_anub_ar_necromancerAI>(creature);
+        return GetAzjolNerubAI<npc_anub_ar_necromancerAI>(creature);
     }
 };
 
@@ -951,11 +955,10 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
         spell_hadronox_periodic_summon_template_AuraScript(uint32 topSpellId, uint32 bottomSpellId) : AuraScript(), _topSpellId(topSpellId), _bottomSpellId(bottomSpellId) { }
         PrepareAuraScript(spell_hadronox_periodic_summon_template_AuraScript);
 
+    private:
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            return
-                (sSpellMgr->GetSpellInfo(_topSpellId) != nullptr) &&
-                (sSpellMgr->GetSpellInfo(_bottomSpellId) != nullptr);
+            return ValidateSpellInfo({ _topSpellId, _bottomSpellId });
         }
 
         void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
@@ -989,7 +992,6 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_hadronox_periodic_summon_template_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         }
 
-    private:
         uint32 _topSpellId;
         uint32 _bottomSpellId;
 };
@@ -1056,7 +1058,7 @@ class spell_hadronox_leeching_poison : public SpellScriptLoader
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            return sSpellMgr->GetSpellInfo(SPELL_LEECH_POISON_HEAL) != nullptr;
+            return ValidateSpellInfo({ SPELL_LEECH_POISON_HEAL });
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1094,11 +1096,7 @@ class spell_hadronox_web_doors : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return (
-                    sSpellMgr->GetSpellInfo(SPELL_SUMMON_CHAMPION_PERIODIC) &&
-                    sSpellMgr->GetSpellInfo(SPELL_SUMMON_CRYPT_FIEND_PERIODIC) &&
-                    sSpellMgr->GetSpellInfo(SPELL_SUMMON_NECROMANCER_PERIODIC)
-                    );
+                return ValidateSpellInfo({ SPELL_SUMMON_CHAMPION_PERIODIC, SPELL_SUMMON_CRYPT_FIEND_PERIODIC, SPELL_SUMMON_NECROMANCER_PERIODIC });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

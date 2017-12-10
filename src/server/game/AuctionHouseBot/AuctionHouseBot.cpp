@@ -15,17 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Containers.h"
-#include "Log.h"
-#include "Item.h"
-#include "World.h"
-#include "Config.h"
-#include "AccountMgr.h"
-#include "AuctionHouseMgr.h"
 #include "AuctionHouseBot.h"
+#include "AccountMgr.h"
 #include "AuctionHouseBotBuyer.h"
 #include "AuctionHouseBotSeller.h"
+#include "AuctionHouseMgr.h"
+#include "Config.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
 #include "GameTime.h"
+#include "Item.h"
+#include "Log.h"
+#include "World.h"
 
 AuctionBotConfig* AuctionBotConfig::instance()
 {

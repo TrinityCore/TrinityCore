@@ -21,15 +21,15 @@
  * Scriptnames in this file should be prefixed with "spell_#holidayname_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "CreatureAIImpl.h"
+#include "GridNotifiersImpl.h"
+#include "Player.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
+#include "World.h"
 
 // 45102 Romantic Picnic
 enum SpellsPicnic
@@ -135,10 +135,7 @@ class spell_hallow_end_candy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                for (uint32 spellId : spells)
-                    if (!sSpellMgr->GetSpellInfo(spellId))
-                        return false;
-                return true;
+                return ValidateSpellInfo(spells);
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -181,10 +178,11 @@ class spell_hallow_end_candy_pirate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE,
+                    SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE
+                });
             }
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -238,11 +236,19 @@ class spell_hallow_end_trick : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SKELETON_COSTUME) || !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_TRICK_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_PIRATE_COSTUME_MALE,
+                    SPELL_PIRATE_COSTUME_FEMALE,
+                    SPELL_NINJA_COSTUME_MALE,
+                    SPELL_NINJA_COSTUME_FEMALE,
+                    SPELL_LEPER_GNOME_COSTUME_MALE,
+                    SPELL_LEPER_GNOME_COSTUME_FEMALE,
+                    SPELL_SKELETON_COSTUME,
+                    SPELL_GHOST_COSTUME_MALE,
+                    SPELL_GHOST_COSTUME_FEMALE,
+                    SPELL_TRICK_BUFF
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -311,9 +317,7 @@ class spell_hallow_end_trick_or_treat : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TRICK) || !sSpellMgr->GetSpellInfo(SPELL_TREAT) || !sSpellMgr->GetSpellInfo(SPELL_TRICKED_OR_TREATED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TRICK, SPELL_TREAT, SPELL_TRICKED_OR_TREATED });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -349,13 +353,12 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_SPEED))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_TRIGGER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_UPSET_TUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_TRICKY_TREAT_SPEED,
+                    SPELL_TRICKY_TREAT_TRIGGER,
+                    SPELL_UPSET_TUMMY
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -402,16 +405,17 @@ public:
 
         bool Validate(SpellInfo const* /*spellEntry*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_MALE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_FEMALE))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_PIRATE_COSTUME_MALE,
+                SPELL_PIRATE_COSTUME_FEMALE,
+                SPELL_NINJA_COSTUME_MALE,
+                SPELL_NINJA_COSTUME_FEMALE,
+                SPELL_LEPER_GNOME_COSTUME_MALE,
+                SPELL_LEPER_GNOME_COSTUME_FEMALE,
+                SPELL_GHOST_COSTUME_MALE,
+                SPELL_GHOST_COSTUME_FEMALE
+            });
         }
 
         void HandleScriptEffect()
@@ -472,7 +476,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
     private:
         uint32 const _triggeredSpellId;
     public:
-        spell_pilgrims_bounty_buff_food(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+        spell_pilgrims_bounty_buff_food(char const* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
 
         class spell_pilgrims_bounty_buff_food_AuraScript : public AuraScript
         {
@@ -565,7 +569,7 @@ class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
                         if (Player* player = target->ToPlayer())
                         {
                             player->CastSpell(player, SPELL_ON_PLATE_EAT_VISUAL, true);
-                            caster->CastSpell(player, _spellId, true, NULL, NULL, player->GetGUID());
+                            caster->CastSpell(player, _spellId, true, nullptr, nullptr, player->GetGUID());
                         }
 
                 if (Aura* aura = caster->GetAura(GetEffectValue()))
@@ -609,9 +613,7 @@ class spell_pilgrims_bounty_turkey_tracker : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL) || !sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL_MAX))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_KILL_COUNTER_VISUAL, SPELL_KILL_COUNTER_VISUAL_MAX });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -673,22 +675,21 @@ class spell_pilgrims_bounty_well_fed : public SpellScriptLoader
         uint32 _triggeredSpellId;
 
     public:
-        spell_pilgrims_bounty_well_fed(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+        spell_pilgrims_bounty_well_fed(char const* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
 
         class spell_pilgrims_bounty_well_fed_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pilgrims_bounty_well_fed_SpellScript);
-        private:
+
             uint32 _triggeredSpellId;
 
         public:
             spell_pilgrims_bounty_well_fed_SpellScript(uint32 triggeredSpellId) : SpellScript(), _triggeredSpellId(triggeredSpellId) { }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_triggeredSpellId))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ _triggeredSpellId });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -780,13 +781,13 @@ class spell_pilgrims_bounty_on_plate : public SpellScriptLoader
         uint32 _triggeredSpellId4;
 
     public:
-        spell_pilgrims_bounty_on_plate(const char* name, uint32 triggeredSpellId1, uint32 triggeredSpellId2, uint32 triggeredSpellId3, uint32 triggeredSpellId4) : SpellScriptLoader(name),
+        spell_pilgrims_bounty_on_plate(char const* name, uint32 triggeredSpellId1, uint32 triggeredSpellId2, uint32 triggeredSpellId3, uint32 triggeredSpellId4) : SpellScriptLoader(name),
             _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2), _triggeredSpellId3(triggeredSpellId3), _triggeredSpellId4(triggeredSpellId4) { }
 
         class spell_pilgrims_bounty_on_plate_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pilgrims_bounty_on_plate_SpellScript);
-        private:
+
             uint32 _triggeredSpellId1;
             uint32 _triggeredSpellId2;
             uint32 _triggeredSpellId3;
@@ -796,14 +797,16 @@ class spell_pilgrims_bounty_on_plate : public SpellScriptLoader
             spell_pilgrims_bounty_on_plate_SpellScript(uint32 triggeredSpellId1, uint32 triggeredSpellId2, uint32 triggeredSpellId3, uint32 triggeredSpellId4) : SpellScript(),
                 _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2), _triggeredSpellId3(triggeredSpellId3), _triggeredSpellId4(triggeredSpellId4) { }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_triggeredSpellId1)
-                    || !sSpellMgr->GetSpellInfo(_triggeredSpellId2)
-                    || !sSpellMgr->GetSpellInfo(_triggeredSpellId3)
-                    || !sSpellMgr->GetSpellInfo(_triggeredSpellId4))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    _triggeredSpellId1,
+                    _triggeredSpellId2,
+                    _triggeredSpellId3,
+                    _triggeredSpellId4
+                });
             }
 
             Vehicle* GetTable(Unit* target)
@@ -898,23 +901,21 @@ class spell_pilgrims_bounty_a_serving_of : public SpellScriptLoader
     private:
         uint32 _triggeredSpellId;
     public:
-        spell_pilgrims_bounty_a_serving_of(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+        spell_pilgrims_bounty_a_serving_of(char const* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
 
         class spell_pilgrims_bounty_a_serving_of_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pilgrims_bounty_a_serving_of_AuraScript);
 
-        private:
             uint32 _triggeredSpellId;
 
         public:
             spell_pilgrims_bounty_a_serving_of_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_triggeredSpellId))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ _triggeredSpellId });
             }
 
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -976,11 +977,12 @@ class spell_winter_veil_mistletoe : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_MISTLETOE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_HOLLY) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_SNOWFLAKES))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_CREATE_MISTLETOE,
+                    SPELL_CREATE_HOLLY,
+                    SPELL_CREATE_SNOWFLAKES
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1013,6 +1015,14 @@ enum PX238WinterWondervolt
     SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4  = 26274
 };
 
+uint32 const WonderboltTransformSpells[] =
+{
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4
+};
+
 class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
 {
     public:
@@ -1024,33 +1034,20 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4))
-                    return false;
-                return true;
+                return ValidateSpellInfo(WonderboltTransformSpells);
             }
 
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
 
-                uint32 const spells[4] =
-                {
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1,
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2,
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3,
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4
-                };
-
                 if (Unit* target = GetHitUnit())
                 {
-                    for (uint8 i = 0; i < 4; ++i)
-                        if (target->HasAura(spells[i]))
+                    for (uint32 spell : WonderboltTransformSpells)
+                        if (target->HasAura(spell))
                             return;
 
-                    target->CastSpell(target, spells[urand(0, 3)], true);
+                    target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(WonderboltTransformSpells), true);
                 }
             }
 
@@ -1321,7 +1318,7 @@ class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScript
                 PreventHitDefaultEffect(effIndex);
                 // All this spells trigger a spell that requires reagents; if the
                 // triggered spell is cast as "triggered", reagents are not consumed
-                GetHitUnit()->CastSpell((Unit*)NULL, GetSpellInfo()->Effects[effIndex].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+                GetHitUnit()->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[effIndex].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
             }
 
             void Register() override
@@ -1507,9 +1504,7 @@ class spell_midsummer_braziers_hit : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TORCH_TOSSING_TRAINING) || !sSpellMgr->GetSpellInfo(SPELL_TORCH_TOSSING_PRACTICE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TORCH_TOSSING_TRAINING, SPELL_TORCH_TOSSING_PRACTICE });
             }
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1560,11 +1555,12 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HAS_FULL_MIDSUMMER_SET)
-                    || !sSpellMgr->GetSpellInfo(SPELL_RIBBON_DANCE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURNING_HOT_POLE_DANCE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_HAS_FULL_MIDSUMMER_SET,
+                    SPELL_RIBBON_DANCE,
+                    SPELL_BURNING_HOT_POLE_DANCE
+                });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)

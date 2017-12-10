@@ -1,14 +1,31 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software licensed under GPL version 2
-* Please see the included DOCS/LICENSE.TXT for more information */
+/*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef SC_SYSTEM_H
 #define SC_SYSTEM_H
 
-#include "ScriptMgr.h"
-#include "SplineChain.h"
+#include "Define.h"
+#include "Hash.h"
+#include <unordered_map>
+#include <vector>
 
 class Creature;
+struct SplineChainLink;
 
 #define TEXT_SOURCE_RANGE -1000000                          //the amount of entries each text source has available
 
@@ -27,8 +44,10 @@ typedef std::vector<ScriptPointMove> ScriptPointVector;
 class TC_GAME_API SystemMgr
 {
     private:
-        SystemMgr() { }
-        ~SystemMgr() { }
+        SystemMgr();
+        ~SystemMgr();
+        SystemMgr(SystemMgr const&) = delete;
+        SystemMgr& operator=(SystemMgr const&) = delete;
 
     public:
         static SystemMgr* instance();
@@ -49,20 +68,13 @@ class TC_GAME_API SystemMgr
             return &itr->second;
         }
 
-        SplineChain const* GetSplineChain(uint32 entry, uint16 chainId) const
-        {
-            auto it = m_mSplineChainsMap.find({ entry, chainId });
-            if (it == m_mSplineChainsMap.end())
-                return nullptr;
-            return &it->second;
-        }
-
-        SplineChain const* GetSplineChain(Creature const* who, uint16 id) const;
+        std::vector<SplineChainLink> const* GetSplineChain(uint32 entry, uint16 chainId) const;
+        std::vector<SplineChainLink> const* GetSplineChain(Creature const* who, uint16 id) const;
 
     protected:
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
         typedef std::pair<uint32, uint16> ChainKeyType; // creature entry + chain ID
-        std::unordered_map<ChainKeyType, SplineChain> m_mSplineChainsMap; // spline chains
+        std::unordered_map<ChainKeyType, std::vector<SplineChainLink>> m_mSplineChainsMap; // spline chains
 };
 
 #define sScriptSystemMgr SystemMgr::instance()

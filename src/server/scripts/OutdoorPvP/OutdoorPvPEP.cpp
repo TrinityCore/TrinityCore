@@ -31,9 +31,9 @@ uint32 const EP_AllianceBuffs[4] = { 11413, 11414, 11415, 1386 };
 
 uint32 const EP_HordeBuffs[4] = { 30880, 30683, 30682, 29520 };
 
-uint32 const EP_GraveYardZone = 139;
+uint32 const EP_GraveyardZone = 139;
 
-uint32 const EP_GraveYardId = 927;
+uint32 const EP_GraveyardId = 927;
 
 uint8 const EPBuffZonesNum = 3;
 
@@ -116,14 +116,14 @@ void OPvPCapturePointEP_EWT::ChangeState()
             artkit = 2;
             SummonSupportUnitAtNorthpassTower(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_EWT, ALLIANCE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_EASTWALL_TOWER_TAKEN_ALLIANCE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_EASTWALL_TOWER_TAKEN_ALLIANCE);
             break;
         case OBJECTIVESTATE_HORDE:
             m_TowerState = EP_TS_H;
             artkit = 1;
             SummonSupportUnitAtNorthpassTower(HORDE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_EWT, HORDE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_EASTWALL_TOWER_TAKEN_HORDE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_EASTWALL_TOWER_TAKEN_HORDE);
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -214,14 +214,14 @@ void OPvPCapturePointEP_NPT::ChangeState()
             artkit = 2;
             SummonGO(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_NPT, ALLIANCE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_NORTHPASS_TOWER_TAKEN_ALLIANCE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_NORTHPASS_TOWER_TAKEN_ALLIANCE);
             break;
         case OBJECTIVESTATE_HORDE:
             m_TowerState = EP_TS_H;
             artkit = 1;
             SummonGO(HORDE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_NPT, HORDE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_NORTHPASS_TOWER_TAKEN_HORDE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_NORTHPASS_TOWER_TAKEN_HORDE);
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -317,16 +317,16 @@ void OPvPCapturePointEP_CGT::ChangeState()
         case OBJECTIVESTATE_ALLIANCE:
             m_TowerState = EP_TS_A;
             artkit = 2;
-            LinkGraveYard(ALLIANCE);
+            LinkGraveyard(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_CGT, ALLIANCE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_CROWN_GUARD_TOWER_TAKEN_ALLIANCE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_CROWN_GUARD_TOWER_TAKEN_ALLIANCE);
             break;
         case OBJECTIVESTATE_HORDE:
             m_TowerState = EP_TS_H;
             artkit = 1;
-            LinkGraveYard(HORDE);
+            LinkGraveyard(HORDE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_CGT, HORDE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_CROWN_GUARD_TOWER_TAKEN_HORDE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_CROWN_GUARD_TOWER_TAKEN_HORDE);
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -375,13 +375,13 @@ void OPvPCapturePointEP_CGT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_CGT_N, (m_TowerState & EP_TS_N) != 0);
 }
 
-void OPvPCapturePointEP_CGT::LinkGraveYard(uint32 team)
+void OPvPCapturePointEP_CGT::LinkGraveyard(uint32 team)
 {
     if (m_GraveyardSide != team)
     {
         m_GraveyardSide = team;
-        sObjectMgr->RemoveGraveYardLink(EP_GraveYardId, EP_GraveYardZone, team, false);
-        sObjectMgr->AddGraveYardLink(EP_GraveYardId, EP_GraveYardZone, team, false);
+        sObjectMgr->RemoveGraveyardLink(EP_GraveyardId, EP_GraveyardZone, team, false);
+        sObjectMgr->AddGraveyardLink(EP_GraveyardId, EP_GraveyardZone, team, false);
     }
 }
 
@@ -408,14 +408,14 @@ void OPvPCapturePointEP_PWT::ChangeState()
             SummonFlightMaster(ALLIANCE);
             artkit = 2;
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_PWT, ALLIANCE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_PLAGUEWOOD_TOWER_TAKEN_ALLIANCE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_PLAGUEWOOD_TOWER_TAKEN_ALLIANCE);
             break;
         case OBJECTIVESTATE_HORDE:
             m_TowerState = EP_TS_H;
             SummonFlightMaster(HORDE);
             artkit = 1;
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_PWT, HORDE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_PLAGUEWOOD_TOWER_TAKEN_HORDE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_PLAGUEWOOD_TOWER_TAKEN_HORDE);
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;

@@ -24,8 +24,8 @@ SDCategory: CrystalsongForest
 Script Data End */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "Player.h"
 
 /*******************************************************
  * npc_warmage_violetstand
@@ -97,7 +97,6 @@ public:
 
             if (Creature* pOrb = ObjectAccessor::GetCreature(*me, targetGUID))
                 DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
-
         }
     };
 

@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "Channel.h"
-#include "Guild.h"
-#include "Group.h"
+#include "DatabaseEnv.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 enum IPLoggingTypes
 {

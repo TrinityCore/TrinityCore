@@ -24,8 +24,10 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -45,7 +47,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_ramstein_the_gorgerAI>(creature);
+        return GetStratholmeAI<boss_ramstein_the_gorgerAI>(creature);
     }
 
     struct boss_ramstein_the_gorgerAI : public ScriptedAI

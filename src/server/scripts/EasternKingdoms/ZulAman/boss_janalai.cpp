@@ -24,10 +24,14 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "zulaman.h"
-#include "GridNotifiers.h"
 #include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
+#include "zulaman.h"
 
 enum Yells
 {
@@ -194,7 +198,7 @@ class boss_janalai : public CreatureScript
             void FireWall()
             {
                 uint8 WallNum;
-                Creature* wall = NULL;
+                Creature* wall = nullptr;
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     if (i == 0 || i == 2)
@@ -366,7 +370,7 @@ class boss_janalai : public CreatureScript
                     if (!map->IsDungeon())
                         return;
 
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
+                    Map::PlayerList const& PlayerList = map->GetPlayers();
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         if (Player* i_pl = i->GetSource())
                             if (i_pl->IsAlive())
@@ -441,7 +445,7 @@ class npc_janalai_firebomb : public CreatureScript
 
             void Reset() override { }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_FIRE_BOMB_THROW)
                     DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
@@ -667,7 +671,7 @@ class npc_janalai_egg : public CreatureScript
 
             void UpdateAI(uint32 /*diff*/) override { }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_HATCH_EGG)
                     DoCast(SPELL_SUMMON_HATCHLING);

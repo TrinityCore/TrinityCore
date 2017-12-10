@@ -17,8 +17,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -90,7 +90,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_ebonrocAI>(creature);
+        return GetBlackwingLairAI<boss_ebonrocAI>(creature);
     }
 };
 

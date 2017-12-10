@@ -18,6 +18,8 @@
 #ifndef AHNKAHET_H_
 #define AHNKAHET_H_
 
+#include "CreatureAIImpl.h"
+
 #define AhnKahetScriptName "instance_ahnkahet"
 #define DataHeader         "AK"
 
@@ -80,8 +82,8 @@ enum AKGameObjectIds
     GO_SPHERE_2                     = 193094
 };
 
-template<class AI, class T>
-AI* GetAhnKahetAI(T* obj)
+template <class AI, class T>
+inline AI* GetAhnKahetAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, AhnKahetScriptName);
 }

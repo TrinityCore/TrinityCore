@@ -17,8 +17,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
+#include "ScriptedCreature.h"
 
 enum Emotes
 {
@@ -98,7 +98,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_flamegorAI>(creature);
+        return GetBlackwingLairAI<boss_flamegorAI>(creature);
     }
 };
 

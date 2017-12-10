@@ -19,22 +19,16 @@
 #ifndef TRINITY_GRIDNOTIFIERS_H
 #define TRINITY_GRIDNOTIFIERS_H
 
-#include "ObjectGridLoader.h"
-#include "UpdateData.h"
-#include <iostream>
-
+#include "Creature.h"
 #include "Corpse.h"
-#include "Object.h"
+#include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "Player.h"
-#include "Unit.h"
-#include "CreatureAI.h"
 #include "Spell.h"
-#include "WorldSession.h"
-
-class Player;
-//class Map;
+#include "SpellInfo.h"
+#include "UnitAI.h"
+#include "UpdateData.h"
 
 namespace Trinity
 {
@@ -128,7 +122,7 @@ namespace Trinity
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = NULL)
+        MessageDistDeliverer(WorldObject* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
             : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
             , team(0)
             , skipped_receiver(skipped)
@@ -152,8 +146,7 @@ namespace Trinity
             if (!player->HaveAtClient(i_source))
                 return;
 
-            if (WorldSession* session = player->GetSession())
-                session->SendPacket(i_message);
+            player->SendDirectMessage(i_message);
         }
     };
 
@@ -180,8 +173,7 @@ namespace Trinity
             if (player == i_source || !player->HaveAtClient(i_source) || player->IsFriendlyTo(i_source))
                 return;
 
-            if (WorldSession* session = player->GetSession())
-                session->SendPacket(i_message);
+            player->SendDirectMessage(i_message);
         }
     };
 
@@ -641,7 +633,7 @@ namespace Trinity
     {
         public:
             AnyDeadUnitSpellTargetInRangeCheck(Unit* searchObj, float range, SpellInfo const* spellInfo, SpellTargetCheckTypes check)
-                : AnyDeadUnitObjectInRangeCheck(searchObj, range), i_spellInfo(spellInfo), i_check(searchObj, searchObj, spellInfo, check, NULL)
+                : AnyDeadUnitObjectInRangeCheck(searchObj, range), i_spellInfo(spellInfo), i_check(searchObj, searchObj, spellInfo, check, nullptr)
             { }
             bool operator()(Player* u);
             bool operator()(Corpse* u);
@@ -967,9 +959,6 @@ namespace Trinity
 
             bool operator()(Unit* u) const
             {
-                if (G3D::fuzzyEq(_range, 0.0f))
-                    return false;
-
                 if (_playerOnly && u->GetTypeId() != TYPEID_PLAYER)
                     return false;
 
@@ -1059,7 +1048,7 @@ namespace Trinity
             {
                 if (!_spellInfo)
                     if (DynamicObject const* dynObj = i_obj->ToDynObject())
-                        _spellInfo = sSpellMgr->GetSpellInfo(dynObj->GetSpellId());
+                        _spellInfo = dynObj->GetSpellInfo();
             }
 
             bool operator()(Unit* u) const
@@ -1115,8 +1104,8 @@ namespace Trinity
                 if (!u->IsWithinLOSInMap(i_enemy))
                     return;
 
-                if (u->AI())
-                    u->AI()->AttackStart(i_enemy);
+                if (u->GetAI() && u->IsAIEnabled)
+                    u->GetAI()->AttackStart(i_enemy);
             }
         private:
             Unit* const i_funit;
@@ -1374,7 +1363,7 @@ namespace Trinity
     class AllGameObjectsWithEntryInRange
     {
         public:
-            AllGameObjectsWithEntryInRange(const WorldObject* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
+            AllGameObjectsWithEntryInRange(WorldObject const* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
 
             bool operator()(GameObject* go) const
             {
@@ -1393,7 +1382,7 @@ namespace Trinity
     class AllCreaturesOfEntryInRange
     {
         public:
-            AllCreaturesOfEntryInRange(const WorldObject* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
+            AllCreaturesOfEntryInRange(WorldObject const* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
 
             bool operator()(Unit* unit) const
             {
@@ -1449,7 +1438,7 @@ namespace Trinity
     class AllWorldObjectsInRange
     {
         public:
-            AllWorldObjectsInRange(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) { }
+            AllWorldObjectsInRange(WorldObject const* object, float maxRange) : m_pObject(object), m_fRange(maxRange) { }
 
             bool operator()(WorldObject* go) const
             {

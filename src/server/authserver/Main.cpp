@@ -24,22 +24,24 @@
 * authentication server
 */
 
+#include "AppenderDB.h"
 #include "AuthSocketMgr.h"
-#include "Common.h"
+#include "Banner.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
-#include "Log.h"
-#include "AppenderDB.h"
+#include "GitRevision.h"
+#include "MySQLThreading.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
-#include "GitRevision.h"
 #include "Util.h"
-#include <iostream>
-#include <boost/filesystem/path.hpp>
+#include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
-#include <openssl/opensslv.h>
+#include <boost/filesystem/operations.hpp>
 #include <openssl/crypto.h>
+#include <openssl/opensslv.h>
+#include <iostream>
+#include <csignal>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
@@ -104,11 +106,18 @@ int main(int argc, char** argv)
     sLog->RegisterAppender<AppenderDB>();
     sLog->Initialize(nullptr);
 
-    TC_LOG_INFO("server.authserver", "%s (authserver)", GitRevision::GetFullVersion());
-    TC_LOG_INFO("server.authserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.authserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-    TC_LOG_INFO("server.authserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    TC_LOG_INFO("server.authserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+    Trinity::Banner::Show("authserver",
+        [](char const* text)
+        {
+            TC_LOG_INFO("server.authserver", "%s", text);
+        },
+        []()
+        {
+            TC_LOG_INFO("server.authserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
+            TC_LOG_INFO("server.authserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            TC_LOG_INFO("server.authserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+        }
+    );
 
     // authserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
@@ -168,7 +177,7 @@ int main(int argc, char** argv)
     signals.async_wait(std::bind(&SignalHandler, std::weak_ptr<boost::asio::io_service>(ioService), std::placeholders::_1, std::placeholders::_2));
 
     // Set process priority according to configuration settings
-    SetProcessPriority("server.authserver");
+    SetProcessPriority("server.authserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
 
     // Enabled a timed callback for handling the database keep alive ping
     int32 dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
