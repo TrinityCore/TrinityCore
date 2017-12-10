@@ -539,10 +539,7 @@ public:
             BossAI::JustSummoned(summon);
             if (summon->GetEntry() == NPC_ILLIDARI_ELITE)
                 if (Creature* akama = instance->GetCreature(DATA_AKAMA))
-                {
-                    summon->CombatStart(akama);
-                    summon->AddThreat(akama, 1000.0f);
-                }
+                    AddThreat(akama, 1000.0f, summon);
         }
 
         void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
@@ -808,7 +805,7 @@ public:
                         events.ScheduleEvent(EVENT_ENCOUNTER_START, Seconds(3), GROUP_PHASE_ALL);
                         break;
                     case EVENT_ENCOUNTER_START:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetImmuneToAll(false);
                         DoZoneInCombat();
                         if (Creature* akama = instance->GetCreature(DATA_AKAMA))
                             akama->AI()->DoAction(ACTION_START_ENCOUNTER);
@@ -939,7 +936,7 @@ public:
                         events.ScheduleEvent(EVENT_SCHEDULE_DEMON_SPELLS, Seconds(15));
                         break;
                     case EVENT_SCHEDULE_DEMON_SPELLS:
-                        DoResetThreat();
+                        ResetThreatList();
                         ScheduleEvents(GROUP_PHASE_DEMON, GROUP_PHASE_DEMON);
                         break;
                     case EVENT_DEMON_TEXT:
@@ -948,7 +945,7 @@ public:
                     case EVENT_RESUME_COMBAT_DEMON:
                     {
                         uint8 group = _phase == PHASE_3 ? GROUP_PHASE_3 : GROUP_PHASE_4;
-                        DoResetThreat();
+                        ResetThreatList();
                         ScheduleEvents(group, group);
                         me->LoadEquipment(1, true);
                         break;
@@ -1182,7 +1179,7 @@ public:
                     break;
                 case POINT_MINIONS:
                     _events.SetPhase(PHASE_MINIONS);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetImmuneToNPC(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                         illidan->AI()->DoAction(ACTION_START_MINIONS_WEAVE);
@@ -1315,7 +1312,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
                         me->AttackStop();
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetImmuneToNPC(true);
                         _events.ScheduleEvent(EVENT_AKAMA_MINIONS_MOVE, Seconds(4));
                         break;
                     case EVENT_AKAMA_MINIONS_MOVE:

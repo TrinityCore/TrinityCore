@@ -34,7 +34,7 @@ enum WarriorSpells
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
-    SPELL_WARRIOR_BLOODSURGE_R1                     = 29723,
+    SPELL_WARRIOR_BLOODSURGE_R1                     = 46913,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_DAMAGE_SHIELD_DAMAGE              = 59653,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_1                = 12162,
@@ -52,7 +52,7 @@ enum WarriorSpells
     SPELL_WARRIOR_RETALIATION_DAMAGE                = 22858,
     SPELL_WARRIOR_SLAM                              = 50783,
     SPELL_WARRIOR_SLAM_GCD_REDUCED                  = 71072,
-    SPELL_WARRIOR_SUDDEN_DEATH_R1                   = 46913,
+    SPELL_WARRIOR_SUDDEN_DEATH_R1                   = 29723,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
@@ -412,8 +412,8 @@ class spell_warr_execute : public SpellScriptLoader
         }
 };
 
-// -29723 - Bloodsurge
-// -46913 - Sudden Death
+// -29723 - Sudden Death
+// -46913 - Bloodsurge
 class spell_warr_extra_proc : public SpellScriptLoader
 {
     public:
@@ -1058,17 +1058,6 @@ class spell_warr_vigilance : public SpellScriptLoader
                     target->CastSpell(caster, SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT, true);
             }
 
-            void HandleAfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                //! WORKAROUND
-                //! this glyph is a proc
-                if (Unit* caster = GetCaster())
-                {
-                    if (AuraEffect const* glyph = caster->GetAuraEffect(SPELL_WARRIOR_GLYPH_OF_VIGILANCE, EFFECT_0))
-                        GetTarget()->ModifyRedirectThreat(glyph->GetAmount());
-                }
-            }
-
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
@@ -1098,7 +1087,6 @@ class spell_warr_vigilance : public SpellScriptLoader
             void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_warr_vigilance_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectApply += AuraEffectApplyFn(spell_warr_vigilance_AuraScript::HandleAfterApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 OnEffectRemove += AuraEffectRemoveFn(spell_warr_vigilance_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 DoCheckProc += AuraCheckProcFn(spell_warr_vigilance_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_warr_vigilance_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
@@ -1113,7 +1101,36 @@ class spell_warr_vigilance : public SpellScriptLoader
         }
 };
 
-// 50725 - Vigilance
+// 59665 - Vigilance (Redirect Threat)
+class spell_warr_vigilance_redirect_threat : public SpellScriptLoader
+{
+    public:
+        spell_warr_vigilance_redirect_threat() : SpellScriptLoader("spell_warr_vigilance_redirect_threat") { }
+
+        class spell_warr_vigilance_redirect_threat_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_vigilance_redirect_threat_SpellScript);
+
+            void CheckGlyph(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* warrior = GetHitUnit())
+                    if (AuraEffect const* glyph = warrior->GetAuraEffect(SPELL_WARRIOR_GLYPH_OF_VIGILANCE, EFFECT_0))
+                        SetEffectValue(GetEffectValue() + glyph->GetAmount());
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_vigilance_redirect_threat_SpellScript::CheckGlyph, EFFECT_0, SPELL_EFFECT_REDIRECT_THREAT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warr_vigilance_redirect_threat_SpellScript();
+        }
+};
+
+// 50725 - Vigilance (Reset Taunt Cooldown)
 class spell_warr_vigilance_trigger : public SpellScriptLoader
 {
     public:
@@ -1171,5 +1188,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sword_and_board();
     new spell_warr_t3_prot_8p_bonus();
     new spell_warr_vigilance();
+    new spell_warr_vigilance_redirect_threat();
     new spell_warr_vigilance_trigger();
 }

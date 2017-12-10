@@ -162,7 +162,7 @@ public:
 
         bool IsInCombatWithPlayer() const
         {
-            std::list<HostileReference*> const& refs = me->getThreatManager().getThreatList();
+            std::list<HostileReference*> const& refs = me->GetThreatManager().getThreatList();
             for (HostileReference const* hostileRef : refs)
             {
                 if (Unit const* target = hostileRef->getTarget())

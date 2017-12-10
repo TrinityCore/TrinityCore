@@ -76,8 +76,8 @@ public:
 
             me->RestoreFaction();
 
-            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            if (!me->IsImmuneToPC())
+                me->SetImmuneToPC(true);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -89,7 +89,7 @@ public:
                 uiDamage = 0;
 
                 me->RestoreFaction();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
                 me->CombatStop(true);
 
                 m_uiPhase = 1;
@@ -143,7 +143,7 @@ public:
             if (quest->GetQuestId() == QUEST_590)
             {
                 me->SetFaction(FACTION_ENEMY);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 AttackStart(player);
             }
         }

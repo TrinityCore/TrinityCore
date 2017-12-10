@@ -241,7 +241,8 @@ class npc_announcer_toc10 : public CreatureScript
                     if (Creature* jaraxxus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_JARAXXUS)))
                     {
                         jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
-                        jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        jaraxxus->SetImmuneToPC(false);
                         jaraxxus->SetReactState(REACT_DEFENSIVE);
                         jaraxxus->SetInCombatWithZone();
                     }
@@ -430,7 +431,8 @@ class npc_fizzlebang_toc : public CreatureScript
                 _instance->SetData(TYPE_EVENT, 1180);
                 if (Creature* jaraxxus = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
                 {
-                    jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                    jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    jaraxxus->SetImmuneToPC(false);
                     jaraxxus->SetReactState(REACT_AGGRESSIVE);
                     jaraxxus->SetInCombatWithZone();
                 }
@@ -527,7 +529,8 @@ class npc_fizzlebang_toc : public CreatureScript
                             Talk(SAY_STAGE_1_04);
                             if (Creature* jaraxxus = me->SummonCreature(NPC_JARAXXUS, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 5.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
                             {
-                                jaraxxus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                                jaraxxus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                jaraxxus->SetImmuneToPC(true);
                                 jaraxxus->SetReactState(REACT_PASSIVE);
                                 jaraxxus->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()-10, ToCCommonLoc[1].GetPositionZ());
                             }
@@ -555,8 +558,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             {
                                 //1-shot Fizzlebang
                                 jaraxxus->CastSpell(me, 67888, false); // 67888 - Fel Lightning
-                                me->SetInCombatWith(jaraxxus);
-                                jaraxxus->AddThreat(me, 1000.0f);
+                                AddThreat(me, 1000.0f, jaraxxus);
                                 jaraxxus->AI()->AttackStart(me);
                             }
                             _instance->SetData(TYPE_EVENT, 1160);
@@ -683,7 +685,7 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 400:
                             Talk(SAY_STAGE_0_06);
-                            me->getThreatManager().clearReferences();
+                            me->GetThreatManager().ClearAllThreat();
                             _updateTimer = 5*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 0);
                             break;

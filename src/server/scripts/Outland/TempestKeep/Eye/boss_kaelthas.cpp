@@ -413,11 +413,11 @@ struct advisorbase_ai : public ScriptedAI
                 if (!Target)
                     Target = me->GetVictim();
 
-                DoResetThreat();
+                ResetThreatList();
                 AttackStart(Target);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveChase(Target);
-                me->AddThreat(Target, 0.0f);
+                AddThreat(Target, 0.0f);
             }
         }
     }
@@ -563,7 +563,7 @@ class boss_kaelthas : public CreatureScript
                 {
                     DoAction(ACTION_START_ENCOUNTER);
                     who->SetInCombatWith(me);
-                    me->AddThreat(who, 0.0f);
+                    AddThreat(who, 0.0f);
                     me->SetTarget(who->GetGUID());
                 }
             }
@@ -624,7 +624,7 @@ class boss_kaelthas : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->RemoveAurasDueToSpell(SPELL_FULLPOWER);
 
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                             AttackStart(target);
 
                         DoAction(ACTION_SCHEDULE_COMBAT_EVENTS);
@@ -709,7 +709,7 @@ class boss_kaelthas : public CreatureScript
                             Talk(SAY_PHASE4_INTRO2);
 
                             // Sometimes people can collect Aggro in Phase 1-3. Reset threat before releasing Kael.
-                            DoResetThreat();
+                            ResetThreatList();
 
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
 
@@ -909,7 +909,7 @@ class boss_thaladred_the_darkener : public CreatureScript
             void EnterCombat(Unit* who) override
             {
                 Talk(SAY_THALADRED_AGGRO);
-                me->AddThreat(who, 5000000.0f);
+                AddThreat(who, 5000000.0f);
             }
 
             void JustDied(Unit* killer) override
@@ -932,8 +932,8 @@ class boss_thaladred_the_darkener : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        DoResetThreat();
-                        me->AddThreat(target, 5000000.0f);
+                        ResetThreatList();
+                        AddThreat(target, 5000000.0f);
                         Talk(EMOTE_THALADRED_GAZE, target);
                         Gaze_Timer = 8500;
                     }
@@ -1092,7 +1092,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
 
@@ -1124,8 +1124,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 //Conflagration_Timer
                 if (Conflagration_Timer <= diff)
                 {
-                    Unit* target = nullptr;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (target && me->IsWithinDistInMap(target, 30))
                         DoCast(target, SPELL_CONFLAGRATION);
@@ -1142,12 +1141,10 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 {
                     bool InMeleeRange = false;
                     Unit* target = nullptr;
-                    ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i!= threatlist.end(); ++i)
+                    for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        Unit* unit = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid());
-                                                                    //if in melee range
-                        if (unit && unit->IsWithinDistInMap(me, 5))
+                        Unit* unit = ref->GetVictim();
+                        if (unit->IsWithinMeleeRange(me))
                         {
                             InMeleeRange = true;
                             target = unit;
@@ -1422,7 +1419,7 @@ class npc_phoenix_egg_tk : public CreatureScript
 
             void JustSummoned(Creature* summoned) override
             {
-                summoned->AddThreat(me->GetVictim(), 0.0f);
+                AddThreat(me->GetVictim(), 0.0f, summoned);
                 summoned->CastSpell(summoned, SPELL_REBIRTH, false);
             }
 

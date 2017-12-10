@@ -385,7 +385,7 @@ public:
                         uiFlightCount = 4;
                     break;
                 case 9:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
                         DoStartMovement(target);
                     else
                     {
@@ -397,7 +397,7 @@ public:
                     me->SetDisableGravity(false);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                     EnterPhase(PHASE_GROUND);
-                    AttackStart(SelectTarget(SELECT_TARGET_TOPAGGRO));
+                    AttackStart(SelectTarget(SELECT_TARGET_MAXTHREAT));
                     break;
             }
             ++uiFlightCount;

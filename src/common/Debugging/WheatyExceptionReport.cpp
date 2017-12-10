@@ -126,7 +126,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
     ++pos;
 
     TCHAR crash_folder_path[MAX_PATH];
-    sprintf(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
+    sprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
     if (!CreateDirectory(crash_folder_path, NULL))
     {
         if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -1385,12 +1385,15 @@ int __cdecl WheatyExceptionReport::StackLog(const TCHAR * format, va_list argptr
 
 int __cdecl WheatyExceptionReport::HeapLog(const TCHAR * format, va_list argptr)
 {
-    int retValue;
+    int retValue = 0;
     DWORD cbWritten;
     TCHAR* szBuff = (TCHAR*)malloc(sizeof(TCHAR) * WER_LARGE_BUFFER_SIZE);
-    retValue = vsprintf(szBuff, format, argptr);
-    WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
-    free(szBuff);
+    if (szBuff != nullptr)
+    {
+        retValue = vsprintf(szBuff, format, argptr);
+        WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
+        free(szBuff);
+    }
 
     return retValue;
 }

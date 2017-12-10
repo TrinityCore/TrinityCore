@@ -55,6 +55,7 @@ namespace Movement
         float time_perc;
         uint32 splineId;
         float initialOrientation;
+        bool walk;
         bool HasVelocity;
         bool TransformForTransport;
 

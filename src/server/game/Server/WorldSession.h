@@ -439,7 +439,7 @@ class TC_GAME_API WorldSession
             m_timeOutTime -= int32(diff);
         }
 
-        void ResetTimeOutTime();
+        void ResetTimeOutTime(bool onlyActive);
 
         bool IsConnectionIdle() const
         {

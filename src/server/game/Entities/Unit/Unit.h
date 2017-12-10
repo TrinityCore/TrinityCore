@@ -912,12 +912,13 @@ struct TC_GAME_API CharmInfo
 
 enum ReactiveType
 {
-    REACTIVE_DEFENSE      = 0,
-    REACTIVE_HUNTER_PARRY = 1,
-    REACTIVE_OVERPOWER    = 2
+    REACTIVE_DEFENSE        = 0,
+    REACTIVE_HUNTER_PARRY   = 1,
+    REACTIVE_OVERPOWER      = 2,
+    REACTIVE_WOLVERINE_BITE = 3,
+    MAX_REACTIVE
 };
 
-#define MAX_REACTIVE 3
 #define SUMMON_SLOT_PET     0
 #define SUMMON_SLOT_TOTEM   1
 #define MAX_TOTEM_SLOT      5
@@ -999,6 +1000,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsWithinCombatRange(Unit const* obj, float dist2compare) const;
         bool IsWithinMeleeRange(Unit const* obj) const;
         float GetMeleeRange(Unit const* target) const;
+        virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;
         void GetRandomContactPoint(Unit const* target, float& x, float& y, float& z, float distance2dMin, float distance2dMax) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
@@ -1221,6 +1223,19 @@ class TC_GAME_API Unit : public WorldObject
 
         bool IsInFlight()  const { return HasUnitState(UNIT_STATE_IN_FLIGHT); }
 
+        bool IsEngaged() const { return IsInCombat(); }
+        bool IsEngagedBy(Unit const* who) const { return IsInCombatWith(who); }
+        void EngageWithTarget(Unit* who) { SetInCombatWith(who); who->SetInCombatWith(this); GetThreatManager().AddThreat(who, 0.0f); }
+        bool IsThreatened() const { return CanHaveThreatList() && !GetThreatManager().IsThreatListEmpty(); }
+        bool IsThreatenedBy(Unit const* who) const { return who && CanHaveThreatList() && GetThreatManager().IsThreatenedBy(who); }
+
+        void SetImmuneToAll(bool apply, bool keepCombat = false) { SetImmuneToPC(apply, keepCombat); SetImmuneToNPC(apply, keepCombat); }
+        bool IsImmuneToAll() const { return IsImmuneToPC() && IsImmuneToNPC(); }
+        void SetImmuneToPC(bool apply, bool keepCombat = false);
+        bool IsImmuneToPC() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); }
+        void SetImmuneToNPC(bool apply, bool keepCombat = false);
+        bool IsImmuneToNPC() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC); }
+
         bool IsInCombat()  const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT); }
         bool IsPetInCombat() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); }
         bool IsInCombatWith(Unit const* who) const;
@@ -1258,8 +1273,9 @@ class TC_GAME_API Unit : public WorldObject
 
         void SendHealSpellLog(HealInfo& healInfo, bool critical = false);
         int32 HealBySpell(HealInfo& healInfo, bool critical = false);
-        void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, Powers powerType);
-        void EnergizeBySpell(Unit* victim, uint32 SpellID, int32 Damage, Powers powertype);
+        void SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powers powerType);
+        void EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType);
+        void EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType);
 
         void CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
         void CastSpell(Unit* victim, uint32 spellId, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
@@ -1660,12 +1676,11 @@ class TC_GAME_API Unit : public WorldObject
 
         // Threat related methods
         bool CanHaveThreatList(bool skipAliveCheck = false) const;
-        void AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = nullptr);
         float ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL);
-        void DeleteThreatList();
         void TauntApply(Unit* victim);
         void TauntFadeOut(Unit* taunter);
-        ThreatManager& getThreatManager() { return m_ThreatManager; }
+        ThreatManager& GetThreatManager() { return m_ThreatManager; }
+        ThreatManager const& GetThreatManager() const { return m_ThreatManager; }
         void addHatedBy(HostileReference* pHostileReference) { m_HostileRefManager.insertFirst(pHostileReference); }
         void removeHatedBy(HostileReference* /*pHostileReference*/) { /* nothing to do yet */ }
         HostileRefManager& getHostileRefManager() { return m_HostileRefManager; }
@@ -1794,8 +1809,19 @@ class TC_GAME_API Unit : public WorldObject
 
         void SetControlled(bool apply, UnitState state);
 
-        void AddComboPointHolder(ObjectGuid lowguid) { m_ComboPointHolders.insert(lowguid); }
-        void RemoveComboPointHolder(ObjectGuid lowguid) { m_ComboPointHolders.erase(lowguid); }
+        ///-----------Combo point system-------------------
+        // This unit having CP on other units
+        uint8 GetComboPoints(Unit const* who = nullptr) const { return (who && m_comboTarget != who) ? 0 : m_comboPoints; }
+        uint8 GetComboPoints(ObjectGuid const& guid) const { return (m_comboTarget && m_comboTarget->GetGUID() == guid) ? m_comboPoints : 0; }
+        Unit* GetComboTarget() const { return m_comboTarget; }
+        ObjectGuid GetComboTargetGUID() const { return m_comboTarget ? m_comboTarget->GetGUID() : ObjectGuid::Empty; }
+        void AddComboPoints(Unit* target, int8 count);
+        void AddComboPoints(int8 count) { AddComboPoints(nullptr, count); }
+        void ClearComboPoints();
+        void SendComboPoints();
+        // Other units having CP on this unit
+        void AddComboPointHolder(Unit* unit) { m_ComboPointHolders.insert(unit); }
+        void RemoveComboPointHolder(Unit* unit) { m_ComboPointHolders.erase(unit); }
         void ClearComboPointHolders();
 
         ///----------Pet responses methods-----------------
@@ -1862,6 +1888,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanFly() const = 0;
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsFalling() const;
+        virtual bool CanSwim() const;
 
         void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
 
@@ -1961,8 +1988,6 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* m_charmInfo;
         SharedVisionList m_sharedVision;
 
-        virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;
-
         MotionMaster* i_motionMaster;
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
@@ -2013,7 +2038,9 @@ class TC_GAME_API Unit : public WorldObject
 
         FollowerRefManager m_FollowingRefManager;
 
-        GuidSet m_ComboPointHolders;
+        Unit* m_comboTarget;
+        int8 m_comboPoints;
+        std::unordered_set<Unit*> m_ComboPointHolders;
 
         RedirectThreatInfo _redirectThreadInfo;
 

@@ -239,7 +239,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
             localizedName.push_back('/');
             localizedName.append(filename);
 
-            if (!storage.LoadStringsFrom(localizedName.c_str()))
+            if (!storage.LoadStringsFrom(localizedName))
                 availableDbcLocales &= ~(1 << i);             // mark as not available for speedup next checks
         }
 
@@ -455,8 +455,9 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     for (PvPDifficultyEntry const* entry : sPvPDifficultyStore)
-        if (entry->bracketId > MAX_BATTLEGROUND_BRACKETS)
-            ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
+    {
+        ASSERT(entry->bracketId < MAX_BATTLEGROUND_BRACKETS, "PvpDifficulty bracket (%d) exceeded max allowed value (%d)", entry->bracketId, MAX_BATTLEGROUND_BRACKETS);
+    }
 
     for (SkillRaceClassInfoEntry const* entry : sSkillRaceClassInfoStore)
         if (sSkillLineStore.LookupEntry(entry->SkillId))

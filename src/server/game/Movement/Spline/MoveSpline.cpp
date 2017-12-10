@@ -60,8 +60,8 @@ Location MoveSpline::ComputePosition() const
             c.orientation = std::atan2(hermite.y, hermite.x);
         }
 
-        if (splineflags.orientationInversed)
-            c.orientation = -c.orientation;
+        if (splineflags.backward)
+            c.orientation = c.orientation - float(M_PI);
     }
     return c;
 }
@@ -237,7 +237,7 @@ bool MoveSplineInitArgs::_checkPathBounds() const
 
 MoveSplineInitArgs::MoveSplineInitArgs(size_t path_capacity /*= 16*/) : path_Idx_offset(0), velocity(0.f),
 parabolic_amplitude(0.f), time_perc(0.f), splineId(0), initialOrientation(0.f),
-HasVelocity(false), TransformForTransport(true)
+walk(false), HasVelocity(false), TransformForTransport(true)
 {
     path.reserve(path_capacity);
 }

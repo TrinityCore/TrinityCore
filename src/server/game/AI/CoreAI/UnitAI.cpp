@@ -103,14 +103,14 @@ bool UnitAI::DoSpellAttackIfReady(uint32 spell)
     return false;
 }
 
-Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, int32 aura)
+Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, bool withTank, int32 aura)
 {
-    return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, aura));
+    return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, withTank, aura));
 }
 
-void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
+void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, uint32 offset, float dist, bool playerOnly, bool withTank, int32 aura)
 {
-    SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
+    SelectTargetList(targetList, num, targetType, offset, DefaultTargetSelector(me, dist, playerOnly, withTank, aura));
 }
 
 float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
@@ -154,7 +154,7 @@ void UnitAI::DoCast(uint32 spellId)
                 bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS);
                 float range = spellInfo->GetMaxRange(false);
 
-                DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
+                DefaultTargetSelector targetSelector(me, range, playerOnly, true, -(int32)spellId);
                 if (!(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
                     && targetSelector(me->GetVictim()))
                     target = me->GetVictim();
@@ -251,7 +251,17 @@ void UnitAI::FillAISpellInfo()
 
 ThreatManager& UnitAI::GetThreatManager()
 {
-    return me->getThreatManager();
+    return me->GetThreatManager();
+}
+
+void UnitAI::SortByDistance(std::list<Unit*> list, bool ascending)
+{
+    list.sort(Trinity::ObjectDistanceOrderPred(me, ascending));
+}
+
+DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withTank, int32 aura)
+    : me(unit), m_dist(dist), m_playerOnly(playerOnly), except(!withTank ? unit->GetThreatManager().GetCurrentVictim() : nullptr), m_aura(aura)
+{
 }
 
 bool DefaultTargetSelector::operator()(Unit const* target) const
@@ -260,6 +270,9 @@ bool DefaultTargetSelector::operator()(Unit const* target) const
         return false;
 
     if (!target)
+        return false;
+
+    if (except && target == except)
         return false;
 
     if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
@@ -363,8 +376,8 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
     if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
         return false;
 
-    if (HostileReference* currentVictim = _source->getThreatManager().getCurrentVictim())
-        return target->GetGUID() != currentVictim->getUnitGuid();
+    if (Unit* currentVictim = _source->GetThreatManager().GetCurrentVictim())
+        return target != currentVictim;
 
     return target != _source->GetVictim();
 }
@@ -404,9 +417,4 @@ bool FarthestTargetSelector::operator()(Unit const* target) const
         return false;
 
     return true;
-}
-
-void SortByDistanceTo(Unit* reference, std::list<Unit*>& targets)
-{
-    targets.sort(Trinity::ObjectDistanceOrderPred(reference));
 }

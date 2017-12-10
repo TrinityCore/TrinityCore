@@ -301,7 +301,7 @@ public:
                             case 0:
                                 if (Creature* mob = me->SummonCreature(ASPECT_RAVEN, AspectRavenSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
                                 {
-                                    mob->AddThreat(me, 10000.0f);
+                                    AddThreat(me, 10000.0f, mob);
                                     mob->AI()->AttackStart(me);
                                 }
                                 EventTimer = 2000;
@@ -411,7 +411,7 @@ public:
     {
         npc_omenAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
         }
 
@@ -425,7 +425,7 @@ public:
             if (pointId == 1)
             {
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 if (Player* player = me->SelectNearestPlayer(40.0f))
                     AttackStart(player);
             }

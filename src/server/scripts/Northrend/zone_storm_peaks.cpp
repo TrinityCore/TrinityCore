@@ -719,7 +719,7 @@ class npc_wild_wyrm : public CreatureScript
 
                 InitSpellsForPhase();
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
             }
 
             void DoAction(int32 action) override
@@ -758,7 +758,7 @@ class npc_wild_wyrm : public CreatureScript
 
                 _playerGuid = caster->GetGUID();
                 DoCastAOE(SPELL_FULL_HEAL_MANA, true);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
 
                 me->GetMotionMaster()->MovePoint(POINT_START_FIGHT, *caster);
             }

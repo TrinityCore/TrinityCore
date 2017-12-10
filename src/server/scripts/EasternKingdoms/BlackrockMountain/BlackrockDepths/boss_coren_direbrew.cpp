@@ -142,7 +142,7 @@ public:
         void Reset() override
         {
             _Reset();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->SetFaction(FACTION_FRIENDLY);
             events.SetPhase(PHASE_ALL);
 
@@ -165,7 +165,7 @@ public:
             if (action == ACTION_START_FIGHT)
             {
                 events.SetPhase(PHASE_ONE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
                 me->SetInCombatWithZone();
 
@@ -321,7 +321,7 @@ public:
                 })
                 .Schedule(Seconds(2), [this](TaskContext mugChuck)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, true, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
                         DoCast(target, SPELL_CHUCK_MUG);
                     mugChuck.Repeat(Seconds(4));
                 });
@@ -398,7 +398,7 @@ public:
                     Talk(SAY_ANTAGONIST_2);
                     break;
                 case ACTION_ANTAGONIST_HOSTILE:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
                     me->SetInCombatWithZone();
                     break;

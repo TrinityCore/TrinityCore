@@ -583,7 +583,7 @@ struct gunship_npc_AI : public ScriptedAI
         if (!me->IsAlive() || !me->IsInCombat())
             return;
 
-        me->DeleteThreatList();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
         me->GetMotionMaster()->MoveTargetedHome();
     }
@@ -639,7 +639,7 @@ protected:
 
             return me->GetVictim() != nullptr;
         }
-        else if (me->getThreatManager().isThreatListEmpty())
+        else if (me->GetThreatManager().IsThreatListEmpty())
         {
             EnterEvadeMode(EVADE_REASON_OTHER);
             return false;
@@ -728,7 +728,7 @@ class npc_gunship : public CreatureScript
                 {
                     Creature* stalker = *itr;
                     stalker->RemoveAllAuras();
-                    stalker->DeleteThreatList();
+                    stalker->GetThreatManager().ClearAllThreat();
                     stalker->CombatStop(true);
                 }
 
@@ -887,7 +887,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 if (!me->IsAlive())
                     return;
 
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->GetMotionMaster()->MoveTargetedHome();
 
@@ -1156,7 +1156,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 if (!me->IsAlive())
                     return;
 
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->GetMotionMaster()->MoveTargetedHome();
 
@@ -1492,7 +1492,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
             {
                 players.sort(Trinity::ObjectDistanceOrderPred(me));
                 for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
-                    me->AddThreat(*itr, 1.0f);
+                    AddThreat(*itr, 1.0f);
 
                 AttackStart(players.front());
             }

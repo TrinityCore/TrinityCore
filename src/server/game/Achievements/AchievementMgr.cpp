@@ -19,6 +19,7 @@
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
+#include "CellImpl.h"
 #include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"

@@ -60,6 +60,7 @@ enum MageSpells
     SPELL_MAGE_ARCANE_POTENCY_RANK_2             = 57531,
     SPELL_MAGE_HOT_STREAK_PROC                   = 48108,
     SPELL_MAGE_ARCANE_SURGE                      = 37436,
+    SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_COMBUSTION_PROC                   = 28682,
     SPELL_MAGE_EMPOWERED_FIRE_PROC               = 67545,
     SPELL_MAGE_T10_2P_BONUS                      = 70752,
@@ -372,6 +373,38 @@ class spell_mage_combustion : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_mage_combustion_AuraScript();
+        }
+};
+
+// 28682 - Combustion proc
+class spell_mage_combustion_proc : public SpellScriptLoader
+{
+    public:
+        spell_mage_combustion_proc() : SpellScriptLoader("spell_mage_combustion_proc") { }
+
+        class spell_mage_combustion_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_combustion_proc_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_MAGE_COMBUSTION });
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_COMBUSTION);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_combustion_proc_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_combustion_proc_AuraScript();
         }
 };
 
@@ -1261,6 +1294,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_burnout();
     new spell_mage_cold_snap();
     new spell_mage_combustion();
+    new spell_mage_combustion_proc();
     new spell_mage_imp_blizzard();
     new spell_mage_imp_mana_gems();
     new spell_mage_empowered_fire();
