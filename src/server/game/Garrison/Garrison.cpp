@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "GarrisonMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -386,7 +387,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
     {
         placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
         placeBuildingResult.BuildingInfo.GarrBuildingID = garrBuildingId;
-        placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
+        placeBuildingResult.BuildingInfo.TimeBuilt = GameTime::GetGameTime();
 
         Plot* plot = GetPlot(garrPlotInstanceId);
         uint32 oldBuildingId = 0;
@@ -461,7 +462,7 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
             placeBuildingResult.Result = GARRISON_SUCCESS;
             placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
             placeBuildingResult.BuildingInfo.GarrBuildingID = restored;
-            placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
+            placeBuildingResult.BuildingInfo.TimeBuilt = GameTime::GetGameTime();
             placeBuildingResult.BuildingInfo.Active = true;
 
             plot->SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
@@ -832,7 +833,7 @@ bool Garrison::Building::CanActivate() const
     if (PacketInfo)
     {
         GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(PacketInfo->GarrBuildingID);
-        if (PacketInfo->TimeBuilt + building->BuildSeconds <= time(nullptr))
+        if (PacketInfo->TimeBuilt + building->BuildSeconds <= GameTime::GetGameTime())
             return true;
     }
 

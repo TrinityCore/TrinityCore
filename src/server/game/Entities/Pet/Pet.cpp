@@ -235,7 +235,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             break;
     }
 
-    SetPetNameTimestamp(uint32(time(nullptr)));
+    SetPetNameTimestamp(uint32(GameTime::GetGameTime()));
     SetCreatorGUID(owner->GetGUID());
 
     InitStatsForLevel(petlevel);
@@ -317,7 +317,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     owner->SetMinion(this, true);
     map->AddToMap(ToCreature());
 
-    uint32 timediff = uint32(time(nullptr) - fields[13].GetUInt32());
+    uint32 timediff = uint32(GameTime::GetGameTime() - fields[13].GetUInt32());
     _LoadAuras(timediff);
 
     // load action bar, if data broken will fill later by default spells.
@@ -472,7 +472,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
         stmt->setString(12, GenerateActionBarData());
 
-        stmt->setUInt32(13, time(nullptr));
+        stmt->setUInt32(13, GameTime::GetGameTime());
         stmt->setUInt32(14, m_unitData->CreatedBySpell);
         stmt->setUInt8(15, getPetType());
         stmt->setUInt16(16, m_petSpecialization);
@@ -556,7 +556,7 @@ void Pet::Update(uint32 diff)
     {
         case CORPSE:
         {
-            if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= time(nullptr))
+            if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= GameTime::GetGameTime())
             {
                 Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
                 return;

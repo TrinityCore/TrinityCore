@@ -12211,7 +12211,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                             GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
 
                         // if charmed two demons the same session, the 2nd gets the 1st one's name
-                        SetPetNameTimestamp(uint32(time(nullptr)));
+                        SetPetNameTimestamp(uint32(GameTime::GetGameTime()));
                     }
                 }
                 playerCharmer->CharmSpellInitialize();

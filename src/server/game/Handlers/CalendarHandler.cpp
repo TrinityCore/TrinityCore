@@ -40,6 +40,7 @@ Copied events should probably have a new owner
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
@@ -54,7 +55,7 @@ Copied events should probably have a new owner
 void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGetCalendar& /*calendarGetCalendar*/)
 {
     ObjectGuid guid = _player->GetGUID();
-    time_t currTime = time(nullptr);
+    time_t currTime = GameTime::GetGameTime();
 
     WorldPackets::Calendar::CalendarSendCalendar packet;
     packet.ServerTime = currTime;
@@ -136,7 +137,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEve
 
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-    if (calendarAddEvent.EventInfo.Time < (time(nullptr) - time_t(86400L)))
+    if (calendarAddEvent.EventInfo.Time < (GameTime::GetGameTime() - time_t(86400L)))
         return;
 
     CalendarEvent* calendarEvent = new CalendarEvent(sCalendarMgr->GetFreeEventId(), guid, UI64LIT(0), CalendarEventType(calendarAddEvent.EventInfo.EventType), calendarAddEvent.EventInfo.TextureID,
@@ -181,7 +182,7 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPackets::Calendar::CalendarUpd
 
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-    if (calendarUpdateEvent.EventInfo.Time < (time(nullptr) - time_t(86400L)))
+    if (calendarUpdateEvent.EventInfo.Time < (GameTime::GetGameTime() - time_t(86400L)))
         return;
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarUpdateEvent.EventInfo.EventID))
@@ -214,7 +215,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPackets::Calendar::CalendarCopyE
 
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-    if (calendarCopyEvent.Date < (time(nullptr) - time_t(86400L)))
+    if (calendarCopyEvent.Date < (GameTime::GetGameTime() - time_t(86400L)))
         return;
 
     if (CalendarEvent* oldEvent = sCalendarMgr->GetEvent(calendarCopyEvent.EventID))
@@ -339,7 +340,7 @@ void WorldSession::HandleCalendarEventSignup(WorldPackets::Calendar::CalendarEve
         }
 
         CalendarInviteStatus status = calendarEventSignUp.Tentative ? CALENDAR_STATUS_TENTATIVE : CALENDAR_STATUS_SIGNED_UP;
-        CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEventSignUp.EventID, guid, guid, time(nullptr), status, CALENDAR_RANK_PLAYER, "");
+        CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEventSignUp.EventID, guid, guid, GameTime::GetGameTime(), status, CALENDAR_RANK_PLAYER, "");
         sCalendarMgr->AddInvite(calendarEvent, invite);
         sCalendarMgr->SendCalendarClearPendingAction(guid);
     }
@@ -363,7 +364,7 @@ void WorldSession::HandleCalendarRsvp(WorldPackets::Calendar::CalendarRSVP& cale
         if (CalendarInvite* invite = sCalendarMgr->GetInvite(calendarRSVP.InviteID))
         {
             invite->SetStatus(CalendarInviteStatus(calendarRSVP.Status));
-            invite->SetResponseTime(time(nullptr));
+            invite->SetResponseTime(GameTime::GetGameTime());
 
             sCalendarMgr->UpdateInvite(invite);
             sCalendarMgr->SendCalendarEventStatus(*calendarEvent, *invite);
@@ -500,7 +501,7 @@ void WorldSession::HandleSetSavedInstanceExtend(WorldPackets::Calendar::SetSaved
 
 void WorldSession::SendCalendarRaidLockout(InstanceSave const* save, bool add)
 {
-    time_t currTime = time(nullptr);
+    time_t currTime = GameTime::GetGameTime();
     if (add)
     {
         WorldPackets::Calendar::CalendarRaidLockoutAdded calendarRaidLockoutAdded;
@@ -529,7 +530,7 @@ void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave const* save)
     ObjectGuid guid = _player->GetGUID();
     TC_LOG_DEBUG("network", "SMSG_CALENDAR_RAID_LOCKOUT_UPDATED [%s] Map: %u, Difficulty %u", guid.ToString().c_str(), save->GetMapId(), save->GetDifficultyID());
 
-    time_t currTime = time(nullptr);
+    time_t currTime = GameTime::GetGameTime();
 
     WorldPackets::Calendar::CalendarRaidLockoutUpdated packet;
     packet.DifficultyID = save->GetDifficultyID();

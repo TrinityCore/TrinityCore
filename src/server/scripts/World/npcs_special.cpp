@@ -1786,7 +1786,7 @@ public:
         void DamageTaken(Unit* doneBy, uint32& damage) override
         {
             AddThreat(doneBy, float(damage));    // just to create threat reference
-            _damageTimes[doneBy->GetGUID()] = time(nullptr);
+            _damageTimes[doneBy->GetGUID()] = GameTime::GetGameTime();
             damage = 0;
         }
 
@@ -1806,7 +1806,7 @@ public:
                 {
                     case EVENT_TD_CHECK_COMBAT:
                     {
-                        time_t now = time(nullptr);
+                        time_t now = GameTime::GetGameTime();
                         for (std::unordered_map<ObjectGuid, time_t>::iterator itr = _damageTimes.begin(); itr != _damageTimes.end();)
                         {
                             // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
