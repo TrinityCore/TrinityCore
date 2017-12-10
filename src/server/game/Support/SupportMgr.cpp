@@ -19,6 +19,7 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -28,11 +29,11 @@
 #include "World.h"
 #include <sstream>
 
-inline time_t GetAge(uint64 t) { return (time(nullptr) - t) / DAY; }
+inline time_t GetAge(uint64 t) { return (GameTime::GetGameTime() - t) / DAY; }
 
 Ticket::Ticket() : _id(0), _mapId(0), _createTime(0) { }
 
-Ticket::Ticket(Player* player) : _id(0), _mapId(0), _createTime(time(nullptr))
+Ticket::Ticket(Player* player) : _id(0), _mapId(0), _createTime(GameTime::GetGameTime())
 {
     _playerGuid = player->GetGUID();
 }
@@ -156,7 +157,7 @@ void BugTicket::DeleteFromDB()
 
 std::string BugTicket::FormatViewMessageString(ChatHandler& handler, bool detailed) const
 {
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
@@ -280,7 +281,7 @@ void ComplaintTicket::DeleteFromDB()
 
 std::string ComplaintTicket::FormatViewMessageString(ChatHandler& handler, bool detailed) const
 {
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
@@ -367,7 +368,7 @@ void SuggestionTicket::DeleteFromDB()
 
 std::string SuggestionTicket::FormatViewMessageString(ChatHandler& handler, bool detailed) const
 {
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
@@ -796,5 +797,5 @@ TC_GAME_API void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler& handl
 
 void SupportMgr::UpdateLastChange()
 {
-    _lastChange = uint64(time(nullptr));
+    _lastChange = GameTime::GetGameTime();
 }

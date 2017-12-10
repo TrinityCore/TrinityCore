@@ -28,6 +28,7 @@
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
 #include "GameTables.h"
+#include "GameTime.h"
 #include "GridDefines.h"
 #include "GossipDef.h"
 #include "GroupMgr.h"
@@ -6050,7 +6051,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
     uint32 oldMSTime = getMSTime();
 
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
     tm lt;
     localtime_r(&curTime, &lt);
     TC_LOG_INFO("misc", "Returning mails current time: hour: %d, minute: %d, second: %d ", lt.tm_hour, lt.tm_min, lt.tm_sec);

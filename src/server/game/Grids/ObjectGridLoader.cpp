@@ -25,6 +25,7 @@
 #include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -148,7 +149,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
                 // If script is blocking spawn, don't spawn but queue for a re-check in a little bit
                 if (!(group->flags & SPAWNGROUP_FLAG_COMPATIBILITY_MODE) && !sScriptMgr->CanSpawn(guid, cdata->id, cdata, map))
                 {
-                    map->SaveRespawnTime(SPAWN_TYPE_CREATURE, guid, cdata->id, time(nullptr) + urand(4,7), map->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
+                    map->SaveRespawnTime(SPAWN_TYPE_CREATURE, guid, cdata->id, GameTime::GetGameTime() + urand(4,7), map->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
                     delete obj;
                     continue;
                 }

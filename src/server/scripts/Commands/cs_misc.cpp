@@ -1843,11 +1843,11 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - time(nullptr), true).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - GameTime::GetGameTime(), true).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
-            handler->PSendSysMessage(LANG_PINFO_MUTED, muteReason.c_str(), secsToTimeString(muteTime - time(nullptr), true).c_str(), muteBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_MUTED, muteReason.c_str(), secsToTimeString(muteTime - GameTime::GetGameTime(), true).c_str(), muteBy.c_str());
 
         // Output V. LANG_PINFO_ACC_ACCOUNT
         handler->PSendSysMessage(LANG_PINFO_ACC_ACCOUNT, userName.c_str(), accId, security);
@@ -2020,7 +2020,7 @@ public:
         if (target)
         {
             // Target is online, mute will be in effect right away.
-            int64 muteTime = time(nullptr) + notSpeakTime * MINUTE;
+            int64 muteTime = GameTime::GetGameTime() + notSpeakTime * MINUTE;
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
             std::string nameLink = handler->playerLink(targetName);

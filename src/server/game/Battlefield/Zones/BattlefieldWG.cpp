@@ -24,6 +24,7 @@
 #include "Battleground.h"
 #include "CreatureTextMgr.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "DB2Stores.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -1150,7 +1151,7 @@ void BattlefieldWG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
     packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE), int32(IsWarTime() ? 1 : 0));
 
     for (uint32 i = 0; i < 2; ++i)
-        packet.Worldstates.emplace_back(ClockWorldState[i], int32(time(nullptr) + (m_Timer / 1000)));
+        packet.Worldstates.emplace_back(ClockWorldState[i], int32(GameTime::GetGameTime() + (m_Timer / 1000)));
 
     packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H), int32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_H)));
     packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H), int32(GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H)));

@@ -348,7 +348,7 @@ Aura::Aura(SpellInfo const* spellproto, ObjectGuid castId, WorldObject* owner, U
 m_spellInfo(spellproto), m_castDifficulty(castDifficulty), m_castGuid(castId), m_casterGuid(!casterGUID.IsEmpty() ? casterGUID : caster->GetGUID()),
 m_castItemGuid(castItem ? castItem->GetGUID() : castItemGuid), m_castItemId(castItem ? castItem->GetEntry() : castItemId),
 m_castItemLevel(castItemLevel), m_spellVisual({ caster ? caster->GetCastSpellXSpellVisualId(spellproto) : spellproto->GetSpellXSpellVisualId(), 0 }),
-m_applyTime(time(nullptr)), m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
+m_applyTime(GameTime::GetGameTime()), m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
 m_procCooldown(std::chrono::steady_clock::time_point::min()),
