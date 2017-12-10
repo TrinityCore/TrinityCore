@@ -632,7 +632,8 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
                 (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
                 TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
 
-                (*itr)->ToUnit()->NearTeleportTo(destX, destY, destZ, destO);
+                (*itr)->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO,
+                    TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | TELE_TO_TRANSPORT_TELEPORT);
             }
         }
 

@@ -1620,7 +1620,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void NearTeleportTo(Position const& pos, bool casting = false);
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false) { NearTeleportTo(Position(x, y, z, orientation), casting); }
-        void SendTeleportPacket(Position const& pos);
+        void SendTeleportPacket(Position const& pos, bool teleportingTransport = false);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
         virtual bool UpdatePosition(const Position &pos, bool teleport = false);
