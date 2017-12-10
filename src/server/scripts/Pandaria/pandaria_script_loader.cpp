@@ -66,6 +66,12 @@ void AddSC_boss_sha_of_anger();
 void AddSC_boss_xuen();
 void AddSC_boss_yu_lon();
 
+// Wandering Island
+void AddSC_WanderingIsland_North();
+void AddSC_WanderingIsland_East();
+void AddSC_WanderingIsland_West();
+void AddSC_WanderingIsland_South();
+
 // Zones
 void AddSC_dread_wastes();
 void AddSC_jade_forest();
@@ -127,6 +133,12 @@ void AddPandariaScripts()
     AddSC_boss_sha_of_anger();
     AddSC_boss_xuen();
     AddSC_boss_yu_lon();
+
+    // Wandering Island
+    AddSC_WanderingIsland_North();
+    AddSC_WanderingIsland_East();
+    AddSC_WanderingIsland_West();
+    AddSC_WanderingIsland_South();
 
     // Zones
     AddSC_dread_wastes();
