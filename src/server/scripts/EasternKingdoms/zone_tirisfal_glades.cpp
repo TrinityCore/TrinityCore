@@ -183,7 +183,7 @@ class go_mausoleum_door : public GameObjectScript
         {
             go_mausoleum_doorAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
                     return false;
@@ -216,7 +216,7 @@ class go_mausoleum_trigger : public GameObjectScript
         {
             go_mausoleum_triggerAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
                     return false;

@@ -314,7 +314,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 
     if (GameObject* go = GetPlayer()->GetGameObjectIfCanInteractWith(guid))
     {
-        if (go->AI()->GossipHello(_player, true))
+        if (go->AI()->OnReportUse(_player))
             return;
 
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());

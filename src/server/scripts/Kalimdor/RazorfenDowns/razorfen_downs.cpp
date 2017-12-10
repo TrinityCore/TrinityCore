@@ -381,7 +381,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             me->SendCustomAnim(0);
             instance->SetData(DATA_WAVE, IN_PROGRESS);
