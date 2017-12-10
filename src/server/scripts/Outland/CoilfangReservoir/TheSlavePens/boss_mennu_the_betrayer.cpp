@@ -134,7 +134,7 @@ class boss_mennu_the_betrayer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_mennu_the_betrayerAI(creature);
+            return GetSlavePensAI<boss_mennu_the_betrayerAI>(creature);
         }
 };
 

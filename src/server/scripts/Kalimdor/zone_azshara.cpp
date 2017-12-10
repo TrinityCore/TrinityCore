@@ -17,108 +17,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 #include "SpellInfo.h"
-
-/*######
-## npc_spitelashes
-######*/
-
-enum Spitelashes
-{
-    SPELL_POLYMORPH_RANK1       = 118,
-    SPELL_POLYMORPH_RANK2       = 12824,
-    SPELL_POLYMORPH_RANK3       = 12825,
-    SPELL_POLYMORPH_RANK4       = 12826,
-    SPELL_POLYMORPH             = 29124,
-    SPELL_POLYMORPH_BACKFIRE    = 28406,
-    SPELL_REMOVE_POLYMORPH      = 6924
-};
-
-class npc_spitelashes : public CreatureScript
-{
-public:
-    npc_spitelashes() : CreatureScript("npc_spitelashes") { }
-
-    struct npc_spitelashesAI : public ScriptedAI
-    {
-        npc_spitelashesAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            morphtimer = 0;
-            spellhit = false;
-        }
-
-        uint32 morphtimer;
-        bool spellhit;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void SpellHit(Unit* unit, const SpellInfo* spell) override
-        {
-            if (spellhit)
-                return;
-
-            switch (spell->Id)
-            {
-                case SPELL_POLYMORPH_RANK1:
-                case SPELL_POLYMORPH_RANK2:
-                case SPELL_POLYMORPH_RANK3:
-                case SPELL_POLYMORPH_RANK4:
-                    if (Player* player = unit->ToPlayer())
-                        if (player->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            spellhit = true;
-                            DoCast(me, SPELL_POLYMORPH);
-                        }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
-            if (spellhit && morphtimer >= 5000)
-            {
-                me->DespawnOrUnsummon();
-                return;
-            }
-            // walk 5 seconds before summoning
-            if (spellhit && morphtimer<5000)
-            {
-                morphtimer+=diff;
-                if (morphtimer >= 5000)
-                {
-                    DoCast(me, SPELL_POLYMORPH_BACKFIRE); // summon copies
-                    DoCast(me, SPELL_REMOVE_POLYMORPH);   // visual explosion
-                }
-            }
-            if (!UpdateVictim())
-                return;
-
-            /// @todo add abilities for the different creatures
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_spitelashesAI(creature);
-    }
-};
 
 /*####
 # npc_rizzle_sprysprocket
@@ -259,12 +163,13 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
             MustDieTimer = 3000;
             MustDie = true;
+            return false;
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -356,7 +261,7 @@ public:
                 {
                     Talk(SAY_RIZZLE_FINAL);
                     me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
-                    me->setFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->GetMotionMaster()->MoveIdle();
                     me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
                     Reached = true;
@@ -364,6 +269,15 @@ public:
 
                 CheckTimer = 1000;
             } else CheckTimer -= diff;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
+                return true;
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, 10811, me->GetGUID());
+            return true;
         }
 
     private:
@@ -379,15 +293,6 @@ public:
         bool ContinueWP;
         bool Reached;
     };
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
-            return true;
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        SendGossipMenuFor(player, 10811, creature->GetGUID());
-        return true;
-    }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -465,7 +370,6 @@ public:
 
 void AddSC_azshara()
 {
-    new npc_spitelashes();
     new npc_rizzle_sprysprocket();
     new npc_depth_charge();
 }

@@ -15,14 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "Vehicle.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Item.h"
+#include "Map.h"
+#include "Player.h"
+#include "Spell.h"
 #include "SpellScript.h"
-#include "WorldPacket.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
+#include "Vehicle.h"
+#include "WorldPacket.h"
 
 static BossBoundaryData const boundaries =
 {
@@ -32,9 +38,9 @@ static BossBoundaryData const boundaries =
     { BOSS_XT002, new RectangleBoundary(755.0f, 940.0f, -125.0f, 95.0f) },
     { BOSS_ASSEMBLY_OF_IRON, new CircleBoundary(Position(1587.2f, 121.0f), 90.0) },
     { BOSS_ALGALON, new CircleBoundary(Position(1632.668f, -307.7656f), 45.0) },
-    { BOSS_ALGALON, new ZRangeBoundary(410.0f, 440.0f) },
+    { BOSS_ALGALON, new ZRangeBoundary(410.0f, 470.0f) },
     { BOSS_HODIR, new EllipseBoundary(Position(2001.5f, -240.0f), 50.0, 75.0) },
-    { BOSS_THORIM, new CircleBoundary(Position(2134.73f, -263.2f), 50.0) },
+    // Thorim sets boundaries dynamically
     { BOSS_FREYA, new RectangleBoundary(2094.6f, 2520.0f, -250.0f, 200.0f) },
     { BOSS_MIMIRON, new CircleBoundary(Position(2744.0f, 2569.0f), 70.0) },
     { BOSS_VEZAX, new RectangleBoundary(1740.0f, 1930.0f, 31.0f, 228.0f) },
@@ -53,6 +59,11 @@ static DoorData const doorData[] =
     { GO_MIMIRON_DOOR_1,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
     { GO_MIMIRON_DOOR_2,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
     { GO_MIMIRON_DOOR_3,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
+    { GO_THORIM_ENCOUNTER_DOOR,         BOSS_THORIM,            DOOR_TYPE_ROOM },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_HODIR,             DOOR_TYPE_PASSAGE },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_MIMIRON,           DOOR_TYPE_PASSAGE },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_THORIM,            DOOR_TYPE_PASSAGE },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_FREYA,             DOOR_TYPE_PASSAGE },
     { GO_VEZAX_DOOR,                    BOSS_VEZAX,             DOOR_TYPE_PASSAGE },
     { GO_YOGG_SARON_DOOR,               BOSS_YOGG_SARON,        DOOR_TYPE_ROOM },
     { GO_DOODAD_UL_SIGILDOOR_03,        BOSS_ALGALON,           DOOR_TYPE_ROOM },
@@ -89,6 +100,10 @@ ObjectData const creatureData[] =
 
     { NPC_EXPEDITION_COMMANDER,     DATA_EXPEDITION_COMMANDER     },
     { NPC_RAZORSCALE_CONTROLLER,    DATA_RAZORSCALE_CONTROL       },
+    { NPC_SIF,                      DATA_SIF                      },
+    { NPC_RUNIC_COLOSSUS,           DATA_RUNIC_COLOSSUS           },
+    { NPC_RUNE_GIANT,               DATA_RUNE_GIANT               },
+    { NPC_THORIM_CONTROLLER,        DATA_THORIM_CONTROLLER        },
     { NPC_COMPUTER,                 DATA_COMPUTER                 },
     { NPC_WORLD_TRIGGER_MIMIRON,    DATA_MIMIRON_WORLD_TRIGGER    },
     { NPC_VOICE_OF_YOGG_SARON,      DATA_VOICE_OF_YOGG_SARON      },
@@ -112,6 +127,9 @@ ObjectData const objectData[] =
     { GO_RAZOR_HARPOON_2,              GO_RAZOR_HARPOON_2    },
     { GO_RAZOR_HARPOON_3,              GO_RAZOR_HARPOON_3    },
     { GO_RAZOR_HARPOON_4,              GO_RAZOR_HARPOON_4    },
+    { GO_THORIM_LEVER,                 DATA_THORIM_LEVER     },
+    { GO_THORIM_STONE_DOOR,            DATA_STONE_DOOR       },
+    { GO_THORIM_RUNIC_DOOR,            DATA_RUNIC_DOOR       },
     { 0,                               0                     }
 };
 
@@ -167,7 +185,9 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid LeviathanGateGUID;
             ObjectGuid KologarnChestGUID;
             ObjectGuid KologarnBridgeGUID;
-            ObjectGuid ThorimChestGUID;
+            ObjectGuid ThorimDarkIronPortcullisGUID;
+            ObjectGuid CacheOfStormsGUID;
+            ObjectGuid CacheOfStormsHardmodeGUID;
             ObjectGuid HodirRareCacheGUID;
             ObjectGuid HodirChestGUID;
             ObjectGuid MimironTramGUID;
@@ -208,7 +228,7 @@ class instance_ulduar : public InstanceMapScript
                     if (_algalonTimer && _algalonTimer <= 60)
                         algalon->AI()->DoAction(ACTION_INIT_ALGALON);
                     else
-                        algalon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        algalon->SetImmuneToPC(false);
                 }
 
                 // Keepers at Observation Ring
@@ -322,6 +342,16 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_FIELD_MEDIC_JESSI:
                         if (TeamInInstance == HORDE)
                             creature->UpdateEntry(NPC_BATTLE_PRIEST_GINA);
+                        break;
+
+                    // Thorim
+                    case NPC_MERCENARY_CAPTAIN_H:
+                        if (TeamInInstance == HORDE)
+                            creature->UpdateEntry(NPC_MERCENARY_CAPTAIN_A);
+                        break;
+                    case NPC_MERCENARY_SOLDIER_H:
+                        if (TeamInInstance == HORDE)
+                            creature->UpdateEntry(NPC_MERCENARY_SOLDIER_A);
                         break;
 
                     // Freya
@@ -439,9 +469,16 @@ class instance_ulduar : public InstanceMapScript
                         if (GetBossState(BOSS_KOLOGARN) == DONE)
                             HandleGameObject(ObjectGuid::Empty, false, gameObject);
                         break;
-                    case GO_THORIM_CHEST_HERO:
-                    case GO_THORIM_CHEST:
-                        ThorimChestGUID = gameObject->GetGUID();
+                    case GO_THORIM_DARK_IRON_PORTCULLIS:
+                        ThorimDarkIronPortcullisGUID = gameObject->GetGUID();
+                        break;
+                    case GO_CACHE_OF_STORMS_10:
+                    case GO_CACHE_OF_STORMS_25:
+                        CacheOfStormsGUID = gameObject->GetGUID();
+                        break;
+                    case GO_CACHE_OF_STORMS_HARDMODE_10:
+                    case GO_CACHE_OF_STORMS_HARDMODE_25:
+                        CacheOfStormsHardmodeGUID = gameObject->GetGUID();
                         break;
                     case GO_HODIR_RARE_CACHE_OF_WINTER_HERO:
                     case GO_HODIR_RARE_CACHE_OF_WINTER:
@@ -458,10 +495,6 @@ class instance_ulduar : public InstanceMapScript
                         LeviathanGateGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_LEVIATHAN) == DONE)
                             gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                        break;
-                    case GO_MOLE_MACHINE:
-                        if (GetBossState(BOSS_RAZORSCALE) == IN_PROGRESS)
-                            gameObject->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GO_BRAIN_ROOM_DOOR_1:
                         BrainRoomDoorGUIDs[0] = gameObject->GetGUID();
@@ -648,10 +681,22 @@ class instance_ulduar : public InstanceMapScript
                     case BOSS_THORIM:
                         if (state == DONE)
                         {
-                            if (GameObject* gameObject = instance->GetGameObject(ThorimChestGUID))
-                                gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
+                            if (Creature* thorim = GetCreature(BOSS_THORIM))
+                            {
+                                if (GameObject* cache = instance->GetGameObject(thorim->AI()->GetData(DATA_THORIM_HARDMODE) ? CacheOfStormsHardmodeGUID : CacheOfStormsGUID))
+                                {
+                                    cache->SetLootRecipient(thorim->GetLootRecipient());
+                                    cache->SetRespawnTime(cache->GetRespawnDelay());
+                                    cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
+                                }
+                            }
 
                             instance->SummonCreature(NPC_THORIM_OBSERVATION_RING, ObservationRingKeepersPos[2]);
+                        }
+                        else
+                        {
+                            DoCloseDoorOrButton(GetGuidData(DATA_THORIM_LEVER));
+                            DoCloseDoorOrButton(ThorimDarkIronPortcullisGUID);
                         }
                         break;
                     case BOSS_ALGALON:
@@ -842,7 +887,7 @@ class instance_ulduar : public InstanceMapScript
                 return 0;
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) override
+            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = nullptr */, uint32 /* = 0 */) override
             {
                 switch (criteriaId)
                 {

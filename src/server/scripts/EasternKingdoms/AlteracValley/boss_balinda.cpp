@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -90,7 +91,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
-            summoned->setFaction(me->getFaction());
+            summoned->SetFaction(me->GetFaction());
             WaterElementalGUID = summoned->GetGUID();
             summons.Summon(summoned);
         }

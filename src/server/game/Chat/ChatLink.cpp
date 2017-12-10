@@ -16,11 +16,12 @@
  */
 
 #include "ChatLink.h"
-#include "SpellMgr.h"
+#include "AchievementMgr.h"
+#include "DBCStores.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
-#include "DBCStores.h"
-#include "AchievementMgr.h"
+#include "SpellMgr.h"
 
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r
@@ -152,7 +153,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
                     return false;
                 }
             }
-            else if (id < 0)
+            else
             {
                 _suffix = sItemRandomSuffixStore.LookupEntry(-id);
                 if (!_suffix)

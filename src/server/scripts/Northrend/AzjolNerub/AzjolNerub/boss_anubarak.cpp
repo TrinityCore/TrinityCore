@@ -16,10 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "PassiveAI.h"
+#include "AreaBoundary.h"
 #include "azjol_nerub.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -405,7 +412,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_anub_arakAI>(creature);
+        return GetAzjolNerubAI<boss_anub_arakAI>(creature);
     }
 };
 
@@ -463,7 +470,7 @@ class npc_anubarak_anub_ar_darter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anubarak_anub_ar_darterAI>(creature);
+            return GetAzjolNerubAI<npc_anubarak_anub_ar_darterAI>(creature);
         }
 };
 
@@ -492,7 +499,7 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
                     Position jumpTo;
                     do
                         jumpTo = GetRandomPositionAround(anubarak);
-                    while (!CreatureAI::IsInBounds(boundary, &jumpTo));
+                    while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
                     me->GetMotionMaster()->MoveJump(jumpTo, 40.0f, 40.0f);
                     DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
                 }
@@ -530,7 +537,7 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anubarak_anub_ar_assassinAI>(creature);
+            return GetAzjolNerubAI<npc_anubarak_anub_ar_assassinAI>(creature);
         }
 };
 
@@ -565,7 +572,7 @@ class npc_anubarak_anub_ar_guardian : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_anubarak_anub_ar_guardianAI>(creature);
+        return GetAzjolNerubAI<npc_anubarak_anub_ar_guardianAI>(creature);
     }
 };
 
@@ -600,7 +607,7 @@ class npc_anubarak_anub_ar_venomancer : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_anubarak_anub_ar_venomancerAI>(creature);
+        return GetAzjolNerubAI<npc_anubarak_anub_ar_venomancerAI>(creature);
     }
 };
 
@@ -628,7 +635,7 @@ class npc_anubarak_impale_target : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anubarak_impale_targetAI>(creature);
+            return GetAzjolNerubAI<npc_anubarak_impale_targetAI>(creature);
         }
 };
 
@@ -643,7 +650,7 @@ class spell_anubarak_pound : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_POUND_DAMAGE) != nullptr;
+                return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -676,7 +683,7 @@ class spell_anubarak_carrion_beetles : public SpellScriptLoader
 
                 bool Validate(SpellInfo const* /*spell*/) override
                 {
-                    return (sSpellMgr->GetSpellInfo(SPELL_CARRION_BEETLE) != nullptr);
+                    return ValidateSpellInfo({ SPELL_CARRION_BEETLE });
                 }
 
                 void HandlePeriodic(AuraEffect const* /*eff*/)

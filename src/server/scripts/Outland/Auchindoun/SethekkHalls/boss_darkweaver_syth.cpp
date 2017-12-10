@@ -257,7 +257,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_syth_fireAI(creature);
+        return GetSethekkHallsAI<npc_syth_fireAI>(creature);
     }
 };
 
@@ -316,7 +316,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_syth_arcaneAI(creature);
+        return GetSethekkHallsAI<npc_syth_arcaneAI>(creature);
     }
 };
 
@@ -375,7 +375,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_syth_frostAI(creature);
+        return GetSethekkHallsAI<npc_syth_frostAI>(creature);
     }
 };
 
@@ -434,7 +434,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_syth_shadowAI(creature);
+        return GetSethekkHallsAI<npc_syth_shadowAI>(creature);
     }
 };
 

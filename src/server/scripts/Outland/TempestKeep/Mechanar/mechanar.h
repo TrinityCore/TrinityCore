@@ -18,6 +18,9 @@
 #ifndef DEF_MECHANAR_H
 #define DEF_MECHANAR_H
 
+#include "CreatureAIImpl.h"
+
+#define MechanarScriptName "instance_mechanar"
 #define DataHeader "MR"
 
 uint32 const EncounterCount             = 5;
@@ -37,5 +40,11 @@ enum MRGameobjectIds
     GO_DOOR_MOARG_2                     = 184322,
     GO_DOOR_NETHERMANCER                = 184449
 };
+
+template <class AI, class T>
+inline AI* GetMechanarAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MechanarScriptName);
+}
 
 #endif

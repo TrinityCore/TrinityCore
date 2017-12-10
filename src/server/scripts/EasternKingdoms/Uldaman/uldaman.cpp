@@ -30,9 +30,12 @@ at_map_chamber
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "uldaman.h"
-#include "Player.h"
 
 /*######
 ## npc_jadespine_basilisk
@@ -90,13 +93,7 @@ class npc_jadespine_basilisk : public CreatureScript
                     //Stop attacking target thast asleep and pick new target
                     uiCslumberTimer = 28000;
 
-                    Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
-
-                    if (!target || target == me->GetVictim())
-                        target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-
-                    if (target)
-                        me->TauntApply(target);
+                    me->GetThreatManager().ResetThreat(me->GetVictim());
 
                 } else uiCslumberTimer -= uiDiff;
 
@@ -106,7 +103,7 @@ class npc_jadespine_basilisk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_jadespine_basiliskAI(creature);
+            return GetUldamanAI<npc_jadespine_basiliskAI>(creature);
         }
 };
 
@@ -116,16 +113,26 @@ class npc_jadespine_basilisk : public CreatureScript
 
 class go_keystone_chamber : public GameObjectScript
 {
-public:
-    go_keystone_chamber() : GameObjectScript("go_keystone_chamber") { }
+    public:
+        go_keystone_chamber() : GameObjectScript("go_keystone_chamber") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        if (InstanceScript* instance = go->GetInstanceScript())
-            instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
+        struct go_keystone_chamberAI : public GameObjectAI
+        {
+            go_keystone_chamberAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        return false;
-    }
+            InstanceScript* instance;
+
+            bool GossipHello(Player* /*player*/) override
+            {
+                instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetUldamanAI<go_keystone_chamberAI>(go);
+        }
 };
 
 /*######
@@ -161,4 +168,3 @@ void AddSC_uldaman()
     new go_keystone_chamber();
     new AreaTrigger_at_map_chamber();
 }
-

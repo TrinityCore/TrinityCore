@@ -19,18 +19,14 @@
 #ifndef TRINITYCORE_QUEST_H
 #define TRINITYCORE_QUEST_H
 
-#include "Define.h"
-#include "DatabaseEnv.h"
-#include "SharedDefines.h"
+#include "Common.h"
 #include "DBCEnums.h"
+#include "DatabaseEnvFwd.h"
+#include "SharedDefines.h"
 #include "WorldPacket.h"
-
-#include <string>
 #include <vector>
 
 class Player;
-
-class ObjectMgr;
 
 #define MAX_QUEST_LOG_SIZE 25
 
@@ -73,7 +69,8 @@ enum QuestShareMessages : uint8
     QUEST_PARTY_MSG_FINISH_QUEST            = 7,
     QUEST_PARTY_MSG_CANT_BE_SHARED_TODAY    = 8,
     QUEST_PARTY_MSG_SHARING_TIMER_EXPIRED   = 9,
-    QUEST_PARTY_MSG_NOT_IN_PARTY            = 10
+    QUEST_PARTY_MSG_NOT_IN_PARTY            = 10,
+    QUEST_PARTY_MSG_NOT_ELIGIBLE_TODAY      = 11
 };
 
 enum QuestTradeSkill
@@ -95,7 +92,7 @@ enum QuestTradeSkill
     QUEST_TRSKILL_JEWELCRAFTING  = 14
 };
 
-enum QuestStatus
+enum QuestStatus : uint8
 {
     QUEST_STATUS_NONE           = 0,
     QUEST_STATUS_COMPLETE       = 1,
@@ -171,21 +168,22 @@ enum QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_SPEAKTO              = 0x100,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_KILL                 = 0x200,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_TIMED                = 0x400,   // Internal flag computed only
-    QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800    // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_COMPLETED_AT_START   = 0x1000   // Internal flag computed only
 };
 
 struct QuestLocale
 {
     QuestLocale() { ObjectiveText.resize(QUEST_OBJECTIVES_COUNT); }
 
-    StringVector Title;
-    StringVector Details;
-    StringVector Objectives;
-    StringVector OfferRewardText;
-    StringVector RequestItemsText;
-    StringVector AreaDescription;
-    StringVector CompletedText;
-    std::vector< StringVector > ObjectiveText;
+    std::vector<std::string> Title;
+    std::vector<std::string> Details;
+    std::vector<std::string> Objectives;
+    std::vector<std::string> OfferRewardText;
+    std::vector<std::string> RequestItemsText;
+    std::vector<std::string> AreaDescription;
+    std::vector<std::string> CompletedText;
+    std::vector<std::vector<std::string>> ObjectiveText;
 };
 
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
@@ -316,7 +314,6 @@ class TC_GAME_API Quest
         WorldPacket BuildQueryData(LocaleConstant loc) const;
 
         std::vector<uint32> DependentPreviousQuests;
-        std::vector<uint32> PrevChainQuests;
         WorldPacket QueryData[TOTAL_LOCALES];
 
         // cached data
@@ -387,6 +384,9 @@ class TC_GAME_API Quest
         uint32 _startItemCount        = 0;
         uint32 _rewardMailSenderEntry = 0;
         uint32 _specialFlags          = 0; // custom flags, not sniffed/WDB
+
+        // Helpers
+        static uint32 RoundXPValue(uint32 xp);
 };
 
 struct QuestStatusData

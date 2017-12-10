@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "vault_of_archavon.h"
 
 /* Vault of Archavon encounters:
@@ -26,10 +27,19 @@
 4 - Toravon the Ice Watcher event
 */
 
+ObjectData const creatureData[] =
+{
+    { NPC_ARCHAVON, DATA_ARCHAVON },
+    { NPC_EMALON,   DATA_EMALON   },
+    { NPC_KORALON,  DATA_KORALON  },
+    { NPC_TORAVON,  DATA_TORAVON  },
+    { 0,            0,            }
+};
+
 class instance_vault_of_archavon : public InstanceMapScript
 {
     public:
-        instance_vault_of_archavon() : InstanceMapScript("instance_vault_of_archavon", 624) { }
+        instance_vault_of_archavon() : InstanceMapScript(VoAScriptName, 624) { }
 
         struct instance_vault_of_archavon_InstanceMapScript : public InstanceScript
         {
@@ -37,40 +47,11 @@ class instance_vault_of_archavon : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, nullptr);
 
                 ArchavonDeath   = 0;
                 EmalonDeath     = 0;
                 KoralonDeath    = 0;
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_EMALON:
-                        EmalonGUID = creature->GetGUID();
-                        break;
-                    case NPC_TORAVON:
-                        ToravonGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 identifier) const override
-            {
-                switch (identifier)
-                {
-                    case DATA_EMALON:
-                        return EmalonGUID;
-                    case DATA_TORAVON:
-                        return ToravonGUID;
-                    default:
-                        break;
-                }
-
-                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -84,13 +65,13 @@ class instance_vault_of_archavon : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_ARCHAVON:
-                        ArchavonDeath = time(NULL);
+                        ArchavonDeath = time(nullptr);
                         break;
                     case DATA_EMALON:
-                        EmalonDeath = time(NULL);
+                        EmalonDeath = time(nullptr);
                         break;
                     case DATA_KORALON:
-                        KoralonDeath = time(NULL);
+                        KoralonDeath = time(nullptr);
                         break;
                     default:
                         return true;
@@ -125,8 +106,6 @@ class instance_vault_of_archavon : public InstanceMapScript
             }
 
         private:
-            ObjectGuid EmalonGUID;
-            ObjectGuid ToravonGUID;
             time_t ArchavonDeath;
             time_t EmalonDeath;
             time_t KoralonDeath;

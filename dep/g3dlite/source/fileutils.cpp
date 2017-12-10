@@ -490,7 +490,7 @@ void parseFilename(
 
         }
 
-    } else if ((f.size() >= 2) & isSlash(f[0]) && isSlash(f[1])) {
+    } else if ((f.size() >= 2) && isSlash(f[0]) && isSlash(f[1])) {
         
         // e.g. //foo
         root = f.substr(0, 2);

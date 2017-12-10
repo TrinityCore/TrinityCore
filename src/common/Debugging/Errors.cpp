@@ -40,7 +40,7 @@ void Assert(char const* file, int line, char const* function, char const* messag
 {
     fprintf(stderr, "\n%s:%i in %s ASSERTION FAILED:\n  %s\n",
             file, line, function, message);
-    *((volatile int*)NULL) = 0;
+    *((volatile int*)nullptr) = 0;
     exit(1);
 }
 
@@ -55,7 +55,7 @@ void Assert(char const* file, int line, char const* function, char const* messag
     fflush(stderr);
 
     va_end(args);
-    *((volatile int*)NULL) = 0;
+    *((volatile int*)nullptr) = 0;
     exit(1);
 }
 
@@ -70,7 +70,7 @@ void Fatal(char const* file, int line, char const* function, char const* message
     fflush(stderr);
 
     std::this_thread::sleep_for(std::chrono::seconds(10));
-    *((volatile int*)NULL) = 0;
+    *((volatile int*)nullptr) = 0;
     exit(1);
 }
 
@@ -78,7 +78,7 @@ void Error(char const* file, int line, char const* function, char const* message
 {
     fprintf(stderr, "\n%s:%i in %s ERROR:\n  %s\n",
                    file, line, function, message);
-    *((volatile int*)NULL) = 0;
+    *((volatile int*)nullptr) = 0;
     exit(1);
 }
 
@@ -92,14 +92,14 @@ void Abort(char const* file, int line, char const* function)
 {
     fprintf(stderr, "\n%s:%i in %s ABORTED.\n",
                    file, line, function);
-    *((volatile int*)NULL) = 0;
+    *((volatile int*)nullptr) = 0;
     exit(1);
 }
 
 void AbortHandler(int /*sigval*/)
 {
     // nothing useful to log here, no way to pass args
-    *((volatile int*)NULL) = 0;
+    *((volatile int*)nullptr) = 0;
     exit(1);
 }
 

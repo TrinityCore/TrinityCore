@@ -18,10 +18,9 @@
 #ifndef _CHARACTERDATABASE_H
 #define _CHARACTERDATABASE_H
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-enum CharacterDatabaseStatements
+enum CharacterDatabaseStatements : uint32
 {
     /*  Naming standard for defines:
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
@@ -114,6 +113,9 @@ enum CharacterDatabaseStatements
     CHAR_DEL_AUCTION,
     CHAR_UPD_AUCTION_BID,
     CHAR_SEL_AUCTIONS,
+    CHAR_SEL_AUCTION_BIDDERS,
+    CHAR_INS_AUCTION_BIDDERS,
+    CHAR_DEL_AUCTION_BIDDERS,
     CHAR_INS_MAIL,
     CHAR_DEL_MAIL_BY_ID,
     CHAR_INS_MAIL_ITEM,
@@ -265,7 +267,6 @@ enum CharacterDatabaseStatements
     CHAR_REP_CREATURE_RESPAWN,
     CHAR_DEL_CREATURE_RESPAWN,
     CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE,
-    CHAR_SEL_MAX_CREATURE_RESPAWNS,
 
     CHAR_SEL_GO_RESPAWNS,
     CHAR_REP_GO_RESPAWN,
@@ -317,6 +318,8 @@ enum CharacterDatabaseStatements
     CHAR_DEL_GROUP_INSTANCE_BY_GUID,
     CHAR_REP_GROUP_INSTANCE,
     CHAR_UPD_INSTANCE_RESETTIME,
+    CHAR_INS_GLOBAL_INSTANCE_RESETTIME,
+    CHAR_DEL_GLOBAL_INSTANCE_RESETTIME,
     CHAR_UPD_GLOBAL_INSTANCE_RESETTIME,
     CHAR_UPD_CHAR_ONLINE,
     CHAR_UPD_CHAR_NAME_AT_LOGIN,
@@ -535,13 +538,12 @@ public:
     typedef CharacterDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo);
+    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    ~CharacterDatabaseConnection();
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
-
-typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
 
 #endif

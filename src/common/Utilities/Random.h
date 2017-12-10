@@ -21,7 +21,6 @@
 #include "Define.h"
 #include "Duration.h"
 #include <limits>
-#include <random>
 
 /* Return a random number in the range min..max. */
 TC_COMMON_API int32 irand(int32 min, int32 max);
@@ -46,6 +45,9 @@ TC_COMMON_API double rand_norm();
 
 /* Return a random double from 0.0 to 100.0 (exclusive). */
 TC_COMMON_API double rand_chance();
+
+/* Return a random number in the range 0..count (exclusive) with each value having a different chance of happening */
+TC_COMMON_API uint32 urandweighted(size_t count, double const* chances);
 
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_f(float chance)
@@ -73,27 +75,5 @@ public:
 
     static SFMTEngine& Instance();
 };
-
-// Ugly, horrible, i don't even..., hack for VS2013 to work around missing discrete_distribution(iterator, iterator) constructor
-namespace Trinity
-{
-#if COMPILER == COMPILER_MICROSOFT && _MSC_VER <= 1800
-    template<typename T>
-    struct discrete_distribution_param : public std::discrete_distribution<T>::param_type
-    {
-        typedef typename std::discrete_distribution<T>::param_type base;
-
-        template<typename InIt>
-        discrete_distribution_param(InIt begin, InIt end) : base(_Noinit())
-        {
-            this->_Pvec.assign(begin, end);
-            this->_Init();
-        }
-    };
-#else
-    template<typename T>
-    using discrete_distribution_param = typename std::discrete_distribution<T>::param_type;
-#endif
-}
 
 #endif // Random_h__

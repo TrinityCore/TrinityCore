@@ -24,6 +24,7 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
@@ -68,7 +69,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_baron_rivendareAI>(creature);
+        return GetStratholmeAI<boss_baron_rivendareAI>(creature);
     }
 
     struct boss_baron_rivendareAI : public ScriptedAI

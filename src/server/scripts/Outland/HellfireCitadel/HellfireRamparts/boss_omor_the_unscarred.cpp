@@ -24,9 +24,10 @@ SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
 #include "hellfire_ramparts.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -157,7 +158,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 else
                     if (OrbitalStrike_Timer <= diff)
                     {
-                        Unit* temp = NULL;
+                        Unit* temp = nullptr;
                         if (me->IsWithinMeleeRange(me->GetVictim()))
                             temp = me->GetVictim();
                         else temp = SelectTarget(SELECT_TARGET_RANDOM, 0);
@@ -230,7 +231,7 @@ class boss_omor_the_unscarred : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_omor_the_unscarredAI>(creature);
+            return GetHellfireRampartsAI<boss_omor_the_unscarredAI>(creature);
         }
 };
 
@@ -238,4 +239,3 @@ void AddSC_boss_omor_the_unscarred()
 {
     new boss_omor_the_unscarred();
 }
-

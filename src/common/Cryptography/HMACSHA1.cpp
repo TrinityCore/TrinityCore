@@ -18,12 +18,13 @@
 
 #include "HMACSHA1.h"
 #include "BigNumber.h"
-#include "Common.h"
+#include "Errors.h"
+#include <cstring>
 
-HmacHash::HmacHash(uint32 len, uint8 *seed)
+HmacHash::HmacHash(uint32 len, uint8* seed)
 {
     HMAC_CTX_init(&m_ctx);
-    HMAC_Init_ex(&m_ctx, seed, len, EVP_sha1(), NULL);
+    HMAC_Init_ex(&m_ctx, seed, len, EVP_sha1(), nullptr);
     memset(m_digest, 0, sizeof(m_digest));
 }
 
@@ -32,12 +33,12 @@ HmacHash::~HmacHash()
     HMAC_CTX_cleanup(&m_ctx);
 }
 
-void HmacHash::UpdateData(const std::string &str)
+void HmacHash::UpdateData(std::string const& str)
 {
     HMAC_Update(&m_ctx, (uint8 const*)str.c_str(), str.length());
 }
 
-void HmacHash::UpdateData(const uint8* data, size_t len)
+void HmacHash::UpdateData(uint8 const* data, size_t len)
 {
     HMAC_Update(&m_ctx, data, len);
 }

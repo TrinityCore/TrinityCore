@@ -99,15 +99,15 @@ public:
         }
         /// Return address of current instance
         Record const & operator*() const { return record; }
-        const Record* operator->() const {
+        Record const* operator->() const {
             return &record;
         }
         /// Comparison
-        bool operator==(const Iterator &b) const
+        bool operator==(Iterator const& b) const
         {
             return record.offset == b.record.offset;
         }
-        bool operator!=(const Iterator &b) const
+        bool operator!=(Iterator const& b) const
         {
             return record.offset != b.record.offset;
         }
@@ -138,4 +138,3 @@ private:
 };
 
 #endif
-

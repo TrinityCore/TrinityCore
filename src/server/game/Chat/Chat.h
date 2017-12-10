@@ -19,20 +19,21 @@
 #ifndef TRINITYCORE_CHAT_H
 #define TRINITYCORE_CHAT_H
 
+#include "Common.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
-#include "WorldSession.h"
-#include "RBAC.h"
-
 #include <vector>
 
 class ChatHandler;
 class Creature;
+class GameObject;
 class Group;
 class Player;
 class Unit;
 class WorldSession;
 class WorldObject;
+class WorldPacket;
 
 struct GameTele;
 
@@ -41,8 +42,7 @@ class TC_GAME_API ChatCommand
     typedef bool(*pHandler)(ChatHandler*, char const*);
 
     public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>())
-            : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands)) { }
+        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
 
         char const* Name;
         uint32 Permission;                   // function pointer required correct align (use uint32)
@@ -93,7 +93,8 @@ class TC_GAME_API ChatHandler
             return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
-        bool ParseCommands(char const* text);
+        bool _ParseCommands(char const* text);
+        virtual bool ParseCommands(char const* text);
 
         static std::vector<ChatCommand> const& getCommandTable();
         static void invalidateCommandTable();
@@ -105,8 +106,9 @@ class TC_GAME_API ChatHandler
 
         // function with different implementation for chat/console
         virtual bool isAvailable(ChatCommand const& cmd) const;
-        virtual bool HasPermission(uint32 permission) const { return m_session->HasPermission(permission); }
-        virtual std::string GetNameLink() const { return GetNameLink(m_session->GetPlayer()); }
+        virtual bool IsHumanReadable() const { return true; }
+        virtual bool HasPermission(uint32 permission) const;
+        virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
         virtual int GetSessionDbLocaleIndex() const;
@@ -171,6 +173,7 @@ class TC_GAME_API CliHandler : public ChatHandler
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
         void SendSysMessage(const char *str, bool escapeCharacters) override;
+        bool ParseCommands(char const* str) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
@@ -179,6 +182,26 @@ class TC_GAME_API CliHandler : public ChatHandler
     private:
         void* m_callbackArg;
         Print* m_print;
+};
+
+class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
+{
+    public:
+        using ChatHandler::ChatHandler;
+        bool ParseCommands(char const* str) override;
+        void SendSysMessage(char const* str, bool escapeCharacters) override;
+        using ChatHandler::SendSysMessage;
+        bool IsHumanReadable() const override { return humanReadable; }
+
+    private:
+        void Send(std::string const& msg);
+        void SendAck();
+        void SendOK();
+        void SendFailed();
+
+        char const* echo = nullptr;
+        bool hadAck = false;
+        bool humanReadable = false;
 };
 
 #endif

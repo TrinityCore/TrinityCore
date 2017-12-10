@@ -24,9 +24,13 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "serpent_shrine.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "serpent_shrine.h"
 #include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER 6
@@ -64,24 +68,30 @@ class go_bridge_console : public GameObjectScript
     public:
         go_bridge_console() : GameObjectScript("go_bridge_console") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_bridge_consoleAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
+            go_bridge_consoleAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            if (!instance)
-                return false;
+            InstanceScript* instance;
 
-            if (instance)
-                instance->SetData(DATA_CONTROL_CONSOLE, DONE);
+            bool GossipHello(Player* /*player*/) override
+            {
+                if (instance)
+                    instance->SetData(DATA_CONTROL_CONSOLE, DONE);
+                return true;
+            }
+        };
 
-            return true;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetSerpentshrineCavernAI<go_bridge_consoleAI>(go);
         }
 };
 
 class instance_serpent_shrine : public InstanceMapScript
 {
     public:
-        instance_serpent_shrine() : InstanceMapScript("instance_serpent_shrine", 548) { }
+        instance_serpent_shrine() : InstanceMapScript(SSCScriptName, 548) { }
 
         struct instance_serpentshrine_cavern_InstanceMapScript : public InstanceScript
         {
@@ -123,7 +133,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     else
                         Water = WATERSTATE_FRENZY;
 
-                    Map::PlayerList const &PlayerList = instance->GetPlayers();
+                    Map::PlayerList const& PlayerList = instance->GetPlayers();
                     if (PlayerList.isEmpty())
                         return;
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -134,12 +144,11 @@ class instance_serpent_shrine : public InstanceMapScript
                             {
                                 if (Water == WATERSTATE_SCALDING)
                                 {
-
                                     if (!player->HasAura(SPELL_SCALDINGWATER))
-                                    {
                                         player->CastSpell(player, SPELL_SCALDINGWATER, true);
-                                    }
-                                } else if (Water == WATERSTATE_FRENZY)
+
+                                }
+                                else
                                 {
                                     //spawn frenzy
                                     if (DoSpawnFrenzy)
@@ -383,7 +392,7 @@ class instance_serpent_shrine : public InstanceMapScript
                 return stream.str();
             }
 
-            void Load(const char* in) override
+            void Load(char const* in) override
             {
                 if (!in)
                 {

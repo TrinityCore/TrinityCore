@@ -15,19 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Spell.h"
-#include "Vehicle.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
+#include "DBCStores.h"
+#include "GridNotifiersImpl.h"
 #include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
+#include "Weather.h"
 
 enum Texts
 {
@@ -265,7 +268,10 @@ enum Events
     // Strangulate Vehicle (Harvest Soul)
     EVENT_TELEPORT,
     EVENT_MOVE_TO_LICH_KING,
-    EVENT_DESPAWN_SELF
+    EVENT_DESPAWN_SELF,
+
+    //Spirit Bomb
+    EVENT_BOMB_EXPLOSION
 };
 
 enum EventGroups
@@ -469,7 +475,7 @@ class VileSpiritActivateEvent : public BasicEvent
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
             _owner->CastSpell(_owner, SPELL_VILE_SPIRIT_MOVE_SEARCH, true);
-            _owner->CastSpell((Unit*)NULL, SPELL_VILE_SPIRIT_DAMAGE_SEARCH, true);
+            _owner->CastSpell(nullptr, SPELL_VILE_SPIRIT_DAMAGE_SEARCH, true);
             return true;
         }
 
@@ -487,7 +493,7 @@ class TriggerWickedSpirit : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            _owner->CastCustomSpell(SPELL_TRIGGER_VILE_SPIRIT_HEROIC, SPELLVALUE_MAX_TARGETS, 1, NULL, true);
+            _owner->CastCustomSpell(SPELL_TRIGGER_VILE_SPIRIT_HEROIC, SPELLVALUE_MAX_TARGETS, 1, nullptr, true);
 
             if (--_counter)
             {
@@ -524,7 +530,7 @@ class boss_the_lich_king : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
                 me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_INTRO);
                 Initialize();
@@ -533,7 +539,7 @@ class boss_the_lich_king : public CreatureScript
                 // Reset The Frozen Throne gameobjects
                 FrozenThroneResetWorker reset;
                 Trinity::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
-                me->VisitNearbyGridObject(333.0f, worker);
+                Cell::VisitGridObjects(me, worker, 333.0f);
 
                 // Reset any light override
                 me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, 0, 5000);
@@ -623,8 +629,8 @@ class boss_the_lich_king : public CreatureScript
                         me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, 0, 5000);
                         break;
                     case ACTION_BREAK_FROSTMOURNE:
-                        me->CastSpell((Unit*)NULL, SPELL_SUMMON_BROKEN_FROSTMOURNE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
-                        me->CastSpell((Unit*)NULL, SPELL_SUMMON_BROKEN_FROSTMOURNE_2, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+                        me->CastSpell(nullptr, SPELL_SUMMON_BROKEN_FROSTMOURNE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+                        me->CastSpell(nullptr, SPELL_SUMMON_BROKEN_FROSTMOURNE_2, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
                         SetEquipmentSlots(false, EQUIP_BROKEN_FROSTMOURNE);
                         events.ScheduleEvent(EVENT_OUTRO_TALK_6, 2500, 0, PHASE_OUTRO);
                         break;
@@ -706,7 +712,7 @@ class boss_the_lich_king : public CreatureScript
                     summons.DespawnAll();
                     me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_FURY_OF_FROSTMOURNE);
                     me->InterruptNonMeleeSpells(true);
-                    me->CastSpell((Unit*)NULL, SPELL_FURY_OF_FROSTMOURNE, TRIGGERED_NONE);
+                    me->CastSpell(nullptr, SPELL_FURY_OF_FROSTMOURNE, TRIGGERED_NONE);
                     me->SetWalk(true);
                     events.ScheduleEvent(EVENT_OUTRO_TALK_1, 2600, 0, PHASE_OUTRO);
                     events.ScheduleEvent(EVENT_OUTRO_EMOTE_TALK, 6600, 0, PHASE_OUTRO);
@@ -741,7 +747,6 @@ class boss_the_lich_king : public CreatureScript
                             summon->CastSpell(summon, SPELL_ICE_SPHERE, false);
                             summon->CastSpell(summon, SPELL_ICE_BURST_TARGET_SEARCH, false);
                             summon->CastSpell(target, SPELL_ICE_PULSE, false);
-                            summon->ClearUnitState(UNIT_STATE_CASTING);
                             summon->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
                         }
                         else
@@ -754,7 +759,7 @@ class boss_the_lich_king : public CreatureScript
                         break;
                     case NPC_FROSTMOURNE_TRIGGER:
                     {
-                        summon->CastSpell((Unit*)NULL, SPELL_BROKEN_FROSTMOURNE, true);
+                        summon->CastSpell(nullptr, SPELL_BROKEN_FROSTMOURNE, true);
 
                         me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_SOULSTORM, 10000);
                         me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_BLACKSNOW, 0.5f);
@@ -813,6 +818,7 @@ class boss_the_lich_king : public CreatureScript
                 {
                     me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_SNOWSTORM, 5000);
                     me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_LIGHT_SNOW, 0.5f);
+                    summons.DespawnEntry(NPC_SHADOW_TRAP);
                 }
             }
 
@@ -836,12 +842,10 @@ class boss_the_lich_king : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_TALK_1, 9000, 0, PHASE_INTRO);
                         break;
                     case POINT_CENTER_1:
-                        me->SetFacingTo(0.0f, true);
+                        me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
                         DoCast(me, SPELL_REMORSELESS_WINTER_1);
-                        summons.DespawnEntry(NPC_SHADOW_TRAP);
-                        events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
                         events.ScheduleEvent(EVENT_QUAKE, 62500, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 4000, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, 8000, 0, PHASE_TRANSITION);
@@ -852,12 +856,11 @@ class boss_the_lich_king : public CreatureScript
                         events.ScheduleEvent(EVENT_SOUL_REAPER, 94000, 0, PHASE_TWO);
                         break;
                     case POINT_CENTER_2:
-                        me->SetFacingTo(0.0f, true);
+                        me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
                         DoCast(me, SPELL_REMORSELESS_WINTER_2);
                         summons.DespawnEntry(NPC_VALKYR_SHADOWGUARD);
-                        events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
                         events.ScheduleEvent(EVENT_QUAKE_2, 62500, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 6000, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, 8000, 0, PHASE_TRANSITION);
@@ -934,7 +937,7 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_FINISH_INTRO:
                             me->SetWalk(false);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
                             me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(PHASE_ONE);
                             DoZoneInCombat();
@@ -961,7 +964,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);
                             break;
                         case EVENT_SHADOW_TRAP:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SpellTargetSelector(me, SPELL_SHADOW_TRAP)))
                                 DoCast(target, SPELL_SHADOW_TRAP);
                             events.ScheduleEvent(EVENT_SHADOW_TRAP, 15500, 0, PHASE_ONE);
                             break;
@@ -970,7 +973,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_SOUL_REAPER, urand(33000, 35000), 0, PHASE_TWO_THREE);
                             break;
                         case EVENT_DEFILE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_HARVEST_SOUL_VALKYR))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_HARVEST_SOUL_VALKYR))
                             {
                                 Talk(EMOTE_DEFILE_WARNING);
                                 DoCast(target, SPELL_DEFILE);
@@ -1057,7 +1060,6 @@ class boss_the_lich_king : public CreatureScript
                                         summon->RemoveAurasDueToSpell(SPELL_VILE_SPIRIT_MOVE_SEARCH);
                                         summon->RemoveAurasDueToSpell(SPELL_VILE_SPIRIT_DAMAGE_SEARCH);
                                         summon->GetMotionMaster()->MoveTargetedHome();
-                                        summon->GetMotionMaster()->MoveRandom(10.0f);
                                     }
                                     else if (summon->GetEntry() == NPC_RAGING_SPIRIT)
                                         summon->AI()->DoAction(ACTION_DISABLE_RAGING);
@@ -1065,7 +1067,7 @@ class boss_the_lich_king : public CreatureScript
                             }
                             break;
                         case EVENT_FROSTMOURNE_HEROIC:
-                            if (TempSummon* terenas = me->GetMap()->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE_H, TerenasSpawnHeroic, NULL, 50000))
+                            if (TempSummon* terenas = me->GetMap()->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE_H, TerenasSpawnHeroic, nullptr, 50000))
                             {
                                 terenas->AI()->DoAction(ACTION_FROSTMOURNE_INTRO);
                                 std::list<Creature*> triggers;
@@ -1074,6 +1076,7 @@ class boss_the_lich_king : public CreatureScript
                                 {
                                     triggers.sort(Trinity::ObjectDistanceOrderPred(terenas, true));
                                     Creature* spawner = triggers.front();
+                                    spawner->setActive(true);
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_1, true);  // summons bombs randomly
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_2, true);  // summons bombs on players
                                     spawner->m_Events.AddEvent(new TriggerWickedSpirit(spawner), spawner->m_Events.CalculateTime(3000));
@@ -1117,11 +1120,11 @@ class boss_the_lich_king : public CreatureScript
                             Talk(SAY_LK_OUTRO_6);
                             if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HIGHLORD_TIRION_FORDRING)))
                                 tirion->SetFacingToObject(me);
-                            me->CastSpell((Unit*)NULL, SPELL_SUMMON_BROKEN_FROSTMOURNE_3, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+                            me->CastSpell(nullptr, SPELL_SUMMON_BROKEN_FROSTMOURNE_3, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
                             SetEquipmentSlots(false, EQUIP_UNEQUIP);
                             break;
                         case EVENT_OUTRO_SOUL_BARRAGE:
-                            me->CastSpell((Unit*)NULL, SPELL_SOUL_BARRAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+                            me->CastSpell(nullptr, SPELL_SOUL_BARRAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
                             sCreatureTextMgr->SendSound(me, SOUND_PAIN, CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
                             // set flight
                             me->SetDisableGravity(true);
@@ -1223,7 +1226,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                     me->LoadEquipment(1); // remove glow on ashbringer
             }
 
-            void sGossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
             {
                 if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
@@ -1232,6 +1235,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(POINT_TIRION_INTRO, TirionIntro);
                 }
+                return false;
             }
 
             void JustReachedHome() override
@@ -1690,7 +1694,7 @@ class npc_strangulate_vehicle : public CreatureScript
                             {
                                 if (Unit* summoner = summ->GetSummoner())
                                 {
-                                    summoner->CastSpell((Unit*)NULL, SPELL_HARVEST_SOUL_VISUAL, true);
+                                    summoner->CastSpell(nullptr, SPELL_HARVEST_SOUL_VISUAL, true);
                                     summoner->ExitVehicle(summoner);
                                     if (!IsHeroic())
                                         summoner->CastSpell(summoner, SPELL_HARVEST_SOUL_TELEPORT, true);
@@ -1772,7 +1776,7 @@ class npc_terenas_menethil : public CreatureScript
                         }
                         break;
                     case ACTION_TELEPORT_BACK:
-                        me->CastSpell((Unit*)NULL, SPELL_RESTORE_SOUL, TRIGGERED_NONE);
+                        me->CastSpell(nullptr, SPELL_RESTORE_SOUL, TRIGGERED_NONE);
                         me->DespawnOrUnsummon(3000);
                         break;
                     default:
@@ -1786,7 +1790,7 @@ class npc_terenas_menethil : public CreatureScript
                 if (!me->IsAlive())
                     return;
 
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(false);
             }
 
@@ -1802,7 +1806,7 @@ class npc_terenas_menethil : public CreatureScript
                         _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1000);
                         if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
                         {
-                            warden->CastSpell((Unit*)NULL, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
+                            warden->CastSpell(nullptr, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
                             warden->DespawnOrUnsummon(2000);
                         }
 
@@ -1852,7 +1856,7 @@ class npc_terenas_menethil : public CreatureScript
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
                             {
                                 lichKing->AI()->DoAction(ACTION_FINISH_OUTRO);
-                                lichKing->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                                lichKing->SetImmuneToNPC(false);
                                 if (Creature* tirion = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HIGHLORD_TIRION_FORDRING)))
                                     tirion->AI()->AttackStart(lichKing);
                             }
@@ -1860,7 +1864,7 @@ class npc_terenas_menethil : public CreatureScript
                         case EVENT_DESTROY_SOUL:
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
-                                warden->CastSpell((Unit*)NULL, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
+                                warden->CastSpell(nullptr, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
                             DoCast(SPELL_TERENAS_LOSES_INSIDE);
                             _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1000);
                             break;
@@ -1973,20 +1977,29 @@ class npc_spirit_bomb : public CreatureScript
                 if (type != POINT_MOTION_TYPE || point != POINT_GROUND)
                     return;
 
-                me->RemoveAllAuras();
-                DoCastAOE(SPELL_EXPLOSION);
-                me->DespawnOrUnsummon(1000);
+                _events.ScheduleEvent(EVENT_BOMB_EXPLOSION, 3000);
             }
 
             void AttackStart(Unit* /*victim*/) override
             {
             }
 
-            void UpdateAI(uint32 /*diff*/) override
+            void UpdateAI(uint32 diff) override
             {
                 UpdateVictim();
-                // no melee attacks
+
+                _events.Update(diff);
+
+                if (_events.ExecuteEvent() == EVENT_BOMB_EXPLOSION)
+                {
+                    me->RemoveAllAuras();
+                    DoCastAOE(SPELL_EXPLOSION);
+                    me->DespawnOrUnsummon(1000);
+                }
             }
+
+        private:
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -2112,9 +2125,7 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NECROTIC_PLAGUE_JUMP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NECROTIC_PLAGUE_JUMP });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2132,7 +2143,7 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
                 CustomSpellValues values;
                 //values.AddSpellMod(SPELLVALUE_AURA_STACK, 2);
                 values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
-                GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, NULL, TRIGGERED_FULL_MASK, NULL, NULL, GetCasterGUID());
+                GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, nullptr, TRIGGERED_FULL_MASK, nullptr, nullptr, GetCasterGUID());
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
             }
@@ -2228,7 +2239,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
 
                 CustomSpellValues values;
                 values.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
-                GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, NULL, TRIGGERED_FULL_MASK, NULL, NULL, GetCasterGUID());
+                GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, nullptr, TRIGGERED_FULL_MASK, nullptr, nullptr, GetCasterGUID());
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
             }
@@ -2247,7 +2258,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
                 CustomSpellValues values;
                 values.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
                 values.AddSpellMod(SPELLVALUE_BASE_POINT1, AURA_REMOVE_BY_ENEMY_SPELL); // add as marker (spell has no effect 1)
-                GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, NULL, TRIGGERED_FULL_MASK, NULL, NULL, GetCasterGUID());
+                GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, nullptr, TRIGGERED_FULL_MASK, nullptr, nullptr, GetCasterGUID());
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
 
@@ -2317,7 +2328,7 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                GetCaster()->CastSpell((Unit*)NULL, SPELL_SHADOW_TRAP_KNOCKBACK, true);
+                GetCaster()->CastSpell(nullptr, SPELL_SHADOW_TRAP_KNOCKBACK, true);
             }
 
             void Register() override
@@ -2343,7 +2354,7 @@ class spell_the_lich_king_quake : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetInstanceScript() != NULL;
+                return GetCaster()->GetInstanceScript() != nullptr;
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2382,9 +2393,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICE_BURST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ICE_BURST });
             }
 
             void CheckTargetCount(std::list<WorldObject*>& unitList)
@@ -2512,8 +2521,9 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
                 // spirit bombs get higher
                 if (GetSpellInfo()->Effects[effIndex].MiscValue == NPC_SPIRIT_BOMB)
                 {
-                    dest->RelocateOffset(offset);
-                    GetHitDest()->RelocateOffset(offset);
+                    static Position const offsetExtra = { 0.0f, 0.0f, 5.0f, 0.0f };
+                    dest->RelocateOffset(offsetExtra);
+                    GetHitDest()->RelocateOffset(offsetExtra);
                 }
             }
 
@@ -2540,9 +2550,7 @@ class spell_the_lich_king_soul_reaper : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_REAPER_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SOUL_REAPER_BUFF });
             }
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
@@ -2572,18 +2580,9 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_valkyr_target_search_SpellScript);
 
-        public:
-            spell_the_lich_king_valkyr_target_search_SpellScript()
-            {
-                _target = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CHARGE });
             }
 
             void SelectTarget(std::list<WorldObject*>& targets)
@@ -2621,7 +2620,7 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_valkyr_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
-            WorldObject* _target;
+            WorldObject* _target = nullptr;
         };
 
         SpellScript* GetSpellScript() const override
@@ -2667,9 +2666,7 @@ class spell_the_lich_king_life_siphon : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LIFE_SIPHON_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_LIFE_SIPHON_HEAL });
             }
 
             void TriggerHeal()
@@ -2714,7 +2711,7 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 if (_is25Man || ((aurEff->GetTickNumber() - 1) % 5))
-                    GetTarget()->CastSpell((Unit*)NULL, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, NULL, aurEff, GetCasterGUID());
+                    GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, nullptr, aurEff, GetCasterGUID());
             }
 
             void Register() override
@@ -2795,7 +2792,7 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
                     return;
 
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
-                GetCaster()->AddThreat(GetHitUnit(), 100000.0f);
+                GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), 100000.0f);
             }
 
             void Register() override
@@ -2837,7 +2834,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
                 if (TempSummon* summon = GetCaster()->ToTempSummon())
                     if (Unit* summoner = summon->GetSummoner())
                         summoner->GetAI()->SetData(DATA_VILE, 1);
-                GetCaster()->CastSpell((Unit*)NULL, SPELL_SPIRIT_BURST, true);
+                GetCaster()->CastSpell(nullptr, SPELL_SPIRIT_BURST, true);
                 GetCaster()->ToCreature()->DespawnOrUnsummon(3000);
                 GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
@@ -2865,14 +2862,14 @@ class spell_the_lich_king_harvest_soul : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetOwner()->GetInstanceScript() != NULL;
+                return GetOwner()->GetInstanceScript() != nullptr;
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // m_originalCaster to allow stacking from different casters, meh
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
-                    GetTarget()->CastSpell((Unit*)NULL, SPELL_HARVESTED_SOUL, true, NULL, NULL, GetTarget()->GetInstanceScript()->GetGuidData(DATA_THE_LICH_KING));
+                    GetTarget()->CastSpell(nullptr, SPELL_HARVESTED_SOUL, true, nullptr, nullptr, GetTarget()->GetInstanceScript()->GetGuidData(DATA_THE_LICH_KING));
             }
 
             void Register() override
@@ -2938,7 +2935,7 @@ class spell_the_lich_king_soul_rip : public SpellScriptLoader
                 PreventDefaultAction();
                 // shouldn't be needed, this is channeled
                 if (Unit* caster = GetCaster())
-                    caster->CastCustomSpell(SPELL_SOUL_RIP_DAMAGE, SPELLVALUE_BASE_POINT0, 5000 * aurEff->GetTickNumber(), GetTarget(), true, NULL, aurEff, GetCasterGUID());
+                    caster->CastCustomSpell(SPELL_SOUL_RIP_DAMAGE, SPELLVALUE_BASE_POINT0, 5000 * aurEff->GetTickNumber(), GetTarget(), true, nullptr, aurEff, GetCasterGUID());
             }
 
             void Register() override
@@ -2972,7 +2969,7 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
-                return _instance != NULL;
+                return _instance != nullptr;
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -3024,9 +3021,7 @@ class spell_the_lich_king_dark_hunger : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DARK_HUNGER_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DARK_HUNGER_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -3063,14 +3058,14 @@ class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetOwner()->GetInstanceScript() != NULL;
+                return GetOwner()->GetInstanceScript() != nullptr;
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // m_originalCaster to allow stacking from different casters, meh
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
-                    GetTarget()->CastSpell((Unit*)NULL, SPELL_HARVESTED_SOUL, true, NULL, NULL, GetTarget()->GetInstanceScript()->GetGuidData(DATA_THE_LICH_KING));
+                    GetTarget()->CastSpell(nullptr, SPELL_HARVESTED_SOUL, true, nullptr, nullptr, GetTarget()->GetInstanceScript()->GetGuidData(DATA_THE_LICH_KING));
             }
 
             void Register() override
@@ -3097,7 +3092,7 @@ class spell_the_lich_king_summon_spirit_bomb : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->CastSpell((Unit*)NULL, uint32(GetEffectValue()), true);
+                GetHitUnit()->CastSpell(nullptr, uint32(GetEffectValue()), true);
             }
 
             void Register() override
@@ -3155,7 +3150,7 @@ class spell_the_lich_king_jump : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 GetHitUnit()->RemoveAurasDueToSpell(SPELL_RAISE_DEAD);
-                GetHitUnit()->CastSpell((Unit*)NULL, SPELL_JUMP_2, true);
+                GetHitUnit()->CastSpell(nullptr, SPELL_JUMP_2, true);
                 if (Creature* creature = GetHitCreature())
                     creature->AI()->DoAction(ACTION_BREAK_FROSTMOURNE);
             }

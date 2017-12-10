@@ -20,6 +20,7 @@
 #define TRINITYCORE_DYNAMICOBJECT_H
 
 #include "Object.h"
+#include "MapObject.h"
 
 class Unit;
 class Aura;
@@ -54,7 +55,8 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         Unit* GetCaster() const { return _caster; }
         void BindToCaster();
         void UnbindFromCaster();
-        uint32 GetSpellId() const {  return GetUInt32Value(DYNAMICOBJECT_SPELLID); }
+        uint32 GetSpellId() const { return GetUInt32Value(DYNAMICOBJECT_SPELLID); }
+        SpellInfo const* GetSpellInfo() const;
         ObjectGuid GetCasterGUID() const { return GetGuidValue(DYNAMICOBJECT_CASTER); }
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_RADIUS); }
 

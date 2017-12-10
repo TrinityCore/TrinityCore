@@ -21,14 +21,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "CellImpl.h"
 #include "CombatAI.h"
+#include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
 #include "Pet.h"
 #include "PetAI.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "ScriptedCreature.h"
 
 enum MageSpells
 {
@@ -61,7 +60,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 std::list<Unit*> targets;
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(40.0f, searcher);
+                Cell::VisitAllObjects(me, searcher, 40.0f);
 
                 Unit* highestThreatUnit = nullptr;
                 float highestThreat = 0.0f;
@@ -83,21 +82,13 @@ class npc_pet_mage_mirror_image : public CreatureScript
                             continue;
                         }
                         // else compare best fit unit with current unit
-                        ThreatContainer::StorageType triggers = (*iter)->getThreatManager().getThreatList();
-                        for (ThreatContainer::StorageType::const_iterator trig_citr = triggers.begin(); trig_citr != triggers.end(); ++trig_citr)
+                        float threat = (*iter)->GetThreatManager().GetThreat(owner);
+                        // Check if best fit hostile unit hs lower threat than this current unit
+                        if (highestThreat < threat)
                         {
-                            // Try to find threat referenced to owner
-                            if ((*trig_citr)->getTarget() == owner)
-                            {
-                                // Check if best fit hostile unit hs lower threat than this current unit
-                                if (highestThreat < (*trig_citr)->getThreat())
-                                {
-                                    // If so, update best fit unit
-                                    highestThreat = (*trig_citr)->getThreat();
-                                    highestThreatUnit = (*iter);
-                                    break;
-                                }
-                            }
+                            // If so, update best fit unit
+                            highestThreat = threat;
+                            highestThreatUnit = (*iter);
                         }
                         // In case no unit with threat was found so far, always check for nearest unit (only for players)
                         if ((*iter)->GetTypeId() == TYPEID_PLAYER)
@@ -119,30 +110,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
             bool IsInThreatList(Unit* target)
             {
                 Unit* owner = me->GetCharmerOrOwner();
-
-                std::list<Unit*> targets;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(40.0f, searcher);
-
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                {
-                    if ((*iter) == target)
-                    {
-                        // Consider only units without CC
-                        if (!(*iter)->HasBreakableByDamageCrowdControlAura((*iter)))
-                        {
-                            ThreatContainer::StorageType triggers = (*iter)->getThreatManager().getThreatList();
-                            for (ThreatContainer::StorageType::const_iterator trig_citr = triggers.begin(); trig_citr != triggers.end(); ++trig_citr)
-                            {
-                                // Try to find threat referenced to owner
-                                if ((*trig_citr)->getTarget() == owner)
-                                    return true;
-                            }
-                        }
-                    }
-                }
-                return false;
+                return owner && target->IsThreatenedBy(owner);
             }
 
             void InitializeAI() override
@@ -199,8 +167,8 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 if (!target || me->GetVictim() != target)
                 {
                     Unit* ownerTarget = nullptr;
-                    if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
-                        ownerTarget = owner->GetSelectedUnit();
+                    if (Player* playerOwner = me->GetCharmerOrOwner()->ToPlayer())
+                        ownerTarget = playerOwner->GetSelectedUnit();
 
                     // recognize which victim will be choosen
                     if (ownerTarget && ownerTarget->GetTypeId() == TYPEID_PLAYER)

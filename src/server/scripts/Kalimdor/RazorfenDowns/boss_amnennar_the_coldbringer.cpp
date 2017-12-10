@@ -151,7 +151,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_amnennar_the_coldbringerAI(creature);
+        return GetRazorfenDownsAI<boss_amnennar_the_coldbringerAI>(creature);
     }
 };
 

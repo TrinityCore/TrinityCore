@@ -22,9 +22,9 @@ SDComment: aura applied/defined in database
 SDCategory: Scholomance
 EndScriptData */
 
+#include "scholomance.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "scholomance.h"
 
 enum Spells
 {
@@ -98,7 +98,7 @@ class boss_lord_alexei_barov : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_lordalexeibarovAI(creature);
+            return GetScholomanceAI<boss_lordalexeibarovAI>(creature);
         }
 };
 

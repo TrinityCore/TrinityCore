@@ -101,7 +101,7 @@ public:
                     if (IsHeroic())
                         DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_POLYMORPH);
                     else
-                        DoCast(SelectTarget(SELECT_TARGET_TOPAGGRO, 1), SPELL_POLYMORPH);
+                        DoCast(SelectTarget(SELECT_TARGET_MAXTHREAT, 1), SPELL_POLYMORPH);
                     events.ScheduleEvent(EVENT_POLYMORPH, urand(15000, 17500));
                     break;
                 case EVENT_ARCANE_VOLLEY:
@@ -173,13 +173,14 @@ class spell_talon_king_ikiss_blink : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLINK_TELEPORT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLINK_TELEPORT });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                if (targets.empty())
+                    return;
+
                 WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);

@@ -24,9 +24,10 @@ SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "shadow_labyrinth.h"
+#include "SpellScript.h"
 
 enum Murmur
 {
@@ -155,16 +156,7 @@ class boss_murmur : public CreatureScript
                     return;
 
                 if (!me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
-                        if (Unit* target = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid()))
-                            if (me->IsWithinMeleeRange(target))
-                            {
-                                me->TauntApply(target);
-                                break;
-                            }
-                }
+                    me->GetThreatManager().ResetThreat(me->GetVictim());
 
                 DoMeleeAttackIfReady();
             }
@@ -188,14 +180,12 @@ class spell_murmur_sonic_boom : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SONIC_BOOM_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SONIC_BOOM_EFFECT });
             }
 
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell((Unit*)NULL, SPELL_SONIC_BOOM_EFFECT, true);
+                GetCaster()->CastSpell(nullptr, SPELL_SONIC_BOOM_EFFECT, true);
             }
 
             void Register() override

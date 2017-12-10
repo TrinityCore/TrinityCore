@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "ruby_sanctum.h"
 
 enum Texts
 {
@@ -229,10 +231,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_BEACON)
-                    || !sSpellMgr->GetSpellInfo(SPELL_CONFLAGRATION_2))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLAME_BEACON, SPELL_CONFLAGRATION_2 });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -240,7 +239,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
                 targets.remove_if(ConflagrationTargetSelector());
                 uint8 maxSize = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 3);
                 if (targets.size() > maxSize)
-                    Trinity::Containers::RandomResizeList(targets, maxSize);
+                    Trinity::Containers::RandomResize(targets, maxSize);
             }
 
             void HandleDummy(SpellEffIndex effIndex)

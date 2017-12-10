@@ -18,11 +18,12 @@
 #ifndef DEF_ZULGURUB_H
 #define DEF_ZULGURUB_H
 
+#include "CreatureAIImpl.h"
+
+#define ZGScriptName "instance_zulgurub"
 #define DataHeader "ZG"
 
 uint32 const EncounterCount = 13;
-
-#define ZGScriptName "instance_zulgurub"
 
 enum ZGDataTypes
 {
@@ -67,10 +68,10 @@ enum ZGGameObjectIds
     GO_GONG_OF_BETHEKK      = 180526  // Arlokk Event
 };
 
-template<class AI>
-AI* GetZulGurubAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetZulGurubAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ZGScriptName);
+    return GetInstanceAI<AI>(obj, ZGScriptName);
 }
 
 #endif

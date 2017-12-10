@@ -25,7 +25,7 @@
 #include <unordered_map>
 
 #include "Define.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "ObjectDefines.h"
 
@@ -174,7 +174,7 @@ class TC_GAME_API InstanceSaveManager
             InstResetEvent() : type(0), difficulty(DUNGEON_DIFFICULTY_NORMAL), mapid(0), instanceId(0) { }
             InstResetEvent(uint8 t, uint32 _mapid, Difficulty d, uint16 _instanceid)
                 : type(t), difficulty(d), mapid(_mapid), instanceId(_instanceid) { }
-            bool operator == (const InstResetEvent& e) const { return e.instanceId == instanceId; }
+            bool operator==(InstResetEvent const& e) const { return e.instanceId == instanceId; }
         };
         typedef std::multimap<time_t /*resetTime*/, InstResetEvent> ResetTimeQueue;
 
@@ -195,12 +195,7 @@ class TC_GAME_API InstanceSaveManager
         }
 
         // Use this only when updating existing reset times
-        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
-        {
-            ResetTimeByMapDifficultyMap::iterator itr = m_resetTimeByMapDifficulty.find(MAKE_PAIR32(mapid, d));
-            ASSERT(itr != m_resetTimeByMapDifficulty.end());
-            itr->second = t;
-        }
+        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t);
 
         ResetTimeByMapDifficultyMap const& GetResetTimeMap() const
         {

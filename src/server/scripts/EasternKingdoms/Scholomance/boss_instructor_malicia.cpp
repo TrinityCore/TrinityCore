@@ -23,8 +23,8 @@ SDCategory: Scholomance
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -148,7 +148,7 @@ class boss_instructor_malicia : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_instructormaliciaAI(creature);
+            return GetScholomanceAI<boss_instructormaliciaAI>(creature);
         }
 
 };

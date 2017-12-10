@@ -20,8 +20,6 @@
 #include "CreatureAI.h"
 #include "Creature.h"
 
-IdleMovementGenerator si_idleMovement;
-
 // StopMoving is needed to make unit stop if its last movement generator expires
 // But it should not be sent otherwise there are many redundent packets
 void IdleMovementGenerator::Initialize(Unit* owner)
@@ -34,6 +32,8 @@ void IdleMovementGenerator::Reset(Unit* owner)
     if (!owner->IsStopped())
         owner->StopMoving();
 }
+
+//----------------------------------------------------//
 
 void RotateMovementGenerator::Initialize(Unit* owner)
 {
@@ -51,33 +51,37 @@ void RotateMovementGenerator::Initialize(Unit* owner)
 bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
 {
     float angle = owner->GetOrientation();
-    if (m_direction == ROTATE_DIRECTION_LEFT)
+    if (_direction == ROTATE_DIRECTION_LEFT)
     {
-        angle += (float)diff * static_cast<float>(M_PI * 2) / m_maxDuration;
-        while (angle >= static_cast<float>(M_PI * 2)) angle -= static_cast<float>(M_PI * 2);
+        angle += float(diff) * float(M_PI) * 2.f / float(_maxDuration);
+        while (angle >= float(M_PI) * 2.f)
+            angle -= float(M_PI) * 2.f;
     }
     else
     {
-        angle -= (float)diff * static_cast<float>(M_PI * 2) / m_maxDuration;
-        while (angle < 0) angle += static_cast<float>(M_PI * 2);
+        angle -= float(diff) * float(M_PI) * 2.f / float(_maxDuration);
+        while (angle < 0.f)
+            angle += float(M_PI) * 2.f;
     }
 
     owner->SetFacingTo(angle);
 
-    if (m_duration > diff)
-        m_duration -= diff;
+    if (_duration > diff)
+        _duration -= diff;
     else
         return false;
 
     return true;
 }
 
-void RotateMovementGenerator::Finalize(Unit* unit)
+void RotateMovementGenerator::Finalize(Unit* owner)
 {
-    unit->ClearUnitState(UNIT_STATE_ROTATING);
-    if (unit->GetTypeId() == TYPEID_UNIT)
-      unit->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, 0);
+    owner->ClearUnitState(UNIT_STATE_ROTATING);
+    if (owner->GetTypeId() == TYPEID_UNIT)
+        owner->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, 0);
 }
+
+//----------------------------------------------------//
 
 void DistractMovementGenerator::Initialize(Unit* owner)
 {
@@ -100,17 +104,19 @@ void DistractMovementGenerator::Finalize(Unit* owner)
     }
 }
 
-bool DistractMovementGenerator::Update(Unit* /*owner*/, uint32 time_diff)
+bool DistractMovementGenerator::Update(Unit* /*owner*/, uint32 diff)
 {
-    if (time_diff > m_timer)
+    if (diff > _timer)
         return false;
 
-    m_timer -= time_diff;
+    _timer -= diff;
     return true;
 }
 
-void AssistanceDistractMovementGenerator::Finalize(Unit* unit)
+//----------------------------------------------------//
+
+void AssistanceDistractMovementGenerator::Finalize(Unit* owner)
 {
-    unit->ClearUnitState(UNIT_STATE_DISTRACTED);
-    unit->ToCreature()->SetReactState(REACT_AGGRESSIVE);
+    owner->ClearUnitState(UNIT_STATE_DISTRACTED);
+    owner->ToCreature()->SetReactState(REACT_AGGRESSIVE);
 }

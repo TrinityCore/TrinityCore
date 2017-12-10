@@ -17,6 +17,7 @@
  */
 
 #include "Common.h"
+#include "Log.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
@@ -40,4 +41,3 @@ void WorldSession::HandleSetActiveVoiceChannel(WorldPacket& recvData)
     recvData.read_skip<uint32>();
     recvData.read_skip<char*>();
 }
-

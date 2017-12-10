@@ -19,25 +19,22 @@
 /* ScriptData
 SDName: Terokkar_Forest
 SD%Complete: 85
-SDComment: Quest support: 9889, 10009, 10873, 10896, 10898, 11096, 10052, 10051. Skettis->Ogri'la Flight
+SDComment: Quest support: 9889, 10898, 10052, 10051.
 SDCategory: Terokkar Forest
 EndScriptData */
 
 /* ContentData
 npc_unkor_the_ruthless
-npc_infested_root_walker
-npc_rotting_forest_rager
-npc_floon
 npc_isla_starmane
-npc_slim
+npc_skywing
+npc_akuno
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
 #include "Group.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
 #include "WorldSession.h"
 
 /*######
@@ -48,8 +45,6 @@ enum UnkorTheRuthless
 {
     SAY_SUBMIT              = 0,
     REQUIRED_KILL_COUNT     = 10,
-    FACTION_FRIENDLY        = 35,
-    FACTION_HOSTILE         = 45,
     SPELL_PULVERIZE         = 2676,
     QUEST_DONTKILLTHEFATONE = 9889,
     NPC_BOULDERFIST_INVADER = 18260
@@ -87,7 +82,7 @@ public:
         {
             Initialize();
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->setFaction(FACTION_HOSTILE);
+            me->SetFaction(FACTION_OGRE);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -95,10 +90,10 @@ public:
         void DoNice()
         {
             Talk(SAY_SUBMIT);
-            me->setFaction(FACTION_FRIENDLY);
+            me->SetFaction(FACTION_FRIENDLY);
             me->SetStandState(UNIT_STAND_STATE_SIT);
             me->RemoveAllAuras();
-            me->DeleteThreatList();
+            me->GetThreatManager().ClearAllThreat();
             me->CombatStop(true);
             UnkorUnfriendly_Timer = 60000;
         }
@@ -111,7 +106,7 @@ public:
             {
                 if (Group* group = player->GetGroup())
                 {
-                    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                     {
                         Player* groupie = itr->GetSource();
                         if (groupie && groupie->IsInMap(player) &&
@@ -167,43 +162,6 @@ public:
 };
 
 /*######
-## npc_infested_root_walker
-######*/
-
-enum InfestedRootWalker
-{
-    SPELL_SUMMON_WOOD_MITES = 39130
-};
-
-class npc_infested_root_walker : public CreatureScript
-{
-public:
-    npc_infested_root_walker() : CreatureScript("npc_infested_root_walker") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_infested_root_walkerAI(creature);
-    }
-
-    struct npc_infested_root_walkerAI : public ScriptedAI
-    {
-        npc_infested_root_walkerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void DamageTaken(Unit* done_by, uint32 &damage) override
-        {
-            if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
-                if (me->GetHealth() <= damage)
-                    if (rand32() % 100 < 75)
-                        //Summon Wood Mites
-                        DoCast(me, SPELL_SUMMON_WOOD_MITES, true);
-        }
-    };
-};
-
-/*######
 ## npc_skywing
 ######*/
 
@@ -222,12 +180,12 @@ public:
         return new npc_skywingAI(creature);
     }
 
-    struct npc_skywingAI : public npc_escortAI
+    struct npc_skywingAI : public EscortAI
     {
     public:
-        npc_skywingAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_skywingAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -259,160 +217,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
-        }
-    };
-};
-
-/*######
-## npc_rotting_forest_rager
-######*/
-
-enum RottingForestRager
-{
-    SPELL_SUMMON_LOTS_OF_WOOD_MITES = 39134
-};
-
-class npc_rotting_forest_rager : public CreatureScript
-{
-public:
-    npc_rotting_forest_rager() : CreatureScript("npc_rotting_forest_rager") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_rotting_forest_ragerAI(creature);
-    }
-
-    struct npc_rotting_forest_ragerAI : public ScriptedAI
-    {
-        npc_rotting_forest_ragerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void DamageTaken(Unit* done_by, uint32 &damage) override
-        {
-            if (done_by->GetTypeId() == TYPEID_PLAYER)
-                if (me->GetHealth() <= damage)
-                    if (rand32() % 100 < 75)
-                        //Summon Lots of Wood Mites
-                        DoCast(me, SPELL_SUMMON_LOTS_OF_WOOD_MITES, true);
-        }
-    };
-};
-
-/*######
-## npc_floon
-######*/
-
-enum Floon
-{
-    SAY_FLOON_ATTACK            = 0,
-    OPTION_ID_PAY_UP_OR_DIE     = 0,
-    OPTION_ID_COLLECT_A_DEBT    = 0,
-    FACTION_HOSTILE_FLOON       = 1738,
-    MENU_ID_PAY_UP_OR_DIE       = 7731,
-    MENU_ID_COLLECT_A_DEBT      = 7732,
-    GOSSIP_FLOON_STRANGE_SOUNDS = 9442,
-    GOSSIP_HE_ALREADY_KILLED_ME = 9443,
-
-    SPELL_SILENCE               = 6726,
-    SPELL_FROSTBOLT             = 9672,
-    SPELL_FROST_NOVA            = 11831,
-
-    QUEST_CRACKIN_SOME_SKULLS   = 10009
-};
-
-class npc_floon : public CreatureScript
-{
-public:
-    npc_floon() : CreatureScript("npc_floon") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            AddGossipItemFor(player, MENU_ID_PAY_UP_OR_DIE, OPTION_ID_PAY_UP_OR_DIE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            SendGossipMenuFor(player, GOSSIP_HE_ALREADY_KILLED_ME, creature->GetGUID());
-        }
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            CloseGossipMenuFor(player);
-            creature->setFaction(FACTION_HOSTILE_FLOON);
-            creature->AI()->Talk(SAY_FLOON_ATTACK, player);
-            creature->AI()->AttackStart(player);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        SendGossipMenuFor(player, GOSSIP_FLOON_STRANGE_SOUNDS, creature->GetGUID());
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_floonAI(creature);
-    }
-
-    struct npc_floonAI : public ScriptedAI
-    {
-        npc_floonAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            m_uiNormFaction = creature->getFaction();
-        }
-
-        void Initialize()
-        {
-            Silence_Timer = 2000;
-            Frostbolt_Timer = 4000;
-            FrostNova_Timer = 9000;
-        }
-
-        uint32 m_uiNormFaction;
-        uint32 Silence_Timer;
-        uint32 Frostbolt_Timer;
-        uint32 FrostNova_Timer;
-
-        void Reset() override
-        {
-            Initialize();
-            if (me->getFaction() != m_uiNormFaction)
-                me->setFaction(m_uiNormFaction);
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (Silence_Timer <= diff)
-            {
-                DoCastVictim(SPELL_SILENCE);
-                Silence_Timer = 30000;
-            } else Silence_Timer -= diff;
-
-            if (FrostNova_Timer <= diff)
-            {
-                DoCast(me, SPELL_FROST_NOVA);
-                FrostNova_Timer = 20000;
-            } else FrostNova_Timer -= diff;
-
-            if (Frostbolt_Timer <= diff)
-            {
-                DoCastVictim(SPELL_FROSTBOLT);
-                Frostbolt_Timer = 5000;
-            } else Frostbolt_Timer -= diff;
-
-            DoMeleeAttackIfReady();
+            EscortAI::UpdateAI(diff);
         }
     };
 };
@@ -427,7 +232,6 @@ enum IslaStarmaneData
     SAY_PROGRESS_3               = 2,
     SAY_PROGRESS_4               = 3,
     GO_DISTANCE                  = 10,
-    FACTION_ESCORTEE             = 113,
     ESCAPE_FROM_FIREWING_POINT_A = 10051,
     ESCAPE_FROM_FIREWING_POINT_H = 10052,
     SPELL_TRAVEL_FORM_CAT        = 32447,
@@ -439,11 +243,11 @@ class npc_isla_starmane : public CreatureScript
 public:
     npc_isla_starmane() : CreatureScript("npc_isla_starmane") { }
 
-    struct npc_isla_starmaneAI : public npc_escortAI
+    struct npc_isla_starmaneAI : public EscortAI
     {
-        npc_isla_starmaneAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_isla_starmaneAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -470,7 +274,7 @@ public:
                         player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_A, me);
                     else if (player->GetTeam() == HORDE)
                         player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_H, me);
-                    me->SetInFront(player);
+                    me->SetFacingToObject(player);
                     break;
                 case 30:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
@@ -497,127 +301,20 @@ public:
                     player->FailQuest(ESCAPE_FROM_FIREWING_POINT_H);
             }
         }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_H || quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_A)
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            creature->setFaction(FACTION_ESCORTEE);
+            if (quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_H || quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_A)
+            {
+                Start(true, false, player->GetGUID());
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+            }
         }
-        return true;
-    }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_isla_starmaneAI(creature);
-    }
-};
-
-/*######
-## go_skull_pile
-######*/
-
-enum SkullPile
-{
-    OPTION_ID_GEZZARAK_THE_HUNTRESS = 0,
-    OPTION_ID_DARKSCREECHER_AKKARAI = 1,
-    OPTION_ID_KARROG                = 2,
-    OPTION_ID_VAKKIZ_THE_WINDRAGER  = 3,
-    GOSSIP_MENU_ID_SKULL_PILE       = 8660,
-    ADVERSARIAL_BLOOD               = 11885,
-    SUMMON_GEZZARAK_THE_HUNTRESS    = 40632,
-    SUMMON_KARROG                   = 40640,
-    SUMMON_DARKSCREECHER_AKKARAI    = 40642,
-    SUMMON_VAKKIZ_THE_WINDRAGER     = 40644
-};
-
-class go_skull_pile : public GameObjectScript
-{
-public:
-    go_skull_pile() : GameObjectScript("go_skull_pile") { }
-
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (sender)
-        {
-            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, go, action); break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if ((player->GetQuestStatus(ADVERSARIAL_BLOOD) == QUEST_STATUS_INCOMPLETE) || player->GetQuestRewardStatus(ADVERSARIAL_BLOOD))
-        {
-            AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_GEZZARAK_THE_HUNTRESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_DARKSCREECHER_AKKARAI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_KARROG,                GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-            AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_VAKKIZ_THE_WINDRAGER,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-        }
-
-        SendGossipMenuFor(player, go->GetGOInfo()->questgiver.gossipID, go->GetGUID());
-        return true;
-    }
-
-    void SendActionMenu(Player* player, GameObject* /*go*/, uint32 action)
-    {
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                  player->CastSpell(player, SUMMON_GEZZARAK_THE_HUNTRESS, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                  player->CastSpell(player, SUMMON_DARKSCREECHER_AKKARAI, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                  player->CastSpell(player, SUMMON_KARROG, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 4:
-                  player->CastSpell(player, SUMMON_VAKKIZ_THE_WINDRAGER, false);
-                break;
-        }
-    }
-};
-
-/*######
-## npc_slim
-######*/
-
-enum Slim
-{
-    FACTION_CONSORTIUM  = 933,
-    NPC_TEXT_NEITHER_SLIM_NOR_SHADY = 9895,
-    NPC_TEXT_I_SEE_YOU_ARE_A_FRIEND = 9896
-};
-
-class npc_slim : public CreatureScript
-{
-public:
-    npc_slim() : CreatureScript("npc_slim") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsVendor() && player->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
-        {
-            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            SendGossipMenuFor(player, NPC_TEXT_I_SEE_YOU_ARE_A_FRIEND, creature->GetGUID());
-        }
-        else
-            SendGossipMenuFor(player, NPC_TEXT_NEITHER_SLIM_NOR_SHADY, creature->GetGUID());
-
-        return true;
     }
 };
 
@@ -636,31 +333,11 @@ class npc_akuno : public CreatureScript
 public:
     npc_akuno() : CreatureScript("npc_akuno") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    struct npc_akunoAI : public EscortAI
     {
-        if (quest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
-        {
-            if (npc_akunoAI* pEscortAI = CAST_AI(npc_akuno::npc_akunoAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID());
+        npc_akunoAI(Creature* creature) : EscortAI(creature) { }
 
-            if (player->GetTeamId() == TEAM_ALLIANCE)
-                creature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
-            else
-                creature->setFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_akunoAI(creature);
-    }
-
-    struct npc_akunoAI : public npc_escortAI
-    {
-        npc_akunoAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -683,18 +360,31 @@ public:
         {
             summon->AI()->AttackStart(me);
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
+            {
+                Start(false, false, player->GetGUID());
+
+                if (player->GetTeamId() == TEAM_ALLIANCE)
+                    me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
+                else
+                    me->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_PASSIVE);
+            }
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_akunoAI(creature);
+    }
 };
 
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
-    new npc_infested_root_walker();
-    new npc_rotting_forest_rager();
-    new npc_floon();
     new npc_isla_starmane();
-    new go_skull_pile();
     new npc_skywing();
-    new npc_slim();
     new npc_akuno();
 }

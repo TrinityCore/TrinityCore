@@ -19,6 +19,9 @@
 #ifndef DEF_STRATHOLME_H
 #define DEF_STRATHOLME_H
 
+#include "CreatureAIImpl.h"
+
+#define StratholmeScriptName "instance_stratholme"
 #define DataHeader "STR"
 
 enum STRDataTypes
@@ -54,6 +57,14 @@ enum STRCreatureIds
     NPC_ABOM_VENOM                      = 10417,
     NPC_BLACK_GUARD                     = 10394,
     NPC_YSIDA                           = 16031,
+
+    // Scarlet side creatures
+    NPC_CRIMSON_GUARDSMAN               = 10418,
+    NPC_CRIMSON_CONJUROR                = 10419,
+    NPC_CRIMSON_INITATE                 = 10420,
+    NPC_CRIMSON_GALLANT                 = 10424,
+
+    NPC_TIMMY_THE_CRUEL                 = 10808
 };
 
 enum STRGameobjectIds
@@ -80,5 +91,18 @@ enum STRSpellIds
 {
     SPELL_BARON_ULTIMATUM               = 27861
 };
+
+enum STRMisc
+{
+    //! amount of crusade monsters required to be killed in order for timmy the cruel to spawn
+    TIMMY_THE_CRUEL_CRUSADERS_REQUIRED  = 15,
+    MAX_ENCOUNTER                       = 6
+};
+
+template <class AI, class T>
+inline AI* GetStratholmeAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, StratholmeScriptName);
+}
 
 #endif

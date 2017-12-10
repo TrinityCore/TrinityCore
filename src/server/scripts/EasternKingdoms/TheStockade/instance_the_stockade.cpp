@@ -24,6 +24,7 @@ gets instead the deserter debuff.
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 
 class instance_the_stockade : public InstanceMapScript
 {

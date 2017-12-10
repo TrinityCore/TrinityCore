@@ -30,29 +30,6 @@ enum DefenseMessages
     TEXT_SPIRIT_TOWER_LOSE_HORDE        = 18287  // '|cffffff00The Horde has lost control of a Spirit Tower!|r'
 };
 
-const uint8 OutdoorPvPTFBuffZonesNum = 5;
-
-const uint32 OutdoorPvPTFBuffZones[OutdoorPvPTFBuffZonesNum] =
-{
-    3519 /*Terokkar Forest*/,
-    3791 /*Sethekk Halls*/,
-    3789 /*Shadow Labyrinth*/,
-    3792 /*Mana-Tombs*/,
-    3790 /*Auchenai Crypts*/
-};
-
-// locked for 6 hours after capture
-const uint32 TF_LOCK_TIME = 3600 * 6 * 1000;
-
-// update lock timer every 1/4 minute (overkill, but this way it's sure the timer won't "jump" 2 minutes at once.)
-const uint32 TF_LOCK_TIME_UPDATE = 15000;
-
-// blessing of auchindoun
-#define TF_CAPTURE_BUFF 33377
-
-const uint32 TF_ALLY_QUEST = 11505;
-const uint32 TF_HORDE_QUEST = 11506;
-
 enum OutdoorPvPTF_TowerType
 {
     TF_TOWER_NW = 0,
@@ -61,49 +38,6 @@ enum OutdoorPvPTF_TowerType
     TF_TOWER_SE,
     TF_TOWER_S,
     TF_TOWER_NUM
-};
-
-const go_type TFCapturePoints[TF_TOWER_NUM] =
-{
-    {183104, 530, -3081.65f, 5335.03f, 17.1853f, -2.14675f, 0.0f, 0.0f, 0.878817f, -0.477159f},
-    {183411, 530, -2939.9f, 4788.73f, 18.987f, 2.77507f, 0.0f, 0.0f, 0.983255f, 0.182236f},
-    {183412, 530, -3174.94f, 4440.97f, 16.2281f, 1.86750f, 0.0f, 0.0f, 0.803857f, 0.594823f},
-    {183413, 530, -3603.31f, 4529.15f, 20.9077f, 0.994838f, 0.0f, 0.0f, 0.477159f, 0.878817f},
-    {183414, 530, -3812.37f, 4899.3f, 17.7249f, 0.087266f, 0.0f, 0.0f, 0.043619f, 0.999048f}
-};
-
-struct tf_tower_world_state
-{
-    uint32 n;
-    uint32 h;
-    uint32 a;
-};
-
-const tf_tower_world_state TFTowerWorldStates[TF_TOWER_NUM] =
-{
-    {0xa79, 0xa7a, 0xa7b},
-    {0xa7e, 0xa7d, 0xa7c},
-    {0xa82, 0xa81, 0xa80},
-    {0xa88, 0xa87, 0xa86},
-    {0xa85, 0xa84, 0xa83}
-};
-
-const uint32 TFTowerPlayerEnterEvents[TF_TOWER_NUM] =
-{
-    12226,
-    12497,
-    12486,
-    12499,
-    12501
-};
-
-const uint32 TFTowerPlayerLeaveEvents[TF_TOWER_NUM] =
-{
-    12225,
-    12496,
-    12487,
-    12498,
-    12500
 };
 
 enum TFWorldStates

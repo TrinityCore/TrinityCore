@@ -190,7 +190,7 @@ class boss_venoxis : public CreatureScript
 
                             for (uint8 i = 0; i < 10; ++i)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, i))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, i))
                                     // check if target is within melee-distance
                                     if (me->IsWithinMeleeRange(target))
                                         ++_inMeleeRange;
@@ -245,7 +245,7 @@ class boss_venoxis : public CreatureScript
                             // shapeshift at 50% health
                             DoCast(me, SPELL_VENOXIS_TRANSFORM);
                             Talk(SAY_VENOXIS_TRANSFORM);
-                            DoResetThreat();
+                            ResetThreatList();
 
                             // phase two events (snakeform)
                             events.ScheduleEvent(EVENT_VENOM_SPIT, 5000, 0, PHASE_TWO);
@@ -275,7 +275,7 @@ class boss_venoxis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_venoxisAI(creature);
+            return GetZulGurubAI<boss_venoxisAI>(creature);
         }
 };
 

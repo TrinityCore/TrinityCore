@@ -223,7 +223,7 @@ class boss_laj : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_lajAI(creature);
+            return GetBotanicaAI<boss_lajAI>(creature);
         }
 };
 
@@ -231,4 +231,3 @@ void AddSC_boss_laj()
 {
     new boss_laj();
 }
-

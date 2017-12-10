@@ -21,8 +21,6 @@
 
 #include "CreatureAI.h"
 
-class Unit;
-
 class TC_GAME_API ReactorAI : public CreatureAI
 {
     public:
@@ -32,7 +30,6 @@ class TC_GAME_API ReactorAI : public CreatureAI
         void MoveInLineOfSight(Unit*) override { }
         void UpdateAI(uint32 diff) override;
 
-        static int Permissible(const Creature*);
+        static int32 Permissible(Creature const* creature);
 };
 #endif
-
