@@ -17,9 +17,9 @@
 
 #include "Realm.h"
 
-ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
+boost::asio::ip::tcp::endpoint Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
 {
-    ip::address realmIp;
+    boost::asio::ip::address realmIp;
 
     // Attempt to send best address for client
     if (clientAddr.is_loopback())
@@ -46,7 +46,7 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
             realmIp = ExternalAddress;
     }
 
-    ip::tcp::endpoint endpoint(realmIp, Port);
+    boost::asio::ip::tcp::endpoint endpoint(realmIp, Port);
 
     // Return external IP
     return endpoint;

@@ -114,7 +114,7 @@ public:
         {
             Enraged = false;
 
-            if (Creature* temp =  ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALYTHESS)))
+            if (Creature* temp = instance->GetCreature(DATA_ALYTHESS))
             {
                 if (temp->isDead())
                     temp->Respawn();
@@ -134,7 +134,7 @@ public:
         {
             DoZoneInCombat();
 
-            Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALYTHESS));
+            Creature* temp = instance->GetCreature(DATA_ALYTHESS);
             if (temp && temp->IsAlive() && !temp->GetVictim())
                 temp->AI()->AttackStart(who);
 
@@ -207,7 +207,7 @@ public:
         {
             if (!SisterDeath)
             {
-                Unit* Temp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ALYTHESS));
+                Unit* Temp = instance->GetCreature(DATA_ALYTHESS);
                 if (Temp && Temp->isDead())
                 {
                     Talk(YELL_SISTER_ALYTHESS_DEAD);
@@ -366,7 +366,7 @@ public:
         {
             Enraged = false;
 
-            if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SACROLASH)))
+            if (Creature* temp = instance->GetCreature(DATA_SACROLASH))
             {
                 if (temp->isDead())
                     temp->Respawn();
@@ -386,7 +386,7 @@ public:
         {
             DoZoneInCombat();
 
-            Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SACROLASH));
+            Creature* temp = instance->GetCreature(DATA_SACROLASH);
             if (temp && temp->IsAlive() && !temp->GetVictim())
                 temp->AI()->AttackStart(who);
 
@@ -486,7 +486,7 @@ public:
 
         uint32 IntroStep(uint32 step)
         {
-            Creature* Sacrolash = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SACROLASH));
+            Creature* Sacrolash = instance->GetCreature(DATA_SACROLASH);
             switch (step)
             {
                 case 0:
@@ -535,7 +535,7 @@ public:
 
             if (!SisterDeath)
             {
-                Unit* Temp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SACROLASH));
+                Unit* Temp = instance->GetCreature(DATA_SACROLASH);
                 if (Temp && Temp->isDead())
                 {
                     Talk(YELL_SISTER_SACROLASH_DEAD);
@@ -546,7 +546,7 @@ public:
             }
             if (!me->GetVictim())
             {
-                Creature* sisiter = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SACROLASH));
+                Creature* sisiter = instance->GetCreature(DATA_SACROLASH);
                 if (sisiter && !sisiter->isDead() && sisiter->GetVictim())
                 {
                     me->AddThreat(sisiter->GetVictim(), 0.0f);
@@ -644,7 +644,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_shadow_imageAI(creature);
+        return GetSunwellPlateauAI<npc_shadow_imageAI>(creature);
     };
 
     struct npc_shadow_imageAI : public ScriptedAI

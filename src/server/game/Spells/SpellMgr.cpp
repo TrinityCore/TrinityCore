@@ -2872,6 +2872,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
     });
 
+    // Detect Undead
+    ApplySpellFix({ 11389 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->PowerType = 0;
+        spellInfo->ManaCost = 0;
+        spellInfo->ManaPerSecond = 0;
+    });
+
     // Drink! (Brewfest)
     ApplySpellFix({ 42436 }, [](SpellInfo* spellInfo)
     {
