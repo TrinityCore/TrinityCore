@@ -264,13 +264,13 @@ class npc_archmage_khadgar_gossip : public CreatureScript
                      player->GetQuestStatus(TanaanQuests::QuestKeliDanTheBreakerAlly) == QUEST_STATUS_REWARDED &&
                      player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) != QUEST_STATUS_REWARDED)
             {
-                teleportPos = { 4616.05f, -2245.06f, 14.49f, 1.89f };
+                teleportPos = { 4616.05f, -2245.06f, 14.75f, 1.89f };
             }
             else if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_REWARDED &&
                      player->GetQuestStatus(TanaanQuests::QuestTheHomeStretchHorde) != QUEST_STATUS_REWARDED &&
                      player->GetQuestStatus(TanaanQuests::QuestTheHomeStretchAlly) != QUEST_STATUS_REWARDED)
             {
-                teleportPos = { 4055.08f, -2018.38f, 73.10f, 3.14f };
+                teleportPos = { 4055.08f, -2018.38f, 73.20f, 3.14f };
             }
 
             player->TeleportTo(MAP_DRAENOR, teleportPos);
