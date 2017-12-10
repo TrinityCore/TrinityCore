@@ -44,8 +44,10 @@ uint32 const EP_PWT_CM = 17698;
 
 uint32 const EPBuffZones[EPBuffZonesNum] = { 139, 2017, 2057 };
 
+/*
 uint32 const EPTowerPlayerEnterEvents[EP_TOWER_NUM] = { 10691, 10699, 10701, 10705 };
 uint32 const EPTowerPlayerLeaveEvents[EP_TOWER_NUM] = { 10692, 10698, 10700, 10704 };
+*/
 
 go_type const EPCapturePoints[EP_TOWER_NUM] =
 {

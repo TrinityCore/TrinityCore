@@ -1317,8 +1317,8 @@ class spell_pal_infusion_of_light : public SpellScriptLoader
                             int32 bp0 = CalculatePct(healInfo->GetHeal() / duration, pct);
 
                             // Item - Paladin T9 Holy 4P Bonus
-                            if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_PALADIN_T9_HOLY_4P_BONUS, 0))
-                                AddPct(bp0, aurEff->GetAmount());
+                            if (AuraEffect const* bonus = target->GetAuraEffect(SPELL_PALADIN_T9_HOLY_4P_BONUS, 0))
+                                AddPct(bp0, bonus->GetAmount());
 
                             target->CastCustomSpell(SPELL_PALADIN_FLASH_OF_LIGHT_PROC, SPELLVALUE_BASE_POINT0, bp0, procTarget, true, nullptr, aurEff);
                         }
