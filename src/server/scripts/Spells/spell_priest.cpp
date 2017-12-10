@@ -73,7 +73,6 @@ enum PriestSpells
     SPELL_PRIEST_2P_S12_SHADOW                      = 92711,
     SPELL_PRIEST_4P_S12_HEAL                        = 131566,
     SPELL_PRIEST_4P_S12_SHADOW                      = 131556,
-    SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER            = 121557,
     SPELL_PRIEST_ARCHANGEL                          = 81700,
     SPELL_PRIEST_ATONEMENT                          = 81749,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
@@ -165,7 +164,9 @@ enum PriestSpells
     SPELL_PRIEST_PLEA_MANA                          = 212100,
     SPELL_PRIEST_PLEA                               = 200829,
     SPELL_PRIEST_POWER_WORD_BARRIER_BUFF            = 81782,
-    SPELL_PRIEST_ANGELIC_FEATHER_AT                 = 158624,
+    SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER        = 158624,
+    SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
+    SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER            = 121536,
     SPELL_PRIEST_POWER_WORD_BARRIER_VISUAL          = 146810,
     SPELL_PRIEST_SMITE_ABSORB                       = 208771,
     SPELL_PRIEST_SMITE_AURA                         = 208772,
@@ -2443,33 +2444,30 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER) ||
-                !sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AT))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER, SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER });
         }
 
-        void HandleCast()
+        void HandleEffectDummy(SpellEffIndex /*effIndex*/)
         {
-            Unit* caster = GetCaster();
-            WorldLocation const* dest = GetExplTargetDest();
-            if (!caster || !dest)
-                return;
+            Position destPos = GetHitDest()->GetPosition();
+            float radius = GetEffectInfo()->CalcRadius();
 
-            std::vector<AreaTrigger*> ats = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AT);
-            
-            // We can only have 3 feathers active at a time, delete oldest one (first on in the list)
-            if (ats.size() > 2)
+            // Caster is prioritary
+            if (GetCaster()->IsWithinDist2d(&destPos, radius))
             {
-                AreaTrigger* at = *ats.begin();
-                at->SetDuration(0);
+                GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
             }
-            caster->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_PRIEST_ANGELIC_FEATHER_AT, true);
+            else
+            {
+                SpellCastTargets targets;
+                targets.SetDst(destPos);
+                GetCaster()->CastSpell(targets, sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER), nullptr);
+            }
         }
 
         void Register() override
         {
-            OnCast += SpellCastFn(spell_pri_angelic_feather_SpellScript::HandleCast);
+            OnEffectHit += SpellEffectFn(spell_pri_angelic_feather_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -2623,45 +2621,39 @@ public:
     }
 };
 
-// Angelic Feather AreaTrigger - 158624
+// Angelic Feather areatrigger - created by SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER
 // AreaTriggerID - 337
 class at_pri_angelic_feather : public AreaTriggerEntityScript
 {
 public:
-    at_pri_angelic_feather() : AreaTriggerEntityScript("at_pri_angelic_feather")
-    {}
+    at_pri_angelic_feather() : AreaTriggerEntityScript("at_pri_angelic_feather") { }
 
     struct at_pri_angelic_featherAI : AreaTriggerAI
     {
         at_pri_angelic_featherAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-        Creature* tempSumm = nullptr;
-
-        void OnCreate() override
+        // Called when the AreaTrigger has just been initialized, just before added to map
+        void OnInitialize() override
         {
-            Unit* caster = at->GetCaster();
+            if (Unit* caster = at->GetCaster())
+            {
+                std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER);
 
-            if (!caster)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
+                if (areaTriggers.size() >= 3)
+                    areaTriggers.front()->SetDuration(0);
+            }
         }
 
         void OnUnitEnter(Unit* unit) override
         {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            if (caster->IsFriendlyTo(unit) && unit != tempSumm)
+            if (Unit* caster = at->GetCaster())
             {
-                caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER, true);
-                at->SetDuration(0);
+                if (caster->IsFriendlyTo(unit) && !unit->IsSummon())
+                {
+                    // If target already has aura, increase duration to max 130% of initial duration
+                    caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
+                    at->SetDuration(0);
+                }
             }
         }
     };
@@ -2671,7 +2663,6 @@ public:
         return new at_pri_angelic_featherAI(areatrigger);
     }
 };
-
 
 // Power Word: Barrier - 62618
 // AreaTriggerID - 1489
