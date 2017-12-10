@@ -539,7 +539,7 @@ class go_skull_pile : public GameObjectScript
         {
             go_skull_pileAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 ClearGossipMenuFor(player);
                 switch (gossipListId)

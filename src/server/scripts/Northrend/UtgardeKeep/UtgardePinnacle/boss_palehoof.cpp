@@ -560,7 +560,7 @@ public:
     {
         go_palehoof_sphereAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
         {
             if (InstanceScript* instance = me->GetInstanceScript())
             {

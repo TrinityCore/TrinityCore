@@ -423,7 +423,7 @@ class go_blackened_urn : public GameObjectScript
         {
             go_blackened_urnAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
             {
                 if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
                     return false;

@@ -529,7 +529,7 @@ class npc_wyrmrest_defender : public CreatureScript
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
-                if (gossipListId == GOSSIP_ACTION_INFO_DEF + 1)
+                if (action == GOSSIP_ACTION_INFO_DEF + 1)
                 {
                     SendGossipMenuFor(player, GOSSIP_TEXTID_DEF2, me->GetGUID());
                     // Makes player cast trigger spell for 49207 on self

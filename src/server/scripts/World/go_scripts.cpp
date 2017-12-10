@@ -393,7 +393,7 @@ class go_resonite_cask : public GameObjectScript
         {
             go_resonite_caskAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
             {
                 if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
                     me->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
@@ -1277,7 +1277,7 @@ class go_massive_seaforium_charge : public GameObjectScript
         {
             go_massive_seaforium_chargeAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
             {
                 me->SetLootState(GO_JUST_DEACTIVATED);
                 return true;

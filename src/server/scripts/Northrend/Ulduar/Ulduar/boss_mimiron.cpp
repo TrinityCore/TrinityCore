@@ -1650,7 +1650,7 @@ class go_mimiron_hardmode_button : public GameObjectScript
         {
             go_mimiron_hardmode_buttonAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
             {
                 if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
                     return true;
