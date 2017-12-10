@@ -269,12 +269,13 @@ struct GuildReward
 uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
 
 // Guild Challenge
-#define GUILD_CHALLENGES_TYPES 4
-
-const uint32 GuildChallengeGoldReward[GUILD_CHALLENGES_TYPES]         = { 0, 250,    1000,    500 };
-const uint32 GuildChallengeMaxLevelGoldReward[GUILD_CHALLENGES_TYPES] = { 0, 125,    500,     250 };
-const uint32 GuildChallengeXPReward[GUILD_CHALLENGES_TYPES]           = { 0, 300000, 3000000, 1500000 };
-const uint32 GuildChallengesPerWeek[GUILD_CHALLENGES_TYPES]           = { 0, 7,      1,       3 };
+enum GuildChallengeTypes
+{
+    GUILD_CHALLENGE_TYPE_DUNGEON    = 1,
+    GUILD_CHALLENGE_TYPE_RAID       = 2,
+    GUILD_CHALLENGE_TYPE_RATED_BG   = 3,
+    MAX_GUILD_CHALLENGE_TYPE,
+};
 
 // Emblem info
 class TC_GAME_API EmblemInfo
@@ -882,9 +883,11 @@ public:
 
     // Guild leveling
     uint8 GetLevel() const { return _level; }
-    void GiveXP(uint32 xp, Player* source);
+    void GiveXP(uint32 xp, Player* source, bool rewardedByChallenge = false);
     uint64 GetExperience() const { return _experience; }
     uint64 GetTodayExperience() const { return _todayExperience; }
+
+    void CompleteChallenge(uint8 challengeType, Player* source);
 
     void AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value);
 
@@ -919,6 +922,8 @@ protected:
     uint8 _level;
     uint64 _experience;
     uint64 _todayExperience;
+
+    uint8 _currChallengeCount[MAX_GUILD_CHALLENGE_TYPE];
 
 private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }

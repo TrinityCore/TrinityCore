@@ -3880,6 +3880,30 @@ Guild.DailyXPCap = 7807500
 Guild.WeeklyReputationCap = 4375
 
 #
+#    Guild.Challenge
+#        Description: defines the required challenge completions and reward amount for completing guild challenges
+#        Default:     300000  - (DungeonXP)
+#                     125     - (DungeonGold)
+#                     7       - (DungeonsNeeded)
+#                     3000000 - (RaidXP)
+#                     125     - (RaidGold)
+#                     1       - (RaidsNeeded)
+#                     1500000 - (RatedBattlegroundXP)
+#                     250     - (RatedBattlegroundGold)
+#                     3       - (RatedBattlegroundsNedeed)
+#
+
+Guild.Challenge.DungeonXP = 300000
+Guild.Challenge.DungeonGold = 125
+Guild.Challenge.DungeonsNedeed = 7
+Guild.Challenge.RaidXP = 3000000
+Guild.Challenge.RaidGold = 500
+Guild.Challenge.RaidsNedeed = 1
+Guild.Challenge.RatedBattlegroundXP = 1500000
+Guild.Challenge.RatedBattlegroundGold = 250
+Guild.Challenge.RatedBattlegroundsNedeed = 3
+
+#
 ###################################################################################################
 
 ###################################################################################################

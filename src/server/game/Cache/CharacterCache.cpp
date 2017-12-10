@@ -220,6 +220,19 @@ bool CharacterCache::GetCharacterNameByGuid(ObjectGuid guid, std::string& name) 
     return true;
 }
 
+bool CharacterCache::GetPlayerGuildIdByGUID(ObjectGuid guid, uint32& guildId) const
+{
+    auto itr = _characterCacheStore.find(guid);
+    if (itr == _characterCacheStore.end())
+        return false;
+
+    if (!itr->second.GuildId)
+        return false;
+
+    guildId = itr->second.GuildId;
+    return true;
+}
+
 uint32 CharacterCache::GetCharacterTeamByGuid(ObjectGuid guid) const
 {
     auto itr = _characterCacheStore.find(guid);

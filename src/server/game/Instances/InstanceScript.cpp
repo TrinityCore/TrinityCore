@@ -29,6 +29,7 @@
 #include "Pet.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
+#include "Guild.h"
 #include "ScriptReloadMgr.h"
 #include "ScriptMgr.h"
 
@@ -654,6 +655,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         return;
 
     uint32 dungeonId = 0;
+    uint32 encounterId = 0;
 
     for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
     {
@@ -661,6 +663,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
             completedEncounters |= 1 << encounter->dbcEntry->encounterIndex;
+            encounterId = encounter->dbcEntry->id;
             if (encounter->lastEncounterDungeon)
             {
                 if (instance->GetDifficulty() != sLFGDungeonStore.LookupEntry(encounter->lastEncounterDungeon)->difficulty)
@@ -674,19 +677,48 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         }
     }
 
-    if (dungeonId)
+    bool LFGRewarded = false;
+    std::vector<uint32> guildList;
+    Map::PlayerList const& players = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
     {
-        Map::PlayerList const& players = instance->GetPlayers();
-        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-        {
-            if (Player* player = i->GetSource())
-                if (Group* grp = player->GetGroup())
-                    if (grp->isLFGGroup())
+        if (Player* player = i->GetSource())
+            if (Group* grp = player->GetGroup())
+            {
+                bool guildAlreadyUpdate = false;
+                for (std::vector<uint32>::const_iterator guildItr = guildList.begin(); guildItr != guildList.end(); guildItr++)
+                    if (*guildItr == player->GetGuildId())
+                        guildAlreadyUpdate = true;
+
+                if (!guildAlreadyUpdate)
+                {
+                    if (Guild* guild = player->GetGuild())
                     {
-                        sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
-                        return;
+                        if (grp->IsGuildGroupFor(player))
+                        {
+                            if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
+                            {
+                                if (grp->MemberLevelIsInRange(dungeon->minlevel, dungeon->maxlevel))
+                                {
+                                    if (dungeonId)
+                                        guild->CompleteChallenge(instance->IsNonRaidDungeon() ? GUILD_CHALLENGE_TYPE_DUNGEON : GUILD_CHALLENGE_TYPE_RAID, player);
+                                    else if (instance->IsRaid())
+                                        guild->CompleteChallenge(GUILD_CHALLENGE_TYPE_RAID, player);
+                                }
+                            }
+
+                            guild->AddGuildNews(GUILD_NEWS_DUNGEON_ENCOUNTER, player->GetGUID(), 0, encounterId);
+                            guildList.push_back(player->GetGuildId());
+                        }
                     }
-        }
+                }
+
+                if (grp->isLFGGroup() && !LFGRewarded && dungeonId)
+                {
+                    sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
+                    LFGRewarded = true;
+                }
+            }
     }
 }
 

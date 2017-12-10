@@ -1362,7 +1362,7 @@ void World::LoadConfigSettings(bool reload)
     // MySQL ping time interval
     m_int_configs[CONFIG_DB_PING_INTERVAL] = sConfigMgr->GetIntDefault("MaxPingTime", 30);
 
-    // Guild save interval
+    // Guild configs
     m_bool_configs[CONFIG_GUILD_LEVELING_ENABLED] = sConfigMgr->GetBoolDefault("Guild.LevelingEnabled", true);
     m_int_configs[CONFIG_GUILD_SAVE_INTERVAL] = sConfigMgr->GetIntDefault("Guild.SaveInterval", 15);
     m_int_configs[CONFIG_GUILD_MAX_LEVEL] = sConfigMgr->GetIntDefault("Guild.MaxLevel", 25);
@@ -1370,6 +1370,15 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_XP_GUILD_MODIFIER] = sConfigMgr->GetFloatDefault("Guild.XPModifier", 0.25f);
     m_int_configs[CONFIG_GUILD_DAILY_XP_CAP] = sConfigMgr->GetIntDefault("Guild.DailyXPCap", 7807500);
     m_int_configs[CONFIG_GUILD_WEEKLY_REP_CAP] = sConfigMgr->GetIntDefault("Guild.WeeklyReputationCap", 4375);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_XP] = sConfigMgr->GetIntDefault("Guild.Challenge.DungeonXP", 300000);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_GOLD] = sConfigMgr->GetIntDefault("Guild.Challenge.DungeonGold", 125);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_NEEDED] = sConfigMgr->GetIntDefault("Guild.Challenge.DungeonsNedeed", 7);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RAID_XP] = sConfigMgr->GetIntDefault("Guild.Challenge.RaidXP", 3000000);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RAID_GOLD] = sConfigMgr->GetIntDefault("Guild.Challenge.RaidGold", 500);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RAID_NEEDED] = sConfigMgr->GetIntDefault("Guild.Challenge.RaidsNedeed", 1);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RATEDBG_XP] = sConfigMgr->GetIntDefault("Guild.Challenge.RatedBattlegroundXP", 1500000);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RATEDBG_GOLD] = sConfigMgr->GetIntDefault("Guild.Challenge.RatedBattlegroundGold", 250);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RATEDBG_NEEDED] = sConfigMgr->GetIntDefault("Guild.Challenge.RatedBattlegroundsNedeed", 3);
 
     // misc
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowPaths", true);

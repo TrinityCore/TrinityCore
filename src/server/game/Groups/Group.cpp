@@ -26,6 +26,7 @@
 #include "ObjectMgr.h"
 #include "GroupMgr.h"
 #include "Group.h"
+#include "Guild.h"
 #include "Formulas.h"
 #include "ObjectAccessor.h"
 #include "Battleground.h"
@@ -205,7 +206,8 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
     member.guid = ObjectGuid(HighGuid::Player, guidLow);
 
     // skip non-existed member
-    if (!sCharacterCache->GetCharacterNameByGuid(member.guid, member.name))
+    if (!sCharacterCache->GetCharacterNameByGuid(member.guid, member.name) ||
+        !sCharacterCache->GetPlayerGuildIdByGUID(member.guid, member.guildId))
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
         stmt->setUInt32(0, guidLow);
@@ -411,6 +413,7 @@ bool Group::AddMember(Player* player)
     member.group     = subGroup;
     member.flags     = 0;
     member.roles     = 0;
+    member.guildId   = player->GetGuildId();
     m_memberSlots.push_back(member);
 
     SubGroupCounterIncrease(subGroup);
@@ -1865,6 +1868,87 @@ bool Group::_setMembersGroup(ObjectGuid guid, uint8 group)
     }
 
     return true;
+}
+
+bool Group::MemberLevelIsInRange(uint32 levelMin, uint32 levelMax)
+{
+    for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+        if (Player *member = ObjectAccessor::FindPlayer(itr->guid))
+            if (member->getLevel() < levelMin || member->getLevel() > levelMax)
+                return false;
+
+    return true;
+}
+
+bool Group::IsGuildGroupFor(Player* player)
+{
+    if (!IsMember(player->GetGUID()))
+        return false;
+
+    if (!player->GetGuildId())
+        return false;
+
+    if (!player->GetMap()->IsDungeon() &&
+        !(player->InArena() && player->GetBattleground()->isRated()))
+        return false;
+
+    if (GetMembersCountOfGuild(player->GetGuildId()) < GetNeededMembersOfSameGuild((player->InArena() && player->GetBattleground()->isRated())
+        ? player->GetBattleground()->GetArenaType() : 0, player->GetMap()))
+        return false;
+
+    return true;
+}
+
+uint32 Group::GetMembersCountOfGuild(uint32 guildId)
+{
+    uint32 count = 0;
+
+    for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+        if (itr->guildId == guildId)
+            count++;
+
+    return count;
+}
+
+uint32 Group::GetNeededMembersOfSameGuild(uint8 arenaType, Map const *map)
+{
+    // For arena (100% of member)
+    if (arenaType && map->IsBattleArena())
+        return arenaType;
+
+    if (map->IsNonRaidDungeon())
+        return 3;
+
+    if (map->IsRaid())
+    {
+        if (map->GetEntry()->Expansion() == 0) // classic
+            return 10;
+
+        if (map->GetEntry()->Expansion() == 1) // TBC
+            return 8;
+
+        if (map->Is25ManRaid())
+            return 20;
+
+        return 8;
+    }
+
+    return 0;
+}
+
+void Group::UpdateGuildFor(ObjectGuid guid, uint32 guildId)
+{
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (itr->guid == guid)
+            itr->guildId = guildId; // Change guild ID
+
+                                    // Update guild flag
+        if (itr->guildId == guildId)
+            if (Player* member = ObjectAccessor::FindPlayer(itr->guid))
+                if (Guild* guild = member->GetGuild())
+                    guild->HandleGuildPartyRequest(member->GetSession());
+    }
 }
 
 bool Group::SameSubGroup(Player const* member1, Player const* member2) const

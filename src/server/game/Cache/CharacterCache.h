@@ -58,6 +58,7 @@ class TC_GAME_API CharacterCache
 
         ObjectGuid GetCharacterGuidByName(std::string const& name) const;
         bool GetCharacterNameByGuid(ObjectGuid guid, std::string& name) const;
+        bool GetPlayerGuildIdByGUID(ObjectGuid guid, uint32 &guildId) const;
         uint32 GetCharacterTeamByGuid(ObjectGuid guid) const;
         uint32 GetCharacterAccountIdByGuid(ObjectGuid guid) const;
         uint32 GetCharacterAccountIdByName(std::string const& name) const;

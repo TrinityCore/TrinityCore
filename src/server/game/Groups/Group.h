@@ -172,6 +172,7 @@ class TC_GAME_API Group
             uint8       group;
             uint8       flags;
             uint8       roles;
+            uint32      guildId;
         };
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
@@ -352,6 +353,13 @@ class TC_GAME_API Group
 
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
+
+        // guild misc
+        bool IsGuildGroupFor(Player* player);
+        uint32 GetMembersCountOfGuild(uint32 guildId);
+        uint32 GetNeededMembersOfSameGuild(uint8 arenaType, Map const* map);
+        bool MemberLevelIsInRange(uint32 levelMin, uint32 levelMax);
+        void UpdateGuildFor(ObjectGuid guid, uint32 guildId);
 
     protected:
         bool _setMembersGroup(ObjectGuid guid, uint8 group);

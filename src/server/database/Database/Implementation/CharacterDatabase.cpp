@@ -235,6 +235,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE, "UPDATE guild SET todayExperience = 0", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_GUILD_NEWS, "INSERT INTO guild_newslog (guildid, LogGuid, EventType, PlayerGuid, Flags, Value, Timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)"
                      " ON DUPLICATE KEY UPDATE LogGuid = VALUES (LogGuid), EventType = VALUES (EventType), PlayerGuid = VALUES (PlayerGuid), Flags = VALUES (Flags), Value = VALUES (Value), Timestamp = VALUES (Timestamp)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_GUILD_CHALLENGE, "UPDATE guild SET completedDungeonChallenges = ?, completedRaidChallenges = ?, completedRatedBattlegroundChallenges = ? WHERE guildId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_GUILD_RESET_CHALLENGE, "UPDATE guild SET completedDungeonChallenges = 0, completedRaidChallenges = 0, completedRatedBattlegroundChallenges = 0 WHERE guildId = ?", CONNECTION_ASYNC);
 
     // Chat channel handling
     PrepareStatement(CHAR_SEL_CHANNEL, "SELECT name, announce, ownership, password, bannedList FROM channels WHERE name = ? AND team = ?", CONNECTION_SYNCH);
