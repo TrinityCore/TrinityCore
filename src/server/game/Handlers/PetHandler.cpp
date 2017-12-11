@@ -731,7 +731,7 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 
 void WorldSession::UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot)
 {
-    int32 swapPetNumber = 0;
+    uint32 swapPetNumber = 0;
     Pet* pet = _player->GetPet();
 
     // first check check new PetSlot if another pet already exists there
