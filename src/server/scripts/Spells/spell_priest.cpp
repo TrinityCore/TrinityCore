@@ -239,11 +239,18 @@ public:
     {
         PrepareAuraScript(spell_pri_voidform_AuraScript);
 
-        void HandlePeriodic(AuraEffect const* /*aurEff*/)
+        void HandlePeriodic(AuraEffect const* aurEff)
         {
             Unit* caster = GetCaster();
             if (!caster)
                 return;
+
+            // This spell must end when insanity hit 0
+            if (caster->GetPower(POWER_INSANITY) == 0)
+            {
+                caster->RemoveAura(aurEff->GetBase());
+                return;
+            }
 
             int32 tick = GetAura()->GetStackAmount()-1;
             switch (tick)

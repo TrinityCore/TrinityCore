@@ -1918,7 +1918,7 @@ void Player::Regenerate(Powers power)
             if (Powers((*i)->GetMiscValue()) == power)
                 AddPct(addvalue, (*i)->GetAmount());
 
-        addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_regenTimer) / (5 * IN_MILLISECONDS);
+        addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (float((power != POWER_ENERGY && power != POWER_INSANITY) ? m_regenTimerCount : m_regenTimer) / float(5 * IN_MILLISECONDS));
     }
 
     int32 minPower = powerType->RegenerationMin;
