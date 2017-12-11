@@ -27724,3 +27724,30 @@ uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
 
     return roll;
 }
+
+uint8 Player::GetUnusedActivePetSlot()
+{
+    PreparedStatement* stmt;
+    PreparedQueryResult result;
+
+    // First check slot 0
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ID_BY_SLOT);
+    stmt->setUInt64(0, GetOwner()->GetGUID().GetCounter());
+    stmt->setUInt8(1, 0);
+
+    result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+        return 0;
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_UNUSED_ACTIVE_PET_SLOT);
+
+    result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+        return 5; // 5 is first stable slot
+
+    Field* fields = result->Fetch();
+
+    return fields[0].GetUInt8();
+}
