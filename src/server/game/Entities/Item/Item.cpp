@@ -2112,7 +2112,7 @@ bool Item::ItemContainerLoadLootFromDB()
 
                 // If container item is in a bag, add that player as an allowed looter
                 if (GetBagSlot())
-                    loot_item.allowedGUIDs.insert(GetOwner()->GetGUID());
+                    loot_item.AddAllowedLooter(GetOwner());
 
                 // Finally add the LootItem to the container
                 loot.items.push_back(loot_item);

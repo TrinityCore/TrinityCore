@@ -1759,6 +1759,7 @@ void Creature::setDeathState(DeathState s)
         SetLootRecipient(nullptr);
         ResetPlayerDamageReq();
 
+        SetCannotReachTarget(false);
         UpdateMovementFlags();
 
         ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_IGNORE_PATHFINDING));

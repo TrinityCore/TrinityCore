@@ -1990,6 +1990,9 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
     if (!trigger)
         return;
 
+    // remove immunity flags, to allow spell to target anything
+    trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+
     if (Unit* owner = GetOwner())
     {
         trigger->setFaction(owner->getFaction());

@@ -25578,9 +25578,9 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
 
 void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* = nullptr*/)
 {
-    QuestItem* qitem = nullptr;
-    QuestItem* ffaitem = nullptr;
-    QuestItem* conditem = nullptr;
+    NotNormalLootItem* qitem = nullptr;
+    NotNormalLootItem* ffaitem = nullptr;
+    NotNormalLootItem* conditem = nullptr;
 
     LootItem* item = loot->LootItemInSlot(lootSlot, this, &qitem, &ffaitem, &conditem);
 

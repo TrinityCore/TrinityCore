@@ -639,6 +639,7 @@ class TC_GAME_API Spell
         bool IsNextMeleeSwingSpell() const;
         bool IsTriggered() const;
         bool IsIgnoringCooldowns() const;
+        bool IsProcDisabled() const;
         bool IsChannelActive() const;
         bool IsAutoActionResetSpell() const;
 

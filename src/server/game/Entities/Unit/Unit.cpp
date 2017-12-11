@@ -124,7 +124,7 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
             break;
     }
 
-    if (m_absorb)
+    if (dmgInfo.HitInfo & (HITINFO_PARTIAL_ABSORB | HITINFO_FULL_ABSORB))
         m_hitMask |= PROC_HIT_ABSORB;
 
     if (dmgInfo.HitInfo & HITINFO_FULL_RESIST)
@@ -133,6 +133,8 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
     if (m_block)
         m_hitMask |= PROC_HIT_BLOCK;
 
+    bool const damageNullified = (dmgInfo.HitInfo & (HITINFO_FULL_ABSORB | HITINFO_FULL_RESIST)) != 0 ||
+        (m_hitMask & (PROC_HIT_IMMUNE | PROC_HIT_FULL_BLOCK)) != 0;
     switch (dmgInfo.hitOutCome)
     {
         case MELEE_HIT_MISS:
@@ -150,10 +152,12 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
         case MELEE_HIT_CRUSHING:
         case MELEE_HIT_GLANCING:
         case MELEE_HIT_NORMAL:
-            m_hitMask |= PROC_HIT_NORMAL;
+            if (!damageNullified)
+                m_hitMask |= PROC_HIT_NORMAL;
             break;
         case MELEE_HIT_CRIT:
-            m_hitMask |= PROC_HIT_CRITICAL;
+            if (!damageNullified)
+                m_hitMask |= PROC_HIT_CRITICAL;
             break;
         default:
             break;
@@ -191,7 +195,10 @@ void DamageInfo::ResistDamage(uint32 amount)
     m_resist += amount;
     m_damage -= amount;
     if (!m_damage)
+    {
         m_hitMask |= PROC_HIT_FULL_RESIST;
+        m_hitMask &= ~(PROC_HIT_NORMAL | PROC_HIT_CRITICAL);
+    }
 }
 
 void DamageInfo::BlockDamage(uint32 amount)
@@ -201,7 +208,10 @@ void DamageInfo::BlockDamage(uint32 amount)
     m_damage -= amount;
     m_hitMask |= PROC_HIT_BLOCK;
     if (!m_damage)
+    {
         m_hitMask |= PROC_HIT_FULL_BLOCK;
+        m_hitMask &= ~(PROC_HIT_NORMAL | PROC_HIT_CRITICAL);
+    }
 }
 
 uint32 DamageInfo::GetHitMask() const
@@ -966,7 +976,7 @@ void Unit::CastSpell(Unit* victim, uint32 spellId, bool triggered, Item* castIte
     CastSpell(victim, spellId, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
-void Unit::CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags /*= TRIGGER_NONE*/, Item* castItem /*= NULL*/, AuraEffect const* triggeredByAura /*= NULL*/, ObjectGuid originalCaster /*= ObjectGuid::Empty*/)
+void Unit::CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags /*= TRIGGER_NONE*/, Item* castItem /*= nullptr*/, AuraEffect const* triggeredByAura /*= nullptr*/, ObjectGuid originalCaster /*= ObjectGuid::Empty*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -978,7 +988,7 @@ void Unit::CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags
     CastSpell(victim, spellInfo, triggerFlags, castItem, triggeredByAura, originalCaster);
 }
 
-void Unit::CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem/*= NULL*/, AuraEffect const* triggeredByAura /*= NULL*/, ObjectGuid originalCaster /*= ObjectGuid::Empty*/)
+void Unit::CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem/*= nullptr*/, AuraEffect const* triggeredByAura /*= nullptr*/, ObjectGuid originalCaster /*= ObjectGuid::Empty*/)
 {
     CastSpell(victim, spellInfo, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
@@ -987,7 +997,7 @@ void Unit::CastSpell(Unit* victim, SpellInfo const* spellInfo, TriggerCastFlags 
 {
     SpellCastTargets targets;
     targets.SetUnitTarget(victim);
-    CastSpell(targets, spellInfo, NULL, triggerFlags, castItem, triggeredByAura, originalCaster);
+    CastSpell(targets, spellInfo, nullptr, triggerFlags, castItem, triggeredByAura, originalCaster);
 }
 
 void Unit::CastCustomSpell(Unit* target, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster)
@@ -1041,7 +1051,21 @@ void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, 
     SpellCastTargets targets;
     targets.SetDst(x, y, z, GetOrientation());
 
-    CastSpell(targets, spellInfo, NULL, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+    CastSpell(targets, spellInfo, nullptr, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+}
+
+void Unit::CastSpell(float x, float y, float z, uint32 spellId, TriggerCastFlags triggerFlags, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster)
+{
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    if (!spellInfo)
+    {
+        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell id %u by caster: %s", spellId, GetGUID().ToString().c_str());
+        return;
+    }
+    SpellCastTargets targets;
+    targets.SetDst(x, y, z, GetOrientation());
+
+    CastSpell(targets, spellInfo, nullptr, triggerFlags, castItem, triggeredByAura, originalCaster);
 }
 
 void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castItem, AuraEffect* triggeredByAura, ObjectGuid originalCaster)
@@ -1055,7 +1079,7 @@ void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castI
     SpellCastTargets targets;
     targets.SetGOTarget(go);
 
-    CastSpell(targets, spellInfo, NULL, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+    CastSpell(targets, spellInfo, nullptr, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
 void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit)
@@ -10216,6 +10240,11 @@ void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplica
 
 void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& aurasTriggeringProc)
 {
+    Spell const* triggeringSpell = eventInfo.GetProcSpell();
+    bool const disableProcs = triggeringSpell && triggeringSpell->IsProcDisabled();
+    if (disableProcs)
+        SetCantProc(true);
+
     for (auto const& aurAppProc : aurasTriggeringProc)
     {
         AuraApplication* aurApp;
@@ -10234,6 +10263,9 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
         if (spellInfo->HasAttribute(SPELL_ATTR3_DISABLE_PROC))
             SetCantProc(false);
     }
+
+    if (disableProcs)
+        SetCantProc(false);
 }
 
 SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
