@@ -25,6 +25,17 @@
 #define PET_FOCUS_REGEN_INTERVAL 4 * IN_MILLISECONDS
 #define HAPPINESS_LEVEL_SIZE        333000
 
+enum StableResultCode
+{
+    STABLE_ERR_MONEY = 0x01,                         // "you don't have enough money"
+    STABLE_ERR_INVALID_SLOT = 0x03,                         // "That slot is locked"
+    STABLE_SUCCESS_STABLE = 0x08,                         // stable success
+    STABLE_SUCCESS_UNSTABLE = 0x09,                         // unstable/swap success
+    STABLE_SUCCESS_BUY_SLOT = 0x0A,                         // buy slot success
+    STABLE_ERR_EXOTIC = 0x0B,                         // "you are unable to control exotic creatures"
+    STABLE_ERR_STABLE = 0x0C,                         // "Internal pet error"
+};
+
 struct PetSpell
 {
     ActiveStates active;
@@ -148,6 +159,9 @@ class TC_GAME_API Pet : public Guardian
 
         Player* GetOwner() const;
 
+        uint32 GetSlot() { return m_petSlot; }
+        void SetSlot(uint32 newPetSlot) { m_petSlot = newPetSlot; } // use only together with DB update
+
     protected:
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
@@ -158,6 +172,7 @@ class TC_GAME_API Pet : public Guardian
         DeclinedName *m_declinedname;
 
         uint16 m_petSpecialization;
+        uint32 m_petSlot;
 
     private:
         void SaveToDB(uint32, uint32, uint32) override               // override of Creature::SaveToDB     - must not be called

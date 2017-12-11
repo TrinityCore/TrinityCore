@@ -237,6 +237,18 @@ namespace WorldPackets
             uint16 SpecID = 0;
         };
 
+        class PetSlotUpdated final : public ServerPacket
+        {
+        public:
+            PetSlotUpdated() : ServerPacket(SMSG_PET_SLOT_UPDATED, 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 FirstPetNumber;
+            int32 FirstMovedToSlot;
+            int32 SecondPetNumber;
+            int32 SecondMovedToSlot;
+        };
     }
 }
 

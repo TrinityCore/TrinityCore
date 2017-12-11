@@ -461,7 +461,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setUInt8(4, getLevel());
         stmt->setUInt32(5, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
         stmt->setUInt8(6, GetReactState());
-        stmt->setInt16(7, mode);
+        stmt->setInt16(7, m_petSlot);
         stmt->setString(8, m_name);
         stmt->setUInt8(9, HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ? 0 : 1);
         stmt->setUInt32(10, curhealth);

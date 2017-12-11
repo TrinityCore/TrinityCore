@@ -2700,7 +2700,8 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             owner = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
     }
 
-    uint32 petentry = effectInfo->MiscValue;
+    // SUMMON_PET SummonPet's entries are at MiscValue, HunterPets at BasePoints
+    uint32 petentry = effectInfo->MiscValue == 0 ? effectInfo->BasePoints : effectInfo->MiscValue;
 
     if (!owner)
     {
