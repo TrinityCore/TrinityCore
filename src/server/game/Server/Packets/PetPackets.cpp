@@ -193,10 +193,10 @@ WorldPacket const* WorldPackets::Pet::SetPetSpecialization::Write()
 
 WorldPacket const* WorldPackets::Pet::PetSlotUpdated::Write()
 {
-    _worldPacket << int32(FirstPetNumber);
-    _worldPacket << int32(FirstMovedToSlot);
-    _worldPacket << int32(SecondPetNumber);
-    _worldPacket << int32(SecondMovedToSlot);
+    _worldPacket << int32(PetNumberA);
+    _worldPacket << int32(PetSlotA);
+    _worldPacket << int32(PetNumberB);
+    _worldPacket << int32(PetSlotB);
 
     return &_worldPacket;
 }
