@@ -728,3 +728,78 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 
     SendPacket(petNameInvalid.Write());
 }
+
+void WorldSession::UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot)
+{
+    // first check check new PetSlot if another pet already exists there
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ID_BY_SLOT);
+
+    stmt->setUInt64(0, _player->GetGUID().GetCounter());
+    stmt->setUInt8(1, newPetSlot);
+
+    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::UpdatePetSlotCallback, this, petNumber, oldPetSlot, newPetSlot, std::placeholders::_1)));
+}
+
+void WorldSession::UpdatePetSlotCallback(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot, PreparedQueryResult result)
+{
+    int32 swapPetNumber = 0;
+    Pet* pet = _player->GetPet();
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    // If Slot is already in use
+    if (result && result->GetRowCount() == 1)
+    {
+        Field* fields = result->Fetch();
+        swapPetNumber = fields[0].GetUInt32();
+
+        // Check if current pet is the pet to swap
+        if (pet && pet->GetCharmInfo()->GetPetNumber() == swapPetNumber)
+        {
+            pet->SetSlot(oldPetSlot);
+            _player->RemovePet(pet, PET_SAVE_AS_CURRENT);
+        }
+        else
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT);
+            stmt->setUInt32(0, oldPetSlot);
+            stmt->setUInt64(1, _player->GetGUID().GetCounter());
+            stmt->setUInt32(2, newPetSlot);
+            trans->Append(stmt);
+        }
+    }
+    // If Slot is more than one (impossible) abort
+    else if (result && result->GetRowCount() >= 2) // can only be 1 pet per slot
+        return;
+
+    // Check if current pet is the pet to swap
+    if (pet && pet->GetCharmInfo()->GetPetNumber() == petNumber)
+    {
+        pet->SetSlot(newPetSlot);
+        _player->RemovePet(pet, PET_SAVE_AS_CURRENT);
+    }
+    else
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+        stmt->setUInt32(0, newPetSlot);
+        stmt->setUInt64(1, _player->GetGUID().GetCounter());
+        stmt->setUInt32(2, petNumber);
+        trans->Append(stmt);
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    SendPetSlotUpdated(petNumber, newPetSlot, swapPetNumber, oldPetSlot);
+    SendPetStableResult(STABLE_SUCCESS_STABLE);
+}
+
+void WorldSession::SendPetSlotUpdated(int32 firstPetNumber, int32 firstMovedToSlot, int32 secondPetNumber, int32 secondMovedToSlot)
+{
+    WorldPackets::Pet::PetSlotUpdated petSlotUpdated;
+    petSlotUpdated.FirstPetNumber = firstPetNumber;
+    petSlotUpdated.FirstMovedToSlot = firstMovedToSlot;
+    petSlotUpdated.SecondPetNumber = secondPetNumber;
+    petSlotUpdated.SecondMovedToSlot = secondMovedToSlot;
+
+    SendPacket(petSlotUpdated.Write());
+}

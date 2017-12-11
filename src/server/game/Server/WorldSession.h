@@ -493,6 +493,7 @@ namespace WorldPackets
         class SpiritHealerActivate;
         class TrainerBuySpell;
         class RequestStabledPets;
+        class SetPetSlot;
     }
 
     namespace Party
@@ -996,6 +997,9 @@ class TC_GAME_API WorldSession
         void SendStablePetCallback(ObjectGuid guid, PreparedQueryResult result);
         void SendPetStableResult(uint8 guid);
         bool CheckStableMaster(ObjectGuid guid);
+        void UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot);
+        void UpdatePetSlotCallback(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot, PreparedQueryResult result);
+        void SendPetSlotUpdated(int32 firstPetNumber, int32 firstMovedToSlot, int32 secondPetNumber, int32 secondMovedToSlot);
 
         // Account Data
         AccountData const* GetAccountData(AccountDataType type) const { return &_accountData[type]; }
@@ -1335,8 +1339,8 @@ class TC_GAME_API WorldSession
         void HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet);
         void HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleRequestStabledPets(WorldPackets::NPC::RequestStabledPets& packet);
-        void HandleStablePet(WorldPacket& recvPacket);
-        void HandleStablePetCallback(PreparedQueryResult result);
+        void HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet);
+        void HandleSetPetSlotCallback(uint8 newPetSlot, PreparedQueryResult result);
         void HandleUnstablePet(WorldPacket& recvPacket);
         void HandleUnstablePetCallback(uint32 petId, PreparedQueryResult result);
         void HandleBuyStableSlot(WorldPacket& recvPacket);
