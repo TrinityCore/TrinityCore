@@ -409,10 +409,10 @@ void WorldSession::SendStablePetCallback(ObjectGuid guid, PreparedQueryResult re
     SendPacket(packet.Write());
 }
 
-void WorldSession::SendPetStableResult(uint8 res)
+void WorldSession::SendPetStableResult(uint8 result)
 {
     WorldPacket data(SMSG_PET_STABLE_RESULT, 1);
-    data << uint8(res);
+    data << uint8(result);
     SendPacket(&data);
 }
 
@@ -430,7 +430,7 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet)
         return;
     }
 
-    if (packet.NewPetSlot > PET_SAVE_LAST_STABLE_SLOT || packet.NewPetSlot < PET_SAVE_FIRST_ACTIVE_SLOT)
+    if (packet.DestSlot > PET_SAVE_LAST_STABLE_SLOT || packet.DestSlot < PET_SAVE_FIRST_ACTIVE_SLOT)
     {
         SendPetStableResult(STABLE_ERR_STABLE);
         return;
@@ -460,7 +460,7 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet)
     stmt->setUInt64(0, _player->GetGUID().GetCounter());
     stmt->setUInt8(1, packet.PetNumber);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleSetPetSlotCallback, this, packet.NewPetSlot, std::placeholders::_1)));
+    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleSetPetSlotCallback, this, packet.DestSlot, std::placeholders::_1)));
 }
 
 void WorldSession::HandleSetPetSlotCallback(uint8 newPetSlot, PreparedQueryResult result)

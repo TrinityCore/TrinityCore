@@ -137,6 +137,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         stmt->setUInt64(0, ownerid);
         stmt->setUInt8(1, petEntry);
     }
+    else
+        return false;
 
     result = CharacterDatabase.Query(stmt);
 
