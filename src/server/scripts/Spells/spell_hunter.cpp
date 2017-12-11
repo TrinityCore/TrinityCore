@@ -988,6 +988,9 @@ class spell_hun_tame_beast : public SpellScriptLoader
                 if (!GetExplTargetUnit())
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
+                if (caster->ToPlayer()->GetUnusedActivePetSlot() >= 5)
+                    return SPELL_FAILED_DONT_REPORT;
+
                 if (Creature* target = GetExplTargetUnit()->ToCreature())
                 {
                     if (target->getLevel() > caster->getLevel())
