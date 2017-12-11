@@ -25690,10 +25690,6 @@ bool Player::CanFlyInZone(uint32 mapid, uint32 areaid) const
         case 1116: // Draenor
             can_fly = HasSpell(191645); // Draenor Pathfinder
         case 1220: // Broken Isles
-        case 1704: // Legion Ship - Horizontal - Valsharah
-        case 1705: // Legion Ship - Horizontal - Azsuna
-        case 1706: // Legion Ship - Vertical - HighMountain
-        case 1707: // Legion Ship - Vertical - Stormheim
             can_fly = HasSpell(233368); // Broken Isles Pathfinder (Rank 2)
         default:
             break;
