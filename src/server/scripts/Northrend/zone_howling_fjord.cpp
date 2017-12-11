@@ -130,7 +130,7 @@ public:
                 } else PotTimer -= diff;
             }
 
-            if (GetAttack() && UpdateVictim())
+            if (IsActiveAttacker() && UpdateVictim())
                 DoMeleeAttackIfReady();
 
             EscortAI::UpdateAI(diff);
