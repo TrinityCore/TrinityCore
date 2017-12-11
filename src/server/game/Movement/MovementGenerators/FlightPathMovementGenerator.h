@@ -18,9 +18,11 @@
 #ifndef FlightPathMovementGenerator_h__
 #define FlightPathMovementGenerator_h__
 
-#include "WaypointMovementGenerator.h"
+#include "MovementGenerator.h"
+#include "PathMovementBase.h"
 
 class Player;
+struct TaxiPathNodeEntry;
 
 /**
 * FlightPathMovementGenerator generates movement of the player for the paths
