@@ -25665,11 +25665,36 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
         SendEquipError(msg, nullptr, nullptr, item->itemid);
 }
 
-bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
+bool Player::CanFlyInArea(uint32 mapid, uint32 areaid) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
-    uint32 v_map = sDB2Manager.GetVirtualMapForMapAndZone(mapid, zone);
-    return v_map != 571 || HasSpell(54197); // 54197 = Cold Weather Flying
+    bool can_fly = false;
+    switch (mapid)
+    {
+        case 0: // Eastern Kingdoms
+        case 1: // Kalimdor
+        case 646: // Deepholm
+            can_fly = HasSpell(90267); // Flight Master's License
+            break;
+        case 530: // Outland
+            // Draenei and blood elves starting zones belong to Outland map, but are not flyable
+            // These zones don't have flag AREA_FLAG_OUTLAND2
+            can_fly = sAreaTableStore.AssertEntry(areaid)->Flags[0] & AREA_FLAG_OUTLAND2;
+            break;
+        case 571: // Northrend
+            can_fly = HasSpell(54197); // Cold Weather Flying
+            break;
+        case 870: // Pandaria
+            can_fly = HasSpell(115913); // Wisdom of the Four Winds
+            break;
+        case 1116: // Draenor
+            can_fly = HasSpell(191645); // Draenor Pathfinder
+        case 1220: // Broken Isles
+            can_fly = HasSpell(233368); // Broken Isles Pathfinder (Rank 2)
+        default:
+            break;
+    }
+    return can_fly;
 }
 
 void Player::LearnSpellHighestRank(uint32 spellid)
