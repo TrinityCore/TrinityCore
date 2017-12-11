@@ -21151,7 +21151,6 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         }
     }
 
-    // only if current pet in slot
     pet->SavePetToDB(mode);
 
     SetMinion(pet, false);
@@ -27180,6 +27179,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 {
     Pet* pet = new Pet(this, petType);
 
+    if (petType == HUNTER_PET && pet->LoadPetFromDB(this, entry))
+        return nullptr;
+
     if (petType == SUMMON_PET && pet->LoadPetFromDB(this, entry))
     {
         if (duration > 0)
@@ -27188,8 +27190,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return nullptr;
     }
 
-    // petentry == 0 for hunter "call pet" (current pet summoned if any)
-    if (!entry)
+    if ((petType == SUMMON_PET && !entry) || petType == HUNTER_PET)
     {
         delete pet;
         return nullptr;

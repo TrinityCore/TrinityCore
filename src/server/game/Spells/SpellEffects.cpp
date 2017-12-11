@@ -2700,8 +2700,10 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             owner = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
     }
 
-    // SUMMON_PET SummonPet's entries are at MiscValue, HunterPets at BasePoints
-    uint32 petentry = effectInfo->MiscValue == 0 ? effectInfo->BasePoints : effectInfo->MiscValue;
+    // SUMMON_PET SummonPet's entries are at MiscValue, HunterPetSlot at BasePoints
+    uint32 petentry = (effectInfo->MiscValue == 0 && effectInfo->BasePoints <= 4) ? effectInfo->BasePoints : effectInfo->MiscValue;
+
+    PetType petType = (effectInfo->MiscValue == 0 && effectInfo->BasePoints <= 4) ? HUNTER_PET : SUMMON_PET;
 
     if (!owner)
     {
@@ -2748,7 +2750,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
 
     float x, y, z;
     owner->GetClosePoint(x, y, z, owner->GetObjectSize());
-    Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0);
+    Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), petType, 0);
     if (!pet)
         return;
 
