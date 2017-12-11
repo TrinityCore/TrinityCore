@@ -21,6 +21,7 @@
 #include "CreatureAISelector.h"
 #include "DB2Stores.h"
 #include "FleeingMovementGenerator.h"
+#include "FlightPathMovementGenerator.h"
 #include "FormationMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
