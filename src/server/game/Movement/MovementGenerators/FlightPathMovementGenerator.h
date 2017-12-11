@@ -18,7 +18,9 @@
 #ifndef FlightPathMovementGenerator_h__
 #define FlightPathMovementGenerator_h__
 
-#include "WaypointMovementGenerator.h"
+#include "DBCStructure.h"
+#include "MovementGenerator.h"
+#include "PathMovementBase.h"
 
 class Player;
 
