@@ -135,7 +135,6 @@ class boss_lord_marrowgar : public CreatureScript
                 _boneStormDuration = RAID_MODE<uint32>(20000, 30000, 20000, 30000);
                 _baseSpeed = creature->GetSpeedRate(MOVE_RUN);
                 _coldflameLastPos.Relocate(creature);
-                _introDone = false;
                 _boneSlice = false;
             }
 
@@ -150,7 +149,6 @@ class boss_lord_marrowgar : public CreatureScript
                 events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
                 events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(45000, 50000));
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
-                _introDone = false;
                 _boneSlice = false;
                 _boneSpikeImmune.clear();
             }
@@ -328,11 +326,7 @@ class boss_lord_marrowgar : public CreatureScript
                         _boneSpikeImmune.clear();
                         break;
                     case ACTION_TALK_ENTER_ZONE:
-                        if (!_introDone)
-                        {
                             Talk(SAY_ENTER_ZONE);
-                            _introDone = true;
-                        }
                         break;
                     default:
                         break;
@@ -345,7 +339,6 @@ class boss_lord_marrowgar : public CreatureScript
             ObjectGuid _coldflameTarget;
             uint32 _boneStormDuration;
             float _baseSpeed;
-            bool _introDone;
             bool _boneSlice;
         };
 
@@ -760,12 +753,12 @@ class spell_marrowgar_bone_slice : public SpellScriptLoader
         }
 };
 
-class at_lord_marrowgar_entrance : public AreaTriggerScript
+class at_lord_marrowgar_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_lord_marrowgar_entrance() : AreaTriggerScript("at_lord_marrowgar_entrance") { }
+        at_lord_marrowgar_entrance() : OnlyOnceAreaTriggerScript("at_lord_marrowgar_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (Creature* lordMarrowgar = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LORD_MARROWGAR)))
