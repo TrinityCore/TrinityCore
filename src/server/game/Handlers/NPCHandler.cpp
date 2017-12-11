@@ -369,7 +369,7 @@ void WorldSession::SendStablePet(ObjectGuid guid)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
 
     stmt->setUInt64(0, _player->GetGUID().GetCounter());
-    stmt->setUInt8(1, PET_SAVE_FIRST_STABLE_SLOT);
+    stmt->setUInt8(1, PET_SAVE_FIRST_ACTIVE_SLOT);
     stmt->setUInt8(2, PET_SAVE_LAST_STABLE_SLOT);
 
     _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::SendStablePetCallback, this, guid, std::placeholders::_1)));
@@ -425,6 +425,12 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet)
     }
 
     if (!CheckStableMaster(packet.StableMaster))
+    {
+        SendPetStableResult(STABLE_ERR_STABLE);
+        return;
+    }
+
+    if (packet.NewPetSlot > PET_SAVE_LAST_STABLE_SLOT || packet.NewPetSlot < PET_SAVE_FIRST_ACTIVE_SLOT)
     {
         SendPetStableResult(STABLE_ERR_STABLE);
         return;
