@@ -25669,7 +25669,11 @@ bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
     uint32 v_map = sDB2Manager.GetVirtualMapForMapAndZone(mapid, zone);
-    return v_map != 571 || HasSpell(54197); // 54197 = Cold Weather Flying
+    return ((v_map == 0 || v_map == 1 || v_map == 646) && HasSpell(90267))  // Flight Master's License
+                                     || (v_map == 571  && HasSpell(54197))  // Cold Weather Flying
+                                     || (v_map == 870  && HasSpell(115913)) // Wisdom of the Four Winds
+                                     || (v_map == 1116 && HasSpell(191645)) // Draenor Pathfinder
+        || ((v_map == 1220 || v_map == 1704 || v_map == 1705 || v_map == 1706 || v_map == 1707) && HasSpell(233368)); // Broken Isles Pathfinder (Rank 2)
 }
 
 void Player::LearnSpellHighestRank(uint32 spellid)
