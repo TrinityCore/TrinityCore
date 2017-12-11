@@ -1000,6 +1000,7 @@ class TC_GAME_API WorldSession
         void UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot);
         void UpdatePetSlotCallback(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot, PreparedQueryResult result);
         void SendPetSlotUpdated(int32 petNumberA, int32 petSlotA, int32 petNumberB, int32 petSlotB);
+        void SendPetAdded(int32 petSlot, int32 petNumber, int32 creatureID, int32 displayID, int32 level, std::string name);
 
         // Account Data
         AccountData const* GetAccountData(AccountDataType type) const { return &_accountData[type]; }

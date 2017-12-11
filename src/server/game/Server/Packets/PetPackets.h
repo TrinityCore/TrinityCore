@@ -249,6 +249,16 @@ namespace WorldPackets
             int32 PetNumberB;
             int32 PetSlotB;
         };
+
+        class PetAdded final : public ServerPacket
+        {
+        public:
+            PetAdded() : ServerPacket(SMSG_PET_ADDED, 4 + 4 + 4 + 4 + 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            PetStableInfo NewPet;
+        };
     }
 }
 

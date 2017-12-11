@@ -399,6 +399,15 @@ void Pet::SavePetToDB(PetSaveMode mode)
     GetSpellHistory()->SaveToDB<Pet>(trans);
     CharacterDatabase.CommitTransaction(trans);
 
+    if (mode == PET_SAVE_NEW_PET)
+    {
+        uint8 slot = GetUnusedActiveSlot();
+        if (slot <= 4) // 4 is last active slot
+            SetSlot(slot);
+        else
+            mode = PET_SAVE_AS_DELETED;
+    }
+
     // current/stable/not_in_slot
     if (mode >= PET_SAVE_AS_CURRENT)
     {
@@ -411,24 +420,24 @@ void Pet::SavePetToDB(PetSaveMode mode)
         trans->Append(stmt);
 
         // prevent duplicate using slot (except PET_SAVE_NOT_IN_SLOT)
-        if (mode <= PET_SAVE_LAST_STABLE_SLOT)
+        /* if (mode <= PET_SAVE_LAST_STABLE_SLOT)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT);
             stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
             stmt->setUInt64(1, ownerLowGUID);
             stmt->setUInt8(2, uint8(mode));
             trans->Append(stmt);
-        }
+        } */
 
         // prevent existence another hunter pet in PET_SAVE_AS_CURRENT and PET_SAVE_NOT_IN_SLOT
-        if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT || mode > PET_SAVE_LAST_STABLE_SLOT))
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_SLOT);
-            stmt->setUInt64(0, ownerLowGUID);
-            stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
-            stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
-            trans->Append(stmt);
-        }
+        // if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT || mode > PET_SAVE_LAST_STABLE_SLOT))
+        // {
+        //     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_SLOT);
+        //     stmt->setUInt64(0, ownerLowGUID);
+        //     stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
+        //     stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
+        //     trans->Append(stmt);
+        // }
 
         // save pet
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
@@ -1831,4 +1840,31 @@ std::string Pet::GenerateActionBarData() const
     }
 
     return ss.str();
+}
+
+uint8 Pet::GetUnusedActiveSlot()
+{
+    PreparedStatement* stmt;
+    PreparedQueryResult result;
+
+    // First check slot 0
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ID_BY_SLOT);
+    stmt->setUInt64(0, GetOwner()->GetGUID().GetCounter());
+    stmt->setUInt8(1, 0);
+
+    result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+        return 0;
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_UNUSED_ACTIVE_PET_SLOT);
+
+    result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+        return 5; // 5 is first stable slot
+
+    Field* fields = result->Fetch();
+
+    return fields[0].GetUInt8();
 }

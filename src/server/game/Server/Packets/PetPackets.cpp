@@ -200,3 +200,18 @@ WorldPacket const* WorldPackets::Pet::PetSlotUpdated::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Pet::PetAdded::Write()
+{
+    _worldPacket << int32(NewPet.PetSlot);
+    _worldPacket << int32(NewPet.PetNumber);
+    _worldPacket << int32(NewPet.CreatureID);
+    _worldPacket << int32(NewPet.DisplayID);
+    _worldPacket << int32(NewPet.ExperienceLevel);
+    _worldPacket << int8(NewPet.PetFlags);
+
+    _worldPacket.WriteBits(NewPet.PetName.length(), 8);
+    _worldPacket.WriteString(NewPet.PetName);
+
+    return &_worldPacket;
+}

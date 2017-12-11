@@ -803,3 +803,19 @@ void WorldSession::SendPetSlotUpdated(int32 petNumberA, int32 petSlotA, int32 pe
 
     SendPacket(petSlotUpdated.Write());
 }
+
+void WorldSession::SendPetAdded(int32 petSlot, int32 petNumber, int32 creatureID, int32 displayID, int32 level, std::string name)
+{
+    WorldPackets::Pet::PetAdded pet;
+
+    pet.NewPet.PetSlot = petSlot;;
+    pet.NewPet.PetNumber = petNumber;
+    pet.NewPet.CreatureID = creatureID;
+    pet.NewPet.DisplayID = displayID;
+    pet.NewPet.ExperienceLevel = level;
+    pet.NewPet.PetFlags = 0;
+    pet.NewPet.PetName = name;
+
+    SendPacket(pet.Write());
+}
+
