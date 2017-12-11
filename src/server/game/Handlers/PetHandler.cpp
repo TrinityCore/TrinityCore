@@ -731,19 +731,16 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 
 void WorldSession::UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot)
 {
+    int32 swapPetNumber = 0;
+    Pet* pet = _player->GetPet();
+
     // first check check new PetSlot if another pet already exists there
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ID_BY_SLOT);
 
     stmt->setUInt64(0, _player->GetGUID().GetCounter());
     stmt->setUInt8(1, newPetSlot);
 
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::UpdatePetSlotCallback, this, petNumber, oldPetSlot, newPetSlot, std::placeholders::_1)));
-}
-
-void WorldSession::UpdatePetSlotCallback(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot, PreparedQueryResult result)
-{
-    int32 swapPetNumber = 0;
-    Pet* pet = _player->GetPet();
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
