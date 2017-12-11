@@ -25665,7 +25665,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
         SendEquipError(msg, nullptr, nullptr, item->itemid);
 }
 
-bool Player::CanFlyInZone(uint32 mapid, uint32 areaid) const
+bool Player::CanFlyInArea(uint32 mapid, uint32 areaid) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
     bool can_fly = false;
