@@ -25699,13 +25699,6 @@ bool Player::CanFlyInZone(uint32 mapid, uint32 areaid) const
             break;
     }
     return can_fly;
-
-
-
-
-    return ((v_map == 0 || v_map == 1 || v_map == 646) && HasSpell(90267))  // Flight Master's License
-                                     || (v_map == 571  && HasSpell(54197))  // Cold Weather Flying
-                                     || 
 }
 
 void Player::LearnSpellHighestRank(uint32 spellid)
