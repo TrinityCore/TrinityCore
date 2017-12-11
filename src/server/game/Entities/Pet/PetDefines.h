@@ -44,6 +44,7 @@ enum PetSaveMode
     PET_SAVE_UPADTE_SLOT       =  1,
     PET_SAVE_CURRENT_STATE     =  2,
     PET_SAVE_NEW_PET           =  3,
+    PET_SAVE_UNSUMMON          =  4
 };
 
 enum HappinessState
