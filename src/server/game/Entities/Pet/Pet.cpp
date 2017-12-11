@@ -122,7 +122,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         stmt->setUInt64(0, ownerid);
         stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
     }
-    else if (petEntry)
+    else if ((getPetType() == SUMMON_PET) && petEntry)
     {
         // known petEntry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_2);
@@ -131,13 +131,11 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
         stmt->setUInt8(3, uint8(PET_SAVE_LAST_STABLE_SLOT));
     }
-    else
+    else if (getPetType() == HUNTER_PET)
     {
-        // Any current or other non-stabled pet (for hunter "call pet")
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_SLOT);
         stmt->setUInt64(0, ownerid);
-        stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
-        stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
+        stmt->setUInt8(1, petEntry);
     }
 
     result = CharacterDatabase.Query(stmt);
@@ -271,29 +269,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         }
     }
 
-    // set current pet as current
-    // 0=current
-    // 1..MAX_PET_STABLES in stable slot
-    // PET_SAVE_NOT_IN_SLOT(100) = not stable slot (summoning))
-    if (fields[7].GetUInt8())
-    {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
-        stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
-        stmt->setUInt64(1, ownerid);
-        stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
-        stmt->setUInt32(3, m_charmInfo->GetPetNumber());
-        trans->Append(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-        stmt->setUInt8(0, uint8(PET_SAVE_AS_CURRENT));
-        stmt->setUInt64(1, ownerid);
-        stmt->setUInt32(2, m_charmInfo->GetPetNumber());
-        trans->Append(stmt);
-
-        CharacterDatabase.CommitTransaction(trans);
-    }
+    SetSlot(fields[7].GetUInt8());
 
     // Send fake summon spell cast - this is needed for correct cooldown application for spells
     // Example: 46584 - without this cooldown (which should be set always when pet is loaded) isn't set clientside

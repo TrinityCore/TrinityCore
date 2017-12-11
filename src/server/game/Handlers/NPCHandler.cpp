@@ -477,9 +477,9 @@ void WorldSession::HandleSetPetSlotCallback(uint8 newPetSlot, PreparedQueryResul
 
         oldPetSlot = fields[0].GetUInt8();
         petnumber = fields[1].GetUInt32();
-    }
 
-    UpdatePetSlot(petnumber, oldPetSlot, newPetSlot);
+        UpdatePetSlot(petnumber, oldPetSlot, newPetSlot);
+    }
 }
 
 void WorldSession::HandleUnstablePet(WorldPacket& recvData)
