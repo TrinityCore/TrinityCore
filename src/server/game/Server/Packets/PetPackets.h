@@ -244,10 +244,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 FirstPetNumber;
-            int32 FirstMovedToSlot;
-            int32 SecondPetNumber;
-            int32 SecondMovedToSlot;
+            int32 PetNumberA;
+            int32 PetSlotA;
+            int32 PetNumberB;
+            int32 PetSlotB;
         };
     }
 }

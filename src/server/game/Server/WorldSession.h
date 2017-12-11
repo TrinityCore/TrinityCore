@@ -995,11 +995,11 @@ class TC_GAME_API WorldSession
         void SendQueryPetNameResponse(ObjectGuid guid);
         void SendStablePet(ObjectGuid guid);
         void SendStablePetCallback(ObjectGuid guid, PreparedQueryResult result);
-        void SendPetStableResult(uint8 guid);
+        void SendPetStableResult(uint8 result);
         bool CheckStableMaster(ObjectGuid guid);
         void UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot);
         void UpdatePetSlotCallback(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot, PreparedQueryResult result);
-        void SendPetSlotUpdated(int32 firstPetNumber, int32 firstMovedToSlot, int32 secondPetNumber, int32 secondMovedToSlot);
+        void SendPetSlotUpdated(int32 petNumberA, int32 petSlotA, int32 petNumberB, int32 petSlotB);
 
         // Account Data
         AccountData const* GetAccountData(AccountDataType type) const { return &_accountData[type]; }

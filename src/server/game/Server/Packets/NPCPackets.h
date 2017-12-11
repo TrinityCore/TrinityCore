@@ -248,7 +248,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 PetNumber;
-            uint8 NewPetSlot;
+            uint8 DestSlot;
             ObjectGuid StableMaster;
         };
     }

@@ -793,13 +793,13 @@ void WorldSession::UpdatePetSlotCallback(uint32 petNumber, uint8 oldPetSlot, uin
     SendPetStableResult(STABLE_SUCCESS_STABLE);
 }
 
-void WorldSession::SendPetSlotUpdated(int32 firstPetNumber, int32 firstMovedToSlot, int32 secondPetNumber, int32 secondMovedToSlot)
+void WorldSession::SendPetSlotUpdated(int32 petNumberA, int32 petSlotA, int32 petNumberB, int32 petSlotB)
 {
     WorldPackets::Pet::PetSlotUpdated petSlotUpdated;
-    petSlotUpdated.FirstPetNumber = firstPetNumber;
-    petSlotUpdated.FirstMovedToSlot = firstMovedToSlot;
-    petSlotUpdated.SecondPetNumber = secondPetNumber;
-    petSlotUpdated.SecondMovedToSlot = secondMovedToSlot;
+    petSlotUpdated.PetNumberA = petNumberA;
+    petSlotUpdated.PetSlotA = petSlotA;
+    petSlotUpdated.PetNumberB = petNumberB;
+    petSlotUpdated.PetSlotB = petSlotB;
 
     SendPacket(petSlotUpdated.Write());
 }
