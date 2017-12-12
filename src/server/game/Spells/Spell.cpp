@@ -1083,6 +1083,11 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 {
                     if (focusObject)
                         AddGOTarget(focusObject, effMask);
+                    else
+                    {
+                        SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+                        finish(false);
+                    }
                     return;
                 }
                 break;
@@ -1094,6 +1099,11 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                         SpellDestination dest(*focusObject);
                         CallScriptDestinationTargetSelectHandlers(dest, effIndex, targetType);
                         m_targets.SetDst(dest);
+                    }
+                    else
+                    {
+                        SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+                        finish(false);
                     }
                     return;
                 }
@@ -1107,6 +1117,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     if (!target)
     {
         TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: cannot find nearby target for spell ID %u, effect %u", m_spellInfo->Id, effIndex);
+        SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+        finish(false);
         return;
     }
 
@@ -1114,6 +1126,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     if (!target)
     {
         TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set NULL target, effect %u", m_spellInfo->Id, effIndex);
+        SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+        finish(false);
         return;
     }
 
@@ -1125,6 +1139,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             else
             {
                 TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set object of wrong type, expected unit, got %s, effect %u", m_spellInfo->Id, target->GetGUID().GetTypeName(), effMask);
+                SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+                finish(false);
                 return;
             }
             break;
@@ -1134,6 +1150,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             else
             {
                 TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set object of wrong type, expected gameobject, got %s, effect %u", m_spellInfo->Id, target->GetGUID().GetTypeName(), effMask);
+                SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+                finish(false);
                 return;
             }
             break;
@@ -6963,6 +6981,11 @@ bool Spell::IsTriggered() const
 bool Spell::IsIgnoringCooldowns() const
 {
     return (_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) != 0;
+}
+
+bool Spell::IsProcDisabled() const
+{
+    return (_triggeredCastFlags & TRIGGERED_DISALLOW_PROC_EVENTS) != 0;
 }
 
 bool Spell::IsChannelActive() const
