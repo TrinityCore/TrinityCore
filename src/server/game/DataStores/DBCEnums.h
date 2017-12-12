@@ -138,6 +138,14 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
+enum AreaMountFlags
+{
+    AREA_MOUNT_FLAG_GROUND_ALLOWED      = 0x1,
+    AREA_MOUNT_FLAG_FLYING_ALLOWED      = 0x2,
+    AREA_MOUNT_FLAG_FLOAT_ALLOWED       = 0x4,
+    AREA_MOUNT_FLAG_UNDERWATER_ALLOWED  = 0x8
+};
+
 enum ArtifactPowerFlag : uint8
 {
     ARTIFACT_POWER_FLAG_GOLD                        = 0x01,
@@ -784,8 +792,11 @@ enum MapDifficultyFlags : uint8
 
 enum MountCapabilityFlags
 {
-    MOUNT_CAPABILITY_FLAG_CAN_PITCH     = 0x4,                    // client checks MOVEMENTFLAG2_FULL_SPEED_PITCHING
-    MOUNT_CAPABILITY_FLAG_CAN_SWIM      = 0x8,                    // client checks MOVEMENTFLAG_SWIMMING
+    MOUNT_CAPABILITY_FLAG_GROUND                = 0x1,
+    MOUNT_CAPABILITY_FLAG_FLYING                = 0x2,
+    MOUNT_CAPABILITY_FLAG_FLOAT                 = 0x4,
+    MOUNT_CAPABILITY_FLAG_UNDERWATER            = 0x8,
+    MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS   = 0x20,
 };
 
 enum MountFlags
