@@ -1150,6 +1150,23 @@ std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const
     return std::vector<uint32>();
 }
 
+bool DB2Manager::IsInArea(uint32 objectAreaId, uint32 areaId)
+{
+    do
+    {
+        if (objectAreaId == areaId)
+            return true;
+
+        AreaTableEntry const* objectArea = sAreaTableStore.LookupEntry(objectAreaId);
+        if (!objectArea)
+            break;
+
+        objectAreaId = objectArea->ParentAreaID;
+    } while (objectAreaId);
+
+    return false;
+}
+
 std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artifactId) const
 {
     auto itr = _artifactPowers.find(artifactId);
