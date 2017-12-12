@@ -775,8 +775,8 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             if (!player)
                 return false;
 
-            if (Battlefield* battlefield = sBattlefieldMgr->GetEnabledBattlefield(BATTLEFIELD_BATTLEID_WINTERGRASP))
-                return player->GetTeamId() == battlefield->GetDefenderTeam() && !battlefield->IsWarTime();
+            if (Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BATTLEFIELD_BATTLEID_WINTERGRASP))
+                return battlefield->IsEnabled() && player->GetTeamId() == battlefield->GetDefenderTeam() && !battlefield->IsWarTime();
             break;
         }
         case 74411: // Battleground - Dampening

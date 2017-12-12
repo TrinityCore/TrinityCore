@@ -498,7 +498,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                 if (!vehicle->HasAura(SPELL_VEHICLE_TELEPORT))
                 {
                     if (Player* owner = vehicle->GetCharmerOrOwnerPlayerOrPlayerItself())
-                        if ((me->GetFaction() == WintergraspFaction[TEAM_HORDE] && owner->GetFaction() == HORDE) || (me->GetFaction() == WintergraspFaction[TEAM_ALLIANCE] && owner->GetFaction() == ALLIANCE))
+                        if (me->GetFaction() == WintergraspFaction[owner->GetTeamId()])
                             if (Creature* teleportTrigger = owner->SummonTrigger(me->GetPositionX() - 60.f, me->GetPositionY(), me->GetPositionZ() + 1.f, vehicle->GetOrientation(), 1000))
                                 return teleportTrigger;
                 }
