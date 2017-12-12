@@ -135,6 +135,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (Team == TEAM_OTHER)
                     Team = player->GetTeam();
+
+                if (NorthrendBeasts == GORMOK_IN_PROGRESS)
+                    player->CreateVehicleKit(PLAYER_VEHICLE_ID, 0);
             }
 
             void OpenDoor(ObjectGuid guid)
@@ -371,6 +374,19 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
+            void HandlePlayerVehicle(bool apply)
+            {
+                Map::PlayerList const &players = instance->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    if (Player* player = itr->GetSource())
+                    {
+                        if (apply)
+                            player->CreateVehicleKit(PLAYER_VEHICLE_ID, 0);
+                        else
+                            player->RemoveVehicleKit();
+                    }
+            }
+
             void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
@@ -394,12 +410,13 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case GORMOK_IN_PROGRESS:
                                 SetBossState(DATA_NORTHREND_BEASTS, IN_PROGRESS);
                                 NorthrendBeastsCount = 4;
+                                HandlePlayerVehicle(true);
                                 break;
                             case GORMOK_DONE:
                                 if (!JormungarsSummoned)
                                     if (Creature* tirion = GetCreature(DATA_FORDRING))
                                         tirion->AI()->DoAction(ACTION_START_JORMUNGARS);
-
+                                HandlePlayerVehicle(false);
                                 HandleNorthrendBeastsDone();
                                 break;
                             case SNAKES_IN_PROGRESS:
@@ -427,6 +444,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case FAIL:
                                 JormungarsSummoned = false;
                                 IcehowlSummoned = false;
+                                HandlePlayerVehicle(false);
                                 SetBossState(DATA_NORTHREND_BEASTS, FAIL);
                                 if (Creature* tirion = GetCreature(DATA_FORDRING))
                                     tirion->AI()->DoAction(ACTION_NORTHREND_BEASTS_WIPE);

@@ -88,9 +88,14 @@ enum TCRSpellIds
     SPELL_CORPSE_TELEPORT       = 69016
 };
 
-enum TCRMiscData
+enum TCRMisc
 {
-    DESPAWN_TIME = 1200000,
+    DESPAWN_TIME      = 1200000,
+    PLAYER_VEHICLE_ID = 444
+};
+
+enum TCRActions
+{
     ACTION_START_GORMOK = 1,
     ACTION_START_GORMOK_FAIL,
     ACTION_START_JORMUNGARS,

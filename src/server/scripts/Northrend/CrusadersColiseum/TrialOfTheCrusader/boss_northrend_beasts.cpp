@@ -183,9 +183,8 @@ enum NorthrendBeastsSplines
 
 enum Misc
 {
-    DATA_NEW_TARGET         =   1,
-    GORMOK_HAND_SEAT        =   4,
-    PLAYER_VEHICLE_ID       = 444,
+    DATA_NEW_TARGET         = 1,
+    GORMOK_HAND_SEAT        = 4,
     MAX_SNOBOLDS            = 4
 };
 
@@ -353,7 +352,7 @@ struct boss_gormok : public boss_northrend_beastsAI
 
     void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (type != SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
+        if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
             events.ScheduleEvent(EVENT_ENGAGE, Seconds(7));
     }
 
@@ -1026,7 +1025,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
     }
 };
 
-// 66245 - Ride Vehicle
+// 66342 - Jump to Hand
 class spell_gormok_jump_to_hand : public AuraScript
 {
     PrepareAuraScript(spell_gormok_jump_to_hand);
@@ -1068,22 +1067,14 @@ class spell_gormok_ride_player : public AuraScript
         if (target->GetTypeId() != TYPEID_PLAYER || !target->IsInWorld())
             return;
 
-        if (!target->CreateVehicleKit(PLAYER_VEHICLE_ID, 0))
-            return;
-
         if (Unit *caster = GetCaster())
-            caster->GetAI()->SetGUID(target->GetGUID(), DATA_NEW_TARGET);
-    }
-
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        GetTarget()->RemoveVehicleKit();
+            if (caster->IsAIEnabled)
+                caster->GetAI()->SetGUID(target->GetGUID(), DATA_NEW_TARGET);
     }
 
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_gormok_ride_player::OnApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_gormok_ride_player::AfterRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
