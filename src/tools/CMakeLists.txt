@@ -8,7 +8,13 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-add_subdirectory(connection_patcher)
+if (WIN32)
+  add_subdirectory(client_launcher)
+  add_subdirectory(client_initializer)
+else()
+  add_subdirectory(connection_patcher)
+endif()
+
 add_subdirectory(extractor_common)
 add_subdirectory(map_extractor)
 add_subdirectory(vmap4_assembler)

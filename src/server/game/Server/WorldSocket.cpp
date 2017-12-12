@@ -29,6 +29,7 @@
 #include "ScriptMgr.h"
 #include "SessionKeyGeneration.h"
 #include "SHA256.h"
+#include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -68,6 +69,10 @@ uint32 const SizeOfServerHeader = sizeof(uint32) + sizeof(uint16);
 uint8 const WorldSocket::AuthCheckSeed[16] = { 0xC5, 0xC6, 0x98, 0x95, 0x76, 0x3F, 0x1D, 0xCD, 0xB6, 0xA1, 0x37, 0x28, 0xB3, 0x12, 0xFF, 0x8A };
 uint8 const WorldSocket::SessionKeySeed[16] = { 0x58, 0xCB, 0xCF, 0x40, 0xFE, 0x2E, 0xCE, 0xA6, 0x5A, 0x90, 0xB8, 0x01, 0x68, 0x6C, 0x28, 0x0B };
 uint8 const WorldSocket::ContinuedSessionSeed[16] = { 0x16, 0xAD, 0x0C, 0xD4, 0x46, 0xF9, 0x4F, 0xB2, 0xEF, 0x7D, 0xEA, 0x2A, 0x17, 0x66, 0x4D, 0x2F };
+
+uint32 const ClientTypeSeed_Win[4] = { 0x15E29B46, 0xD030E52E, 0x8BB823BD, 0x2EE440F4 };
+uint32 const ClientTypeSeed_Wn64[4] = { 0xA4DEB5FC, 0x2F09587E, 0x86C96622, 0x98162415 };
+uint32 const ClientTypeSeed_Mc64[4] = { 0xA69C3979, 0x92260A02, 0x75F80969, 0xBA56132D };
 
 WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
     _type(CONNECTION_TYPE_REALM), _key(0), _OverSpeedPings(0),
@@ -595,7 +600,7 @@ struct AccountInfo
     struct
     {
         uint32 Id;
-        BigNumber SessionKey;
+        std::array<uint8, 64> KeyData;
         uint8 Expansion;
         int64 MuteTime;
         uint32 Recruiter;
@@ -617,7 +622,7 @@ struct AccountInfo
         // LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id LEFT JOIN account r ON a.id = r.recruiter
         // WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1
         Game.Id = fields[0].GetUInt32();
-        Game.SessionKey.SetHexStr(fields[1].GetCString());
+        HexStrToByteArray(fields[1].GetString(), Game.KeyData.data());
         BattleNet.LastIP = fields[2].GetString();
         BattleNet.IsLockedToIP = fields[3].GetBool();
         BattleNet.LockCountry = fields[4].GetString();
@@ -667,7 +672,18 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     // For hook purposes, we get Remoteaddress at this point.
     std::string address = GetRemoteIpAddress().to_string();
 
-    HmacSha256 hmac(SHA256_DIGEST_LENGTH, account.Game.SessionKey.AsByteArray(SHA256_DIGEST_LENGTH).get());
+    SHA256Hash digestKeyHash;
+    digestKeyHash.UpdateData(account.Game.KeyData.data(), account.Game.KeyData.size());
+    if (account.Game.OS == "Win")
+        digestKeyHash.UpdateData(reinterpret_cast<uint8 const*>(ClientTypeSeed_Win), 16);
+    else if (account.Game.OS == "Wn64")
+        digestKeyHash.UpdateData(reinterpret_cast<uint8 const*>(ClientTypeSeed_Wn64), 16);
+    else if (account.Game.OS == "Mc64")
+        digestKeyHash.UpdateData(reinterpret_cast<uint8 const*>(ClientTypeSeed_Mc64), 16);
+
+    digestKeyHash.Finalize();
+
+    HmacSha256 hmac(digestKeyHash.GetLength(), digestKeyHash.GetDigest());
     hmac.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
     hmac.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
     hmac.UpdateData(AuthCheckSeed, 16);
@@ -681,7 +697,11 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
         return;
     }
 
-    HmacSha256 sessionKeyHmac(SHA256_DIGEST_LENGTH, account.Game.SessionKey.AsByteArray(SHA256_DIGEST_LENGTH).get());
+    SHA256Hash keyData;
+    keyData.UpdateData(account.Game.KeyData.data(), account.Game.KeyData.size());
+    keyData.Finalize();
+
+    HmacSha256 sessionKeyHmac(keyData.GetLength(), keyData.GetDigest());
     sessionKeyHmac.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
     sessionKeyHmac.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
     sessionKeyHmac.UpdateData(SessionKeySeed, 16);
