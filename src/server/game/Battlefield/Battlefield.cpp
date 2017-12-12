@@ -336,6 +336,9 @@ void Battlefield::InvitePlayerToQueue(Player* player)
 
 void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
 {
+    if (player->IsGameMaster())
+        return;
+
     if (IsEnabled())
     {
         if (IsWarTime() && !player->IsInFlight())

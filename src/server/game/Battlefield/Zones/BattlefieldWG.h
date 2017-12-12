@@ -459,6 +459,8 @@ class TC_GAME_API BattlefieldWintergrasp : public Battlefield
         WintergraspBuilding* GetBuilding(ObjectGuid guid) const;
         WintergraspWorkshop* GetWorkshop(WintergraspWorkshopId id) const;
 
+        void ApplyTenacity(Unit* target, bool vehicle = false);
+
         WorkshopSet _workshopSet;
         BuildingSet _buildingSet;
         GuidUnorderedSet _vehicleSet[PVP_TEAMS_COUNT];
