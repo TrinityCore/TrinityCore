@@ -110,6 +110,7 @@ enum PaladinSpells
     SPELL_PALADIN_ARCING_LIGHT_DAMAGE            = 114919,
     SPELL_PALADIN_BLADE_OF_JUSTICE               = 184575,
     SPELL_PALADIN_GREATER_BLESSING_OF_KINGS      = 203538,
+    SPELL_PALADIN_DIVINE_HAMMER                  = 198034,
 };
 
 enum PaladinNPCs
@@ -2154,7 +2155,8 @@ public:
 
         void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
-            amount = 2.7f * GetCaster()->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, true);
+            if (Unit* caster = GetCaster())
+                amount = 2.7f * caster->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, true);
         }
 
         void Register() override
@@ -2166,6 +2168,39 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_pal_greater_blessing_of_kings_AuraScript();
+    }
+};
+
+//198034 - Divine Hammer
+class spell_pal_divine_hammer : public SpellScriptLoader
+{
+public:
+    spell_pal_divine_hammer() : SpellScriptLoader("spell_pal_divine_hammer") { }
+
+    class spell_pal_divine_hammer_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_divine_hammer_SpellScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_HAMMER });
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            uint8 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
+            GetCaster()->SetPower(POWER_HOLY_POWER, hp + 2);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pal_divine_hammer_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pal_divine_hammer_SpellScript();
     }
 };
 
@@ -2296,6 +2331,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_word_of_glory();
     new spell_pal_zeal();
     new spell_pal_greater_blessing_of_kings();
+    new spell_pal_divine_hammer();
 
     // NPC Scripts
     new npc_pal_lights_hammer();
