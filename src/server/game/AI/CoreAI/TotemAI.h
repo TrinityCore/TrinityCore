@@ -42,4 +42,3 @@ class TC_GAME_API TotemAI : public CreatureAI
         ObjectGuid i_victimGuid;
 };
 #endif
-

@@ -706,7 +706,7 @@ enum MessengerTorvus
 {
     NPC_MESSENGER_TORVUS        = 26649,
     QUEST_MESSAGE_FROM_THE_WEST = 12033,
-    
+
     TALK_0 = 0
 };
 

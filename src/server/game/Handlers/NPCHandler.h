@@ -38,4 +38,3 @@ struct PageTextLocale
 };
 
 #endif
-

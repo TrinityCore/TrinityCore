@@ -270,6 +270,7 @@ enum NPCFlags : uint64
     UNIT_NPC_FLAG_ARTIFACT_POWER_RESPEC = 0x0008000000,     // artifact powers reset
     UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x0010000000,     // transmogrification
     UNIT_NPC_FLAG_VAULTKEEPER           = 0x0020000000,     // void storage
+    UNIT_NPC_FLAG_WILD_BATTLE_PET       = 0x0040000000,     // Pet that player can fight (Battle Pet)
     UNIT_NPC_FLAG_BLACK_MARKET          = 0x0080000000,     // black market
     UNIT_NPC_FLAG_ITEM_UPGRADE_MASTER   = 0x0100000000,
     UNIT_NPC_FLAG_GARRISON_ARCHITECT    = 0x0200000000,

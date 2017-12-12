@@ -798,24 +798,6 @@ CharactersPerAccount = 50
 CharactersPerRealm = 12
 
 #
-#    DeathKnightsPerRealm
-#        Description: Limit number of death knight characters per account on this realm.
-#        Range:       1-12
-#        Default:     1
-
-DeathKnightsPerRealm = 1
-
-#
-#    CharacterCreating.MinLevelForDeathKnight
-#        Description: Limit creating death knights only for account with another
-#                     character of specific level (ignored for GM accounts).
-#        Default:     55 - (Enabled, Requires at least another level 55 character)
-#                     0  - (Disabled)
-#                     1  - (Enabled, Requires at least another level 1 character)
-
-CharacterCreating.MinLevelForDeathKnight = 55
-
-#
 #    DemonHuntersPerRealm
 #        Description: Limit number of demon hunter characters per account on this realm.
 #        Range:       1-12
