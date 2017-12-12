@@ -2138,7 +2138,7 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, uint64 npcflag
         return nullptr;
 
     // not too far
-    if (!creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
+    if (!IsWithinDistInMap(creature, INTERACTION_DISTANCE))
         return nullptr;
 
     return creature;
