@@ -21,12 +21,14 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_GENERAL_HUSAM,       DATA_GENERAL_HUSAM      },
-    { BOSS_LOCKMAW,             DATA_LOCKMAW            },
-    { BOSS_AUGH,                DATA_AUGH               },
-    { BOSS_HIGH_PROPHET_BARIM,  DATA_HIGH_PROPHET_BARIM },
-    { BOSS_SIAMAT,              DATA_SIAMAT             },
-    { 0,                        0                       } // End
+    { BOSS_GENERAL_HUSAM,           DATA_GENERAL_HUSAM          },
+    { BOSS_LOCKMAW,                 DATA_LOCKMAW                },
+    { BOSS_AUGH,                    DATA_AUGH                   },
+    { BOSS_HIGH_PROPHET_BARIM,      DATA_HIGH_PROPHET_BARIM     },
+    { BOSS_SIAMAT,                  DATA_SIAMAT                 },
+    { NPC_BLAZE_OF_THE_HEAVENS,     DATA_BLAZE_OF_THE_HEAVENS   },
+    { NPC_HARBINGER_OF_DARKNESS,    DATA_HARBINGER_OF_DARKNESS  },
+    { 0,                        0                               } // End
 };
 
 ObjectData const gameObjectData[] =

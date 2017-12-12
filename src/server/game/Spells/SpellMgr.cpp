@@ -3639,6 +3639,25 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
+                // High Prophet Barim
+            case 81942: // Heaven's Fury
+            case 90040:
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
+                break;
+            case 88814: // Hallowed Ground
+            case 90010:
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
+                break;
+            case 91196: // Blaze of the Heavens
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
+                break;
+            case 82430: // Repentance
+                spellInfo->Effects[EFFECT_0].MiscValue = 150;
+                break;
+            case 95249: // Blaze of the Heavens
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
+                break;
             // Halls Of Origination spells
             // Temple Guardian Anhuur
             case 76606: // Disable Beacon Beams L
