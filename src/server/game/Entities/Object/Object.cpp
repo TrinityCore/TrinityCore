@@ -3103,7 +3103,7 @@ bool WorldObject::IsInPhase(std::set<uint32> const& phases) const
 
 bool WorldObject::IsInPhase(WorldObject const* obj) const
 {
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsGameMaster())
+    if (IsPlayer() && ToPlayer()->IsGameMaster())
         return true;
 
     return IsInPhase(obj->GetPhases());
