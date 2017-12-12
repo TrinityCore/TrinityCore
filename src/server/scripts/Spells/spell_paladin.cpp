@@ -24,13 +24,16 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "Creature.h"
 #include "Group.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 enum PaladinSpells
 {
@@ -105,7 +108,9 @@ enum PaladinSpells
     SPELL_PALADIN_LIGHT_HAMMER_COSMETIC          = 122257,
     SPELL_PALADIN_ARCING_LIGHT_HEAL              = 119952,
     SPELL_PALADIN_ARCING_LIGHT_DAMAGE            = 114919,
-    SPELL_PALADIN_BLADE_OF_JUSTICE               = 184575
+    SPELL_PALADIN_BLADE_OF_JUSTICE               = 184575,
+    SPELL_PALADIN_GREATER_BLESSING_OF_KINGS      = 203538,
+    SPELL_PALADIN_DIVINE_HAMMER                  = 198034,
 };
 
 enum PaladinNPCs
@@ -2106,6 +2111,99 @@ public:
     }
 };
 
+//231843 - Blade of Wrath! (proc)
+//Updated to 7.1
+class spell_pal_blade_of_wrath_proc : public SpellScriptLoader
+{
+public:
+    spell_pal_blade_of_wrath_proc() : SpellScriptLoader("spell_pal_blade_of_wrath_proc") { }
+
+    class spell_pal_blade_of_wrath_proc_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_blade_of_wrath_proc_AuraScript);
+
+        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            caster->GetSpellHistory()->ResetCooldown(SPELL_PALADIN_BLADE_OF_JUSTICE);
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pal_blade_of_wrath_proc_AuraScript::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pal_blade_of_wrath_proc_AuraScript();
+    }
+};
+
+//203538 - Greater Blessing of Kings
+class spell_pal_greater_blessing_of_kings : public SpellScriptLoader
+{
+public:
+    spell_pal_greater_blessing_of_kings() : SpellScriptLoader("spell_pal_greater_blessing_of_kings") { }
+
+    class spell_pal_greater_blessing_of_kings_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_greater_blessing_of_kings_AuraScript);
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* caster = GetCaster())
+                amount = 2.7f * caster->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, true);
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_greater_blessing_of_kings_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pal_greater_blessing_of_kings_AuraScript();
+    }
+};
+
+//198034 - Divine Hammer
+class spell_pal_divine_hammer : public SpellScriptLoader
+{
+public:
+    spell_pal_divine_hammer() : SpellScriptLoader("spell_pal_divine_hammer") { }
+
+    class spell_pal_divine_hammer_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_divine_hammer_SpellScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_HAMMER });
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            uint8 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
+            GetCaster()->SetPower(POWER_HOLY_POWER, hp + 2);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pal_divine_hammer_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pal_divine_hammer_SpellScript();
+    }
+};
+
 // Light's Hammer
 // NPC Id - 59738
 class npc_pal_lights_hammer : public CreatureScript
@@ -2166,7 +2264,7 @@ public:
             if (timeInterval < 1000)
                 return;
 
-            if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 200))
+            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 200))
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
@@ -2186,39 +2284,6 @@ public:
         return new at_pal_consecrationAI(areatrigger);
     }
 };
-
-//231843 - Blade of Wrath! (proc)
-//Updated to 7.1
-class spell_pal_blade_of_wrath_proc : public SpellScriptLoader
-{
-public:
-    spell_pal_blade_of_wrath_proc() : SpellScriptLoader("spell_pal_blade_of_wrath_proc") { }
-
-    class spell_pal_blade_of_wrath_proc_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pal_blade_of_wrath_proc_AuraScript);
-
-        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->GetSpellHistory()->ResetCooldown(SPELL_PALADIN_BLADE_OF_JUSTICE);
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_pal_blade_of_wrath_proc_AuraScript::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_pal_blade_of_wrath_proc_AuraScript();
-    }
-};
-
 
 void AddSC_paladin_spell_scripts()
 {
@@ -2265,6 +2330,8 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_the_fire_of_justice();
     new spell_pal_word_of_glory();
     new spell_pal_zeal();
+    new spell_pal_greater_blessing_of_kings();
+    new spell_pal_divine_hammer();
 
     // NPC Scripts
     new npc_pal_lights_hammer();
