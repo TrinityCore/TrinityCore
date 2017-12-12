@@ -138,7 +138,7 @@ void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefiel
 {
     uint32 battleId = entryInviteResponse.BattleID;
     bool accepted = entryInviteResponse.AcceptedInvite;
-    TC_LOG_DEBUG("misc", "WorldSession::HandleBattlefieldEntryInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
+    TC_LOG_DEBUG("network", "WorldSession::HandleBattlefieldEntryInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
 
     Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
     if (!battlefield)
@@ -159,7 +159,7 @@ void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefiel
 {
     uint32 battleId = queueInviteResponse.BattleID;
     bool accepted = queueInviteResponse.AcceptedInvite;
-    TC_LOG_DEBUG("misc", "WorldSession::HandleBattlefieldQueueInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
+    TC_LOG_DEBUG("network", "WorldSession::HandleBattlefieldQueueInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
 
     Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
     if (!battlefield)
@@ -177,7 +177,7 @@ void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefiel
 void WorldSession::HandleBattlefieldExitRequest(WorldPackets::Battlefield::BattlefieldMgrExitRequest& exitRequest)
 {
     uint32 battleId = exitRequest.BattleID;
-    TC_LOG_DEBUG("misc", "HandleBfExitRequest: battleId: %u ", battleId);
+    TC_LOG_DEBUG("network", "WorldSession::HandleBattlefieldExitRequest: battleId: %u ", battleId);
 
     Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
     if (!battlefield)
