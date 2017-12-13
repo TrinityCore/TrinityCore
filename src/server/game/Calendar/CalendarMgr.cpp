@@ -94,6 +94,7 @@ void CalendarMgr::LoadFromDB()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u calendar events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     count = 0;
+    oldMSTime = getMSTime();
 
     //                                                       0         1        2        3       4       5             6               7
     if (QueryResult result = CharacterDatabase.Query("SELECT InviteID, EventID, Invitee, Sender, Status, ResponseTime, ModerationRank, Note FROM calendar_invites"))
