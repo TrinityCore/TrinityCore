@@ -923,6 +923,10 @@ public:
                 {
                     context.GetContextUnit()->RemoveAurasDueToSpell(192140); // Remove black screen
                 });
+
+                // TEMPFIX - Spells learned in next zone
+                player->LearnSpell(203720, false);
+                player->LearnSpell(204021, false);
             }
         }
 
