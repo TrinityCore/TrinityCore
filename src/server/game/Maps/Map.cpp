@@ -3300,7 +3300,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
         : ObjectGuid::Create<HighGuid::Creature>(GetId(), info->entry, info->spawnId);
     if (time_t linkedTime = GetLinkedRespawnTime(thisGUID))
     {
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         time_t respawnTime;
         if (linkedTime == std::numeric_limits<time_t>::max())
             respawnTime = linkedTime;
@@ -3331,7 +3331,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
     {
         if (!sScriptMgr->CanSpawn(info->spawnId, info->entry, sObjectMgr->GetCreatureData(info->spawnId), this))
         { // if a script blocks our respawn, schedule next check in a little bit
-            info->respawnTime = time(NULL) + urand(4, 7);
+            info->respawnTime = time(nullptr) + urand(4, 7);
             return false;
         }
     }
@@ -3504,7 +3504,7 @@ void Map::RemoveRespawnTime(RespawnVector& respawnData, bool doRespawn, Characte
 
 void Map::ProcessRespawns()
 {
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     while (!_respawnTimes.empty())
     {
         RespawnInfo* next = _respawnTimes.top();
@@ -3601,7 +3601,7 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
                     continue;
 
         time_t respawnTime = GetRespawnTime(data->type, data->spawnId);
-        if (respawnTime && respawnTime > time(NULL))
+        if (respawnTime && respawnTime > time(nullptr))
         {
             if (!force && !ignoreRespawn)
                 continue;

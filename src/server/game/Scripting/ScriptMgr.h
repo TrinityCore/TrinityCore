@@ -456,7 +456,7 @@ class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
     using AreaTriggerScript::AreaTriggerScript;
 
     public:
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) override;
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) final override;
 
     protected:
         virtual bool _OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) = 0;
