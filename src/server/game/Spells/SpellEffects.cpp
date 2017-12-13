@@ -735,7 +735,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
         ObjectGuid casterGUID           = m_caster->GetGUID();
         ObjectGuid originalCasterGUID   = m_originalCasterGUID;
 
-        m_caster->GetScheduler().Schedule(Milliseconds(effectInfo->MiscValue), triggerSpellId, [casterGUID, targets, spellInfo, values, originalCasterGUID, triggerSpellId](TaskContext task)
+        m_caster->GetScheduler().Schedule(Milliseconds(effectInfo->MiscValue), triggerSpellId, [targets, spellInfo, values, originalCasterGUID, triggerSpellId](TaskContext task)
         {
             if (Unit* caster = task.GetContextUnit())
                 if (!caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, originalCasterGUID))
