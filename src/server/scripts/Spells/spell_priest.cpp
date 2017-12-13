@@ -2210,12 +2210,12 @@ public:
             if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SHADOW_MEND_HEAL)
                 return false;
 
-            if (eventInfo.GetDamageInfo()->GetDamageType() == HEAL)
+            if (eventInfo.GetHealInfo() != nullptr)
                 return false;
 
             if (Aura* fear = GetAura())
             {
-                damageThreshold -= eventInfo.GetDamageInfo()->GetDamage();
+                damageThreshold -= eventInfo.GetHealInfo()->GetHeal();
                 if (damageThreshold <= 0)
                     fear->SetDuration(1);
             }
