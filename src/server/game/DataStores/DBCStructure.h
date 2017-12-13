@@ -2252,7 +2252,7 @@ struct SpellShapeshiftFormEntry
     //uint32 unk3;                                          // 9 unused always 0
     //uint32 unk4;                                          // 10 unused always 0
     uint32 stanceSpell[MAX_SHAPESHIFT_SPELLS];              // 11-18 spells which appear in the bar after shapeshifting
-    //uint32 unk5;                                          // 19
+    uint32 MountTypeID;                                     // 19
     //uint32 unk6;                                          // 20
 };
 
