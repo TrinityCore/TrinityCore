@@ -743,7 +743,7 @@ void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*pack
     if (!movie)
         return;
 
-    auto itr = std::find_if(_player->MovieDelayedTeleports.begin(), _player->MovieDelayedTeleports.end(), [this, movie](const Player::MovieDelayedTeleport & elem) -> bool
+    auto itr = std::find_if(_player->MovieDelayedTeleports.begin(), _player->MovieDelayedTeleports.end(), [movie](const Player::MovieDelayedTeleport & elem) -> bool
     {
         return elem.movieId == movie;
     });
