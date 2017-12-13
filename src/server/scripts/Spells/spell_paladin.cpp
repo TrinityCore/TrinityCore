@@ -1657,12 +1657,8 @@ public:
                 caster->GetAttackableUnitListInRange(targetList, 8.0f);
 
                 if (!targetList.empty())
-                {
                     for (auto itr : targetList)
-                    {
                         caster->CastSpell(itr, SPELL_PALADIN_DIVINE_STORM_DAMAGE, true);
-                    }
-                }
 
                 caster->CastSpell(caster, SPELL_PALADIN_DIVINE_STORM_DUMMY, true);
 
