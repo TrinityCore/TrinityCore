@@ -1176,6 +1176,28 @@ class spell_mage_master_of_elements : public SpellScriptLoader
         }
 };
 
+// 55342 - Mirror Image
+class spell_mage_mirror_image : public AuraScript
+{
+    PrepareAuraScript(spell_mage_mirror_image);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_2].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        // Set name of summons to name of caster
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_mirror_image::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // -44404 - Missile Barrage
 class spell_mage_missile_barrage : public SpellScriptLoader
 {
@@ -1334,6 +1356,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_magic_absorption();
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
+    RegisterAuraScript(spell_mage_mirror_image);
     new spell_mage_missile_barrage();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();

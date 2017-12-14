@@ -88,7 +88,8 @@ enum DruidSpells
     SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
     SPELL_DRUID_BARKSKIN_01                 = 63058,
-    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658
+    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
+    SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845
 };
 
 // 22812 - Barkskin
@@ -475,6 +476,39 @@ class spell_dru_flight_form : public SpellScriptLoader
         {
             return new spell_dru_flight_form_SpellScript();
         }
+};
+
+// 22842 - Frenzied Regeneration
+class spell_dru_frenzied_regeneration : public AuraScript
+{
+    PrepareAuraScript(spell_dru_frenzied_regeneration);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_FRENZIED_REGENERATION_HEAL });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        // Converts up to 10 rage per second into health for $d.  Each point of rage is converted into ${$m2/10}.1% of max health.
+        if (GetTarget()->getPowerType() != POWER_RAGE)
+            return;
+
+        uint32 rage = GetTarget()->GetPower(POWER_RAGE);
+        // Nothing to do
+        if (!rage)
+            return;
+
+        int32 const mod = std::min(static_cast<int32>(rage), 100);
+        int32 const regen = CalculatePct(GetTarget()->GetMaxHealth(), GetTarget()->CalculateSpellDamage(nullptr, GetSpellInfo(), EFFECT_1) * mod / 100.f);
+        GetTarget()->CastCustomSpell(SPELL_DRUID_FRENZIED_REGENERATION_HEAL, SPELLVALUE_BASE_POINT0, regen, nullptr, true, nullptr, aurEff);
+        GetTarget()->SetPower(POWER_RAGE, rage - mod);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_frenzied_regeneration::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 // 63057 - Glyph of Barkskin
@@ -2308,6 +2342,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_enrage();
     new spell_dru_forms_trinket();
     new spell_dru_flight_form();
+    RegisterAuraScript(spell_dru_frenzied_regeneration);
     new spell_dru_glyph_of_barkskin();
     new spell_dru_glyph_of_innervate();
     new spell_dru_glyph_of_rake();
