@@ -18967,12 +18967,12 @@ Optional<uint8> Player::GetFirstUnusedPetSlot()
 
 void Player::DeleteFromPlayerPetDataStore(uint32 petNumber)
 {
-    for (std::vector<PlayerPetData*>::iterator itr = PlayerPetDataStore.begin(); itr != PlayerPetDataStore.end(); ++itr)
+    for (uint8 i = 0; i < PlayerPetDataStore.size(); ++i)
     {
-        if ((*itr)->PetId == petNumber)
+        if (PlayerPetDataStore[i]->PetId == petNumber)
         {
-            PlayerPetDataStore.erase(itr);
-            delete (*itr);
+            delete PlayerPetDataStore[i];
+            PlayerPetDataStore.erase(PlayerPetDataStore.begin() + (i--));
         }
     }
 }

@@ -452,6 +452,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         DeleteFromDB(m_charmInfo->GetPetNumber());
 
         GetOwner()->DeleteFromPlayerPetDataStore(m_charmInfo->GetPetNumber());
+        GetOwner()->GetSession()->SendStablePet(ObjectGuid::Empty);
     }
 }
 
