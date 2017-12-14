@@ -706,6 +706,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_PET_ID_BY_SLOT, "SELECT id, owner, slot FROM character_pet WHERE owner = ? AND slot = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_UNUSED_ACTIVE_PET_SLOT, "SELECT cp.slot+1 FROM character_pet cp LEFT JOIN character_pet cpa ON cp.slot+1 = cpa.slot WHERE cpa.slot IS NULL AND cp.slot + 1 <= 4 ORDER BY cp.slot LIMIT 1", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SEL_CHAR_ALL_PETS_DETAIL, "SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization FROM character_pet WHERE owner = ? ORDER BY slot", CONNECTION_SYNCH);
 
     // PvPstats
     PrepareStatement(CHAR_SEL_PVPSTATS_MAXID, "SELECT MAX(id) FROM pvpstats_battlegrounds", CONNECTION_SYNCH);

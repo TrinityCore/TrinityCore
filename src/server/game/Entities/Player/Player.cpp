@@ -383,6 +383,9 @@ Player::~Player()
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
 
+    for (int i = 0; i < PlayerPetDataStore.size(); i++)
+        delete PlayerPetDataStore[i];
+
     sWorld->DecreasePlayerCount();
 }
 
@@ -18856,6 +18859,105 @@ void Player::LoadPet()
     }
 }
 
+void Player::LoadPetsFromDB()
+{
+    uint32 oldMSTime = getMSTime();
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ALL_PETS_DETAIL);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 pets for player .");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        PlayerPetData* playerPetData = new PlayerPetData();
+
+        uint8 slot = fields[7].GetUInt8();
+        uint32 petId = fields[0].GetUInt32();
+
+        if (slot < 0 || slot > 54)
+        {
+            TC_LOG_ERROR("sql.sql", "Player::LoadPetsFromDB: bad slot %u for pet %u!", slot, petId);
+            continue;
+        }
+
+        playerPetData->PetId = petId;
+        playerPetData->CreatureId = fields[1].GetUInt32();
+        playerPetData->Owner = fields[2].GetUInt64();
+        playerPetData->DisplayId = fields[3].GetUInt32();
+        playerPetData->Petlevel = fields[4].GetUInt16();
+        playerPetData->PetExp = fields[5].GetUInt32();
+        playerPetData->Reactstate = ReactStates(fields[6].GetUInt8());
+        playerPetData->Slot = slot;
+        playerPetData->Name = fields[8].GetString();
+        playerPetData->Renamed = fields[9].GetBool();
+        playerPetData->SavedHealth = fields[10].GetUInt32();
+        playerPetData->SavedMana = fields[11].GetUInt32();
+        playerPetData->Actionbar = fields[12].GetString();
+        playerPetData->Timediff = fields[13].GetUInt32();
+        playerPetData->SummonSpellId = fields[14].GetUInt32();
+        playerPetData->Type = PetType(fields[15].GetUInt8());
+        playerPetData->SpecId = fields[16].GetUInt16();
+
+        PlayerPetDataStore.push_back(playerPetData);
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u pets for player:", count);
+}
+
+PlayerPetData* Player::GetPlayerPetDataById(uint32 petId)
+{
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (p->PetId == petId)
+            return p;
+
+    return nullptr;
+}
+
+PlayerPetData* Player::GetPlayerPetDataBySlot(uint8 slot)
+{
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (p->Slot == slot)
+            return p;
+
+    return nullptr;
+}
+
+PlayerPetData* Player::GetPlayerPetDataByCreatureId(uint32 creatureId)
+{
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (p->CreatureId == creatureId)
+            return p;
+
+    return nullptr;
+}
+
+Optional<uint8> Player::GetFirstUnusedActivePetSlot()
+{
+    std::set<uint8> unusedActiveSlot = { 0, 1, 2, 3, 4 }; //unfiltered
+
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (unusedActiveSlot.find(p->Slot) != unusedActiveSlot.end())
+            unusedActiveSlot.erase(p->Slot);
+
+    if (!unusedActiveSlot.empty())
+        return *unusedActiveSlot.begin();
+
+    return Optional<uint8>{};
+}
+
+
 void Player::_LoadQuestStatus(PreparedQueryResult result)
 {
     uint16 slot = 0;
@@ -27723,31 +27825,4 @@ uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
         SendDirectMessage(randomRoll.Write());
 
     return roll;
-}
-
-uint8 Player::GetUnusedActivePetSlot()
-{
-    PreparedStatement* stmt;
-    PreparedQueryResult result;
-
-    // First check slot 0
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ID_BY_SLOT);
-    stmt->setUInt64(0, GetOwner()->GetGUID().GetCounter());
-    stmt->setUInt8(1, 0);
-
-    result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return 0;
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_UNUSED_ACTIVE_PET_SLOT);
-
-    result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return 5; // 5 is first stable slot
-
-    Field* fields = result->Fetch();
-
-    return fields[0].GetUInt8();
 }
