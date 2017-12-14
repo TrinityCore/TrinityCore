@@ -2363,12 +2363,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
 
-        std::vector<PlayerPetData*> PlayerPetDataStore;
-
         PlayerPetData* GetPlayerPetDataById(uint32 petId);
         PlayerPetData* GetPlayerPetDataBySlot(uint8 slot);
         PlayerPetData* GetPlayerPetDataByCreatureId(uint32 creatureId);
         Optional<uint8> GetFirstUnusedActivePetSlot();
+        Optional<uint8> GetFirstUnusedPetSlot();
+        void DeleteFromPlayerPetDataStore(uint32 petNumber);
+        void AddToPlayerPetDataStore(PlayerPetData* playerPetData);
 
     protected:
         // Gamemaster whisper whitelist
@@ -2718,6 +2719,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void _InitHonorLevelOnLoadFromDB(uint32 /*honor*/, uint32 /*honorLevel*/, uint32 /*prestigeLevel*/);
         std::unique_ptr<RestMgr> _restMgr;
+
+        std::vector<PlayerPetData*> PlayerPetDataStore;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

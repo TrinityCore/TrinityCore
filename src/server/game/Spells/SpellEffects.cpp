@@ -2752,7 +2752,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
         }
 
         if (owner->GetTypeId() == TYPEID_PLAYER)
-            owner->ToPlayer()->RemovePet(OldSummon, (OldSummon->getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT), false);
+            owner->ToPlayer()->RemovePet(OldSummon, (OldSummon->getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_DISMISS), false);
         else
             return;
     }
@@ -2803,7 +2803,7 @@ void Spell::EffectLearnPetSpell(SpellEffIndex effIndex)
         return;
 
     pet->learnSpell(learn_spellproto->Id);
-    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
     pet->GetOwner()->PetSpellInitialize();
 }
 
@@ -4001,7 +4001,7 @@ void Spell::EffectDismissPet(SpellEffIndex effIndex)
     Pet* pet = unitTarget->ToPet();
 
     ExecuteLogEffectUnsummonObject(effIndex, pet);
-    pet->GetOwner()->RemovePet(pet, PET_SAVE_UNSUMMON);
+    pet->GetOwner()->RemovePet(pet, PET_SAVE_DISMISS);
 }
 
 void Spell::EffectSummonObject(SpellEffIndex effIndex)
@@ -4559,7 +4559,7 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
         ci->SetIsReturning(false);
     }
 
-    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
 }
 
 void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
@@ -5139,7 +5139,7 @@ void Spell::EffectCreateTamedPet(SpellEffIndex /*effIndex*/)
 
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
     {
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
         unitTarget->ToPlayer()->PetSpellInitialize();
     }
 }

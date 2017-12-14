@@ -253,7 +253,7 @@ void TempSummon::UnSummon(uint32 msTime)
     //ASSERT(!IsPet());
     if (IsPet())
     {
-        ToPet()->Remove(PET_SAVE_NOT_IN_SLOT);
+        ToPet()->Remove(PET_SAVE_DISMISS);
         ASSERT(!IsInWorld());
         return;
     }
