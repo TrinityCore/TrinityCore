@@ -18861,20 +18861,14 @@ void Player::LoadPet()
 
 void Player::LoadPetsFromDB()
 {
-    uint32 oldMSTime = getMSTime();
-
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ALL_PETS_DETAIL);
     stmt->setUInt64(0, GetGUID().GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 pets for player .");
         return;
-    }
 
-    uint32 count = 0;
     do
     {
         Field* fields = result->Fetch();
@@ -18910,10 +18904,7 @@ void Player::LoadPetsFromDB()
 
         PlayerPetDataStore.push_back(playerPetData);
 
-        ++count;
     } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u pets for player:", count);
 }
 
 PlayerPetData* Player::GetPlayerPetDataById(uint32 petId)

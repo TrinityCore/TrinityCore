@@ -103,8 +103,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 {
     m_loading = true;
 
-    ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
-
     PreparedStatement* stmt;
     PreparedQueryResult result;
     PlayerPetData* playerPetData;
