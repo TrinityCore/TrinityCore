@@ -383,7 +383,7 @@ Player::~Player()
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
 
-    for (int i = 0; i < PlayerPetDataStore.size(); i++)
+    for (uint8 i = 0; i < PlayerPetDataStore.size(); i++)
         delete PlayerPetDataStore[i];
 
     sWorld->DecreasePlayerCount();
