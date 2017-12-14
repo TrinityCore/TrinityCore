@@ -28,8 +28,6 @@
 
 uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
 
-const Position finkleSpawnPosition = { 58.259682f, -535.346008f, 110.935753f, 3.247705f };
-
 enum EventIds
 {
     EVENT_DARGONSPIRE_ROOM_STORE           = 1,
@@ -53,8 +51,6 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-
-            finkleSpawned = false;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -518,8 +514,6 @@ public:
             ObjectGuid runecreaturelist[7][5];
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
-
-            bool finkleSpawned;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
