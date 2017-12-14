@@ -555,6 +555,12 @@ public:
 
         void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
+            if (!aurEff->GetTotalTicks())
+            {
+                amount = 0;
+                return;
+            }
+
             if (Unit* caster = GetCaster())
                 amount = int32(CalculatePct(caster->GetCreatePowers(POWER_MANA), amount) / aurEff->GetTotalTicks());
             else

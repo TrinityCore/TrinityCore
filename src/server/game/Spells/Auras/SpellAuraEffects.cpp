@@ -578,7 +578,7 @@ AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const* spellEfffectInfo, int3
 m_base(base), m_spellInfo(base->GetSpellInfo()), m_effectInfo(spellEfffectInfo), m_spellmod(nullptr),
 m_baseAmount(baseAmount ? *baseAmount : spellEfffectInfo->CalcBaseValue(caster, base->GetType() == UNIT_AURA_TYPE ? base->GetOwner()->ToUnit() : nullptr, base->GetCastItemId(), base->GetCastItemLevel())),
 m_damage(0), m_critChance(0.0f), m_donePct(1.0f),
-m_periodicTimer(0), m_tickNumber(0),
+_periodicTimer(0), _period(0), _ticksDone(0),
 m_canBeRecalculated(true), m_isPeriodic(false)
 {
     CalculatePeriodic(caster, true, false);
@@ -673,18 +673,26 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     return amount;
 }
 
+void AuraEffect::ResetPeriodic(bool resetPeriodicTimer /*= false*/)
+{
+    _ticksDone = 0;
+    if (resetPeriodicTimer)
+    {
+        _periodicTimer = _period;
+        // Start periodic on next tick or at aura apply
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+            _periodicTimer = 0;
+    }
+}
+
 void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
 {
-    m_period = GetSpellEffectInfo()->ApplyAuraPeriod;
+    _period = GetSpellEffectInfo()->ApplyAuraPeriod;
 
     // prepare periodics
     switch (GetAuraType())
     {
         case SPELL_AURA_OBS_MOD_POWER:
-            // 3 spells have no amplitude set
-            if (!m_period)
-                m_period = 1 * IN_MILLISECONDS;
-            /* fallthrough */
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_HEAL:
         case SPELL_AURA_OBS_MOD_HEALTH:
@@ -703,49 +711,48 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
             break;
     }
 
-    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, m_period);
+    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, _period);
 
     if (!m_isPeriodic)
         return;
 
     Player* modOwner = caster ? caster->GetSpellModOwner() : nullptr;
     // Apply casting time mods
-    if (m_period)
+    if (_period)
     {
         // Apply periodic time mod
         if (modOwner)
-            modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_ACTIVATION_TIME, m_period);
+            modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_ACTIVATION_TIME, _period);
 
         if (caster)
         {
             // Haste modifies periodic time of channeled spells
             if (m_spellInfo->IsChanneled())
-                caster->ModSpellDurationTime(m_spellInfo, m_period);
+                caster->ModSpellDurationTime(m_spellInfo, _period);
             else if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
-                m_period = int32(m_period * caster->m_unitData->ModCastingSpeed);
+                _period = int32(_period * caster->m_unitData->ModCastingSpeed);
         }
     }
+    else // prevent infinite loop on Update
+        m_isPeriodic = false;
 
     if (load) // aura loaded from db
     {
-        m_tickNumber = m_period ? GetBase()->GetDuration() / m_period : 0;
-        m_periodicTimer = m_period ? GetBase()->GetDuration() % m_period : 0;
+        if (_period && !GetBase()->IsPermanent())
+        {
+            uint32 elapsedTime = GetBase()->GetMaxDuration() - GetBase()->GetDuration();
+            _ticksDone = elapsedTime / uint32(_period);
+            _periodicTimer = elapsedTime % uint32(_period);
+        }
+
         if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
-            ++m_tickNumber;
+            ++_ticksDone;
     }
     else // aura just created or reapplied
     {
-        m_tickNumber = 0;
-
         // reset periodic timer on aura create or reapply
         // we don't reset periodic timers when aura is triggered by proc
-        if (resetPeriodicTimer)
-        {
-            m_periodicTimer = 0;
-            // Start periodic on next tick or at aura apply
-            if (m_period && !m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
-                m_periodicTimer += m_period;
-        }
+        ResetPeriodic(resetPeriodicTimer);
     }
 }
 
@@ -908,12 +915,12 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT1)
                     {
-                       if (AuraEffect* aurEff = aura->GetEffect(0))
+                        if (AuraEffect* aurEff = aura->GetEffect(0))
                             aurEff->RecalculateAmount();
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT2)
                     {
-                       if (AuraEffect* aurEff = aura->GetEffect(1))
+                        if (AuraEffect* aurEff = aura->GetEffect(1))
                             aurEff->RecalculateAmount();
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT3)
@@ -941,16 +948,18 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
 
 void AuraEffect::Update(uint32 diff, Unit* caster)
 {
-    if (m_isPeriodic && (GetBase()->GetDuration() >=0 || GetBase()->IsPassive() || GetBase()->IsPermanent()))
+    if (m_isPeriodic && (GetBase()->GetDuration() >= 0 || GetBase()->IsPassive() || GetBase()->IsPermanent()))
     {
-        if (m_periodicTimer > int32(diff))
-            m_periodicTimer -= diff;
-        else // tick also at m_periodicTimer == 0 to prevent lost last tick in case max m_duration == (max m_periodicTimer)*N
+        _periodicTimer += diff;
+        while (_periodicTimer >= _period)
         {
-            ++m_tickNumber;
+            _periodicTimer -= _period;
 
-            // update before tick (aura can be removed in TriggerSpell or PeriodicTick calls)
-            m_periodicTimer += m_period - diff;
+            if (!GetBase()->IsPermanent() && (_ticksDone + 1) > GetTotalTicks())
+                break;
+
+            ++_ticksDone;
+
             UpdatePeriodic(caster);
 
             std::vector<AuraApplication*> effectApplications;
@@ -1029,7 +1038,7 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                                         // on 2 tick - 133% (handled in 6 second)
 
                                         // Apply bonus for 1 - 4 tick
-                                        switch (m_tickNumber)
+                                        switch (_ticksDone)
                                         {
                                             case 1:   // 0%
                                                 aurEff->ChangeAmount(0);
@@ -1067,7 +1076,7 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                     if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00004000)
                     {
                         // Get 0 effect aura
-                        if (AuraEffect* slow = GetBase()->GetEffect(0))
+                        if (AuraEffect* slow = GetBase()->GetEffect(EFFECT_0))
                         {
                             int32 newAmount = slow->GetAmount() + GetAmount();
                             if (newAmount > 0)
@@ -1104,7 +1113,7 @@ void AuraEffect::SendTickImmune(Unit* target, Unit* caster) const
         caster->SendSpellDamageImmune(target, m_spellInfo->Id, true);
 }
 
-void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
+void AuraEffect::PeriodicTick(AuraApplication* aurApp, Unit* caster) const
 {
     bool prevented = GetBase()->CallScriptEffectPeriodicHandlers(this, aurApp);
     if (prevented)
@@ -5525,11 +5534,11 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                 return;
             // Negative Energy Periodic
             case 46284:
-                target->CastCustomSpell(triggerSpellId, SPELLVALUE_MAX_TARGETS, m_tickNumber / 10 + 1, nullptr, true, nullptr, this);
+                target->CastCustomSpell(triggerSpellId, SPELLVALUE_MAX_TARGETS, _ticksDone / 10 + 1, nullptr, true, nullptr, this);
                 return;
             // Slime Pool (Dreadscale & Acidmaw)
             case 66882:
-                target->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, (int32)((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000 * 2 / 3), nullptr, true, nullptr, this);
+                target->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, static_cast<int32>(((_ticksDone / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f), nullptr, true, nullptr, this);
                 return;
             // Slime Spray - temporary here until preventing default effect works again
             // added on 9.10.2010
@@ -5681,7 +5690,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     case 72854: // Unbound Plague
                     case 72855: // Unbound Plague
                     case 72856: // Unbound Plague
-                        damage *= uint32(pow(1.25f, int32(m_tickNumber)));
+                        damage *= uint32(pow(1.25f, int32(_ticksDone)));
                         break;
                     default:
                         break;

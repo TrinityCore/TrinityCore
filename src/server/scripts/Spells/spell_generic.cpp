@@ -1319,7 +1319,7 @@ class spell_gen_gift_of_naaru : public AuraScript
 
     void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
     {
-        if (!GetCaster())
+        if (!GetCaster() || !aurEff->GetTotalTicks())
             return;
 
         float heal = 0.0f;
