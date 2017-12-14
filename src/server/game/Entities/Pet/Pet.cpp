@@ -401,9 +401,9 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
     if (mode == PET_SAVE_NEW_PET)
     {
-        uint8 slot = GetOwner()->GetUnusedActivePetSlot();
-        if (slot <= 4) // 4 is last active slot
-            SetSlot(slot);
+        Optional<uint8> slot = GetOwner()->GetFirstUnusedActivePetSlot();
+        if (slot)
+            SetSlot(*slot);
         else
             mode = PET_SAVE_AS_DELETED;
     }
