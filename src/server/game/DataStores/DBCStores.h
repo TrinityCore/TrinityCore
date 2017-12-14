@@ -76,6 +76,7 @@ TC_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint
 TC_GAME_API CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
 
 uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId);
+TC_GAME_API bool IsInArea(uint32 objectAreaId, uint32 areaId);
 TC_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
 
 uint32 GetDefaultMapLight(uint32 mapId);
