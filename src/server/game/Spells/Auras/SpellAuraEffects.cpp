@@ -5497,35 +5497,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         caster->SpellHitResult(target, GetSpellInfo(), false) != SPELL_MISS_NONE)
         return;
 
-    // some auras remove at specific health level or more
-    if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
-    {
-        switch (GetSpellInfo()->Id)
-        {
-            case 43093: case 31956: case 38801:  // Grievous Wound
-            case 35321: case 38363: case 39215:  // Gushing Wound
-                if (target->IsFullHealth())
-                {
-                    target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
-                    return;
-                }
-                break;
-            case 38772: // Grievous Wound
-            {
-                if (SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(EFFECT_1))
-                {
-                    uint32 percent = effect->CalcValue(caster);
-                    if (!target->HealthBelowPct(percent))
-                    {
-                        target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
-                        return;
-                    }
-                }
-                break;
-            }
-        }
-    }
-
     CleanDamage cleanDamage = CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
 
     // AOE spells are not affected by the new periodic system.
