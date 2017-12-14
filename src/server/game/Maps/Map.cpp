@@ -573,10 +573,6 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     if (player->IsAlive())
         ConvertCorpseToBones(player->GetGUID());
 
-    if (player->getClass() == CLASS_HUNTER)
-        player->GetSession()->SendStablePet(ObjectGuid::Empty);
-
-
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
 }
