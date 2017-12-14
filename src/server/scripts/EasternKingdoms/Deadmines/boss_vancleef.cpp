@@ -117,9 +117,9 @@ struct boss_vancleef : public BossAI
 
     private:
         bool _guardsCalled;
-        bool _health66;
-        bool _health33;
         bool _health25;
+        bool _health33;
+        bool _health66;
 };
 
 void AddSC_boss_vancleef()
