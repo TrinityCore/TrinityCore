@@ -729,29 +729,24 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
     SendPacket(petNameInvalid.Write());
 }
 
-void WorldSession::UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot)
+void WorldSession::UpdatePetSlot(uint32 petNumberA, uint8 oldPetSlot, uint8 newPetSlot)
 {
-    uint32 swapPetNumber = 0;
+    uint32 petNumberB = 0;
     Pet* pet = _player->GetPet();
 
     // first check check new PetSlot if another pet already exists there
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ID_BY_SLOT);
-
-    stmt->setUInt64(0, _player->GetGUID().GetCounter());
-    stmt->setUInt8(1, newPetSlot);
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    PlayerPetData* playerPetDataA = _player->GetPlayerPetDataById(petNumberA);
+    PlayerPetData* playerPetDataB = _player->GetPlayerPetDataBySlot(newPetSlot);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     // If Slot is already in use
-    if (result && result->GetRowCount() == 1)
+    if (playerPetDataB)
     {
-        Field* fields = result->Fetch();
-        swapPetNumber = fields[0].GetUInt32();
+        petNumberB = playerPetDataB->PetId;
 
         // Check if current pet is the pet to swap
-        if (pet && pet->GetCharmInfo()->GetPetNumber() == swapPetNumber)
+        if (pet && pet->GetCharmInfo()->GetPetNumber() == petNumberB)
         {
             pet->SetSlot(oldPetSlot);
             _player->RemovePet(pet, PET_SAVE_AS_CURRENT);
@@ -763,14 +758,14 @@ void WorldSession::UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPe
             stmt->setUInt64(1, _player->GetGUID().GetCounter());
             stmt->setUInt32(2, newPetSlot);
             trans->Append(stmt);
+
         }
+
+        playerPetDataB->Slot = oldPetSlot;
     }
-    // If Slot is more than one (impossible) abort
-    else if (result && result->GetRowCount() >= 2) // can only be 1 pet per slot
-        return;
 
     // Check if current pet is the pet to swap
-    if (pet && pet->GetCharmInfo()->GetPetNumber() == petNumber)
+    if (pet && pet->GetCharmInfo()->GetPetNumber() == petNumberA)
     {
         pet->SetSlot(newPetSlot);
         _player->RemovePet(pet, PET_SAVE_AS_CURRENT);
@@ -780,13 +775,15 @@ void WorldSession::UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPe
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->setUInt32(0, newPetSlot);
         stmt->setUInt64(1, _player->GetGUID().GetCounter());
-        stmt->setUInt32(2, petNumber);
+        stmt->setUInt32(2, petNumberA);
         trans->Append(stmt);
     }
 
+    playerPetDataA->Slot = newPetSlot;
+
     CharacterDatabase.CommitTransaction(trans);
 
-    SendPetSlotUpdated(petNumber, newPetSlot, swapPetNumber, oldPetSlot);
+    SendPetSlotUpdated(petNumberA, newPetSlot, petNumberB, oldPetSlot);
     SendPetStableResult(STABLE_SUCCESS_STABLE);
 }
 
