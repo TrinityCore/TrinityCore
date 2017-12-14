@@ -16,11 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "SpellScript.h"
 #include "ScriptMgr.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
 
 enum eBosses
@@ -122,7 +126,7 @@ class boss_galion : public CreatureScript
 
                     for (uint8 l_Index = 0; l_Index < 2; ++l_Index)
                     {
-                        if (Creature* l_NewCanon = me->SummonCreature(NPC_GALLEON_CANON, l_Pos))
+                        if (TempSummon* l_NewCanon = me->SummonCreature(NPC_GALLEON_CANON, l_Pos))
                         {
                             l_NewCanon->EnterVehicle(me, l_Index);
                             l_NewCanon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -140,7 +144,7 @@ class boss_galion : public CreatureScript
 
                     for (uint8 l_Index = 3; l_Index < 7; ++l_Index)
                     {
-                        if (Creature* l_Warmonger = me->SummonCreature(NPC_SALYIN_WARMONGER, l_Pos))
+                        if (TempSummon* l_Warmonger = me->SummonCreature(NPC_SALYIN_WARMONGER, l_Pos))
                         {
                             l_Warmonger->EnterVehicle(me, l_Index);
                             l_Warmonger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -208,16 +212,13 @@ class boss_galion : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (p_Damage >= me->GetHealth())
+                if (damage >= me->GetHealth())
                 {
-                    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                    for (std::list<HostileReference*>::const_iterator l_Itr = l_ThreatList.begin(); l_Itr != l_ThreatList.end(); ++l_Itr)
-                    {
-                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, (*l_Itr)->getUnitGuid()))
+                    for (auto hostileReference : me->getThreatManager().getThreatList())
+                        if (Player* l_Player = ObjectAccessor::GetPlayer(*me, hostileReference->getUnitGuid()))
                             m_LootersGuids.push_back(l_Player->GetGUID());
-                    }
                 }
             }
 
@@ -441,11 +442,9 @@ class spell_impaling_pull: public SpellScriptLoader
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_boss_galion()
 {
     new boss_galion();
     new npc_salyin_warmonger();
     new spell_impaling_pull();
 }
-#endif
