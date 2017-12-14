@@ -410,7 +410,7 @@ struct npc_tirion_toc : public ScriptedAI
             case ACTION_START_JORMUNGARS:
                 Talk(TIRION_SAY_JORMUNGARS);
                 _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
-                me->SummonCreature(NPC_DREADSCALE, NorthrendBeastsSpawnPositions[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Seconds(3));
+                me->SummonCreature(NPC_DREADSCALE, NorthrendBeastsSpawnPositions[1]);
                 _events.ScheduleEvent(EVENT_EXCLAMATION, Seconds(7));
                 break;
             case ACTION_START_ICEHOWL:

@@ -547,9 +547,7 @@ class boss_toc_champion_controller : public CreatureScript
                             case DONE:
                             {
                                 _championsKilled++;
-                                if (_championsKilled == 1)
-                                    instance->SetBossState(DATA_FACTION_CRUSADERS, SPECIAL);
-                                else if (_championsKilled >= summons.size())
+                                if (_championsKilled >= summons.size())
                                 {
                                     instance->SetBossState(DATA_FACTION_CRUSADERS, DONE);
                                     summons.DespawnAll();

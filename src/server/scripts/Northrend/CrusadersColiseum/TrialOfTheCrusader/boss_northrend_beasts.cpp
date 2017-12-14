@@ -726,11 +726,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             events.ScheduleEvent(EVENT_EMERGE, Seconds(6), 0, PHASE_SUBMERGED);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
-        // Will be removed before merge !!!
-        float x = ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f);
-        float y = ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f);
-        float z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, ToCCommonLoc[1].GetPositionZ() + 5.0f);
-        me->GetMotionMaster()->MovePoint(0, x, y, z);
+        me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ() + me->GetMidsectionHeight());
     }
 
     void Emerge()
@@ -994,11 +990,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 break;
             case EVENT_JUMP_BACK:
                 if (Creature* stalker = instance->GetCreature(DATA_FURIOUS_CHARGE))
-                {
-                    // Will be removed before merge !!!
-                    me->GetMotionMaster()->MoveJump(2 * me->GetPositionX() - stalker->GetPositionX(), 2 * me->GetPositionY() - stalker->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 30.0f, 20.0f, 0);
-                    //DoCast(stalker, SPELL_JUMP_BACK);
-                }
+                    DoCast(stalker, SPELL_JUMP_BACK);
                 events.ScheduleEvent(EVENT_TRAMPLE, Seconds(2), 0, PHASE_CHARGE);
                 break;
             case EVENT_TRAMPLE:

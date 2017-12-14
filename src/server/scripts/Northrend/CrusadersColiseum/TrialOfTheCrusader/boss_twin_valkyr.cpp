@@ -203,7 +203,7 @@ struct boss_twin_baseAI : public BossAI
     void JustReachedHome() override
     {
         instance->SetBossState(DATA_TWIN_VALKIRIES, FAIL);
-
+        HandleRemoveAuras();
         summons.DespawnAll();
         me->DespawnOrUnsummon();
     }
@@ -225,25 +225,13 @@ struct boss_twin_baseAI : public BossAI
             Talk(SAY_KILL_PLAYER);
     }
 
-    void SummonedCreatureDespawn(Creature* summoned) override
+    void HandleRemoveAuras()
     {
-        switch (summoned->GetEntry())
-        {
-            case NPC_LIGHT_ESSENCE:
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
-                break;
-            case NPC_DARK_ESSENCE:
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
-                break;
-            case NPC_BULLET_CONTROLLER:
-                me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
-                break;
-            default:
-                break;
-        }
-        summons.Despawn(summoned);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+        me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -257,6 +245,7 @@ struct boss_twin_baseAI : public BossAI
                 pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                 events.Reset();
                 summons.DespawnAll();
+                HandleRemoveAuras();
                 instance->SetBossState(DATA_TWIN_VALKIRIES, DONE);
             }
             else

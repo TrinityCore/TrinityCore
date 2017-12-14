@@ -81,6 +81,17 @@ ObjectData const gameObjectData[] =
     { 0,                        0                    } // END
 };
 
+DoorData const doorData[] =
+{
+    { GO_EAST_PORTCULLIS, DATA_NORTHREND_BEASTS,  DOOR_TYPE_ROOM },
+    { GO_EAST_PORTCULLIS, DATA_JARAXXUS,          DOOR_TYPE_ROOM },
+    { GO_EAST_PORTCULLIS, DATA_FACTION_CRUSADERS, DOOR_TYPE_ROOM },
+    { GO_EAST_PORTCULLIS, DATA_TWIN_VALKIRIES,    DOOR_TYPE_ROOM },
+    { GO_EAST_PORTCULLIS, DATA_LICH_KING,         DOOR_TYPE_ROOM },
+    { GO_WEB_DOOR,        DATA_ANUBARAK,          DOOR_TYPE_ROOM },
+    { 0,                  0,                      DOOR_TYPE_ROOM } // END
+};
+
 class instance_trial_of_the_crusader : public InstanceMapScript
 {
     public:
@@ -94,6 +105,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadBossBoundaries(boundaries);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDoorData(doorData);
                 TrialCounter = 50;
                 EventStage = 0;
                 NorthrendBeasts = NOT_STARTED;
@@ -108,19 +120,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 MistressOfPainCount = 0;
                 TributeToImmortalityEligible = true;
                 NeedSave = false;
-            }
-
-            bool IsEncounterInProgress() const override
-            {
-                for (uint8 i = 0; i < EncounterCount; ++i)
-                    if (GetBossState(i) == IN_PROGRESS)
-                        return true;
-
-                // Special state is set at Faction Champions after first champ dead, encounter is still in combat
-                if (GetBossState(DATA_FACTION_CRUSADERS) == SPECIAL)
-                    return true;
-
-                return false;
             }
 
             void OnPlayerEnter(Player* player) override
@@ -138,24 +137,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (NorthrendBeasts == GORMOK_IN_PROGRESS)
                     player->CreateVehicleKit(PLAYER_VEHICLE_ID, 0);
-            }
-
-            void OpenDoor(ObjectGuid guid)
-            {
-                if (!guid)
-                    return;
-
-                if (GameObject* go = instance->GetGameObject(guid))
-                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-            }
-
-            void CloseDoor(ObjectGuid guid)
-            {
-                if (!guid)
-                    return;
-
-                if (GameObject* go = instance->GetGameObject(guid))
-                    go->SetGoState(GO_STATE_READY);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -314,17 +295,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         break;
                     default:
                         break;
-                }
-
-                if (IsEncounterInProgress())
-                {
-                    CloseDoor(GetGuidData(DATA_EAST_PORTCULLIS));
-                    CloseDoor(GetGuidData(DATA_WEB_DOOR));
-                }
-                else
-                {
-                    OpenDoor(GetGuidData(DATA_EAST_PORTCULLIS));
-                    OpenDoor(GetGuidData(DATA_WEB_DOOR));
                 }
 
                 if (type < EncounterCount)
@@ -595,7 +565,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         NotOneButTwoJormungarsTimer -= diff;
                 }
 
-                if (GetBossState(DATA_FACTION_CRUSADERS) == SPECIAL && ResilienceWillFixItTimer)
+                if (GetBossState(DATA_FACTION_CRUSADERS) == IN_PROGRESS && ResilienceWillFixItTimer)
                 {
                     if (ResilienceWillFixItTimer <= diff)
                         ResilienceWillFixItTimer = 0;
