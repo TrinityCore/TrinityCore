@@ -1842,7 +1842,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
     if (Player* playerTarget = target->ToPlayer())
     {
-        playerTarget->SendMovementSetCollisionHeight(playerTarget->GetCollisionHeight(false), WorldPackets::Movement::UpdateCollisionHeightReason::Force);
+        playerTarget->SendMovementSetCollisionHeight(playerTarget->GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Force);
         playerTarget->InitDataForForm();
     }
     else
