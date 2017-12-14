@@ -80,7 +80,6 @@ class TC_GAME_API AuraEffect
         float GetDonePct() const { return m_donePct; }
 
         void Update(uint32 diff, Unit* caster);
-        void UpdatePeriodic(Unit* caster);
 
         void ResetTicks() { _ticksDone = 0; }
         uint32 GetTickNumber() const { return _ticksDone; }
