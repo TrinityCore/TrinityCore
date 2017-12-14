@@ -15,12 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTriggerAI.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
+#include "GridNotifiers.h"
+#include "Map.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "Player.h"
+#include "World.h"
 #include "Log.h"
 
 class spell_summon_troublemaker : public SpellScriptLoader
@@ -1395,9 +1399,9 @@ public:
             if (Creature* creature = me->FindNearestCreature(NPC_JI_FIREPAW, me->GetVisibilityRange(), true))
                 creature->AI()->SetData(DATA_EVADE, DATA_EVADE);
 
-            std::list<Creature*> _fireworks;
-            me->GetCreatureListWithEntryInGrid(_fireworks, NPC_FIREWORK, me->GetVisibilityRange());
-            for (std::list<Creature*>::iterator itr = _fireworks.begin(); itr != _fireworks.end(); ++itr)
+            std::list<Creature*> fireworks;
+            me->GetCreatureListWithEntryInGrid(fireworks, NPC_FIREWORK, me->GetVisibilityRange());
+            for (std::list<Creature*>::iterator itr = fireworks.begin(); itr != fireworks.end(); ++itr)
             {
                 (*itr)->RemoveAura(SPELL_FIREWORK_INACTIVE);
                 (*itr)->AI()->SetData(DATA_1, DATA_1);
@@ -1792,7 +1796,8 @@ enum AysaVordrakaFightSpells
 {
     SPELL_TEMPERED_FURY         = 117275,
     SPELL_COMBAT_ROLL           = 117312,
-    SPELL_FORCECAST_SUMMON_AYSA = 117499
+    SPELL_FORCECAST_SUMMON_AYSA = 117499,
+    SPELL_DEEP_SEA_SMASH        = 117287
 };
 
 enum AysaVordrakaFightData
@@ -1829,7 +1834,6 @@ public:
     struct npc_aysa_vordraka_fightAI : public ScriptedAI
     {
         npc_aysa_vordraka_fightAI(Creature* creature) : ScriptedAI(creature) {
-            me->setActive(true);
             me->SetReactState(REACT_DEFENSIVE);
         }
 
@@ -1846,12 +1850,21 @@ public:
             _events.ScheduleEvent(EVENT_TEMPERED_FURY, urand(2000, 4000));
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (HealthAbovePct(85))
                 damage = urand(1, 2);
             else
                 me->SetHealth(me->GetMaxHealth() * 0.85f);
+        }
+
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        {
+            if (spell->Id == SPELL_DEEP_SEA_SMASH)
+            {
+                _events.CancelEvent(EVENT_TEMPERED_FURY);
+                _events.ScheduleEvent(EVENT_COMBAT_ROLL, 1000);
+            }
         }
 
         void SetData(uint32 id, uint32 /*value*/) override
@@ -1868,7 +1881,6 @@ public:
                     Talk(TEXT_REINFORCEMENTS);
                     break;
                 case DATA_VORDRAKA_DEATH:
-                    TC_LOG_ERROR("misc", "Aysa dostala death data");
                     Talk(TEXT_DEATH);
                     EnterEvadeMode();
                     _events.CancelEvent(EVENT_TEMPERED_FURY);
@@ -1879,7 +1891,6 @@ public:
         void JustReachedHome() override
         {
             _events.ScheduleEvent(EVENT_UPDATE_PHASES, 5000);
-            TC_LOG_ERROR("misc", "scheduled event update");
         }
 
         void sQuestAccept(Player* player, Quest const* quest) override
@@ -1900,10 +1911,15 @@ public:
                         DoCastVictim(SPELL_TEMPERED_FURY);
                         _events.ScheduleEvent(EVENT_TEMPERED_FURY, urand(2000, 4000));
                         break;
+                    case EVENT_COMBAT_ROLL:
+                        // todo: cast combat roll only if it won't kick Vordraka outside of ship boundaries
+                        DoCastVictim(SPELL_COMBAT_ROLL);
+                        _events.ScheduleEvent(EVENT_TEMPERED_FURY, urand(5000, 7000));
+                        break;
                     case EVENT_UPDATE_PHASES:
-                        std::list<Player*> _players;
-                        me->GetPlayerListInGrid(_players, me->GetVisibilityRange());
-                        for (std::list<Player*>::const_iterator itr = _players.begin(); itr != _players.end(); ++itr)
+                        std::list<Player*> players;
+                        me->GetPlayerListInGrid(players, me->GetVisibilityRange());
+                        for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             if ((*itr)->ToPlayer()->GetQuestStatus(QUEST_AN_ANCIENT_EVIL) == QUEST_STATUS_COMPLETE)
                             {
@@ -1928,6 +1944,34 @@ public:
     }
 };
 
+class spell_tempered_fury : public SpellScriptLoader
+{
+public:
+    spell_tempered_fury() : SpellScriptLoader("spell_tempered_fury") { }
+
+    class spell_tempered_fury_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_tempered_fury_SpellScript);
+
+        void HandleJumpDest(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            Position const jumpPos = GetHitDest()->GetPosition();
+            GetCaster()->GetMotionMaster()->MoveJump(jumpPos, 20, 0);
+        }
+
+        void Register() override
+        {
+            OnEffectLaunch += SpellEffectFn(spell_tempered_fury_SpellScript::HandleJumpDest, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_tempered_fury_SpellScript();
+    }
+};
+
 enum VordrakaEvents
 {
     EVENT_SMASH                     = 1,
@@ -1937,7 +1981,6 @@ enum VordrakaEvents
 
 enum VordrakaSpells
 {
-    SPELL_DEEP_SEA_SMASH            = 117287,
     SPELL_DEEP_SEA_RUPTURE          = 117456,
     SPELL_FORCECAST_AGGRESSOR       = 117403,
     SPELL_DEATH_INVIS               = 117555,
@@ -2003,9 +2046,9 @@ public:
 
             if (damage >= me->GetHealth())
             {
-                std::list<HostileReference*> _threatList;
-                _threatList = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::const_iterator itr = _threatList.begin(); itr != _threatList.end(); ++itr)
+                std::list<HostileReference*> threatList;
+                threatList = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                     if (Player* target = (*itr)->getTarget()->ToPlayer())
                         if (target->GetQuestStatus(QUEST_AN_ANCIENT_EVIL) == QUEST_STATUS_INCOMPLETE)
                             target->KilledMonsterCredit(me->GetEntry());
@@ -2014,17 +2057,17 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            std::list<Creature*> _summonedAggressors;
-            me->GetCreatureListWithEntryInGrid(_summonedAggressors, NPC_DEEPSCALE_AGGRESSOR, me->GetVisibilityRange());
-            for (std::list<Creature*>::const_iterator itr = _summonedAggressors.begin(); itr != _summonedAggressors.end(); ++itr)
+            std::list<Creature*> summonedAggressors;
+            me->GetCreatureListWithEntryInGrid(summonedAggressors, NPC_DEEPSCALE_AGGRESSOR, me->GetVisibilityRange());
+            for (std::list<Creature*>::const_iterator itr = summonedAggressors.begin(); itr != summonedAggressors.end(); ++itr)
                 (*itr)->ToCreature()->DespawnOrUnsummon(0);
 
             if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER_VORDRAKA, me->GetVisibilityRange(), true))
                 creature->AI()->SetData(DATA_VORDRAKA_DEATH, DATA_VORDRAKA_DEATH);
 
-            std::list<Player*> _playersVisibility;
-            me->GetPlayerListInGrid(_playersVisibility, me->GetVisibilityRange());
-            for (std::list<Player*>::const_iterator itr = _playersVisibility.begin(); itr != _playersVisibility.end(); ++itr)
+            std::list<Player*> playersVisibility;
+            me->GetPlayerListInGrid(playersVisibility, me->GetVisibilityRange());
+            for (std::list<Player*>::const_iterator itr = playersVisibility.begin(); itr != playersVisibility.end(); ++itr)
                 (*itr)->CastSpell((*itr), SPELL_SEE_DEATH_INVIS, true);
 
             DoCastSelf(SPELL_DEATH_INVIS, true);
@@ -2155,6 +2198,132 @@ public:
     }
 };
 
+class areatrigger_healing_sphere : public AreaTriggerEntityScript
+{
+public:
+    areatrigger_healing_sphere() : AreaTriggerEntityScript("areatrigger_healing_sphere") { }
+
+    struct areatrigger_healing_sphereAI : AreaTriggerAI
+    {
+        areatrigger_healing_sphereAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+        void OnUnitEnter(Unit* unit) override
+        {
+            at->SetDuration(0);
+        }
+    };
+
+    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    {
+        return new areatrigger_healing_sphereAI(areatrigger);
+    }
+};
+
+enum NpcHealersActive
+{
+    DATA_HEALER_ACTIVE          = 1,
+    DATA_HEALER_DIED            = 2,
+    AREA_WRECK_OF_THE_SKYSEEKER = 5833,
+    WORLD_STATE_HEALERS_ACTIVE  = 6488
+};
+
+class npc_healers_active_bunny : public CreatureScript
+{
+public:
+    npc_healers_active_bunny() : CreatureScript("npc_healers_active_bunny") { }
+
+    struct npc_healers_active_bunnyAI : public ScriptedAI
+    {
+        npc_healers_active_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset()
+        {
+            _healersActive = 0;
+        }
+
+        void SetData(uint32 id, uint32 value)
+        {
+            if (id == DATA_HEALER_ACTIVE)
+            {
+                if (_healersActive < 12)
+                    _healersActive += value;
+            }
+            else if (id == DATA_HEALER_DIED)
+            {
+                if (_healersActive > 0)
+                    _healersActive -= value;
+            }
+
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            if (playerList.isEmpty())
+                return;
+
+            for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                if (Player* player = itr->GetSource())
+                    if (player->GetAreaId() == AREA_WRECK_OF_THE_SKYSEEKER)
+                        player->SendUpdateWorldState(WORLD_STATE_HEALERS_ACTIVE, _healersActive);
+        }
+
+        uint32 GetData(uint32 id) const
+        {
+            if (id == DATA_HEALER_ACTIVE)
+                return _healersActive;
+
+            return 0;
+        }
+
+    private:
+        uint8 _healersActive;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_healers_active_bunnyAI(creature);
+    }
+};
+
+enum HealingShenzinSuSpells
+{
+    SPELL_HEALING_SHENZIN_SU_CREDIT = 108898
+};
+
+class spell_healing_shenzin_su : public SpellScriptLoader
+{
+public:
+    spell_healing_shenzin_su() : SpellScriptLoader("spell_healing_shenzin_su") { }
+
+    class spell_healing_shenzin_su_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_healing_shenzin_su_AuraScript);
+
+        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+        {
+            if (Unit* target = GetTarget())
+            {
+                // somehow get worldstate value, so the alternate power bar can fill based on active healers. the method below always returns 0
+                uint8 healerCount = sWorld->getWorldState(WORLD_STATE_HEALERS_ACTIVE);
+                target->ModifyPower(POWER_ALTERNATE_POWER, healerCount);
+
+                if (target->GetPowerPct(POWER_ALTERNATE_POWER) == 700)
+                {
+                    target->CastSpell(GetTarget(), SPELL_HEALING_SHENZIN_SU_CREDIT, true);
+                    target->RemoveAura(GetId());
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_healing_shenzin_su_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_healing_shenzin_su_AuraScript();
+    }
+};
+
 void AddSC_the_wandering_isle()
 {
     new spell_summon_troublemaker();
@@ -2188,6 +2357,10 @@ void AddSC_the_wandering_isle()
     new spell_rescue_injured_sailor();
     new at_wreck_of_the_skyseeker_injured_sailor();
     new npc_aysa_vordraka_fight();
+    new spell_tempered_fury();
     new npc_vordraka();
     new spell_summon_deep_sea_aggressor();
+    new areatrigger_healing_sphere();
+    new npc_healers_active_bunny();
+    new spell_healing_shenzin_su();
 }
