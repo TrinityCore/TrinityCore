@@ -1,3 +1,4 @@
+/*
 -- Bloodsail Warlock
 UPDATE `smart_scripts` SET `event_param3`=3400, `event_param4`=4800 WHERE `entryorguid`=1564 AND `source_type`=0 AND `id`=3;
 UPDATE `smart_scripts` SET `event_param1`=3000, `event_param2`=9000, `event_param3`=15000, `event_param4`=20000 WHERE `entryorguid`=1564 AND `source_type`=0 AND `id`=4;
@@ -324,3 +325,4 @@ UPDATE `creature` SET `spawndist`=10, `MovementType`=1 WHERE `guid` IN (2169,134
 DELETE FROM `creature_equip_template` WHERE `CreatureID` IN (2534);
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`, `ItemID3`, `VerifiedBuild`) VALUES
 (2534,1,5303,0,0,0);
+*/

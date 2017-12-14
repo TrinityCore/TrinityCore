@@ -1,3 +1,4 @@
+/*
 -- Draz'Zilb
 DELETE FROM `creature_text` WHERE `CreatureID`=4501;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -14,3 +15,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (450100,9,2,0,0,0,100,0,0,0,0,0,11,6741,0,0,0,0,0,1,0,0,0,0,0,0,0,"Draz'Zilb - On Script - Cast Identify Brood"),
 (450100,9,3,0,0,0,100,0,11000,11000,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Draz'Zilb - On Script - Say Line 1"),
 (450100,9,4,0,0,0,100,0,0,0,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Draz'Zilb - On Script - Add Npc Flag Questgiver+Gossip");
+*/

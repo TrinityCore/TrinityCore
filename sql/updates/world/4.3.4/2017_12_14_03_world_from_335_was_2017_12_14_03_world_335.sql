@@ -1,3 +1,4 @@
+/*
 -- Crag Coyote
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2727;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2727 AND `source_type`=0;
@@ -146,3 +147,4 @@ UPDATE `creature` SET `position_x`=-6636.55, `position_y`=-3547.18, `position_z`
 UPDATE `creature` SET `position_x`=-6693.88, `position_y`=-3021.04, `position_z`=265.355, `spawndist`=10, `MovementType`=1 WHERE `guid`=6910;
 UPDATE `creature` SET `position_x`=-6632.95, `position_y`=-3476.25, `position_z`=272.378, `spawndist`=5, `MovementType`=1 WHERE `guid`=6915;
 UPDATE `creature` SET `position_x`=-7149.89, `position_y`=-3477.44, `position_z`=255.994, `spawndist`=10, `MovementType`=1 WHERE `guid`=6911;
+*/

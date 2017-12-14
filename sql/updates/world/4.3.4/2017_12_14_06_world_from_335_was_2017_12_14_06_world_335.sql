@@ -1,3 +1,4 @@
+/*
 -- Piznik
 UPDATE `smart_scripts` SET `action_param2`=2 WHERE `entryorguid`=4276 AND `source_type`=0 AND `id`=1;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=427600 AND `source_type`=9;
@@ -65,3 +66,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (4001,0,0,"Hey! You're not supposed to be here! C'mon boys!",12,0,100,0,0,0,1428,0,"Windshear Tunnel Rat"),
 (4004,0,0,"I think the sounds came from over here. We'd better check it out.",12,0,100,0,0,0,1430,0,"Windshear Overlord"),
 (4004,1,0,"What's going on here? Piznik! I knew we shouldn't have let you stick around!",12,0,100,0,0,0,1433,0,"Windshear Overlord");
+*/

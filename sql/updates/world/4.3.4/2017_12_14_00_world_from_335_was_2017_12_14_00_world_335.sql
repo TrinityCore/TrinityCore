@@ -1,3 +1,4 @@
+/*
 -- Dran Droffers & Malton Droffers
 DELETE FROM `creature_text` WHERE `CreatureID` IN (6986,6987);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -17,3 +18,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (698600,9,2,0,0,0,100,0,3000,3000,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dran Droffers - On Script - Say Line 1"),
 (698600,9,3,0,0,0,100,0,4000,4000,0,0,1,1,0,0,0,0,0,19,6987,0,0,0,0,0,0,"Dran Droffers - On Script - Say Line 1 (Malton Droffers)"),
 (698600,9,4,0,0,0,100,0,3000,3000,0,0,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dran Droffers - On Script - Say Line 2");
+*/
