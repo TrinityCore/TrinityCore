@@ -2264,6 +2264,83 @@ class spell_gen_remove_flight_auras : public SpellScript
     }
 };
 
+// 38772 Grievous Wound
+// 43937 Grievous Wound
+// 62331 Impale
+// 62418 Impale
+class spell_gen_remove_on_health_pct : public AuraScript
+{
+    PrepareAuraScript(spell_gen_remove_on_health_pct);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        // they apply damage so no need to check for ticks here
+
+        if (GetTarget()->HealthAbovePct(GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue()))
+        {
+            Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+            PreventDefaultAction();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_remove_on_health_pct::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// 31956 Grievous Wound
+// 38801 Grievous Wound
+// 43093 Grievous Throw
+// 58517 Grievous Wound
+// 59262 Grievous Wound
+class spell_gen_remove_on_full_health : public AuraScript
+{
+    PrepareAuraScript(spell_gen_remove_on_full_health);
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        // if it has only periodic effect, allow 1 tick
+        bool onlyEffect = (GetSpellInfo()->GetEffects().size() == 1);
+        if (onlyEffect && aurEff->GetTickNumber() <= 1)
+            return;
+
+        if (GetTarget()->IsFullHealth())
+        {
+            Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+            PreventDefaultAction();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_remove_on_full_health::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// 70292 - Glacial Strike
+// 71316 - Glacial Strike
+class spell_gen_remove_on_full_health_pct : public AuraScript
+{
+    PrepareAuraScript(spell_gen_remove_on_full_health_pct);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        // they apply damage so no need to check for ticks here
+
+        if (GetTarget()->IsFullHealth())
+        {
+            Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+            PreventDefaultAction();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_remove_on_full_health_pct::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+    }
+};
+
 enum Replenishment
 {
     SPELL_REPLENISHMENT             = 57669,
@@ -3765,6 +3842,9 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_two_forms);
     RegisterSpellScript(spell_gen_darkflight);
     /*                          */
+    RegisterAuraScript(spell_gen_remove_on_health_pct);
+    RegisterAuraScript(spell_gen_remove_on_full_health);
+    RegisterAuraScript(spell_gen_remove_on_full_health_pct);
     RegisterSpellScript(spell_gen_seaforium_blast);
     RegisterSpellScript(spell_gen_spectator_cheer_trigger);
     RegisterSpellScript(spell_gen_spirit_healer_res);
