@@ -8590,7 +8590,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
         data << GetPackGUID();
         data << uint32(GameTime::GetGameTime());   // Packet counter
-        data << player->GetCollisionHeight(true);
+        data << player->GetCollisionHeight();
         player->SendDirectMessage(&data);
     }
 
@@ -8610,7 +8610,7 @@ void Unit::Dismount()
         WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
         data << GetPackGUID();
         data << uint32(GameTime::GetGameTime());   // Packet counter
-        data << thisPlayer->GetCollisionHeight(false);
+        data << thisPlayer->GetCollisionHeight();
         thisPlayer->SendDirectMessage(&data);
     }
 
@@ -14751,4 +14751,28 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, getGender()), 0, "", locale);
     target->SendDirectMessage(&data);
+}
+
+float Unit::GetCollisionHeight() const
+{
+    float scaleMod = GetObjectScale(); // 99% sure about this
+
+    if (IsMounted())
+    {
+        if (CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID)))
+        {
+            if (CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelId))
+            {
+                CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.AssertEntry(GetNativeDisplayId());
+                CreatureModelDataEntry const* modelData = sCreatureModelDataStore.AssertEntry(displayInfo->ModelId);
+                return scaleMod * (mountModelData->MountHeight + modelData->CollisionHeight * 0.5f);
+            }
+        }
+    }
+
+    //! Dismounting case - use basic default model data
+    CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.AssertEntry(GetNativeDisplayId());
+    CreatureModelDataEntry const* modelData = sCreatureModelDataStore.AssertEntry(displayInfo->ModelId);
+
+    return scaleMod * modelData->CollisionHeight;
 }
