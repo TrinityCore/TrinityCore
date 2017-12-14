@@ -1276,8 +1276,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                             return false;
                         // no break
                     case DATA_DEATHBRINGER_SAURFANG:
-                        if (GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != DONE)
-                            return false;
+                        /*if (GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != DONE)
+                            return false;*/
                         // no break
                     case DATA_ICECROWN_GUNSHIP_BATTLE:
                         if (GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
