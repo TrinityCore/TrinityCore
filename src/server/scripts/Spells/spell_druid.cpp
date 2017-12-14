@@ -825,6 +825,12 @@ class spell_dru_innervate : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
+                if (!aurEff->GetTotalTicks())
+                {
+                    amount = 0;
+                    return;
+                }
+
                 if (Unit* caster = GetCaster())
                     amount = int32(CalculatePct(caster->GetCreatePowers(POWER_MANA), amount) / aurEff->GetTotalTicks());
                 else
@@ -855,6 +861,9 @@ class spell_dru_insect_swarm : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
             {
+                if (!aurEff->GetTotalTicks())
+                    return;
+
                 if (Unit* caster = GetCaster())
                     if (AuraEffect const* relicAurEff = caster->GetAuraEffect(SPELL_DRUID_ITEM_T8_BALANCE_RELIC, EFFECT_0))
                         amount += relicAurEff->GetAmount() / aurEff->GetTotalTicks();

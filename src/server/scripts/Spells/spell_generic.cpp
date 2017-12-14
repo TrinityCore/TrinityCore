@@ -1339,7 +1339,7 @@ class spell_gen_gift_of_naaru : public AuraScript
 
     void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
     {
-        if (!GetCaster())
+        if (!GetCaster() || !aurEff->GetTotalTicks())
             return;
 
         float heal = 0.0f;
@@ -1410,6 +1410,9 @@ class spell_gen_lifeblood : public AuraScript
 
     void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
     {
+        if (!aurEff->GetTotalTicks())
+            return;
+
         if (Unit* owner = GetUnitOwner())
             amount += int32(CalculatePct(owner->GetMaxHealth(), 1.5f / aurEff->GetTotalTicks()));
     }
