@@ -2108,37 +2108,6 @@ class spell_thorim_activate_lightning_orb_periodic : public SpellScriptLoader
         }
 };
 
-// 62331, 62418 - Impale
-class spell_iron_ring_guard_impale : public SpellScriptLoader
-{
-    public:
-        spell_iron_ring_guard_impale() : SpellScriptLoader("spell_iron_ring_guard_impale") { }
-
-        class spell_iron_ring_guard_impale_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_iron_ring_guard_impale_AuraScript);
-
-            void PeriodicTick(AuraEffect const* /*aurEff*/)
-            {
-                if (GetTarget()->HealthAbovePct(GetSpellInfo()->Effects[EFFECT_1].CalcValue()))
-                {
-                    Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                    PreventDefaultAction();
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_iron_ring_guard_impale_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_iron_ring_guard_impale_AuraScript();
-        }
-};
-
 class achievement_dont_stand_in_the_lightning : public AchievementCriteriaScript
 {
     public:
@@ -2213,7 +2182,6 @@ void AddSC_boss_thorim()
     new spell_thorim_arena_leap();
     new spell_thorim_runic_smash();
     new spell_thorim_activate_lightning_orb_periodic();
-    new spell_iron_ring_guard_impale();
     new achievement_dont_stand_in_the_lightning();
     new achievement_lose_your_illusion();
     new achievement_i_ll_take_you_all_on();
