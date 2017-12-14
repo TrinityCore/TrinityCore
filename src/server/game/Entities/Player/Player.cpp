@@ -8637,6 +8637,13 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 2257:                                          // Deeprun Tram
         case 3703:                                          // Shattrath City});
             break;
+        case 5736:                                          // The Wandering Isle
+            if (areaid == 5833)                                 // Wreck of the Skyseeker
+            {
+                packet.Worldstates.emplace_back(6488, 0x0); // Healers Active
+                packet.Worldstates.emplace_back(6489, 0x1); // Healers Active enabled
+            }
+            break;
         case 1377:                                          // Silithus
             if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_SI)
                 pvp->FillInitialWorldStates(packet);
