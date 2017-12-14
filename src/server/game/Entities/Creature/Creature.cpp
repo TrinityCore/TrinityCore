@@ -294,7 +294,7 @@ void Creature::RemoveCorpse(bool setSpawnTime)
 
     // Should get removed later, just keep "compatibility" with scripts
     if (setSpawnTime)
-        m_respawnTime = std::max<time_t>(time(NULL) + respawnDelay, m_respawnTime);
+        m_respawnTime = std::max<time_t>(time(nullptr) + respawnDelay, m_respawnTime);
 
     // if corpse was removed during falling, the falling will continue and override relocation to respawn position
     if (IsFalling())
@@ -2205,7 +2205,7 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
 
     // if the mob is actively being damaged, do not reset due to distance unless it's a world boss
     if (!isWorldBoss())
-        if (time(NULL) - GetLastDamagedTime() <= MAX_AGGRO_RESET_TIME)
+        if (time(nullptr) - GetLastDamagedTime() <= MAX_AGGRO_RESET_TIME)
             return true;
 
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
