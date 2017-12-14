@@ -366,17 +366,6 @@ void WorldSession::HandleRequestStabledPets(WorldPackets::NPC::RequestStabledPet
 
 void WorldSession::SendStablePet(ObjectGuid guid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
-
-    stmt->setUInt64(0, _player->GetGUID().GetCounter());
-    stmt->setUInt8(1, PET_SAVE_FIRST_ACTIVE_SLOT);
-    stmt->setUInt8(2, PET_SAVE_LAST_STABLE_SLOT);
-
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::SendStablePetCallback, this, guid, std::placeholders::_1)));
-}
-
-void WorldSession::SendStablePetCallback(ObjectGuid guid, PreparedQueryResult result)
-{
     if (!GetPlayer())
         return;
 
@@ -384,26 +373,22 @@ void WorldSession::SendStablePetCallback(ObjectGuid guid, PreparedQueryResult re
 
     packet.StableMaster = guid;
 
-    if (result)
+    for (PlayerPetData* p : _player->PlayerPetDataStore)
     {
-        do
-        {
-            Field* fields = result->Fetch();
-            WorldPackets::Pet::PetStableInfo stableEntry;
 
-            uint32 petSlot = fields[0].GetUInt32();
+        WorldPackets::Pet::PetStableInfo stableEntry;
 
-            stableEntry.PetSlot         = petSlot;
-            stableEntry.PetNumber       = fields[1].GetUInt32();             // petnumber
-            stableEntry.CreatureID      = fields[2].GetUInt32();             // creature entry
-            stableEntry.DisplayID       = fields[3].GetUInt32();             // creature displayid
-            stableEntry.ExperienceLevel = fields[4].GetUInt16();             // level
-            stableEntry.PetFlags        = petSlot <= PET_SAVE_LAST_ACTIVE_SLOT ? PET_STABLE_ACTIVE : PET_STABLE_INACTIVE;
-            stableEntry.PetName         = fields[5].GetString();             // Name
+        uint32 petSlot = p->Slot;
 
-            packet.Pets.push_back(stableEntry);
-        }
-        while (result->NextRow());
+        stableEntry.PetSlot         = petSlot;
+        stableEntry.PetNumber       = p->PetId;             // petnumber
+        stableEntry.CreatureID      = p->CreatureId;             // creature entry
+        stableEntry.DisplayID       = p->DisplayId;             // creature displayid
+        stableEntry.ExperienceLevel = p->Petlevel;             // level
+        stableEntry.PetFlags        = petSlot <= PET_SAVE_LAST_ACTIVE_SLOT ? PET_STABLE_ACTIVE : PET_STABLE_INACTIVE;
+        stableEntry.PetName         = p->Name;             // Name
+
+        packet.Pets.push_back(stableEntry);
     }
 
     SendPacket(packet.Write());
@@ -455,30 +440,11 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet)
         }
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
+    PlayerPetData* playerPetData = _player->GetPlayerPetDataById(packet.PetNumber);
 
-    stmt->setUInt64(0, _player->GetGUID().GetCounter());
-    stmt->setUInt8(1, packet.PetNumber);
-
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleSetPetSlotCallback, this, packet.DestSlot, std::placeholders::_1)));
-}
-
-void WorldSession::HandleSetPetSlotCallback(uint8 newPetSlot, PreparedQueryResult result)
-{
-    if (!GetPlayer())
-        return;
-
-    uint8 oldPetSlot;
-    uint32 petnumber;
-
-    if (result->GetRowCount() == 1)
+    if (playerPetData)
     {
-        Field* fields = result->Fetch();
-
-        oldPetSlot = fields[0].GetUInt8();
-        petnumber = fields[1].GetUInt32();
-
-        UpdatePetSlot(petnumber, oldPetSlot, newPetSlot);
+        UpdatePetSlot(packet.PetNumber, playerPetData->Slot, packet.DestSlot);
     }
 }
 

@@ -994,7 +994,6 @@ class TC_GAME_API WorldSession
         // Pet
         void SendQueryPetNameResponse(ObjectGuid guid);
         void SendStablePet(ObjectGuid guid);
-        void SendStablePetCallback(ObjectGuid guid, PreparedQueryResult result);
         void SendPetStableResult(uint8 result);
         bool CheckStableMaster(ObjectGuid guid);
         void UpdatePetSlot(uint32 petNumber, uint8 oldPetSlot, uint8 newPetSlot);
@@ -1340,7 +1339,6 @@ class TC_GAME_API WorldSession
         void HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleRequestStabledPets(WorldPackets::NPC::RequestStabledPets& packet);
         void HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet);
-        void HandleSetPetSlotCallback(uint8 newPetSlot, PreparedQueryResult result);
         void HandleUnstablePet(WorldPacket& recvPacket);
         void HandleUnstablePetCallback(uint32 petId, PreparedQueryResult result);
         void HandleBuyStableSlot(WorldPacket& recvPacket);
