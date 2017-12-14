@@ -387,7 +387,7 @@ bool Vehicle::AddPassenger(uint32 passengerEntry, int8 seatId /*= -1*/)
 {
     if (Unit* base = GetBase())
         if (Creature* summon = base->SummonCreature(passengerEntry, base->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
-            return AddPassenger(summon, seatId);
+            return summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, seatId + 1, base, false);
 
     return false;
 }

@@ -732,7 +732,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
         // triggerSpellId will be used as scheduler group
         // if one delayed trigger spell fail, the next one must also fail
         uint32 triggerSpellId           = m_spellInfo->Id;
-        ObjectGuid casterGUID           = m_caster->GetGUID();
         ObjectGuid originalCasterGUID   = m_originalCasterGUID;
 
         m_caster->GetScheduler().Schedule(Milliseconds(effectInfo->MiscValue), triggerSpellId, [targets, spellInfo, values, originalCasterGUID, triggerSpellId](TaskContext task)
