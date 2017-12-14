@@ -39,6 +39,7 @@ class Player;
 class Quest;
 class SpellInfo;
 class Unit;
+class BasicEvent;
 struct AISpellInfoType;
 enum DamageEffectType : uint8;
 enum SpellEffIndex : uint8;
@@ -298,6 +299,7 @@ class TC_GAME_API UnitAI
         void DoCastSelf(uint32 spellId, bool triggered = false) { DoCast(me, spellId, triggered); }
         void DoCastVictim(uint32 spellId, bool triggered = false);
         void DoCastAOE(uint32 spellId, bool triggered = false);
+        BasicEvent* DoCastDelayed(Unit* victim, uint32 spellId, uint32 delay, bool triggered = false, bool aliveCheck = true);
 
         float DoGetSpellMaxRange(uint32 spellId, bool positive = false);
 
