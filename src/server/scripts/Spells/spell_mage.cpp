@@ -103,6 +103,9 @@ enum MageSpells
     SPELL_MAGE_BONE_CHILLING                     = 205027,
     SPELL_MAGE_BONE_CHILLING_PROC                = 205766,
     SPELL_MAGE_ICE_FLOES                         = 108839,
+    SPELL_MAGE_COMET_STORM                       = 153595,
+    SPELL_MAGE_COMET_STORM_DAMAGE                = 153596,
+    SPELL_MAGE_COMET_STORM_VISUAL                = 242210,
 };
 
 enum TemporalDisplacementSpells
@@ -1932,6 +1935,53 @@ public:
     }
 };
 
+// Comet Storm - 153595
+class spell_mage_comet_storm : public SpellScriptLoader
+{
+public:
+    spell_mage_comet_storm() : SpellScriptLoader("spell_mage_comet_storm") {}
+
+    class spell_mage_comet_storm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_comet_storm_SpellScript);
+
+        void HandleHit(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetExplTargetUnit();
+
+            if (!caster || !target)
+                return;
+
+            Position targetPos = target->GetPosition();
+
+            for (uint8 i = 0; i < 7; ++i)
+            {
+                caster->GetScheduler().Schedule(Milliseconds(500 * i), [targetPos](TaskContext context)
+                {
+                    context.GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_VISUAL);
+
+                    // Damage come 1sec after visual
+                    context.Schedule(Milliseconds(1000), [targetPos](TaskContext context)
+                    {
+                        context.GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_DAMAGE);
+                    });
+                });
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_mage_comet_storm_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mage_comet_storm_SpellScript();
+    }
+};
+
 // Meteor - 177345
 // AreaTriggerID - 3467
 class at_mage_meteor_timer : public AreaTriggerEntityScript
@@ -2294,6 +2344,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_frozen_orb();
     new spell_mage_chilled();
     new spell_mage_ice_floes();
+    new spell_mage_comet_storm();
 
     // Spell Pet scripts
     new spell_mage_pet_freeze();
