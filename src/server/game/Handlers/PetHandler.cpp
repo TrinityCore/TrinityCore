@@ -749,7 +749,7 @@ void WorldSession::UpdatePetSlot(uint32 petNumberA, uint8 oldPetSlot, uint8 newP
         if (pet && pet->GetCharmInfo()->GetPetNumber() == petNumberB)
         {
             pet->SetSlot(oldPetSlot);
-            _player->RemovePet(pet, PET_SAVE_AS_CURRENT);
+            _player->RemovePet(pet, PET_SAVE_DISMISS);
         }
         else
         {
@@ -768,7 +768,7 @@ void WorldSession::UpdatePetSlot(uint32 petNumberA, uint8 oldPetSlot, uint8 newP
     if (pet && pet->GetCharmInfo()->GetPetNumber() == petNumberA)
     {
         pet->SetSlot(newPetSlot);
-        _player->RemovePet(pet, PET_SAVE_AS_CURRENT);
+        _player->RemovePet(pet, PET_SAVE_DISMISS);
     }
     else
     {

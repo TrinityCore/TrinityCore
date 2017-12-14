@@ -348,20 +348,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
     if (!GetOwnerGUID().IsPlayer())
         return;
 
-    Player* owner = GetOwner();
-
-    // not save pet as current if another pet temporary unsummoned
-    if (mode == PET_SAVE_AS_CURRENT && owner->GetTemporaryUnsummonedPetNumber() &&
-        owner->GetTemporaryUnsummonedPetNumber() != m_charmInfo->GetPetNumber())
-    {
-        // pet will lost anyway at restore temporary unsummoned
-        if (getPetType() == HUNTER_PET)
-            return;
-
-        // for warlock case
-        mode = PET_SAVE_NOT_IN_SLOT;
-    }
-
     uint32 curhealth = GetHealth();
     uint32 curmana = GetPower(POWER_MANA);
 
@@ -369,25 +355,25 @@ void Pet::SavePetToDB(PetSaveMode mode)
     // save auras before possibly removing them
     _SaveAuras(trans);
 
-    // stable and not in slot saves
-    if (mode > PET_SAVE_AS_CURRENT)
-        RemoveAllAuras();
-
     _SaveSpells(trans);
     GetSpellHistory()->SaveToDB<Pet>(trans);
     CharacterDatabase.CommitTransaction(trans);
 
     if (mode == PET_SAVE_NEW_PET)
     {
-        Optional<uint8> slot = GetOwner()->GetFirstUnusedActivePetSlot();
+        Optional<uint8> slot = IsHunterPet() ? GetOwner()->GetFirstUnusedActivePetSlot() : GetOwner()->GetFirstUnusedPetSlot();
+
         if (slot)
             SetSlot(*slot);
         else
             mode = PET_SAVE_AS_DELETED;
     }
 
-    // current/stable/not_in_slot
-    if (mode >= PET_SAVE_AS_CURRENT)
+    if (mode == PET_SAVE_DISMISS)
+        RemoveAllAuras();
+
+    // whole pet is saved to DB
+    if (mode >= PET_SAVE_CURRENT_STATE)
     {
         ObjectGuid::LowType ownerLowGUID = GetOwnerGUID().GetCounter();
         trans = CharacterDatabase.BeginTransaction();
@@ -396,26 +382,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_ID);
         stmt->setUInt32(0, m_charmInfo->GetPetNumber());
         trans->Append(stmt);
-
-        // prevent duplicate using slot (except PET_SAVE_NOT_IN_SLOT)
-        /* if (mode <= PET_SAVE_LAST_STABLE_SLOT)
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT);
-            stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
-            stmt->setUInt64(1, ownerLowGUID);
-            stmt->setUInt8(2, uint8(mode));
-            trans->Append(stmt);
-        } */
-
-        // prevent existence another hunter pet in PET_SAVE_AS_CURRENT and PET_SAVE_NOT_IN_SLOT
-        // if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT || mode > PET_SAVE_LAST_STABLE_SLOT))
-        // {
-        //     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_SLOT);
-        //     stmt->setUInt64(0, ownerLowGUID);
-        //     stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
-        //     stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
-        //     trans->Append(stmt);
-        // }
 
         // save pet
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
@@ -441,12 +407,51 @@ void Pet::SavePetToDB(PetSaveMode mode)
         trans->Append(stmt);
 
         CharacterDatabase.CommitTransaction(trans);
+
+        PlayerPetData* playerPetData = (mode < PET_SAVE_NEW_PET) ? GetOwner()->GetPlayerPetDataById(m_charmInfo->GetPetNumber()) : new PlayerPetData();
+
+        // save as new if no data for Pet in PlayerPetDataStore
+        if (mode < PET_SAVE_NEW_PET && !playerPetData)
+        {
+            mode = PET_SAVE_NEW_PET;
+            playerPetData = new PlayerPetData();
+        }
+
+        uint32 petId = m_charmInfo->GetPetNumber();
+
+        if (m_petSlot < 0 || m_petSlot > 54)
+        {
+            TC_LOG_ERROR("sql.sql", "Player::LoadPetsFromDB: bad slot %u for pet %u!", m_petSlot, petId);
+        }
+
+        playerPetData->PetId = petId;
+        playerPetData->CreatureId = GetEntry();
+        playerPetData->Owner = ownerLowGUID;
+        playerPetData->DisplayId = GetNativeDisplayId();
+        playerPetData->Petlevel = getLevel();
+        playerPetData->PetExp = GetUInt32Value(UNIT_FIELD_PETEXPERIENCE);
+        playerPetData->Reactstate = GetReactState();
+        playerPetData->Slot = m_petSlot;
+        playerPetData->Name = m_name;
+        playerPetData->Renamed = HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ? 0 : 1;
+        playerPetData->SavedHealth = curhealth;
+        playerPetData->SavedMana = curmana;
+        playerPetData->Actionbar = GenerateActionBarData();
+        playerPetData->Timediff = time(NULL);
+        playerPetData->SummonSpellId = GetUInt32Value(UNIT_CREATED_BY_SPELL);
+        playerPetData->Type = getPetType();
+        playerPetData->SpecId = m_petSpecialization;
+
+        if (mode == PET_SAVE_NEW_PET)
+            GetOwner()->AddToPlayerPetDataStore(playerPetData);
     }
     // delete
     else
     {
         RemoveAllAuras();
         DeleteFromDB(m_charmInfo->GetPetNumber());
+
+        GetOwner()->DeleteFromPlayerPetDataStore(m_charmInfo->GetPetNumber());
     }
 }
 
@@ -520,7 +525,7 @@ void Pet::Update(uint32 diff)
         {
             if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= time(NULL))
             {
-                Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
+                Remove(PET_SAVE_CURRENT_STATE);               //hunters' pets never get removed because of death, NEVER!
                 return;
             }
             break;
@@ -532,7 +537,7 @@ void Pet::Update(uint32 diff)
             if ((!IsWithinDistInMap(owner, GetMap()->GetVisibilityRange()) && !isPossessed()) || (isControlled() && !owner->GetPetGUID()))
             //if (!owner || (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && (owner->GetCharmGUID() && (owner->GetCharmGUID() != GetGUID()))) || (isControlled() && !owner->GetPetGUID()))
             {
-                Remove(PET_SAVE_NOT_IN_SLOT, true);
+                Remove(PET_SAVE_CURRENT_STATE, true);
                 return;
             }
 
@@ -541,7 +546,7 @@ void Pet::Update(uint32 diff)
                 if (owner->GetPetGUID() != GetGUID())
                 {
                     TC_LOG_ERROR("entities.pet", "Pet %u is not pet of owner %s, removed", GetEntry(), GetOwner()->GetName().c_str());
-                    Remove(getPetType() == HUNTER_PET?PET_SAVE_AS_DELETED:PET_SAVE_NOT_IN_SLOT);
+                    Remove(getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_CURRENT_STATE);
                     return;
                 }
             }
@@ -552,7 +557,7 @@ void Pet::Update(uint32 diff)
                     m_duration -= diff;
                 else
                 {
-                    Remove(getPetType() != SUMMON_PET ? PET_SAVE_AS_DELETED:PET_SAVE_NOT_IN_SLOT);
+                    Remove(getPetType() != SUMMON_PET ? PET_SAVE_AS_DELETED : PET_SAVE_CURRENT_STATE);
                     return;
                 }
             }

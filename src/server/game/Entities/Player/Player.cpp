@@ -1341,7 +1341,7 @@ void Player::Update(uint32 p_time)
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
-        RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
+        RemovePet(pet, PET_SAVE_DISMISS, true);
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
@@ -1372,7 +1372,7 @@ void Player::setDeathState(DeathState s)
         ClearResurrectRequestData();
 
         //FIXME: is pet dismissed at dying or releasing spirit? if second, add setDeathState(DEAD) to HandleRepopRequestOpcode and define pet unsummon here with (s == DEAD)
-        RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
+        RemovePet(nullptr, PET_SAVE_DISMISS, true);
 
         // save value before aura remove in Unit::setDeathState
         ressSpellId = GetUInt32Value(PLAYER_SELF_RES_SPELL);
@@ -3484,7 +3484,7 @@ bool Player::ResetTalents(bool noCost)
         }
     }
 
-    RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
+    RemovePet(nullptr, PET_SAVE_DISMISS, true);
 
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
@@ -18948,6 +18948,39 @@ Optional<uint8> Player::GetFirstUnusedActivePetSlot()
     return Optional<uint8>{};
 }
 
+Optional<uint8> Player::GetFirstUnusedPetSlot()
+{
+    std::set<uint8> unusedSlot;
+
+    for (uint8 i = 0; i < PET_SLOT_LAST; i++) // 55 MAX StableSlots (256 theoretically)
+        unusedSlot.insert(i);
+
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (unusedSlot.find(p->Slot) != unusedSlot.end())
+            unusedSlot.erase(p->Slot);
+
+    if (!unusedSlot.empty())
+        return *unusedSlot.begin();
+
+    return Optional<uint8>{};
+}
+
+void Player::DeleteFromPlayerPetDataStore(uint32 petNumber)
+{
+    for (std::vector<PlayerPetData*>::iterator itr = PlayerPetDataStore.begin(); itr != PlayerPetDataStore.end(); ++itr)
+    {
+        if ((*itr)->PetId == petNumber)
+        {
+            PlayerPetDataStore.erase(itr);
+            delete (*itr);
+        }
+    }
+}
+
+void Player::AddToPlayerPetDataStore(PlayerPetData* playerPetData)
+{
+    PlayerPetDataStore.push_back(playerPetData);
+}
 
 void Player::_LoadQuestStatus(PreparedQueryResult result)
 {
@@ -20154,7 +20187,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
@@ -21239,7 +21272,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
             case 1863:
             case 417:
             case 17252:
-                mode = PET_SAVE_NOT_IN_SLOT;
+                mode = PET_SAVE_DISMISS;
                 break;
         }
     }
@@ -23270,7 +23303,7 @@ template<>
 inline void BeforeVisibilityDestroy<Creature>(Creature* t, Player* p)
 {
     if (p->GetPetGUID() == t->GetGUID() && t->IsPet())
-        t->ToPet()->Remove(PET_SAVE_NOT_IN_SLOT, true);
+        t->ToPet()->Remove(PET_SAVE_DISMISS, true);
 }
 
 void Player::UpdateVisibilityOf(WorldObject* target)
@@ -26180,7 +26213,7 @@ void Player::UnsummonPetTemporaryIfAny()
         m_oldpetspell = pet->GetUInt32Value(UNIT_CREATED_BY_SPELL);
     }
 
-    RemovePet(pet, PET_SAVE_AS_CURRENT);
+    RemovePet(pet, PET_SAVE_DISMISS);
 }
 
 void Player::ResummonPetTemporaryUnSummonedIfAny()
@@ -26590,7 +26623,7 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
 
     // TO-DO: We need more research to know what happens with warlock's reagent
     if (Pet* pet = GetPet())
-        RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+        RemovePet(pet, PET_SAVE_DISMISS);
 
     ClearAllReactives();
     UnsummonAllTotems();
@@ -27321,7 +27354,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     switch (petType)
     {
         case SUMMON_PET:
-            // this enables pet details window (Shift+P)
             pet->GetCharmInfo()->SetPetNumber(pet_number, true);
             pet->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_MAGE);
             pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
@@ -27340,8 +27372,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         case SUMMON_PET:
             pet->InitPetCreateSpells();
-            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+            pet->SavePetToDB(PET_SAVE_NEW_PET);
             PetSpellInitialize();
+            GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), pet->GetEntry(), pet->GetDisplayId(), pet->getLevel(), pet->GetName());
             break;
         default:
             break;

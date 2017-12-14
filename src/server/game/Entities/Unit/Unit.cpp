@@ -5874,7 +5874,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 {
                     // remove existing minion pet
                     if (oldPet->IsPet())
-                        ((Pet*)oldPet)->Remove(PET_SAVE_AS_CURRENT);
+                        ((Pet*)oldPet)->Remove(PET_SAVE_DISMISS);
                     else
                         oldPet->UnSummon();
                     SetPetGUID(minion->GetGUID());
