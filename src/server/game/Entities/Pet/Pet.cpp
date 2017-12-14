@@ -419,7 +419,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
         uint32 petId = m_charmInfo->GetPetNumber();
 
-        if (m_petSlot < 0 || m_petSlot > 54)
+        if (m_petSlot > PET_SLOT_LAST)
         {
             TC_LOG_ERROR("sql.sql", "Player::LoadPetsFromDB: bad slot %u for pet %u!", m_petSlot, petId);
         }

@@ -247,7 +247,10 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                         if (pet->IsPet())
                         {
                             if (((Pet*)pet)->getPetType() == HUNTER_PET)
+                            {
                                 GetPlayer()->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
+                                GetPlayer()->GetSession()->SendStablePet(ObjectGuid::Empty);
+                            }
                             else
                                 //dismissing a summoned pet is like killing them (this prevents returning a soulshard...)
                                 pet->setDeathState(CORPSE);
