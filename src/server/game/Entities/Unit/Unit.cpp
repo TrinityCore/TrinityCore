@@ -7895,7 +7895,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             if (charm->GetTypeId() == TYPEID_UNIT)
                 charm->AddUnitFlag(UNIT_FLAG_STUNNED);
 
-        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true), WorldPackets::Movement::UpdateCollisionHeightReason::Mount);
+        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Mount);
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -7910,7 +7910,7 @@ void Unit::Dismount()
     RemoveUnitFlag(UNIT_FLAG_MOUNT);
 
     if (Player* thisPlayer = ToPlayer())
-        thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false), WorldPackets::Movement::UpdateCollisionHeightReason::Mount);
+        thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Mount);
 
     // dismount as a vehicle
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
@@ -14484,4 +14484,28 @@ void Unit::SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* 
 bool Unit::VisibleAuraSlotCompare::operator()(AuraApplication* left, AuraApplication* right) const
 {
     return left->GetSlot() < right->GetSlot();
+}
+
+float Unit::GetCollisionHeight() const
+{
+    float scaleMod = GetObjectScale(); // 99% sure about this
+
+    if (IsMounted())
+    {
+        if (CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetMountDisplayId()))
+        {
+            if (CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelID))
+            {
+                CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.AssertEntry(GetNativeDisplayId());
+                CreatureModelDataEntry const* modelData = sCreatureModelDataStore.AssertEntry(displayInfo->ModelID);
+                return scaleMod * (mountModelData->MountHeight + modelData->CollisionHeight * 0.5f);
+            }
+        }
+    }
+
+    //! Dismounting case - use basic default model data
+    CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.AssertEntry(GetNativeDisplayId());
+    CreatureModelDataEntry const* modelData = sCreatureModelDataStore.AssertEntry(displayInfo->ModelID);
+
+    return scaleMod * modelData->CollisionHeight;
 }
