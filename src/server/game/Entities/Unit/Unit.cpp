@@ -13367,11 +13367,11 @@ uint32 Unit::GetRemainingPeriodicAmount(ObjectGuid caster, uint32 spellId, AuraT
 {
     uint32 amount = 0;
     AuraEffectList const& periodicAuras = GetAuraEffectsByType(auraType);
-    for (AuraEffectList::const_iterator i = periodicAuras.begin(); i != periodicAuras.end(); ++i)
+    for (AuraEffect const* aurEff : periodicAuras)
     {
-        if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex || !(*i)->GetTotalTicks())
+        if (aurEff->GetCasterGUID() != caster || aurEff->GetId() != spellId || aurEff->GetEffIndex() != effectIndex || !aurEff->GetTotalTicks())
             continue;
-        amount += uint32(((*i)->GetAmount() * std::max<int32>((*i)->GetTotalTicks() - int32((*i)->GetTickNumber()), 0)) / (*i)->GetTotalTicks());
+        amount += uint32((aurEff->GetAmount() * static_cast<int32>(aurEff->GetRemainingTicks())) / aurEff->GetTotalTicks());
         break;
     }
 

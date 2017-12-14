@@ -3207,6 +3207,43 @@ void SpellMgr::LoadSpellInfoCorrections()
 {
     uint32 oldMSTime = getMSTime();
 
+    // Some spells have no amplitude set
+    {
+        ApplySpellFix({
+            6727,  // Poison Mushroom
+            7331,  // Healing Aura (TEST) (Rank 1)
+            /*
+            30400, // Nether Beam - Perseverance
+                Blizzlike to have it disabled? DBC says:
+                "This is currently turned off to increase performance. Enable this to make it fire more frequently."
+            */
+            34589, // Dangerous Water
+            52562, // Arthas Zombie Catcher
+            57550, // Tirion Aggro
+            65755
+        }, [](SpellInfo* spellInfo)
+        {
+            const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->ApplyAuraPeriod = 1 * IN_MILLISECONDS;
+        });
+
+        ApplySpellFix({
+            24707, // Food
+            26263, // Dim Sum
+            29055, // Refreshing Red Apple
+            37504  // Karazhan - Chess NPC AI, action timer
+        }, [](SpellInfo* spellInfo)
+        {
+            // first effect has correct amplitude
+            const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->ApplyAuraPeriod = const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->ApplyAuraPeriod;
+        });
+
+        // Vomit
+        ApplySpellFix({ 43327 }, [](SpellInfo* spellInfo)
+        {
+            const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->ApplyAuraPeriod = 1 * IN_MILLISECONDS;
+        });
+    }
+
     ApplySpellFix({
         63026, // Summon Aspirant Test NPC (HACK: Target shouldn't be changed)
         63137  // Summon Valiant Test (HACK: Target shouldn't be changed; summon position should be untied from spell destination)

@@ -799,6 +799,11 @@ void Aura::RefreshDuration(bool withMods)
 
     if (!m_periodicCosts.empty())
         m_timeCla = 1 * IN_MILLISECONDS;
+
+    // also reset periodic counters
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (AuraEffect* aurEff = GetEffect(i))
+            aurEff->ResetTicks();
 }
 
 void Aura::RefreshTimers(bool resetPeriodicTimer)
