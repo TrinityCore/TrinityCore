@@ -197,13 +197,7 @@ public:
 
     bool operator()(Unit* unit) const
     {
-        if (unit->GetTypeId() != TYPEID_PLAYER)
-            return false;
-
-        if (unit->HasAura(SPELL_RIDE_PLAYER) || unit->HasAura(SPELL_SNOBOLLED))
-            return false;
-
-        return true;
+        return unit->GetTypeId() == TYPEID_PLAYER && !unit->HasAura(SPELL_RIDE_PLAYER) && !unit->HasAura(SPELL_SNOBOLLED);
     }
 };
 
