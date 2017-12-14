@@ -72,13 +72,7 @@ private:
 
 struct boss_the_beast : public BossAI
 {
-    boss_the_beast(Creature* creature) : BossAI(creature, DATA_THE_BEAST) { }
-
-    void InitializeAI() override
-    {
-        _beastReached = false;
-        _orcYelled = false;
-    }
+    boss_the_beast(Creature* creature) : BossAI(creature, DATA_THE_BEAST), _beastReached(false), _orcYelled(false) { }
 
     void Reset() override
     {
