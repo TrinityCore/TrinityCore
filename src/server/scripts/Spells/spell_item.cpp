@@ -120,7 +120,7 @@ class spell_item_absorb_eye_of_grillok : public AuraScript
 {
     PrepareAuraScript(spell_item_absorb_eye_of_grillok);
 
-    bool Validate(SpellInfo const* /*spellInfo*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_EYE_OF_GRILLOK });
     }
