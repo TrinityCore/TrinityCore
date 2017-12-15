@@ -26519,6 +26519,8 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
     ExitVehicle();
     RemoveAllControlled();
 
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_SPEC);
+
     // remove single target auras at other targets
     AuraList& scAuras = GetSingleCastAuras();
     for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
