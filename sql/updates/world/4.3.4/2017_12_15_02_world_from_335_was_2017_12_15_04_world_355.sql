@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature_template` SET `npcflag`=2, `gossip_menu_id`=0 WHERE `entry` IN (737, 773, 1937, 2121, 2285, 2498, 2921, 3845, 5204, 5394, 5591, 7882, 7900, 9078, 10926,11039,22292);
 DELETE FROM `quest_greeting` WHERE `ID` IN (737, 773, 1937, 2076, 2121, 2285, 2498, 2921, 3845, 5204, 5394, 5591, 7882, 7900, 9078, 10926,11039,22292);
@@ -20,3 +21,4 @@ INSERT INTO `quest_greeting` (`ID`, `Type`, `GreetEmoteType`, `GreetEmoteDelay`,
 (10926,0, 0, 0, "I never feel warm anymore...", 0),
 (11039,0, 1, 0, "Greetings,, $N. I am Duke Nicholas Zverenhoff of the Argent Dawn.", 0),
 (22292,0, 396, 0, "The Light does not yet shine on Skettis.", 0);
+*/
