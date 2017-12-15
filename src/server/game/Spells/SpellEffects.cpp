@@ -447,6 +447,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                         int32 pct_dot = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, EFFECT_2);
                         int32 const dotBasePoints = CalculatePct(pdamage, pct_dot);
+
+                        ASSERT(m_spellInfo->GetMaxTicks() > 0);
                         m_spellValue->EffectBasePoints[EFFECT_1] = dotBasePoints / m_spellInfo->GetMaxTicks();
 
                         apply_direct_bonus = false;
