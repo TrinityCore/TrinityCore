@@ -81,11 +81,11 @@ class TC_GAME_API AuraEffect
 
         void Update(uint32 diff, Unit* caster);
 
-        void ResetTicks() { _ticksDone = 0; }
         uint32 GetTickNumber() const { return _ticksDone; }
         uint32 GetRemainingTicks() const { return GetTotalTicks() - _ticksDone; }
-        uint32 GetTotalTicks() const { return (_period && !GetBase()->IsPermanent()) ? uint32(GetBase()->GetMaxDuration() / _period) : uint32(0); }
+        uint32 GetTotalTicks() const;
         void ResetPeriodic(bool resetPeriodicTimer = false);
+        void ResetTicks() { _ticksDone = 0; }
 
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }

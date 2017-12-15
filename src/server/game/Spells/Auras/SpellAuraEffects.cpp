@@ -672,15 +672,28 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     return amount;
 }
 
+uint32 AuraEffect::GetTotalTicks() const
+{
+    uint32 totalTicks = 0;
+    if (_period && !GetBase()->IsPermanent())
+    {
+        totalTicks = static_cast<uint32>(GetBase()->GetMaxDuration() / _period);
+        if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+            ++totalTicks;
+    }
+
+    return totalTicks;
+}
+
 void AuraEffect::ResetPeriodic(bool resetPeriodicTimer /*= false*/)
 {
     _ticksDone = 0;
     if (resetPeriodicTimer)
     {
-        _periodicTimer = _period;
+        _periodicTimer = 0;
         // Start periodic on next tick or at aura apply
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
-            _periodicTimer = 0;
+        if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+            _periodicTimer = _period;
     }
 }
 
@@ -947,27 +960,29 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
 
 void AuraEffect::Update(uint32 diff, Unit* caster)
 {
-    if (m_isPeriodic && (GetBase()->GetDuration() >= 0 || GetBase()->IsPassive() || GetBase()->IsPermanent()))
+    if (!m_isPeriodic || (GetBase()->GetDuration() < 0 && !GetBase()->IsPassive() && !GetBase()->IsPermanent()))
+        return;
+
+    uint32 totalTicks = GetTotalTicks();
+
+    _periodicTimer += diff;
+    while (_periodicTimer >= _period)
     {
-        _periodicTimer += diff;
-        while (_periodicTimer >= _period)
-        {
-            _periodicTimer -= _period;
+        _periodicTimer -= _period;
 
-            if (!GetBase()->IsPermanent() && (_ticksDone + 1) > GetTotalTicks())
-                break;
+        if (!GetBase()->IsPermanent() && (_ticksDone + 1) > totalTicks)
+            break;
 
-            ++_ticksDone;
+        ++_ticksDone;
 
-            GetBase()->CallScriptEffectUpdatePeriodicHandlers(this);
+        GetBase()->CallScriptEffectUpdatePeriodicHandlers(this);
 
-            std::vector<AuraApplication*> effectApplications;
-            GetApplicationList(effectApplications);
+        std::vector<AuraApplication*> effectApplications;
+        GetApplicationList(effectApplications);
 
-            // tick on targets of effects
-            for (AuraApplication* aurApp : effectApplications)
-                PeriodicTick(aurApp, caster);
-        }
+        // tick on targets of effects
+        for (AuraApplication* aurApp : effectApplications)
+            PeriodicTick(aurApp, caster);
     }
 }
 
