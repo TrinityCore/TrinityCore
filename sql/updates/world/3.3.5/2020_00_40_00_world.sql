@@ -22,10 +22,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 (34854,0,0,16908544,1,0,'66318'); -- Fire Bomb Aura
 
 -- Added trigger flag in Slime Pool
-UPDATE `creature_template` SET `flags_extra`=128, `ScriptName`='' WHERE `entry`=35176;
+UPDATE `creature_template` SET `ScriptName`='npc_jormungars_slime_pool' WHERE `entry`=35176;
 DELETE FROM `creature_template_addon`WHERE `entry`=35176;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
-(35176,0,0,16908544,1,0,'66882'); -- Slime pool aura
 
 UPDATE `creature_template` SET `flags_extra`=128, `ScriptName`='npc_beasts_combat_stalker' WHERE `entry`=36549;
 UPDATE `creature_template` SET `ScriptName`='npc_open_portal_target_toc' WHERE `entry`=17965;
@@ -61,12 +59,17 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
 'spell_icehowl_arctic_breath',
 'spell_icehowl_trample',
 'spell_icehowl_massive_crash',
-'spell_lich_king_teleport_corpse');
+'spell_lich_king_teleport_corpse',
+'spell_jormungars_burning_bile');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (66688,'spell_icehowl_arctic_breath'),
 (66734,'spell_icehowl_trample'),
 (66683,'spell_icehowl_massive_crash'),
-(69016,'spell_lich_king_teleport_corpse');
+(69016,'spell_lich_king_teleport_corpse'),
+(66870,'spell_jormungars_burning_bile'),
+(67621,'spell_jormungars_burning_bile'),
+(67622,'spell_jormungars_burning_bile'),
+(67623,'spell_jormungars_burning_bile');
 
 UPDATE `creature_text` SET `comment`='Icehowl - Roar' WHERE `CreatureID`=34797 AND`GroupID`=0 AND `ID`=0;
 UPDATE `creature_text` SET `comment`='Icehowl - Fail' WHERE `CreatureID`=34797 and`GroupID`=1 AND `ID`=0;

@@ -111,8 +111,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 NorthrendBeasts = NOT_STARTED;
                 NorthrendBeastsCount = 4;
                 Team = TEAM_OTHER;
-                JormungarsSummoned = false;
-                IcehowlSummoned = false;
                 EventTimer = 1000;
                 NotOneButTwoJormungarsTimer = 0;
                 ResilienceWillFixItTimer = 0;
@@ -383,12 +381,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 HandlePlayerVehicle(true);
                                 break;
                             case GORMOK_DONE:
-                                if (!JormungarsSummoned)
-                                {
-                                    JormungarsSummoned = true;
-                                    if (Creature* tirion = GetCreature(DATA_FORDRING))
-                                        tirion->AI()->DoAction(ACTION_START_JORMUNGARS);
-                                }
+                                if (Creature* tirion = GetCreature(DATA_FORDRING))
+                                    tirion->AI()->DoAction(ACTION_START_JORMUNGARS);
                                 HandlePlayerVehicle(false);
                                 HandleNorthrendBeastsDone();
                                 break;
@@ -402,20 +396,14 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case SNAKES_DONE:
                                 if (NotOneButTwoJormungarsTimer > 0)
                                     DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
-                                if (!IcehowlSummoned)
-                                {
-                                    IcehowlSummoned = true;
-                                    if (Creature* tirion = GetCreature(DATA_FORDRING))
-                                        tirion->AI()->DoAction(ACTION_START_ICEHOWL);
-                                }
+                                if (Creature* tirion = GetCreature(DATA_FORDRING))
+                                    tirion->AI()->DoAction(ACTION_START_ICEHOWL);
                                 HandleNorthrendBeastsDone();
                                 break;
                             case ICEHOWL_DONE:
                                 HandleNorthrendBeastsDone();
                                 break;
                             case FAIL:
-                                JormungarsSummoned = false;
-                                IcehowlSummoned = false;
                                 HandlePlayerVehicle(false);
                                 SetBossState(DATA_NORTHREND_BEASTS, FAIL);
                                 if (Creature* tirion = GetCreature(DATA_FORDRING))
@@ -678,8 +666,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint8 SnoboldCount;
                 uint8 MistressOfPainCount;
                 uint8 NorthrendBeastsCount;
-                bool JormungarsSummoned;
-                bool IcehowlSummoned;
                 bool TributeToImmortalityEligible;
         };
 

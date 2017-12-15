@@ -366,12 +366,15 @@ private:
 
 struct npc_tirion_toc : public ScriptedAI
 {
-    npc_tirion_toc(Creature* creature) : ScriptedAI(creature), _instance (creature->GetInstanceScript()), _factionLeaderData(0), _summons(me) { }
+    npc_tirion_toc(Creature* creature) : ScriptedAI(creature), _instance (creature->GetInstanceScript()), _factionLeaderData(0), _summons(me),
+    _jormungarsSummoned(false), _icehowlSummoned(false) { }
 
     void Reset() override
     {
         _events.Reset();
         _factionLeaderData = _instance->GetData(DATA_TEAM) == ALLIANCE ? DATA_VARIAN : DATA_GARROSH;
+        _jormungarsSummoned = false;
+        _icehowlSummoned = false;
         HandleBarrettSummon();
     }
 
@@ -408,18 +411,26 @@ struct npc_tirion_toc : public ScriptedAI
                 _events.ScheduleEvent(EVENT_GORMOK_INTRO, Milliseconds(1));
                 break;
             case ACTION_START_JORMUNGARS:
+                if (_jormungarsSummoned)
+                    return;
+                _jormungarsSummoned = true;
                 Talk(TIRION_SAY_JORMUNGARS);
                 _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
                 me->SummonCreature(NPC_DREADSCALE, NorthrendBeastsSpawnPositions[1]);
                 _events.ScheduleEvent(EVENT_EXCLAMATION, Seconds(7));
                 break;
             case ACTION_START_ICEHOWL:
+                if (_icehowlSummoned)
+                    return;
+                _icehowlSummoned = true;
                 Talk(TIRION_SAY_ICEHOWL);
                 _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
                 me->SummonCreature(NPC_ICEHOWL, NorthrendBeastsSpawnPositions[0], TEMPSUMMON_DEAD_DESPAWN);
                 _events.ScheduleEvent(EVENT_EXCLAMATION, Seconds(6));
                 break;
             case ACTION_NORTHREND_BEASTS_WIPE:
+                _jormungarsSummoned = false;
+                _icehowlSummoned = false;
                 Talk(TIRION_SAY_BEASTS_WIPE);
                 _events.ScheduleEvent(EVENT_SUMMON_BARRET, Seconds(13));
                 break;
@@ -613,6 +624,8 @@ private:
     EventMap _events;
     uint32 _factionLeaderData;
     SummonList _summons;
+    bool _jormungarsSummoned;
+    bool _icehowlSummoned;
 };
 
 struct npc_open_portal_target_toc : public ScriptedAI

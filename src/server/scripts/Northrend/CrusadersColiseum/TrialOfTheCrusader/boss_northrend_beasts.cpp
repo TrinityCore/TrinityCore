@@ -53,12 +53,12 @@ enum Model
 
 enum BossSpells
 {
-    //Gormok
+    // Gormok
     SPELL_IMPALE                = 66331,
     SPELL_STAGGERING_STOMP      = 66330,
     SPELL_TANKING_GORMOK        = 66415, // No idea what it does (SERVERSIDE spell)
 
-    //Snobold
+    // Snobold
     SPELL_RISING_ANGER          = 66636,
     SPELL_SNOBOLLED             = 66406,
     SPELL_BATTER                = 66408,
@@ -67,7 +67,7 @@ enum BossSpells
     SPELL_JUMP_TO_HAND          = 66342,
     SPELL_RIDE_PLAYER           = 66245,
 
-    //Acidmaw & Dreadscale Generic
+    // Acidmaw & Dreadscale Generic
     SPELL_SWEEP                 = 66794,
     SUMMON_SLIME_POOL           = 66883,
     SPELL_EMERGE                = 66947,
@@ -77,21 +77,25 @@ enum BossSpells
     SPELL_GROUND_VISUAL_0       = 66969,
     SPELL_GROUND_VISUAL_1       = 68302,
     SPELL_HATE_TO_ZERO          = 63984,
-    //Acidmaw
+    // Acidmaw
     SPELL_ACID_SPIT             = 66880,
     SPELL_PARALYTIC_SPRAY       = 66901,
     SPELL_PARALYTIC_BITE        = 66824,
     SPELL_ACID_SPEW             = 66818,
     SPELL_PARALYSIS             = 66830,
     SPELL_PARALYTIC_TOXIN       = 66823,
-    //Dreadscale
+    // Dreadscale
     SPELL_BURNING_BITE          = 66879,
     SPELL_MOLTEN_SPEW           = 66821,
     SPELL_FIRE_SPIT             = 66796,
     SPELL_BURNING_SPRAY         = 66902,
     SPELL_BURNING_BILE          = 66869,
 
-    //Icehowl
+    // Slime Pool
+    SPELL_SLIME_POOL_EFFECT     = 66882,
+    SPELL_PACIFY_SELF           = 19951,
+
+    // Icehowl
     SPELL_FEROCIOUS_BUTT        = 66770,
     SPELL_MASSIVE_CRASH         = 66683,
     SPELL_WHIRL                 = 67345,
@@ -290,6 +294,7 @@ struct boss_northrend_beastsAI : public BossAI
             instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
         if (Creature* combatStalker = instance->GetCreature(DATA_BEASTS_COMBAT_STALKER))
             combatStalker->DespawnOrUnsummon();
+        summons.DespawnAll();
         me->DespawnOrUnsummon();
     }
 
@@ -363,6 +368,7 @@ struct boss_gormok : public boss_northrend_beastsAI
                     combatStalker->SetCombatPulseDelay(5);
                 DoZoneInCombat();
                 events.SetPhase(PHASE_COMBAT);
+                DoCastSelf(SPELL_TANKING_GORMOK, true);
                 break;
             case EVENT_IMPALE:
                 DoCastVictim(SPELL_IMPALE);
@@ -557,7 +563,6 @@ struct npc_beasts_combat_stalker : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         uint8 time = IsHeroic() ? 9 : 15;
         _events.ScheduleEvent(EVENT_BERSERK, Minutes(time));
-        test = true;
     }
 
     void DoAction(int32 action) override
@@ -619,7 +624,6 @@ struct npc_beasts_combat_stalker : public ScriptedAI
 private:
     EventMap _events;
     InstanceScript* _instance;
-    bool test;
 };
 
 struct boss_jormungarAI : public boss_northrend_beastsAI
@@ -636,6 +640,11 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
         spitSpell = 0;
         spraySpell = 0;
         wasMobile = false;
+    }
+
+    void JustSummoned(Creature* summoned) override
+    {
+        summons.Summon(summoned);
     }
 
     void ScheduleTasks() override
@@ -890,6 +899,17 @@ struct boss_acidmaw : public boss_jormungarAI
     }
 };
 
+struct npc_jormungars_slime_pool : public ScriptedAI
+{
+    npc_jormungars_slime_pool(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        DoCastSelf(SPELL_SLIME_POOL_EFFECT, true);
+        DoCastSelf(SPELL_PACIFY_SELF, true);
+    }
+};
+
 struct boss_icehowl : public boss_northrend_beastsAI
 {
     boss_icehowl(Creature* creature) : boss_northrend_beastsAI(creature, DATA_ICEHOWL) { }
@@ -1140,6 +1160,23 @@ class spell_jormungars_paralytic_toxin : public AuraScript
     }
 };
 
+// 66870 - Burning Bile
+class spell_jormungars_burning_bile : public SpellScript
+{
+    PrepareSpellScript(spell_jormungars_burning_bile);
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        GetHitUnit()->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_jormungars_burning_bile::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 66882 - Slime Pool
 class spell_jormungars_slime_pool : public AuraScript
 {
@@ -1301,12 +1338,14 @@ void AddSC_boss_northrend_beasts()
     RegisterTrialOfTheCrusaderCreatureAI(npc_beasts_combat_stalker);
     RegisterTrialOfTheCrusaderCreatureAI(boss_acidmaw);
     RegisterTrialOfTheCrusaderCreatureAI(boss_dreadscale);
+    RegisterTrialOfTheCrusaderCreatureAI(npc_jormungars_slime_pool);
     RegisterTrialOfTheCrusaderCreatureAI(boss_icehowl);
 
     RegisterAuraScript(spell_gormok_jump_to_hand);
     RegisterAuraScript(spell_gormok_ride_player);
     RegisterAuraScript(spell_gormok_snobolled);
     RegisterAuraScript(spell_jormungars_paralytic_toxin);
+    RegisterSpellScript(spell_jormungars_burning_bile);
     RegisterAuraScript(spell_jormungars_slime_pool);
     new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
     new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
