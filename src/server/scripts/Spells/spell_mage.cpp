@@ -1945,26 +1945,26 @@ public:
     {
         PrepareSpellScript(spell_mage_comet_storm_SpellScript);
 
-        void HandleHit(SpellEffIndex /*effIndex*/)
+        void HandleDummy()
         {
             Unit* caster = GetCaster();
-            Unit* target = GetExplTargetUnit();
+            WorldLocation const* dest = GetExplTargetDest();
 
-            if (!caster || !target)
+            if (!caster || !dest)
                 return;
 
-            Position targetPos = target->GetPosition();
+            Position targetPos = dest->GetPosition();
 
             for (uint8 i = 0; i < 7; ++i)
             {
                 caster->GetScheduler().Schedule(Milliseconds(500 * i), [targetPos](TaskContext context)
                 {
-                    context.GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_VISUAL);
+                    context.GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_VISUAL, true);
 
                     // Damage come 1sec after visual
                     context.Schedule(Milliseconds(1000), [targetPos](TaskContext context)
                     {
-                        context.GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_DAMAGE);
+                        context.GetContextUnit()->CastSpell(targetPos, SPELL_MAGE_COMET_STORM_DAMAGE, true);
                     });
                 });
             }
@@ -1972,7 +1972,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_mage_comet_storm_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+            AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleDummy);
         }
     };
 
