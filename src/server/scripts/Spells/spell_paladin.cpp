@@ -111,6 +111,8 @@ enum PaladinSpells
     SPELL_PALADIN_BLADE_OF_JUSTICE               = 184575,
     SPELL_PALADIN_GREATER_BLESSING_OF_KINGS      = 203538,
     SPELL_PALADIN_DIVINE_HAMMER                  = 198034,
+    SPELL_PALADIN_ARDENT_DEFENDER                = 31850,
+    SPELL_PALADIN_ARDENT_DEFENDER_HEAL           = 66235,
 };
 
 enum PaladinNPCs
@@ -1380,7 +1382,6 @@ public:
         spell_pal_divine_intervention_AuraScript()
         {
             healPct = 0;
-            absorbPct = 0;
         }
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -1393,7 +1394,6 @@ public:
         bool Load() override
         {
             healPct = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
-            absorbPct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
         }
 
@@ -1426,7 +1426,6 @@ public:
 
     private:
         uint32 healPct;
-        uint32 absorbPct;
 
     };
 
@@ -2200,6 +2199,70 @@ public:
     }
 };
 
+// 31850 - ardent defender
+class spell_pal_ardent_defender : public SpellScriptLoader
+{
+public:
+    spell_pal_ardent_defender() : SpellScriptLoader("spell_pal_ardent_defender") { }
+
+    class spell_pal_ardent_defender_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_ardent_defender_AuraScript);
+
+    public:
+        spell_pal_ardent_defender_AuraScript()
+        {
+            absorbPct   = 0;
+            healPct     = 0;
+        }
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_PALADIN_ARDENT_DEFENDER });
+        }
+
+        bool Load() override
+        {
+            absorbPct   = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
+            healPct     = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
+            return GetUnitOwner()->IsPlayer();
+        }
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            amount = -1;
+        }
+
+        void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+        {
+            absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+
+            Unit* target = GetTarget();
+            if (dmgInfo.GetDamage() < target->GetHealth())
+                return;
+
+            int32 healAmount = int32(target->CountPctFromMaxHealth(healPct));
+            target->CastCustomSpell(target, SPELL_PALADIN_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
+            aurEff->GetBase()->Remove();
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_ardent_defender_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            OnEffectAbsorb += AuraEffectAbsorbFn(spell_pal_ardent_defender_AuraScript::Absorb, EFFECT_0);
+        }
+
+    private:
+        uint32 absorbPct;
+        uint32 healPct;
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pal_ardent_defender_AuraScript();
+    }
+};
+
 // Light's Hammer
 // NPC Id - 59738
 class npc_pal_lights_hammer : public CreatureScript
@@ -2328,6 +2391,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_zeal();
     new spell_pal_greater_blessing_of_kings();
     new spell_pal_divine_hammer();
+    new spell_pal_ardent_defender();
 
     // NPC Scripts
     new npc_pal_lights_hammer();
