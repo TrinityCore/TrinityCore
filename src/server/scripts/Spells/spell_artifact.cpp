@@ -15,16 +15,19 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "Containers.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "Containers.h"
-#include "AreaTrigger.h"
-#include "AreaTriggerAI.h"
+#include "TemporarySummon.h"
 
 enum SpellIds
 {
@@ -146,10 +149,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_PHOENIX_FLAMES_TRIGGER) ||
-                !sSpellMgr->GetSpellInfo(SPELL_MAGE_PHOENIX_FLAMES))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MAGE_PHOENIX_FLAMES_TRIGGER, SPELL_MAGE_PHOENIX_FLAMES });
         }
 
         void HandleHit(SpellEffIndex /*effIndex*/)
@@ -186,10 +186,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_PHOENIX_FLAMES_TRIGGER) ||
-                !sSpellMgr->GetSpellInfo(SPELL_MAGE_PHOENIX_FLAMES))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MAGE_PHOENIX_FLAMES_TRIGGER, SPELL_MAGE_PHOENIX_FLAMES });
         }
 
         void HandleHit(SpellEffIndex /*effIndex*/)
@@ -227,10 +224,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_IMMOLATION) ||
-                !sSpellMgr->GetSpellInfo(SPELL_MAGE_PHOENIX_FLAMES))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MAGE_IMMOLATION, SPELL_MAGE_PHOENIX_FLAMES });
         }
 
     public:
@@ -292,10 +286,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_HALF_MOON) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DRUID_HALF_MOON_OVERRIDE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_DRUID_HALF_MOON, SPELL_DRUID_HALF_MOON_OVERRIDE });
         }
 
         void RemoveOverride()
@@ -331,9 +322,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DH_FURY_OF_THE_ILLIDARI_AT))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_DH_FURY_OF_THE_ILLIDARI_AT });
         }
 
         void SpawnAT()
@@ -403,7 +392,7 @@ public:
             if (timeInterval < 420)
                 return;
 
-            if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
@@ -515,7 +504,7 @@ public:
             uint32 id = std::rand() % 3;
             Position pos = caster->GetPosition();
             caster->MovePosition(pos, (float)(std::rand() % 5) + 4.f, (float)rand_norm() * static_cast<float>(2 * M_PI));
-            if (Creature* rift = caster->SummonCreature(summonIds[id], pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, durations[id]))
+            if (TempSummon* rift = caster->SummonCreature(summonIds[id], pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, durations[id]))
             {
                 rift->CastSpell(rift, spellVisualIds[id], true);
                 rift->SetOwnerGUID(caster->GetGUID());
@@ -717,7 +706,8 @@ void AddSC_artifact_spell_scripts()
     new npc_warl_shadowy_tear();
     new spell_arti_warl_thalkiels_consumption();
 
+    new spell_dh_fury_of_the_illidari();
+
     /// AreaTrigger scripts
     new at_dh_fury_of_the_illidari();
-    new spell_dh_fury_of_the_illidari();
 }
