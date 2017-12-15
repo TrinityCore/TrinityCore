@@ -644,7 +644,10 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
 
     void JustSummoned(Creature* summoned) override
     {
-        summons.Summon(summoned);
+        if (summoned->GetEntry() == NPC_ACIDMAW)
+            BossAI::JustSummoned(summoned);
+        else
+            summons.Summon(summoned);
     }
 
     void ScheduleTasks() override

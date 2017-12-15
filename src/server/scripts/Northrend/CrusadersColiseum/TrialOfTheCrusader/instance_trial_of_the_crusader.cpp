@@ -334,9 +334,11 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 {
                     SetData(TYPE_NORTHREND_BEASTS, DONE);
                     SetBossState(DATA_NORTHREND_BEASTS, DONE);
+                    SetData(DATA_DESPAWN_SNOBOLDS, 0);
                     EventStage = 400;
                     if (Creature* combatStalker = GetCreature(DATA_BEASTS_COMBAT_STALKER))
                         combatStalker->DespawnOrUnsummon();
+                    HandlePlayerVehicle(false);
                     if (Creature* fordring = GetCreature(DATA_FORDRING))
                         fordring->AI()->DoAction(ACTION_NORTHREND_BEASTS_DEFEATED);
                 }
@@ -383,7 +385,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case GORMOK_DONE:
                                 if (Creature* tirion = GetCreature(DATA_FORDRING))
                                     tirion->AI()->DoAction(ACTION_START_JORMUNGARS);
-                                HandlePlayerVehicle(false);
                                 HandleNorthrendBeastsDone();
                                 break;
                             case SNAKES_IN_PROGRESS:
