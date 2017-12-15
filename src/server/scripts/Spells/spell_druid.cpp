@@ -1100,8 +1100,8 @@ public:
             // If it stays 0, it removes Travel Form dummy in AfterRemove.
             triggeredSpellId = 0;
 
-            // Somehow we should only handle aura interrupts => AURA_REMOVE_BY_DEFAULT.
-            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
+            // We should only handle aura interrupts.
+            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_INTERRUPT)
                 return;
 
             // Check what form is appropriate
