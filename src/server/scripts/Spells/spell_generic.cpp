@@ -227,27 +227,38 @@ class spell_gen_arena_drink : public AuraScript
         return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void CalcPeriodic(AuraEffect const* aurEff, bool& isPeriodic, int32& /*amplitude*/)
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        if (!spellInfo->GetEffect(EFFECT_0)->IsAura() || spellInfo->GetEffect(EFFECT_0)->ApplyAuraName != SPELL_AURA_MOD_POWER_REGEN)
+        {
+            TC_LOG_ERROR("spells", "Aura %d structure has been changed - first aura is no longer SPELL_AURA_MOD_POWER_REGEN", GetId());
+            return false;
+        }
+
+        return true;
+    }
+
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& /*amplitude*/)
     {
         // Get SPELL_AURA_MOD_POWER_REGEN aura from spell
         AuraEffect* regen = GetAura()->GetEffect(EFFECT_0);
         if (!regen)
             return;
 
-        if (regen->GetAuraType() != SPELL_AURA_MOD_POWER_REGEN)
-        {
+        // default case - not in arena
+        if (!GetCaster()->ToPlayer()->InArena())
             isPeriodic = false;
-            TC_LOG_ERROR("spells", "Aura %d structure has been changed - first aura is no longer SPELL_AURA_MOD_POWER_REGEN", GetId());
-        }
-        else
-        {
-            // default case - not in arena
-            if (!GetCaster()->ToPlayer()->InArena())
-            {
-                regen->ChangeAmount(aurEff->GetAmount());
-                isPeriodic = false;
-            }
-        }
+    }
+
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        AuraEffect* regen = GetAura()->GetEffect(EFFECT_0);
+        if (!regen)
+            return;
+
+        // default case - not in arena
+        if (!GetCaster()->ToPlayer()->InArena())
+            regen->ChangeAmount(amount);
     }
 
     void UpdatePeriodic(AuraEffect* aurEff)
@@ -287,6 +298,7 @@ class spell_gen_arena_drink : public AuraScript
     void Register() override
     {
         DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_gen_arena_drink::CalcPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_arena_drink::CalcAmount, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
         OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_gen_arena_drink::UpdatePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
