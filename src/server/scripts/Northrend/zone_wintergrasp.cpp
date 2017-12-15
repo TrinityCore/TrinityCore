@@ -22,7 +22,7 @@
 #include "DBCStores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
-#include "GameObjectData.h"
+#include "GameTime.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -343,17 +343,9 @@ class npc_wg_spirit_guide : public CreatureScript
 enum WGQueueMisc
 {
     SPELL_FROST_ARMOR = 12544,
-    GO_WINTERGRASP_PORTAL = 193772,
-    EVENT_CHECK_WINTERGRASP_DEFENDER = 1,
-    EVENT_FROST_ARMOR = 2,
+    EVENT_FROST_ARMOR = 1,
     NPC_MAGISTER_SURDIEL = 32170,
     NPC_MAGISTER_BRAEDIN = 32169
-};
-
-Position const PortalPos[] =
-{
-    { 5923.220215f, 570.825317f, 661.087219f, 6.132774f }, // Horde
-    { 5686.8f,      773.175f,    647.752f,    1.83259f  }  // Alliance
 };
 
 class npc_wg_queue : public CreatureScript
@@ -367,7 +359,6 @@ class npc_wg_queue : public CreatureScript
 
             void Reset() override
             {
-                _events.ScheduleEvent(EVENT_CHECK_WINTERGRASP_DEFENDER, Seconds(5));
                 _events.ScheduleEvent(EVENT_FROST_ARMOR, Seconds(1));
             }
 
@@ -377,7 +368,7 @@ class npc_wg_queue : public CreatureScript
                     player->PrepareQuestMenu(me->GetGUID());
 
                 Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefield(BATTLEFIELD_BATTLEID_WINTERGRASP);
-                if (!wintergrasp)
+                if (!wintergrasp || !wintergrasp->IsEnabled())
                     return true;
 
                 if (wintergrasp->IsWarTime())
@@ -388,7 +379,7 @@ class npc_wg_queue : public CreatureScript
                 else
                 {
                     uint32 timer = wintergrasp->GetTimer() / 1000;
-                    player->SendUpdateWorldState(4354, time(nullptr) + timer);
+                    player->SendUpdateWorldState(4354, GameTime::GetGameTime() + timer);
                     if (timer < 15 * MINUTE)
                     {
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -405,17 +396,14 @@ class npc_wg_queue : public CreatureScript
                 CloseGossipMenuFor(player);
 
                 Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefield(BATTLEFIELD_BATTLEID_WINTERGRASP);
-                if (!wintergrasp)
+                if (!wintergrasp || !wintergrasp->IsEnabled())
                     return true;
 
                 if (wintergrasp->IsWarTime())
                     wintergrasp->InvitePlayerToWar(player);
-                else
-                {
-                    uint32 timer = wintergrasp->GetTimer() / 1000;
-                    if (timer < 15 * MINUTE)
-                        wintergrasp->InvitePlayerToQueue(player);
-                }
+                else if (wintergrasp->GetTimer() < 15 * MINUTE * IN_MILLISECONDS)
+                    wintergrasp->InvitePlayerToQueue(player);
+
                 return true;
             }
 
@@ -427,38 +415,6 @@ class npc_wg_queue : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        case EVENT_CHECK_WINTERGRASP_DEFENDER:
-                            if (Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefield(BATTLEFIELD_BATTLEID_WINTERGRASP))
-                            {
-                                if (wintergrasp->IsEnabled())
-                                {
-                                    if (GameObject* portal = me->FindNearestGameObject(GO_WINTERGRASP_PORTAL, 25.f))
-                                    {
-                                        if ((wintergrasp->GetDefenderTeam() == TEAM_HORDE && me->GetEntry() == NPC_MAGISTER_BRAEDIN) || (wintergrasp->GetDefenderTeam() == TEAM_ALLIANCE && me->GetEntry() == NPC_MAGISTER_SURDIEL))
-                                            portal->Delete();
-                                    }
-                                    else
-                                    {
-                                        if (wintergrasp->GetDefenderTeam() == TEAM_ALLIANCE && me->GetEntry() == NPC_MAGISTER_BRAEDIN)
-                                            me->SummonGameObject(GO_WINTERGRASP_PORTAL, PortalPos[1], QuaternionData(), 1000);
-                                        else if (wintergrasp->GetDefenderTeam() == TEAM_HORDE && me->GetEntry() == NPC_MAGISTER_SURDIEL)
-                                            me->SummonGameObject(GO_WINTERGRASP_PORTAL, PortalPos[0], QuaternionData(), 1000);
-                                    }
-                                    _events.Repeat(Seconds(5));
-                                }
-                                else
-                                {
-                                    if (!me->FindNearestGameObject(GO_WINTERGRASP_PORTAL, 25.f))
-                                    {
-                                        if (me->GetEntry() == NPC_MAGISTER_BRAEDIN)
-                                            me->SummonGameObject(GO_WINTERGRASP_PORTAL, PortalPos[1], QuaternionData(), 1000);
-                                        else if (me->GetEntry() == NPC_MAGISTER_SURDIEL)
-                                            me->SummonGameObject(GO_WINTERGRASP_PORTAL, PortalPos[0], QuaternionData(), 1000);
-                                    }
-                                    _events.Repeat(Minutes(5));
-                                }
-                            }
-                            break;
                         case EVENT_FROST_ARMOR:
                             DoCastSelf(SPELL_FROST_ARMOR);
                             _events.Repeat(Minutes(3));
