@@ -591,7 +591,7 @@ class spell_alar_flame_quills : public AuraScript
 {
     PrepareAuraScript(spell_alar_flame_quills);
 
-    bool Validate(SpellInfo const* /*spellInfo*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(flameQuillsSpells);
     }
