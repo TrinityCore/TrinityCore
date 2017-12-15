@@ -427,15 +427,8 @@ void BattlefieldWintergrasp::OnBattleStart()
         relic->UpdateObjectVisibility(true);
     }
 
-    // update keep cannons visibility and faction
-    for (ObjectGuid cannonGuid : _keepCannonList)
-    {
-        if (Creature* creature = GetCreature(cannonGuid))
-        {
-            ShowCreature(creature, false);
-            creature->SetFaction(WintergraspFaction[GetDefenderTeam()]);
-        }
-    }
+    // spawn keep cannons
+    SpawnGroupSpawn(SPAWNGROUP_WINTERGRASP_KEEP_CANNONS);
 
     // update keep teleports faction
     for (ObjectGuid teleportGuid : _teleporterList)
@@ -486,12 +479,8 @@ void BattlefieldWintergrasp::OnBattleEnd(bool endByTimer)
     else // successful attack (note that teams have already been swapped, so defender team is the one who won)
         UpdateData(GetDefenderTeam() == TEAM_HORDE ? DATA_WINTERGRASP_WON_HORDE : DATA_WINTERGRASP_WON_ALLIANCE, 1);
 
-    // update keep cannons visibility
-    for (ObjectGuid cannonGuid : _keepCannonList)
-    {
-        if (Creature* creature = GetCreature(cannonGuid))
-            HideCreature(creature);
-    }
+    // despawn keep cannons
+    SpawnGroupDespawn(SPAWNGROUP_WINTERGRASP_KEEP_CANNONS);
 
     // update keep teleports faction
     for (ObjectGuid teleportGuid : _teleporterList)
@@ -667,22 +656,10 @@ void BattlefieldWintergrasp::OnCreatureCreate(Creature* creature)
             _stalkerGUID = creature->GetGUID();
             break;
         case NPC_WINTERGRASP_TOWER_CANNON:
-            if (creature->GetSpawnId() != 0)
+            if (creature->GetSpawnGroupId() == SPAWNGROUP_WINTERGRASP_KEEP_CANNONS)
             {
                 _keepCannonList.insert(creature->GetGUID());
-                if (IsWarTime() && IsEnabled())
-                {
-                    creature->SetVisible(true);
-                    creature->SetReactState(REACT_PASSIVE);
-                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    creature->SetFaction(WintergraspFaction[GetDefenderTeam()]);
-                }
-                else
-                {
-                    creature->SetReactState(REACT_PASSIVE);
-                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    creature->SetVisible(false);
-                }
+                creature->SetFaction(WintergraspFaction[GetDefenderTeam()]);
             }
             break;
         case NPC_DWARVEN_SPIRIT_GUIDE:

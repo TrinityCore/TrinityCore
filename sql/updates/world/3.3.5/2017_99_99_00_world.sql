@@ -1,3 +1,7 @@
+SET @SPAWNGROUPID := 23;
+SET @CGUID := 300000;
+SET @GGUID := 200000;
+
 -- Add new trinity strings
 DELETE FROM `trinity_string` WHERE `entry` BETWEEN 5083 AND 5092;
 INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
@@ -24,7 +28,6 @@ UPDATE `creature` SET `phaseMask`=64 WHERE `id`=30739;
 UPDATE `creature` SET `phaseMask`=192 WHERE `guid` IN (131279, 131278, 131276, 131277, 131275, 131274, 88392, 88391, 131272, 131273);
 UPDATE `creature` SET `phaseMask`=32 WHERE `guid` IN (88409, 88411, 88408, 88406, 88405, 88407, 88410);
 
-SET @CGUID = 300000;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID AND @CGUID+81;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 -- Alliance Keep Guards
@@ -123,7 +126,6 @@ DELETE FROM `creature_addon` WHERE `guid` IN (131281, 131280);
 -- Stalker texts
 UPDATE `creature_text` SET `CreatureID` = 27869, `comment` = 'Wintergrasp Detection Unit' WHERE `CreatureID` = 15214;
 
-SET @GGUID = 200000;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @GGUID AND @GGUID+49;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 -- Walls
@@ -179,3 +181,29 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, 
 (@GGUID+48, 192951, 571, 4197, 4575, 1, 128, 5316.252, 2977.042, 408.5385, -0.82030330, 0.0, 0.0,  -0.39874840,  0.9170604, 0,   0, 1, 0),
 -- Relic
 (@GGUID+49, 192829, 571, 4197, 4575, 1, 192, 5440.379, 2840.493, 430.2816,   -1.832595, 0.0, 0.0,   -0.7933531,  0.6087617, 1,   0, 1, 0);
+
+-- SpawnGroups template
+DELETE FROM `spawn_group_template` WHERE `groupId` BETWEEN @SPAWNGROUPID+0 AND @SPAWNGROUPID+0;
+INSERT INTO `spawn_group_template` (`groupId`,`groupName`,`groupFlags`) VALUES
+(@SPAWNGROUPID+0, "Wintergrasp - Keep Cannons", 0x04);
+
+-- SpawnGroup assigns
+DELETE FROM `spawn_group` WHERE `groupId` BETWEEN @SPAWNGROUPID+0 AND @SPAWNGROUPID+0;
+INSERT INTO `spawn_group` (`groupId`,`spawnType`,`spawnId`) VALUES
+-- keep cannons
+(@SPAWNGROUPID+0, 0, @CGUID+013),
+(@SPAWNGROUPID+0, 0, @CGUID+014),
+(@SPAWNGROUPID+0, 0, @CGUID+015),
+(@SPAWNGROUPID+0, 0, @CGUID+016),
+(@SPAWNGROUPID+0, 0, @CGUID+017),
+(@SPAWNGROUPID+0, 0, @CGUID+018),
+(@SPAWNGROUPID+0, 0, @CGUID+019),
+(@SPAWNGROUPID+0, 0, @CGUID+020),
+(@SPAWNGROUPID+0, 0, @CGUID+021),
+(@SPAWNGROUPID+0, 0, @CGUID+022),
+(@SPAWNGROUPID+0, 0, @CGUID+023),
+(@SPAWNGROUPID+0, 0, @CGUID+024),
+(@SPAWNGROUPID+0, 0, @CGUID+025),
+(@SPAWNGROUPID+0, 0, @CGUID+026),
+(@SPAWNGROUPID+0, 0, @CGUID+027),
+(@SPAWNGROUPID+0, 0, @CGUID+028);
