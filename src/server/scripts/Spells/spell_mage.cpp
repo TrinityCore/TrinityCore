@@ -1999,11 +1999,11 @@ public:
             if (!caster)
                 return;
 
-            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 5 * IN_MILLISECONDS))
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster);
                 caster->CastSpell(tempSumm, SPELL_MAGE_METEOR_VISUAL, true);
             }
 
@@ -2015,11 +2015,11 @@ public:
             if (!caster)
                 return;
 
-            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 5 * IN_MILLISECONDS))
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster);
                 caster->CastSpell(tempSumm, SPELL_MAGE_METEOR_DAMAGE, true);
             }
         }
