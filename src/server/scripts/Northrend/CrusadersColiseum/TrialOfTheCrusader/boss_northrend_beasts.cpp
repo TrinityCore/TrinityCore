@@ -1140,8 +1140,6 @@ class spell_jormungars_paralytic_toxin : public AuraScript
     }
 };
 
-/* 66869 - Burning Bile
-   66823 - Paralytic Toxin */
 // 66882 - Slime Pool
 class spell_jormungars_slime_pool : public AuraScript
 {
@@ -1166,6 +1164,8 @@ class spell_jormungars_slime_pool : public AuraScript
     }
 };
 
+/* 66869 - Burning Bile
+   66823 - Paralytic Toxin */
 class spell_jormungars_snakes_spray : public SpellScriptLoader
 {
 public:

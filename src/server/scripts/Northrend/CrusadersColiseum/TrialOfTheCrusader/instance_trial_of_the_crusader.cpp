@@ -384,13 +384,15 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                             case GORMOK_DONE:
                                 if (!JormungarsSummoned)
+                                {
+                                    JormungarsSummoned = true;
                                     if (Creature* tirion = GetCreature(DATA_FORDRING))
                                         tirion->AI()->DoAction(ACTION_START_JORMUNGARS);
+                                }
                                 HandlePlayerVehicle(false);
                                 HandleNorthrendBeastsDone();
                                 break;
                             case SNAKES_IN_PROGRESS:
-                                JormungarsSummoned = true;
                                 NotOneButTwoJormungarsTimer = 0;
                                 break;
                             case SNAKES_SPECIAL:
@@ -401,12 +403,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 if (NotOneButTwoJormungarsTimer > 0)
                                     DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
                                 if (!IcehowlSummoned)
+                                {
+                                    IcehowlSummoned = true;
                                     if (Creature* tirion = GetCreature(DATA_FORDRING))
                                         tirion->AI()->DoAction(ACTION_START_ICEHOWL);
+                                }
                                 HandleNorthrendBeastsDone();
-                                break;
-                            case ICEHOWL_IN_PROGRESS:
-                                IcehowlSummoned = true;
                                 break;
                             case ICEHOWL_DONE:
                                 HandleNorthrendBeastsDone();
