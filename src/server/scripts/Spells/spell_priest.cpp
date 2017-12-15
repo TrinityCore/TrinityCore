@@ -2210,7 +2210,7 @@ public:
             if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SHADOW_MEND_HEAL)
                 return false;
 
-            if (eventInfo.GetHealInfo() != nullptr)
+            if (eventInfo.GetHealInfo() == nullptr)
                 return false;
 
             if (Aura* fear = GetAura())
