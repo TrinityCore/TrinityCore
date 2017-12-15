@@ -704,7 +704,7 @@ class spell_bullet_controller : public AuraScript
 {
     PrepareAuraScript(spell_bullet_controller);
 
-    bool Validate(SpellInfo const* /*spellInfo*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_PERIODIC_LIGHT, SPELL_SUMMON_PERIODIC_DARK });
     }

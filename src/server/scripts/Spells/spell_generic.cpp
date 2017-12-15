@@ -227,7 +227,7 @@ class spell_gen_arena_drink : public AuraScript
         return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void CalcPeriodic(AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude)
+    void CalcPeriodic(AuraEffect const* aurEff, bool& isPeriodic, int32& /*amplitude*/)
     {
         // Get SPELL_AURA_MOD_POWER_REGEN aura from spell
         AuraEffect* regen = GetAura()->GetEffect(EFFECT_0);

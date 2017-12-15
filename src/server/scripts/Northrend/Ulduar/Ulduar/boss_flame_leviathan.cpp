@@ -1470,7 +1470,7 @@ class spell_overload_circuit : public AuraScript
 {
     PrepareAuraScript(spell_overload_circuit);
 
-    bool Validate(SpellInfo const* /*spellInfo*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SYSTEMS_SHUTDOWN });
     }
@@ -1496,7 +1496,7 @@ class spell_tar_blaze : public AuraScript
 {
     PrepareAuraScript(spell_tar_blaze);
 
-    bool Validate(SpellInfo const* spellInfo)
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
     }
