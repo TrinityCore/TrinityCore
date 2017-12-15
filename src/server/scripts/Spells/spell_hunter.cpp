@@ -1477,6 +1477,8 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
                     {
                         // due to Lock and Load SpellInfo::CalcPowerCost might return 0, so just calculate it manually
                         amount = CalculatePct(static_cast<int32>(CalculatePct(caster->GetCreateMana(), explosiveShot->GetSpellInfo()->ManaCostPercentage)), aurEff->GetAmount());
+
+                        ASSERT(explosiveShot->GetSpellInfo()->GetMaxTicks() > 0);
                         amount /= explosiveShot->GetSpellInfo()->GetMaxTicks();
                     }
                 }

@@ -2414,6 +2414,7 @@ class spell_dk_unholy_blight : public SpellScriptLoader
                 if (AuraEffect const* glyph = caster->GetAuraEffect(SPELL_DK_GLYPH_OF_UNHOLY_BLIGHT, EFFECT_0, caster->GetGUID()))
                     AddPct(amount, glyph->GetAmount());
 
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
                 // Add remaining ticks to healing done
