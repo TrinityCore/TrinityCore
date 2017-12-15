@@ -796,7 +796,7 @@ class spell_item_extract_gas : public AuraScript
 {
     PrepareAuraScript(spell_item_extract_gas);
 
-    void PeriodicTick(AuraEffect const* aurEff)
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
 
