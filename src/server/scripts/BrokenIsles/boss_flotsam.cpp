@@ -264,7 +264,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                p_Targets.remove_if([this, caster](WorldObject* object) -> bool
+                p_Targets.remove_if([caster](WorldObject* object) -> bool
                 {
                     if (object == nullptr || object->ToUnit() == nullptr)
                         return true;

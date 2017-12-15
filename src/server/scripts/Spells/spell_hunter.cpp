@@ -739,7 +739,7 @@ public:
             if (!caster)
                 return;
 
-            targets.remove_if([this, caster](WorldObject* objects) -> bool
+            targets.remove_if([caster](WorldObject* objects) -> bool
             {
                 if (!objects)
                     return true;
