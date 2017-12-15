@@ -716,6 +716,23 @@ public:
     }
 };
 
+// 29528 -  Inoculate Nestlewood Owlkin
+class spell_inoculate_nestlewood : public AuraScript
+{
+    PrepareAuraScript(spell_inoculate_nestlewood);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        if (GetTarget()->GetTypeId() != TYPEID_UNIT) // prevent error reports in case ignored player target
+            PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_inoculate_nestlewood::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_azuremyst_isle()
 {
     new npc_draenei_survivor();
@@ -724,4 +741,5 @@ void AddSC_azuremyst_isle()
     new npc_magwin();
     new npc_death_ravager();
     new go_ravager_cage();
+    RegisterAuraScript(spell_inoculate_nestlewood);
 }
