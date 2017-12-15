@@ -335,6 +335,30 @@ class spell_pal_avenging_wrath : public SpellScriptLoader
         }
 };
 
+// 53563 - Beacon of Light
+class spell_pal_beacon_of_light : public AuraScript
+{
+    PrepareAuraScript(spell_pal_beacon_of_light);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        // area aura owner casts the spell
+        GetAura()->GetUnitOwner()->CastSpell(GetTarget(), GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, nullptr, aurEff, GetAura()->GetUnitOwner()->GetGUID());
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_beacon_of_light::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 37877 - Blessing of Faith
 class spell_pal_blessing_of_faith : public SpellScriptLoader
 {
@@ -2363,6 +2387,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_aura_mastery();
     new spell_pal_aura_mastery_immune();
     new spell_pal_avenging_wrath();
+    RegisterAuraScript(spell_pal_beacon_of_light);
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
     new spell_pal_divine_purpose();

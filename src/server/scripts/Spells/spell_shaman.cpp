@@ -1544,6 +1544,29 @@ class spell_sha_mana_spring_totem : public SpellScriptLoader
         }
 };
 
+// 16191 - Mana Tide
+class spell_sha_mana_tide : public AuraScript
+{
+    PrepareAuraScript(spell_sha_mana_tide);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), nullptr, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_mana_tide::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 39610 - Mana Tide Totem
 class spell_sha_mana_tide_totem : public SpellScriptLoader
 {
@@ -1976,6 +1999,26 @@ class spell_sha_t3_6p_bonus : public SpellScriptLoader
         }
 };
 
+// 28820 - Lightning Shield
+class spell_sha_t3_8p_bonus : public AuraScript
+{
+    PrepareAuraScript(spell_sha_t3_8p_bonus);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+
+        // Need remove self if Lightning Shield not active
+        if (!GetTarget()->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0x400, 0, 0))
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_t3_8p_bonus::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 64928 - Item - Shaman T8 Elemental 4P Bonus
 class spell_sha_t8_elemental_4p_bonus : public SpellScriptLoader
 {
@@ -2293,6 +2336,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lightning_shield();
     new spell_sha_maelstrom_weapon();
     new spell_sha_mana_spring_totem();
+    RegisterAuraScript(spell_sha_mana_tide);
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
     new spell_sha_sentry_totem();
@@ -2303,6 +2347,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_thunderstorm();
     new spell_sha_totemic_mastery();
     new spell_sha_t3_6p_bonus();
+    RegisterAuraScript(spell_sha_t3_8p_bonus);
     new spell_sha_t8_elemental_4p_bonus();
     new spell_sha_t9_elemental_4p_bonus();
     new spell_sha_t10_elemental_4p_bonus();

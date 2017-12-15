@@ -1980,6 +1980,29 @@ class spell_gen_moss_covered_feet : public AuraScript
     }
 };
 
+// 46284 - Negative Energy Periodic
+class spell_gen_negative_energy_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_gen_negative_energy_periodic);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, SPELLVALUE_MAX_TARGETS, aurEff->GetTickNumber() / 10 + 1, nullptr, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_negative_energy_periodic::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 enum Netherbloom : uint32
 {
     SPELL_NETHERBLOOM_POLLEN_1      = 28703
@@ -2058,6 +2081,27 @@ class spell_gen_nightmare_vine : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_gen_nightmare_vine::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 27746 -  Nitrous Boost
+class spell_gen_nitrous_boost : public AuraScript
+{
+    PrepareAuraScript(spell_gen_nitrous_boost);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+
+        if (GetCaster() && GetTarget()->GetPower(POWER_MANA) >= 10)
+            GetTarget()->ModifyPower(POWER_MANA, -10);
+        else
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_nitrous_boost::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -2451,6 +2495,38 @@ class spell_gen_remove_flight_auras : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_gen_remove_flight_auras::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 23493 - Restoration
+// 24379 - Restoration
+class spell_gen_restoration : public AuraScript
+{
+    PrepareAuraScript(spell_gen_restoration);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        int32 heal = caster->CountPctFromMaxHealth(10);
+        HealInfo healInfo(caster, GetTarget(), heal, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
+        caster->HealBySpell(healInfo);
+
+        /// @todo: should proc other auras?
+        if (int32 mana = caster->GetMaxPower(POWER_MANA))
+        {
+            mana /= 10;
+            caster->EnergizeBySpell(caster, GetId(), mana, POWER_MANA);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_restoration::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -3707,8 +3783,10 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mount("spell_x53_touring_rocket", 0, 0, 0, SPELL_X53_TOURING_ROCKET_150, SPELL_X53_TOURING_ROCKET_280, SPELL_X53_TOURING_ROCKET_310);
     RegisterSpellScript(spell_gen_mounted_charge);
     RegisterAuraScript(spell_gen_moss_covered_feet);
+    RegisterAuraScript(spell_gen_negative_energy_periodic);
     RegisterSpellScript(spell_gen_netherbloom);
     RegisterSpellScript(spell_gen_nightmare_vine);
+    RegisterAuraScript(spell_gen_nitrous_boost);
     RegisterAuraScript(spell_gen_obsidian_armor);
     RegisterAuraScript(spell_gen_one_tick_dummy);
     RegisterSpellScript(spell_gen_oracle_wolvar_reputation);
@@ -3725,6 +3803,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_pet_summoned);
     RegisterSpellScript(spell_gen_profession_research);
     RegisterSpellScript(spell_gen_remove_flight_auras);
+    RegisterAuraScript(spell_gen_restoration);
     RegisterSpellAndAuraScriptPair(spell_gen_replenishment, spell_gen_replenishment_aura);
     RegisterAuraScript(spell_gen_remove_on_health_pct);
     RegisterAuraScript(spell_gen_remove_on_full_health);
