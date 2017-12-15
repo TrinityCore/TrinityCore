@@ -113,6 +113,7 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_HAMMER                  = 198034,
     SPELL_PALADIN_ARDENT_DEFENDER                = 31850,
     SPELL_PALADIN_ARDENT_DEFENDER_HEAL           = 66235,
+    SPELL_PALADIN_SERAPHIM                       = 152262,
 };
 
 enum PaladinNPCs
@@ -2294,6 +2295,48 @@ public:
     }
 };
 
+// 152262 - Seraphim
+class spell_pal_seraphim : public SpellScript
+{
+    PrepareSpellScript(spell_pal_seraphim);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_SERAPHIM, SPELL_PALADIN_SHIELD_OF_THE_RIGHTEOUS });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        uint32 ChargeCategoryId = sSpellMgr->GetSpellInfo(SPELL_PALADIN_SHIELD_OF_THE_RIGHTEOUS)->ChargeCategoryId;
+        if (!GetCaster()->GetSpellHistory()->HasCharge(ChargeCategoryId))
+            return SPELL_FAILED_NO_POWER;
+
+        return SPELL_FAILED_SUCCESS;
+    }
+
+    void HandleDummy(SpellEffIndex effIndex)
+    {
+        uint32 ChargeCategoryId     = sSpellMgr->GetSpellInfo(SPELL_PALADIN_SHIELD_OF_THE_RIGHTEOUS)->ChargeCategoryId;
+        SpellHistory* spellHistory  = GetCaster()->GetSpellHistory();
+
+        int32 useCharges = std::min(GetSpellInfo()->GetEffect(effIndex)->BasePoints, spellHistory->GetChargeCount(ChargeCategoryId));
+
+        for (uint8 i = 0; i < useCharges; ++i)
+            spellHistory->ConsumeCharge(ChargeCategoryId);
+
+        if (Aura* seraphimAura = GetCaster()->GetAura(SPELL_PALADIN_SERAPHIM))
+            seraphimAura->SetDuration(GetSpellInfo()->GetMaxDuration() * useCharges);
+
+        spellHistory->ForceSendSpellCharge(sSpellCategoryStore.LookupEntry(ChargeCategoryId));
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pal_seraphim::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_seraphim::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // Light's Hammer
 // NPC Id - 59738
 class npc_pal_lights_hammer : public CreatureScript
@@ -2423,6 +2466,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_greater_blessing_of_kings();
     new spell_pal_divine_hammer();
     new spell_pal_ardent_defender();
+    RegisterSpellScript(spell_pal_seraphim);
 
     // NPC Scripts
     new npc_pal_lights_hammer();
