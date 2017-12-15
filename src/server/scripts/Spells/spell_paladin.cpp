@@ -2148,16 +2148,47 @@ public:
     {
         PrepareAuraScript(spell_pal_greater_blessing_of_kings_AuraScript);
 
+    public:
+        spell_pal_greater_blessing_of_kings_AuraScript() : leftAbsorbAmount(0), maxAbsorbAmount(0) { }
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_PALADIN_GREATER_BLESSING_OF_KINGS });
+        }
+
+        bool Load() override
+        {
+            maxAbsorbAmount = 2.7f * GetCaster()->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, true);
+            leftAbsorbAmount = maxAbsorbAmount;
+            return GetUnitOwner()->IsPlayer();
+        }
+
+        void OnTick(AuraEffect const* /*aurEff*/)
+        {
+            leftAbsorbAmount = maxAbsorbAmount;
+        }
+
         void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
-            if (Unit* caster = GetCaster())
-                amount = 2.7f * caster->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, true);
+            amount = -1;
+        }
+
+        void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+        {
+            absorbAmount = std::min(dmgInfo.GetDamage(), leftAbsorbAmount);
+            leftAbsorbAmount -= absorbAmount;
         }
 
         void Register() override
         {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_greater_blessing_of_kings_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_greater_blessing_of_kings_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
+            OnEffectAbsorb += AuraEffectAbsorbFn(spell_pal_greater_blessing_of_kings_AuraScript::Absorb, EFFECT_1);
         }
+
+    private:
+        uint32 leftAbsorbAmount;
+        uint32 maxAbsorbAmount;
     };
 
     AuraScript* GetAuraScript() const override
