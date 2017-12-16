@@ -19,6 +19,7 @@
 #include "CellImpl.h"
 #include "Creature.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -70,7 +71,7 @@ void Battlefield::Update(uint32 diff)
         _kickCheckTimer.Update(diff);
         if (_kickCheckTimer.Passed())
         {
-            time_t now = time(nullptr);
+            time_t now = GameTime::GetGameTime();
 
             // accept invite timer
             for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
