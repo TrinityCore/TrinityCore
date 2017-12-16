@@ -833,6 +833,20 @@ struct GameObjectTemplate
         }
     }
 
+    bool DismountOnUse() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_MAILBOX: return false;
+            case GAMEOBJECT_TYPE_BARBER_CHAIR: return true;
+            default:
+            {
+                // this part not implemented properly, missing an internal check
+                return (GetPropNum(0x5B) >= uint32(0x18));
+            }
+        }
+    }
+
     uint32 GetLockId() const
     {
         switch (type)
@@ -1036,6 +1050,20 @@ struct GameObjectTemplate
 
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc) const;
+
+private:
+    static std::vector<uint32> const _goTypeProperties[MAX_GAMEOBJECT_TYPE];
+
+    uint32 GetPropNum(int32 propNum) const
+    {
+        if (type >= MAX_GAMEOBJECT_TYPE || propNum >= 0x81)
+            return uint32(-1);
+
+        auto itr = std::find(_goTypeProperties[type].begin(), _goTypeProperties[type].end(), propNum);
+        if (itr == _goTypeProperties[type].end())
+            return uint32(-1);
+        return uint32(std::distance(_goTypeProperties[type].begin(), itr));
+    }
 };
 
 // From `gameobject_template_addon`
