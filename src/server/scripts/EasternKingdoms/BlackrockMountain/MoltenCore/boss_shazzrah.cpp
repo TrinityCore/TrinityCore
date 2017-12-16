@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "molten_core.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "molten_core.h"
 
 enum Spells
 {
@@ -82,7 +82,7 @@ class boss_shazzrah : public CreatureScript
                             DoCastVictim(SPELL_ARCANE_EXPLOSION);
                             break;
                         case EVENT_SHAZZRAH_CURSE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_SHAZZRAH_CURSE))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_SHAZZRAH_CURSE))
                                 DoCast(target, SPELL_SHAZZRAH_CURSE);
                             events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, urand(25000, 30000));
                             break;
@@ -95,7 +95,7 @@ class boss_shazzrah : public CreatureScript
                             events.ScheduleEvent(EVENT_COUNTERSPELL, urand(16000, 20000));
                             break;
                         case EVENT_SHAZZRAH_GATE:
-                            DoResetThreat();
+                            ResetThreatList();
                             DoCastAOE(SPELL_SHAZZRAH_GATE_DUMMY);
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_TRIGGERED, 2000);
                             events.RescheduleEvent(EVENT_ARCANE_EXPLOSION, urand(3000, 6000));
@@ -115,7 +115,7 @@ class boss_shazzrah : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_shazzrahAI(creature);
+            return GetMoltenCoreAI<boss_shazzrahAI>(creature);
         }
 };
 
@@ -131,9 +131,7 @@ class spell_shazzrah_gate_dummy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAZZRAH_GATE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAZZRAH_GATE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

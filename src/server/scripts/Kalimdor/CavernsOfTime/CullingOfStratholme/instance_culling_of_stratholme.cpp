@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "CreatureAI.h"
 #include "CreatureTextMgr.h"
 #include "culling_of_stratholme.h"
+#include "EventMap.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
-#include "TemporarySummon.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 /* Culling of Stratholme encounters:
 0 - Meathook

@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /*
 Name: Boss_Zum_Rah
@@ -21,6 +21,7 @@ Category: Tanaris, ZulFarrak
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "zulfarrak.h"
 
@@ -47,11 +48,6 @@ enum Events
     EVENT_HEALING_WAVE          = 4
 };
 
-enum Faction
-{
-    ZUMRAH_FRIENDLY_FACTION     = 35
-};
-
 class boss_zum_rah : public CreatureScript
 {
 public:
@@ -73,7 +69,7 @@ public:
 
         void Reset() override
         {
-            me->setFaction(ZUMRAH_FRIENDLY_FACTION); // areatrigger sets faction to enemy
+            me->SetFaction(FACTION_FRIENDLY); // areatrigger sets faction to enemy
             Initialize();
         }
 
@@ -157,7 +153,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_zum_rahAI>(creature);
+        return GetZulFarrakAI<boss_zum_rahAI>(creature);
     }
 };
 

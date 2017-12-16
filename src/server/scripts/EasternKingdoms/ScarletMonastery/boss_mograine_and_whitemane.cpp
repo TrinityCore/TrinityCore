@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,11 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "scarlet_monastery.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Says
@@ -65,7 +68,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_scarlet_commander_mograineAI>(creature);
+        return GetScarletMonasteryAI<boss_scarlet_commander_mograineAI>(creature);
     }
 
     struct boss_scarlet_commander_mograineAI : public ScriptedAI
@@ -160,7 +163,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
         {
             //When hit with resurrection say text
             if (spell->Id == SPELL_SCARLETRESURRECTION)
@@ -228,7 +231,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_high_inquisitor_whitemaneAI>(creature);
+        return GetScarletMonasteryAI<boss_high_inquisitor_whitemaneAI>(creature);
     }
 
     struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
@@ -331,7 +334,7 @@ public:
             //If we are <75% hp cast healing spells at self or Mograine
             if (Heal_Timer <= diff)
             {
-                Creature* target = NULL;
+                Creature* target = nullptr;
 
                 if (!HealthAbovePct(75))
                     target = me;

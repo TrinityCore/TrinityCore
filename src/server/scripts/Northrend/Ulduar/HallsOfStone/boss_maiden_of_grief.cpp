@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_stone.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 
 enum Yells
 {
@@ -114,7 +115,7 @@ class boss_maiden_of_grief : public CreatureScript
                             events.ScheduleEvent(EVENT_STORM_OF_GRIEF, urand(15000, 20000));
                             break;
                         case EVENT_SHOCK_OF_SORROW:
-                            DoResetThreat();
+                            ResetThreatList();
                             Talk(SAY_STUN);
                             DoCastAOE(SPELL_SHOCK_OF_SORROW);
                             events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, urand(20000, 30000));

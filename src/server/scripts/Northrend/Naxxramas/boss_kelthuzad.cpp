@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "PlayerAI.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -88,6 +94,7 @@ enum Spells
     SPELL_DETONATE_MANA                     = 27819,
     SPELL_MANA_DETONATION_DAMAGE            = 27820,
     SPELL_FROST_BLAST                       = 27808,
+    SPELL_FROST_BLAST_DMG                   = 29879,
     SPELL_CHAINS                            = 28410,
     SPELL_CHAINS_DUMMY                      = 28408, // this holds the category cooldown - the main chains spell can't have one as it is cast multiple times
 
@@ -107,7 +114,7 @@ enum SummonGroups
     SUMMON_GROUP_GUARDIAN_FIRST             = 01 /*..04 */,
     SUMMON_GROUP_MINION_FIRST               = 05 /*..11 */
 };
-static const std::initializer_list<Data64> portalList = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
+static const std::initializer_list<NAXData64> portalList = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
 
 enum Phases
 {
@@ -183,7 +190,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
             {
                 if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, CharmedPlayerTargetSelectPred()))
                     return target;
-                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_CHAINS))
+                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_CHAINS))
                     return target;
             }
             return nullptr;
@@ -218,7 +225,8 @@ public:
                     return;
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(true);
                 _skeletonCount = 0;
                 _bansheeCount = 0;
                 _abominationCount = 0;
@@ -227,7 +235,7 @@ public:
             }
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                for (Data64 portalData : portalList)
+                for (NAXData64 portalData : portalList)
                     if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                         portal->SetGoState(GO_STATE_READY);
 
@@ -277,10 +285,9 @@ public:
                 {
                     Talk(SAY_CHAINS);
                     std::list<Unit*> targets;
-                    SelectTargetList(targets, 3, SELECT_TARGET_RANDOM, 0.0f, true);
+                    SelectTargetList(targets, 3, SELECT_TARGET_RANDOM, 0, 0.0f, true, false);
                     for (Unit* target : targets)
-                        if (me->GetVictim() != target) // skip MT
-                            DoCast(target, SPELL_CHAINS);
+                        DoCast(target, SPELL_CHAINS);
                 }
             }
 
@@ -419,8 +426,9 @@ public:
                         case EVENT_PHASE_TWO:
                             me->CastStop();
                             events.SetPhase(PHASE_TWO);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                            me->getThreatManager().resetAllAggro();
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetImmuneToPC(false);
+                            ResetThreatList();
                             me->SetReactState(REACT_AGGRESSIVE);
                             Talk(EMOTE_PHASE_TWO);
 
@@ -469,7 +477,7 @@ public:
                         case EVENT_TRANSITION_REPLY:
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICH_KING)))
                                 lichKing->AI()->Talk(SAY_ANSWER_REQUEST);
-                            for (Data64 portalData : portalList)
+                            for (NAXData64 portalData : portalList)
                                 if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                                     portal->SetGoState(GO_STATE_ACTIVE);
                             break;
@@ -516,7 +524,7 @@ public:
                     case ACTION_BEGIN_ENCOUNTER:
                         if (instance->GetBossState(BOSS_KELTHUZAD) != NOT_STARTED)
                             return;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetImmuneToPC(false);
                         instance->SetBossState(BOSS_KELTHUZAD, IN_PROGRESS);
                         events.SetPhase(PHASE_ONE);
                         DoZoneInCombat();
@@ -568,7 +576,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_kelthuzadAI>(creature);
+        return GetNaxxramasAI<boss_kelthuzadAI>(creature);
     }
 };
 
@@ -699,7 +707,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_skeletonAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_skeletonAI>(creature);
     }
 };
 
@@ -725,7 +733,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_bansheeAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_bansheeAI>(creature);
     }
 };
 
@@ -768,7 +776,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_abominationAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_abominationAI>(creature);
     }
 };
 
@@ -800,7 +808,7 @@ public:
                         me->RemoveAllAuras();
                         me->CombatStop();
                         me->StopMoving();
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetImmuneToPC(true);
                         me->DespawnOrUnsummon(30 * IN_MILLISECONDS); // just in case anything interrupts the movement
                         me->GetMotionMaster()->MoveTargetedHome();
                     default:
@@ -862,7 +870,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_guardianAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_guardianAI>(creature);
     }
 };
 
@@ -875,26 +883,20 @@ public:
     {
         PrepareAuraScript(spell_kelthuzad_chains_AuraScript);
 
-        void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+        void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
         {
-            Unit* target = GetTarget();
-            float scale = target->GetObjectScale();
-            ApplyPercentModFloatVar(scale, 200.0f, true);
-            target->SetObjectScale(scale);
+            aurEff->HandleAuraModScale(GetTargetApplication(), mode, true);
         }
 
-        void HandleRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+        void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
         {
-            Unit* target = GetTarget();
-            float scale = target->GetObjectScale();
-            ApplyPercentModFloatVar(scale, 200.0f, false);
-            target->SetObjectScale(scale);
+            aurEff->HandleAuraModScale(GetTargetApplication(), mode, false);
         }
 
         void Register() override
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_AOE_CHARM, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_AOE_CHARM, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -915,9 +917,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MANA_DETONATION_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MANA_DETONATION_DAMAGE });
         }
 
         void HandleScript(AuraEffect const* aurEff)
@@ -928,7 +928,7 @@ public:
             if (int32 mana = int32(target->GetMaxPower(POWER_MANA) / 10))
             {
                 mana = target->ModifyPower(POWER_MANA, -mana);
-                target->CastCustomSpell(SPELL_MANA_DETONATION_DAMAGE, SPELLVALUE_BASE_POINT0, -mana * 10, target, true, NULL, aurEff);
+                target->CastCustomSpell(SPELL_MANA_DETONATION_DAMAGE, SPELLVALUE_BASE_POINT0, -mana * 10, target, true, nullptr, aurEff);
             }
         }
 
@@ -944,12 +944,37 @@ public:
     }
 };
 
+// 27808 - Frost Blast
+class spell_kelthuzad_frost_blast : public AuraScript
+{
+    PrepareAuraScript(spell_kelthuzad_frost_blast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FROST_BLAST_DMG });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        // Stuns the target, dealing 26% of the target's maximum health in Frost damage every second for 4 sec.
+        if (Unit* caster = GetCaster())
+            caster->CastCustomSpell(SPELL_FROST_BLAST_DMG, SPELLVALUE_BASE_POINT0, int32(GetTarget()->CountPctFromMaxHealth(26)), GetTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_kelthuzad_frost_blast::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 class at_kelthuzad_center : public AreaTriggerScript
 {
 public:
     at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance || instance->GetBossState(BOSS_KELTHUZAD) != NOT_STARTED)
@@ -996,6 +1021,7 @@ void AddSC_boss_kelthuzad()
     new npc_kelthuzad_guardian();
     new spell_kelthuzad_chains();
     new spell_kelthuzad_detonate_mana();
+    RegisterAuraScript(spell_kelthuzad_frost_blast);
     new at_kelthuzad_center();
     new achievement_just_cant_get_enough();
 }

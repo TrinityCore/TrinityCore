@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "boss_horAI.h"
 #include "halls_of_reflection.h"
+#include "InstanceScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -148,7 +149,7 @@ class spell_marwyn_shared_suffering : public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                 {
-                    int32 remainingDamage = aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
+                    int32 remainingDamage = aurEff->GetAmount() * aurEff->GetRemainingTicks();
                     if (remainingDamage > 0)
                         caster->CastCustomSpell(SPELL_SHARED_SUFFERING_DISPEL, SPELLVALUE_BASE_POINT1, remainingDamage, GetTarget(), TRIGGERED_FULL_MASK);
                 }

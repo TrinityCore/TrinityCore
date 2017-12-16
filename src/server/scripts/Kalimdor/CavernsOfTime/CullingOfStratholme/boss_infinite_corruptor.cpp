@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "culling_of_stratholme.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -55,7 +55,7 @@ class boss_infinite_corruptor : public CreatureScript
 
                 if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
                 {
-                    DoCast((Unit*)NULL, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
+                    DoCast((Unit*)nullptr, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
                     guardian->CastSpell(guardian, SPELL_CORRUPTION_OF_TIME_TARGET, false);
                 }
             }
@@ -104,7 +104,7 @@ class boss_infinite_corruptor : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_infinite_corruptorAI>(creature);
+            return GetCullingOfStratholmeAI<boss_infinite_corruptorAI>(creature);
         }
 };
 

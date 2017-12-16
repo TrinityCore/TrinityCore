@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,15 +21,15 @@
  * Scriptnames of files in this file should be prefixed with "spell_q#questID_".
  */
 
+#include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
@@ -104,9 +104,7 @@ class spell_q2203_thaumaturgy_channel : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_THAUMATURGY_CHANNEL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_THAUMATURGY_CHANNEL });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -152,16 +150,14 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_RESONATING_SKULL) || !sSpellMgr->GetSpellInfo(SPELL_CREATE_BONE_DUST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CREATE_RESONATING_SKULL, SPELL_CREATE_BONE_DUST });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
                 uint32 spellId = roll_chance_i(50) ? SPELL_CREATE_RESONATING_SKULL : SPELL_CREATE_BONE_DUST;
-                caster->CastSpell(caster, spellId, true, NULL);
+                caster->CastSpell(caster, spellId, true, nullptr);
             }
 
             void Register() override
@@ -281,13 +277,13 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                target->SetImmuneToPC(true);
                 target->AddUnitState(UNIT_STATE_ROOT);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-            GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            GetTarget()->SetImmuneToPC(false);
             }
 
             void Register() override
@@ -316,14 +312,12 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3) || !sSpellMgr->GetSpellInfo(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3, SPELL_SCOURGING_CRYSTAL_CONTROLLER });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetExplTargetUnit())
+                if (Unit* target = GetHitUnit())
                     if (target->GetTypeId() == TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                         // Make sure nobody else is channeling the same target
                         if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
@@ -354,9 +348,7 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3 });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -417,9 +409,7 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ARCANE_PRISONER_MALE) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_ARCANE_PRISONER_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_ARCANE_PRISONER_KILL_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_ARCANE_PRISONER_MALE, SPELL_SUMMON_ARCANE_PRISONER_FEMALE, SPELL_ARCANE_PRISONER_KILL_CREDIT });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -480,9 +470,15 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SCAVENGEBOT_004A8) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SENTRYBOT_57K) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_DEFENDOTANK_66D) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SCAVENGEBOT_005B6) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_55D_COLLECTATRON) || !sSpellMgr->GetSpellInfo(SPELL_ROBOT_KILL_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SUMMON_SCAVENGEBOT_004A8,
+                    SPELL_SUMMON_SENTRYBOT_57K,
+                    SPELL_SUMMON_DEFENDOTANK_66D,
+                    SPELL_SUMMON_SCAVENGEBOT_005B6,
+                    SPELL_SUMMON_55D_COLLECTATRON,
+                    SPELL_ROBOT_KILL_CREDIT
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -592,9 +588,13 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BANANAS_FALL_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_ORANGE_FALLS_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_PAPAYA_FALLS_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_ADVENTUROUS_DWARF))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_BANANAS_FALL_TO_GROUND,
+                    SPELL_ORANGE_FALLS_TO_GROUND,
+                    SPELL_PAPAYA_FALLS_TO_GROUND,
+                    SPELL_SUMMON_ADVENTUROUS_DWARF
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -608,7 +608,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
                 // sometimes, if you're lucky, you get a dwarf
                 if (roll_chance_i(5))
                     spellId = SPELL_SUMMON_ADVENTUROUS_DWARF;
-                GetCaster()->CastSpell(GetCaster(), spellId, true, NULL);
+                GetCaster()->CastSpell(GetCaster(), spellId, true, nullptr);
             }
 
             void Register() override
@@ -642,7 +642,7 @@ class spell_q12683_take_sputum_sample : public SpellScriptLoader
                 if (caster->HasAuraEffect(reqAuraId, 0))
                 {
                     uint32 spellId = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                    caster->CastSpell(caster, spellId, true, NULL);
+                    caster->CastSpell(caster, spellId, true, nullptr);
                 }
             }
 
@@ -744,9 +744,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGER_AID_OF_THE_EARTHEN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TRIGGER_AID_OF_THE_EARTHEN });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -754,7 +752,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
                 {
-                    caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
+                    caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, nullptr);
                     caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER);
                     target->DespawnOrUnsummon();
                 }
@@ -790,9 +788,7 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MALE_DISGUISE) || !sSpellMgr->GetSpellInfo(SPELL_FEMALE_DISGUISE) || !sSpellMgr->GetSpellInfo(SPELL_GENERIC_DISGUISE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MALE_DISGUISE, SPELL_FEMALE_DISGUISE, SPELL_GENERIC_DISGUISE });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -928,7 +924,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
-                    if (target && !target->HasAura(SPELL_FLAMES))
+                    if (!target->HasAura(SPELL_FLAMES))
                     {
                         caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
                         target->CastSpell(target, SPELL_FLAMES, true);
@@ -1051,9 +1047,7 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SUMMON_ANGRY_KVALDIR) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_MAKO) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_THRESHER) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_BLUE_SHARK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SUMMON_ANGRY_KVALDIR, SUMMON_NORTH_SEA_MAKO, SUMMON_NORTH_SEA_THRESHER, SUMMON_NORTH_SEA_BLUE_SHARK });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -1594,12 +1588,12 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
                 std::list<Player*> playerList;
                 Trinity::AnyPlayerInObjectRangeCheck checker(caster, 65.0f);
                 Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
-                caster->VisitNearbyWorldObject(65.0f, searcher);
-                    for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                Cell::VisitWorldObjects(caster, searcher, 65.0f);
+                for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                     // Check if found player target is on fly mount or using flying form
-                        if ((*itr)->HasAuraType(SPELL_AURA_FLY) || (*itr)->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
-                            // Summom Fel Cannon (bunny version) at found player
-                            caster->SummonCreature(NPC_FEL_CANNON2, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ());
+                    if ((*itr)->HasAuraType(SPELL_AURA_FLY) || (*itr)->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                        // Summom Fel Cannon (bunny version) at found player
+                        caster->SummonCreature(NPC_FEL_CANNON2, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ());
             }
 
             void Register() override
@@ -1662,16 +1656,14 @@ class spell_q12527_zuldrak_rat : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_GORGED_LURKING_BASILISK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_GORGED_LURKING_BASILISK });
             }
 
             void HandleScriptEffect(SpellEffIndex /* effIndex */)
             {
                 if (GetHitAura() && GetHitAura()->GetStackAmount() >= GetSpellInfo()->StackAmount)
                 {
-                    GetHitUnit()->CastSpell((Unit*) NULL, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
+                    GetHitUnit()->CastSpell((Unit*) nullptr, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
                     if (Creature* basilisk = GetHitUnit()->ToCreature())
                         basilisk->DespawnOrUnsummon();
                 }
@@ -1734,9 +1726,7 @@ class spell_q12730_quenching_mist : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLICKERING_FLAMES))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLICKERING_FLAMES });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -1777,10 +1767,7 @@ class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public 
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RIDE))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_RIDE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1864,9 +1851,8 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
 
 enum BearFlankMaster
 {
-    SPELL_BEAR_FLANK_MASTER = 56565,
     SPELL_CREATE_BEAR_FLANK = 56566,
-    SPELL_BEAR_FLANK_FAIL = 56569
+    SPELL_BEAR_FLANK_FAIL   = 56569
 };
 
 class spell_q13011_bear_flank_master : public SpellScriptLoader
@@ -1880,10 +1866,11 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BEAR_FLANK_MASTER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_BEAR_FLANK))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_CREATE_BEAR_FLANK,
+                    SPELL_BEAR_FLANK_FAIL
+                });
             }
 
             bool Load() override
@@ -1929,9 +1916,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
             }
 
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)
@@ -1980,14 +1965,15 @@ class spell_q12690_burst_at_the_seams : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_DMG)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_DMG_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_BONE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_MEAT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_BMEAT))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_BURST_AT_THE_SEAMS,
+                    SPELL_BURST_AT_THE_SEAMS_DMG,
+                    SPELL_BURST_AT_THE_SEAMS_DMG_2,
+                    SPELL_BURST_AT_THE_SEAMS_BONE,
+                    SPELL_BURST_AT_THE_SEAMS_MEAT,
+                    SPELL_BURST_AT_THE_SEAMS_BMEAT
+                });
             }
 
             bool Load() override
@@ -2056,9 +2042,7 @@ class spell_q12308_escape_from_silverbrook : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_WORGEN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_WORGEN });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2134,12 +2118,13 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FORGE_CREDIT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_TOWN_HALL_CREDIT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_SCARLET_HOLD_CREDIT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_CHAPEL_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_FORGE_CREDIT,
+                    SPELL_TOWN_HALL_CREDIT,
+                    SPELL_SCARLET_HOLD_CREDIT,
+                    SPELL_CHAPEL_CREDIT
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2164,7 +2149,7 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
                         return;
                 }
 
-                GetCaster()->CastSpell((Unit*)NULL, spellId, true);
+                GetCaster()->CastSpell(nullptr, spellId, true);
             }
 
             void Register() override
@@ -2230,7 +2215,7 @@ class spell_q12619_emblazon_runeblade : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, NULL, aurEff);
+                    caster->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2289,9 +2274,7 @@ class spell_q12919_gymers_grab : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RIDE_GYMER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RIDE_GYMER });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2368,9 +2351,7 @@ class spell_q13400_illidan_kill_master : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ILLIDAN_KILL_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ILLIDAN_KILL_CREDIT });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2410,9 +2391,7 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TOTEM_OF_THE_EARTHEN_RING))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TOTEM_OF_THE_EARTHEN_RING });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -2451,11 +2430,7 @@ class spell_q10929_fumping : SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SAND_GNOME))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BONE_SLICER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER });
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,13 +23,17 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
-#include "MapManager.h"
-#include "TicketMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
+#include "MapManager.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "RBAC.h"
+#include "TicketMgr.h"
 #include "Transport.h"
+#include "WorldSession.h"
 
 class go_commandscript : public CommandScript
 {
@@ -49,12 +53,12 @@ public:
             { "zonexy",             rbac::RBAC_PERM_COMMAND_GO_ZONEXY,              false, &HandleGoZoneXYCommand,                      "" },
             { "xyz",                rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoXYZCommand,                         "" },
             { "ticket",             rbac::RBAC_PERM_COMMAND_GO_TICKET,              false, &HandleGoTicketCommand,                      "" },
-            { "",                   rbac::RBAC_PERM_COMMAND_GO,                     false, &HandleGoXYZCommand,                         "" },
+            { "offset",             rbac::RBAC_PERM_COMMAND_GO_OFFSET,              false, &HandleGoOffsetCommand,                      "" },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "go", rbac::RBAC_PERM_COMMAND_GO, false, NULL, "", goCommandTable },
+            { "go", rbac::RBAC_PERM_COMMAND_GO, false, nullptr, "", goCommandTable },
         };
         return commandTable;
     }
@@ -89,14 +93,14 @@ public:
         {
             // Get the "creature_template.entry"
             // number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
-            char* tail = strtok(NULL, "");
+            char* tail = strtok(nullptr, "");
             if (!tail)
                 return false;
             char* id = handler->extractKeyFromLink(tail, "Hcreature_entry");
             if (!id)
                 return false;
 
-            int32 entry = atoi(id);
+            uint32 entry = atoul(id);
             if (!entry)
                 return false;
 
@@ -104,17 +108,17 @@ public:
         }
         else
         {
-            int32 guid = atoi(param1);
+            ObjectGuid::LowType guidLow = atoul(param1);
 
             // Number is invalid - maybe the user specified the mob's name
-            if (!guid)
+            if (!guidLow)
             {
                 std::string name = param1;
                 WorldDatabase.EscapeString(name);
-                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name " _LIKE_" '" << name << '\'';
+                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name LIKE '" << name << '\'';
             }
             else
-                whereClause <<  "WHERE guid = '" << guid << '\'';
+                whereClause <<  "WHERE guid = '" << guidLow << '\'';
         }
 
         QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature %s", whereClause.str().c_str());
@@ -134,8 +138,6 @@ public:
         float o = fields[3].GetFloat();
         uint32 mapId = fields[4].GetUInt16();
 
-        Transport* transport = NULL;
-
         if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
@@ -153,11 +155,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        if (player->TeleportTo(mapId, x, y, z, o))
-        {
-            if (transport)
-                transport->AddPassenger(player);
-        }
+        player->TeleportTo(mapId, x, y, z, o);
         return true;
     }
 
@@ -172,7 +170,7 @@ public:
         if (!gyId)
             return false;
 
-        int32 graveyardId = atoi(gyId);
+        uint32 graveyardId = atoul(gyId);
 
         if (!graveyardId)
             return false;
@@ -215,13 +213,13 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         char* gridX = strtok((char*)args, " ");
-        char* gridY = strtok(NULL, " ");
-        char* id = strtok(NULL, " ");
+        char* gridY = strtok(nullptr, " ");
+        char* id = strtok(nullptr, " ");
 
         if (!gridX || !gridY)
             return false;
 
-        uint32 mapId = id ? (uint32)atoi(id) : player->GetMapId();
+        uint32 mapId = id ? atoul(id) : player->GetMapId();
 
         // center of grid
         float x = ((float)atof(gridX) - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
@@ -264,32 +262,22 @@ public:
         if (!id)
             return false;
 
-        int32 guid = atoi(id);
-        if (!guid)
+        ObjectGuid::LowType guidLow = atoul(id);
+        if (!guidLow)
             return false;
 
-        float x, y, z, o;
-        uint32 mapId;
-
         // by DB guid
-        if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
-        {
-            x = goData->posX;
-            y = goData->posY;
-            z = goData->posZ;
-            o = goData->orientation;
-            mapId = goData->mapid;
-        }
-        else
+        GameObjectData const* goData = sObjectMgr->GetGameObjectData(guidLow);
+        if (!goData)
         {
             handler->SendSysMessage(LANG_COMMAND_GOOBJNOTFOUND);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
+        if (!MapManager::IsValidMapCoord(goData->spawnPoint) || sObjectMgr->IsTransportMap(goData->spawnPoint.GetMapId()))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, goData->spawnPoint.GetPositionX(), goData->spawnPoint.GetPositionY(), goData->spawnPoint.GetMapId());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -304,7 +292,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(mapId, x, y, z, o);
+        player->TeleportTo(goData->spawnPoint);
         return true;
     }
 
@@ -319,7 +307,7 @@ public:
         if (!id)
             return false;
 
-        int32 nodeId = atoi(id);
+        uint32 nodeId = atoul(id);
         if (!nodeId)
             return false;
 
@@ -364,7 +352,7 @@ public:
         if (!id)
             return false;
 
-        int32 areaTriggerId = atoi(id);
+        uint32 areaTriggerId = atoul(id);
 
         if (!areaTriggerId)
             return false;
@@ -407,8 +395,8 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         char* zoneX = strtok((char*)args, " ");
-        char* zoneY = strtok(NULL, " ");
-        char* tail = strtok(NULL, "");
+        char* zoneY = strtok(nullptr, " ");
+        char* tail = strtok(nullptr, "");
 
         char* id = handler->extractKeyFromLink(tail, "Harea");       // string or [name] Shift-click form |color|Harea:area_id|h[name]|h|r
 
@@ -422,7 +410,7 @@ public:
         if ((x == 0.0f && *zoneX != '0') || (y == 0.0f && *zoneY != '0'))
             return false;
 
-        uint32 areaId = id ? (uint32)atoi(id) : player->GetZoneId();
+        uint32 areaId = id ? atoul(id) : player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
@@ -480,10 +468,10 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         char* goX = strtok((char*)args, " ");
-        char* goY = strtok(NULL, " ");
-        char* goZ = strtok(NULL, " ");
-        char* id = strtok(NULL, " ");
-        char* port = strtok(NULL, " ");
+        char* goY = strtok(nullptr, " ");
+        char* goZ = strtok(nullptr, " ");
+        char* id = strtok(nullptr, " ");
+        char* port = strtok(nullptr, " ");
 
         if (!goX || !goY)
             return false;
@@ -492,7 +480,7 @@ public:
         float y = (float)atof(goY);
         float z;
         float ort = port ? (float)atof(port) : player->GetOrientation();
-        uint32 mapId = id ? (uint32)atoi(id) : player->GetMapId();
+        uint32 mapId = id ? atoul(id) : player->GetMapId();
 
         if (goZ)
         {
@@ -539,7 +527,7 @@ public:
         if (!id)
             return false;
 
-        uint32 ticketId = atoi(id);
+        uint32 ticketId = atoul(id);
         if (!ticketId)
             return false;
 
@@ -560,6 +548,50 @@ public:
             player->SaveRecallPosition();
 
         ticket->TeleportTo(player);
+        return true;
+    }
+
+    static bool HandleGoOffsetCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        char* goX = strtok((char*)args, " ");
+        char* goY = strtok(nullptr, " ");
+        char* goZ = strtok(nullptr, " ");
+        char* port = strtok(nullptr, " ");
+
+        float x, y, z, o;
+        player->GetPosition(x, y, z, o);
+        if (goX)
+            x += atof(goX);
+        if (goY)
+            y += atof(goY);
+        if (goZ)
+            z += atof(goZ);
+        if (port)
+            o += atof(port);
+
+        if (!Trinity::IsValidMapCoord(x, y, z, o))
+        {
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, player->GetMapId());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // stop flight if need
+        if (player->IsInFlight())
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
+        }
+        // save only in non-flight case
+        else
+            player->SaveRecallPosition();
+
+        player->TeleportTo(player->GetMapId(), x, y, z, o);
         return true;
     }
 };

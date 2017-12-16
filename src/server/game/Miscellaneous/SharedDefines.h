@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,6 @@
 
 #include "Define.h"
 #include "DetourNavMesh.h"
-#include <cassert>
 
 enum SpellEffIndex : uint8
 {
@@ -153,6 +152,51 @@ enum ReputationRank
     REP_HONORED     = 5,
     REP_REVERED     = 6,
     REP_EXALTED     = 7
+};
+
+enum FactionTemplates
+{
+    FACTION_NONE                        = 0,
+    FACTION_CREATURE                    = 7,
+    FACTION_ESCORTEE_A_NEUTRAL_PASSIVE  = 10,
+    FACTION_MONSTER                     = 14,
+    FACTION_MONSTER_2                   = 16,
+    FACTION_TROLL_BLOODSCALP            = 28,
+    FACTION_PREY                        = 31,
+    FACTION_ESCORTEE_H_NEUTRAL_PASSIVE  = 33,
+    FACTION_FRIENDLY                    = 35,
+    FACTION_OGRE                        = 45,
+    FACTION_ORC_DRAGONMAW               = 62,
+    FACTION_HORDE_GENERIC               = 83,
+    FACTION_ALLIANCE_GENERIC            = 84,
+    FACTION_DEMON                       = 90,
+    FACTION_ELEMENTAL                   = 91,
+    FACTION_DRAGONFLIGHT_BLACK          = 103,
+    FACTION_ESCORTEE_N_NEUTRAL_PASSIVE  = 113,
+    FACTION_ENEMY                       = 168,
+    FACTION_ESCORTEE_A_NEUTRAL_ACTIVE   = 231,
+    FACTION_ESCORTEE_H_NEUTRAL_ACTIVE   = 232,
+    FACTION_ESCORTEE_N_NEUTRAL_ACTIVE   = 250,
+    FACTION_ESCORTEE_N_FRIEND_PASSIVE   = 290,
+    FACTION_TITAN                       = 415,
+    FACTION_ESCORTEE_N_FRIEND_ACTIVE    = 495,
+    FACTION_GOBLIN_DARK_IRON_BAR_PATRON = 736,
+    FACTION_DARK_IRON_DWARVES           = 754,
+    FACTION_ESCORTEE_A_PASSIVE          = 774,
+    FACTION_ESCORTEE_H_PASSIVE          = 775,
+    FACTION_UNDEAD_SCOURGE              = 974,
+    FACTION_EARTHEN_RING                = 1726,
+    FACTION_ALLIANCE_GENERIC_WG         = 1732,
+    FACTION_HORDE_GENERIC_WG            = 1735,
+    FACTION_ARAKKOA                     = 1738,
+    FACTION_ASHTONGUE_DEATHSWORN        = 1820,
+    FACTION_FLAYER_HUNTER               = 1840,
+    FACTION_MONSTER_SPAR_BUDDY          = 1868,
+    FACTION_ESCORTEE_N_ACTIVE           = 1986,
+    FACTION_ESCORTEE_H_ACTIVE           = 2046,
+    FACTION_UNDEAD_SCOURGE_2            = 2068,
+    FACTION_UNDEAD_SCOURGE_3            = 2084,
+    FACTION_SCARLET_CRUSADE             = 2089
 };
 
 #define MIN_REPUTATION_RANK (REP_HATED)
@@ -409,7 +453,7 @@ enum SpellAttr3
     SPELL_ATTR3_REQ_WAND                         = 0x00400000, // 22 Req wand
     SPELL_ATTR3_UNK23                            = 0x00800000, // 23
     SPELL_ATTR3_REQ_OFFHAND                      = 0x01000000, // 24 Req offhand weapon
-    SPELL_ATTR3_UNK25                            = 0x02000000, // 25 no cause spell pushback ?
+    SPELL_ATTR3_TREAT_AS_PERIODIC                = 0x02000000, // 25 Makes the spell appear as periodic in client combat logs - used by spells that trigger another spell on each tick
     SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
@@ -472,7 +516,7 @@ enum SpellAttr5
     SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // 13 haste effects decrease duration of this
     SPELL_ATTR5_UNK14                            = 0x00004000, // 14
     SPELL_ATTR5_UNK15                            = 0x00008000, // 15 Inflits on multiple targets?
-    SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK         = 0x00010000, // 16 this allows spells with EquippedItemClass to affect spells from other items if the required item is equipped
+    SPELL_ATTR5_UNK16                            = 0x00010000, // 16
     SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // 17 usable while feared
     SPELL_ATTR5_USABLE_WHILE_CONFUSED            = 0x00040000, // 18 usable while confused
     SPELL_ATTR5_DONT_TURN_DURING_CAST            = 0x00080000, // 19 Blocks caster's turning when casting (client does not automatically turn caster's model to face UNIT_FIELD_TARGET)
@@ -548,9 +592,9 @@ enum SpellAttr7
     SPELL_ATTR7_UNK17                            = 0x00020000, // 17 Only 27965 (Suicide) spell.
     SPELL_ATTR7_HAS_CHARGE_EFFECT                = 0x00040000, // 18 Only spells that have Charge among effects.
     SPELL_ATTR7_ZONE_TELEPORT                    = 0x00080000, // 19 Teleports to specific zones.
-    SPELL_ATTR7_USABLE_IN_STUN_FEAR_CONFUSION    = 0x00100000, // 20 Blink, Divine Shield, Ice Block
+    SPELL_ATTR7_UNK20                            = 0x00100000, // 20 Blink, Divine Shield, Ice Block
     SPELL_ATTR7_UNK21                            = 0x00200000, // 21 Not set
-    SPELL_ATTR7_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR7_IGNORE_COLD_WEATHER_FLYING       = 0x00400000, // 22 Loaned Gryphon, Loaned Wind Rider
     SPELL_ATTR7_UNK23                            = 0x00800000, // 23 Motivate, Mutilate, Shattering Throw
     SPELL_ATTR7_UNK24                            = 0x01000000, // 24 Motivate, Mutilate, Perform Speech, Shattering Throw
     SPELL_ATTR7_UNK25                            = 0x02000000, // 25
@@ -1399,7 +1443,7 @@ enum Targets
     TARGET_DEST_CHANNEL_CASTER         = 106,
     TARGET_UNK_DEST_AREA_UNK_107       = 107, // not enough info - only generic spells avalible
     TARGET_GAMEOBJECT_CONE             = 108,
-    TARGET_DEST_UNK_110                = 110, // 1 spell
+    TARGET_UNIT_CONE_ENTRY_110         = 110, // 1 spell
     TOTAL_SPELL_TARGETS
 };
 
@@ -1509,6 +1553,16 @@ enum GameObjectDynamicLowFlags
     GO_DYNFLAG_LO_SPARKLE           = 0x08,                 // makes GO sparkle
     GO_DYNFLAG_LO_STOPPED           = 0x10                  // Transport is stopped
 };
+
+// client side GO show states
+enum GOState : uint8
+{
+    GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
+    GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
+    GO_STATE_ACTIVE_ALTERNATIVE = 2                         // show in world as used in alt way and not reset (closed door open by cannon fire)
+};
+
+#define MAX_GO_STATE              3
 
 enum GameObjectDestructibleState
 {
@@ -2993,6 +3047,8 @@ enum CorpseDynFlags
     CORPSE_DYNFLAG_LOOTABLE        = 0x0001
 };
 
+#define PLAYER_CORPSE_LOOT_ENTRY 1
+
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,
@@ -3324,7 +3380,7 @@ enum BattlegroundTeamId
 #define BG_TEAMS_COUNT  2
 
 // indexes of BattlemasterList.dbc
-enum BattlegroundTypeId
+enum BattlegroundTypeId : uint32
 {
     BATTLEGROUND_TYPE_NONE      = 0, // None
     BATTLEGROUND_AV             = 1, // Alterac Valley
@@ -3422,7 +3478,7 @@ enum TradeStatus
     TRADE_STATUS_NOT_ON_TAPLIST = 23                        // Related to trading soulbound loot items
 };
 
-enum XPColorChar
+enum XPColorChar : uint8
 {
     XP_RED,
     XP_ORANGE,
@@ -3431,7 +3487,7 @@ enum XPColorChar
     XP_GRAY
 };
 
-enum RemoveMethod
+enum RemoveMethod : uint8
 {
     GROUP_REMOVEMETHOD_DEFAULT  = 0,
     GROUP_REMOVEMETHOD_KICK     = 1,
@@ -3456,7 +3512,7 @@ enum ActivateTaxiReply
     ERR_TAXINOTSTANDING             = 12
 };
 
-enum DuelCompleteType
+enum DuelCompleteType : uint8
 {
     DUEL_INTERRUPTED = 0,
     DUEL_WON         = 1,
@@ -3575,12 +3631,33 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
 };
 
-/// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
-enum SpellCooldownFlags
+enum WeaponAttackType : uint8
 {
-    SPELL_COOLDOWN_FLAG_NONE                    = 0x0,
-    SPELL_COOLDOWN_FLAG_INCLUDE_GCD             = 0x1,  ///< Starts GCD in addition to normal cooldown specified in the packet
-    SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires SPELL_COOLDOWN_FLAG_INCLUDE_GCD set
+    BASE_ATTACK   = 0,
+    OFF_ATTACK    = 1,
+    RANGED_ATTACK = 2,
+    MAX_ATTACK
 };
+
+enum CharterTypes
+{
+    CHARTER_TYPE_NONE           = 0,
+    CHARTER_TYPE_ANY            = 10,
+
+    GUILD_CHARTER_TYPE          = 9,
+    ARENA_TEAM_CHARTER_2v2_TYPE = 2,
+    ARENA_TEAM_CHARTER_3v3_TYPE = 3,
+    ARENA_TEAM_CHARTER_5v5_TYPE = 5
+};
+
+enum LineOfSightChecks
+{
+    LINEOFSIGHT_CHECK_VMAP      = 0x1, // check static floor layout data
+    LINEOFSIGHT_CHECK_GOBJECT   = 0x2, // check dynamic game object data
+
+    LINEOFSIGHT_ALL_CHECKS      = (LINEOFSIGHT_CHECK_VMAP | LINEOFSIGHT_CHECK_GOBJECT)
+};
+
+#define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 #endif

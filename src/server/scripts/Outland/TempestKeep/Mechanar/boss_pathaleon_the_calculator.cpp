@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,9 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "mechanar.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -163,7 +164,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_pathaleon_the_calculatorAI(creature);
+            return GetMechanarAI<boss_pathaleon_the_calculatorAI>(creature);
         }
 };
 
@@ -231,8 +232,8 @@ class npc_nether_wraith : public CreatureScript
                 {
                     if (Die_Timer <= diff)
                     {
-                        me->setDeathState(JUST_DIED);
-                        me->RemoveCorpse();
+                        me->DespawnOrUnsummon();
+                        return;
                     }
                     else
                         Die_Timer -= diff;
@@ -243,7 +244,7 @@ class npc_nether_wraith : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_nether_wraithAI(creature);
+            return GetMechanarAI<npc_nether_wraithAI>(creature);
         }
 };
 
@@ -252,4 +253,3 @@ void AddSC_boss_pathaleon_the_calculator()
     new boss_pathaleon_the_calculator();
     new npc_nether_wraith();
 }
-

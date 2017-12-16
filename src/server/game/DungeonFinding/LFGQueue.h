@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,7 +51,7 @@ struct LfgCompatibilityData
 /// Stores player or group queue info
 struct LfgQueueData
 {
-    LfgQueueData(): joinTime(time_t(time(NULL))), tanks(LFG_TANKS_NEEDED),
+    LfgQueueData(): joinTime(time_t(time(nullptr))), tanks(LFG_TANKS_NEEDED),
         healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
         { }
 

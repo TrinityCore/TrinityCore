@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef TRINITY_SPLINECHAINMOVEMENTGENERATOR_H
 #define TRINITY_SPLINECHAINMOVEMENTGENERATOR_H
@@ -24,7 +24,7 @@
 class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
 {
     public:
-        explicit SplineChainMovementGenerator(uint32 id, SplineChain const& chain, bool walk = false) : _id(id), _chain(chain), _chainSize(chain.size()), _walk(walk), finished(false), _nextIndex(0), _nextFirstWP(0), _msToNext(0) { }
+        explicit SplineChainMovementGenerator(uint32 id, std::vector<SplineChainLink> const& chain, bool walk = false) : _id(id), _chain(chain), _chainSize(chain.size()), _walk(walk), finished(false), _nextIndex(0), _nextFirstWP(0), _msToNext(0) { }
         explicit SplineChainMovementGenerator(SplineChainResumeInfo const& info) : _id(info.PointID), _chain(*info.Chain), _chainSize(info.Chain->size()), _walk(info.IsWalkMode), finished(info.SplineIndex >= info.Chain->size()), _nextIndex(info.SplineIndex), _nextFirstWP(info.PointIndex), _msToNext(info.TimeToNext) { }
         void Initialize(Unit* me) override;
         void Finalize(Unit* me) override;
@@ -41,7 +41,7 @@ class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
         void SendSplineFor(Unit* me, uint32 index, uint32& toNext);
         uint32 SendPathSpline(Unit* me, Movement::PointsArray const& wp) const;
         uint32 const _id;
-        SplineChain const& _chain;
+        std::vector<SplineChainLink> const& _chain;
         uint8 const _chainSize;
         bool const _walk;
         bool finished;

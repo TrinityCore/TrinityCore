@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "icecrown_citadel.h"
-#include "Player.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum ScriptTexts
 {
@@ -197,7 +201,7 @@ class boss_festergut : public CreatureScript
                                 // just cast and dont bother with target, conditions will handle it
                                 ++_inhaleCounter;
                                 if (_inhaleCounter < 3)
-                                    me->CastSpell(me, gaseousBlight[_inhaleCounter], true, NULL, NULL, me->GetGUID());
+                                    me->CastSpell(me, gaseousBlight[_inhaleCounter], true, nullptr, nullptr, me->GetGUID());
                             }
 
                             events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(33500, 35000));
@@ -207,8 +211,8 @@ class boss_festergut : public CreatureScript
                         {
                             std::list<Unit*> ranged, melee;
                             uint32 minTargets = RAID_MODE<uint32>(3, 8, 3, 8);
-                            SelectTargetList(ranged, 25, SELECT_TARGET_RANDOM, -5.0f, true);
-                            SelectTargetList(melee, 25, SELECT_TARGET_RANDOM, 5.0f, true);
+                            SelectTargetList(ranged, 25, SELECT_TARGET_RANDOM, 0, -5.0f, true);
+                            SelectTargetList(melee, 25, SELECT_TARGET_RANDOM, 0, 5.0f, true);
                             while (ranged.size() < minTargets)
                             {
                                 if (melee.empty())
@@ -221,7 +225,7 @@ class boss_festergut : public CreatureScript
 
                             if (!ranged.empty())
                             {
-                                Trinity::Containers::RandomResizeList(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
+                                Trinity::Containers::RandomResize(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
                                 for (std::list<Unit*>::iterator itr = ranged.begin(); itr != ranged.end(); ++itr)
                                     DoCast(*itr, SPELL_VILE_GAS);
                             }
@@ -410,9 +414,7 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GASTRIC_EXPLOSION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GASTRIC_EXPLOSION });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -448,9 +450,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_INOCULATED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_INOCULATED });
             }
 
             void ExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

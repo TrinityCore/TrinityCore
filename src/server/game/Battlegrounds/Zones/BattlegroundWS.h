@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -170,12 +170,7 @@ struct BattlegroundWGScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
-        {
-            data << uint32(2); // Objectives Count
-            data << uint32(FlagCaptures);
-            data << uint32(FlagReturns);
-        }
+        void BuildObjectivesBlock(WorldPacket& data) final override;
 
         uint32 GetAttr1() const final override { return FlagCaptures; }
         uint32 GetAttr2() const final override { return FlagReturns; }
@@ -222,7 +217,7 @@ class BattlegroundWS : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(uint32 winner) override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
         void UpdateFlagState(uint32 team, uint32 value);
         void SetLastFlagCapture(uint32 team)                { _lastFlagCaptureTeam = team; }

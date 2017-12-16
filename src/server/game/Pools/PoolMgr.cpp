@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,9 +18,10 @@
 
 #include "PoolMgr.h"
 #include "Containers.h"
-#include "ObjectMgr.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
 
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData
@@ -34,36 +35,31 @@ uint32 ActivePoolData::GetActiveObjectCount(uint32 pool_id) const
 
 // Method that tell if a creature is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<Creature>(uint32 db_guid) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint32 db_guid) const
 {
     return mSpawnedCreatures.find(db_guid) != mSpawnedCreatures.end();
 }
 
 // Method that tell if a gameobject is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<GameObject>(uint32 db_guid) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint32 db_guid) const
 {
     return mSpawnedGameobjects.find(db_guid) != mSpawnedGameobjects.end();
 }
 
 // Method that tell if a pool is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<Pool>(uint32 sub_pool_id) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint32 sub_pool_id) const
 {
     return mSpawnedPools.find(sub_pool_id) != mSpawnedPools.end();
 }
 
 // Method that tell if a quest can be started
 template<>
-bool ActivePoolData::IsActiveObject<Quest>(uint32 quest_id) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint32 quest_id) const
 {
     return mActiveQuests.find(quest_id) != mActiveQuests.end();
 }
-
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint32) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint32) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint32) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint32) const;
 
 template<>
 void ActivePoolData::ActivateObject<Creature>(uint32 db_guid, uint32 pool_id)
@@ -157,34 +153,6 @@ bool PoolGroup<T>::CheckPool() const
     return true;
 }
 
-template <class T>
-PoolObject* PoolGroup<T>::RollOne(ActivePoolData& spawns, uint32 triggerFrom)
-{
-    if (!ExplicitlyChanced.empty())
-    {
-        float roll = (float)rand_chance();
-
-        for (uint32 i = 0; i < ExplicitlyChanced.size(); ++i)
-        {
-            roll -= ExplicitlyChanced[i].chance;
-            // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
-            // so this need explicit check for this case
-            if (roll < 0 && (ExplicitlyChanced[i].guid == triggerFrom || !spawns.IsActiveObject<T>(ExplicitlyChanced[i].guid)))
-               return &ExplicitlyChanced[i];
-        }
-    }
-    if (!EqualChanced.empty())
-    {
-        uint32 index = urand(0, EqualChanced.size()-1);
-        // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
-        // so this need explicit check for this case
-        if (EqualChanced[index].guid == triggerFrom || !spawns.IsActiveObject<T>(EqualChanced[index].guid))
-           return &EqualChanced[index];
-    }
-
-    return NULL;
-}
-
 // Main method to despawn a creature or gameobject in a pool
 // If no guid is passed, the pool is just removed (event end case)
 // If guid is filled, cache will be used and no removal will occur, it just fill the cache
@@ -226,7 +194,7 @@ void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid)
     {
         sObjectMgr->RemoveCreatureFromGrid(guid, data);
 
-        Map* map = sMapMgr->CreateBaseMap(data->mapid);
+        Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
         if (!map->Instanceable())
         {
             auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(guid);
@@ -234,6 +202,9 @@ void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid)
             {
                 Creature* creature = itr->second;
                 ++itr;
+                // For dynamic spawns, save respawn time here
+                if (!creature->GetRespawnCompatibilityMode())
+                    creature->SaveRespawnTime(0, false);
                 creature->AddObjectToRemoveList();
             }
         }
@@ -244,11 +215,11 @@ void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid)
 template<>
 void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid)
 {
-    if (GameObjectData const* data = sObjectMgr->GetGOData(guid))
+    if (GameObjectData const* data = sObjectMgr->GetGameObjectData(guid))
     {
         sObjectMgr->RemoveGameobjectFromGrid(guid, data);
 
-        Map* map = sMapMgr->CreateBaseMap(data->mapid);
+        Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
         if (!map->Instanceable())
         {
             auto gameobjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(guid);
@@ -256,6 +227,10 @@ void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid)
             {
                 GameObject* go = itr->second;
                 ++itr;
+
+                // For dynamic spawns, save respawn time here
+                if (!go->GetRespawnCompatibilityMode())
+                    go->SaveRespawnTime(0, false);
                 go->AddObjectToRemoveList();
             }
         }
@@ -337,7 +312,6 @@ void PoolGroup<Pool>::RemoveOneRelation(uint32 child_pool_id)
 template <class T>
 void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom)
 {
-    uint32 lastDespawned = 0;
     int count = limit - spawns.GetActiveObjectCount(poolId);
 
     // If triggered from some object respawn this object is still marked as spawned
@@ -346,32 +320,70 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
     if (triggerFrom)
         ++count;
 
-    // This will try to spawn the rest of pool, not guaranteed
-    for (int i = 0; i < count; ++i)
+    if (count > 0)
     {
-        PoolObject* obj = RollOne(spawns, triggerFrom);
-        if (!obj)
-            continue;
-        if (obj->guid == lastDespawned)
-            continue;
+        PoolObjectList rolledObjects;
+        rolledObjects.reserve(count);
 
-        if (obj->guid == triggerFrom)
+        // roll objects to be spawned
+        if (!ExplicitlyChanced.empty())
         {
-            ReSpawn1Object(obj);
-            triggerFrom = 0;
-            continue;
+            while (count && ExplicitlyChanced.size() > rolledObjects.size())
+            {
+                --count;
+                float roll = (float)rand_chance();
+
+                for (PoolObject& obj : ExplicitlyChanced)
+                {
+                    roll -= obj.chance;
+                    // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
+                    // so this need explicit check for this case
+                    if (roll < 0 && (obj.guid == triggerFrom || !spawns.IsActiveObject<T>(obj.guid)))
+                    {
+                        rolledObjects.push_back(obj);
+                        break;
+                    }
+                }
+            }
         }
-        spawns.ActivateObject<T>(obj->guid, poolId);
-        Spawn1Object(obj);
-
-        if (triggerFrom)
+        else if (!EqualChanced.empty())
         {
-            // One spawn one despawn no count increase
-            DespawnObject(spawns, triggerFrom);
-            lastDespawned = triggerFrom;
-            triggerFrom = 0;
+            rolledObjects = EqualChanced;
+
+            for (auto itr = rolledObjects.begin(); itr != rolledObjects.end();)
+            {
+                // remove most of the active objects so there is higher chance inactive ones are spawned
+                if (spawns.IsActiveObject<T>(itr->guid) && urand(1, 4) != 1)
+                    itr = rolledObjects.erase(itr);
+                else
+                    ++itr;
+            }
+
+            Trinity::Containers::RandomResize(rolledObjects, count);
+        }
+
+        // try to spawn rolled objects
+        for (PoolObject& obj : rolledObjects)
+        {
+            if (spawns.IsActiveObject<T>(obj.guid))
+                continue;
+
+            if (obj.guid == triggerFrom)
+            {
+                ReSpawn1Object(&obj);
+                triggerFrom = 0;
+            }
+            else
+            {
+                spawns.ActivateObject<T>(obj.guid, poolId);
+                Spawn1Object(&obj);
+            }
         }
     }
+
+    // One spawn one despawn no count increase
+    if (triggerFrom)
+        DespawnObject(spawns, triggerFrom);
 }
 
 // Method that is actualy doing the spawn job on 1 creature
@@ -383,13 +395,13 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         sObjectMgr->AddCreatureToGrid(obj->guid, data);
 
         // Spawn if necessary (loaded grids only)
-        Map* map = sMapMgr->CreateBaseMap(data->mapid);
+        Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
         // We use spawn coords to spawn
-        if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
+        if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
         {
             Creature* creature = new Creature();
             //TC_LOG_DEBUG("pool", "Spawning creature %u", guid);
-            if (!creature->LoadCreatureFromDB(obj->guid, map))
+            if (!creature->LoadFromDB(obj->guid, map, true, false))
             {
                 delete creature;
                 return;
@@ -402,18 +414,18 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
 template <>
 void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
 {
-    if (GameObjectData const* data = sObjectMgr->GetGOData(obj->guid))
+    if (GameObjectData const* data = sObjectMgr->GetGameObjectData(obj->guid))
     {
         sObjectMgr->AddGameobjectToGrid(obj->guid, data);
         // Spawn if necessary (loaded grids only)
         // this base map checked as non-instanced and then only existed
-        Map* map = sMapMgr->CreateBaseMap(data->mapid);
+        Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
         // We use current coords to unspawn, not spawn coords since creature can have changed grid
-        if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
+        if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
         {
             GameObject* pGameobject = new GameObject;
             //TC_LOG_DEBUG("pool", "Spawning gameobject %u", guid);
-            if (!pGameobject->LoadGameObjectFromDB(obj->guid, map, false))
+            if (!pGameobject->LoadFromDB(obj->guid, map, false))
             {
                 delete pGameobject;
                 return;
@@ -692,7 +704,7 @@ void PoolMgr::LoadFromDB()
                 uint32 pool_id = fields[1].GetUInt32();
                 float chance   = fields[2].GetFloat();
 
-                GameObjectData const* data = sObjectMgr->GetGOData(guid);
+                GameObjectData const* data = sObjectMgr->GetGameObjectData(guid);
                 if (!data)
                 {
                     TC_LOG_ERROR("sql.sql", "`pool_gameobject` has a non existing gameobject spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id);
@@ -802,8 +814,8 @@ void PoolMgr::LoadFromDB()
                     if (checkedPools.find(poolItr->second) != checkedPools.end())
                     {
                         std::ostringstream ss;
-                        ss<< "The pool(s) ";
-                        for (std::set<uint32>::const_iterator itr=checkedPools.begin(); itr != checkedPools.end(); ++itr)
+                        ss << "The pool(s) ";
+                        for (std::set<uint32>::const_iterator itr = checkedPools.begin(); itr != checkedPools.end(); ++itr)
                             ss << *itr << ' ';
                         ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool "
                             << poolItr->first << " and child pool " << poolItr->second;
@@ -914,8 +926,8 @@ void PoolMgr::LoadFromDB()
         uint32 oldMSTime = getMSTime();
 
         QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_pool.pool_id, pool_pool.mother_pool FROM pool_template"
-            " LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry"
-            " LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
+            " LEFT JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry"
+            " LEFT JOIN pool_pool ON pool_template.entry = pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
 
         if (!result)
         {
@@ -958,7 +970,6 @@ void PoolMgr::LoadFromDB()
 
 void PoolMgr::LoadQuestPools()
 {
-
 }
 
 void PoolMgr::SaveQuestsToDB()
@@ -1077,6 +1088,21 @@ void PoolMgr::DespawnPool(uint32 pool_id)
 
     if (!mPoolQuestGroups[pool_id].isEmpty())
         mPoolQuestGroups[pool_id].DespawnObject(mSpawnedData);
+}
+
+// Selects proper template overload to call based on passed type
+uint32 PoolMgr::IsPartOfAPool(SpawnObjectType type, ObjectGuid::LowType spawnId) const
+{
+    switch (type)
+    {
+        case SPAWN_TYPE_CREATURE:
+            return IsPartOfAPool<Creature>(spawnId);
+        case SPAWN_TYPE_GAMEOBJECT:
+            return IsPartOfAPool<GameObject>(spawnId);
+        default:
+            ASSERT(false, "Invalid spawn type %u passed to PoolMgr::IsPartOfPool (with spawnId %u)", uint32(type), spawnId);
+            return 0;
+    }
 }
 
 // Method that check chance integrity of the creatures and gameobjects in this pool

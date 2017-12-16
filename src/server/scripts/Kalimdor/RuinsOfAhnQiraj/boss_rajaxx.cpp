@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,9 @@
  */
 
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Yells
 {
@@ -130,7 +130,7 @@ class boss_rajaxx : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_rajaxxAI(creature);
+            return GetAQ20AI<boss_rajaxxAI>(creature);
         }
 };
 

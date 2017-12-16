@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
 #include "naxxramas.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -146,7 +147,7 @@ class boss_loatheb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_loathebAI(creature);
+            return GetNaxxramasAI<boss_loathebAI>(creature);
         }
 };
 
@@ -172,9 +173,7 @@ class spell_loatheb_deathbloom : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEATHBLOOM_FINAL_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DEATHBLOOM_FINAL_DAMAGE });
             }
 
             void AfterRemove(AuraEffect const* eff, AuraEffectHandleModes /*mode*/)

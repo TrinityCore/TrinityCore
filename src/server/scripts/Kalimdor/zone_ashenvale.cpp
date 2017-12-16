@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,9 +28,12 @@ npc_ruul_snowhoof
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include "Player.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
 /*####
@@ -43,7 +46,6 @@ enum RuulSnowhoof
     NPC_THISTLEFUR_TOTEMIC      = 3922,
     NPC_THISTLEFUR_PATHFINDER   = 3926,
     QUEST_FREEDOM_TO_RUUL       = 6482,
-    FACTION_QUEST               = 113,
     GO_CAGE                     = 178147
 };
 
@@ -62,9 +64,9 @@ class npc_ruul_snowhoof : public CreatureScript
 public:
     npc_ruul_snowhoof() : CreatureScript("npc_ruul_snowhoof") { }
 
-    struct npc_ruul_snowhoofAI : public npc_escortAI
+    struct npc_ruul_snowhoofAI : public EscortAI
     {
-        npc_ruul_snowhoofAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_ruul_snowhoofAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -79,16 +81,16 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
             {
-                me->setFaction(FACTION_QUEST);
-                npc_escortAI::Start(true, false, player->GetGUID());
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+                EscortAI::Start(true, false, player->GetGUID());
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -119,7 +121,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 
@@ -179,9 +181,9 @@ class npc_muglash : public CreatureScript
 public:
     npc_muglash() : CreatureScript("npc_muglash") { }
 
-    struct npc_muglashAI : public npc_escortAI
+    struct npc_muglashAI : public EscortAI
     {
-        npc_muglashAI(Creature* creature) : npc_escortAI(creature)
+        npc_muglashAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -221,17 +223,17 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_VORSHA)
             {
                 Talk(SAY_MUG_START1);
-                me->setFaction(FACTION_QUEST);
-                npc_escortAI::Start(true, false, player->GetGUID());
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+                EscortAI::Start(true, false, player->GetGUID());
             }
         }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
             {
                 if (Player* player = GetPlayerForEscort())
                 {
@@ -289,7 +291,7 @@ public:
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!me->GetVictim())
                 {
@@ -328,20 +330,30 @@ class go_naga_brazier : public GameObjectScript
     public:
         go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_naga_brazierAI : public GameObjectAI
         {
-            if (Creature* creature = GetClosestCreatureWithEntry(go, NPC_MUGLASH, INTERACTION_DISTANCE*2))
+            go_naga_brazierAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* /*player*/) override
             {
-                if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglash::npc_muglashAI, creature->AI()))
+                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_MUGLASH, INTERACTION_DISTANCE * 2))
                 {
-                    creature->AI()->Talk(SAY_MUG_BRAZIER_WAIT);
+                    if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglash::npc_muglashAI, creature->AI()))
+                    {
+                        creature->AI()->Talk(SAY_MUG_BRAZIER_WAIT);
 
-                    pEscortAI->_isBrazierExtinguished = true;
-                    return false;
+                        pEscortAI->_isBrazierExtinguished = true;
+                        return false;
+                    }
                 }
-            }
 
-            return true;
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_naga_brazierAI(go);
         }
 };
 

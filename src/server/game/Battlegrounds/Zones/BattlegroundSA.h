@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -531,12 +531,7 @@ struct BattlegroundSAScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
-        {
-            data << uint32(2); // Objectives Count
-            data << uint32(DemolishersDestroyed);
-            data << uint32(GatesDestroyed);
-        }
+        void BuildObjectivesBlock(WorldPacket& data) final override;
 
         uint32 GetAttr1() const final override { return DemolishersDestroyed; }
         uint32 GetAttr2() const final override { return GatesDestroyed; }
@@ -573,9 +568,9 @@ class BattlegroundSA : public Battleground
         /// Called when a player kill a unit in bg
         void HandleKillUnit(Creature* creature, Player* killer) override;
         /// Return the nearest graveyard where player can respawn
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         /// Called when someone activates an event
-        void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = NULL) override;
+        void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = nullptr) override;
         /// Called when a player click on flag (graveyard flag)
         void EventPlayerClickedOnFlag(Player* source, GameObject* go) override;
         /// Called when a player clicked on relic
@@ -587,7 +582,7 @@ class BattlegroundSA : public Battleground
             for (uint8 i = 0; i < MAX_GATES; ++i)
                 if (Gates[i].GameObjectId == entry)
                     return &Gates[i];
-            return NULL;
+            return nullptr;
         }
 
         /// Called on battleground ending
@@ -600,7 +595,7 @@ class BattlegroundSA : public Battleground
         /* Scorekeeping */
 
         // Achievement: Not Even a Scratch
-        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = NULL, uint32 miscValue = 0) override;
+        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscValue = 0) override;
 
         // Control Phase Shift
         bool IsSpellAllowed(uint32 spellId, Player const* player) const override;

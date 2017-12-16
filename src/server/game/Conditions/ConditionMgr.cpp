@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,16 +18,21 @@
 
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
+#include "DatabaseEnv.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "LootMgr.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -289,12 +294,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_NEAR_CREATURE:
         {
-            condMeets = GetClosestCreatureWithEntry(object, ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) ? true : false;
+            condMeets = object->FindNearestCreature(ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) != nullptr;
             break;
         }
         case CONDITION_NEAR_GAMEOBJECT:
         {
-            condMeets = GetClosestGameObjectWithEntry(object, ConditionValue1, (float)ConditionValue2) ? true : false;
+            condMeets = object->FindNearestGameObject(ConditionValue1, (float)ConditionValue2) != nullptr;
             break;
         }
         case CONDITION_OBJECT_ENTRY_GUID:
@@ -431,7 +436,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_REALM_ACHIEVEMENT:
         {
             AchievementEntry const* achievement = sAchievementMgr->GetAchievement(ConditionValue1);
-            if (achievement && sAchievementMgr->IsRealmCompleted(achievement, std::numeric_limits<uint32>::max()))
+            if (achievement && sAchievementMgr->IsRealmCompleted(achievement))
                 condMeets = true;
             break;
         }
@@ -1031,7 +1036,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
         return;
     }
 
@@ -1073,7 +1078,7 @@ void ConditionMgr::LoadConditions(bool isReload)
             }
             cond->ReferenceId = uint32(abs(iConditionTypeOrReference));
 
-            const char* rowType = "reference template";
+            char const* rowType = "reference template";
             if (iSourceTypeOrReferenceId >= 0)
                 rowType = "reference";
             //check for useless data
@@ -1269,9 +1274,9 @@ bool ConditionMgr::addToGossipMenus(Condition* cond) const
     {
         for (GossipMenusContainer::iterator itr = pMenuBounds.first; itr != pMenuBounds.second; ++itr)
         {
-            if ((*itr).second.entry == cond->SourceGroup && (*itr).second.text_id == uint32(cond->SourceEntry))
+            if ((*itr).second.MenuID == cond->SourceGroup && (*itr).second.TextID == uint32(cond->SourceEntry))
             {
-                (*itr).second.conditions.push_back(cond);
+                (*itr).second.Conditions.push_back(cond);
                 return true;
             }
         }
@@ -1288,7 +1293,7 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond) const
     {
         for (GossipMenuItemsContainer::iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
         {
-            if ((*itr).second.MenuId == cond->SourceGroup && (*itr).second.OptionIndex == uint32(cond->SourceEntry))
+            if ((*itr).second.MenuID == cond->SourceGroup && (*itr).second.OptionID == uint32(cond->SourceEntry))
             {
                 (*itr).second.Conditions.push_back(cond);
                 return true;
@@ -1602,7 +1607,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "%s in `condition` table, SourceEntry does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
 
@@ -1627,6 +1632,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
+                    case TARGET_SELECT_CATEGORY_TRAJ:
                         continue;
                     default:
                         break;
@@ -1637,6 +1643,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
+                    case TARGET_SELECT_CATEGORY_TRAJ:
                         continue;
                     default:
                         break;
@@ -1665,12 +1672,12 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellProto)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
         }
-        case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
+        case CONDITION_SOURCE_TYPE_QUEST_AVAILABLE:
             if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry specifies non-existing quest, skipped.", cond->ToString().c_str());
@@ -1686,7 +1693,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1699,7 +1706,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -2004,7 +2011,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                     }
                     if (cond->ConditionValue3)
                     {
-                        if (GameObjectData const* goData = sObjectMgr->GetGOData(cond->ConditionValue3))
+                        if (GameObjectData const* goData = sObjectMgr->GetGameObjectData(cond->ConditionValue3))
                         {
                             if (cond->ConditionValue2 && goData->id != cond->ConditionValue2)
                             {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 /* @todo Achievements
@@ -232,22 +233,22 @@ class npc_flash_freeze : public CreatureScript
             {
                 targetGUID = summoner->GetGUID();
                 me->SetInCombatWith(summoner);
-                me->AddThreat(summoner, 250.0f);
+                AddThreat(summoner, 250.0f);
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                 {
                     DoCast(target, SPELL_BLOCK_OF_ICE, true);
                     // Prevents to have Ice Block on other place than target is
                     me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                     if (target->GetTypeId() == TYPEID_PLAYER)
-                        if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
-                            Hodir->AI()->DoAction(ACTION_CHEESE_THE_FREEZE);
+                        if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                            hodir->AI()->DoAction(ACTION_CHEESE_THE_FREEZE);
                 }
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_flash_freezeAI>(creature);
+            return GetUlduarAI<npc_flash_freezeAI>(creature);
         }
 };
 
@@ -276,8 +277,8 @@ class npc_ice_block : public CreatureScript
                 summoner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 summoner->SetControlled(true, UNIT_STATE_ROOT);
                 me->SetInCombatWith(summoner);
-                me->AddThreat(summoner, 250.0f);
-                summoner->AddThreat(me, 250.0f);
+                AddThreat(summoner, 250.0f);
+                AddThreat(me, 250.0f, summoner);
                 if (Creature* target = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
                     DoCast(target, SPELL_FLASH_FREEZE_HELPER, true);
@@ -288,21 +289,21 @@ class npc_ice_block : public CreatureScript
 
             void DamageTaken(Unit* who, uint32& /*damage*/) override
             {
-                if (Creature* Helper = ObjectAccessor::GetCreature(*me, targetGUID))
+                if (Creature* helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
-                    Helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-                    Helper->SetControlled(false, UNIT_STATE_ROOT);
+                    helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                    helper->SetControlled(false, UNIT_STATE_ROOT);
 
-                    if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
+                    if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
                     {
-                        if (!Hodir->IsInCombat())
+                        if (!hodir->IsInCombat())
                         {
-                            Hodir->SetReactState(REACT_AGGRESSIVE);
-                            Hodir->AI()->DoZoneInCombat();
-                            Hodir->AI()->AttackStart(who);
+                            hodir->SetReactState(REACT_AGGRESSIVE);
+                            hodir->AI()->DoZoneInCombat();
+                            hodir->AI()->AttackStart(who);
                         }
 
-                        Helper->AI()->AttackStart(Hodir);
+                        helper->AI()->AttackStart(hodir);
                     }
                 }
             }
@@ -310,7 +311,7 @@ class npc_ice_block : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_ice_blockAI>(creature);
+            return GetUlduarAI<npc_ice_blockAI>(creature);
         }
 };
 
@@ -405,7 +406,7 @@ class boss_hodir : public CreatureScript
 
                     DoCastAOE(SPELL_KILL_CREDIT, true); /// need to be cast before changing boss faction
                                                         /// spell will target enemies only
-                    me->setFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->DespawnOrUnsummon(10000);
 
                     _JustDied();
@@ -486,7 +487,7 @@ class boss_hodir : public CreatureScript
 
                 if (gettingColdInHereTimer <= diff && gettingColdInHere)
                 {
-                    std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
+                    std::list<HostileReference*> ThreatList = me->GetThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                         if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                             if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
@@ -520,7 +521,7 @@ class boss_hodir : public CreatureScript
                 std::list<Unit*> TargetList;
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(me, me, 100.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
-                me->VisitNearbyObject(100.0f, searcher);
+                Cell::VisitAllObjects(me, searcher, 100.0f);
                 for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                 {
                     Unit* target = *itr;
@@ -694,7 +695,7 @@ class npc_hodir_priest : public CreatureScript
                             std::list<Unit*> TargetList;
                             Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 30.0f);
                             Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
-                            me->VisitNearbyObject(30.0f, searcher);
+                            Cell::VisitAllObjects(me, searcher, 30.0f);
                             for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                                 if ((*itr)->HasAura(SPELL_FREEZE))
                                     DoCast(*itr, SPELL_DISPEL_MAGIC, true);
@@ -713,10 +714,10 @@ class npc_hodir_priest : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) override
-             {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
-                    Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            {
+                if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                    hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
+            }
 
         private:
             InstanceScript* instance;
@@ -778,10 +779,10 @@ class npc_hodir_shaman : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) override
-             {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
-                    Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            {
+                if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                    hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
+            }
 
         private:
             InstanceScript* instance;
@@ -842,10 +843,10 @@ class npc_hodir_druid : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) override
-             {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
-                    Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            {
+                if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                    hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
+            }
 
         private:
             InstanceScript* instance;
@@ -925,10 +926,10 @@ class npc_hodir_mage : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) override
-             {
-                  if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
-                    Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            {
+                if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                    hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
+            }
 
         private:
             InstanceScript* instance;
@@ -959,7 +960,7 @@ class npc_toasty_fire : public CreatureScript
                 DoCast(me, SPELL_SINGED, true);
             }
 
-            void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_BLOCK_OF_ICE || spell->Id == SPELL_ICE_SHARD || spell->Id == SPELL_ICE_SHARD_HIT)
                 {
@@ -1048,7 +1049,7 @@ public:
                 return;
 
             int32 damage = int32(200 * std::pow(2.0f, GetStackAmount()));
-            caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
+            caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, nullptr, nullptr, true);
 
             if (caster->isMoving())
                 caster->RemoveAuraFromStack(SPELL_BITING_COLD_TRIGGERED);

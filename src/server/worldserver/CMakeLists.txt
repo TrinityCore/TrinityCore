@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -24,12 +24,14 @@ endif()
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/worldPCH.h)
   set(PRIVATE_PCH_SOURCE PrecompiledHeaders/worldPCH.cpp)
+  if (MSVC)
+    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/worldPCH.cpp)
+  endif (MSVC)
 endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(worldserver
-  ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
 )
 
@@ -75,7 +77,7 @@ if (WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)
 endif()
 
 if( WIN32 )
-  if ( MSVC )
+  if ( "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild" )
     add_custom_command(TARGET worldserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -90,7 +91,7 @@ public:
                         DoCast(SPELL_ILLUSION);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisplayId(11686);  // Invisible Model
-                        DoModifyThreatPercent(me->GetVictim(), -99);
+                        ModifyThreatByPercent(me->GetVictim(), -99);
                         events.ScheduleEvent(EVENT_SET_VISIBILITY, 3000);
                         events.ScheduleEvent(EVENT_ILLUSION, 25000);
                         break;
@@ -116,7 +117,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_jandicebarovAI>(creature);
+        return GetScholomanceAI<boss_jandicebarovAI>(creature);
     }
 };
 

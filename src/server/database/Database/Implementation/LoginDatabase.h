@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +18,9 @@
 #ifndef _LOGINDATABASE_H
 #define _LOGINDATABASE_H
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-enum LoginDatabaseStatements
+enum LoginDatabaseStatements : uint32
 {
     /*  Naming standard for defines:
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
@@ -123,13 +122,12 @@ public:
     typedef LoginDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-    LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+    LoginDatabaseConnection(MySQLConnectionInfo& connInfo);
+    LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    ~LoginDatabaseConnection();
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
-
-typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;
 
 #endif

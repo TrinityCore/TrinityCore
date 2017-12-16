@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -107,7 +107,7 @@ class npc_av_marshal_or_warmaster : public CreatureScript
                 events.ScheduleEvent(EVENT_CHECK_RESET, 5000);
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 Reset();
             }

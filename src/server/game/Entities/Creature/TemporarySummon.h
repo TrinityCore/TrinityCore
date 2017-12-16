@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,21 +21,7 @@
 
 #include "Creature.h"
 
-enum SummonerType
-{
-    SUMMONER_TYPE_CREATURE      = 0,
-    SUMMONER_TYPE_GAMEOBJECT    = 1,
-    SUMMONER_TYPE_MAP           = 2
-};
-
-/// Stores data for temp summons
-struct TempSummonData
-{
-    uint32 entry;        ///< Entry of summoned creature
-    Position pos;        ///< Position, where should be creature spawned
-    TempSummonType type; ///< Summon type, see TempSummonType for available types
-    uint32 time;         ///< Despawn time, usable only with certain temp summon types
-};
+struct SummonPropertiesEntry;
 
 class TC_GAME_API TempSummon : public Creature
 {
@@ -56,7 +42,7 @@ class TC_GAME_API TempSummon : public Creature
         TempSummonType const& GetSummonType() { return m_type; }
         uint32 GetTimer() const { return m_timer; }
 
-        const SummonPropertiesEntry* const m_Properties;
+        SummonPropertiesEntry const* const m_Properties;
     private:
         TempSummonType m_type;
         uint32 m_timer;
@@ -100,6 +86,7 @@ class TC_GAME_API Guardian : public Minion
         void UpdateDamagePhysical(WeaponAttackType attType) override;
 
         int32 GetBonusDamage() const { return m_bonusSpellDamage; }
+        float GetBonusStatFromOwner(Stats stat) const { return m_statFromOwner[stat]; }
         void SetBonusDamage(int32 damage);
     protected:
         int32   m_bonusSpellDamage;

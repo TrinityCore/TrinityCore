@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,8 +20,6 @@
 #define TRINITY_COMBATAI_H
 
 #include "CreatureAI.h"
-#include "CreatureAIImpl.h"
-#include "ConditionMgr.h"
 
 class Creature;
 
@@ -31,7 +29,7 @@ class TC_GAME_API AggressorAI : public CreatureAI
         explicit AggressorAI(Creature* c) : CreatureAI(c) { }
 
         void UpdateAI(uint32) override;
-        static int Permissible(const Creature*);
+        static int32 Permissible(Creature const* creature);
 };
 
 typedef std::vector<uint32> SpellVct;
@@ -74,7 +72,7 @@ struct TC_GAME_API ArcherAI : public CreatureAI
         void AttackStart(Unit* who) override;
         void UpdateAI(uint32 diff) override;
 
-        static int Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
     protected:
         float m_minRange;
@@ -88,7 +86,7 @@ struct TC_GAME_API TurretAI : public CreatureAI
         void AttackStart(Unit* who) override;
         void UpdateAI(uint32 diff) override;
 
-        static int Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
     protected:
         float m_minRange;
@@ -107,7 +105,7 @@ struct TC_GAME_API VehicleAI : public CreatureAI
         void AttackStart(Unit*) override { }
         void OnCharmed(bool apply) override;
 
-        static int Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
+        static int32 Permissible(Creature const* creature);
 
     private:
         void LoadConditions();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
+#include "AuctionHouseBotBuyer.h"
+#include "DatabaseEnv.h"
 #include "Item.h"
 #include "ItemTemplate.h"
-#include "AuctionHouseBotBuyer.h"
+#include "Log.h"
+#include "Random.h"
 
 AuctionBotBuyer::AuctionBotBuyer() : _checkInterval(20 * MINUTE)
 {
@@ -156,7 +158,7 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
 }
 
 // ahInfo can be NULL
-bool AuctionBotBuyer::RollBuyChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 /*bidPrice*/)
+bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 /*bidPrice*/)
 {
     if (!auction->buyout)
         return false;
@@ -195,7 +197,7 @@ bool AuctionBotBuyer::RollBuyChance(const BuyerItemInfo* ahInfo, const Item* ite
 }
 
 // ahInfo can be NULL
-bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice)
+bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 bidPrice)
 {
     float itemBidPrice = float(bidPrice / item->GetCount());
     float itemPrice = float(item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality));
@@ -306,7 +308,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
             bidPrice = auction->startbid;
         }
 
-        const BuyerItemInfo* ahInfo = nullptr;
+        BuyerItemInfo const* ahInfo = nullptr;
         BuyerItemInfoMap::const_iterator sameItemItr = config.SameItemInfo.find(item->GetEntry());
         if (sameItemItr != config.SameItemInfo.end())
             ahInfo = &sameItemItr->second;
@@ -392,7 +394,7 @@ void AuctionBotBuyer::BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctio
 
     // Send mail to previous bidder if any
     if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
-        sAuctionMgr->SendAuctionOutbiddedMail(auction, auction->buyout, NULL, trans);
+        sAuctionMgr->SendAuctionOutbiddedMail(auction, auction->buyout, nullptr, trans);
 
     // Set bot as bidder and set new bid amount
     auction->bidder = sAuctionBotConfig->GetRandCharExclude(auction->owner);
@@ -423,7 +425,7 @@ void AuctionBotBuyer::PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice)
 
     // Send mail to previous bidder if any
     if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
-        sAuctionMgr->SendAuctionOutbiddedMail(auction, bidPrice, NULL, trans);
+        sAuctionMgr->SendAuctionOutbiddedMail(auction, bidPrice, nullptr, trans);
 
     // Set bot as bidder and set new bid amount
     auction->bidder = sAuctionBotConfig->GetRandCharExclude(auction->owner);

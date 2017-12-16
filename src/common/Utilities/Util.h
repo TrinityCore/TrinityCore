@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,24 +21,10 @@
 
 #include "Define.h"
 #include "Errors.h"
-#include "Random.h"
 
-#include <algorithm>
 #include <string>
+#include <sstream>
 #include <vector>
-#include <list>
-#include <map>
-#include <ctime>
-
-// Searcher for map of structs
-template<typename T, class S> struct Finder
-{
-    T val_;
-    T S::* idMember_;
-
-    Finder(T val, T S::* idMember) : val_(val), idMember_(idMember) {}
-    bool operator()(const std::pair<int, S> &obj) { return obj.second.*idMember_ == val_; }
-};
 
 class TC_COMMON_API Tokenizer
 {
@@ -70,20 +56,13 @@ private:
 
 TC_COMMON_API void stripLineInvisibleChars(std::string &src);
 
-TC_COMMON_API int32 MoneyStringToMoney(const std::string& moneyString);
+TC_COMMON_API int32 MoneyStringToMoney(std::string const& moneyString);
 
-TC_COMMON_API struct tm* localtime_r(const time_t* time, struct tm *result);
+TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
 
 TC_COMMON_API std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
-TC_COMMON_API uint32 TimeStringToSecs(const std::string& timestring);
+TC_COMMON_API uint32 TimeStringToSecs(std::string const& timestring);
 TC_COMMON_API std::string TimeToTimestampStr(time_t t);
-
-inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
-{
-    if (val == -100.0f)     // prevent set var to zero
-        val = -99.99f;
-    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
-}
 
 // Percentage calculation
 template <class T, class U>
@@ -296,15 +275,8 @@ inline wchar_t wcharToLower(wchar_t wchar)
     return wchar;
 }
 
-inline void wstrToUpper(std::wstring& str)
-{
-    std::transform( str.begin(), str.end(), str.begin(), wcharToUpper );
-}
-
-inline void wstrToLower(std::wstring& str)
-{
-    std::transform( str.begin(), str.end(), str.begin(), wcharToLower );
-}
+TC_COMMON_API void wstrToUpper(std::wstring& str);
+TC_COMMON_API void wstrToLower(std::wstring& str);
 
 TC_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
 
@@ -337,13 +309,13 @@ class HookList final
     public:
         typedef typename ContainerType::iterator iterator;
 
-        HookList<T>& operator+=(T t)
+        HookList<T>& operator+=(T&& t)
         {
-            _container.push_back(t);
+            _container.push_back(std::move(t));
             return *this;
         }
 
-        size_t size()
+        size_t size() const
         {
             return _container.size();
         }
@@ -389,7 +361,7 @@ public:
         part[2] = p3;
     }
 
-    inline bool operator <(const flag96 &right) const
+    inline bool operator<(flag96 const& right) const
     {
         for (uint8 i = 3; i > 0; --i)
         {
@@ -401,7 +373,7 @@ public:
         return false;
     }
 
-    inline bool operator ==(const flag96 &right) const
+    inline bool operator==(flag96 const& right) const
     {
         return
         (
@@ -411,12 +383,12 @@ public:
         );
     }
 
-    inline bool operator !=(const flag96 &right) const
+    inline bool operator!=(flag96 const& right) const
     {
-        return !this->operator ==(right);
+        return !(*this == right);
     }
 
-    inline flag96 & operator =(const flag96 &right)
+    inline flag96& operator=(flag96 const& right)
     {
         part[0] = right.part[0];
         part[1] = right.part[1];
@@ -424,13 +396,12 @@ public:
         return *this;
     }
 
-    inline flag96 operator &(const flag96 &right) const
+    inline flag96 operator&(flag96 const& right) const
     {
-        return flag96(part[0] & right.part[0], part[1] & right.part[1],
-            part[2] & right.part[2]);
+        return flag96(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2]);
     }
 
-    inline flag96 & operator &=(const flag96 &right)
+    inline flag96& operator&=(flag96 const& right)
     {
         part[0] &= right.part[0];
         part[1] &= right.part[1];
@@ -438,13 +409,12 @@ public:
         return *this;
     }
 
-    inline flag96 operator |(const flag96 &right) const
+    inline flag96 operator|(flag96 const& right) const
     {
-        return flag96(part[0] | right.part[0], part[1] | right.part[1],
-            part[2] | right.part[2]);
+        return flag96(part[0] | right.part[0], part[1] | right.part[1], part[2] | right.part[2]);
     }
 
-    inline flag96 & operator |=(const flag96 &right)
+    inline flag96& operator |=(flag96 const& right)
     {
         part[0] |= right.part[0];
         part[1] |= right.part[1];
@@ -452,18 +422,17 @@ public:
         return *this;
     }
 
-    inline flag96 operator ~() const
+    inline flag96 operator~() const
     {
         return flag96(~part[0], ~part[1], ~part[2]);
     }
 
-    inline flag96 operator ^(const flag96 &right) const
+    inline flag96 operator^(flag96 const& right) const
     {
-        return flag96(part[0] ^ right.part[0], part[1] ^ right.part[1],
-            part[2] ^ right.part[2]);
+        return flag96(part[0] ^ right.part[0], part[1] ^ right.part[1], part[2] ^ right.part[2]);
     }
 
-    inline flag96 & operator ^=(const flag96 &right)
+    inline flag96& operator^=(flag96 const& right)
     {
         part[0] ^= right.part[0];
         part[1] ^= right.part[1];
@@ -478,15 +447,15 @@ public:
 
     inline bool operator !() const
     {
-        return !this->operator bool();
+        return !(bool(*this));
     }
 
-    inline uint32 & operator [](uint8 el)
+    inline uint32& operator[](uint8 el)
     {
         return part[el];
     }
 
-    inline const uint32 & operator [](uint8 el) const
+    inline uint32 const& operator [](uint8 el) const
     {
         return part[el];
     }
@@ -522,6 +491,13 @@ bool CompareValues(ComparisionType type, T val1, T val2)
             ABORT();
             return false;
     }
+}
+
+template<typename E>
+typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
+{
+    static_assert(std::is_enum<E>::value, "AsUnderlyingType can only be used with enums");
+    return static_cast<typename std::underlying_type<E>::type>(enumValue);
 }
 
 #endif

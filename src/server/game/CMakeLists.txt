@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -17,6 +17,9 @@ CollectSourceFiles(
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/gamePCH.h)
   set(PRIVATE_PCH_SOURCE PrecompiledHeaders/gamePCH.cpp)
+  if (MSVC)
+    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/gamePCH.cpp)
+  endif (MSVC)
 endif ()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -43,7 +46,6 @@ target_link_libraries(game-interface
     Detour)
 
 add_library(game
-  ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES})
 
 target_include_directories(game

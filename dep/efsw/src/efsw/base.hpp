@@ -38,7 +38,12 @@ typedef SOPHIST_uint64		Uint64;
 	#if ( defined( _MSCVER ) || defined( _MSC_VER ) )
 		#define EFSW_COMPILER_MSVC
 	#endif
-
+	
+	/// Force windows target version above or equal to Windows Server 2008 or Windows Vista
+	#if _WIN32_WINNT < 0x600
+	#undef _WIN32_WINNT
+	#define _WIN32_WINNT 0x600
+	#endif
 #elif defined( __FreeBSD__ ) || defined(__OpenBSD__) || defined( __NetBSD__ ) || defined( __DragonFly__ )
 	#define EFSW_OS EFSW_OS_BSD
 	#define EFSW_PLATFORM EFSW_PLATFORM_KQUEUE

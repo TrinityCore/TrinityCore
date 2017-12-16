@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,15 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "ArenaTeam.h"
-#include "SocialMgr.h"
 #include "ArenaTeamMgr.h"
-#include "Opcodes.h"
+#include "CharacterCache.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "SocialMgr.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket& recvData)
 {
@@ -87,7 +90,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
     uint32 arenaTeamId;                                     // arena team id
     std::string invitedName;
 
-    Player* player = NULL;
+    Player* player = nullptr;
 
     recvData >> arenaTeamId >> invitedName;
 
@@ -125,7 +128,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
     }
 
     // OK result but don't send invite
-    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID().GetCounter()))
+    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
         return;
 
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && player->GetTeam() != GetPlayer()->GetTeam())
@@ -159,7 +162,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
     WorldPacket data(SMSG_ARENA_TEAM_INVITE, (8+10));
     data << GetPlayer()->GetName();
     data << arenaTeam->GetName();
-    player->GetSession()->SendPacket(&data);
+    player->SendDirectMessage(&data);
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ARENA_TEAM_INVITE");
 }
@@ -180,7 +183,7 @@ void WorldSession::HandleArenaTeamAcceptOpcode(WorldPacket & /*recvData*/)
     }
 
     // Only allow members of the other faction to join the team if cross faction interaction is enabled
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && _player->GetTeam() != sObjectMgr->GetPlayerTeamByGUID(arenaTeam->GetCaptain()))
+    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && _player->GetTeam() != sCharacterCache->GetCharacterTeamByGuid(arenaTeam->GetCaptain()))
     {
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
         return;

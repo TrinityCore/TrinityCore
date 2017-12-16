@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,16 @@
  */
 
 #include "PlayerAI.h"
+#include "Creature.h"
+#include "Item.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
 
 static const uint8 NUM_TALENT_TREES = 3;
 static const uint8 NUM_SPEC_ICONICS = 3;
@@ -496,6 +504,20 @@ static const uint32 SPEC_ICONICS[MAX_CLASSES][NUM_TALENT_TREES][NUM_SPEC_ICONICS
     }
 };
 
+PlayerAI::PlayerAI(Player* player) : UnitAI(player), me(player),
+    _selfSpec(PlayerAI::GetPlayerSpec(player)),
+    _isSelfHealer(PlayerAI::IsPlayerHealer(player)),
+    _isSelfRangedAttacker(PlayerAI::IsPlayerRangedAttacker(player))
+{
+}
+
+Creature* PlayerAI::GetCharmer() const
+{
+    if (me->GetCharmerGUID().IsCreature())
+        return ObjectAccessor::GetCreature(*me, me->GetCharmerGUID());
+    return nullptr;
+}
+
 uint8 PlayerAI::GetPlayerSpec(Player const* who)
 {
     if (!who)
@@ -664,6 +686,13 @@ PlayerAI::TargetedSpell PlayerAI::SelectSpellCast(PossibleSpellVector& spells)
     return selected;
 }
 
+void PlayerAI::DoCastAtTarget(TargetedSpell spell)
+{
+    SpellCastTargets targets;
+    targets.SetUnitTarget(spell.second);
+    spell.first->prepare(&targets);
+}
+
 void PlayerAI::DoRangedAttackIfReady()
 {
     if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -735,17 +764,35 @@ void PlayerAI::CancelAllShapeshifts()
         me->RemoveOwnedAura(aura, AURA_REMOVE_BY_CANCEL);
 }
 
-struct UncontrolledTargetSelectPredicate : public std::unary_function<Unit*, bool>
+Unit* PlayerAI::SelectAttackTarget() const
 {
+    return me->GetCharmer() ? me->GetCharmer()->GetVictim() : nullptr;
+}
+
+struct ValidTargetSelectPredicate
+{
+    ValidTargetSelectPredicate(UnitAI const* ai) : _ai(ai) { }
+    UnitAI const* const _ai;
     bool operator()(Unit const* target) const
     {
-        return !target->HasBreakableByDamageCrowdControlAura();
+        return _ai->CanAIAttack(target);
     }
 };
+
+bool SimpleCharmedPlayerAI::CanAIAttack(Unit const* who) const
+{
+    if (!me->IsValidAttackTarget(who) || who->HasBreakableByDamageCrowdControlAura())
+        return false;
+    if (Unit* charmer = me->GetCharmer())
+        if (!charmer->IsValidAttackTarget(who))
+            return false;
+    return UnitAI::CanAIAttack(who);
+}
+
 Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
 {
     if (Unit* charmer = me->GetCharmer())
-        return charmer->IsAIEnabled ? charmer->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, UncontrolledTargetSelectPredicate()) : charmer->GetVictim();
+        return charmer->IsAIEnabled ? charmer->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, ValidTargetSelectPredicate(this)) : charmer->GetVictim();
     return nullptr;
 }
 
@@ -920,7 +967,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                 if (victim->HasUnitState(UNIT_STATE_CASTING))
                     VerifyAndPushSpellCast(spells, SPELL_KICK, TARGET_VICTIM, 25);
 
-                uint8 const cp = (me->GetComboTarget() == victim->GetGUID()) ? me->GetComboPoints() : 0;
+                uint8 const cp = me->GetComboPoints(victim);
                 if (cp >= 4)
                     VerifyAndPushSpellCast(spells, finisher, TARGET_VICTIM, 10);
                 if (cp <= 4)
@@ -1232,7 +1279,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     VerifyAndPushSpellCast(spells, SPELL_DASH, TARGET_NONE, 5);
                     if (Unit* victim = me->GetVictim())
                     {
-                        uint8 const cp = (me->GetComboTarget() == victim->GetGUID()) ? me->GetComboPoints() : 0;
+                        uint8 const cp = me->GetComboPoints(victim);
                         if (victim->HasUnitState(UNIT_STATE_CASTING) && cp >= 1)
                             VerifyAndPushSpellCast(spells, SPELL_MAIM, TARGET_VICTIM, 25);
                         if (!me->IsWithinMeleeRange(victim))
@@ -1269,21 +1316,35 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
     {
         Player::AuraEffectList const& auras = me->GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
         for (Player::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
+        {
             if ((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
             {
                 me->KillSelf();
                 return;
             }
+        }
     }
 
-    if (charmer->IsInCombat())
+    if (charmer->IsEngaged())
     {
         Unit* target = me->GetVictim();
-        if (!target || !charmer->IsValidAttackTarget(target) || target->HasBreakableByDamageCrowdControlAura())
+        if (!target || !CanAIAttack(target))
         {
             target = SelectAttackTarget();
-            if (!target)
+            if (!target || !CanAIAttack(target))
+            {
+                if (!_isFollowing)
+                {
+                    _isFollowing = true;
+                    me->AttackStop();
+                    me->CastStop();
+                    me->StopMoving();
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                }
                 return;
+            }
+            _isFollowing = false;
 
             if (IsRangedAttacker())
             {
@@ -1336,8 +1397,9 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
 
         DoAutoAttackIfReady();
     }
-    else
+    else if (!_isFollowing)
     {
+        _isFollowing = true;
         me->AttackStop();
         me->CastStop();
         me->StopMoving();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "gnomeregan.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
 
 #define    MAX_ENCOUNTER  1
@@ -25,7 +29,7 @@
 class instance_gnomeregan : public InstanceMapScript
 {
 public:
-    instance_gnomeregan() : InstanceMapScript("instance_gnomeregan", 90) { }
+    instance_gnomeregan() : InstanceMapScript(GNOScriptName, 90) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -47,7 +51,7 @@ public:
 
         ObjectGuid uiBastmasterEmiShortfuseGUID;
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {

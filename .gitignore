@@ -20,3 +20,5 @@ nbproject/*
 .idea/*
 .browse.VC*
 .vscode
+cmake-build-*/
+.vs

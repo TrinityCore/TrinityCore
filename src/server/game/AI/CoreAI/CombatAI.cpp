@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,21 +17,26 @@
  */
 
 #include "CombatAI.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "Vehicle.h"
+#include "ConditionMgr.h"
+#include "Creature.h"
+#include "CreatureAIImpl.h"
+#include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "Vehicle.h"
 
 /////////////////
 // AggressorAI
 /////////////////
 
-int AggressorAI::Permissible(const Creature* creature)
+int32 AggressorAI::Permissible(Creature const* creature)
 {
     // have some hostile factions, it will be selected by IsHostileTo check at MoveInLineOfSight
     if (!creature->IsCivilian() && !creature->IsNeutralToAll())
-        return PERMIT_BASE_PROACTIVE;
+        return PERMIT_BASE_REACTIVE;
 
     return PERMIT_BASE_NO;
 }
@@ -232,7 +237,7 @@ TurretAI::TurretAI(Creature* c) : CreatureAI(c)
     me->m_SightDistance = me->m_CombatDistance;
 }
 
-bool TurretAI::CanAIAttack(const Unit* /*who*/) const
+bool TurretAI::CanAIAttack(Unit const* /*who*/) const
 {
     /// @todo use one function to replace it
     if (!me->IsWithinCombatRange(me->GetVictim(), me->m_CombatDistance)
@@ -302,26 +307,37 @@ void VehicleAI::LoadConditions()
 
 void VehicleAI::CheckConditions(uint32 diff)
 {
-    if (m_ConditionsTimer < diff)
+    if (!m_HasConditions)
+        return;
+
+    if (m_ConditionsTimer <= diff)
     {
-        if (m_HasConditions)
+        if (Vehicle* vehicleKit = me->GetVehicleKit())
         {
-            if (Vehicle* vehicleKit = me->GetVehicleKit())
-                for (SeatMap::iterator itr = vehicleKit->Seats.begin(); itr != vehicleKit->Seats.end(); ++itr)
-                    if (Unit* passenger = ObjectAccessor::GetUnit(*me, itr->second.Passenger.Guid))
+            for (SeatMap::iterator itr = vehicleKit->Seats.begin(); itr != vehicleKit->Seats.end(); ++itr)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*me, itr->second.Passenger.Guid))
+                {
+                    if (Player* player = passenger->ToPlayer())
                     {
-                        if (Player* player = passenger->ToPlayer())
+                        if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry(), player, me))
                         {
-                            if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry(), player, me))
-                            {
-                                player->ExitVehicle();
-                                return; // check other pessanger in next tick
-                            }
+                            player->ExitVehicle();
+                            return; // check other pessanger in next tick
                         }
                     }
+                }
         }
+
         m_ConditionsTimer = VEHICLE_CONDITION_CHECK_TIME;
     }
     else
         m_ConditionsTimer -= diff;
+}
+
+int32 VehicleAI::Permissible(Creature const* creature)
+{
+    if (creature->IsVehicle())
+        return PERMIT_BASE_SPECIAL;
+
+    return PERMIT_BASE_NO;
 }

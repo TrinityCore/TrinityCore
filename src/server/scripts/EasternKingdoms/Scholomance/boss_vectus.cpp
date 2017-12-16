@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "scholomance.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
@@ -112,7 +113,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_vectusAI(creature);
+        return GetScholomanceAI<boss_vectusAI>(creature);
     }
 };
 

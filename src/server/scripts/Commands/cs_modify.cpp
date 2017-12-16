@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,14 +22,17 @@ Comment: All modify related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
+#include "DBCStores.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
+#include "RBAC.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
-
+#include "WorldSession.h"
 
 class modify_commandscript : public CommandScript
 {
@@ -65,7 +68,7 @@ public:
             { "reputation",   rbac::RBAC_PERM_COMMAND_MODIFY_REPUTATION,   false, &HandleModifyRepCommand,           "" },
             { "runicpower",   rbac::RBAC_PERM_COMMAND_MODIFY_RUNICPOWER,   false, &HandleModifyRunicPowerCommand,    "" },
             { "scale",        rbac::RBAC_PERM_COMMAND_MODIFY_SCALE,        false, &HandleModifyScaleCommand,         "" },
-            { "speed",        rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,        false, NULL,           "", modifyspeedCommandTable },
+            { "speed",        rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,        false, nullptr,           "", modifyspeedCommandTable },
             { "spell",        rbac::RBAC_PERM_COMMAND_MODIFY_SPELL,        false, &HandleModifySpellCommand,         "" },
             { "standstate",   rbac::RBAC_PERM_COMMAND_MODIFY_STANDSTATE,   false, &HandleModifyStandStateCommand,    "" },
             { "talentpoints", rbac::RBAC_PERM_COMMAND_MODIFY_TALENTPOINTS, false, &HandleModifyTalentCommand,        "" },
@@ -75,7 +78,7 @@ public:
         {
             { "morph",   rbac::RBAC_PERM_COMMAND_MORPH,   false, &HandleModifyMorphCommand,          "" },
             { "demorph", rbac::RBAC_PERM_COMMAND_DEMORPH, false, &HandleDeMorphCommand,              "" },
-            { "modify",  rbac::RBAC_PERM_COMMAND_MODIFY,  false, NULL,                 "", modifyCommandTable },
+            { "modify",  rbac::RBAC_PERM_COMMAND_MODIFY,  false, nullptr,                 "", modifyCommandTable },
         };
         return commandTable;
     }
@@ -91,7 +94,7 @@ public:
         }
     }
 
-    static bool CheckModifyResources(ChatHandler* handler, const char* args, Player* target, int32& res, int32& resmax, int8 const multiplier = 1)
+    static bool CheckModifyResources(ChatHandler* handler, char const* args, Player* target, int32& res, int32& resmax, int8 const multiplier = 1)
     {
         if (!*args)
             return false;
@@ -120,7 +123,7 @@ public:
     }
 
     //Edit Player HP
-    static bool HandleModifyHPCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyHPCommand(ChatHandler* handler, char const* args)
     {
         int32 hp, hpmax;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -135,7 +138,7 @@ public:
     }
 
     //Edit Player Mana
-    static bool HandleModifyManaCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyManaCommand(ChatHandler* handler, char const* args)
     {
         int32 mana, manamax;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -151,7 +154,7 @@ public:
     }
 
     //Edit Player Energy
-    static bool HandleModifyEnergyCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyEnergyCommand(ChatHandler* handler, char const* args)
     {
         int32 energy, energymax;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -168,7 +171,7 @@ public:
     }
 
     //Edit Player Rage
-    static bool HandleModifyRageCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyRageCommand(ChatHandler* handler, char const* args)
     {
         int32 rage, ragemax;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -184,7 +187,7 @@ public:
     }
 
     // Edit Player Runic Power
-    static bool HandleModifyRunicPowerCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyRunicPowerCommand(ChatHandler* handler, char const* args)
     {
         int32 rune, runemax;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -200,7 +203,7 @@ public:
     }
 
     //Edit Player Faction
-    static bool HandleModifyFactionCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyFactionCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -217,7 +220,7 @@ public:
 
         if (!pfactionid)
         {
-            uint32 factionid = target->getFaction();
+            uint32 factionid = target->GetFaction();
             uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
             uint32 npcflag   = target->GetUInt32Value(UNIT_NPC_FLAGS);
             uint32 dyflag    = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
@@ -228,13 +231,13 @@ public:
         uint32 factionid = atoi(pfactionid);
         uint32 flag;
 
-        char *pflag = strtok(NULL, " ");
+        char *pflag = strtok(nullptr, " ");
         if (!pflag)
             flag = target->GetUInt32Value(UNIT_FIELD_FLAGS);
         else
             flag = atoi(pflag);
 
-        char* pnpcflag = strtok(NULL, " ");
+        char* pnpcflag = strtok(nullptr, " ");
 
         uint32 npcflag;
         if (!pnpcflag)
@@ -242,7 +245,7 @@ public:
         else
             npcflag = atoi(pnpcflag);
 
-        char* pdyflag = strtok(NULL, " ");
+        char* pdyflag = strtok(nullptr, " ");
 
         uint32  dyflag;
         if (!pdyflag)
@@ -259,7 +262,7 @@ public:
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().GetCounter(), factionid, flag, npcflag, dyflag);
 
-        target->setFaction(factionid);
+        target->SetFaction(factionid);
         target->SetUInt32Value(UNIT_FIELD_FLAGS, flag);
         target->SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
         target->SetUInt32Value(UNIT_DYNAMIC_FLAGS, dyflag);
@@ -268,7 +271,7 @@ public:
     }
 
     //Edit Player Spell
-    static bool HandleModifySpellCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifySpellCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -277,17 +280,17 @@ public:
         if (!pspellflatid)
             return false;
 
-        char* pop = strtok(NULL, " ");
+        char* pop = strtok(nullptr, " ");
         if (!pop)
             return false;
 
-        char* pval = strtok(NULL, " ");
+        char* pval = strtok(nullptr, " ");
         if (!pval)
             return false;
 
         uint16 mark;
 
-        char* pmark = strtok(NULL, " ");
+        char* pmark = strtok(nullptr, " ");
 
         uint8 spellflatid = atoi(pspellflatid);
         uint8 op   = atoi(pop);
@@ -298,7 +301,7 @@ public:
             mark = atoi(pmark);
 
         Player* target = handler->getSelectedPlayerOrSelf();
-        if (target == NULL)
+        if (target == nullptr)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
             handler->SetSentErrorMessage(true);
@@ -318,13 +321,13 @@ public:
         data << uint8(op);
         data << uint16(val);
         data << uint16(mark);
-        target->GetSession()->SendPacket(&data);
+        target->SendDirectMessage(&data);
 
         return true;
     }
 
     //Edit Player TP
-    static bool HandleModifyTalentCommand (ChatHandler* handler, const char* args)
+    static bool HandleModifyTalentCommand (ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -369,7 +372,7 @@ public:
         return false;
     }
 
-    static bool CheckModifySpeed(ChatHandler* handler, const char* args, Unit* target, float& speed, float minimumBound, float maximumBound, bool checkInFlight = true)
+    static bool CheckModifySpeed(ChatHandler* handler, char const* args, Unit* target, float& speed, float minimumBound, float maximumBound, bool checkInFlight = true)
     {
         if (!*args)
             return false;
@@ -407,7 +410,7 @@ public:
     }
 
     //Edit Player Aspeed
-    static bool HandleModifyASpeedCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyASpeedCommand(ChatHandler* handler, char const* args)
     {
         float allSpeed;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -424,7 +427,7 @@ public:
     }
 
     //Edit Player Speed
-    static bool HandleModifySpeedCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifySpeedCommand(ChatHandler* handler, char const* args)
     {
         float Speed;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -438,7 +441,7 @@ public:
     }
 
     //Edit Player Swim Speed
-    static bool HandleModifySwimCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifySwimCommand(ChatHandler* handler, char const* args)
     {
         float swimSpeed;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -452,7 +455,7 @@ public:
     }
 
     //Edit Player Backwards Walk Speed
-    static bool HandleModifyBWalkCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyBWalkCommand(ChatHandler* handler, char const* args)
     {
         float backSpeed;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -466,7 +469,7 @@ public:
     }
 
     //Edit Player Fly
-    static bool HandleModifyFlyCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyFlyCommand(ChatHandler* handler, char const* args)
     {
         float flySpeed;
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -480,7 +483,7 @@ public:
     }
 
     //Edit Player or Creature Scale
-    static bool HandleModifyScaleCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyScaleCommand(ChatHandler* handler, char const* args)
     {
         float Scale;
         Unit* target = handler->getSelectedUnit();
@@ -494,7 +497,7 @@ public:
     }
 
     //Enable Player mount
-    static bool HandleModifyMountCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyMountCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -753,7 +756,7 @@ public:
     }
 
     //Edit Player money
-    static bool HandleModifyMoneyCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyMoneyCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -817,7 +820,7 @@ public:
     }
 
     //Edit Unit field
-    static bool HandleModifyBitCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyBitCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -838,7 +841,7 @@ public:
         if (!pField)
             return false;
 
-        char* pBit = strtok(NULL, " ");
+        char* pBit = strtok(nullptr, " ");
         if (!pBit)
             return false;
 
@@ -871,7 +874,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyHonorCommand (ChatHandler* handler, const char* args)
+    static bool HandleModifyHonorCommand (ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -897,7 +900,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyDrunkCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyDrunkCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -912,7 +915,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyRepCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyRepCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -936,7 +939,7 @@ public:
         uint32 factionId = atoi(factionTxt);
 
         int32 amount = 0;
-        char *rankTxt = strtok(NULL, " ");
+        char *rankTxt = strtok(nullptr, " ");
         if (!factionId || !rankTxt)
             return false;
 
@@ -965,7 +968,7 @@ public:
 
                 if (wrank.substr(0, wrankStr.size()) == wrankStr)
                 {
-                    char *deltaTxt = strtok(NULL, " ");
+                    char *deltaTxt = strtok(nullptr, " ");
                     if (deltaTxt)
                     {
                         int32 delta = atoi(deltaTxt);
@@ -1013,12 +1016,12 @@ public:
     }
 
     //morph creature or player
-    static bool HandleModifyMorphCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyMorphCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
 
-        uint16 display_id = (uint16)atoi((char*)args);
+        uint32 display_id = (uint32)atoi((char*)args);
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -1034,7 +1037,7 @@ public:
     }
 
     //set temporary phase mask for player
-    static bool HandleModifyPhaseCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyPhaseCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1055,7 +1058,7 @@ public:
     }
 
     //change standstate
-    static bool HandleModifyStandStateCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyStandStateCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1066,7 +1069,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyArenaCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyArenaCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1088,7 +1091,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyGenderCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyGenderCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1149,7 +1152,7 @@ public:
         return true;
     }
 //demorph player or unit
-    static bool HandleDeMorphCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleDeMorphCommand(ChatHandler* handler, char const* /*args*/)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -1165,7 +1168,7 @@ public:
     }
 
     // mod xp command
-    static bool HandleModifyXPCommand(ChatHandler *handler, const char* args)
+    static bool HandleModifyXPCommand(ChatHandler *handler, char const* args)
     {
         if (!*args)
             return false;

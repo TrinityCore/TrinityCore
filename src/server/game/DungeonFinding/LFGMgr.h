@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,16 +18,20 @@
 #ifndef _LFGMGR_H
 #define _LFGMGR_H
 
-#include "DBCStructure.h"
-#include "Field.h"
+#include "Common.h"
+#include "DatabaseEnvFwd.h"
 #include "LFG.h"
 #include "LFGQueue.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
+#include <unordered_map>
 
 class Group;
 class Player;
 class Quest;
+class Map;
+struct LFGDungeonEntry;
+enum Difficulty : uint8;
 
 namespace lfg
 {
@@ -264,14 +268,8 @@ struct LfgPlayerBoot
 
 struct LFGDungeonData
 {
-    LFGDungeonData(): id(0), name(""), map(0), type(0), expansion(0), group(0), minlevel(0),
-        maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
-        { }
-    LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name[0]), map(dbc->map),
-        type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
-        minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
-        seasonal((dbc->flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
-        { }
+    LFGDungeonData();
+    LFGDungeonData(LFGDungeonEntry const* dbc);
 
     uint32 id;
     std::string name;
@@ -303,7 +301,7 @@ class TC_GAME_API LFGMgr
 
         // World.cpp
         /// Finish the dungeon for the given group. All check are performed using internal lfg data
-        void FinishDungeon(ObjectGuid gguid, uint32 dungeonId);
+        void FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map const* currMap);
         /// Loads rewards for random dungeons
         void LoadRewards();
         /// Loads dungeons from dbc and adds teleport coords

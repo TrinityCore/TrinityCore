@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,15 +22,20 @@ Comment: All lookup related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "GameEventMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "World.h"
+#include "WorldSession.h"
 
 class lookup_commandscript : public CommandScript
 {
@@ -62,9 +67,9 @@ public:
             { "itemset",  rbac::RBAC_PERM_COMMAND_LOOKUP_ITEMSET,  true, &HandleLookupItemSetCommand,  "" },
             { "object",   rbac::RBAC_PERM_COMMAND_LOOKUP_OBJECT,   true, &HandleLookupObjectCommand,   "" },
             { "quest",    rbac::RBAC_PERM_COMMAND_LOOKUP_QUEST,    true, &HandleLookupQuestCommand,    "" },
-            { "player",   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER,   true, NULL,                         "", lookupPlayerCommandTable },
+            { "player",   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER,   true, nullptr,                         "", lookupPlayerCommandTable },
             { "skill",    rbac::RBAC_PERM_COMMAND_LOOKUP_SKILL,    true, &HandleLookupSkillCommand,    "" },
-            { "spell",    rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, NULL,                         "", lookupSpellCommandTable },
+            { "spell",    rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, nullptr,                         "", lookupSpellCommandTable },
             { "taxinode", rbac::RBAC_PERM_COMMAND_LOOKUP_TAXINODE, true, &HandleLookupTaxiNodeCommand, "" },
             { "tele",     rbac::RBAC_PERM_COMMAND_LOOKUP_TELE,     true, &HandleLookupTeleCommand,     "" },
             { "title",    rbac::RBAC_PERM_COMMAND_LOOKUP_TITLE,    true, &HandleLookupTitleCommand,    "" },
@@ -73,7 +78,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "lookup", rbac::RBAC_PERM_COMMAND_LOOKUP,  true, NULL, "", lookupCommandTable },
+            { "lookup", rbac::RBAC_PERM_COMMAND_LOOKUP,  true, nullptr, "", lookupCommandTable },
         };
         return commandTable;
     }
@@ -312,7 +317,7 @@ public:
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(id);
             if (factionEntry)
             {
-                FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;
+                FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : nullptr;
 
                 int locale = handler->GetSessionDbcLocale();
                 std::string name = factionEntry->name[locale];
@@ -858,7 +863,7 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in Spell.dbc
-        for (uint32 id = 0; id < sSpellMgr->GetSpellInfoStoreSize(); id++)
+        for (uint32 id = 0; id < sSpellMgr->GetSpellInfoStoreSize(); ++id)
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
             if (spellInfo)
@@ -1323,7 +1328,7 @@ public:
         else
         {
             ip = strtok((char*)args, " ");
-            limitStr = strtok(NULL, " ");
+            limitStr = strtok(nullptr, " ");
             limit = limitStr ? atoi(limitStr) : -1;
         }
 
@@ -1340,7 +1345,7 @@ public:
             return false;
 
         std::string account = strtok((char*)args, " ");
-        char* limitStr = strtok(NULL, " ");
+        char* limitStr = strtok(nullptr, " ");
         int32 limit = limitStr ? atoi(limitStr) : -1;
 
         if (!Utf8ToUpperOnlyLatin
@@ -1360,7 +1365,7 @@ public:
             return false;
 
         std::string email = strtok((char*)args, " ");
-        char* limitStr = strtok(NULL, " ");
+        char* limitStr = strtok(nullptr, " ");
         int32 limit = limitStr ? atoi(limitStr) : -1;
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL);

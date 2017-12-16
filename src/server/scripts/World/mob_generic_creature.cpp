@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,8 +17,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
 #include "PassiveAI.h"
+#include "SpellMgr.h"
 
 class trigger_periodic : public CreatureScript
 {
@@ -29,13 +30,13 @@ public:
     {
         trigger_periodicAI(Creature* creature) : NullCreatureAI(creature)
         {
-            spell = me->m_spells[0] ? sSpellMgr->GetSpellInfo(me->m_spells[0]) : NULL;
+            spell = me->m_spells[0] ? sSpellMgr->GetSpellInfo(me->m_spells[0]) : nullptr;
             interval = me->GetAttackTime(BASE_ATTACK);
             timer = interval;
         }
 
         uint32 timer, interval;
-        const SpellInfo* spell;
+        SpellInfo const* spell;
 
         void UpdateAI(uint32 diff) override
         {

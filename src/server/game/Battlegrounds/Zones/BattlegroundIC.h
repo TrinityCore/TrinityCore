@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -903,12 +903,7 @@ struct BattlegroundICScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
-        {
-            data << uint32(2); // Objectives Count
-            data << uint32(BasesAssaulted);
-            data << uint32(BasesDefended);
-        }
+        void BuildObjectivesBlock(WorldPacket& data) final override;
 
         uint32 GetAttr1() const final override { return BasesAssaulted; }
         uint32 GetAttr2() const final override { return BasesDefended; }
@@ -940,7 +935,7 @@ class BattlegroundIC : public Battleground
 
         void DestroyGate(Player* player, GameObject* go) override;
 
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
         /* Scorekeeping */
         void FillInitialWorldStates(WorldPacket& data) override;

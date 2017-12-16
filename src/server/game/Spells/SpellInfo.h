@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,7 +42,7 @@ struct SpellEntry;
 struct SpellCastTimesEntry;
 struct Condition;
 
-enum SpellCastTargetFlags
+enum SpellCastTargetFlags : uint32
 {
     TARGET_FLAG_NONE            = 0x00000000,
     TARGET_FLAG_UNUSED_1        = 0x00000001,               // not used
@@ -81,7 +81,8 @@ enum SpellTargetSelectionCategories
     TARGET_SELECT_CATEGORY_CHANNEL,
     TARGET_SELECT_CATEGORY_NEARBY,
     TARGET_SELECT_CATEGORY_CONE,
-    TARGET_SELECT_CATEGORY_AREA
+    TARGET_SELECT_CATEGORY_AREA,
+    TARGET_SELECT_CATEGORY_TRAJ
 };
 
 enum SpellTargetReferenceTypes
@@ -94,7 +95,7 @@ enum SpellTargetReferenceTypes
     TARGET_REFERENCE_TYPE_DEST
 };
 
-enum SpellTargetObjectTypes
+enum SpellTargetObjectTypes : uint8
 {
     TARGET_OBJECT_TYPE_NONE = 0,
     TARGET_OBJECT_TYPE_SRC,
@@ -110,7 +111,7 @@ enum SpellTargetObjectTypes
     TARGET_OBJECT_TYPE_CORPSE_ALLY
 };
 
-enum SpellTargetCheckTypes
+enum SpellTargetCheckTypes : uint8
 {
     TARGET_CHECK_DEFAULT,
     TARGET_CHECK_ENTRY,
@@ -179,6 +180,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_CONE_LINE                     = 0x00000004,
     SPELL_ATTR0_CU_SHARE_DAMAGE                  = 0x00000008,
     SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
+    SPELL_ATTR0_CU_AURA_CC                       = 0x00000020,
     SPELL_ATTR0_CU_DONT_BREAK_STEALTH            = 0x00000040,
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
@@ -191,6 +193,8 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
     SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET         = 0x00040000,
     SPELL_ATTR0_CU_NEEDS_AMMO_DATA               = 0x00080000,
+    SPELL_ATTR0_CU_BINARY_SPELL                  = 0x00100000,
+    SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC  = 0x00200000,
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
 };
@@ -255,10 +259,10 @@ public:
     flag96    SpellClassMask;
     std::vector<Condition*>* ImplicitTargetConditions;
 
-    SpellEffectInfo() : _spellInfo(NULL), _effIndex(0), Effect(0), ApplyAuraName(0), Amplitude(0), DieSides(0),
+    SpellEffectInfo() : _spellInfo(nullptr), _effIndex(0), Effect(0), ApplyAuraName(0), Amplitude(0), DieSides(0),
                         RealPointsPerLevel(0), BasePoints(0), PointsPerComboPoint(0), ValueMultiplier(0), DamageMultiplier(0),
-                        BonusMultiplier(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(NULL), ChainTarget(0),
-                        ItemType(0), TriggerSpell(0), ImplicitTargetConditions(NULL) {}
+                        BonusMultiplier(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(nullptr), ChainTarget(0),
+                        ItemType(0), TriggerSpell(0), ImplicitTargetConditions(nullptr) {}
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex);
 
     bool IsEffect() const;
@@ -271,13 +275,13 @@ public:
     bool IsFarDestTargetEffect() const;
     bool IsUnitOwnedAuraEffect() const;
 
-    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL) const;
+    int32 CalcValue(Unit const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr) const;
     int32 CalcBaseValue(int32 value) const;
-    float CalcValueMultiplier(Unit* caster, Spell* spell = NULL) const;
-    float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
+    float CalcValueMultiplier(Unit* caster, Spell* spell = nullptr) const;
+    float CalcDamageMultiplier(Unit* caster, Spell* spell = nullptr) const;
 
     bool HasRadius() const;
-    float CalcRadius(Unit* caster = NULL, Spell* = NULL) const;
+    float CalcRadius(Unit* caster = nullptr, Spell* = nullptr) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
@@ -402,6 +406,7 @@ class TC_GAME_API SpellInfo
         bool HasEffect(SpellEffects effect) const;
         bool HasAura(AuraType aura) const;
         bool HasAreaAuraEffect() const;
+        bool HasOnlyDamageEffects() const;
 
         inline bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
         inline bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }
@@ -427,6 +432,7 @@ class TC_GAME_API SpellInfo
         bool IsTargetingArea() const;
         bool NeedsExplicitUnitTarget() const;
         bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
+        bool IsSelfCast() const;
 
         bool IsPassive() const;
         bool IsAutocastable() const;
@@ -451,6 +457,10 @@ class TC_GAME_API SpellInfo
         bool IsAutoRepeatRangedSpell() const;
         bool HasInitialAggro() const;
 
+        WeaponAttackType GetAttackType() const;
+
+        bool IsItemFitToSpellRequirements(Item const* item) const;
+
         bool IsAffected(uint32 familyName, flag96 const& familyFlags) const;
 
         bool IsAffectedBySpellMods() const;
@@ -464,9 +474,9 @@ class TC_GAME_API SpellInfo
         bool IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInfo) const;
 
         SpellCastResult CheckShapeshift(uint32 form) const;
-        SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL) const;
+        SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = nullptr, bool strict = true) const;
         SpellCastResult CheckTarget(Unit const* caster, WorldObject const* target, bool implicit = true) const;
-        SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = NULL) const;
+        SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = nullptr) const;
         SpellCastResult CheckVehicle(Unit const* caster) const;
         bool CheckTargetCreatureType(Unit const* target) const;
 
@@ -484,17 +494,17 @@ class TC_GAME_API SpellInfo
         SpellSpecificType GetSpellSpecific() const;
 
         float GetMinRange(bool positive = false) const;
-        float GetMaxRange(bool positive = false, Unit* caster = NULL, Spell* spell = NULL) const;
+        float GetMaxRange(bool positive = false, Unit* caster = nullptr, Spell* spell = nullptr) const;
 
         int32 GetDuration() const;
         int32 GetMaxDuration() const;
 
         uint32 GetMaxTicks() const;
 
-        uint32 CalcCastTime(Spell* spell = NULL) const;
+        uint32 CalcCastTime(Spell* spell = nullptr) const;
         uint32 GetRecoveryTime() const;
 
-        int32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
+        int32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
 
         bool IsRanked() const;
         uint8 GetRank() const;
@@ -516,7 +526,9 @@ class TC_GAME_API SpellInfo
         // spell immunities
         void ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool apply) const;
         bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
-        bool CanSpellCastOverrideAuraEffect(SpellInfo const* auraSpellInfo, uint8 auraEffIndex) const;
+        bool SpellCancelsAuraEffect(SpellInfo const* auraSpellInfo, uint8 auraEffIndex) const;
+
+        uint32 GetAllowedMechanicMask() const;
 
     private:
         // loading helpers
@@ -537,6 +549,8 @@ class TC_GAME_API SpellInfo
 
         SpellDiminishInfo _diminishInfoNonTriggered;
         SpellDiminishInfo _diminishInfoTriggered;
+
+        uint32 _allowedMechanicMask;
 
         ImmunityInfo _immunityInfo[MAX_SPELL_EFFECTS];
 };

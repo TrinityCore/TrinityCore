@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "scholomance.h"
-#include "MoveSplineInit.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "scholomance.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -98,9 +102,9 @@ class boss_kirtonos_the_herald : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_KIRTONOS)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_KIRTONOS)))
                     gate->SetGoState(GO_STATE_ACTIVE);
-                if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
+                if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
                 {
                     brazier->ResetDoorOrButton();
                     brazier->SetGoState(GO_STATE_READY);
@@ -110,9 +114,9 @@ class boss_kirtonos_the_herald : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_KIRTONOS)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_KIRTONOS)))
                     gate->SetGoState(GO_STATE_ACTIVE);
-                if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
+                if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
                 {
                     brazier->ResetDoorOrButton();
                     brazier->SetGoState(GO_STATE_READY);
@@ -137,9 +141,7 @@ class boss_kirtonos_the_herald : public CreatureScript
             void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == WAYPOINT_MOTION_TYPE && id == POINT_KIRTONOS_LAND)
-                {
                     events.ScheduleEvent(INTRO_2, 1500);
-                }
             }
 
             void UpdateAI(uint32 diff) override
@@ -160,13 +162,13 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 events.ScheduleEvent(INTRO_3, 1000);
                                 break;
                             case INTRO_3:
-                                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_KIRTONOS)))
+                                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_KIRTONOS)))
                                     gate->SetGoState(GO_STATE_READY);
                                 me->SetFacingTo(0.01745329f);
                                 events.ScheduleEvent(INTRO_4, 3000);
                                 break;
                             case INTRO_4:
-                                if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
+                                if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
                                     brazier->SetGoState(GO_STATE_READY);
                                 me->SetWalk(true);
                                 me->SetDisableGravity(false);
@@ -256,7 +258,7 @@ class boss_kirtonos_the_herald : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_kirtonos_the_heraldAI>(creature);
+            return GetScholomanceAI<boss_kirtonos_the_heraldAI>(creature);
         }
 };
 
@@ -280,12 +282,22 @@ class go_brazier_of_the_herald : public GameObjectScript
     public:
         go_brazier_of_the_herald() : GameObjectScript("go_brazier_of_the_herald") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_brazier_of_the_heraldAI : public GameObjectAI
         {
-            go->UseDoorOrButton();
-            go->PlayDirectSound(SOUND_SCREECH, 0);
-            player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
-            return true;
+            go_brazier_of_the_heraldAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player) override
+            {
+                me->UseDoorOrButton();
+                me->PlayDirectSound(SOUND_SCREECH, 0);
+                player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetScholomanceAI<go_brazier_of_the_heraldAI>(go);
         }
 };
 

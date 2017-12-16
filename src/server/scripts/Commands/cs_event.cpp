@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,11 +22,12 @@ Comment: All event related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "GameEventMgr.h"
 #include "Language.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 
 class event_commandscript : public CommandScript
 {
@@ -40,11 +41,11 @@ public:
             { "activelist", rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST, true, &HandleEventActiveListCommand, "" },
             { "start",      rbac::RBAC_PERM_COMMAND_EVENT_START,      true, &HandleEventStartCommand,      "" },
             { "stop",       rbac::RBAC_PERM_COMMAND_EVENT_STOP,       true, &HandleEventStopCommand,       "" },
-            { "",           rbac::RBAC_PERM_COMMAND_EVENT,            true, &HandleEventInfoCommand,       "" },
+            { "info",       rbac::RBAC_PERM_COMMAND_EVENT,            true, &HandleEventInfoCommand,       "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "event", rbac::RBAC_PERM_COMMAND_EVENT, false, NULL, "", eventCommandTable },
+            { "event", rbac::RBAC_PERM_COMMAND_EVENT, false, nullptr, "", eventCommandTable },
         };
         return commandTable;
     }
@@ -88,7 +89,7 @@ public:
         if (!id)
             return false;
 
-        uint32 eventId = atoi(id);
+        uint32 eventId = atoul(id);
 
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -115,8 +116,8 @@ public:
         std::string endTimeStr = TimeToTimestampStr(eventData.end);
 
         uint32 delay = sGameEventMgr->NextCheck(eventId);
-        time_t nextTime = time(NULL) + delay;
-        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(time(NULL) + delay) : "-";
+        time_t nextTime = time(nullptr) + delay;
+        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(time(nullptr) + delay) : "-";
 
         std::string occurenceStr = secsToTimeString(eventData.occurence * MINUTE);
         std::string lengthStr = secsToTimeString(eventData.length * MINUTE);
@@ -137,7 +138,7 @@ public:
         if (!id)
             return false;
 
-        int32 eventId = atoi(id);
+        uint32 eventId = atoul(id);
 
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -178,7 +179,7 @@ public:
         if (!id)
             return false;
 
-        int32 eventId = atoi(id);
+        uint32 eventId = atoul(id);
 
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 

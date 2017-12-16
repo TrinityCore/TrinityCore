@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,10 +31,10 @@ class BigNumber;
 class TC_COMMON_API HmacHash
 {
     public:
-        HmacHash(uint32 len, uint8 *seed);
+        HmacHash(uint32 len, uint8* seed);
         ~HmacHash();
-        void UpdateData(const std::string &str);
-        void UpdateData(const uint8* data, size_t len);
+        void UpdateData(std::string const& str);
+        void UpdateData(uint8 const* data, size_t len);
         void Finalize();
         uint8 *ComputeHash(BigNumber* bn);
         uint8 *GetDigest() { return (uint8*)m_digest; }
@@ -44,4 +44,3 @@ class TC_COMMON_API HmacHash
         uint8 m_digest[SHA_DIGEST_LENGTH];
 };
 #endif
-

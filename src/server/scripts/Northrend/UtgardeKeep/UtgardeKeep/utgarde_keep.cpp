@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
-#include "utgarde_keep.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "utgarde_keep.h"
 
 uint32 ForgeSearch[3] =
 {
@@ -130,9 +133,7 @@ class spell_ticking_time_bomb : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TICKING_TIME_BOMB_EXPLODE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TICKING_TIME_BOMB_EXPLODE });
             }
 
             void HandleOnEffectRemove(AuraEffect const* /* aurEff */, AuraEffectHandleModes /* mode */)
@@ -169,9 +170,7 @@ class spell_fixate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FIXATE_TRIGGER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FIXATE_TRIGGER });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -208,9 +207,7 @@ class spell_uk_second_wind : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SECOND_WIND_TRIGGER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SECOND_WIND_TRIGGER });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -222,11 +219,11 @@ class spell_uk_second_wind : public SpellScriptLoader
                 return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))) != 0;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
-                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, true);
+                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -286,7 +283,7 @@ class npc_enslaved_proto_drake : public CreatureScript
             {
                 if (type == WAYPOINT_MOTION_TYPE && id == POINT_LAST)
                 {
-                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 }
             }
 
@@ -295,7 +292,7 @@ class npc_enslaved_proto_drake : public CreatureScript
                 if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !_setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
                 {
                     _setData = true;
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                     me->GetMotionMaster()->MovePath(PATH_PROTODRAKE, false);
                 }
             }
@@ -342,7 +339,7 @@ class npc_enslaved_proto_drake : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_enslaved_proto_drakeAI(creature);
+            return GetUtgardeKeepAI<npc_enslaved_proto_drakeAI>(creature);
         }
 };
 

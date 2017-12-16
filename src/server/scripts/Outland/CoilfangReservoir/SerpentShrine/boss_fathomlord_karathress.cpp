@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,12 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "serpent_shrine.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedEscortAI.h"
+#include "serpent_shrine.h"
+#include "TemporarySummon.h"
 
 enum FathomlordKarathress
 {
@@ -104,7 +107,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_fathomlord_karathressAI>(creature);
+        return GetSerpentshrineCavernAI<boss_fathomlord_karathressAI>(creature);
     }
 
     struct boss_fathomlord_karathressAI : public ScriptedAI
@@ -303,7 +306,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_fathomguard_sharkkisAI>(creature);
+        return GetSerpentshrineCavernAI<boss_fathomguard_sharkkisAI>(creature);
     }
 
     struct boss_fathomguard_sharkkisAI : public ScriptedAI
@@ -341,7 +344,7 @@ public:
 
             Creature* Pet = ObjectAccessor::GetCreature(*me, SummonedPet);
             if (Pet && Pet->IsAlive())
-                Pet->DealDamage(Pet, Pet->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                Pet->DealDamage(Pet, Pet->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 
             SummonedPet.Clear();
 
@@ -447,7 +450,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_fathomguard_tidalvessAI>(creature);
+        return GetSerpentshrineCavernAI<boss_fathomguard_tidalvessAI>(creature);
     }
 
     struct boss_fathomguard_tidalvessAI : public ScriptedAI
@@ -569,7 +572,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_fathomguard_caribdisAI>(creature);
+        return GetSerpentshrineCavernAI<boss_fathomguard_caribdisAI>(creature);
     }
 
     struct boss_fathomguard_caribdisAI : public ScriptedAI
@@ -661,7 +664,7 @@ public:
                 {
                     Cyclone->SetObjectScale(3.0f);
                     Cyclone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    Cyclone->setFaction(me->getFaction());
+                    Cyclone->SetFaction(me->GetFaction());
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_CYCLONE, true);
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         Cyclone->AI()->AttackStart(target);
@@ -674,9 +677,9 @@ public:
             if (Heal_Timer <= diff)
             {
                 // It can be cast on any of the mobs
-                Unit* unit = NULL;
+                Unit* unit = nullptr;
 
-                while (unit == NULL || !unit->IsAlive())
+                while (unit == nullptr || !unit->IsAlive())
                     unit = selectAdvisorUnit();
 
                 if (unit && unit->IsAlive())
@@ -691,7 +694,7 @@ public:
 
         Unit* selectAdvisorUnit()
         {
-            Unit* unit = NULL;
+            Unit* unit = nullptr;
             switch (rand32() % 4)
             {
             case 0:

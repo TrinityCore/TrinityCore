@@ -192,7 +192,12 @@ bool FileInfo::isRegularFile()
 
 bool FileInfo::isReadable()
 {
+#if EFSW_PLATFORM != EFSW_PLATFORM_WIN32
+	static bool isRoot = getuid() == 0;
+	return isRoot || 0 != S_ISRDBL(Permissions);
+#else
 	return 0 != S_ISRDBL(Permissions);
+#endif
 }
 
 bool FileInfo::isLink()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,12 +23,14 @@ SDComment: Correct spawning and Event NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "molten_core.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "molten_core.h"
-#include "Player.h"
 
 enum Texts
 {
@@ -55,7 +57,6 @@ enum Spells
 enum Extras
 {
     OPTION_ID_YOU_CHALLENGED_US   = 0,
-    FACTION_FRIENDLY              = 35,
     MENU_OPTION_YOU_CHALLENGED_US = 4108
 };
 
@@ -109,8 +110,8 @@ class boss_majordomo : public CreatureScript
 
                     if (!me->FindNearestCreature(NPC_FLAMEWAKER_HEALER, 100.0f) && !me->FindNearestCreature(NPC_FLAMEWAKER_ELITE, 100.0f))
                     {
-                        instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, me->GetEntry(), me);
-                        me->setFaction(FACTION_FRIENDLY);
+                        instance->UpdateEncounterStateForKilledCreature(me->GetEntry(), me);
+                        me->SetFaction(FACTION_FRIENDLY);
                         EnterEvadeMode();
                         Talk(SAY_DEFEAT);
                         _JustDied();
@@ -191,24 +192,25 @@ class boss_majordomo : public CreatureScript
                 }
                 else if (action == ACTION_START_RAGNAROS_ALT)
                 {
-                    me->setFaction(FACTION_FRIENDLY);
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == MENU_OPTION_YOU_CHALLENGED_US && gossipListId == OPTION_ID_YOU_CHALLENGED_US)
                 {
                     CloseGossipMenuFor(player);
                     DoAction(ACTION_START_RAGNAROS);
                 }
+                return false;
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_majordomoAI>(creature);
+            return GetMoltenCoreAI<boss_majordomoAI>(creature);
         }
 };
 

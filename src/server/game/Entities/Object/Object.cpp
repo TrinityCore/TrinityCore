@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,32 +17,32 @@
  */
 
 #include "Object.h"
-#include "Common.h"
-#include "SharedDefines.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "World.h"
-#include "Creature.h"
-#include "Player.h"
-#include "Vehicle.h"
-#include "ObjectMgr.h"
-#include "UpdateData.h"
-#include "UpdateMask.h"
-#include "Util.h"
-#include "ObjectAccessor.h"
-#include "Transport.h"
-#include "VMapFactory.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "UpdateFieldFlags.h"
-#include "TemporarySummon.h"
-#include "Totem.h"
-#include "OutdoorPvPMgr.h"
-#include "MovementPacketBuilder.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "CellImpl.h"
+#include "CinematicMgr.h"
+#include "Common.h"
+#include "Creature.h"
+#include "GameTime.h"
+#include "GridNotifiersImpl.h"
+#include "Item.h"
+#include "Log.h"
+#include "Map.h"
+#include "MovementInfo.h"
+#include "MovementPacketBuilder.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
+#include "Player.h"
+#include "TemporarySummon.h"
+#include "Totem.h"
+#include "Transport.h"
+#include "Unit.h"
+#include "UpdateFieldFlags.h"
+#include "Vehicle.h"
+#include "VMapFactory.h"
+#include "World.h"
+#include <G3D/Vector3.h>
 
 Object::Object() : m_PackGUID(sizeof(uint64)+1)
 {
@@ -50,11 +50,12 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
     m_objectType        = TYPEMASK_OBJECT;
     m_updateFlag        = UPDATEFLAG_NONE;
 
-    m_uint32Values      = NULL;
+    m_uint32Values      = nullptr;
     m_valuesCount       = 0;
     _fieldNotifyFlags   = UF_FLAG_DYNAMIC;
 
     m_inWorld           = false;
+    m_isNewObject       = false;
     m_objectUpdated     = false;
 }
 
@@ -170,10 +171,38 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
 
+    if (m_isNewObject)
+    {
+        switch (GetGUID().GetHigh())
+        {
+            case HighGuid::Player:
+            case HighGuid::Pet:
+            case HighGuid::Corpse:
+            case HighGuid::DynamicObject:
+                updateType = UPDATETYPE_CREATE_OBJECT2;
+                break;
+            case HighGuid::Unit:
+            case HighGuid::Vehicle:
+            {
+                if (ToUnit()->IsSummon())
+                    updateType = UPDATETYPE_CREATE_OBJECT2;
+                break;
+            }
+            case HighGuid::GameObject:
+            {
+                if (ToGameObject()->GetOwnerGUID().IsPlayer())
+                    updateType = UPDATETYPE_CREATE_OBJECT2;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
         // UPDATETYPE_CREATE_OBJECT2 dynamic objects, corpses...
-        if (isType(TYPEMASK_DYNAMICOBJECT) || isType(TYPEMASK_CORPSE) || isType(TYPEMASK_PLAYER))
+        if (isType(TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_PLAYER))
             updateType = UPDATETYPE_CREATE_OBJECT2;
 
         // UPDATETYPE_CREATE_OBJECT2 for pets...
@@ -226,7 +255,7 @@ void Object::SendUpdateToPlayer(Player* player)
     else
         BuildCreateUpdateBlockForPlayer(&upd, player);
     upd.BuildPacket(&packet);
-    player->GetSession()->SendPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const
@@ -258,7 +287,7 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
             {
                 WorldPacket data(SMSG_ARENA_UNIT_DESTROYED, 8);
                 data << uint64(GetGUID());
-                target->GetSession()->SendPacket(&data);
+                target->SendDirectMessage(&data);
             }
         }
     }
@@ -268,7 +297,7 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
     //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
     //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
     data << uint8(onDeath ? 1 : 0);
-    target->GetSession()->SendPacket(&data);
+    target->SendDirectMessage(&data);
 }
 
 int32 Object::GetInt32Value(uint16 index) const
@@ -317,8 +346,8 @@ ObjectGuid Object::GetGuidValue(uint16 index) const
 
 void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 {
-    Unit const* unit = NULL;
-    WorldObject const* object = NULL;
+    Unit const* unit = nullptr;
+    WorldObject const* object = nullptr;
 
     if (isType(TYPEMASK_UNIT))
         unit = ToUnit();
@@ -461,7 +490,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (go && go->ToTransport())
             *data << uint32(go->GetGOValue()->Transport.PathProgress);
         else
-            *data << uint32(getMSTime());
+            *data << uint32(GameTime::GetGameTimeMS());
     }
 
     // 0x80
@@ -492,7 +521,7 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     UpdateMask updateMask;
     updateMask.SetCount(m_valuesCount);
 
-    uint32* flags = NULL;
+    uint32* flags = nullptr;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
     ASSERT(flags);
 
@@ -806,13 +835,6 @@ void Object::ApplyModSignedFloatValue(uint16 index, float  val, bool apply)
     SetFloatValue(index, cur);
 }
 
-void Object::ApplyPercentModFloatValue(uint16 index, float val, bool apply)
-{
-    float value = GetFloatValue(index);
-    ApplyPercentModFloatVar(value, val, apply);
-    SetFloatValue(index, value);
-}
-
 void Object::ApplyModPositiveFloatValue(uint16 index, float  val, bool apply)
 {
     float cur = GetFloatValue(index);
@@ -980,7 +1002,7 @@ void MovementInfo::OutDebug()
     TC_LOG_DEBUG("misc", "%s", guid.ToString().c_str());
     TC_LOG_DEBUG("misc", "flags %u", flags);
     TC_LOG_DEBUG("misc", "flags2 %u", flags2);
-    TC_LOG_DEBUG("misc", "time %u current time " UI64FMTD "", flags2, uint64(::time(NULL)));
+    TC_LOG_DEBUG("misc", "time %u current time " UI64FMTD "", flags2, uint64(::time(nullptr)));
     TC_LOG_DEBUG("misc", "position: `%s`", pos.ToString().c_str());
     if (flags & MOVEMENTFLAG_ONTRANSPORT)
     {
@@ -1005,9 +1027,9 @@ void MovementInfo::OutDebug()
 }
 
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
-m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
-m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
-m_phaseMask(PHASEMASK_NORMAL), m_notifyflags(0), m_executed_notifies(0)
+m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
+m_transport(nullptr), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_currMap(nullptr), m_InstanceId(0),
+m_phaseMask(PHASEMASK_NORMAL), m_notifyflags(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
@@ -1052,14 +1074,14 @@ void WorldObject::setActive(bool on)
     if (on)
     {
         if (GetTypeId() == TYPEID_UNIT)
-            map->AddToActive(this->ToCreature());
+            map->AddToActive(ToCreature());
         else if (GetTypeId() == TYPEID_DYNAMICOBJECT)
             map->AddToActive((DynamicObject*)this);
     }
     else
     {
         if (GetTypeId() == TYPEID_UNIT)
-            map->RemoveFromActive(this->ToCreature());
+            map->RemoveFromActive(ToCreature());
         else if (GetTypeId() == TYPEID_DYNAMICOBJECT)
             map->RemoveFromActive((DynamicObject*)this);
     }
@@ -1080,6 +1102,28 @@ void WorldObject::_Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32
     m_phaseMask = phaseMask;
 }
 
+void WorldObject::UpdatePositionData()
+{
+    PositionFullTerrainStatus data;
+    GetMap()->GetFullTerrainStatusForPosition(GetPositionX(), GetPositionY(), GetPositionZ(), data);
+    ProcessPositionDataChanged(data);
+}
+
+void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
+{
+    m_zoneId = m_areaId = data.areaId;
+    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_areaId))
+        if (area->zone)
+            m_zoneId = area->zone;
+    m_staticFloorZ = data.floorZ;
+}
+
+void WorldObject::AddToWorld()
+{
+    Object::AddToWorld();
+    GetBaseMap()->GetZoneAndAreaId(m_zoneId, m_areaId, GetPositionX(), GetPositionY(), GetPositionZ());
+}
+
 void WorldObject::RemoveFromWorld()
 {
     if (!IsInWorld())
@@ -1090,117 +1134,80 @@ void WorldObject::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
-uint32 WorldObject::GetZoneId() const
-{
-    return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);
-}
-
-uint32 WorldObject::GetAreaId() const
-{
-    return GetBaseMap()->GetAreaId(m_positionX, m_positionY, m_positionZ);
-}
-
-void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
-{
-    GetBaseMap()->GetZoneAndAreaId(zoneid, areaid, m_positionX, m_positionY, m_positionZ);
-}
-
-InstanceScript* WorldObject::GetInstanceScript()
+InstanceScript* WorldObject::GetInstanceScript() const
 {
     Map* map = GetMap();
-    return map->IsDungeon() ? ((InstanceMap*)map)->GetInstanceScript() : NULL;
+    return map->IsDungeon() ? ((InstanceMap*)map)->GetInstanceScript() : nullptr;
 }
 
-float WorldObject::GetDistanceZ(const WorldObject* obj) const
+float WorldObject::GetDistanceZ(WorldObject const* obj) const
 {
     float dz = std::fabs(GetPositionZ() - obj->GetPositionZ());
-    float sizefactor = GetObjectSize() + obj->GetObjectSize();
+    float sizefactor = GetCombatReach() + obj->GetCombatReach();
     float dist = dz - sizefactor;
     return (dist > 0 ? dist : 0);
 }
 
-bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const
+bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius, bool incTargetRadius) const
 {
-    float sizefactor = GetObjectSize() + obj->GetObjectSize();
+    float sizefactor = 0;
+    sizefactor += incOwnRadius ? GetCombatReach() : 0.0f;
+    sizefactor += incTargetRadius ? obj->GetCombatReach() : 0.0f;
     float maxdist = dist2compare + sizefactor;
+
+    Position const* thisOrTransport = this;
+    Position const* objOrObjTransport = obj;
 
     if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetGUID().GetCounter() == GetTransport()->GetGUID().GetCounter())
     {
-        float dtx = m_movementInfo.transport.pos.m_positionX - obj->m_movementInfo.transport.pos.m_positionX;
-        float dty = m_movementInfo.transport.pos.m_positionY - obj->m_movementInfo.transport.pos.m_positionY;
-        float disttsq = dtx * dtx + dty * dty;
-        if (is3D)
-        {
-            float dtz = m_movementInfo.transport.pos.m_positionZ - obj->m_movementInfo.transport.pos.m_positionZ;
-            disttsq += dtz * dtz;
-        }
-        return disttsq < (maxdist * maxdist);
+        thisOrTransport = &m_movementInfo.transport.pos;
+        objOrObjTransport = &obj->m_movementInfo.transport.pos;
     }
 
-    float dx = GetPositionX() - obj->GetPositionX();
-    float dy = GetPositionY() - obj->GetPositionY();
-    float distsq = dx*dx + dy*dy;
     if (is3D)
-    {
-        float dz = GetPositionZ() - obj->GetPositionZ();
-        distsq += dz*dz;
-    }
-
-    return distsq < maxdist * maxdist;
-}
-
-bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
-{
-    if (!IsInMap(obj))
-        return false;
-
-    float x, y, z;
-    if (obj->GetTypeId() == TYPEID_PLAYER)
-        obj->GetPosition(x, y, z);
+        return thisOrTransport->IsInDist(objOrObjTransport, maxdist);
     else
-        obj->GetHitSpherePointFor(GetPosition(), x, y, z);
-
-    return IsWithinLOS(x, y, z);
+        return thisOrTransport->IsInDist2d(objOrObjTransport, maxdist);
 }
 
-float WorldObject::GetDistance(const WorldObject* obj) const
+float WorldObject::GetDistance(WorldObject const* obj) const
 {
-    float d = GetExactDist(obj) - GetObjectSize() - obj->GetObjectSize();
+    float d = GetExactDist(obj) - GetCombatReach() - obj->GetCombatReach();
     return d > 0.0f ? d : 0.0f;
 }
 
-float WorldObject::GetDistance(const Position &pos) const
+float WorldObject::GetDistance(Position const& pos) const
 {
-    float d = GetExactDist(&pos) - GetObjectSize();
+    float d = GetExactDist(&pos) - GetCombatReach();
     return d > 0.0f ? d : 0.0f;
 }
 
 float WorldObject::GetDistance(float x, float y, float z) const
 {
-    float d = GetExactDist(x, y, z) - GetObjectSize();
+    float d = GetExactDist(x, y, z) - GetCombatReach();
     return d > 0.0f ? d : 0.0f;
 }
 
-float WorldObject::GetDistance2d(const WorldObject* obj) const
+float WorldObject::GetDistance2d(WorldObject const* obj) const
 {
-    float d = GetExactDist2d(obj) - GetObjectSize() - obj->GetObjectSize();
+    float d = GetExactDist2d(obj) - GetCombatReach() - obj->GetCombatReach();
     return d > 0.0f ? d : 0.0f;
 }
 
 float WorldObject::GetDistance2d(float x, float y) const
 {
-    float d = GetExactDist2d(x, y) - GetObjectSize();
+    float d = GetExactDist2d(x, y) - GetCombatReach();
     return d > 0.0f ? d : 0.0f;
 }
 
-bool WorldObject::IsSelfOrInSameMap(const WorldObject* obj) const
+bool WorldObject::IsSelfOrInSameMap(WorldObject const* obj) const
 {
     if (this == obj)
         return true;
     return IsInMap(obj);
 }
 
-bool WorldObject::IsInMap(const WorldObject* obj) const
+bool WorldObject::IsInMap(WorldObject const* obj) const
 {
     if (obj)
         return IsInWorld() && obj->IsInWorld() && (GetMap() == obj->GetMap());
@@ -1209,22 +1216,22 @@ bool WorldObject::IsInMap(const WorldObject* obj) const
 
 bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist) const
 {
-    return IsInDist(x, y, z, dist + GetObjectSize());
+    return IsInDist(x, y, z, dist + GetCombatReach());
 }
 
-bool WorldObject::IsWithinDist3d(const Position* pos, float dist) const
+bool WorldObject::IsWithinDist3d(Position const* pos, float dist) const
 {
-    return IsInDist(pos, dist + GetObjectSize());
+    return IsInDist(pos, dist + GetCombatReach());
 }
 
 bool WorldObject::IsWithinDist2d(float x, float y, float dist) const
 {
-    return IsInDist2d(x, y, dist + GetObjectSize());
+    return IsInDist2d(x, y, dist + GetCombatReach());
 }
 
-bool WorldObject::IsWithinDist2d(const Position* pos, float dist) const
+bool WorldObject::IsWithinDist2d(Position const* pos, float dist) const
 {
-    return IsInDist2d(pos, dist + GetObjectSize());
+    return IsInDist2d(pos, dist + GetCombatReach());
 }
 
 bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
@@ -1232,38 +1239,54 @@ bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool 
     return obj && _IsWithinDist(obj, dist2compare, is3D);
 }
 
-bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
+bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D /*= true*/, bool incOwnRadius /*= true*/, bool incTargetRadius /*= true*/) const
 {
-    return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D);
+    return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
 }
 
-bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
+Position WorldObject::GetHitSpherePointFor(Position const& dest) const
 {
-    /*float x, y, z;
-    GetPosition(x, y, z);
-    VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
-    return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);*/
+    G3D::Vector3 vThis(GetPositionX(), GetPositionY(), GetPositionZ() + GetMidsectionHeight());
+    G3D::Vector3 vObj(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
+    G3D::Vector3 contactPoint = vThis + (vObj - vThis).directionOrZero() * std::min(dest.GetExactDist(GetPosition()), GetCombatReach());
+
+    return Position(contactPoint.x, contactPoint.y, contactPoint.z, GetAngle(contactPoint.x, contactPoint.y));
+}
+
+bool WorldObject::IsWithinLOS(float ox, float oy, float oz, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const
+{
     if (IsInWorld())
     {
         float x, y, z;
         if (GetTypeId() == TYPEID_PLAYER)
+        {
             GetPosition(x, y, z);
+            z += GetMidsectionHeight();
+        }
         else
             GetHitSpherePointFor({ ox, oy, oz }, x, y, z);
 
-        return GetMap()->isInLineOfSight(x, y, z + 2.0f, ox, oy, oz + 2.0f, GetPhaseMask());
+        return GetMap()->isInLineOfSight(x, y, z, ox, oy, oz, GetPhaseMask(), checks, ignoreFlags);
     }
 
     return true;
 }
 
-Position WorldObject::GetHitSpherePointFor(Position const& dest) const
+bool WorldObject::IsWithinLOSInMap(WorldObject const* obj, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
-    G3D::Vector3 vThis(GetPositionX(), GetPositionY(), GetPositionZ());
-    G3D::Vector3 vObj(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
-    G3D::Vector3 contactPoint = vThis + (vObj - vThis).directionOrZero() * GetObjectSize();
+    if (!IsInMap(obj))
+        return false;
 
-    return Position(contactPoint.x, contactPoint.y, contactPoint.z, GetAngle(contactPoint.x, contactPoint.y));
+    float x, y, z;
+    if (obj->GetTypeId() == TYPEID_PLAYER)
+    {
+        obj->GetPosition(x, y, z);
+        z += GetMidsectionHeight();
+    }
+    else
+        obj->GetHitSpherePointFor({ GetPositionX(), GetPositionY(), GetPositionZ() + GetMidsectionHeight() }, x, y, z);
+
+    return IsWithinLOS(x, y, z, checks, ignoreFlags);
 }
 
 void WorldObject::GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const
@@ -1308,7 +1331,7 @@ bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRan
         distsq += dz*dz;
     }
 
-    float sizefactor = GetObjectSize() + obj->GetObjectSize();
+    float sizefactor = GetCombatReach() + obj->GetCombatReach();
 
     // check only for real range
     if (minRange > 0.0f)
@@ -1328,7 +1351,7 @@ bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) 
     float dy = GetPositionY() - y;
     float distsq = dx*dx + dy*dy;
 
-    float sizefactor = GetObjectSize();
+    float sizefactor = GetCombatReach();
 
     // check only for real range
     if (minRange > 0.0f)
@@ -1349,7 +1372,7 @@ bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float m
     float dz = GetPositionZ() - z;
     float distsq = dx*dx + dy*dy + dz*dz;
 
-    float sizefactor = GetObjectSize();
+    float sizefactor = GetCombatReach();
 
     // check only for real range
     if (minRange > 0.0f)
@@ -1372,7 +1395,7 @@ bool WorldObject::IsInBetween(Position const& pos1, Position const& pos2, float 
         return false;
 
     if (!size)
-        size = GetObjectSize() / 2;
+        size = GetCombatReach() / 2;
 
     float angle = pos1.GetAngle(pos2);
 
@@ -1390,7 +1413,7 @@ bool WorldObject::isInBack(WorldObject const* target, float arc) const
     return !HasInArc(2 * float(M_PI) - arc, target);
 }
 
-void WorldObject::GetRandomPoint(const Position &pos, float distance, float &rand_x, float &rand_y, float &rand_z) const
+void WorldObject::GetRandomPoint(Position const& pos, float distance, float& rand_x, float& rand_y, float& rand_z) const
 {
     if (!distance)
     {
@@ -1412,7 +1435,7 @@ void WorldObject::GetRandomPoint(const Position &pos, float distance, float &ran
     UpdateGroundPositionZ(rand_x, rand_y, rand_z);            // update to LOS height if available
 }
 
-Position WorldObject::GetRandomPoint(const Position &srcPos, float distance) const
+Position WorldObject::GetRandomPoint(Position const& srcPos, float distance) const
 {
     float x, y, z;
     GetRandomPoint(srcPos, distance, x, y, z);
@@ -1496,23 +1519,18 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
 
 float WorldObject::GetGridActivationRange() const
 {
-    if (ToPlayer())
+    if (isActiveObject())
     {
-        if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
-            return DEFAULT_VISIBILITY_INSTANCE;
+        if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetCinematicMgr()->IsOnCinematic())
+            return std::max(DEFAULT_VISIBILITY_INSTANCE, GetMap()->GetVisibilityRange());
+
         return GetMap()->GetVisibilityRange();
     }
-    else if (ToCreature())
-        return ToCreature()->m_SightDistance;
-    else if (ToDynObject())
-    {
-        if (isActiveObject())
-            return GetMap()->GetVisibilityRange();
-        else
-            return 0.0f;
-    }
-    else
-        return 0.0f;
+
+    if (Creature const* thisCreature = ToCreature())
+        return thisCreature->m_SightDistance;
+
+    return 0.0f;
 }
 
 float WorldObject::GetVisibilityRange() const
@@ -1523,7 +1541,7 @@ float WorldObject::GetVisibilityRange() const
         return GetMap()->GetVisibilityRange();
 }
 
-float WorldObject::GetSightRange(const WorldObject* target) const
+float WorldObject::GetSightRange(WorldObject const* target) const
 {
     if (ToUnit())
     {
@@ -1578,10 +1596,18 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
                             corpseVisibility = true;
                 }
             }
+
+            if (Unit const* target = obj->ToUnit())
+            {
+                // Don't allow to detect vehicle accessories if you can't see vehicle
+                if (Unit const* vehicle = target->GetVehicleBase())
+                    if (!thisPlayer->HaveAtClient(vehicle))
+                        return false;
+            }
         }
 
         WorldObject const* viewpoint = this;
-        if (Player const* player = this->ToPlayer())
+        if (Player const* player = ToPlayer())
             viewpoint = player->GetViewpoint();
 
         if (!viewpoint)
@@ -1635,7 +1661,7 @@ bool WorldObject::CanNeverSee(WorldObject const* obj) const
 
 bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth, bool checkAlert) const
 {
-    const WorldObject* seer = this;
+    WorldObject const* seer = this;
 
     // Pets don't have detection, they use the detection of their masters
     if (Unit const* thisUnit = ToUnit())
@@ -1707,7 +1733,7 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) co
     if (!HasInArc(float(M_PI), obj))
         return false;
 
-    GameObject const* go = ToGameObject();
+    GameObject const* go = obj->ToGameObject();
     for (uint32 i = 0; i < TOTAL_STEALTH_TYPES; ++i)
     {
         if (!(obj->m_stealth.GetFlags() & (1 << i)))
@@ -1768,22 +1794,22 @@ void Unit::BuildHeartBeatMsg(WorldPacket* data) const
     BuildMovementPacket(data);
 }
 
-void WorldObject::SendMessageToSet(WorldPacket* data, bool self)
+void WorldObject::SendMessageToSet(WorldPacket const* data, bool self)
 {
     if (IsInWorld())
         SendMessageToSetInRange(data, GetVisibilityRange(), self);
 }
 
-void WorldObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool /*self*/)
+void WorldObject::SendMessageToSetInRange(WorldPacket const* data, float dist, bool /*self*/)
 {
     Trinity::MessageDistDeliverer notifier(this, data, dist);
-    VisitNearbyWorldObject(dist, notifier);
+    Cell::VisitWorldObjects(this, notifier, dist);
 }
 
-void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
+void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr)
 {
     Trinity::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr);
-    VisitNearbyWorldObject(GetVisibilityRange(), notifier);
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 }
 
 void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
@@ -1817,7 +1843,7 @@ void WorldObject::ResetMap()
     ASSERT(!IsInWorld());
     if (IsWorldObject())
         m_currMap->RemoveWorldObject(this);
-    m_currMap = NULL;
+    m_currMap = nullptr;
     //maybe not for corpse
     //m_mapId = 0;
     //m_InstanceId = 0;
@@ -1843,7 +1869,7 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, Unit* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/)
 {
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
@@ -1889,7 +1915,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
                 break;
             }
             default:
-                return NULL;
+                return nullptr;
         }
     }
 
@@ -1897,7 +1923,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     if (summoner)
         phase = summoner->GetPhaseMask();
 
-    TempSummon* summon = NULL;
+    TempSummon* summon = nullptr;
     switch (mask)
     {
         case UNIT_MASK_SUMMON:
@@ -1917,10 +1943,10 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(GenerateLowGuid<HighGuid::Unit>(), this, phase, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
+    if (!summon->Create(GenerateLowGuid<HighGuid::Unit>(), this, phase, entry, pos, nullptr, vehId, true))
     {
         delete summon;
-        return NULL;
+        return nullptr;
     }
 
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
@@ -1933,7 +1959,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     // call MoveInLineOfSight for nearby creatures
     Trinity::AIRelocationNotifier notifier(*summon);
-    summon->VisitNearbyObject(GetVisibilityRange(), notifier);
+    Cell::VisitAllObjects(summon, notifier, GetVisibilityRange());
 
     return summon;
 }
@@ -1945,14 +1971,14 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 * @param list  List to store pointers to summoned creatures.
 */
 
-void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= NULL*/)
+void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= nullptr*/)
 {
     std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetId(), SUMMONER_TYPE_MAP, group);
     if (!data)
         return;
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
-        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, NULL, itr->time))
+        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, nullptr, itr->time))
             if (list)
                 list->push_back(summon);
 }
@@ -1975,16 +2001,16 @@ void WorldObject::SetZoneScript()
 
 void WorldObject::ClearZoneScript()
 {
-    m_zoneScript = NULL;
+    m_zoneScript = nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType spwtype /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 duration /*= 0*/, uint32 /*vehId = 0*/) const
+TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, uint32 /*vehId = 0*/)
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(entry, pos, NULL, duration, isType(TYPEMASK_UNIT) ? (Unit*)this : NULL))
+        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, ToUnit()))
         {
-            summon->SetTempSummonType(spwtype);
+            summon->SetTempSummonType(despawnType);
             return summon;
         }
     }
@@ -1992,20 +2018,16 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
     return nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang /*= 0*/, TempSummonType spwtype /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despwtime /*= 0*/) const
+TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/)
 {
     if (!x && !y && !z)
-    {
-        GetClosePoint(x, y, z, GetObjectSize());
-        ang = GetOrientation();
-    }
-
-    Position pos;
-    pos.Relocate(x, y, z, ang);
-    return SummonCreature(id, pos, spwtype, despwtime, 0);
+        GetClosePoint(x, y, z, GetCombatReach());
+    if (!o)
+        o = GetOrientation();
+    return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime);
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot, uint32 respawnTime)
+GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime)
 {
     if (!IsInWorld())
         return nullptr;
@@ -2035,11 +2057,11 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, G3D
     return go;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, G3D::Quat const& rot, uint32 respawnTime)
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime)
 {
     if (!x && !y && !z)
     {
-        GetClosePoint(x, y, z, GetObjectSize());
+        GetClosePoint(x, y, z, GetCombatReach());
         ang = GetOrientation();
     }
 
@@ -2052,12 +2074,12 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
     Creature* summon = SummonCreature(WORLD_TRIGGER, x, y, z, ang, summonType, duration);
     if (!summon)
-        return NULL;
+        return nullptr;
 
     //summon->SetName(GetName());
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT)
     {
-        summon->setFaction(((Unit*)this)->getFaction());
+        summon->SetFaction(((Unit*)this)->GetFaction());
         summon->SetLevel(((Unit*)this)->getLevel());
     }
 
@@ -2072,7 +2094,7 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
 * @param group Id of group to summon.
 * @param list  List to store pointers to summoned creatures.
 */
-void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= NULL*/)
+void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= nullptr*/)
 {
     ASSERT((GetTypeId() == TYPEID_GAMEOBJECT || GetTypeId() == TYPEID_UNIT) && "Only GOs and creatures can summon npc groups!");
 
@@ -2091,57 +2113,56 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
 
 Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive) const
 {
-    Creature* creature = NULL;
+    Creature* creature = nullptr;
     Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck checker(*this, entry, alive, range);
     Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(this, creature, checker);
-    VisitNearbyObject(range, searcher);
+    Cell::VisitAllObjects(this, searcher, range);
     return creature;
 }
 
 GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
 {
-    GameObject* go = NULL;
+    GameObject* go = nullptr;
     Trinity::NearestGameObjectEntryInObjectRangeCheck checker(*this, entry, range);
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
-    VisitNearbyGridObject(range, searcher);
+    Cell::VisitGridObjects(this, searcher, range);
     return go;
 }
 
 GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float range) const
 {
-    GameObject* go = NULL;
+    GameObject* go = nullptr;
     Trinity::NearestGameObjectTypeInObjectRangeCheck checker(*this, type, range);
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectTypeInObjectRangeCheck> searcher(this, go, checker);
-    VisitNearbyGridObject(range, searcher);
+    Cell::VisitGridObjects(this, searcher, range);
     return go;
+}
+
+Player* WorldObject::SelectNearestPlayer(float distance) const
+{
+    Player* target = nullptr;
+
+    Trinity::NearestPlayerInObjectRangeCheck checker(this, distance);
+    Trinity::PlayerLastSearcher<Trinity::NearestPlayerInObjectRangeCheck> searcher(this, target, checker);
+    Cell::VisitWorldObjects(this, searcher, distance);
+
+    return target;
 }
 
 template <typename Container>
 void WorldObject::GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange /*= 250.0f*/) const
 {
-    CellCoord pair(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(pair);
-    cell.SetNoCreate();
-
     Trinity::AllGameObjectsWithEntryInRange check(this, entry, maxSearchRange);
     Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInRange> searcher(this, gameObjectContainer, check);
-    TypeContainerVisitor<Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInRange>, GridTypeMapContainer> visitor(searcher);
-
-    cell.Visit(pair, visitor, *GetMap(), *this, maxSearchRange);
+    Cell::VisitGridObjects(this, searcher, maxSearchRange);
 }
 
 template <typename Container>
 void WorldObject::GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange /*= 250.0f*/) const
 {
-    CellCoord pair(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(pair);
-    cell.SetNoCreate();
-
     Trinity::AllCreaturesOfEntryInRange check(this, entry, maxSearchRange);
     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(this, creatureContainer, check);
-    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
-
-    cell.Visit(pair, visitor, *GetMap(), *this, maxSearchRange);
+    Cell::VisitGridObjects(this, searcher, maxSearchRange);
 }
 
 template <typename Container>
@@ -2149,13 +2170,13 @@ void WorldObject::GetPlayerListInGrid(Container& playerContainer, float maxSearc
 {
     Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange);
     Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, playerContainer, checker);
-    VisitNearbyWorldObject(maxSearchRange, searcher);
+    Cell::VisitWorldObjects(this, searcher, maxSearchRange);
 }
 
 void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle) const
 {
-    x = GetPositionX() + (GetObjectSize() + distance2d) * std::cos(absAngle);
-    y = GetPositionY() + (GetObjectSize() + distance2d) * std::sin(absAngle);
+    x = GetPositionX() + (GetCombatReach() + distance2d) * std::cos(absAngle);
+    y = GetPositionY() + (GetCombatReach() + distance2d) * std::sin(absAngle);
 
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
@@ -2200,7 +2221,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
 void WorldObject::GetClosePoint(float &x, float &y, float &z, float size, float distance2d /*= 0*/, float angle /*= 0*/) const
 {
     // angle calculated from current orientation
-    GetNearPoint(NULL, x, y, z, size, distance2d, GetOrientation() + angle);
+    GetNearPoint(nullptr, x, y, z, size, distance2d, GetOrientation() + angle);
 }
 
 Position WorldObject::GetNearPosition(float dist, float angle)
@@ -2224,15 +2245,10 @@ Position WorldObject::GetRandomNearPosition(float radius)
     return pos;
 }
 
-void WorldObject::GetContactPoint(const WorldObject* obj, float &x, float &y, float &z, float distance2d /*= CONTACT_DISTANCE*/) const
+void WorldObject::GetContactPoint(WorldObject const* obj, float& x, float& y, float& z, float distance2d /*= CONTACT_DISTANCE*/) const
 {
     // angle to face `obj` to `this` using distance includes size of `obj`
-    GetNearPoint(obj, x, y, z, obj->GetObjectSize(), distance2d, GetAngle(obj));
-}
-
-float WorldObject::GetObjectSize() const
-{
-    return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_WORLD_OBJECT_SIZE;
+    GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2d, GetAngle(obj));
 }
 
 void WorldObject::MovePosition(Position &pos, float dist, float angle)
@@ -2295,7 +2311,7 @@ float NormalizeZforCollision(WorldObject* obj, float x, float y, float z)
                 return z;
         }
         LiquidData liquid_status;
-        ZLiquidStatus res = obj->GetMap()->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
+        ZLiquidStatus res = obj->GetMap()->GetLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
         if (res && liquid_status.level > helper) // water must be above ground
         {
             if (liquid_status.level > z) // z is underwater
@@ -2382,7 +2398,7 @@ bool WorldObject::InSamePhase(WorldObject const* obj) const
     return InSamePhase(obj->GetPhaseMask());
 }
 
-void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
+void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= nullptr*/)
 {
     WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 4+8);
     data << uint32(sound_id);
@@ -2393,7 +2409,7 @@ void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
         SendMessageToSet(&data, true);
 }
 
-void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= NULL*/)
+void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= nullptr*/)
 {
     WorldPacket data(SMSG_PLAY_SOUND, 4);
     data << uint32(sound_id);
@@ -2403,7 +2419,7 @@ void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= NULL*/)
         SendMessageToSet(&data, true);
 }
 
-void WorldObject::PlayDirectMusic(uint32 music_id, Player* target /*= NULL*/)
+void WorldObject::PlayDirectMusic(uint32 music_id, Player* target /*= nullptr*/)
 {
     WorldPacket data(SMSG_PLAY_MUSIC, 4);
     data << uint32(music_id);
@@ -2421,7 +2437,7 @@ void WorldObject::DestroyForNearbyPlayers()
     std::list<Player*> targets;
     Trinity::AnyPlayerInObjectRangeCheck check(this, GetVisibilityRange(), false);
     Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, targets, check);
-    VisitNearbyWorldObject(GetVisibilityRange(), searcher);
+    Cell::VisitWorldObjects(this, searcher, GetVisibilityRange());
     for (std::list<Player*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
     {
         Player* player = (*iter);
@@ -2448,7 +2464,7 @@ void WorldObject::UpdateObjectVisibility(bool /*forced*/)
 {
     //updates object's visibility for nearby players
     Trinity::VisibleChangesNotifier notifier(*this);
-    VisitNearbyWorldObject(GetVisibilityRange(), notifier);
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 }
 
 struct WorldObjectChangeAccumulator
@@ -2459,7 +2475,7 @@ struct WorldObjectChangeAccumulator
     WorldObjectChangeAccumulator(WorldObject &obj, UpdateDataMapType &d) : i_updateDatas(d), i_object(obj) { }
     void Visit(PlayerMapType &m)
     {
-        Player* source = NULL;
+        Player* source = nullptr;
         for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
             source = iter->GetSource();
@@ -2477,7 +2493,7 @@ struct WorldObjectChangeAccumulator
 
     void Visit(CreatureMapType &m)
     {
-        Creature* source = NULL;
+        Creature* source = nullptr;
         for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
             source = iter->GetSource();
@@ -2492,7 +2508,7 @@ struct WorldObjectChangeAccumulator
 
     void Visit(DynamicObjectMapType &m)
     {
-        DynamicObject* source = NULL;
+        DynamicObject* source = nullptr;
         for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
             source = iter->GetSource();
@@ -2500,7 +2516,7 @@ struct WorldObjectChangeAccumulator
 
             if (guid.IsPlayer())
             {
-                //Caster may be NULL if DynObj is in removelist
+                //Caster may be nullptr if DynObj is in removelist
                 if (Player* caster = ObjectAccessor::FindPlayer(guid))
                     if (caster->GetGuidValue(PLAYER_FARSIGHT) == source->GetGUID())
                         BuildPacket(caster);
@@ -2523,14 +2539,9 @@ struct WorldObjectChangeAccumulator
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
 {
-    CellCoord p = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
-    Cell cell(p);
-    cell.SetNoCreate();
     WorldObjectChangeAccumulator notifier(*this, data_map);
-    TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
-    Map& map = *GetMap();
     //we must build packets for all visible players
-    cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 
     ClearUpdateMask(false);
 }
@@ -2550,6 +2561,13 @@ ObjectGuid WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return ObjectGuid::Empty;
+}
+
+float WorldObject::GetFloorZ() const
+{
+    if (!IsInWorld())
+        return m_staticFloorZ;
+    return std::max<float>(m_staticFloorZ, GetMap()->GetGameObjectFloor(GetPhaseMask(), GetPositionX(), GetPositionY(), GetPositionZ()));
 }
 
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>&, uint32, float) const;

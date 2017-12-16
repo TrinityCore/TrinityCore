@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,12 +26,14 @@ SDCategory: Onyxia's Lair
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "onyxias_lair.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -193,7 +195,7 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* Spell) override
+        void SpellHit(Unit* /*pCaster*/, SpellInfo const* Spell) override
         {
             if (Spell->Id == SPELL_BREATH_EAST_TO_WEST ||
                 Spell->Id == SPELL_BREATH_WEST_TO_EAST ||
@@ -227,14 +229,14 @@ public:
                     case 9:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         if (Creature* trigger = ObjectAccessor::GetCreature(*me, triggerGUID))
                             me->Kill(trigger);
                         me->SetReactState(REACT_AGGRESSIVE);
                         // tank selection based on phase one. If tank is not there i take nearest one
                         if (Unit* tank = ObjectAccessor::GetUnit(*me, tankGUID))
                             me->GetMotionMaster()->MoveChase(tank);
-                        else if (Unit* newtarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                        else if (Unit* newtarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                             me->GetMotionMaster()->MoveChase(newtarget);
                         events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5000);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
@@ -245,8 +247,8 @@ public:
                     case 10:
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
-                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                        me->SetFacingTo(me->GetOrientation() + float(M_PI), true);
+                        me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        me->SetFacingTo(me->GetOrientation() + float(M_PI));
                         if (Creature * trigger = me->SummonCreature(NPC_TRIGGER, MiddleRoomLocation, TEMPSUMMON_CORPSE_DESPAWN))
                             triggerGUID = trigger->GetGUID();
                         me->GetMotionMaster()->MoveTakeoff(11, Phase2Floating);
@@ -271,7 +273,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* Spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* Spell) override
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
             if (((Spell->Id >= 17086 && Spell->Id <= 17095) ||
@@ -301,7 +303,7 @@ public:
                     return &MoveData[i];
             }
 
-            return NULL;
+            return nullptr;
         }
 
         void SetNextRandomPoint()
@@ -353,10 +355,10 @@ public:
                         {
                             DoCastVictim(SPELL_BELLOWING_ROAR);
                             // Eruption
-                            GameObject* Floor = NULL;
+                            GameObject* Floor = nullptr;
                             Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
                             Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
-                            me->VisitNearbyGridObject(30, searcher);
+                            Cell::VisitGridObjects(me, searcher, 30.0f);
                             if (Floor)
                                 instance->SetGuidData(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
                             events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
@@ -492,7 +494,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_onyxiaAI>(creature);
+        return GetOnyxiaAI<boss_onyxiaAI>(creature);
     }
 };
 

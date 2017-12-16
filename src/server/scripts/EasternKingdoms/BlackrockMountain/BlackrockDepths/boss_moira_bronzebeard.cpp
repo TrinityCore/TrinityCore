@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -93,7 +94,7 @@ class boss_moira_bronzebeard : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_moira_bronzebeardAI(creature);
+            return GetBlackrockDepthsAI<boss_moira_bronzebeardAI>(creature);
         }
 };
 

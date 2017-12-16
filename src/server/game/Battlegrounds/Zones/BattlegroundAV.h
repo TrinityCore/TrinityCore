@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -987,19 +987,19 @@ Position const BG_AV_CreaturePos[AV_CPLACE_MAX] =
 
 enum BG_AV_CreatureIds
 {
-    AV_NPC_A_TOWERDEFENSE  = 0,     // stormpike bowman
-    AV_NPC_A_GRAVEDEFENSE0 = 1,     // stormpike Defender
-    AV_NPC_A_GRAVEDEFENSE1 = 2,     // seasoned defender
-    AV_NPC_A_GRAVEDEFENSE2 = 3,     // veteran defender
-    AV_NPC_A_GRAVEDEFENSE3 = 4,     // champion defender
+    AV_NPC_A_GRAVEDEFENSE0 = 0,     // stormpike Defender
+    AV_NPC_A_GRAVEDEFENSE1 = 1,     // seasoned defender
+    AV_NPC_A_GRAVEDEFENSE2 = 2,     // veteran defender
+    AV_NPC_A_GRAVEDEFENSE3 = 3,     // champion defender
+    AV_NPC_A_TOWERDEFENSE  = 4,     // stormpike bowman
     AV_NPC_A_CAPTAIN       = 5,     // balinda
     AV_NPC_A_BOSS          = 6,     // vanndar
 
-    AV_NPC_H_TOWERDEFENSE  = 7,     // frostwolf bowman
-    AV_NPC_H_GRAVEDEFENSE0 = 8,     // frostwolf guardian
-    AV_NPC_H_GRAVEDEFENSE1 = 9,     // seasoned guardian
-    AV_NPC_H_GRAVEDEFENSE2 = 10,    // veteran guardian
-    AV_NPC_H_GRAVEDEFENSE3 = 11,    // champion guardian
+    AV_NPC_H_GRAVEDEFENSE0 = 7,     // frostwolf guardian
+    AV_NPC_H_GRAVEDEFENSE1 = 8,     // seasoned guardian
+    AV_NPC_H_GRAVEDEFENSE2 = 9,     // veteran guardian
+    AV_NPC_H_GRAVEDEFENSE3 = 10,    // champion guardian
+    AV_NPC_H_TOWERDEFENSE  = 11,    // frostwolf bowman
     AV_NPC_H_CAPTAIN       = 12,    // galvangar
     AV_NPC_H_BOSS          = 13,    // drek thar
 
@@ -1581,15 +1581,7 @@ struct BattlegroundAVScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
-        {
-            data << uint32(5); // Objectives Count
-            data << uint32(GraveyardsAssaulted);
-            data << uint32(GraveyardsDefended);
-            data << uint32(TowersAssaulted);
-            data << uint32(TowersDefended);
-            data << uint32(MinesCaptured);
-        }
+        void BuildObjectivesBlock(WorldPacket& data) final override;
 
         uint32 GetAttr1() const final override { return GraveyardsAssaulted; }
         uint32 GetAttr2() const final override { return GraveyardsDefended; }
@@ -1633,7 +1625,7 @@ class BattlegroundAV : public Battleground
 
         void EndBattleground(uint32 winner) override;
 
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
         // Achievement: Av perfection and Everything counts
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
@@ -1669,7 +1661,7 @@ class BattlegroundAV : public Battleground
         bool IsTower(BG_AV_Nodes node) { return m_Nodes[node].Tower; }
 
         /*mine*/
-        void ChangeMineOwner(uint8 mine, uint32 team, bool initial=false);
+        void ChangeMineOwner(uint8 mine, uint32 team, bool initial = false);
 
         /*worldstates*/
         void FillInitialWorldStates(WorldPacket& data) override;

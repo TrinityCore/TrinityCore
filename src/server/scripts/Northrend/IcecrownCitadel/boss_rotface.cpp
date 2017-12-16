@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
 #include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 // KNOWN BUGS:
 // ~ No Slime Spray animation directly at target spot
@@ -254,7 +258,7 @@ class npc_little_ooze : public CreatureScript
                 DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
                 DoCast(me, SPELL_GREEN_ABOMINATION_HITTIN__YA_PROC, true);
                 events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
-                me->AddThreat(summoner, 500000.0f);
+                AddThreat(summoner, 500000.0f);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -469,7 +473,7 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                     return;
 
                 triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
-                GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty);
+                GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, nullptr, nullptr, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -540,9 +544,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->Effects[EFFECT_2].CalcValue())))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_2].CalcValue()) });
             }
 
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -676,7 +678,7 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
 
                         if (Creature* cre = GetCaster()->ToCreature())
                             cre->AI()->DoAction(EVENT_STICKY_OOZE);
-                        GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE_EXPLOSION, false, NULL, NULL, GetCaster()->GetGUID());
+                        GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE_EXPLOSION, false, nullptr, nullptr, GetCaster()->GetGUID());
                         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                             instance->SetData(DATA_OOZE_DANCE_ACHIEVEMENT, uint32(false));
                     }
@@ -708,9 +710,7 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER });
             }
 
             void HandleCast(SpellEffIndex effIndex)
@@ -759,7 +759,7 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
                 // let Rotface handle the cast - caster dies before this executes
                 if (InstanceScript* script = GetCaster()->GetInstanceScript())
                     if (Creature* rotface = script->instance->GetCreature(script->GetGuidData(DATA_ROTFACE)))
-                        rotface->CastSpell(x, y, z, triggered_spell_id, true, NULL, NULL, GetCaster()->GetGUID());
+                        rotface->CastSpell(x, y, z, triggered_spell_id, true, nullptr, nullptr, GetCaster()->GetGUID());
             }
 
             void Register() override
@@ -848,7 +848,7 @@ class spell_rotface_vile_gas_trigger : public SpellScriptLoader
                 }
 
                 if (!ranged.empty())
-                    Trinity::Containers::RandomResizeList(ranged, GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
+                    Trinity::Containers::RandomResize(ranged, GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
 
                 targets.swap(ranged);
             }

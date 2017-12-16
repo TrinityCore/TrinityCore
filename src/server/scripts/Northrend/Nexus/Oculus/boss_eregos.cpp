@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "oculus.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "oculus.h"
 
 // Types of drake mounts: Ruby (Tank), Amber (DPS), Emerald (Healer)
 // Two Repeating phases
@@ -258,7 +258,7 @@ class boss_eregos : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_eregosAI(creature);
+            return GetOculusAI<boss_eregosAI>(creature);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuras.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "pit_of_saron.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -167,7 +171,7 @@ class boss_garfrost : public CreatureScript
                 events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_PERMAFROST_HELPER)
                 {

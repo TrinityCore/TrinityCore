@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "blood_furnace.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "blood_furnace.h"
+#include "TemporarySummon.h"
 
 enum Kelidan
 {
@@ -94,7 +96,8 @@ class boss_kelidan_the_breaker : public CreatureScript
                 Initialize();
                 SummonChannelers();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetImmuneToAll(true);
             }
 
             void EnterCombat(Unit* who) override
@@ -138,7 +141,8 @@ class boss_kelidan_the_breaker : public CreatureScript
                         return;
                 }
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetImmuneToAll(false);
                 if (killer)
                     AttackStart(killer);
             }
@@ -367,4 +371,3 @@ void AddSC_boss_kelidan_the_breaker()
     new boss_kelidan_the_breaker();
     new npc_shadowmoon_channeler();
 }
-

@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -92,6 +92,9 @@ endforeach()
 if (USE_SCRIPTPCH)
   set(PRIVATE_PCH_HEADER ScriptPCH.h)
   set(PRIVATE_PCH_SOURCE ScriptPCH.cpp)
+  if (MSVC)
+    list(INSERT PRIVATE_SOURCES 0 ScriptPCH.cpp)
+  endif (MSVC)
 endif ()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -158,9 +161,11 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
     GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
     # Add the module name to DYNAMIC_SCRIPT_MODULES
     list(APPEND DYNAMIC_SCRIPT_MODULE_PROJECTS ${SCRIPT_MODULE_PROJECT_NAME})
+    if (USE_SCRIPTPCH AND MSVC)
+      list(INSERT SCRIPT_MODULE_PRIVATE_SOURCES 0 ScriptPCH.cpp)
+    endif (USE_SCRIPTPCH AND MSVC)
     # Create the script module project
     add_library(${SCRIPT_MODULE_PROJECT_NAME} SHARED
-      ${PRIVATE_PCH_SOURCE}
       ${SCRIPT_MODULE_PRIVATE_SOURCES}
       ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
     target_link_libraries(${SCRIPT_MODULE_PROJECT_NAME}
@@ -200,7 +205,6 @@ ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_S
 
 add_library(scripts STATIC
   ScriptLoader.h
-  ${PRIVATE_PCH_SOURCE}
   ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
   ${PRIVATE_SOURCES})
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@
 namespace VMAP
 {
     class WorldModel;
+    enum class ModelIgnoreFlags : uint32;
 }
 
 class GameObject;
@@ -49,7 +50,7 @@ public:
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
-    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(NULL) { }
+    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(nullptr) { }
 public:
     std::string name;
 
@@ -65,7 +66,7 @@ public:
 
     bool isEnabled() const {return phasemask != 0;}
 
-    bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const;
+    bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask, VMAP::ModelIgnoreFlags ignoreFlags) const;
 
     static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 

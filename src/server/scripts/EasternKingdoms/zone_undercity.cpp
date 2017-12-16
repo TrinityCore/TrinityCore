@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,9 +30,11 @@ npc_parqual_fintallas
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 
 /*######
 ## npc_lady_sylvanas_windrunner
@@ -80,6 +82,11 @@ enum Sylvanas
     GUID_EVENT_INVOKER              = 1,
 };
 
+enum Sounds
+{
+    SOUND_AGGRO                     = 5886
+};
+
 float HighborneLoc[4][3]=
 {
     {1285.41f, 312.47f, 0.51f},
@@ -95,14 +102,6 @@ class npc_lady_sylvanas_windrunner : public CreatureScript
 {
 public:
     npc_lady_sylvanas_windrunner() : CreatureScript("npc_lady_sylvanas_windrunner") { }
-
-    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) override
-    {
-        if (_Quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
-            creature->AI()->SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);
-
-        return true;
-    }
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
     {
@@ -126,6 +125,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
+            DoPlaySoundToSet(me, SOUND_AGGRO);
             _events.ScheduleEvent(EVENT_FADE, 30000);
             _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20000);
             _events.ScheduleEvent(EVENT_BLACK_ARROW, 15000);
@@ -158,7 +158,7 @@ public:
                 if (Creature* target = ObjectAccessor::GetCreature(*summoned, targetGUID))
                 {
                     target->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ() + 15.0f, me->GetOrientation(), 0);
-                    target->SetPosition(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
+                    target->UpdatePosition(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
                     summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
                 }
 
@@ -238,6 +238,12 @@ public:
             DoMeleeAttackIfReady();
         }
 
+        void QuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+        {
+            if (quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
+                SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);
+        }
+
     private:
         EventMap _events;
         bool LamentEvent;
@@ -300,7 +306,7 @@ public:
                 {
                     me->SetDisableGravity(true);
                     me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetDistance(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW) / (5000 * 0.001f));
-                    me->SetPosition(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
+                    me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
                     EventMove = false;
                 } else EventMoveTimer -= diff;
             }

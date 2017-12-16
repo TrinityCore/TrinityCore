@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include <math.h>
 
 enum Texts
 {
@@ -94,7 +96,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_gluthAI>(creature);
+        return GetNaxxramasAI<boss_gluthAI>(creature);
     }
 
     struct boss_gluthAI : public BossAI
@@ -192,7 +194,7 @@ public:
                         Creature* zombie = nullptr;
                         for (SummonList::const_iterator itr = summons.begin(); !zombie && itr != summons.end(); ++itr)
                         {
-                            zombie=ObjectAccessor::GetCreature(*me, *itr);
+                            zombie = ObjectAccessor::GetCreature(*me, *itr);
                             if (!zombie || !zombie->IsAlive() || !zombie->IsWithinDistInMap(me, 10.0))
                                 zombie = nullptr;
                         }
@@ -326,7 +328,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return (sSpellMgr->GetSpellInfo(SPELL_DECIMATE_DMG) != nullptr);
+            return ValidateSpellInfo({ SPELL_DECIMATE_DMG });
         }
 
         void Register() override
@@ -473,7 +475,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_zombie_chowAI>(creature);
+        return GetNaxxramasAI<npc_zombie_chowAI>(creature);
     }
 };
 

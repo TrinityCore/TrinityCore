@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,10 +18,13 @@
 
 #include "DisableMgr.h"
 #include "AchievementMgr.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
-#include "SpellMgr.h"
 #include "Player.h"
+#include "SpellMgr.h"
+#include "VMapManager2.h"
 #include "World.h"
 
 namespace DisableMgr
@@ -42,7 +45,7 @@ namespace
 
     DisableMap m_DisableMap;
 
-    uint8 MAX_DISABLE_TYPES = 8;
+    uint8 MAX_DISABLE_TYPES = 9;
 }
 
 void LoadDisables()
@@ -118,6 +121,7 @@ void LoadDisables()
             case DISABLE_TYPE_QUEST:
                 break;
             case DISABLE_TYPE_MAP:
+            case DISABLE_TYPE_LFG_MAP:
             {
                 MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
                 if (!mapEntry)
@@ -344,6 +348,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
             break;
         }
         case DISABLE_TYPE_MAP:
+        case DISABLE_TYPE_LFG_MAP:
             if (Player const* player = unit->ToPlayer())
             {
                 MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
@@ -389,13 +394,13 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
 
 bool IsVMAPDisabledFor(uint32 entry, uint8 flags)
 {
-    return IsDisabledFor(DISABLE_TYPE_VMAP, entry, NULL, flags);
+    return IsDisabledFor(DISABLE_TYPE_VMAP, entry, nullptr, flags);
 }
 
 bool IsPathfindingEnabled(uint32 mapId)
 {
     return sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS)
-        && !IsDisabledFor(DISABLE_TYPE_MMAP, mapId, NULL, MMAP_DISABLE_PATHFINDING);
+        && !IsDisabledFor(DISABLE_TYPE_MMAP, mapId, nullptr, MMAP_DISABLE_PATHFINDING);
 }
 
 } // Namespace

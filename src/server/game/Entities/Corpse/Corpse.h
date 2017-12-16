@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,9 +20,9 @@
 #define TRINITYCORE_CORPSE_H
 
 #include "Object.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "GridDefines.h"
-#include "LootMgr.h"
+#include "Loot.h"
 
 enum CorpseType
 {
@@ -67,7 +67,7 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
         ObjectGuid GetOwnerGUID() const { return GetGuidValue(CORPSE_FIELD_OWNER); }
 
         time_t const& GetGhostTime() const { return m_time; }
-        void ResetGhostTime() { m_time = time(NULL); }
+        void ResetGhostTime() { m_time = time(nullptr); }
         CorpseType GetType() const { return m_type; }
 
         CellCoord const& GetCellCoord() const { return _cellCoord; }
@@ -75,7 +75,6 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
 
         Loot loot;                                          // remove insignia ONLY at BG
         Player* lootRecipient;
-        bool lootForBody;
 
         bool IsExpired(time_t t) const;
 

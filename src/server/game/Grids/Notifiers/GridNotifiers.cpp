@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -80,7 +80,7 @@ void VisibleNotifier::SendToSelf()
 
     WorldPacket packet;
     i_data.BuildPacket(&packet);
-    i_player.GetSession()->SendPacket(&packet);
+    i_player.SendDirectMessage(&packet);
 
     for (std::set<Unit*>::const_iterator it = i_visibleNow.begin(); it != i_visibleNow.end(); ++it)
         i_player.SendInitialVisiblePackets(*it);
@@ -234,17 +234,8 @@ void DelayedUnitRelocation::Visit(PlayerMapType &m)
         if (player != viewPoint && !viewPoint->IsPositionValid())
             continue;
 
-        CellCoord pair2(Trinity::ComputeCellCoord(viewPoint->GetPositionX(), viewPoint->GetPositionY()));
-        Cell cell2(pair2);
-        //cell.SetNoCreate(); need load cells around viewPoint or player, that's why its commented
-
         PlayerRelocationNotifier relocate(*player);
-        TypeContainerVisitor<PlayerRelocationNotifier, WorldTypeMapContainer > c2world_relocation(relocate);
-        TypeContainerVisitor<PlayerRelocationNotifier, GridTypeMapContainer >  c2grid_relocation(relocate);
-
-        cell2.Visit(pair2, c2world_relocation, i_map, *viewPoint, i_radius);
-        cell2.Visit(pair2, c2grid_relocation, i_map, *viewPoint, i_radius);
-
+        Cell::VisitAllObjects(viewPoint, relocate, i_radius, false);
         relocate.SendToSelf();
     }
 }
@@ -308,6 +299,74 @@ void MessageDistDeliverer::Visit(CreatureMapType &m)
 }
 
 void MessageDistDeliverer::Visit(DynamicObjectMapType &m)
+{
+    for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        DynamicObject* target = iter->GetSource();
+        if (!target->InSamePhase(i_phaseMask))
+            continue;
+
+        if (target->GetExactDist2dSq(i_source) > i_distSq)
+            continue;
+
+        if (Unit* caster = target->GetCaster())
+        {
+            // Send packet back to the caster if the caster has vision of dynamic object
+            Player* player = caster->ToPlayer();
+            if (player && player->m_seer == target)
+                SendPacket(player);
+        }
+    }
+}
+
+void MessageDistDelivererToHostile::Visit(PlayerMapType &m)
+{
+    for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        Player* target = iter->GetSource();
+        if (!target->InSamePhase(i_phaseMask))
+            continue;
+
+        if (target->GetExactDist2dSq(i_source) > i_distSq)
+            continue;
+
+        // Send packet to all who are sharing the player's vision
+        if (target->HasSharedVision())
+        {
+            SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
+            for (; i != target->GetSharedVisionList().end(); ++i)
+                if ((*i)->m_seer == target)
+                    SendPacket(*i);
+        }
+
+        if (target->m_seer == target || target->GetVehicle())
+            SendPacket(target);
+    }
+}
+
+void MessageDistDelivererToHostile::Visit(CreatureMapType &m)
+{
+    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        Creature* target = iter->GetSource();
+        if (!target->InSamePhase(i_phaseMask))
+            continue;
+
+        if (target->GetExactDist2dSq(i_source) > i_distSq)
+            continue;
+
+        // Send packet to all who are sharing the creature's vision
+        if (target->HasSharedVision())
+        {
+            SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
+            for (; i != target->GetSharedVisionList().end(); ++i)
+                if ((*i)->m_seer == target)
+                    SendPacket(*i);
+        }
+    }
+}
+
+void MessageDistDelivererToHostile::Visit(DynamicObjectMapType &m)
 {
     for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {

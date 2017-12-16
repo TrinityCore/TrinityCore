@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "utgarde_pinnacle.h"
 #include "SpellInfo.h"
-#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "utgarde_pinnacle.h"
 
 enum Spells
 {
@@ -191,7 +193,7 @@ public:
                 case NPC_AVENGING_SPIRIT:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        summon->AddThreat(target, 0.0f);
+                        AddThreat(target, 0.0f, summon);
                         summon->AI()->AttackStart(target);
                     }
                     break;

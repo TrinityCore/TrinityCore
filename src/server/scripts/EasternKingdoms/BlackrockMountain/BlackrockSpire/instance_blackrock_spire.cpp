@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,15 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "InstanceScript.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "blackrock_spire.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 
 //uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
 
@@ -112,6 +111,9 @@ public:
                 case NPC_SCARSHIELD_INFILTRATOR:
                     ScarshieldInfiltrator = creature->GetGUID();
                     break;
+                case NPC_FINKLE_EINHORN:
+                    creature->AI()->Talk(SAY_FINKLE_GANG);
+                    break;
              }
          }
 
@@ -120,7 +122,7 @@ public:
             switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
-                    go->CastSpell(NULL, SPELL_SUMMON_ROOKERY_WHELP);
+                    go->CastSpell(nullptr, SPELL_SUMMON_ROOKERY_WHELP);
                     break;
                 case GO_EMBERSEER_IN:
                     go_emberseerin = go->GetGUID();
@@ -284,6 +286,7 @@ public:
                         if (GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE)
                             Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1000);
                     }
+                    break;
                 default:
                     break;
             }
@@ -419,8 +422,8 @@ public:
 
         void Dragonspireroomcheck()
         {
-            Creature* mob = NULL;
-            GameObject* rune = NULL;
+            Creature* mob = nullptr;
+            GameObject* rune = nullptr;
 
             for (uint8 i = 0; i < 7; ++i)
             {
@@ -528,7 +531,7 @@ class at_dragonspire_hall : public AreaTriggerScript
 public:
     at_dragonspire_hall() : AreaTriggerScript("at_dragonspire_hall") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (player && player->IsAlive())
         {
@@ -552,7 +555,7 @@ class at_blackrock_stadium : public AreaTriggerScript
 public:
     at_blackrock_stadium() : AreaTriggerScript("at_blackrock_stadium") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (player && player->IsAlive())
         {
@@ -576,10 +579,12 @@ class at_nearby_scarshield_infiltrator : public AreaTriggerScript
 public:
     at_nearby_scarshield_infiltrator() : AreaTriggerScript("at_nearby_scarshield_infiltrator") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (player->IsAlive())
+        {
             if (InstanceScript* instance = player->GetInstanceScript())
+            {
                 if (Creature* infiltrator = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SCARSHIELD_INFILTRATOR)))
                 {
                     if (player->getLevel() >= 57)
@@ -589,6 +594,8 @@ public:
 
                     return true;
                 }
+            }
+        }
 
         return false;
     }

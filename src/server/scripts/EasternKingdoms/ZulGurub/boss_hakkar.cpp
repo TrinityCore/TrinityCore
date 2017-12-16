@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@ Category: Zul'Gurub
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
@@ -173,7 +174,7 @@ class boss_hakkar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_hakkarAI>(creature);
+            return GetZulGurubAI<boss_hakkarAI>(creature);
         }
 };
 
@@ -181,4 +182,3 @@ void AddSC_boss_hakkar()
 {
     new boss_hakkar();
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "CombatAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
-#include "Player.h"
 #include "TemporarySummon.h"
-#include "CombatAI.h"
 
 /*######
 ## npc_argent_valiant
@@ -46,7 +48,7 @@ public:
         {
             Initialize();
             creature->GetMotionMaster()->MovePoint(0, 8599.258f, 963.951f, 547.553f);
-            creature->setFaction(35); //wrong faction in db?
+            creature->SetFaction(FACTION_FRIENDLY); //wrong faction in db?
         }
 
         void Initialize()
@@ -68,7 +70,7 @@ public:
             if (uiType != POINT_MOTION_TYPE)
                 return;
 
-            me->setFaction(14);
+            me->SetFaction(FACTION_MONSTER);
         }
 
         void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
@@ -77,7 +79,7 @@ public:
             {
                 uiDamage = 0;
                 pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
-                me->setFaction(35);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 EnterEvadeMode();
@@ -431,7 +433,7 @@ public:
 
         void Reset() override
         {
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             DoCast(SPELL_THREAT_PULSE);
             Talk(BANNER_SAY);
             events.ScheduleEvent(EVENT_SPAWN, 3000);

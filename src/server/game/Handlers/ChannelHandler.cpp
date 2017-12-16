@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,12 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"                                      // for normalizePlayerName
+#include "WorldSession.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "DBCStores.h"
+#include "Log.h"
+#include "ObjectMgr.h"                                      // for normalizePlayerName
 #include "Player.h"
-#include "WorldSession.h"
-
 #include <cctype>
 
 static size_t const MAX_CHANNEL_PASS_STR = 31;
