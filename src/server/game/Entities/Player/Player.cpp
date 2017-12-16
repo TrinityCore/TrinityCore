@@ -27733,3 +27733,9 @@ uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
 
     return roll;
 }
+
+void Player::ShowNeutralPlayerFactionSelectUI()
+{
+    WorldPackets::Misc::FactionSelectUI packet;
+    GetSession()->SendPacket(packet.Write());
+}

@@ -1560,7 +1560,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 (@CGUID+499, 56730, 860, 0, 0, 1, 1329, 0, 0, 0, 1493.967, 3637.345, 79.93607, 4.241249, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 56730 (Area: 5835) (Auras: 109084 - 109084) (possible waypoints or random movement)
 (@CGUID+500, 54133, 860, 0, 0, 1, 1329, 0, 0, 0, 1357.549, 3558.98, 91.546, 6.135303, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 54133 (Area: 5835)
 (@CGUID+501, 57205, 860, 0, 0, 1, 1329, 0, 0, 0, 1239.681, 3635.628, 95.39224, 1.757271, 120, 0, 0, 0, 0, 2, 0, 0, 0, 20886), -- 57205 (Area: 5825) (possible waypoints or random movement)
-(@CGUID+502, 54635, 860, 0, 0, 1, 1329, 0, 0, 0, 1226.372, 3716.109, 95.15849, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 54635 (Area: 5825)
+(@CGUID+502, 54635, 860, 0, 0, 1, 1329, 0, 38892, 0, 1226.372, 3716.109, 95.15849, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 54635 (Area: 5825)
 (@CGUID+503, 41200, 860, 0, 0, 1, 1329, 0, 0, 0, 1226.472, 3716.093, 99.94996, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 41200 (Area: 5825) (Auras: )
 (@CGUID+504, 56739, 860, 0, 0, 1, 1329, 0, 0, 0, 1205.769, 3718.88, 109.2666, 1.169371, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 56739 (Area: 5825) (Auras: )
 (@CGUID+505, 57205, 860, 0, 0, 1, 1329, 0, 0, 0, 1205.329, 3695.274, 95.87663, 0.4454446, 120, 0, 0, 0, 0, 2, 0, 0, 0, 20886), -- 57205 (Area: 5825) (possible waypoints or random movement)
@@ -3174,7 +3174,6 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 -- (@CGUID+2216, 60780, 860, 0, 0, 1, 544, 0, 0, 0, 192.2014, 3917.563, 55.54762, 6.146939, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 60780 (Area: 5833)
 -- (@CGUID+2218, 60780, 860, 0, 0, 1, 544, 0, 0, 0, 288.5833, 3939.21, 86.57376, 2.656436, 120, 10, 0, 0, 0, 1, 0, 0, 0, 20886), -- 60780 (Area: 5833) (Auras: ) (possible waypoints or random movement)
 -- (@CGUID+2219, 60858, 860, 0, 0, 1, 544, 0, 0, 0, 197.75, 3945.932, 56.97141, 5.319401, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 60858 (Area: 5833)
-(@CGUID+2220, 60854, 860, 0, 0, 1, 544, 0, 0, 1, 320.1094, 3904.228, 77.60663, 6.122603, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 60854 (Area: 5833)
 -- (@CGUID+2222, 60780, 860, 0, 0, 1, 544, 0, 0, 0, 288.2674, 3944.82, 84.34741, 2.656436, 120, 10, 0, 0, 0, 1, 0, 0, 0, 20886), -- 60780 (Area: 5833) (Auras: ) (possible waypoints or random movement)
 -- (@CGUID+2223, 60858, 860, 0, 0, 1, 544, 0, 0, 0, 310.7309, 3822.765, 74.72216, 2.069831, 120, 10, 0, 0, 0, 1, 0, 0, 0, 20886), -- 60858 (Area: 5833) (Auras: 128533 - 128533) (possible waypoints or random movement)
 -- (@CGUID+2224, 60780, 860, 0, 0, 1, 544, 0, 0, 0, 215.7639, 3950.219, 71.34028, 6.07209, 120, 10, 0, 0, 0, 1, 0, 0, 0, 20886), -- 60780 (Area: 5833) (possible waypoints or random movement)
@@ -3729,7 +3728,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+2430, 0, 0, 0, 1, 0, 0, 0, 0, '120703'), -- 56174 - 120703 - 120703
 (@CGUID+2433, 0, 0, 65536, 1, 0, 0, 0, 0, '80797'); -- 55944 - 80797 - 80797
 
-DELETE FROM `creature_template_addon` WHERE `entry` IN (57750, 56503, 54856, 54958, 60488, 55213, 57208, 55558, 60916, 59496, 56377, 55685, 65558, 64322, 64530, 55744, 56159, 56663, 65107, 65102, 56686, 55649, 59986, 59988, 59989, 65043, 57638, 57669, 57670, 57692, 57781, 60729, 60741, 60848);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (57750, 56503, 54856, 54958, 60488, 55213, 57208, 55558, 60916, 59496, 56377, 55685, 65558, 64322, 64530, 55744, 56159, 56663, 65107, 65102, 56686, 55649, 59986, 59988, 59989, 65043, 57638, 57669, 57670, 57692, 57781, 60729, 60741, 60848, 57740);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
 (68986, 0, 0, 8, 1, 0, 0, 0, 0, ''), -- 68986
 (57769, 0, 0, 0, 1, 429, 0, 0, 0, '114825'), -- 57769 - 114825 - 114825
@@ -3903,7 +3902,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 (57317, 0, 0, 0, 1, 333, 0, 0, 0, ''),
 (56418, 0, 0, 0, 1, 510, 0, 0, 0, ''),
 (60848, 0, 0, 0, 1, 0, 0, 0, 0, '117855'),
-(60770, 0, 0, 0, 1, 425, 0, 0, 0, '');
+(60770, 0, 0, 0, 1, 425, 0, 0, 0, ''),
+(57740, 0, 0, 0, 1, 0, 0, 0, 0, '108692');
 
 DELETE FROM `waypoint_data` WHERE `id` BETWEEN @CGUID*10 AND (@CGUID+2437)*10;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
@@ -7129,7 +7129,8 @@ INSERT INTO `quest_request_items` (`ID`, `EmoteOnComplete`, `EmoteOnIncomplete`,
 (29524, 1, 0, 'There is a time for meditation and contemplation, and there is a time for action. Diving the balance between the two is one of the greatest wisdoms we seek.', 20886), -- 29524
 (29406, 1, 0, 'The training targets are just down the hill. Come back to me once you''re finished.', 20886); -- 29406
 
-DELETE FROM `creature_queststarter` WHERE `id` IN (53566, 54135, 54567, 54568, 54608, 54609, 54786, 54787, 54943, 54975, 55020, 55021, 55477, 55478, 55479, 55583, 55585, 55586, 55588, 55595, 55672, 55940, 55942, 55943, 55944, 56012, 56013, 56416, 56418, 56662, 60042, 60055, 65558, 56134);
+DELETE FROM `creature_queststarter` WHERE `id` IN (53566, 54135, 54567, 54568, 54608, 54609, 54786, 54787, 54943, 54975, 55020, 55021, 55477, 55478, 55479, 55583, 55585, 55586, 55588, 55595, 55672, 55940, 55942, 55943, 55944, 56012, 56013, 56416, 56418, 56662, 60042, 60055, 65558, 56134, 57739, 60566, 60570);
+DELETE FROM `creature_queststarter` WHERE `id`=39605 AND `quest`=31013;
 INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
 -- Introductory training
 (53566, 30033), -- Mage only
@@ -7214,9 +7215,16 @@ INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
 (55940, 29798),
 (56416, 30767),
 (56418, 29799),
-(56013, 31450);
+(57739, 29800),
+(56013, 31450),
+-- Alliance quests
+(60566, 30987),
+-- Horde quests
+(60570, 31012),
+(39605, 31013);
 
-DELETE FROM `creature_questender` WHERE `id` IN (53566, 54135, 54568, 54608, 54786, 54787, 54943, 54975, 55020, 55021, 55477, 55478, 55479, 55583, 55585, 55586, 55588, 55592, 55595, 55672, 55940, 55942, 55943, 55944, 56012, 56416, 56418, 56662, 60042, 60055, 60566, 60570, 65558, 56134);
+DELETE FROM `creature_questender` WHERE `id` IN (53566, 54135, 54568, 54608, 54786, 54787, 54943, 54975, 55020, 55021, 55477, 55478, 55479, 55583, 55585, 55586, 55588, 55592, 55595, 55672, 55940, 55942, 55943, 55944, 56012, 56416, 56418, 56662, 60042, 60055, 60566, 60570, 65558, 56134, 56013);
+DELETE FROM `creature_questender` WHERE (`id`=29611 AND `quest`=30987) OR (`id`=39605 AND `quest` IN (31012, 31013));
 INSERT INTO `creature_questender` (`id`, `quest`) VALUES
 -- Introductory training
 (53566, 30033), -- Mage only
@@ -7299,10 +7307,16 @@ INSERT INTO `creature_questender` (`id`, `quest`) VALUES
 (56416, 29798),
 (56418, 30767),
 (56418, 29799),
-(60566, 31450),
-(60570, 31450);
+(56013, 29800),
+(60566, 31450), -- Alliance
+(60570, 31450), -- Horde
+-- Alliance quests
+(29611, 30987), -- there is only one, fail
+-- Horde quests
+(39605, 31012),
+(39605, 31013);
 
-DELETE FROM `quest_template_addon` WHERE `ID` IN (29406, 29408, 29409, 29410, 29524, 30027, 30033, 30034, 30035, 30036, 30037, 30038, 29421, 29422, 29664, 29414, 29417, 29418, 29523, 29522, 29420, 29521, 29776, 29423, 29419, 29424, 29661, 29663, 29676, 29680, 29666, 29677, 29678, 29662, 29768, 29769, 29772, 29774, 29775, 29771, 29770, 29778, 29779, 29780, 29781, 29783, 29787, 29777, 29785, 29786, 29788, 29789, 29790, 29665, 29798, 29793, 29796, 30591, 29794, 29797, 29792, 31450, 30767, 29799, 29791, 29795, 30589, 30590, 29784, 29679, 29782);
+DELETE FROM `quest_template_addon` WHERE `ID` IN (29406, 29408, 29409, 29410, 29524, 30027, 30033, 30034, 30035, 30036, 30037, 30038, 29421, 29422, 29664, 29414, 29417, 29418, 29523, 29522, 29420, 29521, 29776, 29423, 29419, 29424, 29661, 29663, 29676, 29680, 29666, 29677, 29678, 29662, 29768, 29769, 29772, 29774, 29775, 29771, 29770, 29778, 29779, 29780, 29781, 29783, 29787, 29777, 29785, 29786, 29788, 29789, 29790, 29665, 29798, 29793, 29796, 30591, 29794, 29797, 29792, 31450, 30767, 29799, 29791, 29795, 30589, 30590, 29784, 29679, 29782, 29800);
 INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`) VALUES
 (30027, 0, 512, 0, 0, 29406, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), -- The Lesson of the Iron Bough - Monk
 (30033, 0, 128, 0, 0, 29406, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), -- The Lesson of the Iron Bough - Mage
@@ -7374,7 +7388,8 @@ INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `Sourc
 (29798, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), -- An Ancient Evil
 (30767, 0, 0, 0, 29798, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), -- Risking It All
 (29799, 0, 0, 0, 30767, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), -- The Healing of Shen-zin Su
-(31450, 0, 0, 0, 29799, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); -- A New Fate
+(29800, 0, 0, 0, 29799, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), -- New Allies
+(31450, 0, 0, 0, 29800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); -- A New Fate
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (53565, 60176, 54135, 60248, 60729, 60250, 56663, 60852, 57721, 54611, 60900, 54586, 57638, 55477, 54975, 59642, 55943, 60253, 54786, 55672, 61127, 56013, 60042, 60741, 60878, 64881, 55539, 55744, 57712, 59986, 57692, 56662, 56418, 59652, 55694, 57720, 60770, 60183, 54943, 55483, 60249, 55595, 64885, 59988, 60244, 65471, 65558, 60888, 60889, 57669, 56236, 55944, 60851, 56660, 56686, 56159, 56416, 60834, 56676, 60877, 64880, 56661, 61126, 64875, 64506, 54856, 54567, 64879, 54587, 54568, 56503, 57670, 65470, 55504, 54130);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -7703,17 +7718,20 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (60878, 0, 5, 'You handle the beasts, we''ll handle the wound.', 12, 0, 100, 396, 0, 0, 60346, 0, 'Alliance Priest to 60848'),
 (60878, 0, 6, 'Keep these creatures off of us while we perform our healing.', 12, 0, 100, 396, 0, 0, 60347, 0, 'Alliance Priest to 60848'),
 (60878, 0, 7, 'I''d stand with you any day.', 12, 0, 100, 396, 0, 0, 60348, 0, 'Alliance Priest to 60848'),
+(60888, 0, 0, 'I bear your presence only as a kindness to our new allies. Don''t push me, human.', 12, 0, 100, 0, 0, 28117, 60359, 0, 'Korga Strongmane to Player'),
+(60889, 0, 0, 'Stand down, tauren, before I put you back in chains.', 12, 0, 100, 396, 0, 27522, 60623, 0, 'Delora Lionheart to Player'),
+(56013, 0, 0, 'You''ve all accomplished a great thing in saving Shen-zin Su. You do us all proud.', 12, 0, 100, 1, 0, 27784, 60632, 0, 'Spirit of Master Shang Xi to Player'),
+(56013, 1, 0, 'It seems your journeys are not done. These new allies of ours come from a broken world that could use our help.', 12, 0, 100, 1, 0, 27785, 60633, 0, 'Spirit of Master Shang Xi to Player'),
+(56013, 2, 0, 'What of you, Ji? Will you join the Horde in their journey back?', 12, 0, 100, 6, 0, 27786, 60629, 0, 'Spirit of Master Shang Xi to Player'),
+(56013, 3, 0, 'And you, my young student? Where will you go?', 12, 0, 100, 6, 0, 27787, 60631, 0, 'Spirit of Master Shang Xi to Player'),
+(57721, 0, 0, 'Master Shang Xi, I would like to accompany the Alliance back to their home.', 12, 0, 100, 1, 0, 27405, 60628, 0, 'Aysa Cloudsinger to Player'),
+(57720, 0, 0, 'Yes... perhaps that is for the best. I like what I''ve seen of them, and it sounds as though their world could use my help.', 12, 0, 100, 273, 0, 27305, 60630, 0, 'Ji Firepaw to Player'),
 --
 (55944, 0, 0, 'We need more healers at the tents. Recall the priests from the west.', 14, 0, 100, 22, 0, 27508, 60625, 0, 'Delora Lionheart'),
 (55944, 1, 0, 'Hold the line, sailors! Your brothers depend on you!', 14, 0, 100, 22, 0, 27505, 59721, 0, 'Delora Lionheart'),
 (55944, 2, 0, 'Tend to the wounded! This isn''t over yet.', 14, 0, 100, 22, 0, 27506, 59722, 0, 'Delora Lionheart'),
 (55944, 3, 0, 'We have men in that wreckage! Get more men out there recovering the wounded.', 14, 0, 100, 22, 0, 27507, 60624, 0, 'Delora Lionheart'),
-(57721, 0, 0, 'Master Shang Xi, I would like to accompany the Alliance back to their home.', 12, 0, 100, 1, 0, 0, 60628, 0, 'Aysa Cloudsinger to Player'),
-(56013, 0, 0, 'You''ve all accomplished a great thing in saving Shen-zin Su. You do us all proud.', 12, 0, 100, 1, 0, 0, 60632, 0, 'Spirit of Master Shang Xi to Player'),
-(56418, 0, 0, 'If we lose the healers, Shen-zin Su dies, and all of us with him!  Keep them safe.', 14, 0, 100, 0, 0, 0, 66063, 0, 'Ji Firepaw'),
-(57720, 0, 0, 'Yes... perhaps that is for the best. I like what I''ve seen of them, and it sounds as though their world could use my help.', 12, 0, 100, 273, 0, 0, 60630, 0, 'Ji Firepaw to Player'),
-(60888, 0, 0, 'I bear your presence only as a kindness to our new allies. Don''t push me, human.', 12, 0, 100, 0, 0, 0, 60359, 0, 'Korga Strongmane to Player'),
-(60889, 0, 0, 'Stand down, tauren, before I put you back in chains.', 12, 0, 100, 396, 0, 0, 60623, 0, 'Delora Lionheart to Player');
+(56418, 0, 0, 'If we lose the healers, Shen-zin Su dies, and all of us with him!  Keep them safe.', 14, 0, 100, 0, 0, 0, 66063, 0, 'Ji Firepaw');
 
 UPDATE `creature_template` SET `gossip_menu_id`=13346 WHERE `entry`=57754;
 UPDATE `creature_template` SET `gossip_menu_id`=13036 WHERE `entry`=53566;
@@ -7740,12 +7758,12 @@ UPDATE `creature_template` SET `gossip_menu_id`=13249 WHERE `entry`=55944;
 UPDATE `creature_template` SET `gossip_menu_id`=14671 WHERE `entry`=57721;
 UPDATE `creature_template` SET `gossip_menu_id`=14670 WHERE `entry`=57720;
 UPDATE `creature_template` SET `gossip_menu_id`=13726 WHERE `entry`=56013;
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (57779, 57164, 54568, 60245, 61126, 61127, 54786, 57132, 60253, 60248, 54734, 54135, 59626, 60176, 41200, 54131, 57205, 54943, 60244, 53566, 54586, 65470, 60183, 54611, 59642, 60554, 60042, 55943, 56236, 55946, 56174, 56008, 56360, 56362, 55940, 60895, 60896, 55640, 65102, 65107, 55918, 56663, 56662, 65476, 65477, 56274, 55586, 64506, 64505, 55592, 55665, 57465, 57466, 55633, 57419, 64875, 64876, 64879, 64880, 64881, 64885, 60918, 65044, 65045, 65085, 65086, 66689, 66691, 66692, 65467, 55539, 55506, 60915, 60914, 55556, 57797, 53704, 55022, 55015, 55504, 55483, 56241, 65473, 57712, 56393, 56394, 60411, 54976, 65742, 57317, 60852);
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (57779, 57164, 54568, 60245, 61126, 61127, 54786, 57132, 60253, 60248, 54734, 54135, 59626, 60176, 41200, 54131, 57205, 54943, 60244, 53566, 54586, 65470, 60183, 54611, 59642, 60554, 60042, 55943, 56236, 55946, 56174, 56008, 56360, 56362, 55940, 60895, 60896, 55640, 65102, 65107, 55918, 56663, 56662, 65476, 65477, 56274, 55586, 64506, 64505, 55592, 55665, 57465, 57466, 55633, 57419, 64875, 64876, 64879, 64880, 64881, 64885, 60918, 65044, 65045, 65085, 65086, 66689, 66691, 66692, 65467, 55539, 55506, 60915, 60914, 55556, 57797, 53704, 55022, 55015, 55504, 55483, 56241, 65473, 57712, 56393, 56394, 60411, 54976, 65742, 57317, 60852, 56418, 56013, 57720, 57721);
 UPDATE `creature_template` SET `flags_extra`=64 WHERE `entry` IN (53714, 57873);
 UPDATE `creature_template` SET `faction`=2104, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `VehicleId`=1953, `AIName`='SmartAI', `HoverHeight`=2 WHERE `entry`=57750;
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry` IN (56739, 60920, 55650, 65559, 65560, 57464, 56172);
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33544, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=56503;
-UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33544, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry` IN (59652, 54856, 60249, 60250, 57638, 57669, 57670, 57692, 55213, 57207, 59498, 55558, 60916, 64530, 55744, 64543, 56159, 56686, 56661, 59986, 59988, 59989, 60900);
+UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33544, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry` IN (59652, 54856, 60249, 60250, 57638, 57669, 57670, 57692, 55213, 57207, 59498, 55558, 60916, 64530, 55744, 64543, 56159, 56686, 56661, 59986, 59988, 59989, 60900, 57742);
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=59637;
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `lootid`=54631, `AIName`='SmartAI' WHERE `entry`=54631;
 UPDATE `creature_template` SET `AIName`='SmartAI', `InhabitType`=4 WHERE `entry` IN (54787, 64554);
@@ -7761,8 +7779,8 @@ UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAtta
 UPDATE `creature_template` SET `unit_flags`=32768, `skinloot`=16353, `AIName`='SmartAI' WHERE `entry`=55292;
 UPDATE `creature_template` SET `ScriptName`='npc_shu_playing' WHERE `entry`=65493;
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33554944, `unit_flags2`=2048, `AIName`='SmartAI', `InhabitType`=4 WHERE `entry`=60488;
-UPDATE `creature_template` SET `npcflag`=16777216, `AIName`='SmartAI' WHERE `entry` IN (57710, 59497, 64507);
-UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=16904, `unit_flags2`=34816, `VehicleId`=1944, `AIName`='SmartAI' WHERE `entry` IN (57208, 59496);
+UPDATE `creature_template` SET `npcflag`=16777216, `AIName`='SmartAI' WHERE `entry` IN (57710, 59497, 64507, 57741);
+UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=16904, `unit_flags2`=34816, `VehicleId`=1944, `AIName`='SmartAI' WHERE `entry` IN (57208, 59496, 57740);
 UPDATE `creature_template` SET `faction`=2111, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33024, `unit_flags2`=67110912, `VehicleId`=2360, `AIName`='SmartAI' WHERE `entry`=64258;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33587976, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry` IN (56566, 56679);
 UPDATE `creature_template` SET `minlevel`=7, `maxlevel`=7, `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33587720, `unit_flags2`=2048, `VehicleId`=1800, `AIName`='SmartAI', `InhabitType`=4 WHERE `entry`=55685;
@@ -7798,6 +7816,8 @@ UPDATE `creature_template` SET `npcflag`=16777216, `AIName`='SmartAI' WHERE `ent
 UPDATE `creature_template` SET `unit_flags`=32768, `AIName`='SmartAI', `RegenHealth`=0 WHERE `entry`=60834;
 UPDATE `creature_template` SET `AIName`='SmartAI', `RegenHealth`=0 WHERE `entry`=60878;
 UPDATE `creature_template` SET `minlevel`=10, `maxlevel`=10, `faction`=2263, `npcflag`=16777216, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67143680, `VehicleId`=2171, `AIName`='SmartAI' WHERE `entry`=60848;
+UPDATE `creature_template` SET `npcflag`=2, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33536, `unit_flags2`=2048 WHERE `entry`=57739;
+UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33587976, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=64592;
 
 UPDATE `gameobject_template` SET `VerifiedBuild`=20886 WHERE `entry` IN (209507, 209584, 209639, 209640, 209641, 209642, 209643, 209644, 209645, 209646, 209665, 209669, 209671, 209673, 209774, 209792, 209793, 210051, 211394, 211397, 211398, 211399, 211400, 211401, 212582, 212587, 212594, 212595, 212614, 212620, 209656, 209660, 209661, 209663, 209078, 209363, 209466, 209608, 209626, 209685, 209924, 209981, 210100, 210964, 210965, 211283, 211336, 211337, 211294, 209326, 209327, 210005, 210015, 210016, 210017, 210018, 210019, 210020, 214406, 210122, 210986, 209575, 209576, 209577, 209364, 209367, 209372, 209373, 209374, 209375, 209685, 209900, 209922, 209924, 209970, 209971, 209972, 209973, 210965, 211283, 212561, 212563, 212578, 212582, 212584, 212588, 212590, 212593, 212613, 212620, 1617, 1618, 1619, 1731, 209325, 209369, 209657, 209658, 209659, 209754, 209800, 209801, 209802, 209803, 209983, 209988, 209989, 210099, 210101, 210102, 210124, 210125, 210126, 210127, 210987, 211170, 211171, 212559, 212560, 212562, 212564, 212565, 212566, 212567, 212568, 212569, 212570, 212571, 212572, 212576, 212579, 212580, 212581, 212583, 212585, 212586, 212589, 212591, 212592, 212611, 212612, 212615, 212616, 212617, 212618, 212619, 214353, 214354, 214409, 214413, 214563, 214564, 214565, 214568, 214673, 214879, 214883, 215344, 215962, 215963, 216301, 211282);
 UPDATE `gameobject_template` SET `AIName`='SmartGameObjectAI', `VerifiedBuild`=20886 WHERE `entry` IN (213439, 213532);
@@ -8295,9 +8315,10 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 (55649, 65476, 3, 1, 'Balloon Air Spirit Bunny', 8, 0),
 (55649, 65477, 4, 1, 'Balloon Fire Spirit Bunny', 8, 0);
 
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (56739, 54993, 57431, 57626, 55083, 57710, 59497, 57464, 57690, 64507, 55918, 65476, 65477, 55649, 57778, 55999, 60770, 60848, 60877);
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (56739, 54635, 54993, 57431, 57626, 55083, 57710, 59497, 57464, 57690, 64507, 55918, 65476, 65477, 55649, 57778, 55999, 60770, 60848, 60877, 57741);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (56739, 46598, 0, 0),
+(54635, 99952, 0, 0),
 (54993, 102717, 1, 0),
 (57431, 102717, 1, 0),
 (57626, 108699, 1, 0),
@@ -8316,11 +8337,8 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 (55999, 56685, 1, 0),
 (60770, 56685, 1, 0),
 (60848, 117848, 1, 0),
-(60877, 56685, 1, 0);
-/*
-(54635, 99952, UNKNOWN, UNKNOWN),
-(57741, 108933, UNKNOWN, UNKNOWN);
-*/
+(60877, 56685, 1, 0),
+(57741, 108933, 3, 0);
 
 DELETE FROM `trainer` WHERE `ID` IN (48, 51, 59, 80, 102, 103, 117, 387, 388, 389, 390);
 INSERT INTO `trainer` (`Id`, `Type`, `Greeting`, `VerifiedBuild`) VALUES
@@ -8670,7 +8688,7 @@ INSERT INTO `page_text` (`ID`, `Text`, `NextPageID`, `VerifiedBuild`) VALUES
 (4605, '"Discipline is not a war that is won. It is a battle, constantly fought." -Master Feng$b$bThe way of the Tushui is one of a principled life. Followers of this discipline  believe there is a moral certainty to the world: one correct path of right and wrong.$b$bThese values are immutable, and must be preserved no matter what the cost, even if it means self-sacrifice, or painful losses in the pursuit of a higher ideal.', 0, 20886), -- 4605
 (4610, '"Always challenge. Always question. In the pursuit of a greater good, inaction is the only wrong." -Master Zurong$b$bThe path of the Huojin is marked by practical and decisive action. Followers of this discipline believe that morals and ideals are not absolute, but change with circumstances.$b$bAs such, a Huojin Master must remain flexible in his or her thinking, always evaluating the greater good.', 0, 20886); -- 4610
 
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (7746, 7737, 7747, 7748, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 6986, 6987, 6988, 6989, 6991, 6992, 7011, 7012, 8628, 7783, 7258, 7822, 7116, 8276, 8287, 7041, 7042, 7037, 7106, 7710, 7709, 7714, 7087, 7265);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (7746, 7737, 7747, 7748, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 6986, 6987, 6988, 6989, 6991, 6992, 7011, 7012, 8628, 7783, 7258, 7822, 7116, 8276, 8287, 7041, 7042, 7037, 7106, 7710, 7709, 7714, 7087, 7265, 8564);
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (7746, 'SmartTrigger'),
 (7737, 'SmartTrigger'),
@@ -8707,7 +8725,8 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (7709, 'SmartTrigger'),
 (7714, 'SmartTrigger'),
 (7087, 'at_wreck_of_the_skyseeker_injured_sailor'),
-(7265, 'SmartTrigger');
+(7265, 'SmartTrigger'),
+(8564, 'SmartTrigger');
 
 DELETE FROM `areatrigger_template` WHERE `Id`=3435;
 INSERT INTO `areatrigger_template` (`Id`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `ScriptName`, `VerifiedBuild`) VALUES
@@ -8723,9 +8742,9 @@ INSERT INTO `spell_areatrigger` (`SpellMiscId`, `AreaTriggerId`, `MoveCurveId`, 
 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceEntry` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944)) OR (`SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (524, 592, 593, 594, 595, 596, 597, 598, 964, 1329, 1430, 1510, 1518, 1523, 1526, 1527, 1836, 1885, 879, 903, 1835) AND `SourceEntry`=0);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=25 AND `SourceEntry` IN (975, 976);
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7709, 7714, 7265) AND `SourceId`=2;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118029, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497);
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 102522, 107049, 125961, 115446, 115447, 115334, 115336, 115338, 115435, 115493, 115494, 115495)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup`=13140);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7709, 7714, 7265, 8564) AND `SourceId`=2;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118029, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497, 108933, 108932);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 102522, 107049, 125961, 115446, 115447, 115334, 115336, 115338, 115435, 115493, 115494, 115495)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (13140, 13726));
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Phases Specific
 (26, 629, 5825, 0, 0, 28, 0, 29419, 0, 0, 1, 0, 0, '', 'The Dawning Valley Phase 629 until Quest 29419 not complete'), -- phase not updated automatically (removed in SAI)
@@ -8832,7 +8851,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (25, 0, 975, 0, 0, 28, 0, 30767, 0, 0, 0, 0, 0, '', 'TerrainSwap 975 only when player has quest 30767 complete'),
 (25, 0, 975, 0, 1, 8, 0, 30767, 0, 0, 0, 0, 0, '', 'TerrainSwap 975 only when player has quest 30767 rewarded'),
 (25, 0, 975, 0, 1, 8, 0, 29799, 0, 0, 1, 0, 0, '', 'TerrainSwap 975 only when player has quest 29799 not rewarded'),
+(25, 0, 975, 0, 2, 1, 0, 118233, 0, 0, 0, 0, 0, '', 'TerrainSwap 976 only when player has aura'), -- temp
 (25, 0, 976, 0, 0, 8, 0, 29799, 0, 0, 0, 0, 0, '', 'TerrainSwap 976 only when player has quest 29799 rewarded'),
+(25, 0, 976, 0, 0, 1, 0, 118233, 0, 0, 1, 0, 0, '', 'TerrainSwap 976 only when player has not aura'), -- temp
 -- Triggers
 (22, 1, 7746, 2, 0, 9, 0, 29409, 0, 0, 0, 0, 0, '', 'SAI only when quest taken'),
 (22, 1, 7746, 2, 0, 1, 0, 116219, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
@@ -8876,6 +8897,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22, 1, 7714, 2, 0, 28, 0, 29792, 0, 0, 0, 0, 0, '', 'SAI only when quest complete'),
 (22, 1, 7714, 2, 0, 1, 0, 115644, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
 (22, 1, 7265, 2, 0, 1, 0, 88811, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
+(22, 1, 8564, 2, 0, 1, 0, 131425, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
 -- Spell Targets
 (13, 1, 108967, 0, 0, 31, 0, 3, 53714, 0, 0, 0, 0, '', 'Jab target only Training Target'),
 (13, 1, 108967, 0, 1, 31, 0, 3, 57873, 0, 0, 0, 0, '', 'Jab target only Training Target'),
@@ -8913,6 +8935,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 107783, 0, 0, 31, 0, 3, 57709, 0, 0, 0, 0, '', 'Summon Ox, Cursed Pools -> Farmlands target Nourished Yak'),
 (13, 1, 108627, 0, 0, 31, 0, 3, 57207, 0, 0, 0, 0, '', 'Ox Cart Rope Left target Nourished Yak'),
 (13, 1, 108627, 0, 1, 31, 0, 3, 59498, 0, 0, 0, 0, '', 'Ox Cart Rope Left target Nourished Yak'),
+(13, 1, 108627, 0, 2, 31, 0, 3, 57742, 0, 0, 0, 0, '', 'Ox Cart Rope Left target Nourished Yak'),
 (13, 1, 105881, 0, 0, 31, 0, 3, 55213, 0, 0, 0, 0, '', 'Trigger Spirit of Water at Farm target Shu'),
 (13, 1, 105881, 0, 0, 33, 0, 1, 3, 0, 0, 0, 0, '', 'Trigger Spirit of Water at Farm target Shu owned by summoner'), -- temp?
 (13, 1, 118032, 0, 0, 31, 0, 3, 60914, 0, 0, 0, 0, '', 'Water Spout target Water Spout Bunny'),
@@ -8978,6 +9001,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 115420, 0, 2, 31, 0, 3, 59989, 0, 0, 0, 0, '', 'Trigger Hermit Hut NPCs target Jojo Ironbrow'),
 (13, 1, 117973, 0, 0, 31, 0, 3, 55942, 0, 0, 0, 0, '', 'Summon Ji Yuan target Ji Firepaw'),
 (13, 1, 117497, 0, 0, 31, 0, 3, 56416, 0, 0, 0, 0, '', 'Summon Aysa Yuan target Aysa Cloudsinger'),
+(13, 1, 108933, 0, 0, 31, 0, 3, 57741, 0, 0, 0, 0, '', 'Summon Ox Cart, Skyfire Crash > Temple target Delivery Cart'),
+(13, 1, 108932, 0, 0, 31, 0, 3, 57743, 0, 0, 0, 0, '', 'Summon Ox, Skyfire Crash > Temple target Nourished Yak'),
 -- Other
 (22, 1, 54567, 0, 0, 28, 0, 29419, 0, 0, 1, 0, 0, '', 'SAI only when player has not completed quest'),
 (22, 1, 54567, 0, 0, 8, 0, 29419, 0, 0, 1, 0, 0, '', 'SAI only when player has not rewarded quest'),
@@ -9009,7 +9034,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 115495, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Jojo when Aysa not within 50y'),
 (18, 55999, 56685, 0, 0, 9, 0, 29794, 0, 0, 0, 0, 0, '', 'Show spellclick only when player has taken quest'),
 (18, 55999, 56685, 0, 0, 1, 0, 105520, 0, 0, 1, 0, 0, '', 'Show spellclick only when player has not aura'),
-(18, 55999, 56685, 0, 0, 1, 0, 129340, 0, 0, 1, 0, 0, '', 'Show spellclick only when player has not aura');
+(18, 55999, 56685, 0, 0, 1, 0, 129340, 0, 0, 1, 0, 0, '', 'Show spellclick only when player has not aura'),
+(15, 13726, 0, 0, 0, 9, 0, 31450, 0, 0, 0, 0, 0, '', 'Show gossip menu option when quest taken');
 
 DELETE FROM `phase_area` WHERE `AreaId` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944);
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
@@ -9134,7 +9160,7 @@ DELETE FROM `scene_template` WHERE `SceneId`=102;
 INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `ScriptName`) VALUES
 (102, 9, 26, '');
 
-DELETE FROM `spell_area` WHERE `spell` IN (117501, 108931, 105525, 115449, 115447, 109067, 105095, 105001, 104566, 105306, 104334, 106394, 104567, 105005, 105307, 105308, 108842, 108844, 109100, 104028, 115446, 115448, 118028, 104018, 114455, 109303, 108835, 108822, 108823, 128574, 102875, 102871, 116571, 102874, 102870, 103051, 108879, 108834, 102873, 102872, 102869, 106494, 106493, 102868, 105156, 105157, 105158, 108695, 108694, 105162, 105161, 105160, 102521, 119305, 119306, 119307, 102400, 102399, 102398, 102397, 102396, 102395, 114735, 102194, 100709, 107027, 107028, 107032, 102403, 100711, 107033, 102393, 102429);
+DELETE FROM `spell_area` WHERE `spell` IN (105096, 108914, 117501, 108931, 105525, 115449, 115447, 109067, 105095, 105001, 104566, 105306, 104334, 106394, 104567, 105005, 105307, 105308, 108842, 108844, 109100, 104028, 115446, 115448, 118028, 104018, 114455, 109303, 108835, 108822, 108823, 128574, 102875, 102871, 116571, 102874, 102870, 103051, 108879, 108834, 102873, 102872, 102869, 106494, 106493, 102868, 105156, 105157, 105158, 108695, 108694, 105162, 105161, 105160, 102521, 119305, 119306, 119307, 102400, 102399, 102398, 102397, 102396, 102395, 114735, 102194, 100709, 107027, 107028, 107032, 102403, 100711, 107033, 102393, 102429);
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES
 (100709, 5834, 0, 29524, 0, 0, 2, 1, 0, 9), -- See Quest Invis 1 (Master Shang bench)
 (107027, 5834, 0, 29406, 0, 0, 2, 1, 0, 11), -- See Quest Invis 20 (Gate 1 - GO)
@@ -9231,9 +9257,11 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (115449, 5737, 29792, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 26 (Pei-Wu Forest Gate open - GO)
 (105525, 5833, 0, 29794, 0, 0, 2, 1, 0, 9), -- See Quest Invis 1 (Injured Sailor)
 (108931, 5833, 0, 0, 0, 0, 2, 1, 0, 0), -- See Quest Invis 2 (Cart - Wreck of the Skyseeker)
-(117501, 5833, 0, 29799, 0, 0, 2, 1, 0, 1); -- See Quest Invis 11 (Aysa Cloudsinger - after Vordraka fight)
+(117501, 5833, 0, 29799, 0, 0, 2, 1, 0, 1), -- See Quest Invis 11 (Aysa Cloudsinger - after Vordraka fight)
+(108914, 5820, 29800, 0, 0, 0, 2, 1, 74, 0), -- See Quest Invis 5 (Delora, Aysa, Ji, Korga)
+(105096, 5820, 29800, 0, 0, 0, 2, 1, 74, 0); -- See Quest Invis 4 (Spirit of Master Shang)
 
-DELETE FROM `spell_target_position` WHERE `ID` IN (102499, 118499, 118500, 116190, 116191, 108786, 108827, 104450, 108847, 108858, 104571, 126040, 115426, 115334, 115336, 115338, 115435, 115493, 115494, 115495, 117597, 117615);
+DELETE FROM `spell_target_position` WHERE `ID` IN (102499, 118499, 118500, 116190, 116191, 108786, 108827, 104450, 108847, 108858, 104571, 126040, 115426, 115334, 115336, 115338, 115435, 115493, 115494, 115495, 117597, 117615, 131974, 116957, 116962);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
 (102499, 0, 860, 1351.333, 3939.035, 109.324, 0),
 (118499, 0, 860, 992.0035, 3600.757, 193.0315, 0),
@@ -9256,7 +9284,12 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 (115494, 0, 860, 424.8576, 3635.563, 92.67889, 0),
 (115495, 0, 860, 418.1597, 3630.876, 92.94038, 0),
 (117597, 0, 860, 230.314, 4006.68, 87.2803, 0),
-(117615, 1, 860, 250.757, 3932.67, 66.408, 20886);
+(117615, 1, 860, 250.757, 3932.67, 66.408, 20886),
+(131974, 0, 860, 248.988, 3941.08, 65.3511, 20886),
+(116957, 0, 0, -9128.09, 388.54, 91.163, 0),
+(116957, 1, 0, -9128.09, 388.54, 91.163, 0),
+(116962, 0, 1, 1361.95, -4375.25, 26.0891, 20886),
+(116962, 1, 1, 1361.95, -4375.25, 26.0891, 20886);
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (108936, 106494, -128589, -104333, -105678, 115343, 115351, 115491, -118202);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
@@ -9280,11 +9313,11 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 
 DELETE FROM `smart_scripts` WHERE `entryorguid` BETWEEN -@CGUID-2849 AND -@CGUID AND `source_type`=0;
 -- Temp Spawns
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (59637, 54856, 59652, 56503, 57750, 54631, 61126, 61127, 54958, 56550, 60250, 60249, 57636, 57638, 60488, 55213, 57208, 57207, 64258, 57667, 57669, 55558, 60916, 59496, 59498, 56566, 55685, 55694, 57668, 57670, 65558, 56134, 57465, 57690, 57692, 64530, 55744, 64543, 64532, 56159, 65476, 65477, 56686, 57874, 56679, 56663, 55649, 56660, 56661, 65102, 65107, 57781, 59986, 59988, 59989, 60900, 56236, 60685, 60729, 60741, 57803, 60848) AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (59637, 54856, 59652, 56503, 57750, 54631, 61126, 61127, 54958, 56550, 60250, 60249, 57636, 57638, 60488, 55213, 57208, 57207, 64258, 57667, 57669, 55558, 60916, 59496, 59498, 56566, 55685, 55694, 57668, 57670, 65558, 56134, 57465, 57690, 57692, 64530, 55744, 64543, 64532, 56159, 65476, 65477, 56686, 57874, 56679, 56663, 55649, 56660, 56661, 65102, 65107, 57781, 59986, 59988, 59989, 60900, 56236, 60685, 60729, 60741, 57803, 60848, 57740, 57742, 64592) AND `source_type`=0;
 -- Action Lists > x*100 || Temp Spawns' Actionlists
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5485603, 5965200, 5650300, 5461101, 5461102, 5458701, 5458702, 5458703, 5458704, 5458705, 5458706, 5458707, 5458708, 5458601, 5356501, 5356502, 5356503, 5356504, 5774801, 5774802, 5774803, 6141101, 6141102, 6141103, 5413001, 5413002, 5413003, 5413004, 5413005, 5413006, 5413007, 5413008, 5413009, 5673001, 5673002, 5673003, 5463100, 6112600, 6112700, 5495800, 6025000, 6024900, 5763800, 5639301, 5639302, 6048800, 5720800, 5720700, 5766900, 5639303, 6546701, 5547701, 5555800, 6091600, 5949600, 6668901, 6669101, 6669201, 5656600, 5569400, 5560101, 5560102, 5767000, 5639304, 5639305, 5639306, 5639307, 6546702, 5639401, 5639402, 5639403, 6555800, 5769200, 6454300, 5566501, 6453200, 5615900, 5668600, 5668601, 5668602, 5668603, 5564900, 5564901, 5564902, 5666100, 5666101, 5666000, 5666001, 5998600, 5998601, 5998602, 5998603, 5998800, 5998900, 5998901, 6090000, 5623600, 6072900, 6074100, 5780300) AND `source_type`=9;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5485603, 5965200, 5650300, 5461101, 5461102, 5458701, 5458702, 5458703, 5458704, 5458705, 5458706, 5458707, 5458708, 5458601, 5356501, 5356502, 5356503, 5356504, 5774801, 5774802, 5774803, 6141101, 6141102, 6141103, 5413001, 5413002, 5413003, 5413004, 5413005, 5413006, 5413007, 5413008, 5413009, 5673001, 5673002, 5673003, 5463100, 6112600, 6112700, 5495800, 6025000, 6024900, 5763800, 5639301, 5639302, 6048800, 5720800, 5720700, 5766900, 5639303, 6546701, 5547701, 5555800, 6091600, 5949600, 6668901, 6669101, 6669201, 5656600, 5569400, 5560101, 5560102, 5767000, 5639304, 5639305, 5639306, 5639307, 6546702, 5639401, 5639402, 5639403, 6555800, 5769200, 6454300, 5566501, 6453200, 5615900, 5668600, 5668601, 5668602, 5668603, 5564900, 5564901, 5564902, 5666100, 5666101, 5666000, 5666001, 5998600, 5998601, 5998602, 5998603, 5998800, 5998900, 5998901, 6090000, 5623600, 6072900, 6074100, 5780300, 5774000, 6459200) AND `source_type`=9;
 -- Area Triggers
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (7746, 7737, 7747, 7748, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7042, 7037, 7106, 7710, 7709, 7714, 7265) AND `source_type`=2;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (7746, 7737, 7747, 7748, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7042, 7037, 7106, 7710, 7709, 7714, 8564, 7265) AND `source_type`=2;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 -- Training Target
 (53714, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Training Target - On Respawn - Set React State'),
@@ -11335,7 +11368,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (6087700, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 83, 16777216, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Alliance Priest - Remove Npcflag'),
 (6087700, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Alliance Priest - Set Event Phase 2'),
 
-
+/*
+	NPCs fighting during Healing of Shen-Zin Su quest
+*/
 
 -- Alliance Priest
 (-@CGUID-2350, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 11, 51361, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Alliance Priest - On Respawn - Cast Holy Channeling'),
@@ -11353,10 +11388,61 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (-@CGUID-2384, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 11, 28892, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Horde Druid - On Respawn - Cast Nature Channeling'),
 (-@CGUID-2402, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 11, 28892, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Horde Druid - On Respawn - Cast Nature Channeling'),
 (-@CGUID-2415, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 11, 28892, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Horde Druid - On Respawn - Cast Nature Channeling'),
+-- Trigger 8564 Delora/Korga event
+(8564, 2, 0, 1, 46, 0, 100, 0, 8564, 0, 0, 0, 85, 131983, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Invoker Cast Ally/Horde Argument Trigger Aura'),
+(8564, 2, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 85, 131425, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Invoker Cast CKS Area Trigger Dummy Timer Aura, Self'),
 -- Trigger 7265 Cart Driver
 (7265, 2, 0, 0, 46, 0, 100, 0, 7265, 0, 0, 0, 86, 88811, 2, 10, @CGUID+2395, 57712, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cross Cast Area Trigger Dummy Timer Aura'),
 -- Delivery Cart Tender
 (-@CGUID-2395, 0, 0, 0, 31, 0, 100, 0, 88811, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart Tender - On Spellhit Target - Talk'),
+-- Delivery Cart (vehicle)
+(57740, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 64, 1, 0, 0, 0, 0, 0, 11, 57742, 4, 0, 0, 0, 0, 0, 'Delivery Cart - Just Spawned - Store Target'),
+(57740, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Just Spawned - Set Data'),
+(57740, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 85, 46598, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Just Spawned - Invoker Cast Ride Vehicle Hardcoded'),
+(57740, 0, 3, 4, 27, 0, 100, 1, 0, 0, 0, 0, 11, 108887, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Passenger Boarded - Cast Ox Cart Invisibility'),
+(57740, 0, 4, 0, 61, 0, 100, 1, 0, 0, 0, 0, 80, 5774000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Passenger Boarded - Run Script'),
+(5774000, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 11, 108627, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Cast Ox Cart Rope Left'),
+(5774000, 9, 2, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 45, 2, 2, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Set Data'),
+(5774000, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 1, 57740, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Start WP'),
+(5774000, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 19, 32768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Remove Unit Flag'),
+(57740, 0, 5, 0, 40, 0, 100, 0, 33, 57740, 0, 0, 11, 50630, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - On WP Reached - Cast Eject All Passengers'),
+(57740, 0, 6, 0, 28, 0, 100, 0, 0, 0, 0, 0, 11, 108888, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - Passenger Removed - Cast Cancel Ox Cart Invisibility'),
+(57740, 0, 7, 0, 58, 0, 100, 0, 39, 57740, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Delivery Cart - On WP Ended - Despawn'),
+-- Nourished Yak
+(57742, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 22, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Nourished Yak - Just Spawned - Set Event Phase 1'),
+(57742, 0, 1, 0, 38, 1, 100, 0, 1, 1, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Nourished Yak - On Data Set - Set Event Phase 2'),
+(57742, 0, 2, 0, 8, 0, 100, 0, 108627, 0, 0, 0, 11, 108691, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Nourished Yak - On Spellhit - Cast Ox Cart Rope Right'),
+(57742, 0, 3, 0, 38, 2, 100, 0, 2, 2, 0, 0, 53, 1, 57742, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Nourished Yak - On Data Set - Start WP'),
+(57742, 0, 4, 0, 58, 0, 100, 0, 39, 57742, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Nourished Yak - On WP Ended - Despawn'),
+-- Spirit of Master Shang Xi
+(56013, 0, 0, 0, 19, 0, 100, 0, 31450, 0, 0, 0, 85, 126162, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Spirit of Master Shang Xi - On Quest Accepted - Invoker Cast Summon Faction Choice Lead-in Controller'),
+(56013, 0, 1, 0, 38, 0, 100, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Spirit of Master Shang Xi - On Data Set - Talk'),
+(56013, 0, 2, 0, 38, 0, 100, 0, 1, 2, 0, 0, 1, 1, 0, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Spirit of Master Shang Xi - On Data Set - Talk'),
+(56013, 0, 3, 0, 38, 0, 100, 0, 1, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Spirit of Master Shang Xi - On Data Set - Talk'),
+(56013, 0, 4, 0, 38, 0, 100, 0, 1, 4, 0, 0, 1, 3, 0, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Spirit of Master Shang Xi - On Data Set - Talk'),
+(56013, 0, 5, 6, 62, 0, 100, 0, 13726, 0, 0, 0, 85, 108897, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Spirit of Master Shang Xi - On Gossip Select - Invoker Cast Pandaren Faction Choice'),
+(56013, 0, 6, 0, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Spirit of Master Shang Xi - On Gossip Select - Close Gossip'),
+-- Faction Choice Lead-in Controller
+(64592, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 3, 0, 11686, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Just Spawned - Morph'),
+(64592, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 64, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Just Spawned - Store Target'),
+(64592, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 6459200, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Just Spawned - Run Script'),
+(6459200, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 11, 56013, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Send Target'),
+(6459200, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 56013, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Set Data'),
+(6459200, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 100, 1, 0, 0, 0, 0, 0, 11, 56013, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Send Target'),
+(6459200, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 2, 0, 0, 0, 0, 11, 56013, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Set Data'),
+(6459200, 9, 4, 0, 0, 0, 100, 0, 11000, 11000, 0, 0, 100, 1, 0, 0, 0, 0, 0, 11, 57721, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Send Target'),
+(6459200, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 2, 1, 0, 0, 0, 0, 11, 57721, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Set Data'),
+(6459200, 9, 6, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 100, 1, 0, 0, 0, 0, 0, 11, 56013, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Send Target'),
+(6459200, 9, 7, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 3, 0, 0, 0, 0, 11, 56013, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Set Data'),
+(6459200, 9, 8, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 100, 1, 0, 0, 0, 0, 0, 11, 57720, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Send Target'),
+(6459200, 9, 9, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 3, 1, 0, 0, 0, 0, 11, 57720, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Set Data'),
+(6459200, 9, 10, 0, 0, 0, 100, 0, 11000, 11000, 0, 0, 100, 1, 0, 0, 0, 0, 0, 11, 56013, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Send Target'),
+(6459200, 9, 11, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 4, 0, 0, 0, 0, 11, 56013, 10, 0, 0, 0, 0, 0, 'Faction Choice Lead-in Controller - Set Data'),
+-- Aysa Cloudsinger
+(57721, 0, 0, 0, 38, 0, 100, 0, 2, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Text Over - Talk'),
+-- Ji Firepaw
+(57720, 0, 0, 0, 38, 0, 100, 0, 3, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Text Over - Talk'),
+
 
 -- Generic Controller Bunny TEMP (spawn Fe-Feng Brewthief)
 (-@CGUID-2436, 0, 0, 1, 60, 0, 100, 0, 0, 0, 60000, 60000, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Generic Controller Bunny (CSA) - Update - Set Event Phase 1'),
@@ -11379,7 +11465,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (-@CGUID-2437, 0, 10, 0, 61, 8, 100, 0, 0, 0, 0, 0, 12, 54130, 7, 0, 0, 0, 0, 8, 0, 0, 0, 1294.22, 3519.086, 100.2108, 2.024582, 'Generic Controller Bunny (CSA) - Update - Spawn NPC'),
 (-@CGUID-2437, 0, 11, 0, 17, 8, 100, 0, 54130, 0, 0, 0, 45, 4, 4, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Generic Controller Bunny (CSA) - Summoned Unit - Set Data');
 
-DELETE FROM `waypoints` WHERE `entry` IN (5413000, 5413001, 5413002, 5413003, 56503, 53704, 59652, 54856, 5720500, 5720501, 5720502, 5673000, 5673001, 5673002, 5673003, 5673004, 5673005, 5673006, 5673007, 6112600, 6112601, 6112700, 6112701, 57638, 5639400, 5639401, 57207, 57208, 55213, 57669, 55558, 5555800, 5555801, 5639402, 59496, 59498, 66689, 66691, 66692, 55685, 55694, 64554, 5639403, 5639404, 55744, 5574400, 64543, 64532, 56159, 5615900, 56686, 55649, 57781, 59986, 5998600, 5998601, 59988, 5998800, 59989, 5998900, 5998901, 60900, 56008, 5600800, 60729, 6083400, 6083401, 6087800, 6087801, 6077000, 6077001, 6077002, 6077003, 6077004, 6077005, 6087700, 6087701);
+DELETE FROM `waypoints` WHERE `entry` IN (5413000, 5413001, 5413002, 5413003, 56503, 53704, 59652, 54856, 5720500, 5720501, 5720502, 5673000, 5673001, 5673002, 5673003, 5673004, 5673005, 5673006, 5673007, 6112600, 6112601, 6112700, 6112701, 57638, 5639400, 5639401, 57207, 57208, 55213, 57669, 55558, 5555800, 5555801, 5639402, 59496, 59498, 66689, 66691, 66692, 55685, 55694, 64554, 5639403, 5639404, 55744, 5574400, 64543, 64532, 56159, 5615900, 56686, 55649, 57781, 59986, 5998600, 5998601, 59988, 5998800, 59989, 5998900, 5998901, 60900, 56008, 5600800, 60729, 6083400, 6083401, 6087800, 6087801, 6077000, 6077001, 6077002, 6077003, 6077004, 6077005, 6087700, 6087701, 57740, 57742);
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 -- Amberleaf Scamp
 (5413000, 1, 1277.88, 3543.563, 93.67616, ''),
@@ -12367,9 +12453,89 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (6087701, 2, 241.4531, 3926.895, 64.21706, ''),
 (6087701, 3, 248.3142, 3939.694, 65.29129, ''),
 (6087701, 4, 250.4861, 3949.609, 64.61368, ''),
-(6087701, 5, 252.1337, 3955.829, 63.70584, 'Cast Healing Shen-zin Su''s Wound');
+(6087701, 5, 252.1337, 3955.829, 63.70584, 'Cast Healing Shen-zin Su''s Wound'),
+-- Delivery Cart
+(57740, 1, 277.9496, 3881.756, 75.91853, ''),
+(57740, 2, 300.6996, 3886.256, 78.16853, ''),
+(57740, 3, 330.9496, 3887.006, 80.16853, ''),
+(57740, 4, 359.6996, 3886.506, 79.66853, ''),
+(57740, 5, 385.1996, 3883.506, 79.66853, ''),
+(57740, 6, 413.1996, 3888.006, 79.66853, ''),
+(57740, 7, 437.9496, 3884.506, 79.66853, ''),
+(57740, 8, 451.4496, 3871.256, 79.91853, ''),
+(57740, 9, 459.4496, 3859.256, 80.16853, ''),
+(57740, 10, 466.4496, 3839.006, 80.66853, ''),
+(57740, 11, 466.9496, 3821.506, 86.16853, ''),
+(57740, 12, 467.4496, 3800.756, 81.16853, ''),
+(57740, 13, 466.1996, 3780.756, 82.16853, ''),
+(57740, 14, 461.1996, 3752.756, 83.16853, ''),
+(57740, 15, 449.4496, 3728.756, 82.66853, ''),
+(57740, 16, 431.4496, 3707.256, 81.66853, ''),
+(57740, 17, 430.1996, 3690.506, 81.66853, ''),
+(57740, 18, 439.9496, 3671.006, 79.41853, ''),
+(57740, 19, 460.1996, 3642.756, 79.41853, ''),
+(57740, 20, 468.6996, 3616.506, 79.91853, ''),
+(57740, 21, 477.4496, 3585.256, 83.91853, ''),
+(57740, 22, 499.6996, 3582.256, 87.16853, ''),
+(57740, 23, 522.4496, 3587.506, 91.16853, ''),
+(57740, 24, 561.4496, 3584.006, 94.66853, ''),
+(57740, 25, 589.4496, 3585.506, 98.16853, ''),
+(57740, 26, 600.4496, 3607.256, 110.9185, ''),
+(57740, 27, 610.6996, 3625.756, 123.6685, ''),
+(57740, 28, 630.4496, 3628.256, 134.6685, ''),
+(57740, 29, 651.6996, 3608.756, 145.1685, ''),
+(57740, 30, 674.4496, 3601.006, 146.9185, ''),
+(57740, 31, 714.6996, 3602.256, 140.9185, ''),
+(57740, 32, 730.6996, 3601.506, 140.6685, ''),
+(57740, 33, 737.0278, 3596.41, 140.6062, 'Cast Eject All Passengers'),
+(57740, 34, 739.5511, 3587.62, 140.6573, ''),
+(57740, 35, 742.0511, 3560.37, 140.6573, ''),
+(57740, 36, 753.5511, 3533.87, 139.4073, ''),
+(57740, 37, 755.3011, 3516.62, 138.6573, ''),
+(57740, 38, 745.8011, 3496.87, 135.9073, ''),
+(57740, 39, 729.5469, 3486.771, 128.211, 'Despawn'),
+-- Nourished Yak
+(57742, 1, 277.8759, 3881.791, 75.9003, ''),
+(57742, 2, 300.6259, 3886.291, 78.1503, ''),
+(57742, 3, 331.1259, 3886.791, 80.1503, ''),
+(57742, 4, 359.6259, 3886.541, 79.6503, ''),
+(57742, 5, 385.3759, 3883.541, 79.9003, ''),
+(57742, 6, 413.1259, 3887.791, 79.6503, ''),
+(57742, 7, 437.8759, 3884.541, 79.6503, ''),
+(57742, 8, 451.6259, 3871.291, 79.9003, ''),
+(57742, 9, 459.3759, 3859.041, 80.1503, ''),
+(57742, 10, 466.3759, 3839.041, 80.6503, ''),
+(57742, 11, 466.8759, 3821.541, 86.1503, ''),
+(57742, 12, 467.3759, 3800.791, 81.1503, ''),
+(57742, 13, 466.1259, 3780.791, 82.1503, ''),
+(57742, 14, 461.1259, 3752.791, 83.1503, ''),
+(57742, 15, 449.3759, 3728.791, 82.6503, ''),
+(57742, 16, 431.3759, 3707.291, 81.9003, ''),
+(57742, 17, 430.1259, 3690.541, 81.6503, ''),
+(57742, 18, 440.1259, 3671.041, 79.4003, ''),
+(57742, 19, 460.3759, 3642.791, 79.4003, ''),
+(57742, 20, 468.6259, 3616.541, 79.9003, ''),
+(57742, 21, 477.3759, 3585.041, 83.9003, ''),
+(57742, 22, 499.6259, 3582.291, 87.1503, ''),
+(57742, 23, 522.3759, 3587.541, 91.1503, ''),
+(57742, 24, 561.3759, 3583.791, 94.6503, ''),
+(57742, 25, 589.6259, 3585.541, 98.1503, ''),
+(57742, 26, 600.3759, 3607.291, 110.9003, ''),
+(57742, 27, 610.6259, 3625.791, 123.6503, ''),
+(57742, 28, 630.3759, 3628.291, 134.6503, ''),
+(57742, 29, 651.8759, 3608.791, 145.4003, ''),
+(57742, 30, 674.3759, 3601.041, 146.9003, ''),
+(57742, 31, 714.8759, 3602.291, 140.9003, ''),
+(57742, 32, 730.8759, 3601.541, 140.9003, ''),
+(57742, 33, 737.0278, 3596.41, 140.6062, ''),
+(57742, 34, 739.5319, 3587.643, 140.6572, ''),
+(57742, 35, 742.0319, 3560.393, 140.6572, ''),
+(57742, 36, 753.5319, 3533.893, 139.4072, ''),
+(57742, 37, 755.5319, 3516.643, 138.6572, ''),
+(57742, 38, 745.7819, 3496.893, 135.9072, ''),
+(57742, 39, 729.5469, 3486.771, 128.211, 'Despawn');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (114698, 116421, 128598, 96733, 102207, 102522, 107050, 103069, 117033, 117034, 117035, 117036, 116810, 117054, 128589, 128588, 119073, 125699, 104126, 109144, 60603, 108806, 129341, 117275, 117400, 117783);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (114698, 116421, 128598, 96733, 102207, 102522, 107050, 103069, 117033, 117034, 117035, 117036, 116810, 117054, 128589, 128588, 119073, 125699, 104126, 109144, 60603, 108806, 129341, 117275, 117400, 117783, 118233, 131983, 108897, 113244, 113245, 130422, 132211);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (114698, 'spell_summon_troublemaker'),
 (116421, 'spell_meditation_timer_bar'),
@@ -12395,7 +12561,14 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (129341, 'spell_rescue_injured_sailor'),
 (117275, 'spell_tempered_fury'),
 (117400, 'spell_summon_deep_sea_aggressor'),
-(117783, 'spell_healing_shenzin_su');
+(117783, 'spell_healing_shenzin_su'),
+(118233, 'spell_turtle_healed_phase_timer'),
+(131983, 'spell_ally_horde_argument'),
+(108897, 'spell_pandaren_faction_choice'),
+(113244, 'spell_faction_choice_trigger'),
+(113245, 'spell_faction_choice_trigger'),
+(130422, 'spell_baloon_exit_timer'),
+(132211, 'spell_baloon_exit_timer');
 
 DELETE FROM `disables` WHERE `sourceType`=0 AND `entry`=117407;
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
