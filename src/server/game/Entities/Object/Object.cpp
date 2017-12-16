@@ -59,6 +59,7 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
     _fieldNotifyFlags   = UF_FLAG_DYNAMIC;
 
     m_inWorld           = false;
+    m_isNewObject       = false;
     m_objectUpdated     = false;
 }
 
@@ -178,6 +179,34 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
+
+    if (m_isNewObject)
+    {
+        switch (GetGUID().GetHigh())
+        {
+            case HighGuid::Player:
+            case HighGuid::Pet:
+            case HighGuid::Corpse:
+            case HighGuid::DynamicObject:
+                updateType = UPDATETYPE_CREATE_OBJECT2;
+                break;
+            case HighGuid::Unit:
+            case HighGuid::Vehicle:
+            {
+                if (ToUnit()->IsSummon())
+                    updateType = UPDATETYPE_CREATE_OBJECT2;
+                break;
+            }
+            case HighGuid::GameObject:
+            {
+                if (ToGameObject()->GetOwnerGUID().IsPlayer())
+                    updateType = UPDATETYPE_CREATE_OBJECT2;
+                break;
+            }
+            default:
+                break;
+        }
+    }
 
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
