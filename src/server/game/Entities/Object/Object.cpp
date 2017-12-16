@@ -67,6 +67,7 @@ Object::Object() : m_values(this)
     m_updateFlag.Clear();
 
     m_inWorld           = false;
+    m_isNewObject       = false;
     m_objectUpdated     = false;
 }
 
