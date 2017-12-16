@@ -545,8 +545,6 @@ void BattlefieldWintergrasp::OnBattleEnd(bool endByTimer)
                 if (creature->IsVehicle())
                     creature->DespawnOrUnsummon();
         }
-
-        _vehicleSet[team].clear();
     }
 
     if (!endByTimer)
@@ -774,24 +772,15 @@ void BattlefieldWintergrasp::OnCreatureRemove(Creature* creature)
             case NPC_WINTERGRASP_SIEGE_ENGINE_HORDE:
             case NPC_WINTERGRASP_CATAPULT:
             case NPC_WINTERGRASP_DEMOLISHER:
-                if (IsWarTime() && creature->IsAlive())
+                for (uint32 team = 0; team < PVP_TEAMS_COUNT; ++team)
                 {
-                    uint8 team;
-                    if (creature->GetFaction() == WintergraspFaction[TEAM_ALLIANCE])
-                        team = TEAM_ALLIANCE;
-                    else if (creature->GetFaction() == WintergraspFaction[TEAM_HORDE])
-                        team = TEAM_HORDE;
-                    else
-                        return;
-
-                    _vehicleSet[team].erase(creature->GetGUID());
-                    if (team == TEAM_HORDE)
-                        UpdateData(DATA_WINTERGRASP_VEHICLE_HORDE, -1);
-                    else
-                        UpdateData(DATA_WINTERGRASP_VEHICLE_ALLIANCE, -1);
-                    UpdateVehicleCountWG();
-                    break;
+                    if (_vehicleSet[team].erase(creature->GetGUID()) != 0 && IsWarTime())
+                    {
+                        UpdateData(team == TEAM_HORDE ? DATA_WINTERGRASP_VEHICLE_HORDE : DATA_WINTERGRASP_VEHICLE_ALLIANCE, -1);
+                        UpdateVehicleCountWG();
+                    }
                 }
+                break;
             default:
                 break;
         }
@@ -922,18 +911,13 @@ void BattlefieldWintergrasp::OnGameObjectRemove(GameObject* gameObject)
 
 void BattlefieldWintergrasp::OnUnitDeath(Unit* unit)
 {
-    if (IsWarTime() && unit->IsVehicle())
+    if (unit->IsVehicle())
     {
         for (uint32 team = 0; team < PVP_TEAMS_COUNT; ++team)
         {
-            auto itr = _vehicleSet[team].find(unit->GetGUID());
-            if (itr != _vehicleSet[team].end())
+            if (_vehicleSet[team].erase(unit->GetGUID()) != 0 && IsWarTime())
             {
-                _vehicleSet[team].erase(itr);
-                if (team == TEAM_HORDE)
-                    UpdateData(DATA_WINTERGRASP_VEHICLE_HORDE, -1);
-                else
-                    UpdateData(DATA_WINTERGRASP_VEHICLE_ALLIANCE, -1);
+                UpdateData(team == TEAM_HORDE ? DATA_WINTERGRASP_VEHICLE_HORDE : DATA_WINTERGRASP_VEHICLE_ALLIANCE, -1);
                 UpdateVehicleCountWG();
             }
         }
