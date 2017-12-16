@@ -808,24 +808,11 @@ public:
 
         bool Load() override
         {
-            _salanarNear = false;
             return GetCaster()->GetEntry() == NPC_HAVENSHIRE_STALLION || GetCaster()->GetEntry() == NPC_HAVENSHIRE_MARE || GetCaster()->GetEntry() == NPC_HAVENSHIRE_COLT;
-        }
-
-        void HitSalanarCheck(SpellEffIndex /*effIndex*/)
-        {
-            // Can only hit Salanar due to TARGET_UNIT_NEARBY_ENTRY
-            _salanarNear = true;
         }
 
         void HitTargetCheck(SpellEffIndex effIndex)
         {
-            if (!_salanarNear)
-            {
-                PreventHitEffect(effIndex);
-                return;
-            }
-
             if (Player* player = GetHitPlayer())
                 player->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
 
@@ -839,12 +826,8 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_deliver_stolen_horse_SpellScript::HitSalanarCheck, EFFECT_0, SPELL_EFFECT_DUMMY);
             OnEffectHitTarget += SpellEffectFn(spell_deliver_stolen_horse_SpellScript::HitTargetCheck, EFFECT_1, SPELL_EFFECT_KILL_CREDIT2);
         }
-
-    private:
-        bool _salanarNear;
     };
 
     SpellScript* GetSpellScript() const override
