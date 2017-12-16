@@ -432,7 +432,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
         if (setSpawnTime)
         {
             uint32 respawnDelay = m_respawnDelay;
-            m_respawnTime = std::max<time_t>(time(NULL) + respawnDelay, m_respawnTime);
+            m_respawnTime = std::max<time_t>(time(nullptr) + respawnDelay, m_respawnTime);
 
             SaveRespawnTime(0, false);
         }
@@ -512,7 +512,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     // Load creature equipment
     if (!data || data->equipmentId == 0)
         LoadEquipment(); // use default equipment (if available)
-    else if (data && data->equipmentId != 0)                // override, 0 means no equipment
+    else                // override, 0 means no equipment
     {
         m_originalEquipmentId = data->equipmentId;
         LoadEquipment(data->equipmentId);
@@ -531,6 +531,8 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetObjectScale(cinfo->scale);
 
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, cinfo->HoverHeight);
+
+    SetCanDualWield(cinfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(data ? data->movementType : cinfo->MovementType);
@@ -575,6 +577,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
+
+    SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
     SetAttackTime(BASE_ATTACK,   cInfo->BaseAttackTime);
     SetAttackTime(OFF_ATTACK,    cInfo->BaseAttackTime);
@@ -2086,7 +2090,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
             uint32 respawnDelay = m_respawnDelay;
             if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
                 GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
-            m_respawnTime = time(NULL) + respawnDelay;
+            m_respawnTime = time(nullptr) + respawnDelay;
             SaveRespawnTime();
         }
 
@@ -2351,7 +2355,7 @@ void Creature::SaveRespawnTime(uint32 forceDelay, bool savetodb)
         return;
     }
 
-    time_t thisRespawnTime = forceDelay ? time(NULL) + forceDelay : m_respawnTime;
+    time_t thisRespawnTime = forceDelay ? time(nullptr) + forceDelay : m_respawnTime;
     GetMap()->SaveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId, GetEntry(), thisRespawnTime, GetMap()->GetZoneId(GetHomePosition()), Trinity::ComputeGridCoord(GetHomePosition().GetPositionX(), GetHomePosition().GetPositionY()).GetId(), savetodb && m_creatureData && m_creatureData->dbData);
 }
 

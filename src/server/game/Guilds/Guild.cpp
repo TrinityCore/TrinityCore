@@ -1709,6 +1709,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, std::string const& nam
         }
 
         Member const* memberMe = GetMember(player->GetGUID());
+        ASSERT(memberMe);
         uint8 rankId = memberMe->GetRankId();
         if (demote)
         {

@@ -1939,6 +1939,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false);
         virtual void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
 
+        float GetCollisionHeight() const override;
 		uint8 Preference = urand(0, 9); //Random preference playerbot
         //npcbot
         bool HasReactive(ReactiveType reactive) const { return m_reactiveTimer[reactive] > 0; }

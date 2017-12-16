@@ -2150,9 +2150,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PlayerTalentMap& GetTalentMap(uint8 spec) { return *m_talents[spec]; }
         bool MinimalLoadFromDB( QueryResult result, uint32 guid );
 
-        //! Return collision height sent to client
-        float GetCollisionHeight(bool mounted) const;
-
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
  

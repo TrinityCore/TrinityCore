@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "FleeingMovementGenerator.h"
 #include "VMapFactory.h"
 #include "CreatureAI.h"
 #include "ObjectAccessor.h"
@@ -24,7 +25,6 @@
 #include "PathGenerator.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
-#include "FleeingMovementGenerator.h"
 
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
