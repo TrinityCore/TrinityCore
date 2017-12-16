@@ -178,7 +178,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
             bool CanBuild() const
             {
                 Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefield(BATTLEFIELD_BATTLEID_WINTERGRASP);
-                if (!wintergrasp)
+                if (!wintergrasp || !wintergrasp->IsEnabled() || !wintergrasp->IsWarTime())
                     return false;
 
                 switch (me->GetEntry())
@@ -211,7 +211,7 @@ class npc_wg_spirit_guide : public CreatureScript
             void InitializeAI() override
             {
                 BattlefieldWintergrasp* wintergrasp = static_cast<BattlefieldWintergrasp*>(sBattlefieldMgr->GetBattlefield(BATTLEFIELD_BATTLEID_WINTERGRASP));
-                if (wintergrasp && wintergrasp->IsEnabled())
+                if (wintergrasp)
                 {
                     for (uint8 itr = 0; itr < GRAVEYARDID_MAX && _needSearch == false; ++itr)
                     {
@@ -503,7 +503,7 @@ class npc_wg_give_promotion_credit : public CreatureScript
                     return;
 
                 BattlefieldWintergrasp* wintergrasp = static_cast<BattlefieldWintergrasp*>(sBattlefieldMgr->GetBattlefield(BATTLEFIELD_BATTLEID_WINTERGRASP));
-                if (!wintergrasp)
+                if (!wintergrasp || !wintergrasp->IsEnabled())
                     return;
 
                 wintergrasp->HandlePromotion(killer->ToPlayer(), me);
@@ -625,7 +625,7 @@ class spell_wintergrasp_defender_teleport : public SpellScriptLoader
                 {
                     if (Player* target = GetExplTargetUnit()->ToPlayer())
                         // check if we are in Wintergrasp at all, SotA uses same teleport spells
-                        if ((target->GetZoneId() == 4197 && target->GetTeamId() != wintergrasp->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
+                        if ((target->GetZoneId() == ZONEID_WINTERGRASP && target->GetTeamId() != wintergrasp->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
                             return SPELL_FAILED_BAD_TARGETS;
                 }
                 return SPELL_CAST_OK;
