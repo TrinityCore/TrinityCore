@@ -11726,6 +11726,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
             item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, upgradeID);
 
         item->SetUInt32Value(ITEM_FIELD_CONTEXT, context);
+
         for (int32 bonusListID : bonusListIDs)
             item->AddBonuses(bonusListID);
 
@@ -15268,7 +15269,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, reward, quest->RewardChoiceItemCount[i]) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, reward, true, GenerateItemRandomPropertyId(reward));
+                    std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(reward, 0);
+
+                    Item* item = StoreNewItem(dest, reward, true, GenerateItemRandomPropertyId(reward), GuidSet(), 0, bonusListIDs);
                     SendNewItem(item, quest->RewardChoiceItemCount[i], true, false);
                 }
             }
@@ -15292,7 +15295,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                     ItemPosCountVec dest;
                     if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
                     {
-                        Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                        std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(reward, 0);
+
+                        Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID), GuidSet(), 0, bonusListIDs);
                         SendNewItem(item, questPackageItem->ItemCount, true, false);
                     }
                 }
@@ -15311,7 +15316,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                     ItemPosCountVec dest;
                     if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
                     {
-                        Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                        std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(reward, 0);
+
+                        Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID), GuidSet(), 0, bonusListIDs);
                         SendNewItem(item, questPackageItem->ItemCount, true, false);
                     }
                 }
@@ -15328,7 +15335,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 ItemPosCountVec dest;
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemCount[i]) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId));
+                    std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(reward, 0);
+
+                    Item* item = StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId), GuidSet(), 0, bonusListIDs);
                     SendNewItem(item, quest->RewardItemCount[i], true, false);
                 }
                 else if (quest->IsDFQuest())

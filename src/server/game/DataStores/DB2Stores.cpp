@@ -1567,6 +1567,17 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTre
     return bonusListIDs;
 }
 
+std::set<int32> DB2Manager::GetItemBonusTreeVector(uint32 itemId, uint32 itemBonusTreeMod) const
+{
+    std::set<uint32> bonusListIDs = sDB2Manager.GetItemBonusTree(reward, 0);
+    std::vector<int32> vectorBonusListIDs;
+
+    for (uint32 bonusList : bonusListIDs)
+        vectorBonusListIDs.push_back(bonusList);
+
+    return vectorBonusListIDs;
+}
+
 ItemChildEquipmentEntry const* DB2Manager::GetItemChildEquipment(uint32 itemId) const
 {
     auto itr = _itemChildEquipment.find(itemId);
