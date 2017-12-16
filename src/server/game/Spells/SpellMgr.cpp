@@ -3426,6 +3426,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
     // ENDOF BLACK TEMPLE SPELLS
 
+    // Summon Corpse Scarabs
+    ApplySpellFix({ 28864, 29105 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
