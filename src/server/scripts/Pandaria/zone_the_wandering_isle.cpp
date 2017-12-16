@@ -24,7 +24,6 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "Player.h"
-#include "World.h"
 #include "Log.h"
 
 class spell_summon_troublemaker : public SpellScriptLoader
@@ -2207,7 +2206,7 @@ public:
     {
         areatrigger_healing_sphereAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-        void OnUnitEnter(Unit* unit) override
+        void OnUnitEnter(Unit* /*unit*/) override
         {
             at->SetDuration(0);
         }
@@ -2300,11 +2299,10 @@ public:
         {
             if (Unit* target = GetTarget())
             {
-                // somehow get worldstate value, so the alternate power bar can fill based on active healers. the method below always returns 0
-                uint8 healerCount = sWorld->getWorldState(WORLD_STATE_HEALERS_ACTIVE);
-                target->ModifyPower(POWER_ALTERNATE_POWER, healerCount);
+                // somehow get worldstate value, so the alternate power bar can fill based on active healers
+                target->ModifyPower(POWER_ALTERNATE_POWER, 700);
 
-                if (target->GetPowerPct(POWER_ALTERNATE_POWER) == 700)
+                if (target->GetPowerPct(POWER_ALTERNATE_POWER) == 100)
                 {
                     target->CastSpell(GetTarget(), SPELL_HEALING_SHENZIN_SU_CREDIT, true);
                     target->RemoveAura(GetId());
@@ -2321,6 +2319,170 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_healing_shenzin_su_AuraScript();
+    }
+};
+
+enum TurtleHealedPhaseTimerSpells
+{
+    SPELL_TURTLE_HEALED_PHASE_UPDATE    = 118232
+};
+
+class spell_turtle_healed_phase_timer : public SpellScriptLoader
+{
+public:
+    spell_turtle_healed_phase_timer() : SpellScriptLoader("spell_turtle_healed_phase_timer") { }
+
+    class spell_turtle_healed_phase_timer_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_turtle_healed_phase_timer_AuraScript);
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (target->IsPlayer())
+                    target->CastSpell(GetTarget(), SPELL_TURTLE_HEALED_PHASE_UPDATE, true);
+        }
+
+        void Register() override
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_turtle_healed_phase_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_turtle_healed_phase_timer_AuraScript();
+    }
+};
+
+enum AllyHordeArgumentNPCs
+{
+    NPC_KORGA_STRONGMANE    = 60888,
+    NPC_DELORA_LIONHEART    = 60889
+};
+
+class spell_ally_horde_argument : public SpellScriptLoader
+{
+public:
+    spell_ally_horde_argument() : SpellScriptLoader("spell_ally_horde_argument") { }
+
+    class spell_ally_horde_argument_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_ally_horde_argument_AuraScript);
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (Creature* creature = target->FindNearestCreature(NPC_KORGA_STRONGMANE, 40.0f, true))
+                    creature->AI()->Talk(0, target);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (Creature* creature = target->FindNearestCreature(NPC_DELORA_LIONHEART, 40.0f, true))
+                    creature->AI()->Talk(0, target);
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_ally_horde_argument_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_ally_horde_argument_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_ally_horde_argument_AuraScript();
+    }
+};
+
+class spell_pandaren_faction_choice : public SpellScriptLoader
+{
+public:
+    spell_pandaren_faction_choice() : SpellScriptLoader("spell_pandaren_faction_choice") { }
+
+    class spell_pandaren_faction_choice_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pandaren_faction_choice_SpellScript);
+
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (caster->IsPlayer())
+                    caster->ToPlayer()->ShowNeutralPlayerFactionSelectUI();
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_pandaren_faction_choice_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pandaren_faction_choice_SpellScript();
+    }
+};
+
+class spell_faction_choice_trigger : public SpellScriptLoader
+{
+public:
+    spell_faction_choice_trigger() : SpellScriptLoader("spell_faction_choice_trigger") { }
+
+    class spell_faction_choice_trigger_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_faction_choice_trigger_AuraScript);
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (target->IsPlayer())
+                    target->CastSpell(target, GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints, true);
+        }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_faction_choice_trigger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_faction_choice_trigger_AuraScript();
+    }
+};
+
+enum BaloonExitTimerSpells
+{
+    SPELL_BALOON_EXIT_MOVIE = 132212
+};
+
+class spell_baloon_exit_timer : public SpellScriptLoader
+{
+public:
+    spell_baloon_exit_timer() : SpellScriptLoader("spell_baloon_exit_timer") { }
+
+    class spell_baloon_exit_timer_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_baloon_exit_timer_AuraScript);
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (target->IsPlayer())
+                    target->CastSpell(target, SPELL_BALOON_EXIT_MOVIE, true);
+        }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_baloon_exit_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_baloon_exit_timer_AuraScript();
     }
 };
 
@@ -2363,4 +2525,9 @@ void AddSC_the_wandering_isle()
     new areatrigger_healing_sphere();
     new npc_healers_active_bunny();
     new spell_healing_shenzin_su();
+    new spell_turtle_healed_phase_timer();
+    new spell_ally_horde_argument();
+    new spell_pandaren_faction_choice();
+    new spell_faction_choice_trigger();
+    new spell_baloon_exit_timer();
 }
