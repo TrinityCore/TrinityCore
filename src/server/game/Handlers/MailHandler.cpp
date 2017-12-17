@@ -298,6 +298,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
                 item->DeleteFromInventoryDB(trans);     // deletes item from character's inventory
                 item->SetOwnerGUID(receiverGuid);
+                item->SetState(ITEM_CHANGED);
                 item->SaveToDB(trans);                  // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
                 draft.AddItem(item);
@@ -693,7 +694,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
             // durability
             data << uint32((item ? item->GetUInt32Value(ITEM_FIELD_DURABILITY) : 0));
             // unknown wotlk
-            data << uint8(0);
+            data << uint8((item && !item->IsLocked() ? 1 : 0));
         }
 
         ++realCount;

@@ -60,7 +60,7 @@ typedef std::map<uint32 /*condition id*/, GameEventFinishCondition> GameEventCon
 
 struct GameEventData
 {
-    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), state(GAMEEVENT_NORMAL),
+    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), holidayStage(0), state(GAMEEVENT_NORMAL),
                       announce(0) { }
     time_t start;           // occurs after this time
     time_t end;             // occurs before this time
@@ -68,6 +68,7 @@ struct GameEventData
     uint32 occurence;       // time between end and start
     uint32 length;          // length of the event (minutes) after finishing all conditions
     HolidayIds holiday_id;
+    uint8 holidayStage;
     GameEventState state;   // state of the game event, these are saved into the game_event table on change!
     GameEventConditionMap conditions;  // conditions to finish
     std::set<uint16 /*gameevent id*/> prerequisite_events;  // events that must be completed before starting this event
@@ -114,6 +115,7 @@ class TC_GAME_API GameEventMgr
         bool CheckOneGameEvent(uint16 entry) const;
         uint32 NextCheck(uint16 entry) const;
         void LoadFromDB();
+        void LoadHolidayDates();
         uint32 Update();
         bool IsActiveEvent(uint16 event_id) { return (m_ActiveEvents.find(event_id) != m_ActiveEvents.end()); }
         uint32 StartSystem();
@@ -147,6 +149,7 @@ class TC_GAME_API GameEventMgr
         bool hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
         bool hasCreatureActiveEventExcept(ObjectGuid::LowType creature_guid, uint16 event_id);
         bool hasGameObjectActiveEventExcept(ObjectGuid::LowType go_guid, uint16 event_id);
+        void SetHolidayEventTime(GameEventData& event);
 
         typedef std::list<ObjectGuid::LowType> GuidList;
         typedef std::list<uint32> IdList;
@@ -181,6 +184,7 @@ class TC_GAME_API GameEventMgr
     public:
         GameEventGuidMap  mGameEventCreatureGuids;
         GameEventGuidMap  mGameEventGameobjectGuids;
+        std::set<uint32> modifiedHolidays;
 };
 
 #define sGameEventMgr GameEventMgr::instance()
@@ -189,4 +193,3 @@ TC_GAME_API bool IsHolidayActive(HolidayIds id);
 TC_GAME_API bool IsEventActive(uint16 event_id);
 
 #endif
-

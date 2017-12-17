@@ -32,4 +32,3 @@ class GroupRefManager : public RefManager<Group, Player>
         GroupReference const* getFirst() const { return ((GroupReference const*)RefManager<Group, Player>::getFirst()); }
 };
 #endif
-

@@ -170,6 +170,11 @@ enum ThrallWarchief
     SPELL_SHOCK                 = 16034
 };
 
+enum Sounds
+{
+    SOUND_AGGRO                 = 5880
+};
+
 /// @todo verify abilities/timers
 class npc_thrall_warchief : public CreatureScript
 {
@@ -197,7 +202,10 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override
+        {
+            DoPlaySoundToSet(me, SOUND_AGGRO);
+        }
 
         void UpdateAI(uint32 diff) override
         {
