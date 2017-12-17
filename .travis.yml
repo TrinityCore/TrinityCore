@@ -10,7 +10,10 @@ git:
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
+      - g++-6
       - libboost1.55-dev
       - libboost-filesystem1.55-dev
       - libboost-iostreams1.55-dev
