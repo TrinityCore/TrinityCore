@@ -194,7 +194,7 @@ enum Misc
 
 Position const CombatStalkerPosition = { 563.8941f, 137.3333f, 405.8467f };
 
-class SnobolledTargetSelector : public std::unary_function<Unit*, bool>
+class SnobolledTargetSelector
 {
 public:
     SnobolledTargetSelector() { }
