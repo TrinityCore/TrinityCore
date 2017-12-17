@@ -2588,6 +2588,10 @@ BanReturn World::BanAccount(BanMode mode, std::string const& nameOrIP, uint32 du
     PreparedQueryResult resultAccounts = PreparedQueryResult(NULL); //used for kicking
     PreparedStatement* stmt = NULL;
 
+    // Prevent banning an already banned account
+    if (mode == BAN_ACCOUNT && AccountMgr::IsBannedAccount(nameOrIP))
+        return BAN_EXISTS;
+
     ///- Update the database with ban information
     switch (mode)
     {

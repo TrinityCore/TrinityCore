@@ -999,7 +999,8 @@ enum TrinityStrings
     LANG_GROUP_NOT_IN_RAID_GROUP        = 1185,
     LANG_GROUP_ROLE_CHANGED             = 1186,
     LANG_LEADER_CANNOT_BE_ASSISTANT     = 1187,
-    // Room for more level 3              1188-1198 not used
+    LANG_BAN_EXISTS                     = 1188,
+    // Room for more level 3              1189-1198 not used
 
     // Debug commands
     LANG_GUILD_INFO_LEVEL               = 1999, // LANG_DO_NOT_USE_6X_DEBUG_AREATRIGGER_LEFT -- unused on 3.3.5a
