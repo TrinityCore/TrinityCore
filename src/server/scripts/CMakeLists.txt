@@ -94,7 +94,7 @@ if (USE_SCRIPTPCH)
   set(PRIVATE_PCH_SOURCE ScriptPCH.cpp)
   if (MSVC)
     list(INSERT PRIVATE_SOURCES 0 ScriptPCH.cpp)
-  endif (MSVC)  
+  endif (MSVC)
 endif ()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})

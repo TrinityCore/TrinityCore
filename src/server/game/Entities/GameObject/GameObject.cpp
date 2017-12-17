@@ -197,7 +197,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit /*= 0*/)
+bool GameObject::Create(uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit /*= 0*/)
 {
     ASSERT(map);
     SetMap(map);
@@ -377,6 +377,18 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
     // Initialize loot duplicate count depending on raid difficulty
     if (map->Is25ManRaid())
         loot.maxDuplicates = 3;
+
+    if (uint32 linkedEntry = GetGOInfo()->GetLinkedGameObjectEntry())
+    {
+        GameObject* linkedGO = new GameObject();
+        if (linkedGO->Create(linkedEntry, map, phaseMask, pos, rotation, 255, GO_STATE_READY))
+        {
+            SetLinkedTrap(linkedGO);
+            map->AddToMap(linkedGO);
+        }
+        else
+            delete linkedGO;
+    }
 
     return true;
 }
@@ -597,7 +609,7 @@ void GameObject::Update(uint32 diff)
                     {
                         // Hunter trap: Search units which are unfriendly to the trap's owner
                         Trinity::NearestUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
-                        Trinity::UnitSearcher<Trinity::NearestUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
+                        Trinity::UnitLastSearcher<Trinity::NearestUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
                         Cell::VisitAllObjects(this, searcher, radius);
                     }
                     else
@@ -1952,6 +1964,9 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
     Creature* trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, spellInfo->CalcCastTime() + 100);
     if (!trigger)
         return;
+
+    // remove immunity flags, to allow spell to target anything
+    trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
 
     if (Unit* owner = GetOwner())
     {
