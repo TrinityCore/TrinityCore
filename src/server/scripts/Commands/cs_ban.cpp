@@ -200,6 +200,9 @@ public:
 
         switch (sWorld->BanAccount(mode, nameOrIP, durationStr, reasonStr, author))
         {
+            case BAN_EXISTS:
+                handler->PSendSysMessage(LANG_BAN_EXISTS);
+                break;
             case BAN_SUCCESS:
                 if (atoi(durationStr) > 0)
                 {
