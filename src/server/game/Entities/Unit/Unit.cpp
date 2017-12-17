@@ -8421,6 +8421,9 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
         Player const* player = playerAffectingAttacker ? playerAffectingAttacker : playerAffectingTarget;
         Unit const* creature = playerAffectingAttacker ? target : this;
 
+        if (creature->IsContestedGuard() && player->HasPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP))
+            return true;
+
         if (FactionTemplateEntry const* factionTemplate = creature->GetFactionTemplateEntry())
         {
             if (!(player->GetReputationMgr().GetForcedRankIfAny(factionTemplate)))
