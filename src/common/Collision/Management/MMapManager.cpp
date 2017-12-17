@@ -157,7 +157,7 @@ namespace MMAP
 
         long pos = ftell(file);
         fseek(file, 0, SEEK_END);
-        if (static_cast<int32>(fileHeader.size) > ftell(file) - pos)
+        if (pos < 0 || static_cast<int32>(fileHeader.size) > ftell(file) - pos)
         {
             TC_LOG_ERROR("maps", "MMAP:loadMap: %03u%02i%02i.mmtile has corrupted data size", mapId, x, y);
             fclose(file);

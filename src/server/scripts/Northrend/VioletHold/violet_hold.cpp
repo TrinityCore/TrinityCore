@@ -820,9 +820,9 @@ class npc_violet_hold_teleportation_portal_intro : public CreatureScript
         }
 };
 
-struct violet_hold_trashAI : public npc_escortAI
+struct violet_hold_trashAI : public EscortAI
 {
-    violet_hold_trashAI(Creature* creature) : npc_escortAI(creature)
+    violet_hold_trashAI(Creature* creature) : EscortAI(creature)
     {
         _instance = creature->GetInstanceScript();
 
@@ -898,7 +898,7 @@ struct violet_hold_trashAI : public npc_escortAI
         }
     }
 
-    void WaypointReached(uint32 waypointId) override
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
     {
         if (waypointId == _lastWaypointId)
             CreatureStartAttackDoor();
@@ -906,7 +906,7 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void EnterCombat(Unit* who) override
     {
-        npc_escortAI::EnterCombat(who);
+        EscortAI::EnterCombat(who);
         ScheduledTasks();
     }
 
@@ -919,7 +919,7 @@ struct violet_hold_trashAI : public npc_escortAI
             return;
 
         _scheduler.Update(diff,
-            std::bind(&npc_escortAI::DoMeleeAttackIfReady, this));
+            std::bind(&EscortAI::DoMeleeAttackIfReady, this));
     }
 
     virtual void ScheduledTasks() { }
@@ -1122,7 +1122,7 @@ class npc_azure_stalker : public CreatureScript
 
                     task.Schedule(Milliseconds(1300), [this](TaskContext /*task*/)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 5.0f))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 5.0f))
                             DoCast(target, SPELL_BACKSTAB);
                     });
 

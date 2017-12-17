@@ -94,6 +94,7 @@ enum Spells
     SPELL_DETONATE_MANA                     = 27819,
     SPELL_MANA_DETONATION_DAMAGE            = 27820,
     SPELL_FROST_BLAST                       = 27808,
+    SPELL_FROST_BLAST_DMG                   = 29879,
     SPELL_CHAINS                            = 28410,
     SPELL_CHAINS_DUMMY                      = 28408, // this holds the category cooldown - the main chains spell can't have one as it is cast multiple times
 
@@ -189,7 +190,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
             {
                 if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, CharmedPlayerTargetSelectPred()))
                     return target;
-                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_CHAINS))
+                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_CHAINS))
                     return target;
             }
             return nullptr;
@@ -224,7 +225,8 @@ public:
                     return;
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(true);
                 _skeletonCount = 0;
                 _bansheeCount = 0;
                 _abominationCount = 0;
@@ -283,10 +285,9 @@ public:
                 {
                     Talk(SAY_CHAINS);
                     std::list<Unit*> targets;
-                    SelectTargetList(targets, 3, SELECT_TARGET_RANDOM, 0.0f, true);
+                    SelectTargetList(targets, 3, SELECT_TARGET_RANDOM, 0, 0.0f, true, false);
                     for (Unit* target : targets)
-                        if (me->GetVictim() != target) // skip MT
-                            DoCast(target, SPELL_CHAINS);
+                        DoCast(target, SPELL_CHAINS);
                 }
             }
 
@@ -425,8 +426,9 @@ public:
                         case EVENT_PHASE_TWO:
                             me->CastStop();
                             events.SetPhase(PHASE_TWO);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                            me->getThreatManager().resetAllAggro();
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetImmuneToPC(false);
+                            ResetThreatList();
                             me->SetReactState(REACT_AGGRESSIVE);
                             Talk(EMOTE_PHASE_TWO);
 
@@ -522,7 +524,7 @@ public:
                     case ACTION_BEGIN_ENCOUNTER:
                         if (instance->GetBossState(BOSS_KELTHUZAD) != NOT_STARTED)
                             return;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetImmuneToPC(false);
                         instance->SetBossState(BOSS_KELTHUZAD, IN_PROGRESS);
                         events.SetPhase(PHASE_ONE);
                         DoZoneInCombat();
@@ -806,7 +808,7 @@ public:
                         me->RemoveAllAuras();
                         me->CombatStop();
                         me->StopMoving();
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetImmuneToPC(true);
                         me->DespawnOrUnsummon(30 * IN_MILLISECONDS); // just in case anything interrupts the movement
                         me->GetMotionMaster()->MoveTargetedHome();
                     default:
@@ -942,6 +944,31 @@ public:
     }
 };
 
+// 27808 - Frost Blast
+class spell_kelthuzad_frost_blast : public AuraScript
+{
+    PrepareAuraScript(spell_kelthuzad_frost_blast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FROST_BLAST_DMG });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        // Stuns the target, dealing 26% of the target's maximum health in Frost damage every second for 4 sec.
+        if (Unit* caster = GetCaster())
+            caster->CastCustomSpell(SPELL_FROST_BLAST_DMG, SPELLVALUE_BASE_POINT0, int32(GetTarget()->CountPctFromMaxHealth(26)), GetTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_kelthuzad_frost_blast::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 class at_kelthuzad_center : public AreaTriggerScript
 {
 public:
@@ -994,6 +1021,7 @@ void AddSC_boss_kelthuzad()
     new npc_kelthuzad_guardian();
     new spell_kelthuzad_chains();
     new spell_kelthuzad_detonate_mana();
+    RegisterAuraScript(spell_kelthuzad_frost_blast);
     new at_kelthuzad_center();
     new achievement_just_cant_get_enough();
 }

@@ -60,6 +60,7 @@ enum MageSpells
     SPELL_MAGE_ARCANE_POTENCY_RANK_2             = 57531,
     SPELL_MAGE_HOT_STREAK_PROC                   = 48108,
     SPELL_MAGE_ARCANE_SURGE                      = 37436,
+    SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_COMBUSTION_PROC                   = 28682,
     SPELL_MAGE_EMPOWERED_FIRE_PROC               = 67545,
     SPELL_MAGE_T10_2P_BONUS                      = 70752,
@@ -73,7 +74,8 @@ enum MageSpellIcons
 {
     SPELL_ICON_MAGE_SHATTERED_BARRIER = 2945,
     SPELL_ICON_MAGE_PRESENCE_OF_MIND  = 139,
-    SPELL_ICON_MAGE_CLEARCASTING      = 212
+    SPELL_ICON_MAGE_CLEARCASTING      = 212,
+    SPELL_ICON_MAGE_LIVING_BOMB       = 3000
 };
 
 // Incanter's Absorbtion
@@ -356,7 +358,7 @@ class spell_mage_combustion : public SpellScriptLoader
                 // Do not take charges, add a stack of crit buff
                 if (!(eventInfo.GetHitMask() & PROC_HIT_CRITICAL))
                 {
-                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_COMBUSTION_PROC, true);
+                    eventInfo.GetActor()->CastSpell(nullptr, SPELL_MAGE_COMBUSTION_PROC, true);
                     return false;
                 }
 
@@ -373,6 +375,58 @@ class spell_mage_combustion : public SpellScriptLoader
         {
             return new spell_mage_combustion_AuraScript();
         }
+};
+
+// 28682 - Combustion proc
+class spell_mage_combustion_proc : public SpellScriptLoader
+{
+    public:
+        spell_mage_combustion_proc() : SpellScriptLoader("spell_mage_combustion_proc") { }
+
+        class spell_mage_combustion_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_combustion_proc_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_MAGE_COMBUSTION });
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_COMBUSTION);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_combustion_proc_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_combustion_proc_AuraScript();
+        }
+};
+
+// -31661 - Dragon's Breath
+class spell_mage_dragon_breath : public AuraScript
+{
+    PrepareAuraScript(spell_mage_dragon_breath);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        // Dont proc with Living Bomb explosion
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (spellInfo && spellInfo->SpellIconID == SPELL_ICON_MAGE_LIVING_BOMB && spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
+            return false;
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_dragon_breath::CheckProc);
+    }
 };
 
 // -11185 - Improved Blizzard
@@ -428,7 +482,7 @@ class spell_mage_imp_mana_gems : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_MANA_SURGE, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, SPELL_MAGE_MANA_SURGE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -679,7 +733,7 @@ class spell_mage_gen_extra_effects : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
 
                 if (caster->HasAura(SPELL_MAGE_T10_2P_BONUS))
-                    caster->CastSpell((Unit*)nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, true);
+                    caster->CastSpell(nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, true);
             }
 
             void Register() override
@@ -932,6 +986,7 @@ class spell_mage_ignite : public SpellScriptLoader
                 SpellInfo const* igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE);
                 int32 pct = 8 * GetSpellInfo()->GetRank();
 
+                ASSERT(igniteDot->GetMaxTicks() > 0);
                 int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
                 amount += eventInfo.GetProcTarget()->GetRemainingPeriodicAmount(eventInfo.GetActor()->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
                 GetTarget()->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, nullptr, aurEff);
@@ -1122,6 +1177,28 @@ class spell_mage_master_of_elements : public SpellScriptLoader
         }
 };
 
+// 55342 - Mirror Image
+class spell_mage_mirror_image : public AuraScript
+{
+    PrepareAuraScript(spell_mage_mirror_image);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_2].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        // Set name of summons to name of caster
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_mirror_image::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // -44404 - Missile Barrage
 class spell_mage_missile_barrage : public SpellScriptLoader
 {
@@ -1261,6 +1338,8 @@ void AddSC_mage_spell_scripts()
     new spell_mage_burnout();
     new spell_mage_cold_snap();
     new spell_mage_combustion();
+    new spell_mage_combustion_proc();
+    RegisterAuraScript(spell_mage_dragon_breath);
     new spell_mage_imp_blizzard();
     new spell_mage_imp_mana_gems();
     new spell_mage_empowered_fire();
@@ -1278,6 +1357,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_magic_absorption();
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
+    RegisterAuraScript(spell_mage_mirror_image);
     new spell_mage_missile_barrage();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();

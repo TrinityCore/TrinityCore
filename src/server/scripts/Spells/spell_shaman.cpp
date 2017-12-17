@@ -88,7 +88,7 @@ enum ShamanSpells
     SPELL_SHAMAN_SHAMANISTIC_RAGE_PROC          = 30824,
     SPELL_SHAMAN_MAELSTROM_POWER                = 70831,
     SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832,
-    SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1    = 51554
+    SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1    = 51554,
 };
 
 enum ShamanSpellIcons
@@ -263,6 +263,24 @@ class spell_sha_astral_shift_aura : public SpellScriptLoader
         {
             return new spell_sha_astral_shift_aura_AuraScript();
         }
+};
+
+// 52179 - Astral Shift
+class spell_sha_astral_shift_visual_dummy : public AuraScript
+{
+    PrepareAuraScript(spell_sha_astral_shift_visual_dummy);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        // Periodic needed to remove visual on stun/fear/silence lost
+        if (!GetTarget()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED))
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_astral_shift_visual_dummy::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 // 2825 - Bloodlust
@@ -455,7 +473,7 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
                 if (Player* owner = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
                     if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
                         if (roll_chance_i(aur->GetBaseAmount()))
-                            GetTarget()->CastSpell((Unit*)nullptr, SPELL_SHAMAN_TOTEM_EARTHEN_POWER, true);
+                            GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_TOTEM_EARTHEN_POWER, true);
             }
 
             void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1075,7 +1093,7 @@ class spell_sha_imp_water_shield : public SpellScriptLoader
                     return;
 
                 uint32 spellId = waterShield->GetSpellInfo()->Effects[waterShield->GetEffIndex()].TriggerSpell;
-                caster->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1308,7 +1326,7 @@ class spell_sha_item_t6_trinket : public SpellScriptLoader
                     return;
 
                 if (roll_chance_i(chance))
-                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
+                    eventInfo.GetActor()->CastSpell(nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1474,7 +1492,7 @@ class spell_sha_maelstrom_weapon : public SpellScriptLoader
                 if (!aurEff || !roll_chance_i(aurEff->GetAmount()))
                     return;
 
-                caster->CastSpell((Unit*)nullptr, SPELL_SHAMAN_MAELSTROM_POWER, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, SPELL_SHAMAN_MAELSTROM_POWER, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1524,6 +1542,29 @@ class spell_sha_mana_spring_totem : public SpellScriptLoader
         {
             return new spell_sha_mana_spring_totem_SpellScript();
         }
+};
+
+// 16191 - Mana Tide
+class spell_sha_mana_tide : public AuraScript
+{
+    PrepareAuraScript(spell_sha_mana_tide);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), nullptr, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_mana_tide::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
 };
 
 // 39610 - Mana Tide Totem
@@ -1608,7 +1649,7 @@ public:
                     // Threat reduction is around 10% confirmed in retail and from wiki
                     Unit* attacker = eventInfo.GetActor();
                     if (attacker->IsAlive())
-                        attacker->getThreatManager().modifyThreatPercent(target, -10);
+                        attacker->GetThreatManager().ModifyThreatByPercent(target, -10);
                 }
             }
         }
@@ -1958,6 +1999,26 @@ class spell_sha_t3_6p_bonus : public SpellScriptLoader
         }
 };
 
+// 28820 - Lightning Shield
+class spell_sha_t3_8p_bonus : public AuraScript
+{
+    PrepareAuraScript(spell_sha_t3_8p_bonus);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+
+        // Need remove self if Lightning Shield not active
+        if (!GetTarget()->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0x400, 0, 0))
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_t3_8p_bonus::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 64928 - Item - Shaman T8 Elemental 4P Bonus
 class spell_sha_t8_elemental_4p_bonus : public SpellScriptLoader
 {
@@ -1983,6 +2044,8 @@ class spell_sha_t8_elemental_4p_bonus : public SpellScriptLoader
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_ELECTRIFIED);
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
                 // Add remaining ticks to damage done
@@ -2030,6 +2093,8 @@ class spell_sha_t9_elemental_4p_bonus : public SpellScriptLoader
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE);
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
                 // Add remaining ticks to damage done
@@ -2122,6 +2187,8 @@ class spell_sha_t10_restoration_4p_bonus : public SpellScriptLoader
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_CHAINED_HEAL);
                 int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
+
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
                 // Add remaining ticks to healing done
@@ -2247,6 +2314,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_ancestral_awakening_proc();
     new spell_sha_astral_shift();
     new spell_sha_astral_shift_aura();
+    RegisterAuraScript(spell_sha_astral_shift_visual_dummy);
     new spell_sha_bloodlust();
     new spell_sha_chain_heal();
     new spell_sha_cleansing_totem_pulse();
@@ -2274,6 +2342,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lightning_shield();
     new spell_sha_maelstrom_weapon();
     new spell_sha_mana_spring_totem();
+    RegisterAuraScript(spell_sha_mana_tide);
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
     new spell_sha_sentry_totem();
@@ -2284,6 +2353,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_thunderstorm();
     new spell_sha_totemic_mastery();
     new spell_sha_t3_6p_bonus();
+    RegisterAuraScript(spell_sha_t3_8p_bonus);
     new spell_sha_t8_elemental_4p_bonus();
     new spell_sha_t9_elemental_4p_bonus();
     new spell_sha_t10_elemental_4p_bonus();

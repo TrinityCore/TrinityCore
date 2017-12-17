@@ -1036,7 +1036,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
         return;
     }
 
@@ -1677,7 +1677,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
-        case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
+        case CONDITION_SOURCE_TYPE_QUEST_AVAILABLE:
             if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry specifies non-existing quest, skipped.", cond->ToString().c_str());
@@ -2011,7 +2011,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                     }
                     if (cond->ConditionValue3)
                     {
-                        if (GameObjectData const* goData = sObjectMgr->GetGOData(cond->ConditionValue3))
+                        if (GameObjectData const* goData = sObjectMgr->GetGameObjectData(cond->ConditionValue3))
                         {
                             if (cond->ConditionValue2 && goData->id != cond->ConditionValue2)
                             {

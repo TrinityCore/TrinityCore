@@ -16,6 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/filesystem.hpp>
+
 #include "PathCommon.h"
 #include "MapBuilder.h"
 #include "Timer.h"
@@ -42,10 +44,7 @@ bool checkDirectories(bool debugOutput)
 
     dirFiles.clear();
     if (getDirContents(dirFiles, "mmaps") == LISTFILE_DIRECTORY_NOT_FOUND)
-    {
-        printf("'mmaps' directory does not exist\n");
-        return false;
-    }
+        return boost::filesystem::create_directory("mmaps");
 
     dirFiles.clear();
     if (debugOutput)
@@ -74,7 +73,7 @@ bool handleArgs(int argc, char** argv,
                bool &bigBaseUnit,
                char* &offMeshInputPath,
                char* &file,
-               int& threads)
+               unsigned int& threads)
 {
     char* param = nullptr;
     for (int i = 1; i < argc; ++i)
@@ -96,8 +95,7 @@ bool handleArgs(int argc, char** argv,
             param = argv[++i];
             if (!param)
                 return false;
-            threads = atoi(param);
-            printf("Using %i threads to extract mmaps\n", threads);
+            threads = static_cast<unsigned int>(std::max(0, atoi(param)));
         }
         else if (strcmp(argv[i], "--file") == 0)
         {
@@ -245,7 +243,8 @@ int main(int argc, char** argv)
 {
     Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
 
-    int threads = 3, mapnum = -1;
+    unsigned int threads = std::thread::hardware_concurrency();
+    int mapnum = -1;
     float maxAngle = 70.0f;
     int tileX = -1, tileY = -1;
     bool skipLiquid = false,
@@ -282,7 +281,7 @@ int main(int argc, char** argv)
         return silent ? -3 : finish("Press ENTER to close...", -3);
 
     MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
-                       skipBattlegrounds, debugOutput, bigBaseUnit, offMeshInputPath);
+                       skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
 
     uint32 start = getMSTime();
     if (file)

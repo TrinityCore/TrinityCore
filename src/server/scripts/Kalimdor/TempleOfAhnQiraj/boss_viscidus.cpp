@@ -213,7 +213,7 @@ class boss_viscidus : public CreatureScript
 
                 if (_phase == PHASE_GLOB && summons.empty())
                 {
-                    DoResetThreat();
+                    ResetThreatList();
                     me->NearTeleportTo(ViscidusCoord.GetPositionX(),
                         ViscidusCoord.GetPositionY(),
                         ViscidusCoord.GetPositionZ(),

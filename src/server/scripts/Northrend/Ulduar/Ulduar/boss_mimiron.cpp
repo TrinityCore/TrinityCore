@@ -981,7 +981,8 @@ class boss_vx_001 : public CreatureScript
                         events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_VX, 6000);
                         // Missing break intended.
                     case DO_START_VX001:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetImmuneToPC(false);
                         me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE); // Remove emotestate.
                         //me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER); Blizzard handles hover animation like this it seems.
@@ -1157,7 +1158,8 @@ class boss_aerial_command_unit : public CreatureScript
                         events.ScheduleEvent(EVENT_SUMMON_FIRE_BOTS, 1000, 0, PHASE_AERIAL_COMMAND_UNIT);
                         // Missing break intended.
                     case DO_START_AERIAL:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
 
                         events.SetPhase(PHASE_AERIAL_COMMAND_UNIT);
@@ -1291,9 +1293,9 @@ class npc_mimiron_assault_bot : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_ROOT))
                 {
-                    if (Unit* newTarget = SelectTarget(SELECT_TARGET_NEAREST, 0, 30.0f, true))
+                    if (Unit* newTarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 30.0f, true))
                     {
-                        me->DeleteThreatList();
+                        me->GetThreatManager().ClearAllThreat();
                         AttackStart(newTarget);
                     }
                 }
@@ -2127,7 +2129,7 @@ class spell_mimiron_proximity_trigger : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell((Unit*)nullptr, SPELL_PROXIMITY_MINE_EXPLOSION, true);
+                GetCaster()->CastSpell(nullptr, SPELL_PROXIMITY_MINE_EXPLOSION, true);
             }
 
             void Register() override
@@ -2213,7 +2215,7 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell((Unit*)nullptr, SPELL_SCRIPT_EFFECT_ROCKET_STRIKE, true, nullptr, nullptr, GetCaster()->GetGUID());
+                GetHitUnit()->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_ROCKET_STRIKE, true, nullptr, nullptr, GetCaster()->GetGUID());
             }
 
             void Register() override
@@ -2260,7 +2262,7 @@ class spell_mimiron_rocket_strike_damage : public SpellScriptLoader
 
             void HandleFriendlyFire(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell((Unit*)nullptr, SPELL_NOT_SO_FRIENDLY_FIRE, true);
+                GetHitUnit()->CastSpell(nullptr, SPELL_NOT_SO_FRIENDLY_FIRE, true);
             }
 
             void Register() override

@@ -142,7 +142,7 @@ class boss_nazan : public CreatureScript
                         me->SetDisableGravity(false);
                         me->SetWalk(true);
                         me->GetMotionMaster()->Clear();
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                             AttackStart(victim);
                         DoStartMovement(me->GetVictim());
                         Talk(EMOTE);
@@ -524,4 +524,3 @@ void AddSC_boss_vazruden_the_herald()
     new boss_nazan();
     new npc_hellfire_sentry();
 }
-

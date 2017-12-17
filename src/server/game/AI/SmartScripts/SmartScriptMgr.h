@@ -20,28 +20,13 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
+#include "WaypointDefines.h"
 #include <map>
 #include <string>
 #include <unordered_map>
 
 class WorldObject;
 enum SpellEffIndex : uint8;
-
-struct WayPoint
-{
-    WayPoint(uint32 _id, float _x, float _y, float _z)
-    {
-        id = _id;
-        x = _x;
-        y = _y;
-        z = _z;
-    }
-
-    uint32 id;
-    float x;
-    float y;
-    float z;
-};
 
 enum eSmartAI
 {
@@ -589,8 +574,12 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,
     SMART_ACTION_STOP_MOTION                        = 127,    // stopMoving, movementExpired
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // don't use on 3.3.5a
+    SMART_ACTION_SCENE_PLAY                         = 129,    // don't use on 3.3.5a
+    SMART_ACTION_SCENE_CANCEL                       = 130,    // don't use on 3.3.5a
+    SMART_ACTION_SPAWN_SPAWNGROUP                   = 131,    // Group ID, min secs, max secs, spawnflags
+    SMART_ACTION_DESPAWN_SPAWNGROUP                 = 132,    // Group ID, min secs, max secs, spawnflags
 
-    SMART_ACTION_END                                = 129
+    SMART_ACTION_END                                = 133
 };
 
 struct SmartAction
@@ -621,6 +610,7 @@ struct SmartAction
         {
             uint32 sound;
             uint32 onlySelf;
+            uint32 distance;
         } sound;
 
         struct
@@ -1081,8 +1071,9 @@ struct SmartAction
 
         struct
         {
-            uint32 sounds[SMART_ACTION_PARAM_COUNT - 1];
+            uint32 sounds[SMART_ACTION_PARAM_COUNT - 2];
             uint32 onlySelf;
+            uint32 distance;
         } randomSound;
 
         struct
@@ -1094,6 +1085,13 @@ struct SmartAction
         {
             uint32 disable;
         } disableEvade;
+        struct
+        {
+            uint32 groupId;
+            uint32 minDelay;
+            uint32 maxDelay;
+            uint32 spawnflags;
+        } groupSpawn;
 
         struct
         {
@@ -1136,6 +1134,14 @@ struct SmartAction
             uint32 param6;
         } raw;
     };
+};
+
+enum SMARTAI_SPAWN_FLAGS
+{
+    SMARTAI_SPAWN_FLAG_NONE                 = 0x00,
+    SMARTAI_SPAWN_FLAG_IGNORE_RESPAWN       = 0x01,
+    SMARTAI_SPAWN_FLAG_FORCE_SPAWN          = 0x02,
+    SMARTAI_SPAWN_FLAG_NOSAVE_RESPAWN       = 0x04,
 };
 
 enum SMARTAI_TEMPLATE
@@ -1495,8 +1501,6 @@ struct SmartScriptHolder
     operator bool() const { return entryOrGuid != 0; }
 };
 
-typedef std::unordered_map<uint32, WayPoint*> WPPath;
-
 typedef std::vector<WorldObject*> ObjectVector;
 
 class ObjectGuidVector
@@ -1523,25 +1527,21 @@ typedef std::unordered_map<uint32, ObjectGuidVector> ObjectVectorMap;
 
 class TC_GAME_API SmartWaypointMgr
 {
-    private:
-        SmartWaypointMgr() { }
-        ~SmartWaypointMgr();
-
     public:
         static SmartWaypointMgr* instance();
 
         void LoadFromDB();
 
-        WPPath* GetPath(uint32 id)
-        {
-            if (waypoint_map.find(id) != waypoint_map.end())
-                return waypoint_map[id];
-            else return nullptr;
-        }
+        WaypointPath const* GetPath(uint32 id);
 
     private:
-        std::unordered_map<uint32, WPPath*> waypoint_map;
+        SmartWaypointMgr() { }
+        ~SmartWaypointMgr() { }
+
+        std::unordered_map<uint32, WaypointPath> _waypointStore;
 };
+
+#define sSmartWaypointMgr SmartWaypointMgr::instance()
 
 // all events for a single entry
 typedef std::vector<SmartScriptHolder> SmartAIEventList;
@@ -1608,5 +1608,5 @@ class TC_GAME_API SmartAIMgr
 };
 
 #define sSmartScriptMgr SmartAIMgr::instance()
-#define sSmartWaypointMgr SmartWaypointMgr::instance()
+
 #endif

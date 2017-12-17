@@ -45,6 +45,8 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 /*#####
@@ -596,8 +598,7 @@ public:
                         me->GetMotionMaster()->MoveCharge(-8117.99f, 1532.24f, 3.94f, 4);
                         break;
                     case 60:
-                        if (player)
-                            Talk(ANACHRONOS_SAY_10, player);
+                        Talk(ANACHRONOS_SAY_10, player);
                         me->GetMotionMaster()->MoveCharge(-8113.46f, 1524.16f, 2.89f, 4);
                         break;
                     case 61:
@@ -1226,18 +1227,17 @@ class go_wind_stone : public GameObjectScript
                         case NPC_DUKE_WATER:
                         case NPC_DUKE_EARTH:
                         case NPC_DUKE_AIR:
-                            summons->AI()->Talk(SAY_DUKE_AGGRO);
+                            summons->AI()->Talk(SAY_DUKE_AGGRO, player);
                             break;
                         case NPC_ROYAL_FIRE:
                         case NPC_ROYAL_AIR:
                         case NPC_ROYAL_EARTH:
                         case NPC_ROYAL_WATER:
-                            summons->AI()->Talk(YELL_ROYAL_AGGRO);
+                            summons->AI()->Talk(YELL_ROYAL_AGGRO, player);
                             break;
                     }
                     summons->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    summons->SendMeleeAttackStart(player);
-                    summons->CombatStart(player);
+                    summons->EngageWithTarget(player);
                 }
 
             public:
@@ -1388,6 +1388,47 @@ class go_wind_stone : public GameObjectScript
         }
 };
 
+// 24745 - Summon Templar, Trigger
+// 24747 - Summon Templar Fire, Trigger
+// 24757 - Summon Templar Air, Trigger
+// 24759 - Summon Templar Earth, Trigger
+// 24761 - Summon Templar Water, Trigger
+// 24762 - Summon Duke, Trigger
+// 24766 - Summon Duke Fire, Trigger
+// 24769 - Summon Duke Air, Trigger
+// 24771 - Summon Duke Earth, Trigger
+// 24773 - Summon Duke Water, Trigger
+// 24785 - Summon Royal, Trigger
+// 24787 - Summon Royal Fire, Trigger
+// 24791 - Summon Royal Air, Trigger
+// 24792 - Summon Royal Earth, Trigger
+// 24793 - Summon Royal Water, Trigger
+// 46595 - Summon Ice Stone Lieutenant, Trigger
+class spell_silithus_summon_cultist_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_silithus_summon_cultist_periodic);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        // All these spells trigger a spell that requires reagents; if the
+        // triggered spell is cast as "triggered", reagents are not consumed
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST), nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_silithus_summon_cultist_periodic::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_silithus()
 {
     new go_crystalline_tear();
@@ -1395,4 +1436,5 @@ void AddSC_silithus()
     new npc_anachronos_the_ancient();
     new npc_qiraj_war_spawn();
     new go_wind_stone();
+    RegisterAuraScript(spell_silithus_summon_cultist_periodic);
 }

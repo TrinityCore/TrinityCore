@@ -355,9 +355,9 @@ class npc_demolitionist_legoso : public CreatureScript
 public:
     npc_demolitionist_legoso() : CreatureScript("npc_demolitionist_legoso") { }
 
-    struct npc_demolitionist_legosoAI : public npc_escortAI
+    struct npc_demolitionist_legosoAI : public EscortAI
     {
-        npc_demolitionist_legosoAI(Creature* creature) : npc_escortAI(creature)
+        npc_demolitionist_legosoAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -466,7 +466,7 @@ public:
             if (HasEscortState(STATE_ESCORT_NONE))
                 return;
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (_phase)
             {
@@ -640,7 +640,7 @@ public:
                             _explosivesGuids.clear();
                             if (Creature* sironas = me->FindNearestCreature(NPC_SIRONAS, SIZE_OF_GRIDS))
                             {
-                                sironas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                sironas->SetImmuneToAll(false);
                                 me->SetFacingToObject(sironas);
                             }
                             _moveTimer = 1 * IN_MILLISECONDS;
@@ -672,7 +672,7 @@ public:
                                 if (!target)
                                     target = me;
 
-                                target->AddThreat(sironas, 0.001f);
+                                AddThreat(sironas, 0.001f, target);
                                 sironas->Attack(target, true);
                                 sironas->GetMotionMaster()->MoveChase(target);
                             }
@@ -710,7 +710,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

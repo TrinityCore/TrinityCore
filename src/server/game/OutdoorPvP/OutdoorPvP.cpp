@@ -91,7 +91,7 @@ void OPvPCapturePoint::AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry
 {
     if (!entry)
     {
-        GameObjectData const* data = sObjectMgr->GetGOData(guid);
+        GameObjectData const* data = sObjectMgr->GetGameObjectData(guid);
         if (!data)
             return;
         entry = data->id;
@@ -117,7 +117,7 @@ void OPvPCapturePoint::AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entr
 
 bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, Position const& pos, QuaternionData const& rot)
 {
-    if (ObjectGuid::LowType guid = sObjectMgr->AddGOData(entry, map, pos, rot, 0))
+    if (ObjectGuid::LowType guid = sObjectMgr->AddGameObjectData(entry, map, pos, rot, 0))
     {
         AddGO(type, guid, entry);
         return true;
@@ -149,7 +149,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, Position co
         return false;
     }
 
-    m_capturePointSpawnId = sObjectMgr->AddGOData(entry, map, pos, rot, 0);
+    m_capturePointSpawnId = sObjectMgr->AddGameObjectData(entry, map, pos, rot, 0);
 
     if (m_capturePointSpawnId == 0)
         return false;
@@ -217,7 +217,7 @@ bool OPvPCapturePoint::DelObject(uint32 type)
         go->SetRespawnTime(0);
         go->Delete();
     }
-    sObjectMgr->DeleteGOData(spawnId);
+    sObjectMgr->DeleteGameObjectData(spawnId);
     m_ObjectTypes[m_Objects[type]] = 0;
     m_Objects[type] = 0;
     return true;
@@ -225,7 +225,7 @@ bool OPvPCapturePoint::DelObject(uint32 type)
 
 bool OPvPCapturePoint::DelCapturePoint()
 {
-    sObjectMgr->DeleteGOData(m_capturePointSpawnId);
+    sObjectMgr->DeleteGameObjectData(m_capturePointSpawnId);
     m_capturePointSpawnId = 0;
 
     if (m_capturePoint)

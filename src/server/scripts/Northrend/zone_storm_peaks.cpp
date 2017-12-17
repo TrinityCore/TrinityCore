@@ -48,11 +48,11 @@ class npc_injured_goblin : public CreatureScript
 public:
     npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
 
-    struct npc_injured_goblinAI : public npc_escortAI
+    struct npc_injured_goblinAI : public EscortAI
     {
-        npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -82,7 +82,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
             if (!UpdateVictim())
                 return;
             DoMeleeAttackIfReady();
@@ -211,7 +211,7 @@ public:
             me->CastSpell(me, SPELL_ICE_PRISON, true);
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             Reset();
         }
@@ -346,9 +346,9 @@ class npc_icefang : public CreatureScript
 public:
     npc_icefang() : CreatureScript("npc_icefang") { }
 
-    struct npc_icefangAI : public npc_escortAI
+    struct npc_icefangAI : public EscortAI
     {
-        npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_icefangAI(Creature* creature) : EscortAI(creature) { }
 
         void AttackStart(Unit* /*who*/) override { }
         void EnterCombat(Unit* /*who*/) override { }
@@ -363,13 +363,12 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override { }
         void JustDied(Unit* /*killer*/) override { }
         void OnCharmed(bool /*apply*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -719,7 +718,7 @@ class npc_wild_wyrm : public CreatureScript
 
                 InitSpellsForPhase();
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
             }
 
             void DoAction(int32 action) override
@@ -758,7 +757,7 @@ class npc_wild_wyrm : public CreatureScript
 
                 _playerGuid = caster->GetGUID();
                 DoCastAOE(SPELL_FULL_HEAL_MANA, true);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
 
                 me->GetMotionMaster()->MovePoint(POINT_START_FIGHT, *caster);
             }
@@ -1045,7 +1044,7 @@ class spell_close_rift : public SpellScriptLoader
             void HandlePeriodic(AuraEffect const* /* aurEff */)
             {
                 if (++_counter == 5)
-                    GetTarget()->CastSpell((Unit*)nullptr, SPELL_DESPAWN_RIFT, true);
+                    GetTarget()->CastSpell(nullptr, SPELL_DESPAWN_RIFT, true);
             }
 
             void Register() override
@@ -1241,7 +1240,7 @@ class spell_low_health_trigger : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell((Unit*)nullptr, GetEffectValue(), true);
+                GetHitUnit()->CastSpell(nullptr, GetEffectValue(), true);
             }
 
             void Register() override
@@ -1312,7 +1311,7 @@ class spell_claw_swipe_check : public SpellScriptLoader
                     }
                 }
 
-                GetTarget()->CastSpell((Unit*)nullptr, aurEff->GetAmount(), false);
+                GetTarget()->CastSpell(nullptr, aurEff->GetAmount(), false);
             }
 
             void Register() override
@@ -1355,7 +1354,7 @@ class spell_fatal_strike : public SpellScriptLoader
                     return;
                 }
 
-                GetCaster()->CastSpell((Unit*)nullptr, SPELL_FATAL_STRIKE_DAMAGE, true);
+                GetCaster()->CastSpell(nullptr, SPELL_FATAL_STRIKE_DAMAGE, true);
             }
 
             void Register() override
@@ -1422,7 +1421,7 @@ class spell_player_mount_wyrm : public SpellScriptLoader
 
             void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->CastSpell((Unit*)nullptr, SPELL_FIGHT_WYRM, true);
+                GetTarget()->CastSpell(nullptr, SPELL_FIGHT_WYRM, true);
             }
 
             void Register() override

@@ -2344,9 +2344,11 @@ void SpellMgr::LoadSpellAreas()
     uint32 oldMSTime = getMSTime();
 
     mSpellAreaMap.clear();                                  // need for reload case
+    mSpellAreaForAreaMap.clear();
     mSpellAreaForQuestMap.clear();
     mSpellAreaForQuestEndMap.clear();
     mSpellAreaForAuraMap.clear();
+    mSpellAreaForQuestAreaMap.clear();
 
     //                                                  0     1         2              3               4                 5          6          7       8         9
     QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
@@ -2541,6 +2543,22 @@ void SpellMgr::LoadSpellInfoStore()
 
     for (SpellEntry const* spellEntry : sSpellStore)
         mSpellInfoMap[spellEntry->Id] = new SpellInfo(spellEntry);
+
+    for (uint32 spellIndex = 0; spellIndex < GetSpellInfoStoreSize(); ++spellIndex)
+    {
+        if (!mSpellInfoMap[spellIndex])
+            continue;
+
+        for (auto const& effect : mSpellInfoMap[spellIndex]->Effects)
+        {
+            //ASSERT(effect.EffectIndex < MAX_SPELL_EFFECTS, "MAX_SPELL_EFFECTS must be at least %u", effect.EffectIndex + 1);
+            ASSERT(effect.Effect < TOTAL_SPELL_EFFECTS, "TOTAL_SPELL_EFFECTS must be at least %u", effect.Effect + 1);
+            ASSERT(effect.ApplyAuraName < TOTAL_AURAS, "TOTAL_AURAS must be at least %u", effect.ApplyAuraName + 1);
+            ASSERT(effect.TargetA.GetTarget() < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect.TargetA.GetTarget() + 1);
+            ASSERT(effect.TargetB.GetTarget() < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect.TargetB.GetTarget() + 1);
+        }
+    }
+
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -2866,6 +2884,98 @@ inline void ApplySpellFix(std::initializer_list<uint32> spellIds, void(*fix)(Spe
 void SpellMgr::LoadSpellInfoCorrections()
 {
     uint32 oldMSTime = getMSTime();
+
+    // Some spells have no amplitude set
+    {
+        ApplySpellFix({
+            6727,  // Poison Mushroom
+            7288,  // Immolate Cumulative (TEST) (Rank 1)
+            7291,  // Food (TEST)
+            7331,  // Healing Aura (TEST) (Rank 1)
+            /*
+            30400, // Nether Beam - Perseverance
+                Blizzlike to have it disabled? DBC says:
+                "This is currently turned off to increase performance. Enable this to make it fire more frequently."
+            */
+            34589, // Dangerous Water
+            52562, // Arthas Zombie Catcher
+            57550, // Tirion Aggro
+            65755
+        }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_0].Amplitude = 1 * IN_MILLISECONDS;
+        });
+
+        ApplySpellFix({
+            24707, // Food
+            26263, // Dim Sum
+            29055, // Refreshing Red Apple
+            37504  // Karazhan - Chess NPC AI, action timer
+        }, [](SpellInfo* spellInfo)
+        {
+            // first effect has correct amplitude
+            spellInfo->Effects[EFFECT_1].Amplitude = spellInfo->Effects[EFFECT_0].Amplitude;
+        });
+
+        // Vomit
+        ApplySpellFix({ 43327 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_1].Amplitude = 1 * IN_MILLISECONDS;
+        });
+
+        // Strider Presence
+        ApplySpellFix({ 4312 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_0].Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->Effects[EFFECT_1].Amplitude = 1 * IN_MILLISECONDS;
+        });
+
+        // Food
+        ApplySpellFix({ 64345 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_0].Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->Effects[EFFECT_2].Amplitude = 1 * IN_MILLISECONDS;
+        });
+    }
+
+    // specific code for cases with no trigger spell provided in field
+    {
+        // Brood Affliction: Bronze
+        ApplySpellFix({ 23170 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_0].TriggerSpell = 23171;
+        });
+
+        // Feed Captured Animal
+        ApplySpellFix({ 29917 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_0].TriggerSpell = 29916;
+        });
+
+        // Remote Toy
+        ApplySpellFix({ 37027 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_0].TriggerSpell = 37029;
+        });
+
+        // Eye of Grillok
+        ApplySpellFix({ 38495 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_0].TriggerSpell = 38530;
+        });
+
+        // Tear of Azzinoth Summon Channel - it's not really supposed to do anything, and this only prevents the console spam
+        ApplySpellFix({ 39857 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_0].TriggerSpell = 39856;
+        });
+
+        // Personalized Weather
+        ApplySpellFix({ 46736 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Effects[EFFECT_1].TriggerSpell = 46737;
+        });
+    }
 
     // Spell Reflection
     ApplySpellFix({ 57643 }, [](SpellInfo* spellInfo)
@@ -3256,11 +3366,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].SpellClassMask[0] |= 0x800;
     });
 
-    // The Eye of Acherus (no spawn in phase 2 in db)
-    ApplySpellFix({ 51852 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].MiscValue |= 1;
-    });
 
     // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
     ApplySpellFix({ 51912 }, [](SpellInfo* spellInfo)
@@ -3598,7 +3703,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         47134  // Quest Complete
     }, [](SpellInfo* spellInfo)
     {
-        //! HACK: This spell break quest complete for alliance and on retail not used °_O
+        //! HACK: This spell break quest complete for alliance and on retail not used
         spellInfo->Effects[EFFECT_0].Effect = 0;
     });
 
@@ -3672,6 +3777,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(34); // Twenty-Five yards
+    });
+
+    // Summon Corpse Scarabs
+    ApplySpellFix({ 28864, 29105 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
     });
 
     //
@@ -3896,6 +4007,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yd
+    });
+
+    // Coldflame (Lord Marrowgar)
+    ApplySpellFix({ 69146, 70823, 70824, 70825 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
     });
 
     // Shadow's Fate
@@ -4127,13 +4244,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Summon Shadow Trap
     ApplySpellFix({ 73540 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(23); // 90 seconds
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(3); // 60 seconds
     });
 
     // Shadow Trap (visual)
     ApplySpellFix({ 73530 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5 seconds
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 seconds
     });
 
     // Shadow Trap
@@ -4459,6 +4576,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->ProcFlags = 0;
     });
 
+    // Shadowstep
+    ApplySpellFix({ 36563 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS); // 4yd
+    });
+
+    // Feral Charge - Cat
+    ApplySpellFix({ 49376 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS); // 3yd
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
@@ -4494,6 +4623,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case SPELL_EFFECT_LEAP_BACK:
                     if (!spellInfo->Speed && !spellInfo->SpellFamilyName)
                         spellInfo->Speed = SPEED_CHARGE;
+                    break;
+                case SPELL_EFFECT_APPLY_AURA:
+                    // special aura updates each 30 seconds
+                    if (spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR)
+                        spellInfo->Effects[j].Amplitude = 30 * IN_MILLISECONDS;
                     break;
             }
 

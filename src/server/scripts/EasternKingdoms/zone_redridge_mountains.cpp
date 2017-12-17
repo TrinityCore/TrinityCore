@@ -43,9 +43,9 @@ class npc_corporal_keeshan : public CreatureScript
 public:
     npc_corporal_keeshan() : CreatureScript("npc_corporal_keeshan") { }
 
-    struct npc_corporal_keeshanAI : public npc_escortAI
+    struct npc_corporal_keeshanAI : public EscortAI
     {
-        npc_corporal_keeshanAI(Creature* creature) : npc_escortAI(creature)
+        npc_corporal_keeshanAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -69,11 +69,11 @@ public:
             {
                 Talk(SAY_CORPORAL_1, player);
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
-                npc_escortAI::Start(true, false, player->GetGUID(), quest);
+                EscortAI::Start(true, false, player->GetGUID(), quest);
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -105,7 +105,7 @@ public:
             if (HasEscortState(STATE_ESCORT_NONE))
                 return;
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (phase)
             {

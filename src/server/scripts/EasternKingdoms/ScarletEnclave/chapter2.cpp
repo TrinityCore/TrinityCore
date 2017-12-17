@@ -201,9 +201,9 @@ class npc_koltira_deathweaver : public CreatureScript
 public:
     npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
 
-    struct npc_koltira_deathweaverAI : public npc_escortAI
+    struct npc_koltira_deathweaverAI : public EscortAI
     {
-        npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
+        npc_koltira_deathweaverAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             me->SetReactState(REACT_DEFENSIVE);
@@ -228,7 +228,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -270,7 +270,7 @@ public:
             if (summoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
                 valrothGUID = summoned->GetGUID();
 
-            summoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            summoned->SetImmuneToPC(false);
         }
 
         void SummonAcolyte(uint32 uiAmount)
@@ -281,7 +281,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (HasEscortState(STATE_ESCORT_PAUSED))
             {
@@ -609,7 +609,7 @@ public:
         {
             Initialize();
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
         }
 
         bool MeetQuestCondition(Player* player)
@@ -687,7 +687,7 @@ public:
 
                     switch (ExecuteSpeech_Counter)
                     {
-                        case 0: 
+                        case 0:
                             Talk(SAY_EXEC_START, player);
                             break;
                         case 1:
@@ -718,7 +718,7 @@ public:
                         case 9:
                             Talk(SAY_EXEC_TIME, player);
                             me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
                             break;
                         case 10:
                             Talk(SAY_EXEC_WAITING, player);

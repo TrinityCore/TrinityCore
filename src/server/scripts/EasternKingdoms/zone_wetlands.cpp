@@ -56,9 +56,9 @@ public:
         return new npc_tapoke_slim_jahnAI(creature);
     }
 
-    struct npc_tapoke_slim_jahnAI : public npc_escortAI
+    struct npc_tapoke_slim_jahnAI : public EscortAI
     {
-        npc_tapoke_slim_jahnAI(Creature* creature) : npc_escortAI(creature)
+        npc_tapoke_slim_jahnAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -76,7 +76,7 @@ public:
                 Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -118,7 +118,7 @@ public:
 
                     me->RestoreFaction();
                     me->RemoveAllAuras();
-                    me->DeleteThreatList();
+                    me->GetThreatManager().ClearAllThreat();
                     me->CombatStop(true);
 
                     SetRun(false);

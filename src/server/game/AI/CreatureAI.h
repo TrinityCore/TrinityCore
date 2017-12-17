@@ -110,7 +110,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called for reaction at stopping attack at no attackers or targets
         virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
-        // Called for reaction at enter to combat if not in combat yet (enemy can be nullptr)
+        // Called for reaction when initially engaged
         virtual void EnterCombat(Unit* /*victim*/) { }
 
         // Called when the creature is killed
@@ -134,8 +134,8 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         virtual bool IsEscorted() const { return false; }
 
-        // Called when creature is spawned or respawned
-        virtual void JustRespawned() { }
+        // Called when creature appears in the world (spawn, respawn, grid load etc...)
+        virtual void JustAppeared() { }
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }
@@ -187,6 +187,9 @@ class TC_GAME_API CreatureAI : public UnitAI
         // If a PlayerAI* is returned, that AI is placed on the player instead of the default charm AI
         // Object destruction is handled by Unit::RemoveCharmedBy
         virtual PlayerAI* GetAIForCharmedPlayer(Player* /*who*/) { return nullptr; }
+        // Should return true if the NPC is target of an escort quest
+        // If onlyIfActive is set, should return true only if the escort quest is currently active
+        virtual bool IsEscortNPC(bool /*onlyIfActive*/) const { return false; }
 
         // intended for encounter design/debugging. do not use for other purposes. expensive.
         int32 VisualizeBoundary(uint32 duration, Unit* owner = nullptr, bool fill = false) const;

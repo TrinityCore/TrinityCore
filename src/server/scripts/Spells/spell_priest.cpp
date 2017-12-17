@@ -173,6 +173,8 @@ public:
             SpellInfo const* triggerInfo = sSpellMgr->AssertSpellInfo(triggerSpell);
 
             int32 bp = CalculatePct(static_cast<int32>(dmgInfo->GetDamage()), aurEff->GetAmount());
+
+            ASSERT(triggerInfo->GetMaxTicks() > 0);
             bp /= triggerInfo->GetMaxTicks();
             bp += target->GetRemainingPeriodicAmount(target->GetGUID(), triggerSpell, SPELL_AURA_PERIODIC_HEAL);
             target->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
@@ -443,6 +445,8 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
                     return;
 
                 SpellInfo const* triggeredSpellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL);
+
+                ASSERT(triggeredSpellInfo->GetMaxTicks() > 0);
                 int32 heal = int32(CalculatePct(healInfo->GetHeal(), aurEff->GetAmount()) / triggeredSpellInfo->GetMaxTicks());
                 GetTarget()->CastCustomSpell(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL, SPELLVALUE_BASE_POINT0, heal, eventInfo.GetProcTarget(), true, nullptr, aurEff);
             }
@@ -648,10 +652,10 @@ class spell_pri_item_t6_trinket : public SpellScriptLoader
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 if (eventInfo.GetSpellTypeMask() & PROC_SPELL_TYPE_HEAL)
-                    caster->CastSpell((Unit*)nullptr, SPELL_PRIEST_DIVINE_BLESSING, true, nullptr, aurEff);
+                    caster->CastSpell(nullptr, SPELL_PRIEST_DIVINE_BLESSING, true, nullptr, aurEff);
 
                 if (eventInfo.GetSpellTypeMask() & PROC_SPELL_TYPE_DAMAGE)
-                    caster->CastSpell((Unit*)nullptr, SPELL_PRIEST_DIVINE_WRATH, true, nullptr, aurEff);
+                    caster->CastSpell(nullptr, SPELL_PRIEST_DIVINE_WRATH, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1287,7 +1291,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, SPELL_REPLENISHMENT, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1408,6 +1412,8 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_BLESSED_HEALING);
                 int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
+
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
                 // Add remaining ticks to healing done

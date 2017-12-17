@@ -239,7 +239,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
             localizedName.push_back('/');
             localizedName.append(filename);
 
-            if (!storage.LoadStringsFrom(localizedName.c_str()))
+            if (!storage.LoadStringsFrom(localizedName))
                 availableDbcLocales &= ~(1 << i);             // mark as not available for speedup next checks
         }
 
@@ -435,10 +435,10 @@ void LoadDBCStores(const std::string& dataPath)
         ASSERT(Utf8toWStr(namesProfanity->Name, wname));
 
         if (namesProfanity->Language != -1)
-            NamesProfaneValidators[namesProfanity->Language].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
+            NamesProfaneValidators[namesProfanity->Language].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesProfaneValidators[i].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
+                NamesProfaneValidators[i].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
     }
 
     for (NamesReservedEntry const* namesReserved : sNamesReservedStore)
@@ -448,10 +448,10 @@ void LoadDBCStores(const std::string& dataPath)
         ASSERT(Utf8toWStr(namesReserved->Name, wname));
 
         if (namesReserved->Language != -1)
-            NamesReservedValidators[namesReserved->Language].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
+            NamesReservedValidators[namesReserved->Language].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesReservedValidators[i].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
+                NamesReservedValidators[i].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
     }
 
     for (PvPDifficultyEntry const* entry : sPvPDifficultyStore)

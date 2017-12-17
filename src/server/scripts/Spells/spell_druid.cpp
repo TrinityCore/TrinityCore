@@ -88,7 +88,8 @@ enum DruidSpells
     SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
     SPELL_DRUID_BARKSKIN_01                 = 63058,
-    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658
+    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
+    SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845
 };
 
 // 22812 - Barkskin
@@ -477,6 +478,39 @@ class spell_dru_flight_form : public SpellScriptLoader
         }
 };
 
+// 22842 - Frenzied Regeneration
+class spell_dru_frenzied_regeneration : public AuraScript
+{
+    PrepareAuraScript(spell_dru_frenzied_regeneration);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_FRENZIED_REGENERATION_HEAL });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        // Converts up to 10 rage per second into health for $d.  Each point of rage is converted into ${$m2/10}.1% of max health.
+        if (GetTarget()->getPowerType() != POWER_RAGE)
+            return;
+
+        uint32 rage = GetTarget()->GetPower(POWER_RAGE);
+        // Nothing to do
+        if (!rage)
+            return;
+
+        int32 const mod = std::min(static_cast<int32>(rage), 100);
+        int32 const regen = CalculatePct(GetTarget()->GetMaxHealth(), GetTarget()->CalculateSpellDamage(nullptr, GetSpellInfo(), EFFECT_1) * mod / 100.f);
+        GetTarget()->CastCustomSpell(SPELL_DRUID_FRENZIED_REGENERATION_HEAL, SPELLVALUE_BASE_POINT0, regen, nullptr, true, nullptr, aurEff);
+        GetTarget()->SetPower(POWER_RAGE, rage - mod);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_frenzied_regeneration::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 63057 - Glyph of Barkskin
 class spell_dru_glyph_of_barkskin : public SpellScriptLoader
 {
@@ -495,7 +529,7 @@ class spell_dru_glyph_of_barkskin : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_DRUID_BARKSKIN_01, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, SPELL_DRUID_BARKSKIN_01, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -532,6 +566,8 @@ class spell_dru_glyph_of_innervate : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_GLYPH_OF_INNERVATE_REGEN);
                 int32 amount = CalculatePct(static_cast<int32>(caster->GetCreatePowers(POWER_MANA)), aurEff->GetAmount());
+
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
                 caster->CastCustomSpell(SPELL_DRUID_GLYPH_OF_INNERVATE_REGEN, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff);
@@ -825,6 +861,12 @@ class spell_dru_innervate : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
+                if (!aurEff->GetTotalTicks())
+                {
+                    amount = 0;
+                    return;
+                }
+
                 if (Unit* caster = GetCaster())
                     amount = int32(CalculatePct(caster->GetCreatePowers(POWER_MANA), amount) / aurEff->GetTotalTicks());
                 else
@@ -855,6 +897,9 @@ class spell_dru_insect_swarm : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
             {
+                if (!aurEff->GetTotalTicks())
+                    return;
+
                 if (Unit* caster = GetCaster())
                     if (AuraEffect const* relicAurEff = caster->GetAuraEffect(SPELL_DRUID_ITEM_T8_BALANCE_RELIC, EFFECT_0))
                         amount += relicAurEff->GetAmount() / aurEff->GetTotalTicks();
@@ -1160,7 +1205,7 @@ class spell_dru_omen_of_clarity : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 if (target->HasAura(SPELL_DRUID_BALANCE_T10_BONUS))
-                    target->CastSpell((Unit*)nullptr, SPELL_DRUID_BALANCE_T10_BONUS_PROC, true, nullptr, aurEff);
+                    target->CastSpell(nullptr, SPELL_DRUID_BALANCE_T10_BONUS_PROC, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1874,7 +1919,7 @@ class spell_dru_t4_2p_bonus : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_DRUID_INFUSION, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, SPELL_DRUID_INFUSION, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1940,7 +1985,7 @@ class spell_dru_item_t6_trinket : public SpellScriptLoader
                     return;
 
                 if (roll_chance_i(chance))
-                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
+                    eventInfo.GetActor()->CastSpell(nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2055,6 +2100,8 @@ class spell_dru_t10_balance_4p_bonus : public SpellScriptLoader
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_LANGUISH);
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
                 // Add remaining ticks to damage done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DRUID_LANGUISH, SPELL_AURA_PERIODIC_DAMAGE);
@@ -2299,6 +2346,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_enrage();
     new spell_dru_forms_trinket();
     new spell_dru_flight_form();
+    RegisterAuraScript(spell_dru_frenzied_regeneration);
     new spell_dru_glyph_of_barkskin();
     new spell_dru_glyph_of_innervate();
     new spell_dru_glyph_of_rake();

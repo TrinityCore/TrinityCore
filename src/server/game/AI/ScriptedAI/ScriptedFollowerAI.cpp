@@ -52,9 +52,7 @@ void FollowerAI::AttackStart(Unit* who)
 
     if (me->Attack(who, true))
     {
-        me->AddThreat(who, 0.0f);
-        me->SetInCombatWith(who);
-        who->SetInCombatWith(me);
+        me->EngageWithTarget(who); // in case it doesn't have threat+combat yet
 
         if (me->HasUnitState(UNIT_STATE_FOLLOW))
             me->ClearUnitState(UNIT_STATE_FOLLOW);
@@ -87,18 +85,8 @@ bool FollowerAI::AssistPlayerInCombatAgainst(Unit* who)
     //too far away and no free sight?
     if (me->IsWithinDistInMap(who, MAX_PLAYER_DISTANCE) && me->IsWithinLOSInMap(who))
     {
-        //already fighting someone?
-        if (!me->GetVictim())
-        {
-            AttackStart(who);
-            return true;
-        }
-        else
-        {
-            who->SetInCombatWith(me);
-            me->AddThreat(who, 0.0f);
-            return true;
-        }
+        me->EngageWithTarget(who);
+        return true;
     }
 
     return false;
@@ -131,10 +119,7 @@ void FollowerAI::MoveInLineOfSight(Unit* who)
                     AttackStart(who);
                 }
                 else if (me->GetMap()->IsDungeon())
-                {
-                    who->SetInCombatWith(me);
-                    me->AddThreat(who, 0.0f);
-                }
+                  me->EngageWithTarget(who);
             }
         }
     }
@@ -160,7 +145,7 @@ void FollowerAI::JustDied(Unit* /*killer*/)
     }
 }
 
-void FollowerAI::JustRespawned()
+void FollowerAI::JustAppeared()
 {
     m_uiFollowState = STATE_FOLLOW_NONE;
 
@@ -176,7 +161,7 @@ void FollowerAI::JustRespawned()
 void FollowerAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     me->RemoveAllAuras();
-    me->DeleteThreatList();
+    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->SetLootRecipient(nullptr);
 

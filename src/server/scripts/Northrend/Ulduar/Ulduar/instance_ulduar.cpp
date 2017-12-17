@@ -228,7 +228,7 @@ class instance_ulduar : public InstanceMapScript
                     if (_algalonTimer && _algalonTimer <= 60)
                         algalon->AI()->DoAction(ACTION_INIT_ALGALON);
                     else
-                        algalon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        algalon->SetImmuneToPC(false);
                 }
 
                 // Keepers at Observation Ring
@@ -495,10 +495,6 @@ class instance_ulduar : public InstanceMapScript
                         LeviathanGateGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_LEVIATHAN) == DONE)
                             gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                        break;
-                    case GO_MOLE_MACHINE:
-                        if (GetBossState(BOSS_RAZORSCALE) == IN_PROGRESS)
-                            gameObject->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GO_BRAIN_ROOM_DOOR_1:
                         BrainRoomDoorGUIDs[0] = gameObject->GetGUID();

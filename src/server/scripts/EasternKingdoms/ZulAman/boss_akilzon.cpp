@@ -333,7 +333,7 @@ class boss_akilzon : public CreatureScript
                                     Creature* creature = me->SummonCreature(NPC_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                                     if (creature)
                                     {
-                                        creature->AddThreat(me->GetVictim(), 1.0f);
+                                        AddThreat(me->GetVictim(), 1.0f, creature);
                                         creature->AI()->AttackStart(me->GetVictim());
                                         BirdGUIDs[i] = creature->GetGUID();
                                     }
@@ -463,4 +463,3 @@ void AddSC_boss_akilzon()
     new boss_akilzon();
     new npc_akilzon_eagle();
 }
-

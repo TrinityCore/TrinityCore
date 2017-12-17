@@ -308,7 +308,7 @@ public:
         void Initialize()
         {
             me->SetReactState(REACT_PASSIVE);
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             DoCast(me, SPELL_FROZEN_CORE_GETS_HIT);
             DoCast(me, SPELL_ICE_SPEAR_AURA);
         }
@@ -326,7 +326,8 @@ public:
         {
             if (action == ACTION_AHUNE_RETREAT)
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(false);
                 me->RemoveAurasDueToSpell(SPELL_ICE_SPEAR_AURA);
                 _events.ScheduleEvent(EVENT_SYNCH_HEALTH, Seconds(3), 0, PHASE_TWO);
             }
@@ -334,7 +335,8 @@ public:
             {
                 _events.Reset();
                 DoCast(me, SPELL_ICE_SPEAR_AURA);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(true);
             }
         }
 

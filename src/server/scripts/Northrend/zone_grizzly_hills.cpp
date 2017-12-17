@@ -64,9 +64,9 @@ class npc_emily : public CreatureScript
 public:
     npc_emily() : CreatureScript("npc_emily") { }
 
-    struct npc_emilyAI : public npc_escortAI
+    struct npc_emilyAI : public EscortAI
     {
-        npc_emilyAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_emilyAI(Creature* creature) : EscortAI(creature) { }
 
         void JustSummoned(Creature* summoned) override
         {
@@ -76,7 +76,7 @@ public:
                 summoned->AI()->AttackStart(me->GetVictim());
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -159,11 +159,8 @@ public:
                     }
                     break;
                 case 24:
-                    if (player)
-                    {
-                        player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
-                        Talk(SAY_QUEST_COMPLETE, player);
-                    }
+                    player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
+                    Talk(SAY_QUEST_COMPLETE, player);
                     me->SetWalk(false);
                     break;
                 case 25:
@@ -373,7 +370,7 @@ public:
                 if (me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
                 {
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(true);
                     me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                 }
                 _phase = 0;
@@ -564,11 +561,17 @@ public:
     {
         npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
 
+    void EnterCombat(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_CHOP, Seconds(3), Seconds(6));
+    }
+
         void Reset() override
         {
             _playerGUID.Clear();
 
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToPC(false);
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
@@ -601,7 +604,7 @@ public:
                     case EVENT_CHOP:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_CHOP);
-                        _events.ScheduleEvent(EVENT_CHOP, 10000, 12000);
+                        _events.Repeat(Seconds(10), Seconds(12));
                         break;
                     default:
                         break;
@@ -610,7 +613,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-
             DoMeleeAttackIfReady();
         }
 
@@ -618,7 +620,8 @@ public:
         {
             if (spell->Id == SPELL_SMOKE_BOMB && caster->GetTypeId() == TYPEID_PLAYER)
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetImmuneToPC(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->CombatStop(false);
                 _playerGUID = caster->GetGUID();

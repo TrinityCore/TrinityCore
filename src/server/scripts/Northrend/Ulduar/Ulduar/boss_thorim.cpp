@@ -375,7 +375,7 @@ class RunicSmashExplosionEvent : public BasicEvent
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
         {
-            _owner->CastSpell((Unit*)nullptr, SPELL_RUNIC_SMASH);
+            _owner->CastSpell(nullptr, SPELL_RUNIC_SMASH);
             return true;
         }
 
@@ -393,7 +393,7 @@ class TrashJumpEvent : public BasicEvent
             switch (_stage)
             {
                 case 0:
-                    _owner->CastSpell((Unit*)nullptr, SPELL_LEAP);
+                    _owner->CastSpell(nullptr, SPELL_LEAP);
                     ++_stage;
                     _owner->m_Events.AddEvent(this, eventTime + 2000);
                     return false;
@@ -425,7 +425,7 @@ class LightningFieldEvent : public BasicEvent
             {
                 if (instance->GetBossState(BOSS_THORIM) == IN_PROGRESS)
                 {
-                    _owner->CastSpell((Unit*)nullptr, SPELL_LIGHTNING_FIELD);
+                    _owner->CastSpell(nullptr, SPELL_LIGHTNING_FIELD);
                     _owner->m_Events.AddEvent(this, eventTime + 1000);
                     return false;
                 }
@@ -474,7 +474,7 @@ class boss_thorim : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisableGravity(true);
                 me->SetControlled(true, UNIT_STATE_ROOT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
 
                 events.SetPhase(PHASE_NULL);
 
@@ -515,7 +515,7 @@ class boss_thorim : public CreatureScript
                     if (Creature* pillar = ObjectAccessor::GetCreature(*me, _activePillarGUID))
                     {
                         pillar->CastSpell(pillar, SPELL_LIGHTNING_ORB_CHARGED, true);
-                        pillar->CastSpell((Unit*)nullptr, SPELL_LIGHTNING_PILLAR_2);
+                        pillar->CastSpell(nullptr, SPELL_LIGHTNING_PILLAR_2);
                         events.ScheduleEvent(EVENT_LIGHTNING_CHARGE, 8000, 0, PHASE_2);
                     }
                 }
@@ -607,7 +607,7 @@ class boss_thorim : public CreatureScript
                 if (type != EFFECT_MOTION_TYPE || id != EVENT_JUMP)
                     return;
 
-                me->getThreatManager().resetAllAggro();
+                ResetThreatList();
                 SetBoundary(&ArenaBoundaries);
             }
 
@@ -631,7 +631,7 @@ class boss_thorim : public CreatureScript
 
                 if (Creature* runicColossus = instance->GetCreature(DATA_RUNIC_COLOSSUS))
                 {
-                    runicColossus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    runicColossus->SetImmuneToPC(false);
                     runicColossus->AI()->DoAction(ACTION_ACTIVATE_ADDS);
                 }
 
@@ -838,7 +838,7 @@ class boss_thorim : public CreatureScript
                         if (++_killedCount >= 6)
                         {
                             // Event starts
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
                             DoZoneInCombat(me);
                         }
                         break;
@@ -995,7 +995,7 @@ struct npc_thorim_trashAI : public ScriptedAI
             uint32 heal = 0;
             Unit::AuraEffectList const& auras = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
             for (AuraEffect const* aurEff : auras)
-                heal += aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
+                heal += aurEff->GetAmount() * aurEff->GetRemainingTicks();
 
             return heal;
         }
@@ -1356,7 +1356,7 @@ struct npc_thorim_minibossAI : public ScriptedAI
         {
             for (ObjectGuid const& guid : _summons)
                 if (Creature* summon = ObjectAccessor::GetCreature(*me, guid))
-                    summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    summon->SetImmuneToPC(false);
         }
     }
 
@@ -1426,7 +1426,7 @@ class npc_runic_colossus : public CreatureScript
 
                 if (Creature* giant = _instance->GetCreature(DATA_RUNE_GIANT))
                 {
-                    giant->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    giant->SetImmuneToPC(false);
                     giant->AI()->DoAction(ACTION_ACTIVATE_ADDS);
                 }
             }
@@ -1778,7 +1778,7 @@ class spell_thorim_charge_orb : public SpellScriptLoader
             void HandleScript()
             {
                 if (Unit* target = GetHitUnit())
-                    target->CastSpell((Unit*)nullptr, SPELL_LIGHTNING_PILLAR_1, true);
+                    target->CastSpell(nullptr, SPELL_LIGHTNING_PILLAR_1, true);
             }
 
             void Register() override
@@ -2108,37 +2108,6 @@ class spell_thorim_activate_lightning_orb_periodic : public SpellScriptLoader
         }
 };
 
-// 62331, 62418 - Impale
-class spell_iron_ring_guard_impale : public SpellScriptLoader
-{
-    public:
-        spell_iron_ring_guard_impale() : SpellScriptLoader("spell_iron_ring_guard_impale") { }
-
-        class spell_iron_ring_guard_impale_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_iron_ring_guard_impale_AuraScript);
-
-            void PeriodicTick(AuraEffect const* /*aurEff*/)
-            {
-                if (GetTarget()->HealthAbovePct(GetSpellInfo()->Effects[EFFECT_1].CalcValue()))
-                {
-                    Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                    PreventDefaultAction();
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_iron_ring_guard_impale_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_iron_ring_guard_impale_AuraScript();
-        }
-};
-
 class achievement_dont_stand_in_the_lightning : public AchievementCriteriaScript
 {
     public:
@@ -2213,7 +2182,6 @@ void AddSC_boss_thorim()
     new spell_thorim_arena_leap();
     new spell_thorim_runic_smash();
     new spell_thorim_activate_lightning_orb_periodic();
-    new spell_iron_ring_guard_impale();
     new achievement_dont_stand_in_the_lightning();
     new achievement_lose_your_illusion();
     new achievement_i_ll_take_you_all_on();

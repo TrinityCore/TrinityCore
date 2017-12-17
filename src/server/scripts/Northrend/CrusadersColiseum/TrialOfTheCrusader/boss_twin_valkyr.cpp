@@ -90,7 +90,10 @@ enum BossSpells
     SPELL_POWER_TWINS           = 65879,
     SPELL_BERSERK               = 64238,
     SPELL_POWERING_UP           = 67590,
-    SPELL_SURGE_OF_SPEED        = 65828
+    SPELL_SURGE_OF_SPEED        = 65828,
+
+    SPELL_SUMMON_PERIODIC_LIGHT = 66152,
+    SPELL_SUMMON_PERIODIC_DARK  = 66153
 };
 
 enum Events
@@ -158,9 +161,14 @@ class OrbsDespawner : public BasicEvent
         Creature* _creature;
 };
 
+static uint32 GetSisterData(uint32 sisterEntry)
+{
+    return sisterEntry == NPC_FJOLA_LIGHTBANE ? DATA_FJOLA_LIGHTBANE : DATA_EYDIS_DARKBANE;
+}
+
 struct boss_twin_baseAI : public BossAI
 {
-    boss_twin_baseAI(Creature* creature) : BossAI(creature, BOSS_VALKIRIES)
+    boss_twin_baseAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId)
     {
         AuraState = AURA_STATE_NONE;
         Weapon = 0;
@@ -173,6 +181,7 @@ struct boss_twin_baseAI : public BossAI
         TwinPactSpellId = 0;
         SpikeSpellId = 0;
         TouchSpellId = 0;
+        SetBoundary(instance->GetBossBoundary(DATA_TWIN_VALKIRIES));
     }
 
     void Reset() override
@@ -189,7 +198,7 @@ struct boss_twin_baseAI : public BossAI
 
     void JustReachedHome() override
     {
-        instance->SetBossState(BOSS_VALKIRIES, FAIL);
+        instance->SetBossState(DATA_TWIN_VALKIRIES, FAIL);
 
         summons.DespawnAll();
         me->DespawnOrUnsummon();
@@ -203,7 +212,8 @@ struct boss_twin_baseAI : public BossAI
         switch (uiId)
         {
             case 1:
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 break;
             default:
@@ -247,12 +257,14 @@ struct boss_twin_baseAI : public BossAI
             {
                 me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                 pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                _JustDied();
+                events.Reset();
+                summons.DespawnAll();
+                instance->SetBossState(DATA_TWIN_VALKIRIES, DONE);
             }
             else
             {
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                instance->SetBossState(BOSS_VALKIRIES, SPECIAL);
+                instance->SetBossState(DATA_TWIN_VALKIRIES, SPECIAL);
             }
         }
         summons.DespawnAll();
@@ -261,7 +273,7 @@ struct boss_twin_baseAI : public BossAI
     // Called when sister pointer needed
     Creature* GetSister()
     {
-        return ObjectAccessor::GetCreature((*me), instance->GetGuidData(SisterNpcId));
+        return instance->GetCreature(GetSisterData(SisterNpcId));
     }
 
     void EnterCombat(Unit* /*who*/) override
@@ -272,10 +284,12 @@ struct boss_twin_baseAI : public BossAI
             me->AddAura(MyEmphatySpellId, pSister);
             pSister->SetInCombatWithZone();
         }
-        instance->SetBossState(BOSS_VALKIRIES, IN_PROGRESS);
+        instance->SetBossState(DATA_TWIN_VALKIRIES, IN_PROGRESS);
 
         Talk(SAY_AGGRO);
         DoCast(me, SurgeSpellId);
+        me->SetCombatPulseDelay(5);
+        me->setActive(true);
 
         events.ScheduleEvent(EVENT_TWIN_SPIKE, 20 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 6 * MINUTE*IN_MILLISECONDS : 10 * MINUTE*IN_MILLISECONDS);
@@ -319,7 +333,7 @@ struct boss_twin_baseAI : public BossAI
                 events.ScheduleEvent(EVENT_TWIN_SPIKE, 20 * IN_MILLISECONDS);
                 break;
             case EVENT_TOUCH:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, OtherEssenceSpellId))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true, OtherEssenceSpellId))
                     me->CastCustomSpell(TouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
                 events.ScheduleEvent(EVENT_TOUCH, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
                 break;
@@ -353,7 +367,7 @@ class boss_fjola : public CreatureScript
 
         struct boss_fjolaAI : public boss_twin_baseAI
         {
-            boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature)
+            boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature, DATA_FJOLA_LIGHTBANE)
             {
                 GenerateStageSequence();
             }
@@ -363,7 +377,7 @@ class boss_fjola : public CreatureScript
                 SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 Weapon = EQUIP_MAIN_1;
                 AuraState = AURA_STATE_UNKNOWN22;
-                SisterNpcId = NPC_DARKBANE;
+                SisterNpcId = NPC_EYDIS_DARKBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
                 OtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
                 SurgeSpellId = SPELL_LIGHT_SURGE;
@@ -420,13 +434,13 @@ class boss_fjola : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why) override
             {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                 boss_twin_baseAI::EnterEvadeMode(why);
             }
 
             void JustReachedHome() override
             {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
 
                 boss_twin_baseAI::JustReachedHome();
             }
@@ -464,14 +478,14 @@ class boss_eydis : public CreatureScript
 
         struct boss_eydisAI : public boss_twin_baseAI
         {
-            boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) { }
+            boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature, DATA_EYDIS_DARKBANE) { }
 
             void Reset() override
             {
                 SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 Weapon = EQUIP_MAIN_2;
                 AuraState = AURA_STATE_UNKNOWN19;
-                SisterNpcId = NPC_LIGHTBANE;
+                SisterNpcId = NPC_FJOLA_LIGHTBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
                 OtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
                 SurgeSpellId = SPELL_DARK_SURGE;
@@ -684,6 +698,33 @@ class npc_bullet_controller : public CreatureScript
         }
 };
 
+// 66149 - Bullet Controller Periodic
+// 68396 - Bullet Controller Periodic
+class spell_bullet_controller : public AuraScript
+{
+    PrepareAuraScript(spell_bullet_controller);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_PERIODIC_LIGHT, SPELL_SUMMON_PERIODIC_DARK });
+    }
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastCustomSpell(SPELL_SUMMON_PERIODIC_LIGHT, SPELLVALUE_MAX_TARGETS, urand(1, 6), GetTarget(), true);
+        caster->CastCustomSpell(SPELL_SUMMON_PERIODIC_DARK, SPELLVALUE_MAX_TARGETS, urand(1, 6), GetTarget(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bullet_controller::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 class spell_powering_up : public SpellScriptLoader
 {
     public:
@@ -859,8 +900,8 @@ class spell_power_of_the_twins : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
-                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(GetCaster()->GetEntry())))
-                        ENSURE_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(true);
+                    if (Creature* valk = instance->GetCreature(GetSisterData(GetCaster()->GetEntry())))
+                        ENSURE_AI(boss_twin_baseAI, valk->AI())->EnableDualWield(true);
                 }
             }
 
@@ -868,8 +909,8 @@ class spell_power_of_the_twins : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
-                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(GetCaster()->GetEntry())))
-                        ENSURE_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(false);
+                    if (Creature* valk = instance->GetCreature(GetSisterData(GetCaster()->GetEntry())))
+                        ENSURE_AI(boss_twin_baseAI, valk->AI())->EnableDualWield(false);
                 }
             }
 
@@ -896,6 +937,7 @@ void AddSC_boss_twin_valkyr()
     new npc_essence_of_twin();
     new npc_bullet_controller();
 
+    RegisterAuraScript(spell_bullet_controller);
     new spell_powering_up();
     new spell_valkyr_essences();
     new spell_power_of_the_twins();

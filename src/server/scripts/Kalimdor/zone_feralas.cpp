@@ -63,11 +63,11 @@ class npc_oox22fe : public CreatureScript
 public:
     npc_oox22fe() : CreatureScript("npc_oox22fe") { }
 
-    struct npc_oox22feAI : public npc_escortAI
+    struct npc_oox22feAI : public EscortAI
     {
-        npc_oox22feAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_oox22feAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {

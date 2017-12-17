@@ -100,7 +100,7 @@ class boss_harbinger_skyriss : public CreatureScript
             void Reset() override
             {
                 if (!Intro)
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(true);
 
                 Initialize();
             }
@@ -183,7 +183,7 @@ class boss_harbinger_skyriss : public CreatureScript
                             Intro_Timer = 3000;
                             break;
                         case 3:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
                             Intro = true;
                             break;
                         }
@@ -304,4 +304,3 @@ void AddSC_boss_harbinger_skyriss()
     new boss_harbinger_skyriss();
     new boss_harbinger_skyriss_illusion();
 }
-

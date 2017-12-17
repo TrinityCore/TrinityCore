@@ -71,7 +71,7 @@ public:
             events.ScheduleEvent(EVENT_RANDOM_YELL, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS)); //20 to 30 seconds
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             Reset();
             Talk(SAY_RESPAWN);

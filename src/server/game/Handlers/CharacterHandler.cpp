@@ -1560,6 +1560,9 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
             InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, uItem, false);
             if (msg == EQUIP_ERR_OK)
             {
+                if (_player->CanEquipItem(NULL_SLOT, dstpos, uItem, false) != EQUIP_ERR_OK)
+                    continue;
+
                 _player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
                 _player->StoreItem(sDest, uItem, true);
             }
@@ -1570,6 +1573,9 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         }
 
         if (item->GetPos() == dstpos)
+            continue;
+
+        if (_player->CanUnequipItem(dstpos, true) != EQUIP_ERR_OK)
             continue;
 
         _player->SwapItem(item->GetPos(), dstpos);
@@ -2084,7 +2090,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
                         ss << knownTitles[index] << ' ';
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
-                    stmt->setString(0, ss.str().c_str());
+                    stmt->setString(0, ss.str());
                     stmt->setUInt32(1, lowGuid);
                     trans->Append(stmt);
 

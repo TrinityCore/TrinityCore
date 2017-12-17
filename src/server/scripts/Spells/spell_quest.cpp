@@ -277,13 +277,13 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                target->SetImmuneToPC(true);
                 target->AddUnitState(UNIT_STATE_ROOT);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-            GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            GetTarget()->SetImmuneToPC(false);
             }
 
             void Register() override
@@ -317,7 +317,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetExplTargetUnit())
+                if (Unit* target = GetHitUnit())
                     if (target->GetTypeId() == TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                         // Make sure nobody else is channeling the same target
                         if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
@@ -924,7 +924,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
-                    if (target && !target->HasAura(SPELL_FLAMES))
+                    if (!target->HasAura(SPELL_FLAMES))
                     {
                         caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
                         target->CastSpell(target, SPELL_FLAMES, true);
@@ -2149,7 +2149,7 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
                         return;
                 }
 
-                GetCaster()->CastSpell((Unit*)nullptr, spellId, true);
+                GetCaster()->CastSpell(nullptr, spellId, true);
             }
 
             void Register() override
