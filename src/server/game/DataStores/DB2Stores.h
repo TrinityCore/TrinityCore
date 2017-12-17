@@ -254,6 +254,7 @@ public:
     std::map<uint64, int32> const& GetHotfixData() const;
 
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
+    static bool IsInArea(uint32 objectAreaId, uint32 areaId);
     std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
     std::unordered_set<uint32> const* GetArtifactPowerLinks(uint32 artifactPowerId) const;
     ArtifactPowerRankEntry const* GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const;

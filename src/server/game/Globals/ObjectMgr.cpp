@@ -4012,8 +4012,10 @@ void ObjectMgr::LoadQuests()
     // Load `quest_template_addon`
     //                                   0   1         2                 3              4            5            6               7                     8
     result = WorldDatabase.Query("SELECT ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, RewardMailTemplateID, RewardMailDelay, "
-        //9               10                   11                     12                     13                   14                   15                 16                     17
-        "RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, RewardMailSenderEntry, SpecialFlags FROM quest_template_addon LEFT JOIN quest_mail_sender ON Id=QuestId");
+        //9               10                   11                     12                     13                   14                   15                 16
+        "RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, RewardMailSenderEntry, "
+        //17           18
+        "SpecialFlags, ScriptName FROM quest_template_addon LEFT JOIN quest_mail_sender ON Id=QuestId");
 
     if (!result)
     {
@@ -7674,7 +7676,7 @@ void ObjectMgr::LoadQuestPOI()
             _questPOIStore[QuestID].push_back(POI);
         }
         else
-            TC_LOG_ERROR("server.loading", "Table quest_poi references unknown quest points for quest %i POI id %i", QuestID, BlobIndex);
+            TC_LOG_ERROR("sql.sql", "Table quest_poi references unknown quest points for quest %i POI id %i", QuestID, BlobIndex);
 
         ++count;
     } while (result->NextRow());
@@ -9118,6 +9120,8 @@ void ObjectMgr::LoadScriptNames()
         "SELECT DISTINCT(ScriptName) FROM outdoorpvp_template WHERE ScriptName <> '' "
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM scene_template WHERE ScriptName <> '' "
+        "UNION "
+        "SELECT DISTINCT(ScriptName) FROM quest_template_addon WHERE ScriptName <> '' "
         "UNION "
         "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 

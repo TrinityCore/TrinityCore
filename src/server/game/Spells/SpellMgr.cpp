@@ -480,13 +480,9 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
     // check spell family name/flags (if set) for spells
     if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK))
     {
-        SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo();
-
-        if (procEntry.SpellFamilyName && eventSpellInfo && (procEntry.SpellFamilyName != eventSpellInfo->SpellFamilyName))
-            return false;
-
-        if (procEntry.SpellFamilyMask && eventSpellInfo && !(procEntry.SpellFamilyMask & eventSpellInfo->SpellFamilyFlags))
-            return false;
+        if (SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo())
+            if (!eventSpellInfo->IsAffected(procEntry.SpellFamilyName, procEntry.SpellFamilyMask))
+                return false;
     }
 
     // check spell type mask (if set)
@@ -1491,7 +1487,12 @@ void SpellMgr::LoadSpellProcs()
         if (!spellInfo)
             continue;
 
+        // Data already present in DB, overwrites default proc
         if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
+            continue;
+
+        // Nothing to do if no flags set
+        if (!spellInfo->ProcFlags)
             continue;
 
         bool addTriggerFlag = false;
@@ -1511,13 +1512,25 @@ void SpellMgr::LoadSpellProcs()
             procSpellTypeMask |= spellTypeMask[auraName];
             if (isAlwaysTriggeredAura[auraName])
                 addTriggerFlag = true;
+
+            // many proc auras with taken procFlag mask don't have attribute "can proc with triggered"
+            // they should proc nevertheless (example mage armor spells with judgement)
+            if (!addTriggerFlag && (spellInfo->ProcFlags & TAKEN_HIT_PROC_FLAG_MASK) != 0)
+            {
+                switch (auraName)
+                {
+                    case SPELL_AURA_PROC_TRIGGER_SPELL:
+                    case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+                        addTriggerFlag = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
             break;
         }
 
         if (!procSpellTypeMask)
-            continue;
-
-        if (!spellInfo->ProcFlags)
             continue;
 
         SpellProcEntry procEntry;
@@ -2702,12 +2715,9 @@ void SpellMgr::LoadSpellInfoCorrections()
         27892, // To Anchor 1
         27928, // To Anchor 1
         27935, // To Anchor 1
-        27915, // Anchor to Skulls
-        27931, // Anchor to Skulls
-        27937  // Anchor to Skulls
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
     });
 
     // Wrath of the Plaguebringer
@@ -2749,7 +2759,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
     ApplySpellFix({ 61719 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+        spellInfo->AuraInterruptFlags[0] = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
     });
 
     ApplySpellFix({
@@ -2914,7 +2924,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 63414 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-        spellInfo->ChannelInterruptFlags = 0;
+        spellInfo->ChannelInterruptFlags.fill(0);
     });
 
     // Rocket Strike (Mimiron)
@@ -3282,7 +3292,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Threatening Gaze
     ApplySpellFix({ 24314 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+        spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
     });
 
     // Tree of Life (Passive)
@@ -3343,7 +3353,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Blaze of Glory
     ApplySpellFix({ 99252 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CHANGE_MAP;
+        spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_CHANGE_MAP;
     });
     // ENDOF FIRELANDS SPELLS
 

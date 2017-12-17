@@ -127,4 +127,3 @@ void AddSC_boss_corla()
 {
     new boss_corla();
 }
-

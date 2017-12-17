@@ -1103,11 +1103,18 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
     EquippedItemInventoryTypeMask = _equipped ? _equipped->EquippedItemInventoryTypeMask : -1;
 
     // SpellInterruptsEntry
-    SpellInterruptsEntry const* _interrupt = data.Interrupts;
-    InterruptFlags = _interrupt ? _interrupt->InterruptFlags : 0;
-    // TODO: 6.x these flags have 2 parts
-    AuraInterruptFlags = _interrupt ? _interrupt->AuraInterruptFlags[0] : 0;
-    ChannelInterruptFlags = _interrupt ? _interrupt->ChannelInterruptFlags[0] : 0;
+    if (SpellInterruptsEntry const* _interrupt = data.Interrupts)
+    {
+        InterruptFlags = _interrupt->InterruptFlags;
+        std::copy(std::begin(_interrupt->AuraInterruptFlags), std::end(_interrupt->AuraInterruptFlags), AuraInterruptFlags.begin());
+        std::copy(std::begin(_interrupt->ChannelInterruptFlags), std::end(_interrupt->ChannelInterruptFlags), ChannelInterruptFlags.begin());
+    }
+    else
+    {
+        InterruptFlags = 0;
+        AuraInterruptFlags.fill(0);
+        ChannelInterruptFlags.fill(0);
+    }
 
     // SpellLevelsEntry
     SpellLevelsEntry const* _levels = data.Levels;
@@ -1531,6 +1538,20 @@ bool SpellInfo::HasInitialAggro() const
     return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
 }
 
+bool SpellInfo::IsAffected(uint32 familyName, flag128 const& familyFlags) const
+{
+    if (!familyName)
+        return true;
+
+    if (familyName != SpellFamilyName)
+        return false;
+
+    if (familyFlags && !(familyFlags & SpellFamilyFlags))
+        return false;
+
+    return true;
+}
+
 bool SpellInfo::IsAffectedBySpellMods() const
 {
     return !HasAttribute(SPELL_ATTR3_NO_DONE_BONUS);
@@ -1542,15 +1563,10 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
         return false;
 
     SpellInfo const* affectSpell = sSpellMgr->GetSpellInfo(mod->spellId);
-    // False if affect_spell == NULL or spellFamily not equal
-    if (!affectSpell || affectSpell->SpellFamilyName != SpellFamilyName)
+    if (!affectSpell)
         return false;
 
-    // true
-    if (mod->mask & SpellFamilyFlags)
-        return true;
-
-    return false;
+    return IsAffected(affectSpell->SpellFamilyName, mod->mask);
 }
 
 bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
@@ -1826,15 +1842,12 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
             switch (effect->ApplyAuraName)
             {
-                case SPELL_AURA_FLY:
+                case SPELL_AURA_MOD_SHAPESHIFT:
                 {
-                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
-                    for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
-                    {
-                        if (skillIter->second->SkillLine == SKILL_MOUNTS)
-                            if (!player->CanFlyInZone(map_id, zone_id))
-                                return SPELL_FAILED_INCORRECT_AREA;
-                    }
+                    if (SpellShapeshiftFormEntry const* spellShapeshiftForm = sSpellShapeshiftFormStore.LookupEntry(effect->MiscValue))
+                        if (uint32 mountType = spellShapeshiftForm->MountTypeID)
+                            if (!player->GetMountCapability(mountType))
+                                return SPELL_FAILED_NOT_HERE;
                     break;
                 }
                 case SPELL_AURA_MOUNTED:
@@ -2288,7 +2301,7 @@ void SpellInfo::_LoadSpellSpecific()
             case SPELLFAMILY_GENERIC:
             {
                 // Food / Drinks (mostly)
-                if (AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
+                if (HasAuraInterruptFlag(AURA_INTERRUPT_FLAG_NOT_SEATED))
                 {
                     bool food = false;
                     bool drink = false;
