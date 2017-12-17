@@ -255,8 +255,8 @@ class boss_sapphiron : public CreatureScript
                     // Filtering blizzards from summon list
                     std::vector<Unit*> blizzards;
                     for (ObjectGuid summonGuid : summons)
-                        if (Unit* temp = ObjectAccessor::GetUnit(*me, summonGuid))
-                            if (temp->GetEntry() == NPC_BLIZZARD)
+                        if (summonGuid.GetEntry() == NPC_BLIZZARD)
+                            if (Unit* temp = ObjectAccessor::GetUnit(*me, summonGuid))
                                 blizzards.push_back(temp);
 
                     if (Unit* newTarget = me->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, BlizzardTargetSelector(blizzards)))
