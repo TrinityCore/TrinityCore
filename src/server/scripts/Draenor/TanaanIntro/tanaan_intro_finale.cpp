@@ -594,7 +594,7 @@ public:
         if (player->GetQuestStatus(TanaanQuests::QuestATasteOfIron) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) < 200)
         {
             player->RemoveAurasDueToSpell(TanaanPhases::PhaseFinalSideCanons);
-            player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneShootingGallery);
+            player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneShootingGallery, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
             player->AddAura(TanaanSpells::SpellTasteOfIronGameAura, player); // Aura pour lancer le scene object
             player->KilledMonsterCredit(TanaanKillCredits::CreditEnterWorldbreakerTurret);
         }
