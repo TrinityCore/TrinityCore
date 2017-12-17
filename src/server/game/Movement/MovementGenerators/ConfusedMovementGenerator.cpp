@@ -60,7 +60,7 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* unit, uint32 diff)
     if (unit->HasUnitState(UNIT_STATE_NOT_MOVE))
         return true;
  
-    // Move.
+    // Ready to move.
     _move(unit);
 
     return true;
@@ -85,7 +85,7 @@ void ConfusedMovementGenerator<T>::_move(T* unit)
     path.SetPathLengthLimit(10.0f);
     bool result = path.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
     if (!result || (path.GetPathType() & PATHFIND_NOPATH))
-        return true; // Return without setting timer, generate another path on next update.
+        return; // Return without setting timer, generate another path on next update.
 
     // Add "currently moving" flag.
     unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
