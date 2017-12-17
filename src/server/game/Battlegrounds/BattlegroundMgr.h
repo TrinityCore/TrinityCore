@@ -53,7 +53,7 @@ struct BattlegroundTemplate
     uint16 MaxPlayersPerTeam;
     uint8 MinLevel;
     uint8 MaxLevel;
-    Position StartLocation[BG_TEAMS_COUNT];
+    Position StartLocation[PVP_TEAMS_COUNT];
     float MaxStartDistSq;
     uint8 Weight;
     uint32 ScriptId;

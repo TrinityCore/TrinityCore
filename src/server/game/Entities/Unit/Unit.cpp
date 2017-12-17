@@ -12236,8 +12236,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         if (OutdoorPvP* pvp = player->GetOutdoorPvP())
             pvp->HandleKill(player, victim);
 
-        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
-            bf->HandleKill(player, victim);
+        if (Battlefield* battlefield = sBattlefieldMgr->GetEnabledBattlefield(player->GetZoneId()))
+            battlefield->HandleKill(player, victim);
     }
 
     //if (victim->GetTypeId() == TYPEID_PLAYER)
