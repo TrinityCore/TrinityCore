@@ -2850,9 +2850,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         51904, // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
         2895,  // Wrath of Air Totem rank 1 (Aura)
         68933, // Wrath of Air Totem rank 2 (Aura)
-        29200, // Purify Helboar Meat
-        10872, // Abolish Disease Effect
-        3137   // Abolish Poison Effect
+        29200  // Purify Helboar Meat
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
@@ -3076,7 +3074,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Everlasting Affliction
-    ApplySpellFix({ 47201, 47202, 47203, 47204, 47205 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({ 47201, 47202, 47203 }, [](SpellInfo* spellInfo)
     {
         // add corruption to affected spells
         spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 2;
@@ -3184,7 +3182,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         27937, // Anchor to Skulls
         16177, // Ancestral Fortitude (Rank 1)
         16236, // Ancestral Fortitude (Rank 2)
-        16237, // Ancestral Fortitude (Rank 3)
         47930, // Grace
     }, [](SpellInfo* spellInfo)
     {
@@ -3460,7 +3457,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
-        62716, // Growth of Nature (Freya)
         65584, // Growth of Nature (Freya)
         64381  // Strength of the Pack (Auriaya)
     }, [](SpellInfo* spellInfo)
