@@ -1103,11 +1103,18 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
     EquippedItemInventoryTypeMask = _equipped ? _equipped->EquippedItemInventoryTypeMask : -1;
 
     // SpellInterruptsEntry
-    SpellInterruptsEntry const* _interrupt = data.Interrupts;
-    InterruptFlags = _interrupt ? _interrupt->InterruptFlags : 0;
-    // TODO: 6.x these flags have 2 parts
-    AuraInterruptFlags = _interrupt ? _interrupt->AuraInterruptFlags[0] : 0;
-    ChannelInterruptFlags = _interrupt ? _interrupt->ChannelInterruptFlags[0] : 0;
+    if (SpellInterruptsEntry const* _interrupt = data.Interrupts)
+    {
+        InterruptFlags = _interrupt->InterruptFlags;
+        std::copy(std::begin(_interrupt->AuraInterruptFlags), std::end(_interrupt->AuraInterruptFlags), AuraInterruptFlags.begin());
+        std::copy(std::begin(_interrupt->ChannelInterruptFlags), std::end(_interrupt->ChannelInterruptFlags), ChannelInterruptFlags.begin());
+    }
+    else
+    {
+        InterruptFlags = 0;
+        AuraInterruptFlags.fill(0);
+        ChannelInterruptFlags.fill(0);
+    }
 
     // SpellLevelsEntry
     SpellLevelsEntry const* _levels = data.Levels;
@@ -2294,7 +2301,7 @@ void SpellInfo::_LoadSpellSpecific()
             case SPELLFAMILY_GENERIC:
             {
                 // Food / Drinks (mostly)
-                if (AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
+                if (HasAuraInterruptFlag(AURA_INTERRUPT_FLAG_NOT_SEATED))
                 {
                     bool food = false;
                     bool drink = false;
