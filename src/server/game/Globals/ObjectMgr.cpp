@@ -35,6 +35,7 @@
 #include "LootMgr.h"
 #include "Mail.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
@@ -9788,6 +9789,40 @@ bool ObjectMgr::GetRealmName(uint32 realmId, std::string& name, std::string& nor
     return false;
 }
 
+uint8 ObjectMgr::GetRaceExpansionRequirement(uint8 race) const
+{
+    auto itr = _raceExpansionRequirementStore.find(race);
+    if (itr != _raceExpansionRequirementStore.end())
+        return itr->second;
+    return EXPANSION_CLASSIC;
+}
+
+uint8 ObjectMgr::GetClassExpansionRequirement(uint8 class_) const
+{
+    auto itr = _classExpansionRequirementStore.find(class_);
+    if (itr != _classExpansionRequirementStore.end())
+        return itr->second;
+    return EXPANSION_CLASSIC;
+}
+
+SceneTemplate const* ObjectMgr::GetSceneTemplate(uint32 sceneId) const
+{
+    auto itr = _sceneTemplateStore.find(sceneId);
+    if (itr != _sceneTemplateStore.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+PlayerChoice const* ObjectMgr::GetPlayerChoice(int32 choiceId) const
+{
+    auto itr = _playerChoiceContainer.find(choiceId);
+    if (itr != _playerChoiceContainer.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
 void ObjectMgr::LoadGameObjectQuestItems()
 {
     uint32 oldMSTime = getMSTime();
@@ -9907,4 +9942,185 @@ void ObjectMgr::LoadSceneTemplates()
     } while (templates->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u scene templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadPlayerChoices()
+{
+    uint32 oldMSTime = getMSTime();
+    _playerChoiceContainer.clear();
+
+    QueryResult choices = WorldDatabase.Query("SELECT ChoiceID, Question FROM playerchoice");
+
+    if (!choices)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 player choices. DB table `playerchoice` is empty.");
+        return;
+    }
+
+    uint32 responseCount = 0;
+    uint32 rewardCount = 0;
+
+    do
+    {
+        Field* fields = choices->Fetch();
+
+        int32 choiceId = fields[0].GetInt32();
+
+        PlayerChoice& choice = _playerChoiceContainer[choiceId];
+        choice.ChoiceId = choiceId;
+        choice.Question = fields[1].GetString();
+    } while (choices->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " player choices in %u ms.", _playerChoiceContainer.size(), GetMSTimeDiffToNow(oldMSTime));
+
+    QueryResult responses = WorldDatabase.Query("SELECT ChoiceID, ResponseID, ChoiceArtFileID, Header, Answer, Description, Confirmation FROM playerchoice_response");
+    if (responses)
+    {
+        do
+        {
+            ++responseCount;
+            Field* fields = responses->Fetch();
+
+            int32 choiceId      = fields[0].GetInt32();
+            int32 ResponseID    = fields[1].GetInt32();
+
+            if (_playerChoiceContainer.find(choiceId) == _playerChoiceContainer.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response` has nonexistent choiceId: %u (ResponseID : %u), skipped", choiceId, ResponseID);
+                continue;
+            }
+
+            PlayerChoice& choice = _playerChoiceContainer[choiceId];
+            PlayerChoiceResponse& response = choice.Responses[ResponseID];
+
+            response.ResponseID         = ResponseID;
+            response.ChoiceArtFileID    = fields[2].GetInt32();
+            response.Header             = fields[3].GetString();
+            response.Answer             = fields[4].GetString();
+            response.Description        = fields[5].GetString();
+            response.Confirmation       = fields[6].GetString();
+        } while (responses->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded %u player choices response in %u ms.", responseCount, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 player choices responses. DB table `playerchoice_response` is empty.");
+    }
+
+    QueryResult rewards = WorldDatabase.Query("SELECT ChoiceID, ResponseID, TitleID, PackageID, SkillLineID, SkillPointCount, ArenaPointCount, HonorPointCount, Money, Xp FROM playerchoice_response_reward");
+
+    if (rewards)
+    {
+        do
+        {
+            ++rewardCount;
+            Field* fields = rewards->Fetch();
+
+            int32 choiceId      = fields[0].GetInt32();
+            int32 ResponseID    = fields[1].GetInt32();
+
+            if (_playerChoiceContainer.find(choiceId) == _playerChoiceContainer.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward` has nonexistent choiceId: %u (ResponseID : %u), skipped", choiceId, ResponseID);
+                continue;
+            }
+
+            PlayerChoice& choice = _playerChoiceContainer[choiceId];
+
+            if (choice.Responses.find(ResponseID) == choice.Responses.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward` has nonexistent ResponseID: %u for choiceId %u, skipped", ResponseID, choiceId);
+                continue;
+            }
+
+            PlayerChoiceResponse& response = choice.Responses[ResponseID];
+
+            PlayerChoiceResponseReward reward;
+
+            reward.TitleID          = fields[2].GetInt32();
+            reward.PackageID        = fields[3].GetInt32();
+            reward.SkillLineID      = fields[4].GetUInt32();
+            reward.SkillPointCount  = fields[5].GetUInt32();
+            reward.ArenaPointCount  = fields[6].GetUInt32();
+            reward.HonorPointCount  = fields[7].GetUInt32();
+            reward.Money            = fields[8].GetUInt64();
+            reward.Xp               = fields[9].GetUInt32();
+
+            response.Reward = reward;
+
+        } while (rewards->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded %u player choices reward in %u ms.", rewardCount, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 player choices responses reward. DB table `playerchoice_response_reward` is empty.");
+    }
+}
+
+void ObjectMgr::LoadPlayerChoicesLocale()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // need for reload case
+    _playerChoiceLocaleContainer.clear();
+    _playerChoiceResponseLocaleContainer.clear();
+
+    //                                               0         1       2
+    QueryResult result = WorldDatabase.Query("SELECT ChoiceID, locale, Question FROM playerchoice_locale");
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 ChoiceID         = fields[0].GetUInt32();
+            std::string localeName  = fields[1].GetString();
+            std::string question    = fields[2].GetString();
+
+            PlayerChoiceLocale& data = _playerChoiceLocaleContainer[ChoiceID];
+            LocaleConstant locale = GetLocaleByName(localeName);
+            if (locale == LOCALE_enUS)
+                continue;
+
+            AddLocaleString(question, locale, data.Question);
+        } while (result->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Player Choice locale strings in %u ms", _playerChoiceLocaleContainer.size(), GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    oldMSTime = getMSTime();
+
+    //                                   0         1           2       3       4       5            6
+    result = WorldDatabase.Query("SELECT ChoiceID, ResponseID, locale, Header, Answer, Description, Confirmation FROM playerchoice_response_locale");
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 ChoiceID             = fields[0].GetUInt32();
+            uint32 ResponseID           = fields[1].GetUInt32();
+            std::string localeName      = fields[2].GetString();
+            std::string Header          = fields[3].GetString();
+            std::string Answer          = fields[4].GetString();
+            std::string Description     = fields[5].GetString();
+            std::string Confirmation    = fields[6].GetString();
+
+            std::pair<uint32, uint32> pair = std::make_pair(ChoiceID, ResponseID);
+
+            PlayerChoiceResponseLocale& data = _playerChoiceResponseLocaleContainer[pair];
+            LocaleConstant locale = GetLocaleByName(localeName);
+            if (locale == LOCALE_enUS)
+                continue;
+
+            AddLocaleString(Header,         locale, data.Header);
+            AddLocaleString(Answer,         locale, data.Answer);
+            AddLocaleString(Description,    locale, data.Description);
+            AddLocaleString(Confirmation,   locale, data.Confirmation);
+        } while (result->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Player Choice Response locale strings in %u ms", _playerChoiceResponseLocaleContainer.size(), GetMSTimeDiffToNow(oldMSTime));
+    }
 }

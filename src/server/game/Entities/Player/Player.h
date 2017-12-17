@@ -2338,6 +2338,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
 
+        void SendPlayerChoice(ObjectGuid sender, uint32 choiceID);
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;

@@ -1851,6 +1851,12 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Scenes Templates...");
     sObjectMgr->LoadSceneTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading Player Choices...");
+    sObjectMgr->LoadPlayerChoices();
+
+    TC_LOG_INFO("server.loading", "Loading Player Choices Locales...");
+    sObjectMgr->LoadPlayerChoicesLocale();
+
     CharacterDatabaseCleaner::CleanDatabase();
 
     TC_LOG_INFO("server.loading", "Loading the max pet number...");

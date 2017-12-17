@@ -27121,6 +27121,38 @@ void Player::SendMovementSetCollisionHeight(float height)
     SendMessageToSet(updateCollisionHeight.Write(), false);
 }
 
+void Player::SendPlayerChoice(ObjectGuid sender, uint32 choiceID)
+{
+    PlayerChoice const* playerChoice = sObjectMgr->GetPlayerChoice(choiceID);
+    if (!playerChoice)
+        return;
+
+    PlayerChoice localizedPlayerChoice = *playerChoice;
+
+    LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
+    if (locale != DEFAULT_LOCALE)
+    {
+        if (PlayerChoiceLocale const* playerChoiceLocale = sObjectMgr->GetPlayerChoiceLocale(localizedPlayerChoice.ChoiceId))
+            sObjectMgr->GetLocaleString(playerChoiceLocale->Question, locale, localizedPlayerChoice.Question);
+
+        for (auto& playerChoiceResponse : localizedPlayerChoice.Responses)
+        {
+            if (PlayerChoiceResponseLocale const* playerChoiceResponseLocale = sObjectMgr->GetPlayerChoiceResponseLocale(localizedPlayerChoice.ChoiceId, playerChoiceResponse.second.ResponseID))
+            {
+                sObjectMgr->GetLocaleString(playerChoiceResponseLocale->Header,        locale, playerChoiceResponse.second.Header);
+                sObjectMgr->GetLocaleString(playerChoiceResponseLocale->Answer,        locale, playerChoiceResponse.second.Answer);
+                sObjectMgr->GetLocaleString(playerChoiceResponseLocale->Description,   locale, playerChoiceResponse.second.Description);
+                sObjectMgr->GetLocaleString(playerChoiceResponseLocale->Confirmation,  locale, playerChoiceResponse.second.Confirmation);
+            }
+        }
+    }
+
+    WorldPackets::Quest::DisplayPlayerChoice displayPlayerChoice;
+    displayPlayerChoice.Choice = &localizedPlayerChoice;
+    displayPlayerChoice.SenderGUID = sender;
+    SendDirectMessage(displayPlayerChoice.Write());
+}
+
 float Player::GetCollisionHeight(bool mounted) const
 {
     if (mounted)

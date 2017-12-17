@@ -23,6 +23,10 @@
 #include "QuestDef.h"
 #include "ObjectGuid.h"
 
+struct PlayerChoice;
+struct PlayerChoiceResponse;
+struct PlayerChoiceResponseReward;
+
 namespace WorldPackets
 {
     namespace Quest
@@ -633,8 +637,34 @@ namespace WorldPackets
 
             std::vector<WorldQuestUpdateInfo> WorldQuestUpdates;
         };
+
+        class DisplayPlayerChoice final : public ServerPacket
+        {
+        public:
+            DisplayPlayerChoice() : ServerPacket(SMSG_DISPLAY_PLAYER_CHOICE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            PlayerChoice const* Choice;
+            bool CloseChoiceFrame = false;
+        };
+
+        class PlayerChoiceResponse final : public ClientPacket
+        {
+        public:
+            PlayerChoiceResponse(WorldPacket&& packet) : ClientPacket(CMSG_CHOICE_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 ChoiceID;
+            int32 ResponseID;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponse const& response);
+ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponseReward const& reward);
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestGiverOfferReward const& offer);
