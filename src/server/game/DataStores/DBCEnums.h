@@ -847,6 +847,8 @@ enum SpellCategoryFlags
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF
 
+#define MAX_SPELL_AURA_INTERRUPT_FLAGS 2
+
 enum SpellItemEnchantmentFlags
 {
     ENCHANTMENT_CAN_SOULBOUND           = 0x01,
