@@ -27,6 +27,7 @@
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "SpellInfo.h"
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
