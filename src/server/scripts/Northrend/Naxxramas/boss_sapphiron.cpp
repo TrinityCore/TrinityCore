@@ -511,8 +511,8 @@ class spell_sapphiron_change_blizzard_target : public SpellScriptLoader
                 me->GetAI()->SetGUID(ObjectGuid::Empty, DATA_BLIZZARD_TARGET);
                 if (Unit* newTarget = ObjectAccessor::GetUnit(*owner, owner->AI()->GetGUID(DATA_BLIZZARD_TARGET)))
                 {
-                    me->GetMotionMaster()->MoveFollow(newTarget, 0.1f, 0.0f);
                     me->GetAI()->SetGUID(newTarget->GetGUID(), DATA_BLIZZARD_TARGET);
+                    me->GetMotionMaster()->MoveFollow(newTarget, 0.1f, 0.0f);
                 }
                 else
                 {
