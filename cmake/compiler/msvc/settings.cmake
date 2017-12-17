@@ -110,13 +110,13 @@ message(STATUS "MSVC: Disabled POSIX warnings")
 # Ignore specific warnings
 # C4351: new behavior: elements of array 'x' will be default initialized
 # C4091: 'typedef ': ignored on left of '' when no variable is declared
-target_compile_options(trinity-warning-interface
+target_compile_options(trinity-compile-option-interface
   INTERFACE
     /wd4351
     /wd4091)
 
 if(NOT WITH_WARNINGS)
-  target_compile_options(trinity-warning-interface
+  target_compile_options(trinity-compile-option-interface
     INTERFACE
       /wd4996
       /wd4355
@@ -132,7 +132,7 @@ endif()
 if (BUILD_SHARED_LIBS)
   # C4251: needs to have dll-interface to be used by clients of class '...'
   # C4275: non dll-interface class ...' used as base for dll-interface class '...'
-  target_compile_options(trinity-warning-interface
+  target_compile_options(trinity-compile-option-interface
     INTERFACE
       /wd4251
       /wd4275)
@@ -143,7 +143,7 @@ endif()
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
 # 'function' : member function does not override any base class virtual member function
 # 'virtual_function' : no override available for virtual member function from base 'class'; function is hidden
-target_compile_options(trinity-warning-interface
+target_compile_options(trinity-compile-option-interface
   INTERFACE
     /we4263
     /we4264)
