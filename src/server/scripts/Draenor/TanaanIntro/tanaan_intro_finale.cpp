@@ -313,17 +313,19 @@ public:
         {
             if (p_Type == FOLLOW_MOTION_TYPE)
             {
-                if (me->GetPositionZ() >= 67.0f)
+                if (Player* escortedPlayer = ObjectAccessor::FindPlayer(m_PlayerGuid))
                 {
-                    /// TALK
-                    Talk(3);
+                    if (me->GetPositionZ() >= 67.0f ||
+                        escortedPlayer->GetPositionZ() >= 67.0f)
+                    {
+                        Talk(3);
 
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(1, 4072.98f, -2006.38f, 67.97f);
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(1, 4072.98f, -2006.38f, 67.97f);
+                    }
+
+                    me->SetSpeed(MOVE_RUN, escortedPlayer->GetSpeed(MOVE_RUN));
                 }
-
-                if (Player* l_EscortedPlayer = ObjectAccessor::FindPlayer(m_PlayerGuid))
-                    me->SetSpeed(MOVE_RUN, l_EscortedPlayer->GetSpeed(MOVE_RUN));
             }
             else if (p_Type == POINT_MOTION_TYPE)
             {
@@ -589,7 +591,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*p_Gameobject*/) override
     {
-        if (player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) < 200)
+        if (player->GetQuestStatus(TanaanQuests::QuestATasteOfIron) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) < 200)
         {
             player->RemoveAurasDueToSpell(TanaanPhases::PhaseFinalSideCanons);
             player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneShootingGallery);
