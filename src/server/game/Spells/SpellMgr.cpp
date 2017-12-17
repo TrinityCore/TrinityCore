@@ -3779,6 +3779,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(34); // Twenty-Five yards
     });
 
+    // Summon Corpse Scarabs
+    ApplySpellFix({ 28864, 29105 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
