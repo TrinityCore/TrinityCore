@@ -2297,6 +2297,11 @@ void ScriptMgr::OnMovieComplete(Player* player, uint32 movieId)
     FOREACH_SCRIPT(PlayerScript)->OnMovieComplete(player, movieId);
 }
 
+void ScriptMgr::OnPlayerChoiceResponse(Player* player, uint32 choiceID, uint32 responseID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerChoiceResponse(player, choiceID, responseID);
+}
+
 // Account
 void ScriptMgr::OnAccountLogin(uint32 accountId)
 {

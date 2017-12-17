@@ -673,3 +673,8 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
 
     SendPacket(response.Write());
 }
+
+void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::PlayerChoiceResponse& packet)
+{
+    sScriptMgr->OnPlayerChoiceResponse(GetPlayer(), packet.ChoiceID, packet.ResponseID);
+}

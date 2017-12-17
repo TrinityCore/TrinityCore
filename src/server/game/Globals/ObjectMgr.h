@@ -516,6 +516,22 @@ struct PointOfInterestLocale
 
 typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
 
+struct PlayerChoiceResponseLocale
+{
+    std::vector<std::string> Header;
+    std::vector<std::string> Answer;
+    std::vector<std::string> Description;
+    std::vector<std::string> Confirmation;
+};
+
+struct PlayerChoiceLocale
+{
+    std::vector<std::string> Question;
+};
+
+typedef std::unordered_map<uint32, PlayerChoiceLocale> PlayerChoiceLocaleContainer;
+typedef std::unordered_map<std::pair<uint32, uint32>, PlayerChoiceResponseLocale> PlayerChoiceResponseLocaleContainer;
+
 typedef std::unordered_map<uint32, TrinityString> TrinityStringContainer;
 
 typedef std::multimap<uint32, uint32> QuestRelations; // unit/go -> quest
@@ -751,6 +767,45 @@ struct SceneTemplate
 };
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
+
+struct PlayerChoiceResponseReward
+{
+    int32 TitleID;
+    int32 PackageID;
+    int32 SkillLineID;
+    uint32 SkillPointCount;
+    uint32 ArenaPointCount;
+    uint32 HonorPointCount;
+    uint64 Money;
+    uint32 Xp;
+
+    //std::vector<Item> Items;
+    //std::vector<Currency> Currency;
+    //std::vector<Faction> Faction;
+    //std::vector<ItemChoice> ItemChoice;
+};
+
+struct PlayerChoiceResponse
+{
+    int32 ResponseID;
+    int32 ChoiceArtFileID;
+
+    std::string Header;
+    std::string Answer;
+    std::string Description;
+    std::string Confirmation;
+
+    Optional<PlayerChoiceResponseReward> Reward;
+};
+
+struct PlayerChoice
+{
+    int32 ChoiceId;
+    std::string Question;
+    std::unordered_map<int32 /*ResponseID*/, PlayerChoiceResponse> Responses;
+};
+
+typedef std::unordered_map<int32 /*choiceId*/, PlayerChoice> PlayerChoiceContainer;
 
 enum SkillRangeType
 {
@@ -1175,6 +1230,9 @@ class TC_GAME_API ObjectMgr
 
         void LoadSceneTemplates();
 
+        void LoadPlayerChoices();
+        void LoadPlayerChoicesLocale();
+
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
@@ -1324,6 +1382,18 @@ class TC_GAME_API ObjectMgr
         {
             PointOfInterestLocaleContainer::const_iterator itr = _pointOfInterestLocaleStore.find(id);
             if (itr == _pointOfInterestLocaleStore.end()) return nullptr;
+            return &itr->second;
+        }
+        PlayerChoiceLocale const* GetPlayerChoiceLocale(uint32 ChoiceID) const
+        {
+            PlayerChoiceLocaleContainer::const_iterator itr = _playerChoiceLocaleContainer.find(ChoiceID);
+            if (itr == _playerChoiceLocaleContainer.end()) return nullptr;
+            return &itr->second;
+        }
+        PlayerChoiceResponseLocale const* GetPlayerChoiceResponseLocale(uint32 ChoiceID, uint32 ResponseID) const
+        {
+            PlayerChoiceResponseLocaleContainer::const_iterator itr = _playerChoiceResponseLocaleContainer.find(std::make_pair(ChoiceID, ResponseID));
+            if (itr == _playerChoiceResponseLocaleContainer.end()) return nullptr;
             return &itr->second;
         }
 
@@ -1488,31 +1558,14 @@ class TC_GAME_API ObjectMgr
         bool GetRealmName(uint32 realmId, std::string& name, std::string& normalizedName) const;
 
         std::unordered_map<uint8, uint8> const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
-        uint8 GetRaceExpansionRequirement(uint8 race) const
-        {
-            auto itr = _raceExpansionRequirementStore.find(race);
-            if (itr != _raceExpansionRequirementStore.end())
-                return itr->second;
-            return EXPANSION_CLASSIC;
-        }
+        uint8 GetRaceExpansionRequirement(uint8 race) const;
 
         std::unordered_map<uint8, uint8> const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
-        uint8 GetClassExpansionRequirement(uint8 class_) const
-        {
-            auto itr = _classExpansionRequirementStore.find(class_);
-            if (itr != _classExpansionRequirementStore.end())
-                return itr->second;
-            return EXPANSION_CLASSIC;
-        }
+        uint8 GetClassExpansionRequirement(uint8 class_) const;
 
-        SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
-        {
-            auto itr = _sceneTemplateStore.find(sceneId);
-            if (itr != _sceneTemplateStore.end())
-                return &itr->second;
+        SceneTemplate const* GetSceneTemplate(uint32 sceneId) const;
 
-            return nullptr;
-        }
+        PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
 
     private:
         // first free id for selected id type
@@ -1647,6 +1700,7 @@ class TC_GAME_API ObjectMgr
         GameObjectTemplateAddonContainer _gameObjectTemplateAddonStore;
         /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
         TempSummonDataContainer _tempSummonDataStore;
+        PlayerChoiceContainer _playerChoiceContainer;
 
         ItemTemplateContainer _itemTemplateStore;
         QuestTemplateLocaleContainer _questTemplateLocaleStore;
@@ -1656,6 +1710,9 @@ class TC_GAME_API ObjectMgr
         PageTextLocaleContainer _pageTextLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
+
+        PlayerChoiceLocaleContainer _playerChoiceLocaleContainer;
+        PlayerChoiceResponseLocaleContainer _playerChoiceResponseLocaleContainer;
 
         TrinityStringContainer _trinityStringStore;
 

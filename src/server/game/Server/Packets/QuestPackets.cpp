@@ -599,3 +599,79 @@ WorldPacket const* WorldPackets::Quest::WorldQuestUpdate::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponse const& response)
+{
+    data << int32(response.ResponseID);
+    data << int32(response.ChoiceArtFileID);
+
+    data.WriteBits(response.Answer.length(), 9);
+    data.WriteBits(response.Header.length(), 9);
+    data.WriteBits(response.Description.length(), 11);
+    data.WriteBits(response.Confirmation.length(), 7);
+
+    data.WriteBit(response.Reward.is_initialized());
+    data.FlushBits();
+
+    if (response.Reward.is_initialized())
+        data << (*response.Reward);
+
+    data.WriteString(response.Answer);
+    data.WriteString(response.Header);
+    data.WriteString(response.Description);
+    data.WriteString(response.Confirmation);
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponseReward const& reward)
+{
+    data << int32(reward.TitleID);
+    data << int32(reward.PackageID);
+    data << int32(reward.SkillLineID);
+    data << uint32(reward.SkillPointCount);
+    data << uint32(reward.ArenaPointCount);
+    data << uint32(reward.HonorPointCount);
+    data << uint64(reward.Money);
+    data << uint32(reward.Xp);
+
+    data << uint32(0); // itemCount
+    data << uint32(0); // currencyCount
+    data << uint32(0); // factionCount
+    data << uint32(0); // itemChoiceCount
+
+    /*for (var i = 0u; i < itemCount; ++i)
+    ReadPlayerChoiceResponseRewardEntry(packet, "Item", i);
+
+    for (var i = 0u; i < currencyCount; ++i)
+    ReadPlayerChoiceResponseRewardEntry(packet, "Currency", i);
+
+    for (var i = 0u; i < factionCount; ++i)
+    ReadPlayerChoiceResponseRewardEntry(packet, "Faction", i);
+
+    for (var i = 0u; i < itemChoiceCount; ++i)
+    ReadPlayerChoiceResponseRewardEntry(packet, "ItemChoice", i);*/
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Quest::DisplayPlayerChoice::Write()
+{
+    _worldPacket << int32(Choice->ChoiceId);
+    _worldPacket << uint32(Choice->Responses.size());
+    _worldPacket << SenderGUID;
+    _worldPacket.WriteBits(Choice->Question.length(), 8);
+    _worldPacket.WriteBit(CloseChoiceFrame);
+    _worldPacket.FlushBits();
+
+    for (auto response : Choice->Responses)
+        _worldPacket << response.second;
+
+    _worldPacket.WriteString(Choice->Question);
+    return &_worldPacket;
+}
+
+void WorldPackets::Quest::PlayerChoiceResponse::Read()
+{
+    _worldPacket >> ChoiceID;
+    _worldPacket >> ResponseID;
+}
