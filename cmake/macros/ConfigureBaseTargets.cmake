@@ -37,29 +37,43 @@ target_compile_features(trinity-feature-interface
 # This interface taget is set-up through the platform specific script
 add_library(trinity-warning-interface INTERFACE)
 
+# An interface used for all other interfaces
+add_library(trinity-default-interface INTERFACE)
+target_link_libraries(trinity-default-interface
+  INTERFACE
+    trinity-compile-option-interface
+    trinity-feature-interface)
+
+# An interface used for silencing all warnings
+add_library(trinity-no-warning-interface INTERFACE)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  target_compile_options(trinity-no-warning-interface
+    INTERFACE
+      /W0)
+else()
+  target_compile_options(trinity-no-warning-interface
+    INTERFACE
+      -w)
+endif()
+
+# An interface library to change the default behaviour
+# to hide symbols automatically.
+add_library(trinity-hidden-symbols-interface INTERFACE)
+
 # An interface amalgamation which provides the flags and definitions
 # used by the dependency targets.
 add_library(trinity-dependency-interface INTERFACE)
 target_link_libraries(trinity-dependency-interface
   INTERFACE
-    trinity-compile-option-interface
-    trinity-feature-interface)
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  target_compile_options(trinity-dependency-interface
-    INTERFACE
-      /W0)
-else()
-  target_compile_options(trinity-dependency-interface
-    INTERFACE
-      -w)
-endif()
+    trinity-default-interface
+    trinity-no-warning-interface
+    trinity-hidden-symbols-interface)
 
 # An interface amalgamation which provides the flags and definitions
 # used by the core targets.
 add_library(trinity-core-interface INTERFACE)
 target_link_libraries(trinity-core-interface
   INTERFACE
-    trinity-compile-option-interface
-    trinity-feature-interface
+    trinity-default-interface
     trinity-warning-interface)
