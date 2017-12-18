@@ -37,7 +37,10 @@ enum LCTDataTypes
     DATA_SIAMAT_PLATFORM            = 6,
     DATA_BLAZE_OF_THE_HEAVENS       = 7,
     DATA_HARBINGER_OF_DARKNESS      = 8,
-    DATA_LOCKMAW_COMBAT_ASSISTANCE  = 9
+    DATA_LOCKMAW_COMBAT_ASSISTANCE  = 9,
+    DATA_SERVANT_OF_SIAMAT_1        = 10,
+    DATA_SERVANT_OF_SIAMAT_2        = 11,
+    DATA_SERVANT_OF_SIAMAT_3        = 11,
 };
 
 enum LCTCreatureIds
@@ -60,7 +63,13 @@ enum LCTCreatureIds
     NPC_HARBINGER_OF_DARKNESS       = 43927,
     NPC_DUST_FLAIL_FRONT_STALKER    = 43655,
     NPC_ADD_STALKER                 = 45124,
-    NPC_AUGH_DART                   = 45379
+    NPC_AUGH_DART                   = 45379,
+    NPC_SERVANT_OF_SIAMAT_1         = 45259,
+    NPC_SERVANT_OF_SIAMAT_2         = 45268,
+    NPC_SERVANT_OF_SIAMAT_3         = 45269,
+    NPC_MINION_OF_SIAMAT            = 44704,
+    NPC_MINION_OF_SIAMAT_STORM      = 44713,
+    NPC_CLOUD_BURST                 = 44541
 };
 
 enum LCTGameObjectIds

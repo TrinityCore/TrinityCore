@@ -33,7 +33,10 @@ enum Actions
 {
     // Lockmaw and Augh
     ACTION_AUGH_INTRO       = 1,
-    ACTION_AUGH_ATTACKABLE  = 2
+    ACTION_AUGH_ATTACKABLE  = 2,
+
+    // Siamat
+    ACTION_UNLEASHED        = 1
 };
 
 Position const AughSpawnPos =   { -11058.91f, -1625.342f, -0.1304993f, 4.782202f };
@@ -48,6 +51,9 @@ ObjectData const creatureData[] =
     { BOSS_SIAMAT,                  DATA_SIAMAT                 },
     { NPC_BLAZE_OF_THE_HEAVENS,     DATA_BLAZE_OF_THE_HEAVENS   },
     { NPC_HARBINGER_OF_DARKNESS,    DATA_HARBINGER_OF_DARKNESS  },
+    { NPC_SERVANT_OF_SIAMAT_1,      DATA_SERVANT_OF_SIAMAT_1    },
+    { NPC_SERVANT_OF_SIAMAT_2,      DATA_SERVANT_OF_SIAMAT_2    },
+    { NPC_SERVANT_OF_SIAMAT_3,      DATA_SERVANT_OF_SIAMAT_3    },
     { 0,                            0                           } // End
 };
 
@@ -115,6 +121,9 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                                 platform->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                                 platform->EnableCollision(true);
                             }
+
+                            if (Creature* siamat = GetCreature(DATA_SIAMAT))
+                                siamat->AI()->DoAction(ACTION_UNLEASHED);
 
                             instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_HEAVY_RAIN, 1.0f);
                             instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
