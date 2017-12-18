@@ -537,7 +537,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.movementId            = fields[74].GetUInt32();
     creatureTemplate.RegenHealth           = fields[75].GetBool();
     creatureTemplate.MechanicImmuneMask    = fields[76].GetUInt32();
-    creatureTemplate.SpellSchoolImmuneMask = fields[77].GetUInt8();
+    creatureTemplate.SpellSchoolImmuneMask = fields[77].GetUInt32();
     creatureTemplate.flags_extra           = fields[78].GetUInt32();
     creatureTemplate.ScriptID              = GetScriptId(fields[79].GetCString());
 }
