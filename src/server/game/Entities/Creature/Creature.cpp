@@ -667,8 +667,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     UpdateMovementFlags();
     LoadCreaturesAddon();
-    LoadMechanicTemplateImmunity();
-    LoadSpellTemplateImmunity();
+    LoadTemplateImmunities();
     return true;
 }
 
@@ -2201,7 +2200,7 @@ void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& 
         ForcedDespawn(msTimeToDespawn, forceRespawnTimer);
 }
 
-void Creature::LoadMechanicTemplateImmunity()
+void Creature::LoadTemplateImmunities()
 {
     // uint32 max used for "spell id", the immunity system will not perform SpellInfo checks against invalid spells
     // used so we know which immunities were loaded from template
@@ -2210,6 +2209,9 @@ void Creature::LoadMechanicTemplateImmunity()
     // unapply template immunities (in case we're updating entry)
     for (uint32 i = MECHANIC_NONE + 1; i < MAX_MECHANIC; ++i)
         ApplySpellImmune(placeholderSpellId, IMMUNITY_MECHANIC, i, false);
+
+    for (uint32 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        ApplySpellImmune(placeholderSpellId, IMMUNITY_SCHOOL, 1 << i, false);
 
     // don't inherit immunities for hunter pets
     if (GetOwnerGUID().IsPlayer() && IsHunterPet())
@@ -2223,26 +2225,15 @@ void Creature::LoadMechanicTemplateImmunity()
                 ApplySpellImmune(placeholderSpellId, IMMUNITY_MECHANIC, i, true);
         }
     }
-}
 
-void Creature::LoadSpellTemplateImmunity()
-{
-    // uint32 max used for "spell id", the immunity system will not perform SpellInfo checks against invalid spells
-    // used so we know which immunities were loaded from template
-    static uint32 const placeholderSpellId = std::numeric_limits<uint32>::max();
-
-    // unapply template immunities (in case we're updating entry)
-    for (uint8 i = SPELL_SCHOOL_NORMAL; i <= SPELL_SCHOOL_ARCANE; ++i)
-        ApplySpellImmune(placeholderSpellId, IMMUNITY_SCHOOL, i, false);
-
-    // don't inherit immunities for hunter pets
-    if (GetOwnerGUID().IsPlayer() && IsHunterPet())
-        return;
-
-    if (uint8 mask = GetCreatureTemplate()->SpellSchoolImmuneMask)
-        for (uint8 i = SPELL_SCHOOL_NORMAL; i <= SPELL_SCHOOL_ARCANE; ++i)
+    if (uint32 mask = GetCreatureTemplate()->SpellSchoolImmuneMask)
+    {
+        for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        {
             if (mask & (1 << i))
                 ApplySpellImmune(placeholderSpellId, IMMUNITY_SCHOOL, 1 << i, true);
+        }
+    }
 }
 
 bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
