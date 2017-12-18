@@ -123,7 +123,10 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                             }
 
                             if (Creature* siamat = GetCreature(DATA_SIAMAT))
+                            {
+                                siamat->setActive(true);
                                 siamat->AI()->DoAction(ACTION_UNLEASHED);
+                            }
 
                             instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_HEAVY_RAIN, 1.0f);
                             instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
