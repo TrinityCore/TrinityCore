@@ -4177,8 +4177,39 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
     });
-
     // END OF THE LOST CITY OF THE TOL'VIR SPELLS
+
+    //
+    // SHADOWFANG KEEP SPELLS
+    //
+    // Summon Spirit of Wolf Master Nandos
+    // Summon Spirit of Odo the Blindwatcher
+    // Summon Spirit of Razorclaw the Butcher
+    // Summon Spirit of Rethilgore
+    ApplySpellFix({ 93896, 93859, 93921, 93925 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_15_YARDS);
+    });
+
+    // Desecration Arm
+    ApplySpellFix({ 67802 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
+    });
+
+    // Desecration
+    ApplySpellFix({ 93691, 94370 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
+        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
+    });
+
+    // Toxic Coagulant
+    ApplySpellFix({ 93617 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_MOVE;
+    });
+    // END OF SHADOWFANG KEEP SPELLS
 
     // Threatening Gaze
     ApplySpellFix({ 24314 }, [](SpellInfo* spellInfo)
