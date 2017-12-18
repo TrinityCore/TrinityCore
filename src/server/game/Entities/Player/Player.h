@@ -1956,6 +1956,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdateCraftSkill(uint32 spellid);
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1);
         bool UpdateFishingSkill();
+        void GiveXpForGather(uint32 const& skillId, uint32 const& reqSkillValue);
 
         inline void SurveyDigSite() { _archaeology.UseSite(); }
         inline void NotifyRequestResearchHistory() { _archaeology.SendResearchHistory(); }

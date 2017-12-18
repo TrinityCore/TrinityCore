@@ -5795,6 +5795,39 @@ bool Player::UpdateFishingSkill()
     return false;
 }
 
+void Player::GiveXpForGather(uint32 const& skillId, uint32 const& reqSkillValue)
+{
+    // Skip if the profession is no gather profession
+    if (skillId != SKILL_HERBALISM && skillId != SKILL_MINING && skillId != SKILL_ARCHAEOLOGY)
+        return;
+    uint32 areaId = GetBaseMap()->GetAreaId(GetPositionX(), GetPositionY(), GetPositionZ());
+    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
+
+    if (!areaEntry)
+        return;
+
+    uint8 const levelDiff = abs(areaEntry->area_level - getLevel());
+    uint8 level = 0;
+
+    if (levelDiff >= 10 && levelDiff < 20)
+        level = Trinity::XP::GetGrayLevel(getLevel()) + 1;
+    else if (levelDiff >= 20)
+        level = Trinity::XP::GetGrayLevel(getLevel());
+    else
+        level = getLevel() + 3;
+
+    uint32 xp = Trinity::XP::BaseGain(level, areaEntry->area_level, GetContentLevelsForMapAndZone(GetMapId(), GetZoneId())) * 2;
+
+    if (!xp || levelDiff >= 20)
+        return;
+    else if (levelDiff >= 15 && levelDiff < 25)
+        xp = uint32(xp * (1 - (levelDiff / 24)));
+
+    xp *= sWorld->getRate(RATE_XP_KILL);
+
+    GiveXP(xp, nullptr);
+}
+
 bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
 {
     // levels sync. with spell requirement for skill levels to learn
