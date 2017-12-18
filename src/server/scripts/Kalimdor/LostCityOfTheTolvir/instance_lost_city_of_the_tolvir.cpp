@@ -129,6 +129,11 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                             instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
                         }
                         break;
+                    case DATA_SIAMAT: // anti-cheat protection
+                        if (state == IN_PROGRESS && !CheckSiamatsPlatform())
+                            if (Creature* siamat = GetCreature(DATA_SIAMAT))
+                                siamat->AI()->EnterEvadeMode();
+                        break;
                     default:
                         break;
                 }
