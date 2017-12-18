@@ -294,10 +294,9 @@ enum SpellSchools : uint16
     SPELL_SCHOOL_NATURE                 = 3,
     SPELL_SCHOOL_FROST                  = 4,
     SPELL_SCHOOL_SHADOW                 = 5,
-    SPELL_SCHOOL_ARCANE                 = 6
+    SPELL_SCHOOL_ARCANE                 = 6,
+    MAX_SPELL_SCHOOL                    = 7
 };
-
-#define MAX_SPELL_SCHOOL                  7
 
 enum SpellSchoolMask
 {
@@ -2363,7 +2362,7 @@ enum Mechanics
     MECHANIC_SAPPED           = 30,
     MECHANIC_ENRAGED          = 31,
     MECHANIC_WOUNDED          = 32,
-    MAX_MECHANIC = 33
+    MAX_MECHANIC              = 33
 };
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967ca6)
