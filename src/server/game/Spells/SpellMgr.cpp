@@ -4130,7 +4130,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
         spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
     });
+    // END OF HALLS OF ORIGINATION SPELLS
 
+    //
+    // THE LOST CITY OF THE TOL'VIR SPELLS
+    //
     // Solar Fire
     ApplySpellFix({ 89133, 89878 }, [](SpellInfo* spellInfo)
     {
@@ -4173,7 +4177,8 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
     });
-    // ENDOF HALLS OF ORIGINATION SPELLS
+
+    // END OF THE LOST CITY OF THE TOL'VIR SPELLS
 
     // Threatening Gaze
     ApplySpellFix({ 24314 }, [](SpellInfo* spellInfo)
