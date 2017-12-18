@@ -26,6 +26,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "Random.h"
+#include "SpellInfo.h"
 #include "Util.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
