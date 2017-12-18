@@ -1613,7 +1613,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                     InterruptNonMeleeSpells(true);
 
             //remove auras before removing from map...
-            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
+            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING));
 
             if (!GetSession()->PlayerLogout() && !(options & TELE_TO_SEAMLESS))
             {
