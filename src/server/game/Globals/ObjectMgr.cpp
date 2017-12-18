@@ -7328,24 +7328,26 @@ void ObjectMgr::LoadReputationRewardRate()
     TC_LOG_INFO("server.loading", ">> Loaded %u reputation_reward_rate in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadReputationOnKill()
+void ObjectMgr::LoadRewardOnKill()
 {
     uint32 oldMSTime = getMSTime();
 
     // For reload case
-    _repOnKillStore.clear();
+    _rewOnKillStore.clear();
 
     uint32 count = 0;
 
     //                                                0            1                     2
     QueryResult result = WorldDatabase.Query("SELECT creature_id, RewOnKillRepFaction1, RewOnKillRepFaction2, "
     //   3             4             5                   6             7             8                   9
-        "IsTeamAward1, MaxStanding1, RewOnKillRepValue1, IsTeamAward2, MaxStanding2, RewOnKillRepValue2, TeamDependent "
-        "FROM creature_onkill_reputation");
+        "IsTeamAward1, MaxStanding1, RewOnKillRepValue1, IsTeamAward2, MaxStanding2, RewOnKillRepValue2, TeamDependent, "
+    //   10            11           12           13              14              15
+        "CurrencyId1, CurrencyId2, CurrencyId3, CurrencyCount1, CurrencyCount2, CurrencyCount3 "
+        "FROM creature_onkill_reward");
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 creature reward definitions. DB table `creature_onkill_reputation` is empty.");
         return;
     }
 
@@ -7355,44 +7357,80 @@ void ObjectMgr::LoadReputationOnKill()
 
         uint32 creature_id = fields[0].GetUInt32();
 
-        ReputationOnKillEntry repOnKill;
-        repOnKill.RepFaction1          = fields[1].GetInt16();
-        repOnKill.RepFaction2          = fields[2].GetInt16();
-        repOnKill.IsTeamAward1        = fields[3].GetBool();
-        repOnKill.ReputationMaxCap1  = fields[4].GetUInt8();
-        repOnKill.RepValue1            = fields[5].GetInt32();
-        repOnKill.IsTeamAward2        = fields[6].GetBool();
-        repOnKill.ReputationMaxCap2  = fields[7].GetUInt8();
-        repOnKill.RepValue2            = fields[8].GetInt32();
-        repOnKill.TeamDependent       = fields[9].GetBool();
+        RewardOnKillEntry rewOnKill;
+        rewOnKill.RepFaction1          = fields[1].GetUInt32();
+        rewOnKill.RepFaction2          = fields[2].GetUInt32();
+        rewOnKill.IsTeamAward1         = fields[3].GetBool();
+        rewOnKill.ReputationMaxCap1    = fields[4].GetUInt32();
+        rewOnKill.RepValue1            = fields[5].GetInt32();
+        rewOnKill.IsTeamAward2         = fields[6].GetBool();
+        rewOnKill.ReputationMaxCap2    = fields[7].GetUInt32();
+        rewOnKill.RepValue2            = fields[8].GetInt32();
+        rewOnKill.TeamDependent        = fields[9].GetUInt8();
+        rewOnKill.CurrencyId1          = fields[10].GetUInt32();
+        rewOnKill.CurrencyId2          = fields[11].GetUInt32();
+        rewOnKill.CurrencyId3          = fields[12].GetUInt32();
+        rewOnKill.CurrencyCount1       = fields[13].GetInt32();
+        rewOnKill.CurrencyCount2       = fields[14].GetInt32();
+        rewOnKill.CurrencyCount3       = fields[15].GetInt32();
 
         if (!GetCreatureTemplate(creature_id))
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature_onkill_reputation` has data for nonexistent creature entry (%u), skipped", creature_id);
+            TC_LOG_ERROR("sql.sql", "Table `creature_onkill_reward` has data for nonexistent creature entry (%u), skipped", creature_id);
             continue;
         }
 
-        if (repOnKill.RepFaction1)
+        if (rewOnKill.RepFaction1)
         {
-            FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(repOnKill.RepFaction1);
+            FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(rewOnKill.RepFaction1);
             if (!factionEntry1)
             {
-                TC_LOG_ERROR("sql.sql", "Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`", repOnKill.RepFaction1);
+                TC_LOG_ERROR("sql.sql", "Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`", rewOnKill.RepFaction1);
                 continue;
             }
         }
 
-        if (repOnKill.RepFaction2)
+        if (rewOnKill.RepFaction2)
         {
-            FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(repOnKill.RepFaction2);
+            FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(rewOnKill.RepFaction2);
             if (!factionEntry2)
             {
-                TC_LOG_ERROR("sql.sql", "Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`", repOnKill.RepFaction2);
+                TC_LOG_ERROR("sql.sql", "Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`", rewOnKill.RepFaction2);
                 continue;
             }
         }
 
-        _repOnKillStore[creature_id] = repOnKill;
+        if (rewOnKill.CurrencyId1)
+        {
+            CurrencyTypesEntry const* currencyId1 = sCurrencyTypesStore.LookupEntry(rewOnKill.CurrencyId1);
+            if (!currencyId1)
+            {
+                TC_LOG_ERROR("sql.sql", "CurrencyType (CurrenctTypes.dbc) %u does not exist but is used in `creature_onkill_reward`", rewOnKill.CurrencyId1);
+                continue;
+            }
+        }
+
+        if (rewOnKill.CurrencyId2)
+        {
+            CurrencyTypesEntry const* currencyId2 = sCurrencyTypesStore.LookupEntry(rewOnKill.CurrencyId2);
+            if (!currencyId2)
+            {
+                TC_LOG_ERROR("sql.sql", "CurrencyType (CurrenctTypes.dbc) %u does not exist but is used in `creature_onkill_reward`", rewOnKill.CurrencyId2);
+                continue;
+            }
+        }
+
+        if (rewOnKill.CurrencyId3)
+        {
+            CurrencyTypesEntry const* currencyId3 = sCurrencyTypesStore.LookupEntry(rewOnKill.CurrencyId3);
+            if (!currencyId3)
+            {
+                TC_LOG_ERROR("sql.sql", "CurrencyType (CurrenctTypes.dbc) %u does not exist but is used in `creature_onkill_reward`", rewOnKill.CurrencyId3);
+                continue;
+            }
+        }
+
+        _rewOnKillStore[creature_id] = rewOnKill;
 
         ++count;
     } while (result->NextRow());

@@ -163,11 +163,11 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
     }
 }
 
-inline void KillRewarder::_RewardReputation(Player* player, float rate)
+inline void KillRewarder::_RewardOnKill(Player* player, float rate)
 {
-    // 4.3. Give reputation (player must not be on BG).
+    // 4.3. Give reputation and currency (player must not be on BG).
     // Even dead players and corpses are rewarded.
-    player->RewardReputation(_victim, rate);
+    player->RewardOnKill(_victim, rate);
 }
 
 inline void KillRewarder::_RewardKillCredit(Player* player)
@@ -204,8 +204,8 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
             _RewardXP(player, rate);
         if (!_isBattleGround)
         {
-            // If killer is in dungeon then all members receive full reputation at kill.
-            _RewardReputation(player, isDungeon ? 1.0f : rate);
+            // If killer is in dungeon then all members receive full reward at kill.
+            _RewardOnKill(player, isDungeon ? 1.0f : rate);
             _RewardKillCredit(player);
         }
     }

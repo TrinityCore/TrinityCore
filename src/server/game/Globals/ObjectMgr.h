@@ -536,7 +536,7 @@ struct RepRewardRate
     float spellRate;
 };
 
-struct ReputationOnKillEntry
+struct RewardOnKillEntry
 {
     uint32 RepFaction1;
     uint32 RepFaction2;
@@ -547,6 +547,12 @@ struct ReputationOnKillEntry
     bool IsTeamAward1;
     bool IsTeamAward2;
     bool TeamDependent;
+    uint32 CurrencyId1;
+    uint32 CurrencyId2;
+    uint32 CurrencyId3;
+    int32 CurrencyCount1;
+    int32 CurrencyCount2;
+    int32 CurrencyCount3;
 };
 
 struct RepSpilloverTemplate
@@ -750,7 +756,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, AccessRequirement*> AccessRequirementContainer;
 
         typedef std::unordered_map<uint32, RepRewardRate > RepRewardRateContainer;
-        typedef std::unordered_map<uint32, ReputationOnKillEntry> RepOnKillContainer;
+        typedef std::unordered_map<uint32, RewardOnKillEntry> RewOnKillContainer;
         typedef std::unordered_map<uint32, RepSpilloverTemplate> RepSpilloverTemplateContainer;
 
         typedef std::unordered_map<uint32, PointOfInterest> PointOfInterestContainer;
@@ -880,10 +886,10 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        ReputationOnKillEntry const* GetReputationOnKilEntry(uint32 id) const
+        RewardOnKillEntry const* GetRewardOnKillEntry(uint32 id) const
         {
-            RepOnKillContainer::const_iterator itr = _repOnKillStore.find(id);
-            if (itr != _repOnKillStore.end())
+            RewOnKillContainer::const_iterator itr = _rewOnKillStore.find(id);
+            if (itr != _rewOnKillStore.end())
                 return &itr->second;
             return nullptr;
         }
@@ -1049,7 +1055,7 @@ class TC_GAME_API ObjectMgr
         void LoadFishingBaseSkillLevel();
 
         void LoadReputationRewardRate();
-        void LoadReputationOnKill();
+        void LoadRewardOnKill();
         void LoadReputationSpilloverTemplate();
 
         void LoadPointsOfInterest();
@@ -1450,7 +1456,7 @@ class TC_GAME_API ObjectMgr
         DungeonEncounterContainer _dungeonEncounterStore;
 
         RepRewardRateContainer _repRewardRateStore;
-        RepOnKillContainer _repOnKillStore;
+        RewOnKillContainer _rewOnKillStore;
         RepSpilloverTemplateContainer _repSpilloverTemplateStore;
 
         GossipMenusContainer _gossipMenusStore;

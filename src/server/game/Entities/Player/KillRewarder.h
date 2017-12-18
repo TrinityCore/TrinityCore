@@ -37,7 +37,7 @@ private:
 
     void _RewardHonor(Player* player);
     void _RewardXP(Player* player, float rate);
-    void _RewardReputation(Player* player, float rate);
+    void _RewardOnKill(Player* player, float rate);
     void _RewardKillCredit(Player* player);
     void _RewardPlayer(Player* player, bool isDungeon);
     void _RewardGroup();
