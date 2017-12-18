@@ -78,11 +78,6 @@ enum Events
     EVENT_CHECK_RESISTS
 };
 
-enum Actions
-{
-    ACTION_BIRTH = 1
-};
-
 enum Misc
 {
     NPC_BLIZZARD            = 16474,
@@ -91,10 +86,34 @@ enum Misc
 
     // The Hundred Club
     DATA_THE_HUNDRED_CLUB   = 21462147,
-    MAX_FROST_RESISTANCE    = 100
+    MAX_FROST_RESISTANCE    = 100,
+    ACTION_BIRTH            = 1,
+    DATA_BLIZZARD_TARGET
 };
 
 typedef std::map<ObjectGuid, ObjectGuid> IceBlockMap;
+
+class BlizzardTargetSelector
+{
+public:
+    BlizzardTargetSelector(std::vector<Unit*> const& blizzards) : _blizzards(blizzards) { }
+
+    bool operator()(Unit* unit) const
+    {
+        if (unit->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        // Check if unit is target of some blizzard
+        for (Unit* blizzard : _blizzards)
+            if (blizzard->GetAI()->GetGUID(DATA_BLIZZARD_TARGET) == unit->GetGUID())
+                return false;
+
+        return true;
+    }
+
+private:
+    std::vector<Unit*> const& _blizzards;
+};
 
 class boss_sapphiron : public CreatureScript
 {
@@ -227,6 +246,24 @@ class boss_sapphiron : public CreatureScript
                     return _canTheHundredClub;
 
                 return 0;
+            }
+
+            ObjectGuid GetGUID(int32 data) const override
+            {
+                if (data == DATA_BLIZZARD_TARGET)
+                {
+                    // Filtering blizzards from summon list
+                    std::vector<Unit*> blizzards;
+                    for (ObjectGuid summonGuid : summons)
+                        if (summonGuid.GetEntry() == NPC_BLIZZARD)
+                            if (Unit* temp = ObjectAccessor::GetUnit(*me, summonGuid))
+                                blizzards.push_back(temp);
+
+                    if (Unit* newTarget = me->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, BlizzardTargetSelector(blizzards)))
+                        return newTarget->GetGUID();
+                }
+
+                return ObjectGuid::Empty;
             }
 
             void UpdateAI(uint32 diff) override
@@ -372,7 +409,7 @@ class boss_sapphiron : public CreatureScript
             }
 
         private:
-            std::vector<ObjectGuid> _iceboltTargets;
+            GuidVector _iceboltTargets;
             ObjectGuid _buffet;
             bool _delayedDrain;
             bool _canTheHundredClub;
@@ -382,6 +419,41 @@ class boss_sapphiron : public CreatureScript
         {
             return GetNaxxramasAI<boss_sapphironAI>(creature);
         }
+};
+
+struct npc_sapphiron_blizzard : public ScriptedAI
+{
+    npc_sapphiron_blizzard(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        _scheduler.Schedule(Seconds(3), [this](TaskContext chill)
+        {
+            DoCastSelf(me->m_spells[0], true);
+            chill.Repeat();
+        });
+    }
+
+    ObjectGuid GetGUID(int32 data) const override
+    {
+        return data == DATA_BLIZZARD_TARGET ? _targetGuid : ObjectGuid::Empty;
+    }
+
+    void SetGUID(ObjectGuid guid, int32 data)  override
+    {
+        if (data == DATA_BLIZZARD_TARGET)
+            _targetGuid = guid;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+    ObjectGuid _targetGuid;
 };
 
 class go_sapphiron_birth : public GameObjectScript
@@ -434,11 +506,12 @@ class spell_sapphiron_change_blizzard_target : public SpellScriptLoader
             TempSummon* me = GetTarget()->ToTempSummon();
             if (Creature* owner = me ? me->GetSummonerCreatureBase() : nullptr)
             {
-                Unit* newTarget = owner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);
-                if (!newTarget)
-                    newTarget = owner->getAttackerForHelper();
-                if (newTarget)
+                me->GetAI()->SetGUID(ObjectGuid::Empty, DATA_BLIZZARD_TARGET);
+                if (Unit* newTarget = ObjectAccessor::GetUnit(*owner, owner->AI()->GetGUID(DATA_BLIZZARD_TARGET)))
+                {
+                    me->GetAI()->SetGUID(newTarget->GetGUID(), DATA_BLIZZARD_TARGET);
                     me->GetMotionMaster()->MoveFollow(newTarget, 0.1f, 0.0f);
+                }
                 else
                 {
                     me->StopMoving();
@@ -531,8 +604,10 @@ class spell_sapphiron_summon_blizzard : public SpellScriptLoader
                         blizzard->CastSpell(nullptr, blizzard->m_spells[0], TRIGGERED_NONE);
                         if (Creature* creatureCaster = GetCaster()->ToCreature())
                         {
-                            if (Unit* newTarget = creatureCaster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            blizzard->AI()->SetGUID(ObjectGuid::Empty, DATA_BLIZZARD_TARGET);
+                            if (Unit* newTarget = ObjectAccessor::GetUnit(*creatureCaster, creatureCaster->AI()->GetGUID(DATA_BLIZZARD_TARGET)))
                             {
+                                blizzard->AI()->SetGUID(newTarget->GetGUID(), DATA_BLIZZARD_TARGET);
                                 blizzard->GetMotionMaster()->MoveFollow(newTarget, 0.1f, 0.0f);
                                 return;
                             }
@@ -567,6 +642,7 @@ class achievement_the_hundred_club : public AchievementCriteriaScript
 void AddSC_boss_sapphiron()
 {
     new boss_sapphiron();
+    RegisterNaxxramasCreatureAI(npc_sapphiron_blizzard);
     new go_sapphiron_birth();
     new spell_sapphiron_change_blizzard_target();
     new spell_sapphiron_icebolt();
