@@ -757,10 +757,7 @@ void Player::UpdateManaRegen()
     // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
     base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
 
-    // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_INTERRUPT
-    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
-
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen * modManaRegenInterrupt);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen);
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + manaIndex, base_regen);
 }
 
