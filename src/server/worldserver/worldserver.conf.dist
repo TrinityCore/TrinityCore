@@ -1214,6 +1214,14 @@ DeletedCharacterTicketTrace = 0
 DungeonFinder.OptionsMask = 1
 
 #
+#     DungeonFinder.CallToArmsEnable
+#        Description: Enable Call to Arms bonus mechanism for random Cataclysm dungeons
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+DungeonFinder.CallToArmsEnable = 0
+
+#
 #   DBC.EnforceItemAttributes
 #        Description: Disallow overriding item attributes stored in DBC files with values from the
 #                     database.

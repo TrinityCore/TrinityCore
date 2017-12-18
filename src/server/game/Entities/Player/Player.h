@@ -1115,6 +1115,7 @@ struct BGData
     uint32 taxiPath[2];
 
     WorldLocation joinPos;                  ///< From where player entered BG
+    WorldLocation leavePos;
 
     void ClearTaxiPath()     { taxiPath[0] = taxiPath[1] = 0; }
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
@@ -2374,6 +2375,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool isUsingLfg() const;
         bool inRandomLfgDungeon() const;
 
+        void GetLFGLeavePoint(Position* pos);
+        bool HasValidLFGLeavePoint(uint32 mapid);
+        void SetLFGLeavePoint();
+
         typedef std::set<uint32> DFQuestsDoneList;
         DFQuestsDoneList m_DFQuests;
 
@@ -2537,6 +2542,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
+
+        void SetTempCallToArmsRoles(uint8 roles) { _tmpLfgRolesCheck = roles; }
+        uint8 GetCallToArmsTempRoles() { return _tmpLfgRolesCheck; }
 
     protected:
         // Gamemaster whisper whitelist
@@ -2888,6 +2896,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 _activeCheats;
         uint32 _maxPersonalArenaRate;
 
+        bool _hasValidLFGLeavePoint;
+
         // variables to save health and mana before duel and restore them after duel
         uint32 healthBeforeDuel;
         uint32 manaBeforeDuel;
@@ -2895,6 +2905,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         WorldLocation _corpseLocation;
 
         Archaeology _archaeology;
+
+        uint8 _tmpLfgRolesCheck;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

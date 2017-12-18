@@ -132,6 +132,8 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN %s roles: %u, Dungeons: %u, Comment: %s",
         GetPlayerInfo().c_str(), roles, uint8(newDungeons.size()), comment.c_str());
 
+    GetPlayer()->SetTempCallToArmsRoles(sLFGMgr->GetRolesForCallToArms());
+
     sLFGMgr->JoinLfg(GetPlayer(), uint8(roles), newDungeons, comment);
 }
 
@@ -170,7 +172,10 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket& recvData)
 
     // Check cheating - only leader can leave the queue
     if (!group || group->GetLeaderGUID() == guid)
+    {
+        GetPlayer()->SetTempCallToArmsRoles(0);
         sLFGMgr->LeaveLfg(gguid);
+    }
 }
 
 void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
@@ -309,8 +314,9 @@ void WorldSession::SendLfgPlayerLockInfo()
     data << uint8(randomDungeons.size());                  // Random Dungeon count
     for (lfg::LfgDungeonSet::const_iterator it = randomDungeons.begin(); it != randomDungeons.end(); ++it)
     {
-        data << uint32(*it);                               // Dungeon Entry (id + type)
-        lfg::LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(*it, level);
+        uint32 dungeonId = *it;
+        data << uint32(dungeonId);                         // Dungeon Entry (id + type)
+        lfg::LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(dungeonId, level);
         Quest const* quest = NULL;
         bool done = false;
         if (reward)
@@ -325,26 +331,87 @@ void WorldSession::SendLfgPlayerLockInfo()
         }
 
         data << uint8(done);
-        data << uint32(0);                                              // currencyQuantity
-        data << uint32(0);                                              // some sort of overall cap/weekly cap
-        data << uint32(0);                                              // currencyID
-        data << uint32(0);                                              // tier1Quantity
-        data << uint32(0);                                              // tier1Limit
-        data << uint32(0);                                              // overallQuantity
-        data << uint32(0);                                              // overallLimit
-        data << uint32(0);                                              // periodPurseQuantity
-        data << uint32(0);                                              // periodPurseLimit
-        data << uint32(0);                                              // purseQuantity
-        data << uint32(0);                                              // purseLimit
-        data << uint32(0);                                              // some sort of reward for completion
-        data << uint32(0);                                              // completedEncounters
-        data << uint8(0);                                               // Call to Arms eligible
 
-        for (uint32 i = 0; i < 3; ++i)
+        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(CURRENCY_TYPE_VALOR_POINTS);
+        int8 valorPointsField = -1;
+
+        for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
+            if (quest && quest->RewardCurrencyId[i] == CURRENCY_TYPE_VALOR_POINTS)
+                valorPointsField = i;
+
+        if (currency && quest)
         {
-            data << uint32(0);                                          // Call to Arms Role
-            //if (role)
-            //    BuildQuestReward(data, ctaRoleQuest, GetPlayer());
+            data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);       // currencyQuantity
+            data << uint32(GetPlayer()->GetCurrencyWeekCap(currency));                                      // some sort of overall cap/weekly cap
+            data << uint32(quest->RewardCurrencyId[0]);                                                     // currencyID
+            data << uint32(GetPlayer()->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // tier1Quantity
+            data << uint32(GetPlayer()->GetCurrencyWeekCap(currency));                                      // tier1Limit
+            data << uint32(0);                                                                              // overallQuantity
+            data << uint32(GetPlayer()->GetCurrencyWeekCap(currency));                                      // overallLimit
+            data << uint32(GetPlayer()->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // periodPurseQuantity
+            data << uint32(GetPlayer()->GetCurrencyWeekCap(currency));                                      // periodPurseLimit
+            data << uint32(GetPlayer()->GetCurrencyTotalCap(currency));                                     // purseQuantity
+            data << uint32(0);                                                                              // purseLimit
+            data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);       // some sort of reward for completion
+        }
+        else
+        {
+            data << uint32(0);      // currencyQuantity
+            data << uint32(0);      // some sort of overall cap/weekly cap
+            data << uint32(0);      // currencyID
+            data << uint32(0);      // tier1Quantity
+            data << uint32(0);      // tier1Limit
+            data << uint32(0);      // overallQuantity
+            data << uint32(0);      // overallLimit
+            data << uint32(0);      // periodPurseQuantity
+            data << uint32(0);      // periodPurseLimit
+            data << uint32(0);      // purseQuantity
+            data << uint32(0);      // purseLimit
+            data << uint32(0);      // some sort of reward for completion
+        }
+        data << uint32(0);                                              // completedEncounters
+
+        bool isCallToArmEligible = sLFGMgr->IsCallToArmEligible(level, dungeonId & 0x00FFFFFF);
+
+        data << uint8(isCallToArmEligible);                                               // Call to Arms eligible
+
+        if (isCallToArmEligible)
+        {
+            uint8 roleTank = sLFGMgr->GetRolesForCallToArms() & lfg::PLAYER_ROLE_TANK ? lfg::PLAYER_ROLE_TANK : 0;
+            uint8 roleHeal = sLFGMgr->GetRolesForCallToArms() & lfg::PLAYER_ROLE_HEALER ? lfg::PLAYER_ROLE_HEALER : 0;
+            uint8 roleDPS = sLFGMgr->GetRolesForCallToArms() & lfg::PLAYER_ROLE_DAMAGE ? lfg::PLAYER_ROLE_DAMAGE : 0;
+
+            Quest const* ctaQuest = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST);
+            if (roleTank)
+            {
+                data << uint32(roleTank);
+                BuildQuestReward(data, ctaQuest, GetPlayer());
+            }
+            else
+                data << uint32(0);
+            if (roleHeal)
+            {
+                data << uint32(roleHeal);
+                BuildQuestReward(data, ctaQuest, GetPlayer());
+            }
+            else
+                data << uint32(0);
+            if (roleDPS)
+            {
+                data << uint32(roleDPS);
+                BuildQuestReward(data, ctaQuest, GetPlayer());
+            }
+            else
+                data << uint32(0);
+        }
+        else
+        {
+            for (uint32 i = 0; i < 3; ++i)
+            {
+                data << uint32(0);                                      // Call to Arms Role
+                //if (role)
+                //    BuildQuestReward(data, ctaRoleQuest, GetPlayer());
+            }
         }
 
         if (quest)
@@ -473,7 +540,7 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
     data.WriteBit(party);
     data.WriteBits(size, 24);
     data.WriteBit(guid[6]);
-    data.WriteBit(size > 0);                               // Extra info
+    data.WriteBit(queued);                                // Extra info
     data.WriteBits(updateData.comment.length(), 9);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[7]);

@@ -51,14 +51,16 @@ struct LfgCompatibilityData
 /// Stores player or group queue info
 struct LfgQueueData
 {
-    LfgQueueData(): joinTime(time_t(time(NULL))), tanks(LFG_TANKS_NEEDED),
-        healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
-        { }
+    LfgQueueData(): joinTime(time_t(time(NULL)))
+    {
+        InitializeGroupSetup();
+    }
 
-    LfgQueueData(time_t _joinTime, LfgDungeonSet const& _dungeons, LfgRolesMap const& _roles):
-        joinTime(_joinTime), tanks(LFG_TANKS_NEEDED), healers(LFG_HEALERS_NEEDED),
-        dps(LFG_DPS_NEEDED), dungeons(_dungeons), roles(_roles)
-        { }
+    LfgQueueData(time_t _joinTime, LfgDungeonSet const& _dungeons, LfgRolesMap const& _roles) :
+        joinTime(_joinTime), dungeons(_dungeons), roles(_roles)
+    {
+        InitializeGroupSetup();
+    }
 
     time_t joinTime;                                       ///< Player queue join time (to calculate wait times)
     uint8 tanks;                                           ///< Tanks needed
@@ -67,6 +69,8 @@ struct LfgQueueData
     LfgDungeonSet dungeons;                                ///< Selected Player/Group Dungeon/s
     LfgRolesMap roles;                                     ///< Selected Player Role/s
     std::string bestCompatible;                            ///< Best compatible combination of people queued
+
+    void InitializeGroupSetup();
 };
 
 struct LfgWaitTime
@@ -101,7 +105,7 @@ class TC_GAME_API LFGQueue
         void UpdateWaitTimeDps(int32 waitTime, uint32 dungeonId);
 
         // Update Queue timers
-        void UpdateQueueTimers(uint8 queueId, time_t currTime);
+        void UpdateQueueTimers(uint8 queueId, time_t currTime, uint32 &tankCount, uint32 &healerCount, uint32 &dpsCount);
         time_t GetJoinTime(ObjectGuid guid) const;
 
         // Find new group

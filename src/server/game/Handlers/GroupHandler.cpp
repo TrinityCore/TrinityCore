@@ -794,7 +794,7 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
     if (!group)
         return;
 
-    if (_player->InBattleground())
+    if (_player->InBattleground() || group->isLFGGroup())
         return;
 
     // error handling

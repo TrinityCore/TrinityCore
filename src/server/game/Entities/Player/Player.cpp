@@ -540,6 +540,8 @@ Player::Player(WorldSession* session): Unit(true), _archaeology(this)
 
     m_achievementMgr = new AchievementMgr<Player>(this);
     m_reputationMgr = new ReputationMgr(this);
+
+    _hasValidLFGLeavePoint = false;
 }
 
 Player::~Player()
@@ -14863,6 +14865,13 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg)
     if (quest->GetRewOrReqMoney() < 0 && !HasEnoughMoney(-int64(quest->GetRewOrReqMoney())))
         return false;
 
+    // dungeon finder quests cannot be rewarded when hit weekly currency limit
+    if (quest->IsDFQuest())
+        for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
+            if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(quest->RewardCurrencyId[i]))
+                if (GetCurrencyOnWeek(quest->RewardCurrencyId[i], false) == GetCurrencyWeekCap(currency))
+                    return false;
+
     return true;
 }
 
@@ -15222,7 +15231,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         CharacterDatabase.CommitTransaction(trans);
     }
 
-    if (quest->IsDaily() || quest->IsDFQuest())
+    if ((quest->IsDaily() || quest->IsDFQuest()) && !quest->IsRepeatable())
     {
         SetDailyQuestStatus(quest_id);
         if (quest->IsDaily())
@@ -15777,7 +15786,7 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg) const
     if (!qInfo->IsDaily() && !qInfo->IsDFQuest())
         return true;
 
-    if (qInfo->IsDFQuest())
+    if (qInfo->IsDFQuest() && !qInfo->IsRepeatable())
     {
         if (m_DFQuests.find(qInfo->GetQuestId()) != m_DFQuests.end())
             return false;
@@ -22572,6 +22581,28 @@ void Player::SetBattlegroundEntryPoint()
 
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID) // In error cases use homebind position
         m_bgData.joinPos = WorldLocation(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, 0.0f);
+}
+
+void Player::GetLFGLeavePoint(Position* pos)
+{
+    if (pos)
+    {
+        pos->Relocate(m_bgData.leavePos.m_positionX, m_bgData.leavePos.m_positionY,
+            m_bgData.leavePos.m_positionZ, m_bgData.leavePos.GetOrientation());
+        _hasValidLFGLeavePoint = false;
+    }
+}
+
+bool Player::HasValidLFGLeavePoint(uint32 mapid)
+{
+    return _hasValidLFGLeavePoint && MapManager::IsValidMapCoord(mapid, m_bgData.leavePos.m_positionX, m_bgData.leavePos.m_positionY,
+        m_bgData.leavePos.m_positionZ, m_bgData.leavePos.GetOrientation());
+}
+
+void Player::SetLFGLeavePoint()
+{
+    m_bgData.leavePos = WorldLocation(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+    _hasValidLFGLeavePoint = true;
 }
 
 void Player::SetBGTeam(uint32 team)

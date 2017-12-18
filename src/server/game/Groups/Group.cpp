@@ -241,6 +241,26 @@ void Group::ConvertToLFG()
     SendUpdate();
 }
 
+void Group::ConvertToLFR()
+{
+    m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_LFG_RESTRICTED | GROUPTYPE_RAID);
+    m_lootMethod = NEED_BEFORE_GREED;
+
+    _initRaidSubGroupsCounter();
+
+    if (!isBGGroup() && !isBFGroup())
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
+
+        stmt->setUInt8(0, uint8(m_groupType));
+        stmt->setUInt32(1, m_dbStoreId);
+
+        CharacterDatabase.Execute(stmt);
+    }
+
+    SendUpdate();
+}
+
 void Group::ConvertToRaid()
 {
     m_groupType = GroupType(m_groupType | GROUPTYPE_RAID);
@@ -2375,6 +2395,15 @@ void Group::SetLfgRoles(ObjectGuid guid, uint8 roles)
     SendUpdate();
 }
 
+uint8 Group::GetLfgRoles(ObjectGuid guid)
+{
+    member_witerator slot = _getMemberWSlot(guid);
+    if (slot == m_memberSlots.end())
+        return 0;
+
+    return slot->roles;
+}
+
 bool Group::IsFull() const
 {
     return isRaidGroup() ? (m_memberSlots.size() >= MAXRAIDSIZE) : (m_memberSlots.size() >= MAXGROUPSIZE);
@@ -2383,6 +2412,11 @@ bool Group::IsFull() const
 bool Group::isLFGGroup() const
 {
     return (m_groupType & GROUPTYPE_LFG) != 0;
+}
+
+bool Group::isLFRGroup() const
+{
+    return (m_groupType & GROUPTYPE_LFG) && (m_groupType & GROUPTYPE_RAID);
 }
 
 bool Group::isRaidGroup() const

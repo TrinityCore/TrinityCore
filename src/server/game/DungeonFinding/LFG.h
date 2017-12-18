@@ -24,13 +24,6 @@
 namespace lfg
 {
 
-enum LFGEnum
-{
-    LFG_TANKS_NEEDED                             = 1,
-    LFG_HEALERS_NEEDED                           = 1,
-    LFG_DPS_NEEDED                               = 3
-};
-
 enum LfgRoles
 {
     PLAYER_ROLE_NONE                             = 0x00,
