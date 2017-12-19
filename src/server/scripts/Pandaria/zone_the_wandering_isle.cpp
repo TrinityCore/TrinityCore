@@ -26,6 +26,32 @@
 #include "Player.h"
 #include "Log.h"
 
+enum CaveOfMeditationSpells
+{
+    SPELL_MEDITATION_TIMER_BAR  = 116421,
+    QUEST_THE_WAY_OF_THE_TUSHUI = 29414
+};
+
+class at_cave_of_meditation : public AreaTriggerScript
+{
+public:
+    at_cave_of_meditation() : AreaTriggerScript("at_cave_of_meditation") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    {
+        if (player->IsAlive() && player->GetQuestStatus(QUEST_THE_WAY_OF_THE_TUSHUI) == QUEST_STATUS_INCOMPLETE)
+        {
+            if (entered && !player->HasAura(SPELL_MEDITATION_TIMER_BAR))
+                player->CastSpell(player, SPELL_MEDITATION_TIMER_BAR, true);
+            else
+                player->RemoveAura(SPELL_MEDITATION_TIMER_BAR);
+
+            return true;
+        }
+        return false;
+    }
+};
+
 class spell_summon_troublemaker : public SpellScriptLoader
 {
 public:
@@ -242,6 +268,29 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_fan_the_flames_AuraScript();
+    }
+};
+
+enum QuestPassionOfShenZinSuSpells
+{
+    SPELL_DESPAWN_FIRE_SPIRIT               = 109178,
+    SPELL_SUMMON_FIRE_SPIRIT                = 128700,
+    SPELL_SUMMON_FIRE_SPIRIT_AFTER_RELOG    = 102632
+};
+
+class q_passion_of_shenzin_su : public QuestScript
+{
+public:
+    q_passion_of_shenzin_su() : QuestScript("q_passion_of_shenzin_su") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->CastSpell(player, SPELL_DESPAWN_FIRE_SPIRIT, true);
+            player->RemoveAura(SPELL_SUMMON_FIRE_SPIRIT);
+            player->RemoveAura(SPELL_SUMMON_FIRE_SPIRIT_AFTER_RELOG);
+        }
     }
 };
 
@@ -2453,19 +2502,19 @@ public:
     }
 };
 
-enum BaloonExitTimerSpells
+enum BalloonExitTimerSpells
 {
     SPELL_BALOON_EXIT_MOVIE = 132212
 };
 
-class spell_baloon_exit_timer : public SpellScriptLoader
+class spell_balloon_exit_timer : public SpellScriptLoader
 {
 public:
-    spell_baloon_exit_timer() : SpellScriptLoader("spell_baloon_exit_timer") { }
+    spell_balloon_exit_timer() : SpellScriptLoader("spell_balloon_exit_timer") { }
 
-    class spell_baloon_exit_timer_AuraScript : public AuraScript
+    class spell_balloon_exit_timer_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_baloon_exit_timer_AuraScript);
+        PrepareAuraScript(spell_balloon_exit_timer_AuraScript);
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
@@ -2476,23 +2525,25 @@ public:
 
         void Register() override
         {
-            OnEffectRemove += AuraEffectRemoveFn(spell_baloon_exit_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_balloon_exit_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
     AuraScript* GetAuraScript() const override
     {
-        return new spell_baloon_exit_timer_AuraScript();
+        return new spell_balloon_exit_timer_AuraScript();
     }
 };
 
 void AddSC_the_wandering_isle()
 {
+    new at_cave_of_meditation();
     new spell_summon_troublemaker();
     new spell_meditation_timer_bar();
     new spell_cave_of_scrolls_comp_timer_aura();
     new spell_summon_living_air();
     new spell_fan_the_flames();
+    new q_passion_of_shenzin_su();
     new at_singing_pools_transform();
     new npc_balance_pole();
     new npc_tushui_monk_on_pole();
@@ -2529,5 +2580,5 @@ void AddSC_the_wandering_isle()
     new spell_ally_horde_argument();
     new spell_pandaren_faction_choice();
     new spell_faction_choice_trigger();
-    new spell_baloon_exit_timer();
+    new spell_balloon_exit_timer();
 }

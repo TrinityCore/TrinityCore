@@ -3427,6 +3427,17 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->BasePoints = 1;
     });
+
+    ApplySpellFix({
+        105002, // Summon Hot Air Balloon
+        120344, // Summon Aysa
+        120345, // Summon Jojo
+        120749, // Summon Ji
+        120753  // Summon Garrosh
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10yd
+    });
     // ENDOF THE WANDERING ISLE SPELLS
 
     SpellInfo* spellInfo = NULL;
