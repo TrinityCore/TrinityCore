@@ -49,7 +49,6 @@ if (MSVC)
     ${protobuf_STAT_SRCS}
     src/google/protobuf/stubs/atomicops_internals_x86_msvc.cc
   )
-  add_compile_options(/wd4800)
 else()
   set(protobuf_STAT_SRCS
     ${protobuf_STAT_SRCS}
@@ -68,6 +67,7 @@ target_include_directories(protobuf
 target_link_libraries(protobuf
   PRIVATE
     trinity-default-interface
+    trinity-no-warning-interface
   PUBLIC
     threads)
 
@@ -78,6 +78,16 @@ if (BUILD_SHARED_LIBS)
       -DLIBPROTOC_EXPORTS
     PUBLIC
       -DPROTOBUF_USE_DLLS)
+endif()
+
+if (MSVC)
+  target_compile_options(protobuf
+    PRIVATE
+      /wd4996)
+
+  target_compile_definitions(protobuf
+    PRIVATE
+      -D_SCL_SECURE_NO_WARNINGS)
 endif()
 
 set_target_properties(protobuf
