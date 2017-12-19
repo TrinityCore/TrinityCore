@@ -3902,15 +3902,6 @@ void Unit::RemoveAurasWithAttribute(uint32 flags)
 
 void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
 {
-    // single target auras from other casters
-    // Iterate m_ownedAuras - aura is marked as single target in Unit::AddAura (and pushed to m_ownedAuras).
-    // m_appliedAuras will NOT contain the aura before first Unit::Update after adding it to m_ownedAuras.
-    // Quickly removing such an aura will lead to it not being unregistered from caster's single cast auras container
-    // leading to assertion failures if the aura was cast on a player that can
-    // (and is changing map at the point where this function is called).
-    // Such situation occurs when player is logging in inside an instance and fails the entry check for any reason.
-    // The aura that was loaded from db (indirectly, via linked casts) gets removed before it has a chance
-    // to register in m_appliedAuras
     for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
     {
         Aura const* aura = iter->second;
@@ -3937,10 +3928,16 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
     for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
         Aura* aura = *iter;
-        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->IsInPhase(newPhase))
+        if (aura->GetUnitOwner() && aura->GetUnitOwner() != this && !aura->GetUnitOwner()->IsInPhase(newPhase))
         {
-            aura->Remove();
-            iter = scAuras.begin();
+            if ((newPhase == 0x0 && !phaseid) ||
+                (!aura->GetEffect(0) || aura->GetEffect(0)->GetAuraType() != SPELL_AURA_CONTROL_VEHICLE) &&
+                (!aura->GetEffect(1) || aura->GetEffect(1)->GetAuraType() != SPELL_AURA_CONTROL_VEHICLE))
+            {
+                aura->Remove();
+                iter = scAuras.begin();
+            }
+            else ++iter;
         }
         else
             ++iter;
