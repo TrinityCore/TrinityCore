@@ -49,10 +49,11 @@ target_include_directories(game
     ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(game
-  PUBLIC
-    game-interface
   PRIVATE
-    efsw)
+    trinity-core-interface
+    efsw
+  PUBLIC
+    game-interface)
 
 set_target_properties(game
     PROPERTIES
