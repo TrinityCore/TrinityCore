@@ -2626,7 +2626,7 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
 
 Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive) const
 {
-    Creature* creature = NULL;
+    Creature* creature = nullptr;
     Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck checker(*this, entry, alive, range);
     Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(this, creature, checker);
     Cell::VisitAllObjects(this, searcher, range);
@@ -2649,7 +2649,7 @@ Creature* WorldObject::FindNearestCreature(std::list<uint32> entrys, float range
 
 GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
 {
-    GameObject* go = NULL;
+    GameObject* go = nullptr;
     Trinity::NearestGameObjectEntryInObjectRangeCheck checker(*this, entry, range);
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
     Cell::VisitGridObjects(this, searcher, range);
@@ -2665,7 +2665,7 @@ std::list<GameObject*> WorldObject::FindNearestGameObjects(uint32 entry, float r
 
 GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float range) const
 {
-    GameObject* go = NULL;
+    GameObject* go = nullptr;
     Trinity::NearestGameObjectTypeInObjectRangeCheck checker(*this, type, range);
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectTypeInObjectRangeCheck> searcher(this, go, checker);
     Cell::VisitGridObjects(this, searcher, range);
@@ -2760,7 +2760,7 @@ Creature* WorldObject::FindNearestAttackableCreatureOnTransportInFloor(float ran
             Position posT = creature->m_movementInfo.transport.pos;
             float dist = posS.GetExactDist2d(&posT);
             if (dist < rDist)
-                if (abs(posS.m_positionZ - posT.m_positionZ) < rangeZ)
+                if (fabs(posS.m_positionZ - posT.m_positionZ) < rangeZ)
                 {
                     rDist = dist;
                     rNpc = creature;
@@ -2784,7 +2784,7 @@ Creature* WorldObject::FindNearestCreatureOnTransportInFloor(uint32 entry, float
             float dist = posS.GetExactDist2d(&posT);
             if (dist < rDist)
             {
-                if (abs(posS.m_positionZ - posT.m_positionZ) < rangeZ)
+                if (fabs(posS.m_positionZ - posT.m_positionZ) < rangeZ)
                 {
                     rDist = dist;
                     rNpc = creature;
