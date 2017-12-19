@@ -10,7 +10,10 @@ git:
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
+      - g++-6
       - libboost1.55-dev
       - libboost-filesystem1.55-dev
       - libboost-iostreams1.55-dev
@@ -33,7 +36,7 @@ install:
   - if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then git pull https://github.com/TrinityCore/TrinityCore.git 3.3.5; fi;
   - mkdir bin
   - cd bin
-  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
+  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
   - cd ..
   - chmod +x contrib/check_updates.sh
 

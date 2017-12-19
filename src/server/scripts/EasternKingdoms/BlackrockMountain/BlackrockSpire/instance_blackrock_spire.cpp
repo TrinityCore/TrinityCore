@@ -111,6 +111,9 @@ public:
                 case NPC_SCARSHIELD_INFILTRATOR:
                     ScarshieldInfiltrator = creature->GetGUID();
                     break;
+                case NPC_FINKLE_EINHORN:
+                    creature->AI()->Talk(SAY_FINKLE_GANG);
+                    break;
              }
          }
 
@@ -283,6 +286,7 @@ public:
                         if (GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE)
                             Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1000);
                     }
+                    break;
                 default:
                     break;
             }

@@ -112,4 +112,3 @@ void AddSC_the_eye()
 {
     new npc_crystalcore_devastator();
 }
-

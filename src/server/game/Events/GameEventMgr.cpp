@@ -1263,7 +1263,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
         }
     }
 
-    if (internal_event_id < 0 || internal_event_id >= int32(mGameEventGameobjectGuids.size()))
+    if (internal_event_id >= int32(mGameEventGameobjectGuids.size()))
     {
         TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempted access to out of range mGameEventGameobjectGuids element %i (size: %zu).",
             internal_event_id, mGameEventGameobjectGuids.size());
@@ -1296,7 +1296,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
         }
     }
 
-    if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
+    if (internal_event_id >= int32(mGameEventPoolIds.size()))
     {
         TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempted access to out of range mGameEventPoolIds element %u (size: %zu).",
             internal_event_id, mGameEventPoolIds.size());
@@ -1758,7 +1758,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
 
     bool singleDate = ((holiday->Date[0] >> 24) & 0x1F) == 31; // Events with fixed date within year have - 1
 
-    time_t curTime = time(NULL);
+    time_t curTime = time(nullptr);
     for (int i = 0; i < MAX_HOLIDAY_DATES && holiday->Date[i]; ++i)
     {
         uint32 date = holiday->Date[i];
@@ -1774,6 +1774,8 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
         timeInfo.tm_hour = (date >> 6) & 0x1F;
         timeInfo.tm_min = date & 0x3F;
         timeInfo.tm_sec = 0;
+        timeInfo.tm_wday = 0;
+        timeInfo.tm_yday = 0;
         timeInfo.tm_isdst = -1;
         tm tmCopy = timeInfo;
 
