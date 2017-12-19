@@ -143,7 +143,7 @@ DELETE FROM `conditions` WHERE `SourceEntry` IN (67805, 68228, 68235) AND `Sourc
 INSERT INTO conditions (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
 (13, 1, 67805, 0, 0, 31, 0, 3, 35463, 0, 0, 0, '', 'Attack Lurker - Target Bloodfang Lurker'),
 (13, 1, 68228, 0, 0, 31, 0, 3, 35753, 0, 0, 0, '', 'Rescue Krennan - Target Krennan'),
-(13, 1, 68235, 0, 0, 31, 0, 3, 35374, 0, 0, 0, '', 'Cannon Fire - Target Generic Trigger');
+(13, 1, 68235, 0, 0, 31, 0, 3, 35916, 0, 0, 0, '', 'Cannon Fire - Target Bloodfang Ripper');
 
 -- Creature Bloodfang Lurker 35463 SAI
 SET @ENTRY := 35463;
