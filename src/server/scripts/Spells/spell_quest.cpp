@@ -2752,6 +2752,42 @@ public:
     }
 };
 
+class spell_q14098_knocking_67869 : public SpellScriptLoader
+{
+public:
+    spell_q14098_knocking_67869() : SpellScriptLoader("spell_q14098_knocking_67869") { }
+
+    class spell_q14098_knocking_67869_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q14098_knocking_67869_SpellScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            return ValidateSpellInfo(
+                {
+                    uint32(spellInfo->Effects[EFFECT_1].BasePoints),
+                    uint32(spellInfo->Effects[EFFECT_2].BasePoints)
+                });
+        }
+
+        void HandleEffect()
+        {
+            if (SpellInfo const* spellInfo = GetSpellInfo())
+                GetCaster()->CastSpell(GetCaster(), spellInfo->Effects[RAND(0, 1) == 0 ? EFFECT_1 : EFFECT_2].BasePoints, true);
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_q14098_knocking_67869_SpellScript::HandleEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q14098_knocking_67869_SpellScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2820,4 +2856,5 @@ void AddSC_quest_spell_scripts()
     new spell_q11306_mixing_vrykul_blood();
     new spell_q11306_failed_mix_43376();
     new spell_q11306_failed_mix_43378();
+    new spell_q14098_knocking_67869();
 }
