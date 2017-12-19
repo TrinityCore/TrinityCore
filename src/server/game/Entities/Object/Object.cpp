@@ -2694,8 +2694,8 @@ std::list<Player*> WorldObject::SelectNearestPlayers(float range, bool alive)
 
 Player* WorldObject::SelectRandomPlayerInRange(float range, bool alive)
 {
-    Player* player = nullptr;
     std::list<Player*> pList = SelectNearestPlayers(range, alive);
+
     if (pList.empty())
         return nullptr;
 
