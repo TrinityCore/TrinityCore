@@ -51,4 +51,3 @@ class RefManager : public LinkedListHead
 
 //=====================================================
 #endif
-

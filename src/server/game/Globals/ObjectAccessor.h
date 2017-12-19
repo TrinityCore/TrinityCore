@@ -111,4 +111,3 @@ namespace ObjectAccessor
 };
 
 #endif
-

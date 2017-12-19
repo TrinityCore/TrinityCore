@@ -355,21 +355,37 @@ void AuctionHouseMgr::LoadAuctions()
     uint32 oldMSTime = getMSTime();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTIONS);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    PreparedQueryResult resultAuctions = CharacterDatabase.Query(stmt);
 
-    if (!result)
+    if (!resultAuctions)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
 
         return;
     }
 
-    uint32 count = 0;
+    // parse bidder list
+    std::unordered_map<uint32, std::unordered_set<ObjectGuid>> biddersByAuction;
+    PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_BIDDERS);
 
+    uint32 countBidders = 0;
+    if (PreparedQueryResult resultBidders = CharacterDatabase.Query(stmt2))
+    {
+        do
+        {
+            Field* fields = resultBidders->Fetch();
+            biddersByAuction[fields[0].GetUInt32()].insert(ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt32()));
+            ++countBidders;
+        }
+        while (resultBidders->NextRow());
+    }
+
+    // parse auctions from db
+    uint32 countAuctions = 0;
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     do
     {
-        Field* fields = result->Fetch();
+        Field* fields = resultAuctions->Fetch();
 
         AuctionEntry* aItem = new AuctionEntry();
         if (!aItem->LoadFromDB(fields))
@@ -379,14 +395,17 @@ void AuctionHouseMgr::LoadAuctions()
             continue;
         }
 
+        auto it = biddersByAuction.find(aItem->Id);
+        if (it != biddersByAuction.end())
+            aItem->bidders = std::move(it->second);
+
         GetAuctionsMapByHouseId(aItem->houseId)->AddAuction(aItem);
-        ++count;
-    } while (result->NextRow());
+        ++countAuctions;
+    } while (resultAuctions->NextRow());
 
     CharacterDatabase.CommitTransaction(trans);
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u auctions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    TC_LOG_INFO("server.loading", ">> Loaded %u auctions with %u bidders in %u ms", countAuctions, countBidders, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AuctionHouseMgr::AddAItem(Item* it)
@@ -656,7 +675,7 @@ void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player,
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry* Aentry = itr->second;
-        if (Aentry && Aentry->bidder == player->GetGUID().GetCounter())
+        if (Aentry && Aentry->bidders.find(player->GetGUID()) != Aentry->bidders.end())
         {
             if (itr->second->BuildAuctionInfo(data))
                 ++count;
@@ -863,7 +882,13 @@ uint32 AuctionEntry::GetAuctionOutBid() const
 
 void AuctionEntry::DeleteFromDB(SQLTransaction& trans) const
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
+    PreparedStatement* stmt;
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
+    stmt->setUInt32(0, Id);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION_BIDDERS);
     stmt->setUInt32(0, Id);
     trans->Append(stmt);
 }
@@ -913,6 +938,7 @@ bool AuctionEntry::LoadFromDB(Field* fields)
         TC_LOG_ERROR("misc", "Auction %u has not a existing item : %u", Id, itemGUIDLow);
         return false;
     }
+
     return true;
 }
 std::string AuctionEntry::BuildAuctionMailSubject(MailAuctionAnswers response) const

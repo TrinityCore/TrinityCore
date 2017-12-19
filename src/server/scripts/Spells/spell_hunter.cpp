@@ -66,7 +66,10 @@ enum HunterSpells
     SPELL_REPLENISHMENT                             = 57669,
     SPELL_HUNTER_RAPID_RECUPERATION_MANA_R1         = 56654,
     SPELL_HUNTER_RAPID_RECUPERATION_MANA_R2         = 58882,
-    SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS        = 57894
+    SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS        = 57894,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 53352,
+    SPELL_HUNTER_FEEDING_FRENZY_BUFF_R1             = 60096,
+    SPELL_HUNTER_FEEDING_FRENZY_BUFF_R2             = 60097
 };
 
 // 13161 - Aspect of the Beast
@@ -456,6 +459,57 @@ class spell_hun_glyph_of_mend_pet : public SpellScriptLoader
         {
             return new spell_hun_glyph_of_mend_pet_AuraScript();
         }
+};
+
+// -53301 - Explosive Shot
+class spell_hun_explosive_shot : public AuraScript
+{
+    PrepareAuraScript(spell_hun_explosive_shot);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastCustomSpell(SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// -53511 - Feeding Frenzy
+class spell_hun_feeding_frenzy : public AuraScript
+{
+    PrepareAuraScript(spell_hun_feeding_frenzy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_FEEDING_FRENZY_BUFF_R1, SPELL_HUNTER_FEEDING_FRENZY_BUFF_R2 });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        static uint32 const triggerSpells[2] = { SPELL_HUNTER_FEEDING_FRENZY_BUFF_R1, SPELL_HUNTER_FEEDING_FRENZY_BUFF_R2 };
+
+        uint8 rank = GetSpellInfo()->GetRank();
+        uint32 spellId = triggerSpells[rank - 1];
+
+        if (GetTarget()->GetVictim() && GetTarget()->EnsureVictim()->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+            GetTarget()->CastSpell(nullptr, spellId, true, nullptr, aurEff);
+        else
+            GetTarget()->RemoveAurasDueToSpell(spellId);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_feeding_frenzy::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 // -53290 - Hunting Party
@@ -1423,6 +1477,8 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
                     {
                         // due to Lock and Load SpellInfo::CalcPowerCost might return 0, so just calculate it manually
                         amount = CalculatePct(static_cast<int32>(CalculatePct(caster->GetCreateMana(), explosiveShot->GetSpellInfo()->ManaCostPercentage)), aurEff->GetAmount());
+
+                        ASSERT(explosiveShot->GetSpellInfo()->GetMaxTicks() > 0);
                         amount /= explosiveShot->GetSpellInfo()->GetMaxTicks();
                     }
                 }
@@ -1544,6 +1600,8 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_disengage();
     new spell_hun_glyph_of_arcane_shot();
     new spell_hun_glyph_of_mend_pet();
+    RegisterAuraScript(spell_hun_explosive_shot);
+    RegisterAuraScript(spell_hun_feeding_frenzy);
     new spell_hun_hunting_party();
     new spell_hun_improved_mend_pet();
     new spell_hun_invigoration();
