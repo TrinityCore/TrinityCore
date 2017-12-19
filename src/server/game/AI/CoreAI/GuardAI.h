@@ -36,4 +36,3 @@ class TC_GAME_API GuardAI : public ScriptedAI
         void JustDied(Unit* killer) override;
 };
 #endif
-

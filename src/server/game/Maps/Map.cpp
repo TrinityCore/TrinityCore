@@ -646,7 +646,9 @@ bool Map::AddToMap(T* obj)
 
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual
+    obj->SetIsNewObject(true);
     obj->UpdateObjectVisibilityOnCreate();
+    obj->SetIsNewObject(false);
     return true;
 }
 
@@ -2680,14 +2682,18 @@ void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFul
     if (vmapData.areaInfo)
         data.areaInfo = boost::in_place(vmapData.areaInfo->adtId, vmapData.areaInfo->rootId, vmapData.areaInfo->groupId, vmapData.areaInfo->mogpFlags);
 
+    float mapHeight = VMAP_INVALID_HEIGHT;
     GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y);
-    float mapHeight = gmap->getHeight(x, y);
+    if (gmap)
+        mapHeight = gmap->getHeight(x, y);
 
     // area lookup
     AreaTableEntry const* areaEntry = nullptr;
     if (vmapData.areaInfo && (z + 2.0f <= mapHeight || mapHeight <= vmapData.floorZ))
         if (WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId))
             areaEntry = sAreaTableStore.LookupEntry(wmoEntry->areaId);
+
+    data.areaId = 0;
 
     if (areaEntry)
     {
@@ -2697,7 +2703,8 @@ void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFul
     else
     {
         data.floorZ = mapHeight;
-        data.areaId = gmap->getArea(x, y);
+        if (gmap)
+            data.areaId = gmap->getArea(x, y);
 
         if (!data.areaId)
             data.areaId = i_mapEntry->linked_zone;
@@ -2970,7 +2977,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
     ObjectGuid thisGUID = ObjectGuid((info->type == SPAWN_TYPE_GAMEOBJECT) ? HighGuid::GameObject : HighGuid::Unit, info->entry, info->spawnId);
     if (time_t linkedTime = GetLinkedRespawnTime(thisGUID))
     {
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         time_t respawnTime;
         if (linkedTime == std::numeric_limits<time_t>::max())
             respawnTime = linkedTime;
@@ -3001,7 +3008,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
     {
         if (!sScriptMgr->CanSpawn(info->spawnId, info->entry, sObjectMgr->GetCreatureData(info->spawnId), this))
         { // if a script blocks our respawn, schedule next check in a little bit
-            info->respawnTime = time(NULL) + urand(4, 7);
+            info->respawnTime = time(nullptr) + urand(4, 7);
             return false;
         }
     }
@@ -3174,7 +3181,7 @@ void Map::RemoveRespawnTime(RespawnVector& respawnData, bool doRespawn, SQLTrans
 
 void Map::ProcessRespawns()
 {
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     while (!_respawnTimes.empty())
     {
         RespawnInfo* next = _respawnTimes.top();
@@ -3259,7 +3266,7 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
         TC_LOG_ERROR("maps", "Tried to spawn non-existing (or system) spawn group %u on map %u. Blocked.", groupId, GetId());
         return false;
     }
-    
+
     for (auto& pair : sObjectMgr->GetSpawnDataForGroup(groupId))
     {
         SpawnData const* data = pair.second;
@@ -3271,7 +3278,7 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
                     continue;
 
         time_t respawnTime = GetRespawnTime(data->type, data->spawnId);
-        if (respawnTime && respawnTime > time(NULL))
+        if (respawnTime && respawnTime > time(nullptr))
         {
             if (!force && !ignoreRespawn)
                 continue;
