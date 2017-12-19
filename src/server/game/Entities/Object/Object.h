@@ -528,9 +528,21 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
 
-        Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
-        GameObject* FindNearestGameObject(uint32 entry, float range) const;
-        GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
+        Creature*               FindNearestCreature(uint32 entry, float range, bool alive = true) const;
+        Creature*               FindNearestCreature(std::list<uint32> entrys, float range, bool alive = true) const;
+        std::list<Creature*>    FindNearestCreatures(uint32 entry, float range) const;
+        std::list<Creature*>    FindAllCreaturesInRange(float range);
+        std::list<Creature*>    FindAllUnfriendlyCreaturesInRange(float range);
+        Creature*               FindNearestAttackableCreatureOnTransportInFloor(float rangeXY, float rangeZ);
+        Creature*               FindNearestCreatureOnTransportInFloor(uint32 entry, float rangeXY, float rangeZ);
+
+        GameObject*             FindNearestGameObject(uint32 entry, float range) const;
+        std::list<GameObject*>  FindNearestGameObjects(uint32 entry, float range) const;
+        GameObject*             FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
+
+        Player*                 SelectNearestPlayer(float distance = 0.0f) const;
+        std::list<Player*>      SelectNearestPlayers(float range, bool alive = true);
+        Player*                 SelectRandomPlayerInRange(float range, bool alive);
 
         template <typename Container>
         void GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange = 250.0f) const;
