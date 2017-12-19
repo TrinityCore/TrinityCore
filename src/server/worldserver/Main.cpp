@@ -306,8 +306,6 @@ extern int main(int argc, char** argv)
         });
     }
 
-    std::shared_ptr<void> sLoginServiceHandle(nullptr, [](void*) { sRestService.Stop(); });
-
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     uint16 instancePort = uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
@@ -334,6 +332,8 @@ extern int main(int argc, char** argv)
             TC_LOG_ERROR("server.worldserver", "Failed to initialize Rest service");
             return 1;
         }
+
+        std::shared_ptr<void> sRestServiceHandle(nullptr, [](void*) { sRestService.Stop(); });
     }
 
     std::shared_ptr<void> sWorldSocketMgrHandle(nullptr, [](void*)
