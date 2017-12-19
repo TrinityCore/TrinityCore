@@ -40,6 +40,8 @@ target_include_directories(shared
     ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(shared
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     database
     rapidjson
