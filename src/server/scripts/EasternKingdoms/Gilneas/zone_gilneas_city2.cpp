@@ -791,28 +791,28 @@ class npc_krennan_aranas_38553 : public CreatureScript
 public:
     npc_krennan_aranas_38553() : CreatureScript("npc_krennan_aranas_38553") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (uiAction)
         {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-        {
-            CloseGossipMenuFor(player);
-            creature->AI()->Talk(0, player);
-            CAST_AI(npc_krennan_aranas_38553::npc_krennan_aranas_38553AI, creature->AI())->StartBattle();
-            break;
-        }
-        case GOSSIP_ACTION_INFO_DEF + 2:
-        {
-            CloseGossipMenuFor(player);
-            break;
-        }
+            case GOSSIP_ACTION_INFO_DEF + 1:
+            {
+                CloseGossipMenuFor(player);
+                creature->AI()->Talk(0, player);
+                CAST_AI(npc_krennan_aranas_38553::npc_krennan_aranas_38553AI, creature->AI())->StartBattle();
+                break;
+            }
+            case GOSSIP_ACTION_INFO_DEF + 2:
+            {
+                CloseGossipMenuFor(player);
+                break;
+            }
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -839,10 +839,10 @@ public:
 
         EventMap m_events;
         ObjectGuid   m_almyraGUID;
-        bool	 m_battleIsStarted;
+        bool     m_battleIsStarted;
         bool     m_playerIsInvited;
 
-        void Reset()
+        void Reset() override
         {
             m_events.Reset();
             m_events.ScheduleEvent(EVENT_CHECK_PLAYER_FOR_PHASE, 2500);
@@ -855,18 +855,20 @@ public:
         {
             switch (id)
             {
-            case NPC_SISTER_ALMYRA:
-                m_almyraGUID = guid;
-                break;
+                case NPC_SISTER_ALMYRA:
+                    m_almyraGUID = guid;
+                    break;
             }
         }
 
-        uint32 GetData(uint32 id) const
+        uint32 GetData(uint32 id) const override
         {
             switch (id)
             {
-            case DATA_IS_BATTLE_STARTED:
-                return m_battleIsStarted ? 1 : 0;
+                case DATA_IS_BATTLE_STARTED:
+                    return m_battleIsStarted ? 1 : 0;
+                default:
+                    break;
             }
             return 0;
         }
@@ -875,18 +877,18 @@ public:
         {
             switch (param)
             {
-            case ACTION_START_EVENT:
-            {
-                m_events.Reset();
-                m_battleIsStarted = true;
-                m_playerIsInvited = true;
-                break;
-            }
-            case ACTION_EVENT_RESET_TIMER:
-            {
-                m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
-                break;
-            }
+                case ACTION_START_EVENT:
+                {
+                    m_events.Reset();
+                    m_battleIsStarted = true;
+                    m_playerIsInvited = true;
+                    break;
+                }
+                case ACTION_EVENT_RESET_TIMER:
+                {
+                    m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
+                    break;
+                }
             }
         }
 
@@ -953,7 +955,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_krennan_aranas_38553AI(creature);
     }
@@ -1081,7 +1083,7 @@ public:
                 my_victimList.push_back(summon->GetGUID());
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             damage = 0;
         }
@@ -1091,17 +1093,17 @@ public:
             if (type == POINT_MOTION_TYPE)
                 switch (id)
                 {
-                case 2001:
-                case 2002:
-                case 2003:
-                case 2004:
-                case 2005:
-                case 2006:
-                case 2007:
-                {
-                    m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
-                    break;
-                }
+                    case 2001:
+                    case 2002:
+                    case 2003:
+                    case 2004:
+                    case 2005:
+                    case 2006:
+                    case 2007:
+                    {
+                        m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
+                        break;
+                    }
                 }
         }
 
@@ -1110,40 +1112,40 @@ public:
             SetActiveMode();
             switch (param)
             {
-            case ACTION_START_EVENT:
-            {
-                m_events.ScheduleEvent(EVENT_START_LIAMS_FIRST_ANIM, 15000);
-                SendActionValueToAllLeader(ACTION_START_EVENT);
-                break;
-            }
-            case ACTION_MOTIVATION_DONE:
-            {
-                SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_1);
-                m_events.RescheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_QUEST_REWARDED:
-            {
-                SendActionValueToAllLeader(ACTION_QUEST_REWARDED);
-                break;
-            }
-            case ACTION_LIAM_ARRIVED:
-                m_arrivedMask |= 2;
-                break;
-            case ACTION_MYRIAM_ARRIVED:
-                m_arrivedMask |= 4;
-                break;
-            case ACTION_LORNA_ARRIVED:
-                m_arrivedMask |= 8;
-                break;
-            case ACTION_DARIUS_ARRIVED:
-                m_arrivedMask |= 16;
-            case ACTION_GENN_ARRIVED:
-                m_arrivedMask |= 32;
-                break;
-            case ACTION_SYLVANAS_ARRIVED:
-                m_arrivedMask |= 64;
-                break;
+                case ACTION_START_EVENT:
+                {
+                    m_events.ScheduleEvent(EVENT_START_LIAMS_FIRST_ANIM, 15000);
+                    SendActionValueToAllLeader(ACTION_START_EVENT);
+                    break;
+                }
+                case ACTION_MOTIVATION_DONE:
+                {
+                    SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_1);
+                    m_events.RescheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_QUEST_REWARDED:
+                {
+                    SendActionValueToAllLeader(ACTION_QUEST_REWARDED);
+                    break;
+                }
+                case ACTION_LIAM_ARRIVED:
+                    m_arrivedMask |= 2;
+                    break;
+                case ACTION_MYRIAM_ARRIVED:
+                    m_arrivedMask |= 4;
+                    break;
+                case ACTION_LORNA_ARRIVED:
+                    m_arrivedMask |= 8;
+                    break;
+                case ACTION_DARIUS_ARRIVED:
+                    m_arrivedMask |= 16;
+                case ACTION_GENN_ARRIVED:
+                    m_arrivedMask |= 32;
+                    break;
+                case ACTION_SYLVANAS_ARRIVED:
+                    m_arrivedMask |= 64;
+                    break;
             }
         }
 
@@ -1151,76 +1153,76 @@ public:
         {
             switch (id)
             {
-            case NPC_PRINCE_LIAM_GREYMANE_BATTLE:
-            {
-                if (m_prince1GUID != guid)
-                    if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
-                    {
-                        check->AI()->DoAction(ACTION_INITIALIZE_DONE);
-                        m_prince1GUID = guid;
-                    }
-                break;
-            }
-            case NPC_PRINCE_LIAM_GREYMANE:
-            {
-                if (m_prince2GUID != guid)
-                    if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
-                    {
-                        check->AI()->DoAction(ACTION_INITIALIZE_DONE);
-                        m_prince2GUID = guid;
-                    }
-                break;
-            }
-            case NPC_MYRIAM_SPELLWAKER:
-            {
-                if (m_myriamGUID != guid)
-                    if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
-                    {
-                        check->AI()->DoAction(ACTION_INITIALIZE_DONE);
-                        m_myriamGUID = guid;
-                    }
-                break;
-            }
-            case NPC_LORNA_CROWLEY:
-            {
-                if (m_lornaGUID != guid)
-                    if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
-                    {
-                        check->AI()->DoAction(ACTION_INITIALIZE_DONE);
-                        m_lornaGUID = guid;
-                    }
-                break;
-            }
-            case NPC_LORD_DARIUS_CROWLEY:
-            {
-                if (m_dariusGUID != guid)
-                    if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
-                    {
-                        check->AI()->DoAction(ACTION_INITIALIZE_DONE);
-                        m_dariusGUID = guid;
-                    }
-                break;
-            }
-            case NPC_KING_GENN_GREYMANE:
-            {
-                if (m_kingGUID != guid)
-                    if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
-                    {
-                        check->AI()->DoAction(ACTION_INITIALIZE_DONE);
-                        m_kingGUID = guid;
-                    }
-                break;
-            }
-            case NPC_LADY_SYLVANAS_WINDRUNNER:
-            {
-                if (m_sylvanaGUID != guid)
-                    if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
-                    {
-                        check->AI()->DoAction(ACTION_INITIALIZE_DONE);
-                        m_sylvanaGUID = guid;
-                    }
-                break;
-            }
+                case NPC_PRINCE_LIAM_GREYMANE_BATTLE:
+                {
+                    if (m_prince1GUID != guid)
+                        if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            check->AI()->DoAction(ACTION_INITIALIZE_DONE);
+                            m_prince1GUID = guid;
+                        }
+                    break;
+                }
+                case NPC_PRINCE_LIAM_GREYMANE:
+                {
+                    if (m_prince2GUID != guid)
+                        if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            check->AI()->DoAction(ACTION_INITIALIZE_DONE);
+                            m_prince2GUID = guid;
+                        }
+                    break;
+                }
+                case NPC_MYRIAM_SPELLWAKER:
+                {
+                    if (m_myriamGUID != guid)
+                        if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            check->AI()->DoAction(ACTION_INITIALIZE_DONE);
+                            m_myriamGUID = guid;
+                        }
+                    break;
+                }
+                case NPC_LORNA_CROWLEY:
+                {
+                    if (m_lornaGUID != guid)
+                        if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            check->AI()->DoAction(ACTION_INITIALIZE_DONE);
+                            m_lornaGUID = guid;
+                        }
+                    break;
+                }
+                case NPC_LORD_DARIUS_CROWLEY:
+                {
+                    if (m_dariusGUID != guid)
+                        if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            check->AI()->DoAction(ACTION_INITIALIZE_DONE);
+                            m_dariusGUID = guid;
+                        }
+                    break;
+                }
+                case NPC_KING_GENN_GREYMANE:
+                {
+                    if (m_kingGUID != guid)
+                        if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            check->AI()->DoAction(ACTION_INITIALIZE_DONE);
+                            m_kingGUID = guid;
+                        }
+                    break;
+                }
+                case NPC_LADY_SYLVANAS_WINDRUNNER:
+                {
+                    if (m_sylvanaGUID != guid)
+                        if (Creature* check = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            check->AI()->DoAction(ACTION_INITIALIZE_DONE);
+                            m_sylvanaGUID = guid;
+                        }
+                    break;
+                }
             }
         }
 
@@ -1228,20 +1230,20 @@ public:
         {
             switch (id)
             {
-            case NPC_PRINCE_LIAM_GREYMANE_BATTLE:
-                return m_prince1GUID;
-            case NPC_PRINCE_LIAM_GREYMANE:
-                return m_prince2GUID;
-            case NPC_MYRIAM_SPELLWAKER:
-                return m_myriamGUID;
-            case NPC_LORNA_CROWLEY:
-                return m_lornaGUID;
-            case NPC_LORD_DARIUS_CROWLEY:
-                return m_dariusGUID;
-            case NPC_KING_GENN_GREYMANE:
-                return m_kingGUID;
-            case NPC_LADY_SYLVANAS_WINDRUNNER:
-                return m_sylvanaGUID;
+                case NPC_PRINCE_LIAM_GREYMANE_BATTLE:
+                    return m_prince1GUID;
+                case NPC_PRINCE_LIAM_GREYMANE:
+                    return m_prince2GUID;
+                case NPC_MYRIAM_SPELLWAKER:
+                    return m_myriamGUID;
+                case NPC_LORNA_CROWLEY:
+                    return m_lornaGUID;
+                case NPC_LORD_DARIUS_CROWLEY:
+                    return m_dariusGUID;
+                case NPC_KING_GENN_GREYMANE:
+                    return m_kingGUID;
+                case NPC_LADY_SYLVANAS_WINDRUNNER:
+                    return m_sylvanaGUID;
             }
 
             return ObjectGuid::Empty;
@@ -1378,85 +1380,85 @@ public:
                     uint32 mask;
                     switch (m_wave)
                     {
-                    case 1:
-                    case 2:
-                        mask = 7;
-                        break;
-                    case 3:
-                        mask = 15 + 128;
-                        break;
-                    case 4:
-                    case 5:
-                    case 6:
-                        mask = 31 + 128;
-                        break;
-                    case 7:
-                        mask = 63 + 128;
-                        break;
-                    }
-                    if (IsPlayerNear(25.0f))
-                        m_arrivedMask |= 128;
+                        case 1:
+                        case 2:
+                            mask = 7;
+                            break;
+                        case 3:
+                            mask = 15 + 128;
+                            break;
+                        case 4:
+                        case 5:
+                        case 6:
+                            mask = 31 + 128;
+                            break;
+                        case 7:
+                            mask = 63 + 128;
+                            break;
+                        }
+                        if (IsPlayerNear(25.0f))
+                            m_arrivedMask |= 128;
 
-                    if ((m_arrivedMask & mask) == mask)
-                    {
-                        switch (m_wave)
+                        if ((m_arrivedMask & mask) == mask)
                         {
-                        case 1: // running over marketplace
-                        {
-                            SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
-                            SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_2);
-                            m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                            break;
+                            switch (m_wave)
+                            {
+                                case 1: // running over marketplace
+                                {
+                                    SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
+                                    SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_2);
+                                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                                    break;
+                                }
+                                case 2: // running down the stairway
+                                {
+                                    SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
+                                    SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_3);
+                                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                                    break;
+                                }
+                                case 3: // running to militaryplace
+                                {
+                                    SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
+                                    SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_4);
+                                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                                    break;
+                                }
+                                case 4: // running near to gorerot
+                                {
+                                    SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
+                                    me->SummonCreature(NPC_GOREROT, SpawnPosGorerot[0], TEMPSUMMON_DEAD_DESPAWN);
+                                    SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_5);
+                                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                                    break;
+                                }
+                                case 5: // gorerot is death.. now all groups moving to meet silvanas.
+                                {
+                                    SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
+                                    SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_6);
+                                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                                    break;
+                                }
+                                case 6: // running near sylvanas
+                                {
+                                    SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
+                                    SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_7);
+                                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                                    break;
+                                }
+                            }
                         }
-                        case 2: // running down the stairway
-                        {
-                            SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
-                            SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_3);
-                            m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                            break;
-                        }
-                        case 3: // running to militaryplace
-                        {
-                            SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
-                            SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_4);
-                            m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                            break;
-                        }
-                        case 4: // running near to gorerot
-                        {
-                            SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
-                            me->SummonCreature(NPC_GOREROT, SpawnPosGorerot[0], TEMPSUMMON_DEAD_DESPAWN);
-                            SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_5);
-                            m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                            break;
-                        }
-                        case 5: // gorerot is death.. now all groups moving to meet silvanas.
-                        {
-                            SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
-                            SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_6);
-                            m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                            break;
-                        }
-                        case 6: // running near sylvanas
-                        {
-                            SendActionValueToAllLeader(ACTION_EVENT_RESET_TIMER);
-                            SendActionValueToAllLeader(ACTION_MOVE_TO_WAVE_POSION_7);
-                            m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                            break;
-                        }
-                        }
+                        else
+                            m_events.ScheduleEvent(EVENT_SYNC_BEFORE_NEXT_WAVE, 2500);
+                        break;
                     }
-                    else
-                        m_events.ScheduleEvent(EVENT_SYNC_BEFORE_NEXT_WAVE, 2500);
-                    break;
-                }
-                case EVENT_SYLVANAS_HAS_ENOUGH:
-                {
-                    m_events.CancelEvent(EVENT_MOVE_WAVE);
-                    m_events.CancelEvent(EVENT_FIGHT_WAVE);
-                    m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
-                    SendActionValueToAllLeader(ACTION_SYLVANAS_HAS_ENOUGH);
-                }
+                    case EVENT_SYLVANAS_HAS_ENOUGH:
+                    {
+                        m_events.CancelEvent(EVENT_MOVE_WAVE);
+                        m_events.CancelEvent(EVENT_FIGHT_WAVE);
+                        m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
+                        SendActionValueToAllLeader(ACTION_SYLVANAS_HAS_ENOUGH);
+                    }
                 }
             }
 
@@ -1537,22 +1539,22 @@ public:
         {
             switch (m_wave)
             {
-            case 1:
-                return SAWave1Pos[m_point];
-            case 2:
-                return SAWave2Pos[m_point];
-            case 3:
-                return SAWave3Pos[m_point];
-            case 4:
-                return SAWave4Pos[m_point];
-            case 5:
-                return SAWave5Pos[m_point];
-            case 6:
-                return Wave6Pos[m_point];
-            case 7:
-                return SAWave7Pos[m_point];
-            default:
-                return Position(0, 0);
+                case 1:
+                    return SAWave1Pos[m_point];
+                case 2:
+                    return SAWave2Pos[m_point];
+                case 3:
+                    return SAWave3Pos[m_point];
+                case 4:
+                    return SAWave4Pos[m_point];
+                case 5:
+                    return SAWave5Pos[m_point];
+                case 6:
+                    return Wave6Pos[m_point];
+                case 7:
+                    return SAWave7Pos[m_point];
+                default:
+                    return Position(0, 0);
             }
         }
 
@@ -1561,29 +1563,29 @@ public:
             m_ai_counter = 0;
             switch (m_wave)
             {
-            case 4:
-            {
-                if (m_point == 17 && !m_doneA)
+                case 4:
                 {
-                    m_doneA = true;
-                    if (Creature* darius = ObjectAccessor::GetCreature(*me, m_dariusGUID))
-                        darius->AI()->DoAction(ACTION_MOVE_TO_MEET_POINT4);
-                    if (Creature* liam = ObjectAccessor::GetCreature(*me, m_prince1GUID))
-                        liam->AI()->DoAction(ACTION_LIAM_TALK_10);
+                    if (m_point == 17 && !m_doneA)
+                    {
+                        m_doneA = true;
+                        if (Creature* darius = ObjectAccessor::GetCreature(*me, m_dariusGUID))
+                            darius->AI()->DoAction(ACTION_MOVE_TO_MEET_POINT4);
+                        if (Creature* liam = ObjectAccessor::GetCreature(*me, m_prince1GUID))
+                            liam->AI()->DoAction(ACTION_LIAM_TALK_10);
+                    }
+                    if (m_point == 15)
+                        m_shootCoolDown = 5000;
+                    break;
                 }
-                if (m_point == 15)
-                    m_shootCoolDown = 5000;
-                break;
-            }
-            case 7:
-            {
-                if (m_point > 2 && !m_doneA) // let the fight vs sylvanas ending after 45sec
+                case 7:
                 {
-                    m_doneA = true;
-                    m_events.ScheduleEvent(EVENT_SYLVANAS_HAS_ENOUGH, 45000);
+                    if (m_point > 2 && !m_doneA) // let the fight vs sylvanas ending after 45sec
+                    {
+                        m_doneA = true;
+                        m_events.ScheduleEvent(EVENT_SYLVANAS_HAS_ENOUGH, 45000);
+                    }
+                    break;
                 }
-                break;
-            }
             }
         }
 
@@ -1608,70 +1610,70 @@ public:
 
             switch (ActionValue)
             {
-            case ACTION_EVENT_RESET_TIMER:
-                m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
-                break;
-            case ACTION_MOVE_TO_WAVE_POSION_1:
-                BuildFollowerGroup();
-                m_doneA = false; m_doneB = false;
-                m_shootCoolDown = 3000;
-                m_wave = 1;
-                m_waveSize = 9;
-                m_point = 0;
-                m_arrivedMask = 0;
-                break;
-            case ACTION_MOVE_TO_WAVE_POSION_2:
-                m_doneA = false; m_doneB = false;
-                m_shootCoolDown = 2500;
-                m_wave = 2;
-                m_waveSize = 12;
-                m_point = 0;
-                m_arrivedMask = 0;
-                break;
-            case ACTION_MOVE_TO_WAVE_POSION_3:
-                m_doneA = false; m_doneB = false;
-                m_shootCoolDown = 4000;
-                m_wave = 3;
-                m_waveSize = 4;
-                m_point = 0;
-                m_arrivedMask = 0;
-                break;
-            case ACTION_MOVE_TO_WAVE_POSION_4:
-                m_doneA = false; m_doneB = false;
-                m_shootCoolDown = 3000;
-                m_wave = 4;
-                m_waveSize = 23;
-                m_point = 0;
-                m_arrivedMask = 0;
-                break;
-            case ACTION_MOVE_TO_WAVE_POSION_5:
-                m_doneA = false; m_doneB = false;
-                m_shootCoolDown = 4000;
-                m_wave = 5;
-                m_waveSize = 2;
-                m_point = 0;
-                m_arrivedMask = 0;
-                break;
-            case ACTION_MOVE_TO_WAVE_POSION_6:
-                m_doneA = false; m_doneB = false;
-                m_shootCoolDown = 4000;
-                m_wave = 6;
-                m_waveSize = 21;
-                m_point = 0;
-                m_arrivedMask = 0;
-                break;
-            case ACTION_MOVE_TO_WAVE_POSION_7:
-                m_doneA = false; m_doneB = false;
-                m_shootCoolDown = 4000;
-                m_wave = 7;
-                m_waveSize = 4;
-                m_point = 0;
-                m_arrivedMask = 0;
-                break;
-            case ACTION_QUEST_REWARDED:
-                RemoveMyMember();
-                me->DespawnOrUnsummon();
-                break;
+                case ACTION_EVENT_RESET_TIMER:
+                    m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
+                    break;
+                case ACTION_MOVE_TO_WAVE_POSION_1:
+                    BuildFollowerGroup();
+                    m_doneA = false; m_doneB = false;
+                    m_shootCoolDown = 3000;
+                    m_wave = 1;
+                    m_waveSize = 9;
+                    m_point = 0;
+                    m_arrivedMask = 0;
+                    break;
+                case ACTION_MOVE_TO_WAVE_POSION_2:
+                    m_doneA = false; m_doneB = false;
+                    m_shootCoolDown = 2500;
+                    m_wave = 2;
+                    m_waveSize = 12;
+                    m_point = 0;
+                    m_arrivedMask = 0;
+                    break;
+                case ACTION_MOVE_TO_WAVE_POSION_3:
+                    m_doneA = false; m_doneB = false;
+                    m_shootCoolDown = 4000;
+                    m_wave = 3;
+                    m_waveSize = 4;
+                    m_point = 0;
+                    m_arrivedMask = 0;
+                    break;
+                case ACTION_MOVE_TO_WAVE_POSION_4:
+                    m_doneA = false; m_doneB = false;
+                    m_shootCoolDown = 3000;
+                    m_wave = 4;
+                    m_waveSize = 23;
+                    m_point = 0;
+                    m_arrivedMask = 0;
+                    break;
+                case ACTION_MOVE_TO_WAVE_POSION_5:
+                    m_doneA = false; m_doneB = false;
+                    m_shootCoolDown = 4000;
+                    m_wave = 5;
+                    m_waveSize = 2;
+                    m_point = 0;
+                    m_arrivedMask = 0;
+                    break;
+                case ACTION_MOVE_TO_WAVE_POSION_6:
+                    m_doneA = false; m_doneB = false;
+                    m_shootCoolDown = 4000;
+                    m_wave = 6;
+                    m_waveSize = 21;
+                    m_point = 0;
+                    m_arrivedMask = 0;
+                    break;
+                case ACTION_MOVE_TO_WAVE_POSION_7:
+                    m_doneA = false; m_doneB = false;
+                    m_shootCoolDown = 4000;
+                    m_wave = 7;
+                    m_waveSize = 4;
+                    m_point = 0;
+                    m_arrivedMask = 0;
+                    break;
+                case ACTION_QUEST_REWARDED:
+                    RemoveMyMember();
+                    me->DespawnOrUnsummon();
+                    break;
             }
 
 
@@ -1764,7 +1766,7 @@ public:
 
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             damage = 0;
         }
@@ -1779,17 +1781,17 @@ public:
             if (type == POINT_MOTION_TYPE)
                 switch (id)
                 {
-                case 2001:
-                case 2002:
-                case 2003:
-                case 2004:
-                case 2005:
-                case 2006:
-                case 2007:
-                {
-                    m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
-                    break;
-                }
+                    case 2001:
+                    case 2002:
+                    case 2003:
+                    case 2004:
+                    case 2005:
+                    case 2006:
+                    case 2007:
+                    {
+                        m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
+                        break;
+                    }
                 }
         }
 
@@ -1798,90 +1800,90 @@ public:
             SetActiveMode();
             switch (param)
             {
-            case ACTION_INITIALIZE_DONE:
-            {
-                m_isInitialised = true;
-                break;
-            }
-            case ACTION_EVENT_RESET_TIMER:
-            {
-                m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
-                break;
-            }
-            case ACTION_START_MOTIVATION:
-            {
-                m_events.ScheduleEvent(EVENT_MOTIVATION_0, 1000);
-                break;
-            }
-            case ACTION_LIAM_TALK_10:
-            {
-                Talk(10);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_1:
-            {
-                BuildFollowerGroup();
-                m_wave = 1;
-                m_waveSize = 8;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_2:
-            {
-                m_wave = 2;
-                m_waveSize = 12;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_3:
-            {
-                Talk(8);
-                m_wave = 3;
-                m_waveSize = 4;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_4:
-            {
-                m_wave = 4;
-                m_waveSize = 23;
-                m_point = 0;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_5:
-            {
-                m_wave = 5;
-                m_waveSize = 2;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_6:
-            {
-                m_wave = 6;
-                m_waveSize = 21;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_7:
-            {
-                m_wave = 7;
-                m_waveSize = 3;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
+                case ACTION_INITIALIZE_DONE:
+                {
+                    m_isInitialised = true;
+                    break;
+                }
+                case ACTION_EVENT_RESET_TIMER:
+                {
+                    m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
+                    break;
+                }
+                case ACTION_START_MOTIVATION:
+                {
+                    m_events.ScheduleEvent(EVENT_MOTIVATION_0, 1000);
+                    break;
+                }
+                case ACTION_LIAM_TALK_10:
+                {
+                    Talk(10);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_1:
+                {
+                    BuildFollowerGroup();
+                    m_wave = 1;
+                    m_waveSize = 8;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_2:
+                {
+                    m_wave = 2;
+                    m_waveSize = 12;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_3:
+                {
+                    Talk(8);
+                    m_wave = 3;
+                    m_waveSize = 4;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_4:
+                {
+                    m_wave = 4;
+                    m_waveSize = 23;
+                    m_point = 0;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_5:
+                {
+                    m_wave = 5;
+                    m_waveSize = 2;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_6:
+                {
+                    m_wave = 6;
+                    m_waveSize = 21;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_7:
+                {
+                    m_wave = 7;
+                    m_waveSize = 3;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
             }
         }
 
@@ -2139,22 +2141,22 @@ public:
         {
             switch (m_wave)
             {
-            case 1:
-                return LGWave1Pos[m_point];
-            case 2:
-                return LGWave2Pos[m_point];
-            case 3:
-                return LGWave3Pos[m_point];
-            case 4:
-                return LGWave4Pos[m_point];
-            case 5:
-                return LGWave5Pos[m_point];
-            case 6:
-                return Wave6Pos[m_point];
-            case 7:
-                return LGWave7Pos[m_point];
-            default:
-                return Position(0, 0);
+                case 1:
+                    return LGWave1Pos[m_point];
+                case 2:
+                    return LGWave2Pos[m_point];
+                case 3:
+                    return LGWave3Pos[m_point];
+                case 4:
+                    return LGWave4Pos[m_point];
+                case 5:
+                    return LGWave5Pos[m_point];
+                case 6:
+                    return Wave6Pos[m_point];
+                case 7:
+                    return LGWave7Pos[m_point];
+                default:
+                    return Position(0, 0);
             }
         }
 
@@ -2257,7 +2259,7 @@ public:
 
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             damage = 0;
         }
@@ -2272,17 +2274,17 @@ public:
             if (type == POINT_MOTION_TYPE)
                 switch (id)
                 {
-                case 2001:
-                case 2002:
-                case 2003:
-                case 2004:
-                case 2005:
-                case 2006:
-                case 2007:
-                {
-                    m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
-                    break;
-                }
+                    case 2001:
+                    case 2002:
+                    case 2003:
+                    case 2004:
+                    case 2005:
+                    case 2006:
+                    case 2007:
+                    {
+                        m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
+                        break;
+                    }
                 }
         }
 
@@ -2291,98 +2293,98 @@ public:
             SetActiveMode();
             switch (param)
             {
-            case ACTION_INITIALIZE_DONE:
-            {
-                m_isInitialised = true;
-                break;
-            }
-            case ACTION_EVENT_RESET_TIMER:
-            {
-                m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_1:
-            {
-                BuildFollowerGroup();
-                m_shootCoolDown = 4000;
-                m_wave = 1;
-                m_waveSize = 8;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_2:
-            {
-                m_shootCoolDown = 4000;
-                m_wave = 2;
-                m_waveSize = 10;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_3:
-            {
-                m_shootCoolDown = 4000;
-                m_wave = 3;
-                m_waveSize = 3;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_4:
-            {
-                m_shootCoolDown = 2500;
-                m_wave = 4;
-                m_waveSize = 29;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_5:
-            {
-                m_wave = 5;
-                m_waveSize = 2;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_6:
-            {
-                m_wave = 6;
-                m_waveSize = 21;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_7:
-            {
-                m_wave = 7;
-                m_waveSize = 4;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_SYLVANAS_HAS_ENOUGH:
-            {
-                m_events.CancelEvent(EVENT_MOVE_WAVE);
-                m_events.CancelEvent(EVENT_FIGHT_WAVE);
-                m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
+                case ACTION_INITIALIZE_DONE:
+                {
+                    m_isInitialised = true;
+                    break;
+                }
+                case ACTION_EVENT_RESET_TIMER:
+                {
+                    m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_1:
+                {
+                    BuildFollowerGroup();
+                    m_shootCoolDown = 4000;
+                    m_wave = 1;
+                    m_waveSize = 8;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_2:
+                {
+                    m_shootCoolDown = 4000;
+                    m_wave = 2;
+                    m_waveSize = 10;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_3:
+                {
+                    m_shootCoolDown = 4000;
+                    m_wave = 3;
+                    m_waveSize = 3;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_4:
+                {
+                    m_shootCoolDown = 2500;
+                    m_wave = 4;
+                    m_waveSize = 29;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_5:
+                {
+                    m_wave = 5;
+                    m_waveSize = 2;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_6:
+                {
+                    m_wave = 6;
+                    m_waveSize = 21;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_7:
+                {
+                    m_wave = 7;
+                    m_waveSize = 4;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_SYLVANAS_HAS_ENOUGH:
+                {
+                    m_events.CancelEvent(EVENT_MOVE_WAVE);
+                    m_events.CancelEvent(EVENT_FIGHT_WAVE);
+                    m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
 
-                break;
-            }
-            case ACTION_QUEST_REWARDED:
-            {
-                RemoveMyMember();
-                me->DespawnOrUnsummon();
-                break;
-            }
+                    break;
+                }
+                case ACTION_QUEST_REWARDED:
+                {
+                    RemoveMyMember();
+                    me->DespawnOrUnsummon();
+                    break;
+                }
             }
         }
 
@@ -2559,22 +2561,22 @@ public:
         {
             switch (m_wave)
             {
-            case 1:
-                return MSWave1Pos[m_point];
-            case 2:
-                return MSWave2Pos[m_point];
-            case 3:
-                return MSWave3Pos[m_point];
-            case 4:
-                return MSWave4Pos[m_point];
-            case 5:
-                return MSWave5Pos[m_point];
-            case 6:
-                return Wave6Pos[m_point];
-            case 7:
-                return MSWave7Pos[m_point];
-            default:
-                return Position(0, 0);
+                case 1:
+                    return MSWave1Pos[m_point];
+                case 2:
+                    return MSWave2Pos[m_point];
+                case 3:
+                    return MSWave3Pos[m_point];
+                case 4:
+                    return MSWave4Pos[m_point];
+                case 5:
+                    return MSWave5Pos[m_point];
+                case 6:
+                    return Wave6Pos[m_point];
+                case 7:
+                    return MSWave7Pos[m_point];
+                default:
+                    return Position(0, 0);
             }
         }
 
@@ -2583,12 +2585,12 @@ public:
             m_ai_counter = 0;
             switch (m_wave)
             {
-            case 4:
-            {
-                if (m_point == 15)
-                    m_shootCoolDown = 4000;
-                break;
-            }
+                case 4:
+                {
+                    if (m_point == 15)
+                        m_shootCoolDown = 4000;
+                    break;
+                }
             }
         }
 
@@ -2654,7 +2656,7 @@ public:
 
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             damage = 0;
         }
@@ -2663,18 +2665,18 @@ public:
         {
             switch (summon->GetEntry())
             {
-            case NPC_FREED_EMBERSTONE_VILLAGER:
-                if (my_cannonerList.size() < 6)
-                    my_cannonerList.push_back(summon->GetGUID());
-                else
-                    my_followerList.push_back(summon->GetGUID());
-                break;
-            case NPC_EMBERSTONE_CANNON:
-                my_cannonList.push_back(summon->GetGUID());
-                break;
-            default:
-                my_victimList.push_back(summon->GetGUID());
-                break;
+                case NPC_FREED_EMBERSTONE_VILLAGER:
+                    if (my_cannonerList.size() < 6)
+                        my_cannonerList.push_back(summon->GetGUID());
+                    else
+                        my_followerList.push_back(summon->GetGUID());
+                    break;
+                case NPC_EMBERSTONE_CANNON:
+                    my_cannonList.push_back(summon->GetGUID());
+                    break;
+                default:
+                    my_victimList.push_back(summon->GetGUID());
+                    break;
             }
         }
 
@@ -2683,15 +2685,15 @@ public:
             if (type == POINT_MOTION_TYPE)
                 switch (id)
                 {
-                case 2003:
-                case 2004:
-                case 2005:
-                case 2006:
-                case 2007:
-                {
-                    m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
-                    break;
-                }
+                    case 2003:
+                    case 2004:
+                    case 2005:
+                    case 2006:
+                    case 2007:
+                    {
+                        m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
+                        break;
+                    }
                 }
         }
 
@@ -2700,78 +2702,78 @@ public:
             SetActiveMode();
             switch (param)
             {
-            case ACTION_INITIALIZE_DONE:
-            {
-                m_isInitialised = true;
-                break;
-            }
-            case ACTION_EVENT_RESET_TIMER:
-            {
-                m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_3:
-            {
-                BuildFollowerGroup();
-                m_wave = 3;
-                m_waveSize = 10;
-                m_point = 0;
-                m_doneA = false;
-                m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_4:
-            {
-                m_shootCoolDown = 3000;
-                m_wave = 4;
-                m_waveSize = 31;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_5:
-            {
-                m_wave = 5;
-                m_waveSize = 2;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_6:
-            {
-                m_wave = 6;
-                m_waveSize = 21;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_7:
-            {
-                m_wave = 7;
-                m_waveSize = 4;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_SYLVANAS_HAS_ENOUGH:
-            {
-                m_events.CancelEvent(EVENT_MOVE_WAVE);
-                m_events.CancelEvent(EVENT_FIGHT_WAVE);
-                m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
+                case ACTION_INITIALIZE_DONE:
+                {
+                    m_isInitialised = true;
+                    break;
+                }
+                case ACTION_EVENT_RESET_TIMER:
+                {
+                    m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_3:
+                {
+                    BuildFollowerGroup();
+                    m_wave = 3;
+                    m_waveSize = 10;
+                    m_point = 0;
+                    m_doneA = false;
+                    m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_4:
+                {
+                    m_shootCoolDown = 3000;
+                    m_wave = 4;
+                    m_waveSize = 31;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_5:
+                {
+                    m_wave = 5;
+                    m_waveSize = 2;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_6:
+                {
+                    m_wave = 6;
+                    m_waveSize = 21;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_7:
+                {
+                    m_wave = 7;
+                    m_waveSize = 4;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_SYLVANAS_HAS_ENOUGH:
+                {
+                    m_events.CancelEvent(EVENT_MOVE_WAVE);
+                    m_events.CancelEvent(EVENT_FIGHT_WAVE);
+                    m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
 
-                break;
-            }
-            case ACTION_QUEST_REWARDED:
-            {
-                RemoveMyMember();
-                me->DespawnOrUnsummon();
-                break;
-            }
+                    break;
+                }
+                case ACTION_QUEST_REWARDED:
+                {
+                    RemoveMyMember();
+                    me->DespawnOrUnsummon();
+                    break;
+                }
             }
         }
 
@@ -3025,21 +3027,21 @@ public:
         {
             switch (m_wave)
             {
-            case 1:
-            case 2:
-                break;
-            case 3:
-                return LCWave3Pos[m_point];
-            case 4:
-                return LCWave4Pos[m_point];
-            case 5:
-                return LCWave5Pos[m_point];
-            case 6:
-                return Wave6Pos[m_point];
-            case 7:
-                return LCWave7Pos[m_point];
-            default:
-                break;
+                case 1:
+                case 2:
+                    break;
+                case 3:
+                    return LCWave3Pos[m_point];
+                case 4:
+                    return LCWave4Pos[m_point];
+                case 5:
+                    return LCWave5Pos[m_point];
+                case 6:
+                    return Wave6Pos[m_point];
+                case 7:
+                    return LCWave7Pos[m_point];
+                default:
+                    break;
             }
             return Position(0, 0);
         }
@@ -3135,7 +3137,7 @@ public:
 
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             damage = 0;
         }
@@ -3150,15 +3152,15 @@ public:
             if (type == POINT_MOTION_TYPE)
                 switch (id)
                 {
-                case 2003:
-                case 2004:
-                case 2005:
-                case 2006:
-                case 2007:
-                {
-                    m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
-                    break;
-                }
+                    case 2003:
+                    case 2004:
+                    case 2005:
+                    case 2006:
+                    case 2007:
+                    {
+                        m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
+                        break;
+                    }
                 }
         }
 
@@ -3167,69 +3169,69 @@ public:
             SetActiveMode();
             switch (param)
             {
-            case ACTION_INITIALIZE_DONE:
-            {
-                m_isInitialised = true;
-                break;
-            }
-            case ACTION_EVENT_RESET_TIMER:
-            {
-                m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
-                break;
-            }
-            case ACTION_MOVE_TO_MEET_POINT4:
-            {
-                BuildFollowerGroup();
-                m_wave = 4;
-                m_waveSize = 5;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_5:
-            {
-                m_wave = 5;
-                m_waveSize = 1;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                m_events.ScheduleEvent(EVENT_DARIUS_TALK_2, 3000);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_6:
-            {
-                Talk(1);
-                m_wave = 6;
-                m_waveSize = 21;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_7:
-            {
-                m_wave = 7;
-                m_waveSize = 4;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_SYLVANAS_HAS_ENOUGH:
-            {
-                m_events.CancelEvent(EVENT_MOVE_WAVE);
-                m_events.CancelEvent(EVENT_FIGHT_WAVE);
-                m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
+                case ACTION_INITIALIZE_DONE:
+                {
+                    m_isInitialised = true;
+                    break;
+                }
+                case ACTION_EVENT_RESET_TIMER:
+                {
+                    m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
+                    break;
+                }
+                case ACTION_MOVE_TO_MEET_POINT4:
+                {
+                    BuildFollowerGroup();
+                    m_wave = 4;
+                    m_waveSize = 5;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_5:
+                {
+                    m_wave = 5;
+                    m_waveSize = 1;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    m_events.ScheduleEvent(EVENT_DARIUS_TALK_2, 3000);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_6:
+                {
+                    Talk(1);
+                    m_wave = 6;
+                    m_waveSize = 21;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_7:
+                {
+                    m_wave = 7;
+                    m_waveSize = 4;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_SYLVANAS_HAS_ENOUGH:
+                {
+                    m_events.CancelEvent(EVENT_MOVE_WAVE);
+                    m_events.CancelEvent(EVENT_FIGHT_WAVE);
+                    m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
 
-                break;
-            }
-            case ACTION_QUEST_REWARDED:
-            {
-                RemoveMyMember();
-                me->DespawnOrUnsummon();
-                break;
-            }
+                    break;
+                }
+                case ACTION_QUEST_REWARDED:
+                {
+                    RemoveMyMember();
+                    me->DespawnOrUnsummon();
+                    break;
+                }
             }
         }
 
@@ -3243,100 +3245,100 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_ACTIVE_OBJECT_CD:
-                {
-                    me->setActive(false);
-                    break;
-                }
-                case EVENT_INITIALISE:
-                {
-                    if (!m_isInitialised)
+                    case EVENT_ACTIVE_OBJECT_CD:
                     {
-                        if (!m_almyraGUID)
-                            if (Creature* almyra = me->FindNearestCreature(NPC_SISTER_ALMYRA, 100.0f))
-                                m_almyraGUID = almyra->GetGUID();
-
-                        if (Creature* almyra = ObjectAccessor::GetCreature(*me, m_almyraGUID))
-                            almyra->AI()->SetGUID(me->GetGUID(), me->GetEntry());
-
-                        m_events.ScheduleEvent(EVENT_INITIALISE, 1000);
+                        me->setActive(false);
+                        break;
                     }
-                    break;
-                }
-                case EVENT_GLOBAL_RESET:
-                {
-                    RemoveMyMember();
-                    me->DespawnOrUnsummon(100);
-                    break;
-                }
-                case EVENT_CHECK_FOR_TIMER:
-                {
-                    if (m_point < m_waveSize)
+                    case EVENT_INITIALISE:
                     {
-                        uint32 a = m_events.GetNextEventTime(EVENT_MOVE_WAVE);
-                        uint32 b = m_events.GetNextEventTime(EVENT_FIGHT_WAVE);
-                        if (!a && !b)
+                        if (!m_isInitialised)
                         {
-                            m_ai_counter += 1;
-                            if (m_ai_counter > 30)
+                            if (!m_almyraGUID)
+                                if (Creature* almyra = me->FindNearestCreature(NPC_SISTER_ALMYRA, 100.0f))
+                                    m_almyraGUID = almyra->GetGUID();
+
+                            if (Creature* almyra = ObjectAccessor::GetCreature(*me, m_almyraGUID))
+                                almyra->AI()->SetGUID(me->GetGUID(), me->GetEntry());
+
+                            m_events.ScheduleEvent(EVENT_INITIALISE, 1000);
+                        }
+                        break;
+                    }
+                    case EVENT_GLOBAL_RESET:
+                    {
+                        RemoveMyMember();
+                        me->DespawnOrUnsummon(100);
+                        break;
+                    }
+                    case EVENT_CHECK_FOR_TIMER:
+                    {
+                        if (m_point < m_waveSize)
+                        {
+                            uint32 a = m_events.GetNextEventTime(EVENT_MOVE_WAVE);
+                            uint32 b = m_events.GetNextEventTime(EVENT_FIGHT_WAVE);
+                            if (!a && !b)
+                            {
+                                m_ai_counter += 1;
+                                if (m_ai_counter > 30)
+                                    m_events.RescheduleEvent(EVENT_FIGHT_WAVE, m_shootCoolDown);
+                            }
+                        }
+                        m_events.ScheduleEvent(EVENT_CHECK_FOR_TIMER, 1000);
+                        break;
+                    }
+                    case EVENT_MOVE_WAVE:
+                    {
+                        CheckForStartAction();
+                        if (m_point < m_waveSize)
+                        {
+                            me->GetMotionMaster()->MovePoint(2000 + m_wave, GetWavePosition());
+                        }
+                        else if (Creature* almyra = ObjectAccessor::GetCreature(*me, m_almyraGUID))
+                            almyra->AI()->DoAction(ACTION_DARIUS_ARRIVED);
+                        break;
+                    }
+                    case EVENT_FIGHT_WAVE:
+                    {
+                        CheckForStartAction();
+                        FindTargets();
+
+                        if (m_nearestTarget)
+                        {
+                            Position pos = me->GetPosition();
+                            if (GetWavePosition().GetExactDist2d(&pos) > 3.0f)
+                            {
+                                m_events.RescheduleEvent(EVENT_MOVE_WAVE, 500);
+                            }
+                            else if (m_nearestDistance > m_checkDistance)
+                            {
+                                m_point += 1;
+                                m_events.RescheduleEvent(EVENT_MOVE_WAVE, 500);
+                            }
+                            else
+                            {
+                                me->SetFacingToObject(m_nearestTarget);
+                                for (std::list<ObjectGuid>::const_iterator itr = my_followerList.begin(); itr != my_followerList.end(); ++itr)
+                                    if (Creature* follower = ObjectAccessor::GetCreature(*me, (*itr)))
+                                    {
+                                        follower->SetFacingToObject(m_nearestTarget);
+                                        follower->Attack(m_nearestTarget, true);
+                                    }
                                 m_events.RescheduleEvent(EVENT_FIGHT_WAVE, m_shootCoolDown);
-                        }
-                    }
-                    m_events.ScheduleEvent(EVENT_CHECK_FOR_TIMER, 1000);
-                    break;
-                }
-                case EVENT_MOVE_WAVE:
-                {
-                    CheckForStartAction();
-                    if (m_point < m_waveSize)
-                    {
-                        me->GetMotionMaster()->MovePoint(2000 + m_wave, GetWavePosition());
-                    }
-                    else if (Creature* almyra = ObjectAccessor::GetCreature(*me, m_almyraGUID))
-                        almyra->AI()->DoAction(ACTION_DARIUS_ARRIVED);
-                    break;
-                }
-                case EVENT_FIGHT_WAVE:
-                {
-                    CheckForStartAction();
-                    FindTargets();
-
-                    if (m_nearestTarget)
-                    {
-                        Position pos = me->GetPosition();
-                        if (GetWavePosition().GetExactDist2d(&pos) > 3.0f)
-                        {
-                            m_events.RescheduleEvent(EVENT_MOVE_WAVE, 500);
-                        }
-                        else if (m_nearestDistance > m_checkDistance)
-                        {
-                            m_point += 1;
-                            m_events.RescheduleEvent(EVENT_MOVE_WAVE, 500);
+                            }
                         }
                         else
                         {
-                            me->SetFacingToObject(m_nearestTarget);
-                            for (std::list<ObjectGuid>::const_iterator itr = my_followerList.begin(); itr != my_followerList.end(); ++itr)
-                                if (Creature* follower = ObjectAccessor::GetCreature(*me, (*itr)))
-                                {
-                                    follower->SetFacingToObject(m_nearestTarget);
-                                    follower->Attack(m_nearestTarget, true);
-                                }
-                            m_events.RescheduleEvent(EVENT_FIGHT_WAVE, m_shootCoolDown);
+                            m_point += 1;
+                            m_events.RescheduleEvent(EVENT_MOVE_WAVE, 10);
                         }
+                        break;
                     }
-                    else
+                    case EVENT_DARIUS_TALK_2:
                     {
-                        m_point += 1;
-                        m_events.RescheduleEvent(EVENT_MOVE_WAVE, 10);
+                        Talk(2);
+                        break;
                     }
-                    break;
-                }
-                case EVENT_DARIUS_TALK_2:
-                {
-                    Talk(2);
-                    break;
-                }
                 }
             }
 
@@ -3408,16 +3410,16 @@ public:
         {
             switch (m_wave)
             {
-            case 4:
-                return DCWave4Pos[m_point];
-            case 5:
-                return DCWave5Pos[m_point];
-            case 6:
-                return Wave6Pos[m_point];
-            case 7:
-                return DCWave7Pos[m_point];
-            default:
-                break;
+                case 4:
+                    return DCWave4Pos[m_point];
+                case 5:
+                    return DCWave5Pos[m_point];
+                case 6:
+                    return Wave6Pos[m_point];
+                case 7:
+                    return DCWave7Pos[m_point];
+                default:
+                    break;
             }
             return Position(0, 0);
         }
@@ -3499,7 +3501,7 @@ public:
 
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             damage = 0;
         }
@@ -3514,14 +3516,14 @@ public:
             if (type == POINT_MOTION_TYPE)
                 switch (id)
                 {
-                case 1002:
-                    m_events.ScheduleEvent(EVENT_LIAM_DEATH_TALK1, 1000);
-                    break;
-                case 2007:
-                {
-                    m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
-                    break;
-                }
+                    case 1002:
+                        m_events.ScheduleEvent(EVENT_LIAM_DEATH_TALK1, 1000);
+                        break;
+                    case 2007:
+                    {
+                        m_events.RescheduleEvent(EVENT_FIGHT_WAVE, 250);
+                        break;
+                    }
                 }
         }
 
@@ -3530,46 +3532,46 @@ public:
             SetActiveMode();
             switch (param)
             {
-            case ACTION_INITIALIZE_DONE:
-            {
-                m_isInitialised = true;
-                break;
-            }
-            case ACTION_EVENT_RESET_TIMER:
-            {
-                m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
-                break;
-            }
-            case ACTION_MOVE_TO_WAVE_POSION_7:
-            {
-                Talk(0);
-                BuildFollowerGroup();
-                m_wave = 7;
-                m_waveSize = 4;
-                m_point = 0;
-                m_doneA = false; m_doneB = false;
-                m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
-                break;
-            }
-            case ACTION_KING_TALK_2:
-            {
-                Talk(2);
-                break;
-            }
-            case ACTION_SYLVANAS_HAS_ENOUGH:
-            {
-                m_events.CancelEvent(EVENT_MOVE_WAVE);
-                m_events.CancelEvent(EVENT_FIGHT_WAVE);
-                m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
+                case ACTION_INITIALIZE_DONE:
+                {
+                    m_isInitialised = true;
+                    break;
+                }
+                case ACTION_EVENT_RESET_TIMER:
+                {
+                    m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
+                    break;
+                }
+                case ACTION_MOVE_TO_WAVE_POSION_7:
+                {
+                    Talk(0);
+                    BuildFollowerGroup();
+                    m_wave = 7;
+                    m_waveSize = 4;
+                    m_point = 0;
+                    m_doneA = false; m_doneB = false;
+                    m_events.ScheduleEvent(EVENT_MOVE_WAVE, 250);
+                    break;
+                }
+                case ACTION_KING_TALK_2:
+                {
+                    Talk(2);
+                    break;
+                }
+                case ACTION_SYLVANAS_HAS_ENOUGH:
+                {
+                    m_events.CancelEvent(EVENT_MOVE_WAVE);
+                    m_events.CancelEvent(EVENT_FIGHT_WAVE);
+                    m_events.CancelEvent(EVENT_CHECK_FOR_TIMER);
 
-                break;
-            }
-            case ACTION_QUEST_REWARDED:
-            {
-                RemoveMyMember();
-                me->DespawnOrUnsummon();
-                break;
-            }
+                    break;
+                }
+                case ACTION_QUEST_REWARDED:
+                {
+                    RemoveMyMember();
+                    me->DespawnOrUnsummon();
+                    break;
+                }
             }
         }
 
@@ -3751,10 +3753,10 @@ public:
         {
             switch (m_wave)
             {
-            case 7:
-                return GGWave7Pos[m_point];
-            default:
-                break;
+                case 7:
+                    return GGWave7Pos[m_point];
+                default:
+                    break;
             }
             return Position(0, 0);
         }
@@ -3762,7 +3764,6 @@ public:
         void CheckForStartAction()
         {
             m_ai_counter = 0;
-
         }
 
         void SetActiveMode()
@@ -3833,49 +3834,49 @@ public:
             SetActiveMode();
             switch (param)
             {
-            case ACTION_INITIALIZE_DONE:
-            {
-                m_isInitialised = true;
-                break;
-            }
-            case ACTION_EVENT_RESET_TIMER:
-            {
-                m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
-                break;
-            }
-            case ACTION_SYLVANAS_HAS_ENOUGH:
-            {
-                Talk(0);
-                m_events.ScheduleEvent(EVENT_SYLVANAS_ATTACK1, 1000);
-                break;
-            }
-            case ACTION_AIM_AT_KING:
-            {
-                if (Creature* liam = ObjectAccessor::GetCreature(*me, m_liamGUID))
-                    me->CastSpell(liam, SPELL_AIMED_SHOOT);
-                Talk(3); // Let's see how brave Gilneas gets on without its stubborn leader!
-                break;
-            }
-            case ACTION_SHOOT_AT_KING:
-            {
-                if (Creature* liam = ObjectAccessor::GetCreature(*me, m_liamGUID))
+                case ACTION_INITIALIZE_DONE:
                 {
-                    me->CastSpell(liam, SPELL_SHOOT_LIAM, true);
+                    m_isInitialised = true;
+                    break;
                 }
+                case ACTION_EVENT_RESET_TIMER:
+                {
+                    m_events.RescheduleEvent(EVENT_GLOBAL_RESET, 10 * 60000);
+                    break;
+                }
+                case ACTION_SYLVANAS_HAS_ENOUGH:
+                {
+                    Talk(0);
+                    m_events.ScheduleEvent(EVENT_SYLVANAS_ATTACK1, 1000);
+                    break;
+                }
+                case ACTION_AIM_AT_KING:
+                {
+                    if (Creature* liam = ObjectAccessor::GetCreature(*me, m_liamGUID))
+                        me->CastSpell(liam, SPELL_AIMED_SHOOT);
+                    Talk(3); // Let's see how brave Gilneas gets on without its stubborn leader!
+                    break;
+                }
+                case ACTION_SHOOT_AT_KING:
+                {
+                    if (Creature* liam = ObjectAccessor::GetCreature(*me, m_liamGUID))
+                    {
+                        me->CastSpell(liam, SPELL_SHOOT_LIAM, true);
+                    }
 
-                break;
-            }
-            case ACTION_LIAM_IS_DEATH:
-            {
-                m_events.ScheduleEvent(EVENT_LIAM_IS_DEATH, 7000);
-                break;
-            }
-            case ACTION_QUEST_REWARDED:
-            {
-                RemoveMyMember();
-                me->DespawnOrUnsummon();
-                break;
-            }
+                    break;
+                }
+                case ACTION_LIAM_IS_DEATH:
+                {
+                    m_events.ScheduleEvent(EVENT_LIAM_IS_DEATH, 7000);
+                    break;
+                }
+                case ACTION_QUEST_REWARDED:
+                {
+                    RemoveMyMember();
+                    me->DespawnOrUnsummon();
+                    break;
+                }
             }
         }
 
@@ -4041,33 +4042,11 @@ public:
                 m_leaderGUID = summoner->GetGUID();
         }
 
-        void DoAction(int32 param) override
-        {
-            switch (param)
-            {
-            case 1:
-            {
-                break;
-            }
-            }
-        }
-
         void EnterEvadeMode(EvadeReason /*reason*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
             m_events.Update(diff);
-
-            while (uint32 eventId = m_events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case 1:
-                {
-                    break;
-                }
-                }
-            }
 
             if (!UpdateVictim())
                 return;
@@ -4136,20 +4115,20 @@ public:
             if (type == WAYPOINT_MOTION_TYPE)
                 switch (id)
                 {
-                case 2:
-                {
-                    Talk(0);
-                    if (Creature* sylvana = ObjectAccessor::GetCreature(*me, m_sylvanaGUID))
-                        sylvana->AI()->DoAction(ACTION_AIM_AT_KING);
-                    break;
-                }
-                case 3:
-                {
-                    if (Creature* sylvana = ObjectAccessor::GetCreature(*me, m_sylvanaGUID))
-                        sylvana->AI()->DoAction(ACTION_SHOOT_AT_KING);
+                    case 2:
+                    {
+                        Talk(0);
+                        if (Creature* sylvana = ObjectAccessor::GetCreature(*me, m_sylvanaGUID))
+                            sylvana->AI()->DoAction(ACTION_AIM_AT_KING);
+                        break;
+                    }
+                    case 3:
+                    {
+                        if (Creature* sylvana = ObjectAccessor::GetCreature(*me, m_sylvanaGUID))
+                            sylvana->AI()->DoAction(ACTION_SHOOT_AT_KING);
 
-                    break;
-                }
+                        break;
+                    }
                 }
         }
 
@@ -4157,16 +4136,16 @@ public:
         {
             switch (param)
             {
-            case ACTION_INITIALIZE_DONE:
-            {
-                m_isInitialised = true;
-                break;
-            }
-            case ACTION_QUEST_REWARDED:
-            {
-                me->DespawnOrUnsummon();
-                break;
-            }
+                case ACTION_INITIALIZE_DONE:
+                {
+                    m_isInitialised = true;
+                    break;
+                }
+                case ACTION_QUEST_REWARDED:
+                {
+                    me->DespawnOrUnsummon();
+                    break;
+                }
             }
         }
 
@@ -4228,7 +4207,7 @@ class npc_lorna_crowley_38611 : public CreatureScript
 public:
     npc_lorna_crowley_38611() : CreatureScript("npc_lorna_crowley_38611") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_THE_HUNT_FOR_SYLVANAS)
             creature->CastSpell(player, SPELL_FORCECAST_SUMMON_TOBIAS);
@@ -4236,7 +4215,7 @@ public:
         return true;
     }
 
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* /*quest*/, uint32 /*opt*/)
+    bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* /*quest*/, uint32 /*opt*/) override
     {
         if (Creature* almyra = creature->FindNearestCreature(NPC_SISTER_ALMYRA, 50.0f))
             almyra->AI()->DoAction(ACTION_QUEST_REWARDED);
@@ -4368,29 +4347,29 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_FORSAKEN_CROSSBOW_SHOOT:
-                {
-                    if (Creature* target = me->FindNearestCreature(NPC_GILNEAN_MILITIA, 20.0f))
+                    case EVENT_FORSAKEN_CROSSBOW_SHOOT:
                     {
-                        me->CastSpell(target, SPELL_FORSAKEN_CROSSBOW_SHOOT);
-                        me->SetFacingToObject(target);
-                        m_events.ScheduleEvent(EVENT_FORSAKEN_CROSSBOW_SHOOT, urand(800, 1100));
+                        if (Creature* target = me->FindNearestCreature(NPC_GILNEAN_MILITIA, 20.0f))
+                        {
+                            me->CastSpell(target, SPELL_FORSAKEN_CROSSBOW_SHOOT);
+                            me->SetFacingToObject(target);
+                            m_events.ScheduleEvent(EVENT_FORSAKEN_CROSSBOW_SHOOT, urand(800, 1100));
+                            break;
+                        }
+                        m_events.ScheduleEvent(EVENT_FORSAKEN_CROSSBOW_SHOOT, 400);
                         break;
                     }
-                    m_events.ScheduleEvent(EVENT_FORSAKEN_CROSSBOW_SHOOT, 400);
-                    break;
-                }
-                case EVENT_FORSAKEN_KNOCKBACK:
-                {
-                    if (Creature* target = me->FindNearestCreature(NPC_GILNEAN_MILITIA, 4.5f))
+                    case EVENT_FORSAKEN_KNOCKBACK:
                     {
-                        me->CastSpell(me, SPELL_KNOCKBACK);
-                        m_events.ScheduleEvent(EVENT_FORSAKEN_KNOCKBACK, 5000);
+                        if (Creature* target = me->FindNearestCreature(NPC_GILNEAN_MILITIA, 4.5f))
+                        {
+                            me->CastSpell(me, SPELL_KNOCKBACK);
+                            m_events.ScheduleEvent(EVENT_FORSAKEN_KNOCKBACK, 5000);
+                            break;
+                        }
+                        m_events.ScheduleEvent(EVENT_FORSAKEN_KNOCKBACK, 500);
                         break;
                     }
-                    m_events.ScheduleEvent(EVENT_FORSAKEN_KNOCKBACK, 500);
-                    break;
-                }
                 }
             }
 
@@ -4456,7 +4435,7 @@ public:
             me->SetSheath(SHEATH_STATE_MELEE);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) override
         {
             if (Unit* target = FindNearestTarget(5.0f))
             {
@@ -4470,7 +4449,7 @@ public:
         {
             m_events.Update(diff);
 
-            while (uint32 eventId = m_events.ExecuteEvent())
+            /*while (uint32 eventId = m_events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -4479,7 +4458,7 @@ public:
                     break;
                 }
                 }
-            }
+            }*/
 
             if (!UpdateVictim())
                 return;
@@ -4539,12 +4518,12 @@ public:
         EventMap m_events;
         ObjectGuid   m_leaderGUID;
 
-        void Reset()
+        void Reset() override
         {
             me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_KNOCKBACK)
             {
@@ -4556,17 +4535,17 @@ public:
         {
             switch (id)
             {
-            case NPC_LEADER_GUID:
-            {
-                m_leaderGUID = guid;
-                break;
-            }
+                case NPC_LEADER_GUID:
+                {
+                    m_leaderGUID = guid;
+                    break;
+                }
             }
         }
 
         void EnterEvadeMode(EvadeReason /*reason*/) override { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             m_events.Update(diff);
 
@@ -4574,16 +4553,16 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_FOLLOW_LEADER:
-                {
-                    if (Creature* leader = ObjectAccessor::GetCreature(*me, m_leaderGUID))
+                    case EVENT_FOLLOW_LEADER:
                     {
-                        float dist = frand(1.0f, 3.0f);
-                        float angl = frand(0.0f, M_PI * 2);
-                        me->GetMotionMaster()->MoveFollow(leader, dist, angl);
+                        if (Creature* leader = ObjectAccessor::GetCreature(*me, m_leaderGUID))
+                        {
+                            float dist = frand(1.0f, 3.0f);
+                            float angl = frand(0.0f, M_PI * 2);
+                            me->GetMotionMaster()->MoveFollow(leader, dist, angl);
+                        }
+                        break;
                     }
-                    break;
-                }
                 }
             }
             if (!UpdateVictim())
@@ -4593,7 +4572,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_gilnean_militia_38221AI(pCreature);
     }
@@ -4609,14 +4588,14 @@ public:
     {
         npc_freed_emberstone_villager_38425AI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
-        void Reset()
+        void Reset() override
         {
             me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
         }
 
         void EnterEvadeMode(EvadeReason /*reason*/) override { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -4625,7 +4604,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_freed_emberstone_villager_38425AI(pCreature);
     }
@@ -4644,7 +4623,7 @@ public:
         EventMap m_events;
         ObjectGuid m_leaderGUID;
 
-        void Reset()
+        void Reset() override
         {
             me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
         }
@@ -4661,21 +4640,21 @@ public:
         {
             switch (id)
             {
-            case NPC_LEADER_GUID:
-            {
-                m_leaderGUID = guid;
-                break;
-            }
+                case NPC_LEADER_GUID:
+                {
+                    m_leaderGUID = guid;
+                    break;
+                }
             }
         }
 
         void EnterEvadeMode(EvadeReason /*reason*/) override { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             m_events.Update(diff);
 
-            while (uint32 eventId = m_events.ExecuteEvent())
+            /*while (uint32 eventId = m_events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -4685,7 +4664,8 @@ public:
                     break;
                 }
                 }
-            }
+            }*/
+
             if (!UpdateVictim())
                 return;
             else
@@ -4693,7 +4673,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_worgen_warrior_38348AI(pCreature);
     }
@@ -4727,7 +4707,7 @@ public:
             m_events.RescheduleEvent(EVENT_THUNDERCLAP, 21000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             m_events.Update(diff);
 
@@ -4735,26 +4715,26 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_SAY1:
-                    Talk(0);
-                    break;
-                case EVENT_SMASH:
-                {
-                    std::list<Unit*> targetList = FindNearestTarget(5.0f, 5);
-                    if (!targetList.empty())
-                        for (std::list<Unit*>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
-                            me->CastSpell((*itr), SPELL_SMASH);
+                    case EVENT_SAY1:
+                        Talk(0);
+                        break;
+                    case EVENT_SMASH:
+                    {
+                        std::list<Unit*> targetList = FindNearestTarget(5.0f, 5);
+                        if (!targetList.empty())
+                            for (std::list<Unit*>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+                                me->CastSpell((*itr), SPELL_SMASH);
 
-                    m_events.ScheduleEvent(EVENT_SMASH, 13000);
-                    break;
-                }
-                case EVENT_THUNDERCLAP:
-                {
-                    Position p = me->GetPosition();
-                    me->CastSpell(p.GetPositionX(), p.GetPositionY(), p.GetPositionZ(), SPELL_THUNDERCLAP, true);
-                    m_events.ScheduleEvent(EVENT_THUNDERCLAP, 21000);
-                    break;
-                }
+                        m_events.ScheduleEvent(EVENT_SMASH, 13000);
+                        break;
+                    }
+                    case EVENT_THUNDERCLAP:
+                    {
+                        Position p = me->GetPosition();
+                        me->CastSpell(p.GetPositionX(), p.GetPositionY(), p.GetPositionZ(), SPELL_THUNDERCLAP, true);
+                        m_events.ScheduleEvent(EVENT_THUNDERCLAP, 21000);
+                        break;
+                    }
                 }
             }
 
@@ -4788,7 +4768,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_gorerot_38331AI(pCreature);
     }
@@ -4941,8 +4921,6 @@ public:
         return new spell_shoot_liam_72116_SpellScript();
     }
 };
-
-
 
 void AddSC_zone_gilneas_city2()
 {
