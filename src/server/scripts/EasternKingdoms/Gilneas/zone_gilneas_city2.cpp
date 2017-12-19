@@ -1529,10 +1529,12 @@ public:
 
             m_checkDistance = 15.0f;
             if (m_nearestTarget)
+            {
                 if (m_nearestTarget->GetEntry() == NPC_GOREROT)
                     m_checkDistance = 16.0f;
                 else if (m_nearestTarget->GetEntry() == NPC_LADY_SYLVANAS_WINDRUNNER)
                     m_checkDistance = 25.0f;
+            }
         }
 
         Position GetWavePosition()
@@ -2131,10 +2133,12 @@ public:
 
             m_checkDistance = 15.0f;
             if (m_nearestTarget)
+            {
                 if (m_nearestTarget->GetEntry() == NPC_GOREROT)
                     m_checkDistance = 16.0f;
                 else if (m_nearestTarget->GetEntry() == NPC_LADY_SYLVANAS_WINDRUNNER)
                     m_checkDistance = 25.0f;
+            }
         }
 
         Position GetWavePosition()
@@ -2551,10 +2555,12 @@ public:
 
             m_checkDistance = 15.0f;
             if (m_nearestTarget)
+            {
                 if (m_nearestTarget->GetEntry() == NPC_GOREROT)
                     m_checkDistance = 16.0f;
                 else if (m_nearestTarget->GetEntry() == NPC_LADY_SYLVANAS_WINDRUNNER)
                     m_checkDistance = 25.0f;
+            }
         }
 
         Position GetWavePosition()
@@ -3017,10 +3023,12 @@ public:
 
             m_checkDistance = 15.0f;
             if (m_nearestTarget)
+            {
                 if (m_nearestTarget->GetEntry() == NPC_GOREROT)
                     m_checkDistance = 16.0f;
                 else if (m_nearestTarget->GetEntry() == NPC_LADY_SYLVANAS_WINDRUNNER)
                     m_checkDistance = 25.0f;
+            }
         }
 
         Position GetWavePosition()
@@ -3400,10 +3408,12 @@ public:
 
             m_checkDistance = 15.0f;
             if (m_nearestTarget)
+            {
                 if (m_nearestTarget->GetEntry() == NPC_GOREROT)
                     m_checkDistance = 16.0f;
                 else if (m_nearestTarget->GetEntry() == NPC_LADY_SYLVANAS_WINDRUNNER)
                     m_checkDistance = 25.0f;
+            }
         }
 
         Position GetWavePosition()

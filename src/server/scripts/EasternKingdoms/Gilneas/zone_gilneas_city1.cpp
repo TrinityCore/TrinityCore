@@ -328,10 +328,12 @@ public:
                                         }
 
                         for (std::map<ObjectGuid, int32>::iterator itr = cdList.begin(); itr != cdList.end();)
+                        {
                             if (ToBeDeleted(itr))
-                                cdList.erase(itr++);
+                                itr = cdList.erase(itr);
                             else
-                                itr++;
+                                ++itr;
+                        }
 
                         m_events.ScheduleEvent(EVENT_COUNT_COOLDOWN, 1000);
                         break;
@@ -701,19 +703,23 @@ public:
         void DamageTaken(Unit* who, uint32 &Damage) override
         {
             if (who->ToCreature())
+            {
                 if (me->GetHealthPct() < m_minHealthPct)
                     Damage = 0;
                 else
                     Damage = 1;
+            }
         }
 
         void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
         {
             if (victim->ToCreature())
+            {
                 if (victim->GetHealthPct() < m_minHealthPct)
                     damage = 0;
                 else
                     damage = 1;
+            }
         }
 
         void MovementInform(uint32 type, uint32 pointId) override
@@ -1282,10 +1288,12 @@ public:
         void SpellHit(Unit* caster, SpellInfo const* /*spell*/) override
         {
             if (Player* player = caster->ToPlayer())
+            {
                 if (player->GetQuestStatus(QUEST_A_REJUVENATING_TOUCH) == QUEST_STATUS_INCOMPLETE)
                     player->KilledMonsterCredit(NPC_HEALING_CREDIT);
                 else if (player->GetQuestStatus(QUEST_FLASH_HEAL) == QUEST_STATUS_INCOMPLETE)
                     player->KilledMonsterCredit(NPC_HEALING_CREDIT);
+            }
         }
     };
 
@@ -1406,20 +1414,24 @@ public:
         {
             if (!m_theKingIsNear)
                 if (m_isShowFight && who->ToCreature())
+                {
                     if (me->GetHealthPct() < m_minHealthPct)
                         Damage = 0;
                     else
                         Damage = 1;
+                }
         }
 
         void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
         {
             if (!m_theKingIsNear)
                 if (m_isShowFight && victim->ToCreature())
+                {
                     if (victim->GetHealthPct() < m_minHealthPct)
                         damage = 0;
                     else
                         damage = 1;
+                }
         }
 
         void MovementInform(uint32 type, uint32 pointId) override
@@ -2883,10 +2895,12 @@ public:
         void DamageTaken(Unit* who, uint32 &Damage) override
         {
             if (who->ToCreature())
+            {
                 if (me->GetHealthPct() < m_minHealthPct)
                     Damage = 0;
                 else
                     Damage = 1;
+            }
         }
 
         void MovementInform(uint32 type, uint32 pointId) override
@@ -3580,20 +3594,20 @@ public:
         void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
         {
             if (Player* player = passenger->ToPlayer())
+            {
                 if (apply)
-                {
                     m_events.ScheduleEvent(EVENT_START_WALK, 1000);
-                }
                 else
-                {
                     me->DespawnOrUnsummon(10);
-                }
+            }
             if (Creature* npc = passenger->ToCreature())
+            {
                 if (npc->GetEntry() == NPC_DARIUS_CROWLEY)
                 {
                     m_dariusGUID = npc->GetGUID();
                     npc->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                 }
+            }
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -3626,6 +3640,7 @@ public:
                 }
                 }
             else if (type == POINT_MOTION_TYPE)
+            {
                 switch (id)
                 {
                 case 1031: // ride to first wall
@@ -3634,20 +3649,23 @@ public:
                     break;
                 }
                 }
+            }
             else if (type == EFFECT_MOTION_TYPE)
+            {
                 switch (m_movePart)
                 {
-                case 2: // jump over wall
-                {
-                    m_events.ScheduleEvent(EVENT_MOVE_PART2, 10);
-                    break;
+                    case 2: // jump over wall
+                    {
+                        m_events.ScheduleEvent(EVENT_MOVE_PART2, 10);
+                        break;
+                    }
+                    case 4: // jump over bridge
+                    {
+                        m_events.ScheduleEvent(EVENT_MOVE_PART4, 10);
+                        break;
+                    }
                 }
-                case 4: // jump over bridge
-                {
-                    m_events.ScheduleEvent(EVENT_MOVE_PART4, 10);
-                    break;
-                }
-                }
+            }
         }
 
         void AttackStart(Unit* /*who*/) override {}
