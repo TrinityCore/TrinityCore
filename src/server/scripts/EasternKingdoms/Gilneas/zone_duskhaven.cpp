@@ -1272,37 +1272,37 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_CHECK_PLAYER:
-                {
-                    if (!m_playerGUID)
+                    case EVENT_CHECK_PLAYER:
                     {
-                        if (Player* player = me->SelectNearestPlayer(10.0f))
-                            if (player->GetQuestStatus(QUEST_GRANDMAS_CAT) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                m_playerGUID = player->GetGUID();
-                                m_events.ScheduleEvent(EVENT_MASTER_RESET, 180000);
-                                me->SummonCreature(NPC_LUCIUS, -2109.36f, 2330.28f, 7.36667f, 0.151307f, TEMPSUMMON_TIMED_DESPAWN, 180000);
-                            }
-                    }
-                    else if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
-                    {
-                        if (player->GetQuestStatus(QUEST_GRANDMAS_CAT) == QUEST_STATUS_COMPLETE)
+                        if (!m_playerGUID)
                         {
-                            me->DespawnOrUnsummon(10);
-                            Reset();
+                            if (Player* player = me->SelectNearestPlayer(10.0f))
+                                if (player->GetQuestStatus(QUEST_GRANDMAS_CAT) == QUEST_STATUS_INCOMPLETE)
+                                {
+                                    m_playerGUID = player->GetGUID();
+                                    m_events.ScheduleEvent(EVENT_MASTER_RESET, 180000);
+                                    me->SummonCreature(NPC_LUCIUS, -2109.36f, 2330.28f, 7.36667f, 0.151307f, TEMPSUMMON_TIMED_DESPAWN, 180000);
+                                }
                         }
-                    }
-                    else if (m_isLucisKilled)
-                        Reset();
+                        else if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
+                        {
+                            if (player->GetQuestStatus(QUEST_GRANDMAS_CAT) == QUEST_STATUS_COMPLETE)
+                            {
+                                me->DespawnOrUnsummon(10);
+                                Reset();
+                            }
+                        }
+                        else if (m_isLucisKilled)
+                            Reset();
 
-                    m_events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
-                    break;
-                }
-                case EVENT_MASTER_RESET:
-                {
-                    Reset();
-                    break;
-                }
+                        m_events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+                        break;
+                    }
+                    case EVENT_MASTER_RESET:
+                    {
+                        Reset();
+                        break;
+                    }
                 }
             }
 
@@ -1338,20 +1338,24 @@ public:
         {
             uint8 rol = urand(0, 100);
             if (victim->GetEntry() == 36454 || victim->GetEntry() == 36455 || victim->GetEntry() == 36492 || victim->GetEntry() == 36456)
+            {
                 if (rol < 70 || victim->GetHealthPct() < 70.0f)
                     damage = 0;
                 else
                     damage = 1;
+            }
         }
 
         void DamageTaken(Unit* attacker, uint32& damage) override
         {
             uint8 rol = urand(0, 100);
             if (attacker->GetEntry() == 36454 || attacker->GetEntry() == 36455 || attacker->GetEntry() == 36492 || attacker->GetEntry() == 36456)
+            {
                 if (rol < 70)
                     damage = 0;
                 else
                     damage = 1;
+            }
         }
     };
 
@@ -1425,28 +1429,28 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_START_FOLLOWING:
-                {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
+                    case EVENT_START_FOLLOWING:
                     {
-                        CheckLornaRelated(player);
-                        if (abs(m_oldPosition.GetExactDist(player) > 0.5f))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
                         {
-                            Position pos;
-                            player->GetNearPoint(player, pos.m_positionX, pos.m_positionY, pos.m_positionZ, m_size, m_dist, m_angle);
-                            me->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
-                            m_oldPosition = player->GetPosition();
+                            CheckLornaRelated(player);
+                            if (abs(m_oldPosition.GetExactDist(player) > 0.5f))
+                            {
+                                Position pos;
+                                player->GetNearPoint(player, pos.m_positionX, pos.m_positionY, pos.m_positionZ, m_size, m_dist, m_angle);
+                                me->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                                m_oldPosition = player->GetPosition();
+                            }
+                            if (!m_isPlayerMounted && m_hasPlayerRope)
+                            {
+                                if (m_isLornaNear)
+                                    me->CastSpell(player, SPELL_MOUNTAIN_HORSE_CREDIT);
+                                me->DespawnOrUnsummon();
+                            }
                         }
-                        if (!m_isPlayerMounted && m_hasPlayerRope)
-                        {
-                            if (m_isLornaNear)
-                                me->CastSpell(player, SPELL_MOUNTAIN_HORSE_CREDIT);
-                            me->DespawnOrUnsummon();
-                        }
+                        m_events.ScheduleEvent(EVENT_START_FOLLOWING, 100);
+                        break;
                     }
-                    m_events.ScheduleEvent(EVENT_START_FOLLOWING, 100);
-                    break;
-                }
                 }
             }
         }
@@ -2627,9 +2631,8 @@ public:
         {
             if (target->GetEntry() == 37067)
                 AttackStartNoMove(target);
-            else
-                if (me->Attack(target, true))
-                    me->GetMotionMaster()->MoveChase(target);
+            else if (me->Attack(target, true))
+                me->GetMotionMaster()->MoveChase(target);
         }
 
         void DamageTaken(Unit* attacker, uint32& damage) override
@@ -2952,6 +2955,7 @@ public:
         void MovementInform(uint32 type, uint32 id) override
         {
             if (type == POINT_MOTION_TYPE)
+            {
                 if (id == 1001)
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
@@ -2959,6 +2963,7 @@ public:
                 }
                 else if (id = 1002)
                     me->DespawnOrUnsummon();
+            }
         }
 
         void UpdateAI(uint32 diff) override

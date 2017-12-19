@@ -407,97 +407,97 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_START_TALK:
-                {
-                    if (Creature* tobias = ObjectAccessor::GetCreature(*me, m_tobiasGUID))
+                    case EVENT_START_TALK:
                     {
-                        m_playerGUID = tobias->AI()->GetGUID(PLAYER_GUID);
-                        m_warhowlGUID = tobias->AI()->GetGUID(NPC_GENERAL_WARHOWL);
-                        m_crenshawGUID = tobias->AI()->GetGUID(NPC_HIGH_EXECUTOR_CRENSHAW);
+                        if (Creature* tobias = ObjectAccessor::GetCreature(*me, m_tobiasGUID))
+                        {
+                            m_playerGUID = tobias->AI()->GetGUID(PLAYER_GUID);
+                            m_warhowlGUID = tobias->AI()->GetGUID(NPC_GENERAL_WARHOWL);
+                            m_crenshawGUID = tobias->AI()->GetGUID(NPC_HIGH_EXECUTOR_CRENSHAW);
+                        }
+                        if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
+                            warhowl->AI()->Talk(0);
+                        m_events.ScheduleEvent(EVENT_TALK_2, 10000);
+                        break;
                     }
-                    if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
-                        warhowl->AI()->Talk(0);
-                    m_events.ScheduleEvent(EVENT_TALK_2, 10000);
-                    break;
-                }
-                case EVENT_TALK_2:
-                {
-                    if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
-                        me->SetFacingToObject(warhowl);
-                    Talk(0);
-                    m_events.ScheduleEvent(EVENT_TALK_3, 8000);
-                    break;
-                }
-                case EVENT_TALK_3:
-                {
-                    if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
-                        warhowl->AI()->Talk(1);
-                    m_events.ScheduleEvent(EVENT_TALK_4, 11000);
-                    break;
-                }
-                case EVENT_TALK_4:
-                {
-                    Talk(1);
-                    m_events.ScheduleEvent(EVENT_TALK_5, 14000);
-                    break;
-                }
-                case EVENT_TALK_5:
-                {
-                    if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
-                        warhowl->AI()->Talk(2);
-                    m_events.ScheduleEvent(EVENT_TALK_6, 8000);
-                    break;
-                }
-                case EVENT_TALK_6:
-                {
-                    if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
-                        warhowl->GetMotionMaster()->MovePoint(2010, -1566.053f, 1557.191f, 29.36808f);
-                    Talk(2);
-                    m_events.ScheduleEvent(EVENT_DESPAWN_WARHOWL, 8000);
-                    m_events.ScheduleEvent(EVENT_TALK_7, 5000);
-                    break;
-                }
-                case EVENT_TALK_7:
-                {
-                    if (Creature* crenshaw = ObjectAccessor::GetCreature(*me, m_crenshawGUID))
+                    case EVENT_TALK_2:
                     {
-                        crenshaw->AI()->Talk(0);
-                        me->SetFacingToObject(crenshaw);
+                        if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
+                            me->SetFacingToObject(warhowl);
+                        Talk(0);
+                        m_events.ScheduleEvent(EVENT_TALK_3, 8000);
+                        break;
                     }
-                    m_events.ScheduleEvent(EVENT_TALK_8, 10000);
-                    break;
-                }
-                case EVENT_TALK_8:
-                {
-                    Talk(3);
-                    m_events.ScheduleEvent(EVENT_END, 8000);
-                    break;
-                }
-                case EVENT_END:
-                {
-                    if (Creature* crenshaw = ObjectAccessor::GetCreature(*me, m_crenshawGUID))
-                        crenshaw->GetMotionMaster()->MovePoint(2010, -1566.053f, 1557.191f, 29.36808f);
-                    me->GetMotionMaster()->MovePoint(2010, -1566.053f, 1557.191f, 29.36808f);
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
-                        player->KilledMonsterCredit(38530);
-                    m_events.ScheduleEvent(EVENT_DESPAWN, 8000);
-                    break;
-                }
-                case EVENT_DESPAWN_WARHOWL:
-                {
-                    if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
-                        warhowl->DespawnOrUnsummon(10);
-                    break;
-                }
-                case EVENT_DESPAWN:
-                {
-                    if (Creature* crenshaw = ObjectAccessor::GetCreature(*me, m_crenshawGUID))
-                        crenshaw->DespawnOrUnsummon(10);
-                    if (Creature* tobias = ObjectAccessor::GetCreature(*me, m_tobiasGUID))
-                        tobias->DespawnOrUnsummon(10);
-                    me->DespawnOrUnsummon(10);
-                    break;
-                }
+                    case EVENT_TALK_3:
+                    {
+                        if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
+                            warhowl->AI()->Talk(1);
+                        m_events.ScheduleEvent(EVENT_TALK_4, 11000);
+                        break;
+                    }
+                    case EVENT_TALK_4:
+                    {
+                        Talk(1);
+                        m_events.ScheduleEvent(EVENT_TALK_5, 14000);
+                        break;
+                    }
+                    case EVENT_TALK_5:
+                    {
+                        if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
+                            warhowl->AI()->Talk(2);
+                        m_events.ScheduleEvent(EVENT_TALK_6, 8000);
+                        break;
+                    }
+                    case EVENT_TALK_6:
+                    {
+                        if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
+                            warhowl->GetMotionMaster()->MovePoint(2010, -1566.053f, 1557.191f, 29.36808f);
+                        Talk(2);
+                        m_events.ScheduleEvent(EVENT_DESPAWN_WARHOWL, 8000);
+                        m_events.ScheduleEvent(EVENT_TALK_7, 5000);
+                        break;
+                    }
+                    case EVENT_TALK_7:
+                    {
+                        if (Creature* crenshaw = ObjectAccessor::GetCreature(*me, m_crenshawGUID))
+                        {
+                            crenshaw->AI()->Talk(0);
+                            me->SetFacingToObject(crenshaw);
+                        }
+                        m_events.ScheduleEvent(EVENT_TALK_8, 10000);
+                        break;
+                    }
+                    case EVENT_TALK_8:
+                    {
+                        Talk(3);
+                        m_events.ScheduleEvent(EVENT_END, 8000);
+                        break;
+                    }
+                    case EVENT_END:
+                    {
+                        if (Creature* crenshaw = ObjectAccessor::GetCreature(*me, m_crenshawGUID))
+                            crenshaw->GetMotionMaster()->MovePoint(2010, -1566.053f, 1557.191f, 29.36808f);
+                        me->GetMotionMaster()->MovePoint(2010, -1566.053f, 1557.191f, 29.36808f);
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
+                            player->KilledMonsterCredit(38530);
+                        m_events.ScheduleEvent(EVENT_DESPAWN, 8000);
+                        break;
+                    }
+                    case EVENT_DESPAWN_WARHOWL:
+                    {
+                        if (Creature* warhowl = ObjectAccessor::GetCreature(*me, m_warhowlGUID))
+                            warhowl->DespawnOrUnsummon(10);
+                        break;
+                    }
+                    case EVENT_DESPAWN:
+                    {
+                        if (Creature* crenshaw = ObjectAccessor::GetCreature(*me, m_crenshawGUID))
+                            crenshaw->DespawnOrUnsummon(10);
+                        if (Creature* tobias = ObjectAccessor::GetCreature(*me, m_tobiasGUID))
+                            tobias->DespawnOrUnsummon(10);
+                        me->DespawnOrUnsummon(10);
+                        break;
+                    }
                 }
             }
 
@@ -545,6 +545,7 @@ public:
         void MovementInform(uint32 type, uint32 id) override
         {
             if (type == WAYPOINT_MOTION_TYPE)
+            {
                 if (m_gamePhase == 1 && id == 3)
                 {
                     m_events.ScheduleEvent(EVENT_START_WORK_AREA, 10);
@@ -556,6 +557,7 @@ public:
                         bat->RemoveAllPassengers();
                     me->DespawnOrUnsummon(10);
                 }
+            }
         }
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
@@ -1539,6 +1541,7 @@ public:
                 {
                     Creature* orc = me->FindNearestCreature(43567, 40.0f);
                     if (orc)
+                    {
                         if (me->GetDistance(orc) > 5.0)
                             me->CastSpell(orc, 50092, true);
                         else
@@ -1546,6 +1549,7 @@ public:
                             me->CastSpell(orc, 15496, true);
                             orc->Attack(me, true);
                         }
+                    }
 
                     if (orc)
                         m_events.ScheduleEvent(EVENT_TALK_PART_11, urand(1100, 1300)); // repeat 11 while orc living
@@ -1698,10 +1702,12 @@ public:
         {
             std::list<GameObject*> goList = me->FindNearestGameObjects(GO_ROPE, 30.0f); // there are 2 rope on bridge
             for (std::list<GameObject*>::const_iterator itr = goList.begin(); itr != goList.end(); ++itr)
+            {
                 if (value)
                     (*itr)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 else
                     (*itr)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            }
         }
 
         std::vector<Creature*> FindFriendlyCreatureList()
@@ -2038,10 +2044,12 @@ public:
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
             if (Player* player = who->ToPlayer())
+            {
                 if (apply)
                     m_events.ScheduleEvent(EVENT_MOVEMENT_START, 200);
                 else
                     m_events.ScheduleEvent(EVENT_MOVE_PART2, 200);
+            }
         }
 
         void SetGUID(ObjectGuid guid, int32 id) override
