@@ -25,10 +25,22 @@ class OnLegionArrival : public PlayerScript
 public:
     OnLegionArrival() : PlayerScript("OnLegionArrival") { }
 
+    enum
+    {
+        SPELL_MAGE_LEARN_GUARDIAN_HALL_TP   = 204287,
+        SPELL_CREATE_CLASS_HALL_ALLIANCE    = 185506,
+        SPELL_CREATE_CLASS_HALL_HORDE       = 192191,
+    };
+
     void OnLevelChanged(Player* player, uint8 /*oldLevel*/) override
     {
-        if (player->getLevel() == 100 && player->getClass() == CLASS_MAGE)
-            player->CastSpell(player, 204287, true); // Learn Guardian Hall teleportation
+        if (player->getLevel() == 100)
+        {
+            if (player->getClass() == CLASS_MAGE)
+                player->CastSpell(player, SPELL_MAGE_LEARN_GUARDIAN_HALL_TP, true);
+
+            player->CastSpell(player, player->IsInAlliance() ? SPELL_CREATE_CLASS_HALL_ALLIANCE : SPELL_CREATE_CLASS_HALL_HORDE, true);
+        }
     }
 };
 
