@@ -233,6 +233,9 @@ public:
                 }
                 handler->SetSentErrorMessage(true);
                 return false;
+            case BAN_EXISTS:
+                handler->PSendSysMessage(LANG_BAN_EXISTS);
+                break;
         }
 
         return true;

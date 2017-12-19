@@ -524,4 +524,3 @@ void AddSC_boss_vazruden_the_herald()
     new boss_nazan();
     new npc_hellfire_sentry();
 }
-

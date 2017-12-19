@@ -206,4 +206,3 @@ struct hyjalAI : public EscortAI
         uint32 SpellTimer[3];
 };
 #endif
-
