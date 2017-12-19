@@ -3341,7 +3341,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Fel Rush &  Demon Hunter Glide
     ApplySpellFix({ 199737, 131347 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_LANDING;
+        spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_LANDING;
     });
 
     //
