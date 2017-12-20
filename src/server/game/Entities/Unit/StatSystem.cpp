@@ -944,6 +944,7 @@ enum PetEntries
     ENTRY_SUCCUBUS                  = 1863,
     ENTRY_FELHUNTER                 = 417,
     ENTRY_FELGUARD                  = 17252,
+    ENTRY_INFERNAL                  = 47319,
 
     ENTRY_WATER_ELEMENTAL           = 78116,
 
@@ -1078,9 +1079,6 @@ void Guardian::UpdateMaxHealth()
         case ENTRY_GHOUL:
             pctFromOwnerHealth = 35.f;
             break;
-        case ENTRY_WATER_ELEMENTAL:
-            pctFromOwnerHealth = 50.f;
-            break;
         case ENTRY_XUEN:
         case ENTRY_NIUZAO:
         case ENTRY_CHI_JI:
@@ -1091,6 +1089,8 @@ void Guardian::UpdateMaxHealth()
             break;
         case ENTRY_FELGUARD:
         case ENTRY_VOIDWALKER:
+        case ENTRY_INFERNAL:
+        case ENTRY_WATER_ELEMENTAL:
             pctFromOwnerHealth = 50.f;
             break;
         case ENTRY_FELHUNTER:
@@ -1283,7 +1283,7 @@ void Guardian::SetBonusDamage(int32 damage)
         GetOwner()->SetUInt32Value(PLAYER_PET_SPELL_POWER, damage);
 }
 
-void Guardian::UpdatePlayFieldModPetHaste()
+void Guardian::UpdatePlayerFieldModPetHaste()
 {
     if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
         GetOwner()->SetUInt32Value(PLAYER_FIELD_MOD_PET_HASTE, GetUInt32Value(UNIT_FIELD_MOD_RANGED_HASTE));

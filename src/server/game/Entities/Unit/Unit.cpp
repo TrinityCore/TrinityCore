@@ -10532,7 +10532,7 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
         {
             pet->ApplyAttackTimePercentMod(att, val, apply);
             if (att == RANGED_ATTACK)
-                pet->UpdatePlayFieldModPetHaste();
+                pet->UpdatePlayerFieldModPetHaste();
         }
 
     float remainingTimePct = float(m_attackTimer[att]) / (m_baseAttackSpeed[att] * m_modAttackSpeedPct[att]);
