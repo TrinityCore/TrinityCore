@@ -1720,7 +1720,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     if (!event.holidayStage) // Ignore holiday
         return;
 
-    const HolidaysEntry* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
+    HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
 
     if (!holiday->Date[0] || !holiday->Duration[0]) // Invalid definitions
     {
