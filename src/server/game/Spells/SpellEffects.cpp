@@ -1675,10 +1675,8 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
             return;
         }
 
-        if (sScriptMgr->OnGossipHello(player, gameObjTarget))
-            return;
-
-        if (gameObjTarget->AI()->GossipHello(player, false))
+        player->PlayerTalkClass->ClearMenus();
+        if (gameObjTarget->AI()->GossipHello(player))
             return;
 
         switch (gameObjTarget->GetGoType())
@@ -4153,23 +4151,23 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
 
 void Spell::EffectSummonDynObj(SpellEffIndex effIndex)
 {
-	if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
-		return;
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
 
-	Player* player = m_caster->ToPlayer();
-	if (!player)
-		return;
+    Player* player = m_caster->ToPlayer();
+    if (!player)
+        return;
 
-	float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
-	DynamicObject* dynObj = new DynamicObject(false);
+    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
+    DynamicObject* dynObj = new DynamicObject(false);
     if (!dynObj->CreateDynamicObject(m_caster->GetMap()->GenerateLowGuid<HighGuid::DynamicObject>(), m_caster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_RAID_MARKER))
-	{
-		delete dynObj;
-		return;
-	}
+    {
+        delete dynObj;
+        return;
+    }
 
-	int32 duration = m_spellInfo->GetDuration();
-	dynObj->SetDuration(duration);
+    int32 duration = m_spellInfo->GetDuration();
+    dynObj->SetDuration(duration);
 }
 
 void Spell::EffectSummonRaidMarker(SpellEffIndex effIndex)
@@ -5333,7 +5331,7 @@ void Spell::EffectGameObjectDamage(SpellEffIndex /*effIndex*/)
     FactionTemplateEntry const* casterFaction = caster->GetFactionTemplateEntry();
     FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetFaction());
     // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
-    if (!targetFaction || (casterFaction && targetFaction && !casterFaction->IsFriendlyTo(*targetFaction)))
+    if (!targetFaction || (casterFaction && !casterFaction->IsFriendlyTo(*targetFaction)))
         gameObjTarget->ModifyHealth(-damage, caster, GetSpellInfo()->Id);
 }
 

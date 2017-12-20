@@ -1973,6 +1973,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, ObjectGuid guid, bool 
         }
 
         Member const* memberMe = GetMember(player->GetGUID());
+        ASSERT(memberMe);
         uint8 rankId = memberMe->GetRankId();
         if (demote)
         {

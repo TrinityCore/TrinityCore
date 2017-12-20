@@ -2266,7 +2266,6 @@ void Player::Regenerate(Powers power)
     float addvalue = 0.0f;
 
     // Powers now benefit from haste.
-    float rangedHaste = GetFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE);
     float meleeHaste = GetFloatValue(PLAYER_FIELD_MOD_HASTE);
     float spellHaste = GetFloatValue(UNIT_MOD_CAST_SPEED);
 
@@ -3872,7 +3871,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                 }
 
                 // now re-learn if need re-activate
-                if (cur_active && !prev_itr->second->active && learn_low_rank)
+                if (!prev_itr->second->active && learn_low_rank)
                 {
                     if (AddSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
                     {
@@ -4196,7 +4195,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
         if (uint32 prevSpell = sSpellMgr->GetPrevSpellInChain(trainer_spell->ReqAbility[i]))
         {
             // check prev.rank requirement
-            if (prevSpell && !HasSpell(prevSpell))
+            if (!HasSpell(prevSpell))
                 return TRAINER_SPELL_RED;
         }
 
@@ -5892,7 +5891,6 @@ void Player::UpdateSkillsForLevel()
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
-        uint16 val = GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset);
         uint16 max = GetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset);
 
         /// update only level dependent max skill values
@@ -9667,7 +9665,7 @@ void Player::SetVirtualItemSlot(uint8 i, Item* item)
             return;
         if (charges > 1)
             item->SetEnchantmentCharges(TEMP_ENCHANTMENT_SLOT, charges-1);
-        else if (charges <= 1)
+        else
         {
             ApplyEnchantment(item, TEMP_ENCHANTMENT_SLOT, false);
             item->ClearEnchantment(TEMP_ENCHANTMENT_SLOT);
@@ -12330,7 +12328,7 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
     {
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
-            if (item && item->GetEntry() == itemEntry && !item->IsInTrade())
+            if (item->GetEntry() == itemEntry && !item->IsInTrade())
             {
                 if (item->GetCount() + remcount <= count)
                 {
@@ -12964,7 +12962,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
 
-        if (!released && IsBagPos(dst) && pDstItem)
+        if (!released && IsBagPos(dst))
         {
             Bag* bag = pDstItem->ToBag();
             for (uint32 i = 0; i < bag->GetBagSize(); ++i)
@@ -13378,7 +13376,7 @@ void Player::AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 dur
             break;
         }
     }
-    if (item && duration > 0)
+    if (duration > 0)
     {
         GetSession()->SendItemEnchantTimeUpdate(GetGUID(), item->GetGUID(), slot, uint32(duration/1000));
         m_enchantDuration.push_back(EnchantDuration(item, slot, duration));
@@ -14881,8 +14879,8 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
     switch (questGiver->GetTypeId())
     {
         case TYPEID_UNIT:
-            sScriptMgr->OnQuestAccept(this, questGiver->ToCreature(), quest);
-            questGiver->ToCreature()->AI()->sQuestAccept(this, quest);
+            PlayerTalkClass->ClearMenus();
+            questGiver->ToCreature()->AI()->QuestAccept(this, quest);
             break;
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
@@ -14907,7 +14905,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             break;
         }
         case TYPEID_GAMEOBJECT:
-            sScriptMgr->OnQuestAccept(this, questGiver->ToGameObject(), quest);
+            PlayerTalkClass->ClearMenus();
             questGiver->ToGameObject()->AI()->QuestAccept(this, quest);
             break;
         default:
@@ -16023,11 +16021,12 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
     QuestRelationBounds qr;
     QuestRelationBounds qir;
 
+    PlayerTalkClass->ClearMenus();
     switch (questgiver->GetTypeId())
     {
     case TYPEID_GAMEOBJECT:
     {
-        QuestGiverStatus questStatus = QuestGiverStatus(sScriptMgr->GetDialogStatus(this, questgiver->ToGameObject()));
+        QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToGameObject()->AI()->GetDialogStatus(this));
         if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
             return questStatus;
         qr = sObjectMgr->GetGOQuestRelationBounds(questgiver->GetEntry());
@@ -16036,7 +16035,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
     }
     case TYPEID_UNIT:
     {
-        QuestGiverStatus questStatus = QuestGiverStatus(sScriptMgr->GetDialogStatus(this, questgiver->ToCreature()));
+        QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToCreature()->AI()->GetDialogStatus(this));
         if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
             return questStatus;
         qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());
@@ -16705,7 +16704,7 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */, bool 
                     // allows custom amount drop when not 0
                     if (qinfo->ItemDropQuantity[j])
                     {
-                        if ((ownedCount < qinfo->ItemDropQuantity[j]) || (turnIn && ownedCount >= qinfo->ItemDropQuantity[j]))
+                        if (ownedCount < qinfo->ItemDropQuantity[j] || turnIn )
                             return true;
                     } else if (ownedCount < pProto->GetMaxStackSize())
                         return true;
@@ -17315,7 +17314,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         RelocateToHomebind();
     }
     // Player was saved in Arena or Bg
-    else if (mapEntry && mapEntry->IsBattlegroundOrArena())
+    else if (mapEntry->IsBattlegroundOrArena())
     {
         Battleground* currentBg = nullptr;
         if (m_bgData.bgInstanceID)                                                //saved in Battleground
@@ -20747,7 +20746,7 @@ Pet* Player::GetPet() const
         if (!pet)
             return nullptr;
 
-        if (IsInWorld() && pet)
+        if (IsInWorld())
             return pet;
 
         // there may be a guardian in this slot
@@ -24965,7 +24964,7 @@ bool Player::isTotalImmunity() const
     return false;
 }
 
-uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
+uint32 Player::GetRuneTypeBaseCooldown(RuneType /*runeType*/) const
 {
     return RUNE_BASE_COOLDOWN;
 }
@@ -25266,31 +25265,6 @@ uint32 Player::CalculateTalentsPoints() const
         talentPointsForLevel = baseForLevel;
 
     return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
-}
-
-bool Player::CanFlyInZone(uint32 mapid, uint32 areaid) const
-{
-    // continent checked in SpellInfo::CheckLocation at cast and area update
-    bool can_fly = false;
-    switch (mapid)
-    {
-        case 0: // Eastern Kingdoms
-        case 1: // Kalimdor
-        case 646: // Deepholm
-            can_fly = HasSpell(90267); // Flight Master's License
-            break;
-        case 571: // Northrend
-            can_fly = HasSpell(54197); // Cold Weather Flying
-            break;
-        case 530: // Outland
-            // Draenei and blood elves starting zones belong to Outland map, but are not flyable
-            // These zones don't have flag AREA_FLAG_OUTLAND2
-            if (sAreaTableStore.AssertEntry(areaid)->flags & AREA_FLAG_OUTLAND2)
-                can_fly = true;
-        default:
-            break;
-    }
-    return can_fly;
 }
 
 void Player::LearnSpellHighestRank(uint32 spellid)

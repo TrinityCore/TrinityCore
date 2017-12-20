@@ -72,8 +72,7 @@ class boss_baltharus_the_warborn : public CreatureScript
 
         struct boss_baltharus_the_warbornAI : public BossAI
         {
-            boss_baltharus_the_warbornAI(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN),
-                _cloneCount(0), _introDone(false) { }
+            boss_baltharus_the_warbornAI(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN), _cloneCount(0) { }
 
             void Reset() override
             {
@@ -90,9 +89,6 @@ class boss_baltharus_the_warborn : public CreatureScript
                 switch (action)
                 {
                     case ACTION_INTRO_BALTHARUS:
-                        if (_introDone)
-                            return;
-                        _introDone = true;
                         me->setActive(true);
                         events.ScheduleEvent(EVENT_INTRO_TALK, Seconds(7), 0, PHASE_INTRO);
                         break;
@@ -231,7 +227,6 @@ class boss_baltharus_the_warborn : public CreatureScript
 
         private:
             uint8 _cloneCount;
-            bool _introDone;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -338,16 +333,22 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baltharus_enervating_brand_trigger_SpellScript);
 
-            void CheckDistance()
+            bool Validate(SpellInfo const* /*spell*/) override
             {
-                Unit* caster = GetCaster();
-                Unit* target = GetHitUnit();
-                target->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
+                return ValidateSpellInfo({ SPELL_SIPHONED_MIGHT });
+            }
+
+            void HandleSiphonedMight()
+            {
+                if (SpellInfo const* spellInfo = GetTriggeringSpell())
+                    if (Aura* triggerAura = GetCaster()->GetAura(spellInfo->Id))
+                        if (Unit* caster = triggerAura->GetCaster())
+                            GetHitUnit()->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_baltharus_enervating_brand_trigger_SpellScript::CheckDistance);
+                OnHit += SpellHitFn(spell_baltharus_enervating_brand_trigger_SpellScript::HandleSiphonedMight);
             }
         };
 

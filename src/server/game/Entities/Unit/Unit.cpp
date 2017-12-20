@@ -139,6 +139,7 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
         case MELEE_HIT_EVADE:
             m_hitMask |= PROC_HIT_EVADE;
             break;
+        case MELEE_HIT_BLOCK:
         case MELEE_HIT_CRUSHING:
         case MELEE_HIT_GLANCING:
         case MELEE_HIT_NORMAL:
@@ -148,8 +149,6 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
         case MELEE_HIT_CRIT:
             if (!damageNullified)
                 m_hitMask |= PROC_HIT_CRITICAL;
-            break;
-        default:
             break;
     }
 }
@@ -5560,9 +5559,10 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
     }
 
-    // delay offhand weapon attack to next attack time
+    // delay offhand weapon attack by 50% of the base attack time
     if (haveOffhandWeapon() && GetTypeId() != TYPEID_PLAYER)
-        resetAttackTimer(OFF_ATTACK);
+        setAttackTimer(OFF_ATTACK, std::max(getAttackTimer(OFF_ATTACK), getAttackTimer(BASE_ATTACK) + uint32(CalculatePct(GetFloatValue(UNIT_FIELD_BASEATTACKTIME), 50))));
+
 
     if (meleeAttack)
         SendMeleeAttackStart(victim);
@@ -8084,17 +8084,34 @@ void Unit::Dismount()
 MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 {
     if (!mountType)
-        return NULL;
+        return nullptr;
 
     MountTypeEntry const* mountTypeEntry = sMountTypeStore.LookupEntry(mountType);
     if (!mountTypeEntry)
-        return NULL;
+        return nullptr;
 
-    uint32 zoneId, areaId;
-    GetZoneAndAreaId(zoneId, areaId);
+
+    uint32 areaId = GetAreaId();
     uint32 ridingSkill = 5000;
+    uint32 mountFlags = 0;
+    bool isSubmerged = false;
+    bool isInWater = false;
+
     if (GetTypeId() == TYPEID_PLAYER)
         ridingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
+
+    if (HasAuraType(SPELL_AURA_MOUNT_RESTRICTIONS))
+    {
+        for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOUNT_RESTRICTIONS))
+            mountFlags |= auraEffect->GetMiscValue();
+    }
+    else if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(areaId))
+        mountFlags = areaTable->MountFlags;
+
+    LiquidData liquid;
+    ZLiquidStatus liquidStatus = GetMap()->GetLiquidStatus(GetPositionX(), GetPositionY(), GetPositionZ(), MAP_ALL_LIQUIDS, &liquid);
+    isSubmerged = (liquidStatus & LIQUID_MAP_UNDER_WATER) != 0 || HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    isInWater = (liquidStatus & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
 
     for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
     {
@@ -8105,38 +8122,55 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         if (ridingSkill < mountCapability->RequiredRidingSkill)
             continue;
 
-        if (HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
+        if (!(mountCapability->Flags & MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS))
         {
-            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND && !(mountFlags & AREA_MOUNT_FLAG_GROUND_ALLOWED))
                 continue;
-        }
-        else if (HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
-        {
-            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLYING && !(mountFlags & AREA_MOUNT_FLAG_FLYING_ALLOWED))
                 continue;
-        }
-        else if (!(mountCapability->Flags & 0x1))   // unknown flags, checked in 4.2.2 14545 client
-        {
-            if (!(mountCapability->Flags & 0x2))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT && !(mountFlags & AREA_MOUNT_FLAG_FLOAT_ALLOWED))
+                continue;
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER && !(mountFlags & AREA_MOUNT_FLAG_UNDERWATER_ALLOWED))
                 continue;
         }
 
-        if (mountCapability->RequiredMap != -1 && int32(GetMapId()) != mountCapability->RequiredMap)
+        if (!isSubmerged)
+        {
+            if (!isInWater)
+            {
+                // player is completely out of water
+                if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND))
+                    continue;
+            }
+            else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
+                continue;
+        }
+        else if (isInWater)
+        {
+            if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
+                continue;
+        }
+        else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT))
             continue;
 
-        if (mountCapability->RequiredArea && (mountCapability->RequiredArea != zoneId && mountCapability->RequiredArea != areaId))
+        if (mountCapability->RequiredMap != -1 &&
+            int32(GetMapId()) != mountCapability->RequiredMap &&
+            GetMap()->GetEntry()->rootPhaseMap != mountCapability->RequiredMap)
+            continue;
+
+        if (mountCapability->RequiredArea && !IsInArea(areaId, mountCapability->RequiredArea))
             continue;
 
         if (mountCapability->RequiredAura && !HasAura(mountCapability->RequiredAura))
             continue;
 
-        if (mountCapability->RequiredSpell && (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->HasSpell(mountCapability->RequiredSpell)))
+        if (mountCapability->RequiredSpell && !HasSpell(mountCapability->RequiredSpell))
             continue;
 
         return mountCapability;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool Unit::IsServiceProvider() const
@@ -8396,6 +8430,9 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
         Player const* player = playerAffectingAttacker ? playerAffectingAttacker : playerAffectingTarget;
         Unit const* creature = playerAffectingAttacker ? target : this;
 
+        if (creature->IsContestedGuard() && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
+            return true;
+
         if (FactionTemplateEntry const* factionTemplate = creature->GetFactionTemplateEntry())
         {
             if (!(player->GetReputationMgr().GetForcedRankIfAny(factionTemplate)))
@@ -8529,7 +8566,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
         && !((target->GetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG) & UNIT_BYTE2_FLAG_PVP)))
     {
         if (Creature const* creatureTarget = target->ToCreature())
-            return creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT || creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT;
+            return creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT || creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST;
     }
     return true;
 }
@@ -11757,7 +11794,6 @@ void Unit::SetStunned(bool apply)
 
         if (GetTypeId() == TYPEID_PLAYER)
             SetStandState(UNIT_STAND_STATE_STAND);
-
         SetRooted(true);
 
         CastStop();
@@ -11788,7 +11824,7 @@ void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
             // setting MOVEMENTFLAG_ROOT
             RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
             AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-        StopMoving();
+            StopMoving();
         }
         else
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);

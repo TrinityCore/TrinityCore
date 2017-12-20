@@ -1535,6 +1535,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         roll->getLoot()->unlootedCount--;
                         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
+                        ASSERT(pProto);
                         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
 
                         ItemPosCountVec dest;

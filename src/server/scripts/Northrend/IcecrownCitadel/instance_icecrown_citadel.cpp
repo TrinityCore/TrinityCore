@@ -145,6 +145,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 UpperSpireTeleporterActiveState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
+                BloodPrinceIntro = 1;
+                SindragosaIntro = 1;
             }
 
             // A function to help reduce the number of lines for teleporter management.
@@ -730,6 +732,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return BloodQuickeningState;
                     case DATA_HEROIC_ATTEMPTS:
                         return HeroicAttempts;
+                    case DATA_BLOOD_PRINCE_COUNCIL_INTRO:
+                        return BloodPrinceIntro;
+                    case DATA_SINDRAGOSA_INTRO:
+                        return SindragosaIntro;
                     default:
                         break;
                 }
@@ -1103,6 +1109,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 SetTeleporterState(go, true);
                             SaveToDB();
                         }
+                        break;
+                    case DATA_BLOOD_PRINCE_COUNCIL_INTRO:
+                        BloodPrinceIntro = data;
+                        break;
+                    case DATA_SINDRAGOSA_INTRO:
+                        SindragosaIntro = data;
                         break;
                     default:
                         break;
@@ -1518,6 +1530,8 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint32 BloodQuickeningState;
             uint32 HeroicAttempts;
             uint16 BloodQuickeningMinutes;
+            uint8 BloodPrinceIntro;
+            uint8 SindragosaIntro;
             bool IsBonedEligible;
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;

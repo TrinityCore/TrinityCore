@@ -1649,11 +1649,10 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (HasAttribute(SPELL_ATTR4_CAST_ONLY_IN_OUTLAND))
     {
-        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(area_id);
-        if (!areaEntry)
-            areaEntry = sAreaTableStore.LookupEntry(zone_id);
+        uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
+        MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
 
-        if (!areaEntry || !areaEntry->IsFlyable() || !player->CanFlyInZone(map_id, zone_id))
+        if (!mapEntry || mapEntry->addon < 1 || !mapEntry->IsContinent())
             return SPELL_FAILED_INCORRECT_AREA;
     }
 
@@ -1752,18 +1751,12 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
             switch (Effects[i].ApplyAuraName)
             {
-                case SPELL_AURA_FLY:
+                case SPELL_AURA_MOD_SHAPESHIFT:
                 {
-                    if (player)
-                    {
-                        SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
-                        for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
-                        {
-                            // spell 54197 (Cold Weather Flying) is a prereq for flying in Northrend
-                            if (skillIter->second->skillId == SKILL_MOUNTS && player->GetMapId() != 571 && !player->HasSpell(54197))
-                                return SPELL_FAILED_INCORRECT_AREA; // maybe: SPELL_CUSTOM_ERROR_CANT_USE_THAT_MOUNT
-                        }
-                    }
+                    if (SpellShapeshiftFormEntry const* spellShapeshiftForm = sSpellShapeshiftFormStore.LookupEntry(Effects[i].MiscValue))
+                        if (uint32 mountType = spellShapeshiftForm->MountTypeID)
+                            if (!player->GetMountCapability(mountType))
+                                return SPELL_FAILED_NOT_HERE;
                     break;
                 }
                 case SPELL_AURA_MOUNTED:

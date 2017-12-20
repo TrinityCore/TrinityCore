@@ -56,8 +56,8 @@ enum MageSpells
     SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1         = 11210,
     SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1    = 83046,
     SPELL_MAGE_IMPROVED_POLYMORPH_MARKER         = 87515,
-    SPELL_MAGE_INCANTERS_ABSORBTION_R1           = 44394,
     SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED    = 44413,
+    SPELL_MAGE_INCANTERS_ABSORBTION_KNOCKBACK    = 86261,
     SPELL_MAGE_IGNITE                            = 12654,
     SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE       = 29077,
     SPELL_MAGE_PERMAFROST                        = 91394,
@@ -170,31 +170,6 @@ class spell_mage_arcane_potency : public SpellScriptLoader
 enum MageSpellIcons
 {
     SPELL_ICON_MAGE_SHATTERED_BARRIER = 2945
-};
-
-// Incanter's Absorbtion
-class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
-{
-    public:
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_R1))
-                return false;
-            return true;
-        }
-
-        void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
-        {
-            Unit* target = GetTarget();
-
-            if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
-            {
-                int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
-                target->CastCustomSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-            }
-        }
 };
 
 // 11113 - Blast Wave
@@ -499,7 +474,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
     public:
         spell_mage_fire_frost_ward() : SpellScriptLoader("spell_mage_fire_frost_ward") { }
 
-        class spell_mage_fire_frost_ward_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
+        class spell_mage_fire_frost_ward_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_mage_fire_frost_ward_AuraScript);
 
@@ -548,7 +523,6 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_fire_frost_ward_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_fire_frost_ward_AuraScript::Absorb, EFFECT_0);
-                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_fire_frost_ward_AuraScript::Trigger, EFFECT_0);
             }
         };
 
@@ -929,6 +903,17 @@ class spell_mage_mage_ward : public SpellScriptLoader
        {
            PrepareAuraScript(spell_mage_mage_ward_AuraScript);
 
+           void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+           {
+               canBeRecalculated = false;
+               if (Unit* caster = GetCaster())
+               {
+                   // 80,7% of the spellpower as bonus
+                   float bonus = 0.807f * caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask());
+                   amount += int32(bonus);
+               }
+           }
+
            void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
            {
                if (AuraEffect* aurEff = GetTarget()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, ICON_MAGE_INCANTER_S_ABSORPTION, EFFECT_0))
@@ -940,7 +925,8 @@ class spell_mage_mage_ward : public SpellScriptLoader
 
             void Register() override
            {
-               AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_mage_ward_AuraScript::HandleAbsorb, EFFECT_0);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_mage_ward_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_mage_ward_AuraScript::HandleAbsorb, EFFECT_0);
            }
        };
 
@@ -961,6 +947,26 @@ class spell_mage_mana_shield : public SpellScriptLoader
        {
            PrepareAuraScript(spell_mage_mana_shield_AuraScript);
 
+           bool Validate(SpellInfo const* /*spellInfo*/) override
+           {
+               return ValidateSpellInfo(
+               {
+                   SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED,
+                   SPELL_MAGE_INCANTERS_ABSORBTION_KNOCKBACK
+               });
+           }
+
+           void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+           {
+               canBeRecalculated = false;
+               if (Unit* caster = GetCaster())
+               {
+                   // 87% of the spellpower as bonus
+                   float bonus = 0.807f * caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask());
+                   amount += int32(bonus);
+               }
+           }
+
            void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
            {
                if (AuraEffect* aurEff = GetTarget()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, ICON_MAGE_INCANTER_S_ABSORPTION, EFFECT_0))
@@ -972,12 +978,14 @@ class spell_mage_mana_shield : public SpellScriptLoader
 
            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
            {
-               if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
-                   GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_R1, true);
+               if (AuraEffect* aurEff = GetTarget()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, ICON_MAGE_INCANTER_S_ABSORPTION, EFFECT_0))
+                   if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
+                       GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_KNOCKBACK, true);
            }
 
            void Register() override
            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_mana_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MANA_SHIELD);
                 AfterEffectManaShield += AuraEffectManaShieldFn(spell_mage_mana_shield_AuraScript::HandleAbsorb, EFFECT_0);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_mage_mana_shield_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MANA_SHIELD, AURA_EFFECT_HANDLE_REAL);
            }

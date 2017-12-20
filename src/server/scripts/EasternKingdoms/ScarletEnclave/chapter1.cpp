@@ -27,6 +27,7 @@
 #include "SpellInfo.h"
 #include "CreatureTextMgr.h"
 #include "MoveSplineInit.h"
+#include "GameObjectAI.h"
 
 /*######
 ##Quest 12848
@@ -322,16 +323,25 @@ class go_acherus_soul_prison : public GameObjectScript
 public:
     go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct go_acherus_soul_prisonAI : public GameObjectAI
     {
-        if (Creature* anchor = go->FindNearestCreature(29521, 15))
-            if (ObjectGuid prisonerGUID = anchor->AI()->GetGUID())
-                if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
-                    ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
+        go_acherus_soul_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-        return false;
+        bool GossipHello(Player* player) override
+        {
+            if (Creature* anchor = me->FindNearestCreature(29521, 15))
+                if (ObjectGuid prisonerGUID = anchor->AI()->GetGUID())
+                    if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
+                        ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
+
+            return false;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_acherus_soul_prisonAI(go);
     }
-
 };
 
  /*######
@@ -473,47 +483,6 @@ class npc_death_knight_initiate : public CreatureScript
 public:
     npc_death_knight_initiate() : CreatureScript("npc_death_knight_initiate") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            CloseGossipMenuFor(player);
-
-            if (player->IsInCombat() || creature->IsInCombat())
-                return true;
-
-            if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, creature->AI()))
-            {
-                if (pInitiateAI->m_bIsDuelInProgress)
-                    return true;
-            }
-
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
-
-            player->CastSpell(creature, SPELL_DUEL, false);
-            player->CastSpell(player, SPELL_DUEL_FLAG, true);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && creature->IsFullHealth())
-        {
-            if (player->HealthBelowPct(10))
-                return true;
-
-            if (player->IsInCombat() || creature->IsInCombat())
-                return true;
-
-            AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        return true;
-    }
-
     struct npc_death_knight_initiateAI : public CombatAI
     {
         npc_death_knight_initiateAI(Creature* creature) : CombatAI(creature)
@@ -615,6 +584,48 @@ public:
             /// @todo spells
 
             CombatAI::UpdateAI(uiDiff);
+        }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF)
+            {
+                CloseGossipMenuFor(player);
+
+                if (player->IsInCombat() || me->IsInCombat())
+                    return true;
+
+                if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, me->AI()))
+                {
+                    if (pInitiateAI->m_bIsDuelInProgress)
+                        return true;
+                }
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+
+                player->CastSpell(me, SPELL_DUEL, false);
+                player->CastSpell(player, SPELL_DUEL_FLAG, true);
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && me->IsFullHealth())
+            {
+                if (player->HealthBelowPct(10))
+                    return true;
+
+                if (player->IsInCombat() || me->IsInCombat())
+                    return true;
+
+                AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            }
+            return true;
         }
     };
 
@@ -749,13 +760,14 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_SALANAR_MENU && gossipListId == GOSSIP_SALANAR_OPTION)
             {
                 player->CastSpell(player, SPELL_REALM_OF_SHADOWS, true);
                 player->PlayerTalkClass->SendCloseGossip();
             }
+            return false;
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override

@@ -28,6 +28,7 @@ EndScriptData */
 #include "serpent_shrine.h"
 #include "Spell.h"
 #include "Player.h"
+#include "GameObjectAI.h"
 
 enum Spells
 {
@@ -434,21 +435,31 @@ class go_strange_pool : public GameObjectScript
     public:
         go_strange_pool() : GameObjectScript("go_strange_pool") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_strange_poolAI : public GameObjectAI
         {
-            // 25%
-            if (InstanceScript* instanceScript = go->GetInstanceScript())
-                if (!urand(0, 3))
-                {
-                    if (instanceScript->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
-                    {
-                        go->CastSpell(player, 54587);
-                        instanceScript->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
-                    }
-                    return true;
-                }
+            go_strange_poolAI(GameObject* go) : GameObjectAI(go) { }
 
-            return false;
+            bool GossipHello(Player* player) override
+            {
+                // 25%
+                if (InstanceScript* instanceScript = me->GetInstanceScript())
+                    if (!urand(0, 3))
+                    {
+                        if (instanceScript->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
+                        {
+                            me->CastSpell(player, 54587);
+                            instanceScript->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
+                        }
+                        return true;
+                    }
+
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_strange_poolAI(go);
         }
 };
 

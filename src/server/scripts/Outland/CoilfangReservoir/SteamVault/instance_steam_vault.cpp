@@ -18,28 +18,39 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "steam_vault.h"
+#include "GameObjectAI.h"
 
 class go_main_chambers_access_panel : public GameObjectScript
 {
     public:
         go_main_chambers_access_panel() : GameObjectScript("go_main_chambers_access_panel") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_main_chambers_access_panelAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
+            go_main_chambers_access_panelAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (go->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
-                instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);
+            bool GossipHello(Player* /*player*/) override
+            {
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return false;
 
-            if (go->GetEntry() == GO_ACCESS_PANEL_MEK && (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE || instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL))
-                instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, SPECIAL);
+                if (me->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
+                    instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);
 
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+                if (me->GetEntry() == GO_ACCESS_PANEL_MEK && (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE || instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL))
+                    instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, SPECIAL);
 
-            return true;
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->SetGoState(GO_STATE_ACTIVE);
+
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_main_chambers_access_panelAI(go);
         }
 };
 

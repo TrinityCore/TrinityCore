@@ -110,7 +110,7 @@ public:
 
     void LogEvent(std::string const& category, std::string const& title, std::string const& description);
 
-    void ForceSend();
+    void Unload();
     bool IsEnabled() const { return _enabled; }
 };
 

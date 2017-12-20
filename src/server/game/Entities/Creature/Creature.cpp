@@ -294,7 +294,7 @@ void Creature::RemoveCorpse(bool setSpawnTime)
 
     // Should get removed later, just keep "compatibility" with scripts
     if (setSpawnTime)
-        m_respawnTime = std::max<time_t>(time(NULL) + respawnDelay, m_respawnTime);
+        m_respawnTime = std::max<time_t>(time(nullptr) + respawnDelay, m_respawnTime);
 
     // if corpse was removed during falling, the falling will continue and override relocation to respawn position
     if (IsFalling())
@@ -374,7 +374,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     // Load creature equipment
     if (!data || data->equipmentId == 0)
         LoadEquipment(); // use default equipment (if available)
-    else if (data && data->equipmentId != 0)                // override, 0 means no equipment
+    else                // override, 0 means no equipment
     {
         m_originalEquipmentId = data->equipmentId;
         LoadEquipment(data->equipmentId);
@@ -394,6 +394,8 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetObjectScale(cinfo->scale);
 
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, cinfo->HoverHeight);
+
+    SetCanDualWield(cinfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(data ? data->movementType : cinfo->MovementType);
@@ -435,6 +437,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
+    SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
     SetAttackTime(BASE_ATTACK,   cInfo->BaseAttackTime);
     SetAttackTime(OFF_ATTACK,    cInfo->BaseAttackTime);
@@ -487,7 +491,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     UpdateMovementFlags();
     LoadCreaturesAddon();
-    LoadMechanicTemplateImmunity();
+    LoadTemplateImmunities();
     return true;
 }
 
@@ -708,8 +712,6 @@ void Creature::Update(uint32 diff)
         default:
             break;
     }
-
-    sScriptMgr->OnCreatureUpdate(this, diff);
 }
 
 void Creature::RegenerateMana()
@@ -1623,40 +1625,47 @@ bool Creature::CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) 
 
 float Creature::GetAttackDistance(Unit const* player) const
 {
+    // WoW Wiki: the minimum radius seems to be 5 yards, while the maximum range is 45 yards
+    float maxRadius = (45.0f * sWorld->getRate(RATE_CREATURE_AGGRO));
+    float minRadius = (5.0f * sWorld->getRate(RATE_CREATURE_AGGRO));
     float aggroRate = sWorld->getRate(RATE_CREATURE_AGGRO);
-    if (aggroRate == 0)
+    uint8 expansionMaxLevel = uint8(GetMaxLevelForExpansion(GetCreatureTemplate()->expansion));
+
+    uint32 playerLevel = player->getLevel();
+    uint32 creatureLevel = getLevel();
+
+    if (aggroRate == 0.0f)
         return 0.0f;
 
-    uint32 playerlevel   = player->getLevelForTarget(this);
-    uint32 creaturelevel = getLevelForTarget(player);
+    // The aggro radius for creatures with equal level as the player is 20 yards.
+    // The combatreach should not get taken into account for the distance so we drop it from the range (see Supremus as expample)
+    float baseAggroDistance = 20.0f - GetCombatReach();
+    float aggroRadius = baseAggroDistance;
 
-    int32 leveldif       = int32(playerlevel) - int32(creaturelevel);
-
-    // "The maximum Aggro Radius has a cap of 25 levels under. Example: A level 30 char has the same Aggro Radius of a level 5 char on a level 60 mob."
-    if (leveldif < - 25)
-        leveldif = -25;
-
-    // "The aggro radius of a mob having the same level as the player is roughly 20 yards"
-    float RetDistance = 20;
-
-    // "Aggro Radius varies with level difference at a rate of roughly 1 yard/level"
-    // radius grow if playlevel < creaturelevel
-    RetDistance -= (float)leveldif;
-
-    if (creaturelevel+5 <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    // detect range auras
+    if ((creatureLevel + 5) <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
-        // detect range auras
-        RetDistance += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
+        aggroRadius += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
 
-        // detected range auras
-        RetDistance += player->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
+        aggroRadius += player->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
     }
 
-    // "Minimum Aggro Radius for a mob seems to be combat range (5 yards)"
-    if (RetDistance < 5)
-        RetDistance = 5;
+    // The aggro range of creatures with higher levels than the total player level for the expansion should get the maxlevel treatment
+    // This makes sure that creatures such as bosses wont have a bigger aggro range than the rest of the npc's
+    // The following code is used for blizzlike behavior such as skipable bosses (e.g. Commander Springvale at level 85)
+    if (creatureLevel > expansionMaxLevel)
+        aggroRadius += float(expansionMaxLevel) - float(playerLevel);
+    // + - 1 yard for each level difference between player and creature
+    else
+        aggroRadius += float(creatureLevel) - float(playerLevel);
 
-    return (RetDistance*aggroRate);
+    // Make sure that we wont go over the total range limits
+    if (aggroRadius > maxRadius)
+        aggroRadius = maxRadius;
+    else if (aggroRadius < minRadius)
+        aggroRadius = minRadius;
+
+    return (aggroRadius * aggroRate);
 }
 
 void Creature::setDeathState(DeathState s)
@@ -1842,7 +1851,7 @@ void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& 
         ForcedDespawn(msTimeToDespawn, forceRespawnTimer);
 }
 
-void Creature::LoadMechanicTemplateImmunity()
+void Creature::LoadTemplateImmunities()
 {
     // uint32 max used for "spell id", the immunity system will not perform SpellInfo checks against invalid spells
     // used so we know which immunities were loaded from template
@@ -1851,6 +1860,9 @@ void Creature::LoadMechanicTemplateImmunity()
     // unapply template immunities (in case we're updating entry)
     for (uint32 i = MECHANIC_NONE + 1; i < MAX_MECHANIC; ++i)
         ApplySpellImmune(placeholderSpellId, IMMUNITY_MECHANIC, i, false);
+
+    for (uint32 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        ApplySpellImmune(placeholderSpellId, IMMUNITY_SCHOOL, 1 << i, false);
 
     // don't inherit immunities for hunter pets
     if (GetOwnerGUID().IsPlayer() && IsHunterPet())
@@ -1862,6 +1874,15 @@ void Creature::LoadMechanicTemplateImmunity()
         {
             if (mask & (1 << (i - 1)))
                 ApplySpellImmune(placeholderSpellId, IMMUNITY_MECHANIC, i, true);
+        }
+    }
+
+    if (uint32 mask = GetCreatureTemplate()->SpellSchoolImmuneMask)
+    {
+        for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        {
+            if (mask & (1 << i))
+                ApplySpellImmune(placeholderSpellId, IMMUNITY_SCHOOL, 1 << i, true);
         }
     }
 }
@@ -2196,7 +2217,7 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
 
     // if the mob is actively being damaged, do not reset due to distance unless it's a world boss
     if (!isWorldBoss())
-        if (time(NULL) - GetLastDamagedTime() <= MAX_AGGRO_RESET_TIME)
+        if (time(nullptr) - GetLastDamagedTime() <= MAX_AGGRO_RESET_TIME)
             return true;
 
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.

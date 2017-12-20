@@ -25,6 +25,7 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"
+#include "GameObjectAI.h"
 
 /*####
 ## npc_drakuru_shackles
@@ -267,12 +268,13 @@ public:
                 return;
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             _events.ScheduleEvent(EVENT_RECRUIT_1, 100);
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_QUEST_CREDIT, true);
             me->SetFacingToObject(player);
+            return false;
         }
 
         private:
@@ -300,25 +302,35 @@ enum ScourgeEnclosure
 
 class go_scourge_enclosure : public GameObjectScript
 {
-public:
-    go_scourge_enclosure() : GameObjectScript("go_scourge_enclosure") { }
+    public:
+        go_scourge_enclosure() : GameObjectScript("go_scourge_enclosure") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        go->UseDoorOrButton();
-        if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
+        struct go_scourge_enclosureAI : public GameObjectAI
         {
-            Creature* gymerDummy = go->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f);
-            if (gymerDummy)
+            go_scourge_enclosureAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player) override
             {
-                player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
-                gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
-                gymerDummy->DespawnOrUnsummon(4 * IN_MILLISECONDS);
+                me->UseDoorOrButton();
+                if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
+                {
+                    Creature* gymerDummy = me->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f);
+                    if (gymerDummy)
+                    {
+                        player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
+                        gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
+                        gymerDummy->DespawnOrUnsummon(4 * IN_MILLISECONDS);
+                    }
+                }
+                return true;
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_scourge_enclosureAI(go);
         }
-        return true;
-    }
-};
+    };
 
 /*######
 ## Quest: Troll Patrol: The Alchemist's Apprentice
@@ -552,13 +564,14 @@ public:
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 CloseGossipMenuFor(player);
                 DoCast(player, SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
                 _playerGUID = player->GetGUID();
                 _getingredienttry = 1;
                 _events.ScheduleEvent(EVENT_EASY_123, 100);
+                return false;
             }
 
         private:
@@ -575,14 +588,24 @@ public:
 
 class go_finklesteins_cauldron : public GameObjectScript
 {
-public:
-    go_finklesteins_cauldron() : GameObjectScript("go_finklesteins_cauldron") { }
+    public:
+        go_finklesteins_cauldron() : GameObjectScript("go_finklesteins_cauldron") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
-    {
-        player->CastSpell(player, SPELL_POT_CHECK);
-        return true;
-    }
+        struct go_finklesteins_cauldronAI : public GameObjectAI
+        {
+            go_finklesteins_cauldronAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player) override
+            {
+                player->CastSpell(player, SPELL_POT_CHECK);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_finklesteins_cauldronAI(go);
+        }
 };
 
 uint32 const FetchIngredients[21][4] =

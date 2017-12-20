@@ -36,6 +36,7 @@ EndContentData */
 #include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "GameObjectAI.h"
 
 /*###
 ## npc_belnistrasz for Quest 3525 "Extinguishing the Idol"
@@ -127,7 +128,7 @@ public:
             me->DespawnOrUnsummon(5000);
         }
 
-        void sQuestAccept(Player* /*player*/, Quest const* quest) override
+        void QuestAccept(Player* /*player*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_EXTINGUISHING_THE_IDOL)
             {
@@ -371,22 +372,31 @@ public:
 
 class go_gong : public GameObjectScript
 {
-public:
-    go_gong() : GameObjectScript("go_gong") { }
+    public:
+        go_gong() : GameObjectScript("go_gong") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        InstanceScript* instance = go->GetInstanceScript();
-
-        if (instance)
+        struct go_gongAI : public GameObjectAI
         {
-            go->SendCustomAnim(0);
-            instance->SetData(DATA_WAVE, IN_PROGRESS);
-            return true;
-        }
-        return false;
-    }
+            go_gongAI(GameObject* go) : GameObjectAI(go) { }
 
+            bool GossipHello(Player* /*player*/) override
+            {
+                InstanceScript* instance = me->GetInstanceScript();
+
+                if (instance)
+                {
+                    me->SendCustomAnim(0);
+                    instance->SetData(DATA_WAVE, IN_PROGRESS);
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_gongAI(go);
+        }
 };
 
 void AddSC_razorfen_downs()

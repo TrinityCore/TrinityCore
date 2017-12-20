@@ -28,6 +28,7 @@ EndScriptData */
 #include "sunwell_plateau.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GameObjectAI.h"
 
 enum Yells
 {
@@ -536,27 +537,37 @@ class kalecgos_teleporter : public GameObjectScript
 public:
     kalecgos_teleporter() : GameObjectScript("kalecgos_teleporter") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct kalecgos_teleporterAI : public GameObjectAI
     {
-#if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
-        uint8 SpectralPlayers = 0;
-        Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-        {
-            if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
-                ++SpectralPlayers;
-        }
+        kalecgos_teleporterAI(GameObject* go) : GameObjectAI(go) { }
 
-        if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM)
+        bool GossipHello(Player* player) override
         {
-            return true;
-        }
+#if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
+            uint8 SpectralPlayers = 0;
+            Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            {
+                if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
+                    ++SpectralPlayers;
+            }
+
+            if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM)
+            {
+                return true;
+            }
 #else
-        (void)go;
+            (void)me;
 #endif
 
-        player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
-        return true;
+            player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
+            return true;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new kalecgos_teleporterAI(go);
     }
 };
 

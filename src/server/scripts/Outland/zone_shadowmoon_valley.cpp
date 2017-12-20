@@ -44,6 +44,7 @@ EndContentData */
 #include "SpellScript.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GameObjectAI.h"
 
 /*#####
 # npc_invis_infernal_caster
@@ -591,19 +592,6 @@ class npc_earthmender_wilda : public CreatureScript
 public:
     npc_earthmender_wilda() : CreatureScript("npc_earthmender_wilda") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
-        {
-            creature->AI()->Talk(SAY_WIL_START, player);
-            creature->SetFaction(FACTION_EARTHEN_RING);
-
-            if (npc_earthmender_wildaAI* pEscortAI = CAST_AI(npc_earthmender_wilda::npc_earthmender_wildaAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), quest);
-        }
-        return true;
-    }
-
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_earthmender_wildaAI(creature);
@@ -622,6 +610,16 @@ public:
         }
 
         uint32 m_uiHealingTimer;
+
+        void QuestAccept(Player* player, const Quest* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
+            {
+                Talk(SAY_WIL_START, player);
+                me->SetFaction(FACTION_EARTHEN_RING);
+                Start(false, false, player->GetGUID(), quest);
+            }
+        }
 
         void Reset() override
         {
@@ -1341,24 +1339,33 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
 
 class go_crystal_prison : public GameObjectScript
 {
-public:
-    go_crystal_prison() : GameObjectScript("go_crystal_prison") { }
+    public:
+        go_crystal_prison() : GameObjectScript("go_crystal_prison") { }
 
-    bool OnQuestAccept(Player* player, GameObject* /*go*/, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH)
+        struct go_crystal_prisonAI : public GameObjectAI
         {
-            Creature* Illidan = player->FindNearestCreature(22083, 50);
+            go_crystal_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (Illidan && !ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->EventStarted)
+            void QuestAccept(Player* player, Quest const* quest) override
             {
-                ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->PlayerGUID = player->GetGUID();
-                ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->LiveCount = 0;
-                ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->EventStarted = true;
+                if (quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH)
+                {
+                    Creature* Illidan = player->FindNearestCreature(22083, 50);
+
+                    if (Illidan && !ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->EventStarted)
+                    {
+                        ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->PlayerGUID = player->GetGUID();
+                        ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->LiveCount = 0;
+                        ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, Illidan->AI())->EventStarted = true;
+                    }
+                }
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_crystal_prisonAI(go);
         }
-     return true;
-    }
 };
 
 /*####

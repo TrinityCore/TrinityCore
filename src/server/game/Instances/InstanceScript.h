@@ -254,12 +254,17 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         uint32 GetEncounterCount() const { return bosses.size(); }
 
-		void InitializeCombatResurrections(uint8 charges = 1, uint32 interval = 0);
-		void AddCombatResurrectionCharge();
-		void UseCombatResurrection();
-		void ResetCombatResurrections();
-		uint8 GetCombatResurrectionCharges() const { return _combatResurrectionCharges; }
-		uint32 GetCombatResurrectionChargeInterval() const;
+        // Only used by areatriggers that inherit from OnlyOnceAreaTriggerScript
+        void MarkAreaTriggerDone(uint32 id) { _activatedAreaTriggers.insert(id); }
+        void ResetAreaTriggerDone(uint32 id) { _activatedAreaTriggers.erase(id); }
+        bool IsAreaTriggerDone(uint32 id) const { return _activatedAreaTriggers.find(id) != _activatedAreaTriggers.end(); }
+
+        void InitializeCombatResurrections(uint8 charges = 1, uint32 interval = 0);
+        void AddCombatResurrectionCharge();
+        void UseCombatResurrection();
+        void ResetCombatResurrections();
+        uint8 GetCombatResurrectionCharges() const { return _combatResurrectionCharges; }
+        uint32 GetCombatResurrectionChargeInterval() const;
 
     protected:
         void SetHeaders(std::string const& dataHeaders);
@@ -304,9 +309,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
-		uint32 _combatResurrectionTimer;
-		uint8 _combatResurrectionCharges; // the counter for available battle resurrections
-		bool _combatResurrectionTimerStarted;
+        uint32 _combatResurrectionTimer;
+        uint8 _combatResurrectionCharges; // the counter for available battle resurrections
+        bool _combatResurrectionTimerStarted;
+        std::unordered_set<uint32> _activatedAreaTriggers;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module

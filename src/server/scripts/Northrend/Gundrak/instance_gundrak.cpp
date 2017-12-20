@@ -20,6 +20,7 @@
 #include "ScriptMgr.h"
 #include "gundrak.h"
 #include "EventMap.h"
+#include "GameObjectAI.h"
 
 DoorData const doorData[] =
 {
@@ -350,18 +351,28 @@ class go_gundrak_altar : public GameObjectScript
     public:
         go_gundrak_altar() : GameObjectScript("go_gundrak_altar") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_gundrak_altarAI : public GameObjectAI
         {
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+            go_gundrak_altarAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (InstanceScript* instance = go->GetInstanceScript())
+            bool GossipHello(Player* /*player*/) override
             {
-                instance->SetData(DATA_STATUE_ACTIVATE, go->GetEntry());
-                return true;
-            }
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->SetGoState(GO_STATE_ACTIVE);
 
-            return false;
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());
+                    return true;
+                }
+
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_gundrak_altarAI(go);
         }
 };
 

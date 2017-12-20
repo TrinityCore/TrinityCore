@@ -22,6 +22,7 @@
 #include "SpellInfo.h"
 #include "WorldPacket.h"
 #include "Opcodes.h"
+#include "GameObjectAI.h"
 
 enum Texts
 {
@@ -278,18 +279,28 @@ class go_ossirian_crystal : public GameObjectScript
     public:
         go_ossirian_crystal() : GameObjectScript("go_ossirian_crystal") { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) override
+        struct go_ossirian_crystalAI : public GameObjectAI
         {
-            InstanceScript* Instance = player->GetInstanceScript();
-            if (!Instance)
-                return false;
+            go_ossirian_crystalAI(GameObject* go) : GameObjectAI(go) { }
 
-            Creature* Ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
-            if (!Ossirian || Instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
-                return false;
+            bool GossipHello(Player* player) override
+            {
+                InstanceScript* Instance = player->GetInstanceScript();
+                if (!Instance)
+                    return false;
 
-            Ossirian->AI()->DoAction(ACTION_TRIGGER_WEAKNESS);
-            return true;
+                Creature* Ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
+                if (!Ossirian || Instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
+                    return false;
+
+                Ossirian->AI()->DoAction(ACTION_TRIGGER_WEAKNESS);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_ossirian_crystalAI(go);
         }
 };
 

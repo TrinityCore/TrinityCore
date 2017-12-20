@@ -23,6 +23,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "violet_hold.h"
+#include "GameObjectAI.h"
 
 /*
  * TODO:
@@ -317,30 +318,6 @@ class npc_sinclari_vh : public CreatureScript
     public:
         npc_sinclari_vh() : CreatureScript("npc_sinclari_vh") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            // override default gossip
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                switch (instance->GetData(DATA_MAIN_EVENT_STATE))
-                {
-                    case IN_PROGRESS:
-                        player->PrepareGossipMenu(creature, GOSSIP_MENU_SEND_ME_IN, true);
-                        player->SendPreparedGossip(creature);
-                        return true;
-                    case DONE:
-                        return true; // NYI
-                    case NOT_STARTED:
-                    case FAIL:
-                    default:
-                        break;
-                }
-            }
-
-            // load default gossip
-            return false;
-        }
-
         struct npc_sinclariAI : public ScriptedAI
         {
             npc_sinclariAI(Creature* creature) : ScriptedAI(creature), _summons(creature)
@@ -369,7 +346,31 @@ class npc_sinclari_vh : public CreatureScript
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipHello(Player* player) override
+            {
+                // override default gossip
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    switch (instance->GetData(DATA_MAIN_EVENT_STATE))
+                    {
+                        case IN_PROGRESS:
+                            player->PrepareGossipMenu(me, GOSSIP_MENU_SEND_ME_IN, true);
+                            player->SendPreparedGossip(me);
+                            return true;
+                        case DONE:
+                            return true; // NYI
+                        case NOT_STARTED:
+                        case FAIL:
+                        default:
+                            break;
+                    }
+                }
+
+                // load default gossip
+                return false;
+            }
+
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == GOSSIP_MENU_START_ENCOUNTER && gossipListId == 0)
                 {
@@ -383,6 +384,7 @@ class npc_sinclari_vh : public CreatureScript
                     me->CastSpell(player, SPELL_TELEPORT_PLAYER, true);
                     player->PlayerTalkClass->SendCloseGossip();
                 }
+                return false;
             }
 
             void DoAction(int32 actionId) override
@@ -1309,10 +1311,20 @@ class go_activation_crystal : public GameObjectScript
     public:
         go_activation_crystal() : GameObjectScript("go_activation_crystal") { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) override
+        struct go_blackfathom_altarAI : public GameObjectAI
         {
-            player->CastSpell(player, SPELL_CRYSTAL_ACTIVATION, true);
-            return false;
+            go_blackfathom_altarAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player) override
+            {
+                player->CastSpell(player, SPELL_CRYSTAL_ACTIVATION, true);
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_blackfathom_altarAI(go);
         }
 };
 

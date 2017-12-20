@@ -232,7 +232,7 @@ extern int main(int argc, char** argv)
     std::shared_ptr<void> sMetricHandle(nullptr, [](void*)
     {
         TC_METRIC_EVENT("events", "Worldserver shutdown", "");
-        sMetric->ForceSend();
+        sMetric->Unload();
     });
 
     sScriptMgr->SetScriptLoader(AddScripts);

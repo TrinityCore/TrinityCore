@@ -1054,6 +1054,11 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 {
                     if (focusObject)
                         AddGOTarget(focusObject, effMask);
+                    else
+                    {
+                        SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+                        finish(false);
+                    }
                     return;
                 }
                 break;
@@ -1065,6 +1070,11 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                         SpellDestination dest(*focusObject);
                         CallScriptDestinationTargetSelectHandlers(dest, effIndex, targetType);
                         m_targets.SetDst(dest);
+                    }
+                    else
+                    {
+                        SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+                        finish(false);
                     }
                     return;
                 }
@@ -1078,6 +1088,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     if (!target)
     {
         TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: cannot find nearby target for spell ID %u, effect %u", m_spellInfo->Id, effIndex);
+        SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+        finish(false);
         return;
     }
 
@@ -1085,6 +1097,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     if (!target)
     {
         TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set NULL target, effect %u", m_spellInfo->Id, effIndex);
+        SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+        finish(false);
         return;
     }
 
@@ -1096,6 +1110,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             else
             {
                 TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set object of wrong type, expected unit, got %s, effect %u", m_spellInfo->Id, target->GetGUID().GetTypeName(), effMask);
+                SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+                finish(false);
                 return;
             }
             break;
@@ -1105,6 +1121,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             else
             {
                 TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set object of wrong type, expected gameobject, got %s, effect %u", m_spellInfo->Id, target->GetGUID().GetTypeName(), effMask);
+                SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
+                finish(false);
                 return;
             }
             break;
@@ -5512,13 +5530,13 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (res != SPELL_CAST_OK)
                     return res;
 
-                // chance for fail at orange mining/herb/LockPicking gathering attempt
+                // chance for fail at LockPicking attempt
                 // second check prevent fail at rechecks
                 if (skillId != SKILL_NONE && (!m_selfContainer || ((*m_selfContainer) != this)))
                 {
-                    bool canFailAtMax = skillId != SKILL_HERBALISM && skillId != SKILL_MINING && skillId != SKILL_ARCHAEOLOGY;
+                    bool canFailAtMax = skillId == SKILL_LOCKPICKING;
 
-                    // chance for failure in orange gather / lockpick (gathering skill can't fail at maxskill)
+                    // chance for failure in orange lockpick
                     if ((canFailAtMax && skillValue < sWorld->GetConfigMaxSkillValue()) && reqSkillValue > irand(skillValue - 25, skillValue + 37))
                         return SPELL_FAILED_TRY_AGAIN;
                 }

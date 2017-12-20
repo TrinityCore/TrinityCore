@@ -1385,3 +1385,20 @@ EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uin
     auto itr = sEmotesTextSoundMap.find(EmotesTextSoundKey(emote, race, gender));
     return itr != sEmotesTextSoundMap.end() ? itr->second : nullptr;
 }
+
+bool IsInArea(uint32 objectAreaId, uint32 areaId)
+{
+    do
+    {
+        if (objectAreaId == areaId)
+            return true;
+
+        AreaTableEntry const* objectArea = sAreaTableStore.LookupEntry(objectAreaId);
+        if (!objectArea)
+            break;
+
+        objectAreaId = objectArea->zone;
+    } while (objectAreaId);
+
+    return false;
+}

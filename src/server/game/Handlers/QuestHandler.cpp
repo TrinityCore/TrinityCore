@@ -89,13 +89,12 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     // Stop the npc if moving
     creature->StopMoving();
 
-    if (sScriptMgr->OnGossipHello(_player, creature))
+    _player->PlayerTalkClass->ClearMenus();
+    if (creature->AI()->GossipHello(_player))
         return;
 
     _player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, true);
     _player->SendPreparedGossip(creature);
-
-    creature->AI()->sGossipHello(_player);
 }
 
 void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
@@ -308,48 +307,42 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
             case TYPEID_UNIT:
             case TYPEID_PLAYER:
             {
-                //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
-                Creature* creatureQGiver = object->ToCreature();
-                if (!creatureQGiver || !sScriptMgr->OnQuestReward(_player, creatureQGiver, quest, reward))
+                // Send next quest
+                if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                 {
-                    // Send next quest
-                    if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
+                    // Only send the quest to the player if the conditions are met
+                    if (_player->CanTakeQuest(nextQuest, false))
                     {
-                        // Only send the quest to the player if the conditions are met
-                        if (_player->CanTakeQuest(nextQuest, false))
-                        {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                        if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                            _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true, false);
-                        }
+                        _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true, false);
                     }
-
-                    if (creatureQGiver)
-                        creatureQGiver->AI()->sQuestReward(_player, quest, reward);
                 }
+
+                _player->PlayerTalkClass->ClearMenus();
+                if (Creature* creatureQGiver = object->ToCreature())
+                    creatureQGiver->AI()->QuestReward(_player, quest, reward);
                 break;
             }
             case TYPEID_GAMEOBJECT:
             {
-                GameObject* questGiver = object->ToGameObject();
-                if (!sScriptMgr->OnQuestReward(_player, questGiver, quest, reward))
+                // Send next quest
+                if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                 {
-                    // Send next quest
-                    if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
+                    // Only send the quest to the player if the conditions are met
+                    if (_player->CanTakeQuest(nextQuest, false))
                     {
-                        // Only send the quest to the player if the conditions are met
-                        if (_player->CanTakeQuest(nextQuest, false))
-                        {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                        if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                            _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true, false);
-                        }
+                        _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true, false);
                     }
-
-                    questGiver->AI()->QuestReward(_player, quest, reward);
                 }
+
+                _player->PlayerTalkClass->ClearMenus();
+                if (GameObject* questGiver = object->ToGameObject())
+                    questGiver->AI()->QuestReward(_player, quest, reward);
                 break;
             }
             default:

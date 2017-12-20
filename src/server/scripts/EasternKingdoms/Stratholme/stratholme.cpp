@@ -36,6 +36,7 @@ EndContentData */
 #include "Group.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "GameObjectAI.h"
 
 /*######
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)
@@ -46,38 +47,48 @@ class go_gauntlet_gate : public GameObjectScript
 public:
     go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct go_gauntlet_gateAI : public GameObjectAI
     {
-        InstanceScript* instance = go->GetInstanceScript();
+        go_gauntlet_gateAI(GameObject* go) : GameObjectAI(go) { }
 
-        if (!instance)
-            return false;
-
-        if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
-            return false;
-
-        if (Group* group = player->GetGroup())
+        bool GossipHello(Player* player) override
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            InstanceScript* instance = me->GetInstanceScript();
+
+            if (!instance)
+                return false;
+
+            if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
+                return false;
+
+            if (Group* group = player->GetGroup())
             {
-                Player* pGroupie = itr->GetSource();
-                if (!pGroupie || !pGroupie->IsInMap(player))
-                    continue;
+                for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                {
+                    Player* pGroupie = itr->GetSource();
+                    if (!pGroupie || !pGroupie->IsInMap(player))
+                        continue;
 
-                if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
-                    !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
-                    pGroupie->GetMap() == go->GetMap())
-                    pGroupie->CastSpell(pGroupie, SPELL_BARON_ULTIMATUM, true);
+                    if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+                        !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
+                        pGroupie->GetMap() == me->GetMap())
+                        pGroupie->CastSpell(pGroupie, SPELL_BARON_ULTIMATUM, true);
+                }
             }
-        } else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
-                    !player->HasAura(SPELL_BARON_ULTIMATUM) &&
-                    player->GetMap() == go->GetMap())
-                    player->CastSpell(player, SPELL_BARON_ULTIMATUM, true);
+            else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+                !player->HasAura(SPELL_BARON_ULTIMATUM) &&
+                player->GetMap() == me->GetMap())
+                player->CastSpell(player, SPELL_BARON_ULTIMATUM, true);
 
-        instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
-        return false;
+            instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
+            return false;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_gauntlet_gateAI(go);
     }
-
 };
 
 /*######

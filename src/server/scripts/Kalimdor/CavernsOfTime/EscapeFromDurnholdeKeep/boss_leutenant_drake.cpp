@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
+#include "GameObjectAI.h"
 
 /*######
 ## go_barrel_old_hillsbrad
@@ -37,17 +38,27 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct go_barrel_old_hillsbradAI : public GameObjectAI
     {
-        if (InstanceScript* instance = go->GetInstanceScript())
+        go_barrel_old_hillsbradAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool GossipHello(Player* /*player*/) override
         {
-            if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
-                return false;
+            if (InstanceScript* instance = me->GetInstanceScript())
+            {
+                if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
+                    return false;
 
-            instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+                instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+            }
+
+            return false;
         }
+    };
 
-        return false;
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_barrel_old_hillsbradAI(go);
     }
 
 };

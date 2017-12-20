@@ -39,6 +39,7 @@ EndContentData */
 #include "Group.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GameObjectAI.h"
 
 /*######
 ## npc_unkor_the_ruthless
@@ -322,96 +323,97 @@ enum Floon
 
 class npc_floon : public CreatureScript
 {
-public:
-    npc_floon() : CreatureScript("npc_floon") { }
+    public:
+        npc_floon() : CreatureScript("npc_floon") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF)
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            AddGossipItemFor(player, MENU_ID_PAY_UP_OR_DIE, OPTION_ID_PAY_UP_OR_DIE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            SendGossipMenuFor(player, GOSSIP_HE_ALREADY_KILLED_ME, creature->GetGUID());
-        }
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            CloseGossipMenuFor(player);
-            creature->SetFaction(FACTION_ARAKKOA);
-            creature->AI()->Talk(SAY_FLOON_ATTACK, player);
-            creature->AI()->AttackStart(player);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        SendGossipMenuFor(player, GOSSIP_FLOON_STRANGE_SOUNDS, creature->GetGUID());
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_floonAI(creature);
-    }
-
-    struct npc_floonAI : public ScriptedAI
-    {
-        npc_floonAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            m_uiNormFaction = creature->GetFaction();
+            return new npc_floonAI(creature);
         }
 
-        void Initialize()
+        struct npc_floonAI : public ScriptedAI
         {
-            Silence_Timer = 2000;
-            Frostbolt_Timer = 4000;
-            FrostNova_Timer = 9000;
-        }
-
-        uint32 m_uiNormFaction;
-        uint32 Silence_Timer;
-        uint32 Frostbolt_Timer;
-        uint32 FrostNova_Timer;
-
-        void Reset() override
-        {
-            Initialize();
-            if (me->GetFaction() != m_uiNormFaction)
-                me->SetFaction(m_uiNormFaction);
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (Silence_Timer <= diff)
+            npc_floonAI(Creature* creature) : ScriptedAI(creature)
             {
-                DoCastVictim(SPELL_SILENCE);
-                Silence_Timer = 30000;
-            } else Silence_Timer -= diff;
+                Initialize();
+                m_uiNormFaction = creature->GetFaction();
+            }
 
-            if (FrostNova_Timer <= diff)
+            void Initialize()
             {
-                DoCast(me, SPELL_FROST_NOVA);
-                FrostNova_Timer = 20000;
-            } else FrostNova_Timer -= diff;
+                Silence_Timer = 2000;
+                Frostbolt_Timer = 4000;
+                FrostNova_Timer = 9000;
+            }
 
-            if (Frostbolt_Timer <= diff)
+            uint32 m_uiNormFaction;
+            uint32 Silence_Timer;
+            uint32 Frostbolt_Timer;
+            uint32 FrostNova_Timer;
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
-                DoCastVictim(SPELL_FROSTBOLT);
-                Frostbolt_Timer = 5000;
-            } else Frostbolt_Timer -= diff;
+                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+                ClearGossipMenuFor(player);
+                if (action == GOSSIP_ACTION_INFO_DEF)
+                {
+                    AddGossipItemFor(player, MENU_ID_PAY_UP_OR_DIE, OPTION_ID_PAY_UP_OR_DIE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    SendGossipMenuFor(player, GOSSIP_HE_ALREADY_KILLED_ME, me->GetGUID());
+                }
+                if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                {
+                    CloseGossipMenuFor(player);
+                    me->SetFaction(FACTION_ARAKKOA);
+                    Talk(SAY_FLOON_ATTACK, player);
+                    AttackStart(player);
+                }
+                return true;
+            }
 
-            DoMeleeAttackIfReady();
-        }
-    };
+            bool GossipHello(Player* player) override
+            {
+                if (player->GetQuestStatus(QUEST_CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
+                    AddGossipItemFor(player, MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+                SendGossipMenuFor(player, GOSSIP_FLOON_STRANGE_SOUNDS, me->GetGUID());
+                return true;
+            }
+
+            void Reset() override
+            {
+                Initialize();
+                if (me->GetFaction() != m_uiNormFaction)
+                    me->SetFaction(m_uiNormFaction);
+            }
+
+            void EnterCombat(Unit* /*who*/) override { }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (Silence_Timer <= diff)
+                {
+                    DoCastVictim(SPELL_SILENCE);
+                    Silence_Timer = 30000;
+                } else Silence_Timer -= diff;
+
+                if (FrostNova_Timer <= diff)
+                {
+                    DoCast(me, SPELL_FROST_NOVA);
+                    FrostNova_Timer = 20000;
+                } else FrostNova_Timer -= diff;
+
+                if (Frostbolt_Timer <= diff)
+                {
+                    DoCastVictim(SPELL_FROSTBOLT);
+                    Frostbolt_Timer = 5000;
+                } else Frostbolt_Timer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
 };
 
 /*######
@@ -493,17 +495,16 @@ public:
                     player->FailQuest(ESCAPE_FROM_FIREWING_POINT_H);
             }
         }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_H || quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_A)
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            creature->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+            if (quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_H || quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_A)
+            {
+                Start(true, false, player->GetGUID());
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+            }
         }
-        return true;
-    }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -531,51 +532,64 @@ enum SkullPile
 
 class go_skull_pile : public GameObjectScript
 {
-public:
-    go_skull_pile() : GameObjectScript("go_skull_pile") { }
+    public:
+        go_skull_pile() : GameObjectScript("go_skull_pile") { }
 
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (sender)
+        struct go_skull_pileAI : public GameObjectAI
         {
-            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, go, action); break;
-        }
-        return true;
-    }
+            go_skull_pileAI(GameObject* go) : GameObjectAI(go) { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if ((player->GetQuestStatus(ADVERSARIAL_BLOOD) == QUEST_STATUS_INCOMPLETE) || player->GetQuestRewardStatus(ADVERSARIAL_BLOOD))
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            {
+                ClearGossipMenuFor(player);
+                switch (gossipListId)
+                {
+                    case GOSSIP_SENDER_MAIN:
+                        SendActionMenu(player, me, gossipListId);
+                        break;
+                }
+                return true;
+            }
+
+            bool GossipHello(Player* player) override
+            {
+                if ((player->GetQuestStatus(ADVERSARIAL_BLOOD) == QUEST_STATUS_INCOMPLETE) || player->GetQuestRewardStatus(ADVERSARIAL_BLOOD))
+                {
+                    AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_GEZZARAK_THE_HUNTRESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_DARKSCREECHER_AKKARAI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_KARROG, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                }
+
+                SendGossipMenuFor(player, me->GetGOInfo()->questgiver.gossipID, me->GetGUID());
+                return true;
+            }
+
+        private:
+            void SendActionMenu(Player* player, GameObject* /*go*/, uint32 action) const
+            {
+                switch (action)
+                {
+                    case GOSSIP_ACTION_INFO_DEF + 1:
+                        player->CastSpell(player, SUMMON_GEZZARAK_THE_HUNTRESS, false);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 2:
+                        player->CastSpell(player, SUMMON_DARKSCREECHER_AKKARAI, false);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 3:
+                        player->CastSpell(player, SUMMON_KARROG, false);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 4:
+                        player->CastSpell(player, SUMMON_VAKKIZ_THE_WINDRAGER, false);
+                        break;
+                }
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
         {
-            AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_GEZZARAK_THE_HUNTRESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_DARKSCREECHER_AKKARAI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_KARROG,                GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-            AddGossipItemFor(player, GOSSIP_MENU_ID_SKULL_PILE, OPTION_ID_VAKKIZ_THE_WINDRAGER,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+            return new go_skull_pileAI(go);
         }
-
-        SendGossipMenuFor(player, go->GetGOInfo()->questgiver.gossipID, go->GetGUID());
-        return true;
-    }
-
-    void SendActionMenu(Player* player, GameObject* /*go*/, uint32 action)
-    {
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                  player->CastSpell(player, SUMMON_GEZZARAK_THE_HUNTRESS, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                  player->CastSpell(player, SUMMON_DARKSCREECHER_AKKARAI, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                  player->CastSpell(player, SUMMON_KARROG, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 4:
-                  player->CastSpell(player, SUMMON_VAKKIZ_THE_WINDRAGER, false);
-                break;
-        }
-    }
 };
 
 /*######
@@ -591,30 +605,40 @@ enum Slim
 
 class npc_slim : public CreatureScript
 {
-public:
-    npc_slim() : CreatureScript("npc_slim") { }
+    public:
+        npc_slim() : CreatureScript("npc_slim") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsVendor() && player->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
+        struct npc_slimAI : public ScriptedAI
         {
-            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            SendGossipMenuFor(player, NPC_TEXT_I_SEE_YOU_ARE_A_FRIEND, creature->GetGUID());
-        }
-        else
-            SendGossipMenuFor(player, NPC_TEXT_NEITHER_SLIM_NOR_SHADY, creature->GetGUID());
+            npc_slimAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            {
+                ClearGossipMenuFor(player);
+                if (gossipListId == GOSSIP_ACTION_TRADE)
+                    player->GetSession()->SendListInventory(me->GetGUID());
+
+                return true;
+            }
+
+            bool GossipHello(Player* player) override
+            {
+                if (me->IsVendor() && player->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
+                {
+                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    SendGossipMenuFor(player, NPC_TEXT_I_SEE_YOU_ARE_A_FRIEND, me->GetGUID());
+                }
+                else
+                    SendGossipMenuFor(player, NPC_TEXT_NEITHER_SLIM_NOR_SHADY, me->GetGUID());
+
+                return true;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_slimAI(creature);
+        }
 };
 
 /*########
@@ -629,57 +653,55 @@ enum Akuno
 
 class npc_akuno : public CreatureScript
 {
-public:
-    npc_akuno() : CreatureScript("npc_akuno") { }
+    public:
+        npc_akuno() : CreatureScript("npc_akuno") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (npc_akunoAI* pEscortAI = CAST_AI(npc_akuno::npc_akunoAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID());
-
-            if (player->GetTeamId() == TEAM_ALLIANCE)
-                creature->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
-            else
-                creature->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_PASSIVE);
+            return new npc_akunoAI(creature);
         }
-        return true;
-    }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_akunoAI(creature);
-    }
-
-    struct npc_akunoAI : public npc_escortAI
-    {
-        npc_akunoAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId) override
+        struct npc_akunoAI : public npc_escortAI
         {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
+            npc_akunoAI(Creature* creature) : npc_escortAI(creature) { }
 
-            switch (waypointId)
+            void QuestAccept(Player* player, Quest const* quest) override
             {
-                case 3:
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    break;
-                case 11:
-                    if (player->GetTypeId() == TYPEID_PLAYER)
-                        player->GroupEventHappens(QUEST_ESCAPING_THE_TOMB, me);
-                    break;
-            }
-        }
+                if (quest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
+                {
+                    Start(false, false, player->GetGUID());
 
-        void JustSummoned(Creature* summon) override
-        {
-            summon->AI()->AttackStart(me);
-        }
-    };
+                    if (player->GetTeamId() == TEAM_ALLIANCE)
+                        me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
+                    else
+                        me->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_PASSIVE);
+                }
+            }
+
+            void WaypointReached(uint32 waypointId) override
+            {
+                Player* player = GetPlayerForEscort();
+                if (!player)
+                    return;
+
+                switch (waypointId)
+                {
+                    case 3:
+                        me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        break;
+                    case 11:
+                        if (player->GetTypeId() == TYPEID_PLAYER)
+                            player->GroupEventHappens(QUEST_ESCAPING_THE_TOMB, me);
+                        break;
+                }
+            }
+
+            void JustSummoned(Creature* summon) override
+            {
+                summon->AI()->AttackStart(me);
+            }
+        };
 };
 
 void AddSC_terokkar_forest()

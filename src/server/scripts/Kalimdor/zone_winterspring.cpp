@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GameObjectAI.h"
 
 enum Says
 {
@@ -258,21 +259,7 @@ class npc_ranshalla : public CreatureScript
 {
 public:
     npc_ranshalla() : CreatureScript("npc_ranshalla") { }
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_GUARDIANS_ALTAR)
-        {
-            creature->AI()->Talk(SAY_QUEST_START);
-            creature->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
 
-            if (npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshallaAI*>(creature->AI()))
-                escortAI->Start(false, false, player->GetGUID(), quest);
-
-            return true;
-        }
-
-        return false;
-    }
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ranshallaAI(creature);
@@ -298,6 +285,16 @@ public:
         ObjectGuid _guardEluneGUID;
         ObjectGuid _voiceEluneGUID;
         ObjectGuid _altarGUID;
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_GUARDIANS_ALTAR)
+            {
+                Talk(SAY_QUEST_START);
+                me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
+                Start(false, false, player->GetGUID(), quest);
+            }
+        }
 
         void Reset() override
         {
@@ -565,25 +562,35 @@ public:
 
 class go_elune_fire : public GameObjectScript
 {
-public:
-    go_elune_fire() : GameObjectScript("go_elune_fire") { }
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        // Check if we are using the torches or the altar
-        bool isAltar = false;
+    public:
+        go_elune_fire() : GameObjectScript("go_elune_fire") { }
 
-        if (go->GetEntry() == GO_ELUNE_ALTAR)
-            isAltar = true;
-
-        if (Creature* ranshalla = GetClosestCreatureWithEntry(go, NPC_RANSHALLA, 10.0f))
+        struct go_elune_fireAI : public GameObjectAI
         {
-            if (npc_ranshalla::npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshalla::npc_ranshallaAI*>(ranshalla->AI()))
-                escortAI->DoContinueEscort(isAltar);
-        }
-        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go_elune_fireAI(GameObject* go) : GameObjectAI(go) { }
 
-        return false;
-    }
+            bool GossipHello(Player* /*player*/) override
+            {
+                // Check if we are using the torches or the altar
+                bool isAltar = false;
+
+                if (me->GetEntry() == GO_ELUNE_ALTAR)
+                    isAltar = true;
+
+                if (Creature* ranshalla = GetClosestCreatureWithEntry(me, NPC_RANSHALLA, 10.0f))
+                {
+                    if (npc_ranshalla::npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshalla::npc_ranshallaAI*>(ranshalla->AI()))
+                        escortAI->DoContinueEscort(isAltar);
+                }
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_elune_fireAI(go);
+        }
 };
 
 void AddSC_winterspring()

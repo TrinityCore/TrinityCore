@@ -73,53 +73,6 @@ class npc_disciple_of_naralex : public CreatureScript
 public:
     npc_disciple_of_naralex() : CreatureScript("npc_disciple_of_naralex") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        InstanceScript* instance = creature->GetInstanceScript();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            CloseGossipMenuFor(player);
-            if (instance)
-                instance->SetData(DATA_NARALEX_EVENT, IN_PROGRESS);
-
-            creature->AI()->Talk(SAY_MAKE_PREPARATIONS);
-
-            creature->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
-            ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
-            ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if(InstanceScript* instance = creature->GetInstanceScript())
-        {
-            creature->CastSpell(player, SPELL_MARK_OF_THE_WILD_RANK_2, true);
-            if ((instance->GetBossState(DATA_LORD_COBRAHN) == DONE) && (instance->GetBossState(DATA_LORD_PYTHAS) == DONE) &&
-                (instance->GetBossState(DATA_LADY_ANACONDRA) == DONE) && (instance->GetBossState(DATA_LORD_SERPENTIS) == DONE))
-            {
-                AddGossipItemFor(player, GOSSIP_OPTION_LET_EVENT_BEGIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, NPC_TEXT_FANGLORDS_ARE_DEAD, creature->GetGUID());
-
-                if (!instance->GetData(DATA_NARALEX_YELLED))
-                {
-                    creature->AI()->Talk(SAY_AT_LAST);
-                    instance->SetData(DATA_NARALEX_YELLED, 1);
-                }
-            }
-            else
-            {
-                SendGossipMenuFor(player, NPC_TEXT_NARALEX_SLEEPS_AGAIN, creature->GetGUID());
-            }
-        }
-        return true;
-    }
-
     struct npc_disciple_of_naralexAI : public npc_escortAI
     {
         npc_disciple_of_naralexAI(Creature* creature) : npc_escortAI(creature)
@@ -132,7 +85,53 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            InstanceScript* instance = me->GetInstanceScript();
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                CloseGossipMenuFor(player);
+                if (instance)
+                    instance->SetData(DATA_NARALEX_EVENT, IN_PROGRESS);
 
+                Talk(SAY_MAKE_PREPARATIONS);
+
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+
+                Start(false, false, player->GetGUID());
+                SetDespawnAtFar(false);
+                SetDespawnAtEnd(false);
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (InstanceScript* instance = me->GetInstanceScript())
+            {
+                me->CastSpell(player, SPELL_MARK_OF_THE_WILD_RANK_2, true);
+                if ((instance->GetBossState(DATA_LORD_COBRAHN) == DONE) && (instance->GetBossState(DATA_LORD_PYTHAS) == DONE) &&
+                    (instance->GetBossState(DATA_LADY_ANACONDRA) == DONE) && (instance->GetBossState(DATA_LORD_SERPENTIS) == DONE))
+                {
+                    AddGossipItemFor(player, GOSSIP_OPTION_LET_EVENT_BEGIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    SendGossipMenuFor(player, NPC_TEXT_FANGLORDS_ARE_DEAD, me->GetGUID());
+
+                    if (!instance->GetData(DATA_NARALEX_YELLED))
+                    {
+                        Talk(SAY_AT_LAST);
+                        instance->SetData(DATA_NARALEX_YELLED, 1);
+                    }
+                }
+                else
+                {
+                    SendGossipMenuFor(player, NPC_TEXT_NARALEX_SLEEPS_AGAIN, me->GetGUID());
+                }
+            }
+            return true;
+        }
 
         void WaypointReached(uint32 waypointId) override
         {

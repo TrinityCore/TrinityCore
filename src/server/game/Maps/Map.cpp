@@ -2528,14 +2528,18 @@ void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFul
     if (vmapData.areaInfo)
         data.areaInfo = boost::in_place(vmapData.areaInfo->adtId, vmapData.areaInfo->rootId, vmapData.areaInfo->groupId, vmapData.areaInfo->mogpFlags);
 
+    float mapHeight = VMAP_INVALID_HEIGHT;
     GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y);
-    float mapHeight = gmap->getHeight(x, y);
+    if (gmap)
+        mapHeight = gmap->getHeight(x, y);
 
     // area lookup
     AreaTableEntry const* areaEntry = nullptr;
     if (vmapData.areaInfo && (z + 2.0f <= mapHeight || mapHeight <= vmapData.floorZ))
         if (WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId))
             areaEntry = sAreaTableStore.LookupEntry(wmoEntry->areaId);
+
+    data.areaId = 0;
 
     if (areaEntry)
     {
@@ -3140,7 +3144,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
 
             // increase current instances (hourly limit)
             if (!group || !group->isLFGGroup())
-                player->AddInstanceEnterTime(GetInstanceId(), time(NULL));
+                player->AddInstanceEnterTime(GetInstanceId(), time(nullptr));
 
             // get or create an instance save for the map
             InstanceSave* mapSave = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());

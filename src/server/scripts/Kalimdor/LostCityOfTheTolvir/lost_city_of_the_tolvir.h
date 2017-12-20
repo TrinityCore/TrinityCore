@@ -26,30 +26,36 @@ uint32 const EncounterCount = 4;
 enum LCTDataTypes
 {
     // Encounter States
-    DATA_GENERAL_HUSAM      = 1,
-    DATA_LOCKMAW            = 2,
-    DATA_AUGH               = 3,
-    DATA_HIGH_PROPHET_BARIM = 4,
-    DATA_SIAMAT             = 5,
+    DATA_GENERAL_HUSAM          = 1,
+    DATA_LOCKMAW                = 2,
+    DATA_AUGH                   = 3,
+    DATA_HIGH_PROPHET_BARIM     = 4,
+    DATA_SIAMAT                 = 5,
 
     // Additional Data
-    DATA_SIAMAT_PLATFORM    = 6
+    DATA_SIAMAT_PLATFORM        = 6,
+    DATA_BLAZE_OF_THE_HEAVENS   = 7,
+    DATA_HARBINGER_OF_DARKNESS  = 8,
 };
 
 enum LCTCreatureIds
 {
     // Bosses
-    BOSS_GENERAL_HUSAM          = 44577,
-    BOSS_LOCKMAW                = 43614,
-    BOSS_AUGH                   = 49045,
-    BOSS_HIGH_PROPHET_BARIM     = 43612,
-    BOSS_SIAMAT                 = 44819,
+    BOSS_GENERAL_HUSAM              = 44577,
+    BOSS_LOCKMAW                    = 43614,
+    BOSS_AUGH                       = 49045,
+    BOSS_HIGH_PROPHET_BARIM         = 43612,
+    BOSS_SIAMAT                     = 44819,
 
     // Misc
-    NPC_BAD_INTENTIONS_TARGET   = 44586,
-    NPC_SHOCKWAVE_STALKER       = 44711,
-    NPC_SHOCKWAVE_VISUAL        = 44712,
-    NPC_TOLVIR_LAND_MINE        = 44796
+    NPC_BAD_INTENTIONS_TARGET       = 44586,
+    NPC_SHOCKWAVE_STALKER           = 44711,
+    NPC_SHOCKWAVE_VISUAL            = 44712,
+    NPC_TOLVIR_LAND_MINE            = 44796,
+    NPC_REPENTANCE                  = 43817,
+    NPC_BLAZE_OF_THE_HEAVENS        = 48906,
+    NPC_SOUL_FRAGMENT               = 43934,
+    NPC_HARBINGER_OF_DARKNESS       = 43927,
 };
 
 enum LCTGameObjectIds

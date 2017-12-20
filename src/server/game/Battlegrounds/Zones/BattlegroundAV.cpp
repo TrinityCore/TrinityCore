@@ -274,7 +274,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
 {
     bool isStatic = false;
     Creature* creature = NULL;
-    ASSERT(type <= AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
+    ASSERT(type < AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
     if (type >= AV_CPLACE_MAX) //static
     {
         type -= AV_CPLACE_MAX;

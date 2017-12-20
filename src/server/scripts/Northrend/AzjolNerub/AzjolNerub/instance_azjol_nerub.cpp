@@ -67,6 +67,7 @@ class instance_azjol_nerub : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameobjectData);
+                GateWatcherGreet = 0;
             }
 
             void OnUnitDeath(Unit* who) override
@@ -94,6 +95,32 @@ class instance_azjol_nerub : public InstanceMapScript
 
                 return true;
             }
+
+            uint32 GetData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_GATEWATCHER_GREET:
+                        return GateWatcherGreet;
+                    default:
+                        return 0;
+                }
+            }
+
+            void SetData(uint32 type, uint32 data) override
+            {
+                switch (type)
+                {
+                    case DATA_GATEWATCHER_GREET:
+                        GateWatcherGreet = data;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+        protected:
+            uint8 GateWatcherGreet;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

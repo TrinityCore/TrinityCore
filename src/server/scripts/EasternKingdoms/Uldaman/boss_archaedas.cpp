@@ -30,6 +30,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "uldaman.h"
 #include "Player.h"
+#include "GameObjectAI.h"
 
 enum Says
 {
@@ -394,22 +395,28 @@ EndScriptData */
 class go_altar_of_archaedas : public GameObjectScript
 {
     public:
+        go_altar_of_archaedas() : GameObjectScript("go_altar_of_archaedas") { }
 
-        go_altar_of_archaedas()
-            : GameObjectScript("go_altar_of_archaedas")
+        struct go_altar_of_archaedasAI : public GameObjectAI
         {
-        }
+            go_altar_of_archaedasAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) override
-        {
-            InstanceScript* instance = player->GetInstanceScript();
-            if (!instance)
+            bool GossipHello(Player* player) override
+            {
+                InstanceScript* instance = player->GetInstanceScript();
+                if (!instance)
+                    return false;
+
+                player->CastSpell(player, SPELL_BOSS_OBJECT_VISUAL, false);
+
+                instance->SetGuidData(0, player->GetGUID());     // activate archaedas
                 return false;
+            }
+        };
 
-            player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
-
-            instance->SetGuidData(0, player->GetGUID());     // activate archaedas
-            return false;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_altar_of_archaedasAI(go);
         }
 };
 
