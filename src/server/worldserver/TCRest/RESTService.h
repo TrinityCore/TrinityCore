@@ -38,7 +38,7 @@ typedef SimpleWeb::Server<SimpleWeb::HTTP> HttpServer;
 class RESTService
 {
 public:
-    RESTService() { }
+    RESTService() { _started = false; }
 
     static RESTService& Instance();
 
@@ -56,6 +56,7 @@ private:
     RestResponse _response;
     boost::asio::ip::tcp::endpoint _externalAddress;
     boost::asio::ip::tcp::endpoint _localAddress;
+    bool _started;
 };
 
 #define sRestService RESTService::Instance()

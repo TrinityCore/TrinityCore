@@ -107,13 +107,16 @@ bool RESTService::Start()
 void RESTService::Stop()
 {
     TC_LOG_DEBUG("server.rest", "Stoping WorldRest server");
-    _restServer.stop();
+
+    if (_started)
+        _restServer.stop();
 }
 
 void RESTService::Run()
 {
     TC_LOG_DEBUG("server.rest", "Starting WorldRest server");
     _restServer.start();
+    _started = true;
 }
 
 bool RESTService::checkAuthTokenHeader(std::shared_ptr<HttpServer::Request> request)

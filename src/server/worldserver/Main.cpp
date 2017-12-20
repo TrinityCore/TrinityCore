@@ -332,9 +332,9 @@ extern int main(int argc, char** argv)
             TC_LOG_ERROR("server.worldserver", "Failed to initialize Rest service");
             return 1;
         }
-
-        std::shared_ptr<void> sRestServiceHandle(nullptr, [](void*) { sRestService.Stop(); });
     }
+
+    std::shared_ptr<void> sRestServiceHandle(nullptr, [](void*) { sRestService.Stop(); });
 
     std::shared_ptr<void> sWorldSocketMgrHandle(nullptr, [](void*)
     {
