@@ -31,6 +31,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
@@ -2200,11 +2201,21 @@ public:
     {
         at_mage_frozen_orbAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
         {
-            // How often should the action be executed
-            timeInterval = 500;
+            damageInterval = 500;
         }
 
-        int32 timeInterval;
+        uint32 damageInterval;
+
+        void OnInitialize() override
+        {
+            Unit* caster = at->GetCaster();
+            if (!caster)
+                return;
+
+            Position pos = caster->GetPosition();
+            caster->MovePositionToFirstCollision(pos, 40.0f, caster->GetOrientation());
+            at->SetDestination(pos, 5000);
+        }
 
         void OnCreate() override
         {
@@ -2222,26 +2233,16 @@ public:
         void OnUpdate(uint32 diff) override
         {
             Unit* caster = at->GetCaster();
-            if (!caster)
+            if (!caster || !caster->IsPlayer())
                 return;
 
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            // Check if we can handle actions
-            timeInterval += diff;
-            if (timeInterval < 500)
-                return;
-
-            if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(),TEMPSUMMON_TIMED_DESPAWN, 200))
+            if (damageInterval <= diff)
             {
-                tempSumm->setFaction(caster->getFaction());
-                tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
-                caster->CastSpell(tempSumm, SPELL_MAGE_FROZEN_ORB_DAMAGE, true);
+                caster->CastSpell(at->GetPosition(), SPELL_MAGE_FROZEN_ORB_DAMAGE, true);
+                damageInterval = 500;
             }
-
-            timeInterval -= 500;
+            else
+                damageInterval -= diff;
         }
     };
 
