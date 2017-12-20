@@ -5139,7 +5139,7 @@ void Spell::EffectCreateTamedPet(SpellEffIndex /*effIndex*/)
 
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
     {
-        pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
+        pet->SavePetToDB(PET_SAVE_NEW_PET);
         unitTarget->ToPlayer()->PetSpellInitialize();
     }
 }
