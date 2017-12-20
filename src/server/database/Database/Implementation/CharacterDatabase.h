@@ -644,6 +644,8 @@ enum CharacterDatabaseStatements : uint32
 
     CHAR_UPD_XP_RATE,
 
+    CHAR_LOG_GM_COMMAND,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 

@@ -759,6 +759,12 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // Custom
     PrepareStatement(CHAR_UPD_XP_RATE, "UPDATE characters SET xpRate = ? WHERE guid = ?", CONNECTION_ASYNC);
+
+    // Logs
+    PrepareStatement(CHAR_LOG_GM_COMMAND, "INSERT INTO `log_gm` (`id`, `date`, "
+                                                                "`gm_account_id`, `gm_account_name`, `gm_character_id`, `gm_character_name`, `gm_ip`, "
+                                                                "`target_account_id`, `target_account_name`, `target_character_id`, `target_character_name`, `target_ip`, `command`) "
+                                                                "VALUES (0, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)
