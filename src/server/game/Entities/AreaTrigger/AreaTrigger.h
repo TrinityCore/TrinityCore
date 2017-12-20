@@ -86,6 +86,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget);
         void InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget);
         bool HasSplines() const;
+        bool SetDestination(Position const& pos, uint32 timeToTarget);
         ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
