@@ -16,36 +16,46 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptMgr.h"
-#include "darkheart_thicket.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "darkheart_thicket.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
     //Breath of Corruption
-    SPELL_BOC_TARGET = 191325, //Targets a tank
-    SPELL_BOC_DAMAGE = 191326, //Ticks every second for 3 seconds
+    SPELL_BOC_TARGET        = 191325, //Targets a tank
+    SPELL_BOC_DAMAGE        = 191326, //Ticks every second for 3 seconds
 
     //Down Draft
-    SPELL_DD_TARGET = 199345,
-    SPELL_DD_AT = 199348,
-    SPELL_DD_DOT = 220855,
-    SPELL_DD_CHARGE = 199351,
+    SPELL_DD_TARGET         = 199345,
+    SPELL_DD_AT             = 199348,
+    SPELL_DD_DOT            = 220855,
+    SPELL_DD_CHARGE         = 199351,
 
 
     //Earthshaking Roar
-    //                         199385 ?
-    SPELL_ER_TARGET = 199389,
-    SPELL_ER_DAMAGE = 218587,
+    //                        199385 ?
+    SPELL_ER_TARGET         = 199389,
+    SPELL_ER_DAMAGE         = 218587,
 
 
     //Falling Rocks
     SPELL_FR_TRIGGERMISSILE = 141461,
-    SPELL_FR_MISSILE = 141463,
-    SPELL_FR_AT = 163897,
-    SPELL_FR_DOT = 163900,
-    SPELL_FR_AT_1 = 199458,
+    SPELL_FR_MISSILE        = 141463,
+    SPELL_FR_AT             = 163897,
+    SPELL_FR_DOT            = 163900,
+    SPELL_FR_AT_1           = 199458,
 };
 
 enum Events

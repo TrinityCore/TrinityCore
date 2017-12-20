@@ -16,10 +16,13 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
 #include "darkheart_thicket.h"
 #include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 DoorData const doorData[] =
 {
