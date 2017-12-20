@@ -155,6 +155,9 @@ enum TalentTree // talent tabs
     TALENT_TREE_DRUID_RESTORATION    = 748
 };
 
+#define MAX_ARMOR_SPECIALIZATION_IDS 7
+uint32 const ArmorSpecializationIds[MAX_ARMOR_SPECIALIZATION_IDS] = { 86530, 86531, 86529, 86528, 86525, 86524, 86526 };
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -1382,6 +1385,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS, count); }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = nullptr) const;
+        bool HasAllItemsToFitToSpellRequirements(SpellInfo const* spellInfo);
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
         bool HasItemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
@@ -1807,9 +1811,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
         uint32 GetPrimaryTalentTree(uint8 spec) const { return _talentMgr->SpecInfo[spec].TalentTree; }
-        void SetPrimaryTalentTree(uint8 spec, uint32 tree) { _talentMgr->SpecInfo[spec].TalentTree = tree; }
+        void SetPrimaryTalentTree(uint8 spec, uint32 tree) { _talentMgr->SpecInfo[spec].TalentTree = tree; UpdateArmorSpecialization(); }
         uint8 GetActiveSpec() const { return _talentMgr->ActiveSpec; }
-        void SetActiveSpec(uint8 spec){ _talentMgr->ActiveSpec = spec; }
+        void SetActiveSpec(uint8 spec){ _talentMgr->ActiveSpec = spec; UpdateArmorSpecialization(); }
         uint8 GetSpecsCount() const { return _talentMgr->SpecsCount; }
         void SetSpecsCount(uint8 count) { _talentMgr->SpecsCount = count; }
 
@@ -1824,6 +1828,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
         uint32 CalculateTalentsPoints() const;
+
+        // Armor Specializaion
+        void UpdateArmorSpecialization();
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);

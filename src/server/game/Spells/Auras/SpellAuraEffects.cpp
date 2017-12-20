@@ -1967,7 +1967,10 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     }
 
     if (target->GetTypeId() == TYPEID_PLAYER)
+    {
         target->ToPlayer()->InitDataForForm();
+        target->ToPlayer()->UpdateArmorSpecialization();
+    }
 
     if (target->getClass() == CLASS_DRUID)
     {

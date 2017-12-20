@@ -11969,6 +11969,8 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         else if (slot == EQUIPMENT_SLOT_OFFHAND)
             UpdateExpertise(OFF_ATTACK);
 
+        UpdateArmorSpecialization();
+
         switch (slot)
         {
             case EQUIPMENT_SLOT_MAINHAND:
@@ -12004,6 +12006,8 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         pItem2->SetState(ITEM_CHANGED, this);
 
         ApplyEquipCooldown(pItem2);
+
+        UpdateArmorSpecialization();
 
         return pItem2;
     }
@@ -12166,6 +12170,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         pItem->SetGuidValue(ITEM_FIELD_CONTAINED, ObjectGuid::Empty);
         // pItem->SetUInt64Value(ITEM_FIELD_OWNER, 0); not clear owner at remove (it will be set at store). This used in mail and auction code
         pItem->SetSlot(NULL_SLOT);
+        UpdateArmorSpecialization();
         if (IsInWorld() && update)
             pItem->SendUpdateToPlayer(this);
     }
@@ -17861,6 +17866,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         if (talentTree != 0 && !sTalentTabStore.LookupEntry(talentTree) && i == GetActiveSpec())
             SetAtLoginFlag(AT_LOGIN_RESET_TALENTS); // invalid tree, reset talents
     }
+
+    // We neeed to update the armor specialization after the talenttree was set
+    UpdateArmorSpecialization();
 
     TC_LOG_DEBUG("entities.player.loading", "The value of player %s after load item and aura is: ", m_name.c_str());
     outDebugValues();
@@ -24215,6 +24223,21 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
     return false;
 }
 
+bool Player::HasAllItemsToFitToSpellRequirements(SpellInfo const* spellInfo)
+{
+    uint8 count = 0;
+
+    for (uint8 slot = EQUIPMENT_SLOT_START; slot <= EQUIPMENT_SLOT_HANDS; ++slot)
+        if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, slot))
+            if (item->IsFitToSpellRequirements(spellInfo))
+                ++count;
+
+    if (count >= 8)
+        return true;
+
+    return false;
+}
+
 bool Player::CanNoReagentCast(SpellInfo const* spellInfo) const
 {
     // don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_WHILE_PREP
@@ -27143,6 +27166,28 @@ bool Player::IsInWhisperWhiteList(ObjectGuid guid)
             return true;
 
     return false;
+}
+
+void Player::UpdateArmorSpecialization()
+{
+    // Remove Auras  with SPELL_ATTR8_ARMOR_SPECIALIZATION
+    for (AuraApplicationMap::iterator itr = m_appliedAuras.begin(); itr != m_appliedAuras.end();)
+    {
+        SpellInfo const* spell = itr->second->GetBase()->GetSpellInfo();
+        if (spell->AttributesEx8 & SPELL_ATTR8_ARMOR_SPECIALIZATION)
+            RemoveAura(itr);
+        else
+            ++itr;
+    }
+
+    for (uint8 id = 0; id < MAX_ARMOR_SPECIALIZATION_IDS; id++)
+    {
+        if (HasSpell(ArmorSpecializationIds[id]))
+        {
+            CastSpell(this, ArmorSpecializationIds[id], TRIGGERED_FULL_MASK);
+            break;
+        }
+    }
 }
 
 uint8 Player::GetNextVoidStorageFreeSlot() const
