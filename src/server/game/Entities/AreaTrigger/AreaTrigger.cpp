@@ -28,6 +28,7 @@
 #include "Log.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
@@ -692,6 +693,18 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
 bool AreaTrigger::HasSplines() const
 {
     return bool(_spline);
+}
+
+bool AreaTrigger::SetDestination(Position const& pos, uint32 timeToTarget)
+{
+    PathGenerator path(GetCaster());
+    bool result = path.CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true);
+
+    if (!result || path.GetPathType() & PATHFIND_NOPATH)
+        return false;
+
+    InitSplines(path.GetPath(), timeToTarget);
+    return true;
 }
 
 void AreaTrigger::UpdateSplinePosition(uint32 diff)
