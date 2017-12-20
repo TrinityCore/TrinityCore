@@ -2205,6 +2205,7 @@ public:
         }
 
         uint32 damageInterval;
+        bool procDone = false;
 
         void OnInitialize() override
         {
@@ -2223,10 +2224,6 @@ public:
             if (!caster)
                 return;
 
-            if (caster->HasAura(SPELL_MAGE_FINGERS_OF_FROST_AURA))
-                caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_VISUAL_UI, true);
-
-            caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_AURA, true);
             at->SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, 40291);
         }
 
@@ -2238,6 +2235,18 @@ public:
 
             if (damageInterval <= diff)
             {
+                if (!procDone)
+                    for (ObjectGuid guid : at->GetInsideUnits())
+                        if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                            if (caster->IsValidAttackTarget(unit))
+                            {
+                                if (caster->HasAura(SPELL_MAGE_FINGERS_OF_FROST_AURA))
+                                    caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_VISUAL_UI, true);
+
+                                caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_AURA, true);
+                                procDone = true;
+                            }
+
                 caster->CastSpell(at->GetPosition(), SPELL_MAGE_FROZEN_ORB_DAMAGE, true);
                 damageInterval = 500;
             }
@@ -2264,38 +2273,39 @@ public:
     {
         at_mage_arcane_orbAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
         {
-            // How often should the action be executed
-            timeInterval = 500;
+            damageInterval = 500;
         }
 
-        int32 timeInterval;
+        uint32 damageInterval;
 
-        void OnUpdate(uint32 diff) override
+        void OnInitialize() override
         {
             Unit* caster = at->GetCaster();
             if (!caster)
                 return;
 
-            if (caster->GetTypeId() != TYPEID_PLAYER)
+            Position pos = caster->GetPosition();
+            caster->MovePositionToFirstCollision(pos, 40.0f, caster->GetOrientation());
+            at->SetDestination(pos, 5000);
+        }
+
+        void OnUpdate(uint32 diff) override
+        {
+            Unit* caster = at->GetCaster();
+            if (!caster || !caster->IsPlayer())
                 return;
 
-            // Check if we can handle actions
-            timeInterval += diff;
-            if (timeInterval < 500)
-                return;
-
-            for (auto guid : at->GetInsideUnits())
+            if (damageInterval <= diff)
             {
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                {
-                    if (!caster->IsFriendlyTo(unit))
-                    {
-                        caster->CastSpell(unit, SPELL_MAGE_ARCANE_ORB_DAMAGE, true);
-                    }
-                }
-            }
+                for (ObjectGuid guid : at->GetInsideUnits())
+                    if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                        if (caster->IsValidAttackTarget(unit))
+                            caster->CastSpell(unit, SPELL_MAGE_ARCANE_ORB_DAMAGE, true);
 
-            timeInterval -= 500;
+                damageInterval = 500;
+            }
+            else
+                damageInterval -= 500;
         }
     };
 
