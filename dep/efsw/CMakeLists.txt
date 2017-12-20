@@ -73,6 +73,8 @@ if (BUILD_SHARED_LIBS)
       ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
   target_link_libraries(efsw
+    PRIVATE
+      trinity-dependency-interface
     PUBLIC
       threads
       ${OPTIONAL_MAC_LINK_LIBRARIES})
