@@ -321,6 +321,31 @@ class spell_gen_aura_of_anger : public AuraScript
     }
 };
 
+// 28313 - Aura of Fear
+class spell_gen_aura_of_fear : public AuraScript
+{
+    PrepareAuraScript(spell_gen_aura_of_fear);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0)->TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        if (!roll_chance_i(GetSpellInfo()->ProcChance))
+            return;
+
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_aura_of_fear::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 enum ServiceUniform
 {
     // Spells
@@ -2132,6 +2157,21 @@ class spell_gen_proc_below_pct_damaged : public SpellScriptLoader
         }
 };
 
+class spell_gen_proc_charge_drop_only : public AuraScript
+{
+    PrepareAuraScript(spell_gen_proc_charge_drop_only);
+
+    void HandleChargeDrop(ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_gen_proc_charge_drop_only::HandleChargeDrop);
+    }
+};
+
 enum ParachuteSpells
 {
     SPELL_PARACHUTE         = 45472,
@@ -3853,6 +3893,7 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_gen_animal_blood);
     RegisterAuraScript(spell_gen_arena_drink);
     RegisterAuraScript(spell_gen_aura_of_anger);
+    RegisterAuraScript(spell_gen_aura_of_fear);
     RegisterAuraScript(spell_gen_aura_service_uniform);
     RegisterAuraScript(spell_gen_av_drekthar_presence);
     RegisterSpellScript(spell_gen_bandage);
@@ -3911,6 +3952,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_proc_below_pct_damaged("spell_item_corpse_tongue_coin_heroic");
     new spell_gen_proc_below_pct_damaged("spell_item_petrified_twilight_scale");
     new spell_gen_proc_below_pct_damaged("spell_item_petrified_twilight_scale_heroic");
+    RegisterAuraScript(spell_gen_proc_charge_drop_only);
     RegisterAuraScript(spell_gen_parachute);
     RegisterSpellScript(spell_gen_pet_summoned);
     RegisterSpellScript(spell_gen_profession_research);
