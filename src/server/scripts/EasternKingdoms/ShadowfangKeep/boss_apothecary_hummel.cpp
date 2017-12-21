@@ -32,7 +32,6 @@ enum ApothecarySpells
     SPELL_PERFUME_SPRAY          = 68607,
     SPELL_CHAIN_REACTION         = 68821,
     SPELL_SUMMON_TABLE           = 69218,
-    SPELL_PERMANENT_FEIGN_DEATH  = 29266,
     SPELL_QUIET_SUICIDE          = 3617,
     SPELL_COLOGNE_SPRAY          = 68948,
     SPELL_VALIDATE_AREA          = 68644,

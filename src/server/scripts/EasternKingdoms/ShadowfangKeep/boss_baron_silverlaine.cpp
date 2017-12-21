@@ -53,11 +53,6 @@ enum Events
     EVENT_SOUL_DRAIN
 };
 
-enum Actions
-{
-    ACTION_DESPAWN = 1
-};
-
 enum Spells
 {
     SPELL_VEIL_OF_SHADOWS                           = 23224,
