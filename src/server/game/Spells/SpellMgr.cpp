@@ -4098,6 +4098,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
     // THE LOST CITY OF THE TOL'VIR SPELLS
     //
+    // General Husam
     // Summon Shockwave Target N
     ApplySpellFix({ 83131 }, [](SpellInfo* spellInfo)
     {
@@ -4109,6 +4110,62 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+    });
+    // High Prophet Barim
+    // Heaven's Fury
+    ApplySpellFix({ 81942, 90040 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
+    });
+    // Hallowed Ground
+    ApplySpellFix({ 88814, 90010 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
+        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
+    });
+    // Blaze of the Heavens
+    ApplySpellFix({ 91196 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
+    });
+    // Repentance
+    ApplySpellFix({ 82430 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MiscValue = 150;
+    });
+    // Blaze of the Heavens
+    ApplySpellFix({ 95249 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
+    });
+    // Lockmaw and Augh
+    // Dust Flail
+    ApplySpellFix({ 81643, 81652 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_11_YARDS);
+    });
+    // Siamat
+    // Deflecting Winds
+    // Why would Siamat silence and pacify himself if he is suposed to cast spells?
+    ApplySpellFix({ 84589 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+    });
+    // Cloud Burst
+    ApplySpellFix({ 83790 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
+    });
+    // Lightning Charge
+    ApplySpellFix({ 91872 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+    });
+    // Generic Spells
+    // Slipstream
+    ApplySpellFix({ 91872 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
     });
     // ENDOF THE LOST CITY OF THE TOL'VIR SPELLS
 
