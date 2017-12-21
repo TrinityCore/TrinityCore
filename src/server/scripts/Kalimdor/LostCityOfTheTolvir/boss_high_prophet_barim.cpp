@@ -128,6 +128,7 @@ public:
         void Reset() override
         {
             _Reset();
+            me->SetReactState(REACT_AGGRESSIVE);
             _repentanceStarted = false;
         }
 
