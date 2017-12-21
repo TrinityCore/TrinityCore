@@ -1434,7 +1434,7 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
                         {
                             CheckLornaRelated(player);
-                            if (abs(m_oldPosition.GetExactDist(player) > 0.5f))
+                            if (m_oldPosition.GetExactDist(player) > 0.5f)
                             {
                                 Position pos;
                                 player->GetNearPoint(player, pos.m_positionX, pos.m_positionY, pos.m_positionZ, m_size, m_dist, m_angle);

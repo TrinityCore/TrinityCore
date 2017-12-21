@@ -1627,7 +1627,7 @@ public:
             for (auto target : tList)
             {
                 Position posT = target->GetTransOffset();
-                if (abs(posT.GetPositionZ() - floorZ) < 4.0f)
+                if (fabs(posT.GetPositionZ() - floorZ) < 4.0f)
                 {
                     float d1 = posS.GetExactDist2d(&posT);
                     if (d1 < dist)
@@ -1645,7 +1645,7 @@ public:
             std::list<Creature*> cList = me->FindNearestCreatures(NPC_GUNSHIP_GRUNT, range);
             for (auto grunt : cList)
                 if (grunt->IsAlive())
-                    if (abs(grunt->GetTransOffset().GetPositionZ() - floorZ) < 3.0f)
+                    if (fabs(grunt->GetTransOffset().GetPositionZ() - floorZ) < 3.0f)
                         grunt->SetReactState(react);
         }
 
@@ -1654,7 +1654,7 @@ public:
             std::list<Creature*> cList = me->FindNearestCreatures(NPC_GUNSHIP_GRUNT, range);
             for (auto grunt : cList)
                 if (grunt->IsAlive())
-                    if (abs(source->GetTransOffset().GetPositionZ() - grunt->GetTransOffset().GetPositionZ()) < 3.0f)
+                    if (fabs(source->GetTransOffset().GetPositionZ() - grunt->GetTransOffset().GetPositionZ()) < 3.0f)
                     {
                         return grunt;
                     }
@@ -1679,7 +1679,7 @@ public:
 
         bool isInSameTranportFloor(Creature* creature)
         {
-            float diff = abs(me->GetTransOffset().GetPositionZ() - creature->GetTransOffset().GetPositionZ());
+            float diff = fabs(me->GetTransOffset().GetPositionZ() - creature->GetTransOffset().GetPositionZ());
             return (diff < 5.0f) ? true : false;
         }
 
@@ -1691,7 +1691,7 @@ public:
             for (std::list<Unit*>::iterator itr = m_targetList.begin(); itr != m_targetList.end(); ++itr)
             {
                 Position pos = (*itr)->GetTransOffset();
-                if (abs(pos.GetPositionZ() - posZ) < rangeZ)
+                if (fabs(pos.GetPositionZ() - posZ) < rangeZ)
                     count += 1;
             }
 
@@ -1728,7 +1728,7 @@ public:
             std::list<Creature*> tList = me->FindNearestCreatures(NPC_GILNEAS_VEHICLE_ROPE, 75.0f);
             for (std::list<Creature*>::iterator itr = tList.begin(); itr != tList.end(); ++itr)
             {
-                float diff = abs((*itr)->GetTransOffset().GetPositionZ() - floorZ);
+                float diff = fabs((*itr)->GetTransOffset().GetPositionZ() - floorZ);
                 if (diff < 5.0f)
                     rList.push_back((*itr));
             }

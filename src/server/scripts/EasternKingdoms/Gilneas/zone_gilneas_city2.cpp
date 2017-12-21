@@ -4638,7 +4638,7 @@ public:
             me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* pWho) override
         {
             if (pWho->GetEntry() == 38348)
             {
