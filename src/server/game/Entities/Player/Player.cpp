@@ -6660,7 +6660,7 @@ void Player::RewardOnKill(Unit* victim, float rate)
     if (victim->ToCreature()->IsReputationGainDisabled())
         return;
 
-    RewardOnKillEntry const* Rew = sObjectMgr->GetRewardOnKillEntry(victim->GetEntry());
+    RewardOnKillEntry const* Rew = sObjectMgr->GetRewardOnKillEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
 
     if (!Rew)
         return;
@@ -6704,21 +6704,21 @@ void Player::RewardOnKill(Unit* victim, float rate)
     if (Rew->CurrencyId1 && Rew->CurrencyCount1)
     {
         CurrencyTypesEntry const* currencyId1 = sCurrencyTypesStore.LookupEntry(Rew->CurrencyId1);
-        if (!currencyId1)
+        if (currencyId1)
             ModifyCurrency(Rew->CurrencyId1, Rew->CurrencyCount1);
     }
 
     if (Rew->CurrencyId2 && Rew->CurrencyCount2)
     {
         CurrencyTypesEntry const* currencyId2 = sCurrencyTypesStore.LookupEntry(Rew->CurrencyId2);
-        if (!currencyId2)
+        if (currencyId2)
             ModifyCurrency(Rew->CurrencyId2, Rew->CurrencyCount2);
     }
 
     if (Rew->CurrencyId3 && Rew->CurrencyCount3)
     {
         CurrencyTypesEntry const* currencyId3 = sCurrencyTypesStore.LookupEntry(Rew->CurrencyId3);
-        if (!currencyId3)
+        if (currencyId3)
             ModifyCurrency(Rew->CurrencyId3, Rew->CurrencyCount3);
     }
 }
