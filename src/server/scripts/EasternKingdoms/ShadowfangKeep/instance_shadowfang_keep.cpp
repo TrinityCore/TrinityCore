@@ -37,9 +37,9 @@ ObjectData const creatureData[] =
 
 ObjectData const gameobjectData[] =
 {
-    { DATA_COURTYARD_DOOR,              GO_COURTYARD_DOOR           },
-    { DATA_SORCERER_GATE,               GO_SORCERER_DOOR            },
-    { DATA_ARUGAL_DOOR,                 GO_ARUGAL_DOOR              },
+    { GO_COURTYARD_DOOR,                DATA_COURTYARD_DOOR,        },
+    { GO_SORCERER_DOOR,                 DATA_SORCERER_GATE,         },
+    { GO_ARUGAL_DOOR,                   DATA_ARUGAL_DOOR,           },
     { 0,                                0                           } // END
 };
 
@@ -88,6 +88,10 @@ public:
                 SetupInstance();
                 _instanceSpawned = true;
             }
+
+            if (GetData(DATA_GODFREY_INTRO) != DONE)
+                if (GameObject* door = GetGameObject(DATA_ARUGAL_DOOR))
+                    door->SetGoState(GO_STATE_READY);
         }
 
         void SetupInstance() // set up instance state depending on the progression within the instance after unloading the instance for some reason (eg. crash)
@@ -111,9 +115,8 @@ public:
                         HandleSpringvaleDeath();
                     else if (GetBossState(DATA_BARON_ASHBURY) == DONE && GetBossState(DATA_BARON_SILVERLAINE) == DONE
                         && GetBossState(DATA_COMMANDER_SPRINGVALE) == DONE && GetBossState(DATA_LORD_WALDEN) == DONE
-                        &&  GetBossState(DATA_LORD_GODFREY) != DONE)
+                        && GetBossState(DATA_LORD_GODFREY) != DONE)
                         HandleWaldenDeath();
-
                     break;
                 case HORDE:
                     if (_teamInInstance == HORDE)

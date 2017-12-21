@@ -96,24 +96,24 @@ enum SKGameObjectIds
 
 enum SKDataTypes
 {
-    DATA_BARON_ASHBURY          = 1,
-    DATA_BARON_SILVERLAINE      = 2,
-    DATA_COMMANDER_SPRINGVALE   = 3,
-    DATA_LORD_WALDEN            = 4,
-    DATA_LORD_GODFREY           = 5,
-    DATA_APOTHECARY_HUMMEL      = 6,
+    DATA_BARON_ASHBURY          = 0,
+    DATA_BARON_SILVERLAINE      = 1,
+    DATA_COMMANDER_SPRINGVALE   = 2,
+    DATA_LORD_WALDEN            = 3,
+    DATA_LORD_GODFREY           = 4,
+    DATA_APOTHECARY_HUMMEL      = 5,
 
-    DATA_TEAM_IN_INSTANCE       = 7,
-    DATA_PACKLEADER_IVAR        = 8,
-    DATA_DEATHSTALKER_BELMONT   = 9,
-    DATA_ASHBURY_OUTRO          = 10,
-    DATA_WALDEN_INTRO           = 11,
-    DATA_WALDEN_OUTRO           = 12,
-    DATA_GODFREY_INTRO          = 13,
-    DATA_ARUGAL_DOOR            = 14,
-    DATA_SORCERER_GATE          = 15,
-    DATA_COURTYARD_DOOR         = 16,
-    DATA_HIGH_WARLORD_CROMUSH   = 17
+    DATA_TEAM_IN_INSTANCE       = 6,
+    DATA_PACKLEADER_IVAR        = 7,
+    DATA_DEATHSTALKER_BELMONT   = 8,
+    DATA_ASHBURY_OUTRO          = 9,
+    DATA_WALDEN_INTRO           = 10,
+    DATA_WALDEN_OUTRO           = 11,
+    DATA_GODFREY_INTRO          = 12,
+    DATA_ARUGAL_DOOR            = 13,
+    DATA_SORCERER_GATE          = 14,
+    DATA_COURTYARD_DOOR         = 15,
+    DATA_HIGH_WARLORD_CROMUSH   = 16
 };
 
 enum SKSummonGroups

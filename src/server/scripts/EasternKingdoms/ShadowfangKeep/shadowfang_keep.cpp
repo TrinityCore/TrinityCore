@@ -435,9 +435,9 @@ class npc_sfk_packleader_ivar_bloodfang : public CreatureScript
 public:
     npc_sfk_packleader_ivar_bloodfang() : CreatureScript("npc_sfk_packleader_ivar_bloodfang") { }
 
-    struct npc_sfk_packleader_ivar_bloodfangAI : public npc_escortAI
+    struct npc_sfk_packleader_ivar_bloodfangAI : public ScriptedAI
     {
-        npc_sfk_packleader_ivar_bloodfangAI(Creature* creature) : npc_escortAI(creature), instance(creature->GetInstanceScript()), summons(me) { }
+        npc_sfk_packleader_ivar_bloodfangAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()), summons(me) { }
 
         InstanceScript* instance;
         EventMap events;
@@ -447,7 +447,6 @@ public:
         {
             summons.Summon(summon);
         }
-
 
         void DoAction(int32 action) override
         {
@@ -472,6 +471,7 @@ public:
                     events.ScheduleEvent(EVENT_FACE_DIRECTION_4, Seconds(4) + Milliseconds(500));
                     break;
                 case ACTION_WALDEN_DEAD:
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     me->GetMotionMaster()->MovePoint(0, IvarWalkPos1, false);
                     events.ScheduleEvent(EVENT_TALK_WALDEN_DEAD, Seconds(7));
                     break;
@@ -504,6 +504,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_MOVE_TO_BALCONY_1:
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->GetMotionMaster()->MovePath(PATH_IVAR_ASHBURY_BALCONY, false);
                         events.ScheduleEvent(EVENT_JUMP_TO_ASHUBRY, Seconds(3) + Milliseconds(500));
                         break;
@@ -512,6 +513,7 @@ public:
                         events.ScheduleEvent(EVENT_FACE_DIRECTION, Seconds(2) + Milliseconds(500));
                         break;
                     case EVENT_FACE_DIRECTION:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->SetFacingTo(7.497746f);
                         events.ScheduleEvent(EVENT_TALK_ASHBURY_DEAD_1, Seconds(2) + Milliseconds(700));
                         break;
@@ -553,6 +555,7 @@ public:
                         events.ScheduleEvent(EVENT_MOVE_TO_DOOR, Seconds(8));
                         break;
                     case EVENT_MOVE_TO_DOOR:
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->GetMotionMaster()->MoveSmoothPath(0, SKIvarPath2, 11);
                         events.ScheduleEvent(EVENT_TALK_OPEN, Seconds(10));
                         break;
@@ -573,6 +576,7 @@ public:
                         events.ScheduleEvent(EVENT_FACE_DIRECTION_3, Seconds(7));
                         break;
                     case EVENT_FACE_DIRECTION_3:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->SetFacingTo(9.010136f);
                         break;
                     case EVENT_TALK_SILVERLAINE_DEAD:
@@ -613,6 +617,7 @@ public:
                         events.ScheduleEvent(EVENT_FACE_DIRECTION_5, Seconds(11));
                         break;
                     case EVENT_FACE_DIRECTION_5:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->SetFacingTo(9.053417f);
                         events.ScheduleEvent(EVENT_OPEN_GATE, Seconds(3));
                         break;
@@ -620,6 +625,7 @@ public:
                         instance->SetData(DATA_WALDEN_OUTRO, DONE);
                         break;
                     case EVENT_MOVE_TO_ARUGAL_DOOR:
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->GetMotionMaster()->MovePoint(0, IvarArugalDoorPos);
                         events.ScheduleEvent(EVENT_TALK_DOOR_CLOSED_1, Seconds(6));
                         break;
@@ -641,6 +647,7 @@ public:
                         events.ScheduleEvent(EVENT_TALK_FINAL, Seconds(2));
                         break;
                     case EVENT_TALK_FINAL:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->SetFacingTo(9.029113f);
                         Talk(SAY_IVAR_ROOM_OPEN);
                         break;
@@ -914,10 +921,12 @@ public:
                     events.ScheduleEvent(EVENT_FACE_DIRECTION_3, Seconds(6));
                     break;
                 case ACTION_WALDEN_DEAD:
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     me->GetMotionMaster()->MoveSmoothPath(0, SKBelmontPath5, 7);
                     events.ScheduleEvent(EVENT_TALK_WALDEN_DEAD, Seconds(7) + Milliseconds(300));
                     break;
                 case ACTION_GODFREY_INTRO:
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     me->GetMotionMaster()->MoveSmoothPath(0, SKBelmontFinalPath, 8);
                     events.ScheduleEvent(EVENT_TALK_DOOR_CLOSED_1, Seconds(11));
                     events.ScheduleEvent(EVENT_MOVE_TO_ARUGAL_DOOR, Seconds(6));
@@ -952,6 +961,7 @@ public:
                 {
                     // Event chain after Baron Ashbury's death
                     case EVENT_WALK_STAIRS_1:
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->GetMotionMaster()->MovePoint(POINT_WALK_STAIRS_1, SKBelmontPath1[0]);
                         break;
                     case EVENT_WALK_STAIRS_2:
@@ -959,6 +969,7 @@ public:
                         me->GetMotionMaster()->MoveJump(SKBelmontPath1[1], 10.0f, 10.0f);
                         break;
                     case EVENT_FACE_DIRECTION:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->SetFacingTo(1.308997f);
                         events.ScheduleEvent(EVENT_TALK_ASHBURY_DEAD_1, Seconds(2) + Milliseconds(400));
                         break;
@@ -971,6 +982,7 @@ public:
                         events.ScheduleEvent(EVENT_MOVE_TO_DOOR, Seconds(2));
                         break;
                     case EVENT_MOVE_TO_DOOR:
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->GetMotionMaster()->MoveSmoothPath(0, SKBelmontPath2, 10);
                         events.ScheduleEvent(EVENT_TALK_OPEN, Seconds(10));
                         break;
@@ -989,6 +1001,7 @@ public:
                         events.ScheduleEvent(EVENT_FACE_DIRECTION_2, Seconds(11));
                         break;
                     case EVENT_FACE_DIRECTION_2:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->SetFacingTo(9.077573f);
                         break;
                     // Event chain after Baron Silverlaine's death
@@ -1038,6 +1051,7 @@ public:
                         events.ScheduleEvent(EVENT_FACE_DIRECTION_4, Seconds(6));
                         break;
                     case EVENT_FACE_DIRECTION_4:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->SetFacingTo(9.055001f);
                         events.ScheduleEvent(EVENT_OPEN_GATE, Seconds(1));
                         break;
@@ -1055,6 +1069,7 @@ public:
                     case EVENT_OPEN_ROOM:
                         instance->SetData(DATA_GODFREY_INTRO, DONE);
                         Talk(SAY_BELMONT_DOOR_OPENED);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         if (Creature* cromush = me->FindNearestCreature(NPC_HIGH_WARLORD_CROMUSH, 10.0f, true))
                             cromush->AI()->DoAction(ACTION_CROMUSH_POISONED);
                         events.ScheduleEvent(EVENT_TALK_FINAL, Seconds(12));
