@@ -2368,7 +2368,7 @@ class npc_mirror_image : public CreatureScript
                 me->UpdateAttackPowerAndDamage();
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (!me->GetOwner())
                     return;
