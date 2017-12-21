@@ -2961,7 +2961,7 @@ public:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
                     m_events.ScheduleEvent(EVENT_START_TALK, 250);
                 }
-                else if (id = 1002)
+                else if (id == 1002)
                     me->DespawnOrUnsummon();
             }
         }
@@ -3067,6 +3067,7 @@ public:
         void MovementInform(uint32 type, uint32 id) override
         {
             if (type == WAYPOINT_MOTION_TYPE)
+            {
                 switch (id)
                 {
                     case 4:
@@ -3079,6 +3080,7 @@ public:
                         break;
                     }
                 }
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -3089,35 +3091,35 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_START_ANIM:
-                {
-                    if (Creature* godfrey = ObjectAccessor::GetCreature(*me, m_godfreyGUID))
-                        m_events.ScheduleEvent(EVENT_START_ANIM+1, 100);
-                    break;
-                }
-                case EVENT_START_ANIM+1:
-                {
-                    Talk(0);
-                    m_events.ScheduleEvent(EVENT_START_ANIM + 2, 5000);
-                    break;
-                }
-                case EVENT_START_ANIM + 2:
-                {
-                    if (Creature* godfrey = ObjectAccessor::GetCreature(*me, m_godfreyGUID))
-                        godfrey->AI()->Talk(0);
-                    m_events.ScheduleEvent(EVENT_START_ANIM + 3, 3000);
-                    break;
-                }
-                case EVENT_START_ANIM + 3:
-                {
-                    if (Creature* godfrey = ObjectAccessor::GetCreature(*me, m_godfreyGUID))
+                    case EVENT_START_ANIM:
                     {
-                        godfrey->GetMotionMaster()->MovePath(godfrey->GetSpawnId(), false);
-                        godfrey->SetDisableGravity(true);
+                        if (Creature* godfrey = ObjectAccessor::GetCreature(*me, m_godfreyGUID))
+                            m_events.ScheduleEvent(EVENT_START_ANIM+1, 100);
+                        break;
                     }
+                    case EVENT_START_ANIM+1:
+                    {
+                        Talk(0);
+                        m_events.ScheduleEvent(EVENT_START_ANIM + 2, 5000);
+                        break;
+                    }
+                    case EVENT_START_ANIM + 2:
+                    {
+                        if (Creature* godfrey = ObjectAccessor::GetCreature(*me, m_godfreyGUID))
+                            godfrey->AI()->Talk(0);
+                        m_events.ScheduleEvent(EVENT_START_ANIM + 3, 3000);
+                        break;
+                    }
+                    case EVENT_START_ANIM + 3:
+                    {
+                        if (Creature* godfrey = ObjectAccessor::GetCreature(*me, m_godfreyGUID))
+                        {
+                            godfrey->GetMotionMaster()->MovePath(godfrey->GetSpawnId(), false);
+                            godfrey->SetDisableGravity(true);
+                        }
 
-                    break;
-                }
+                        break;
+                    }
                 }
             }
 
@@ -3187,6 +3189,7 @@ public:
         void MovementInform(uint32 type, uint32 id) override
         {
             if (type == WAYPOINT_MOTION_TYPE)
+            {
                 switch (id)
                 {
                     case 41:
@@ -3195,6 +3198,7 @@ public:
                         break;
                     }
                 }
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -3205,24 +3209,24 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_START_WAYPOINTS:
-                {
-                    me->GetMotionMaster()->MovePath(PATH_ID, false);
-                    break;
-                }
-                case EVENT_STOP_WAYPOINTS:
-                {
-                    me->CastSpell(me, SPELL_DANS_EJECT_ALL_PASSENGERS);
-                    me->DespawnOrUnsummon(3000);
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
+                    case EVENT_START_WAYPOINTS:
                     {
-                        if (player->HasAura(SPELL_FORCE_REACTION_1))
-                            player->RemoveAura(SPELL_FORCE_REACTION_1);
-                        if (player->HasAura(SPELL_PHASE_QUEST_ZONE_SPECIFIC_09))
-                            player->RemoveAura(SPELL_PHASE_QUEST_ZONE_SPECIFIC_09);
+                        me->GetMotionMaster()->MovePath(PATH_ID, false);
+                        break;
                     }
-                    break;
-                }
+                    case EVENT_STOP_WAYPOINTS:
+                    {
+                        me->CastSpell(me, SPELL_DANS_EJECT_ALL_PASSENGERS);
+                        me->DespawnOrUnsummon(3000);
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
+                        {
+                            if (player->HasAura(SPELL_FORCE_REACTION_1))
+                                player->RemoveAura(SPELL_FORCE_REACTION_1);
+                            if (player->HasAura(SPELL_PHASE_QUEST_ZONE_SPECIFIC_09))
+                                player->RemoveAura(SPELL_PHASE_QUEST_ZONE_SPECIFIC_09);
+                        }
+                        break;
+                    }
                 }
             }
 
@@ -3298,6 +3302,7 @@ public:
                 {
                     if (GameObject* ball = ObjectAccessor::GetGameObject(*me, m_ballGUID))
                         ball->DestroyForNearbyPlayers();
+
                     m_events.ScheduleEvent(EVENT_START_ANIM, 1000);
                     break;
                 }
@@ -3327,7 +3332,7 @@ public:
                     case EVENT_TALK_PART_00:
                     {
                         if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
-                                me->GetMotionMaster()->MoveFleeing(player, 7000);
+                            me->GetMotionMaster()->MoveFleeing(player, 7000);
 
                         m_events.ScheduleEvent(EVENT_TALK_PART_01, 6000);
                         break;
