@@ -2382,12 +2382,9 @@ class npc_mirror_image : public CreatureScript
                 {*/
                     switch (owner->GetSpecializationId())
                     {
-                        case TALENT_SPEC_MAGE_ARCANE:
-                            spellId = eSpells::SPELL_MAGE_ARCANE_BLAST;
-                            break;
-                        case TALENT_SPEC_MAGE_FIRE:
-                            spellId = eSpells::SPELL_MAGE_FIREBALL;
-                            break;
+                        case TALENT_SPEC_MAGE_ARCANE:   spellId = eSpells::SPELL_MAGE_ARCANE_BLAST; break;
+                        case TALENT_SPEC_MAGE_FIRE:     spellId = eSpells::SPELL_MAGE_FIREBALL;     break;
+                        default: break;
                     }
                 //}
 
