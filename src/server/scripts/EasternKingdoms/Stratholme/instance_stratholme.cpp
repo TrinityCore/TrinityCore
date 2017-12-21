@@ -32,6 +32,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "stratholme.h"
 
