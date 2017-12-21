@@ -1,4 +1,4 @@
-SET @CGUID:= 40489; -- 1 guid
+SET @CGUID:= 16806; -- 1 guid
 SET @GGUID:= 1577; -- 2 guids
 
 DELETE FROM `creature` WHERE `guid` = @CGUID;
