@@ -22,6 +22,7 @@
 #include "CellImpl.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 #include "GameObjectAI.h"
 #include "GameObject.h"
 #include "GridNotifiers.h"
