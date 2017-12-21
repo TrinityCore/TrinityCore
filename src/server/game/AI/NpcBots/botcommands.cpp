@@ -52,6 +52,8 @@ public:
             { "distance",   rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE,		       false, &HandleNpcBotDistanceCommand,	       ""},
             { "attack",	    rbac::RBAC_PERM_COMMAND_NPCBOT_ATTACK,		       false, &HandleNpcBotAttackCommand,	       ""},
             { "withdraw",   rbac::RBAC_PERM_COMMAND_NPCBOT_WITHDRAW,		       false, &HandleNpcBotWithdrawCommand,	       ""},
+            { "change",   rbac::RBAC_PERM_COMMAND_NPCBOT_CHANGE,		       false, &HandleNpcBotChangeCommand,	       ""},
+            { "savemodel",   rbac::RBAC_PERM_COMMAND_NPCBOT_SAVEMODEL,		       false, &HandleNpcBotSaveModelCommand,	       ""},
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -831,6 +833,100 @@ public:
         }        
         handler->SetSentErrorMessage(true);
         return false;
+    }
+
+    //cosine - .npcbot change
+    static bool HandleNpcBotChangeCommand(ChatHandler* handler, const char* /*args*/)    
+    {
+        Player* chr = handler->GetSession()->GetPlayer();
+        Unit* ubot = chr->GetSelectedUnit();
+        if (!ubot)
+        {
+            handler->SendSysMessage(".npcbot change");
+            handler->SendSysMessage("Changes appearance of selected npcbot");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Creature* bot = ubot->ToCreature();
+        if (!bot || !bot->IsNPCBot())
+        {
+            handler->SendSysMessage("No npcbot selected");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        uint32 model_count = 0;
+        uint32 new_model_id = 0;
+        QueryResult results = WorldDatabase.PQuery("select floor(rand()*count(*)) from creature_model_info where displayid_other_gender > 0 and gender = %u", ubot->getGender() == GENDER_FEMALE ? 1 : 0);
+        do
+        {
+            Field* fields = results->Fetch();
+            model_count = fields[0].GetUInt32();
+        } while (results->NextRow());
+        if (model_count > 0)
+        {
+            results = WorldDatabase.PQuery("select * from creature_model_info where displayid_other_GENDER > 0 AND gender = %u limit %u, 1",
+                ubot->getGender() == GENDER_FEMALE ? 1 : 0, model_count);
+            do
+            {
+                Field* fields = results->Fetch();
+                new_model_id = fields[0].GetUInt32();
+            } while (results->NextRow());
+        }
+        else
+        {
+            handler->SendSysMessage("No models found.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        if (new_model_id > 0 && new_model_id != 19461)
+        {
+            ubot->SetDisplayId(new_model_id);
+            return true;
+        }
+        else
+        {
+            handler->SendSysMessage("Model not found.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+    }
+
+    //cosine - .npcbot savemodel
+    static bool HandleNpcBotSaveModelCommand(ChatHandler* handler, const char* /*args*/)    
+    {
+        Player* chr = handler->GetSession()->GetPlayer();
+        Unit* ubot = chr->GetSelectedUnit();
+        if (!ubot)
+        {
+            handler->SendSysMessage(".npcbot savemodel");
+            handler->SendSysMessage("Permanently saves appearance of selected npcbot");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Creature* bot = ubot->ToCreature();
+        if (!bot || !bot->IsNPCBot())
+        {
+            handler->SendSysMessage("No npcbot selected");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        uint32 currDisplayId = ubot->GetDisplayId();
+        uint32 npcbot_entry = bot->GetEntry();
+        https://web.archive.org/web/20041129090319/http://www.worldofwarcraft.com
+        if (npcbot_entry <= 70235)
+        {
+            TC_LOG_INFO("entities.unit","Setting display id of %u for npcbot entry %u",currDisplayId,npcbot_entry);
+            WorldDatabase.PExecute("update creature_template set modelid1 = %u, modelid3 = %u where entry = %u and entry between 70000 and 71000", currDisplayId, currDisplayId, npcbot_entry);
+        }
+        else
+        {
+            TC_LOG_INFO("entities.unit","Setting display id of %u for npcbot entry %u",currDisplayId,npcbot_entry);
+            WorldDatabase.PExecute("update creature_template set modelid1 = %u, modelid2 = %u, modelid3 = %u, modelid4 = %u where entry = %u and entry between 70000 and 71000", currDisplayId, currDisplayId, currDisplayId, currDisplayId, npcbot_entry);
+        }
+    
+        return true;
     }
     
     static bool HandleNpcBotRemoveCommand(ChatHandler* handler, const char* /*args*/)

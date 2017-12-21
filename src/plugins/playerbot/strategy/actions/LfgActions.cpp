@@ -32,6 +32,10 @@ bool LfgJoinAction::Execute(Event event)
     if (bot->IsBeingTeleported())
         return false;
 
+    Group* group = bot->GetGroup();
+    if (group && name == "lfg join") //stop the spam
+       return false;
+
     Map* map = bot->GetMap();
     if (map && map->Instanceable())
         return false;
@@ -550,11 +554,12 @@ bool BGTacticsWS::moveTowardsEnemyFlag(BattlegroundWS *bg)
 			target_obj = bg->GetBgMap()->GetGameObject(bg->BgObjects[BG_WS_OBJECT_H_FLAG]);
 	}
 	//Direct Movement, if we are close
-	if (bot->IsWithinDist(target_obj, 40))
+	/*if (bot->IsWithinDist(target_obj, 40))
 	{
+        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Bot %s attempting to chase to enemy flag", bot->GetName().c_str());
 		ChaseTo(target_obj);
 		return true;
-	}
+	}*/
 	GameObject* obj = bg->GetBgMap()->GetGameObject(bg->GetFlagPickerGUID(bot->GetTeam() == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE));
 	if (obj == NULL)
 	{
@@ -639,8 +644,8 @@ bool BGTacticsWS::runPathTo(WorldObject *unit,Battleground *bg)
 {
 	if (unit == NULL)
 		return false;
-	if (unit->IsWithinDist(bot, 40))
-		return ChaseTo(unit);
+	//if (unit->IsWithinDist(bot, 40))
+	//	return ChaseTo(unit);
 	if (unit->m_positionX > bot->m_positionX) //He's somewhere at the alliance side
 	{
 		if (bot->Preference < 4) //preference < 4 = move through tunnel
