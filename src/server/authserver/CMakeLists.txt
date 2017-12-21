@@ -25,10 +25,6 @@ endif()
 
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/authPCH.h)
-  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/authPCH.cpp)
-  if (MSVC)
-    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/authPCH.cpp)
-  endif (MSVC)
 endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -88,5 +84,5 @@ endif()
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(authserver ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
+  add_cxx_pch(authserver ${PRIVATE_PCH_HEADER})
 endif()

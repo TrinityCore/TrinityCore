@@ -63,9 +63,6 @@ enum PaladinSpells
     SPELL_PALADIN_AVENGING_WRATH_MARKER          = 61987,
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
 
-    SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
-    SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
-
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
 
     SPELL_PALADIN_JUDGEMENT_DAMAGE               = 54158,
@@ -549,58 +546,55 @@ class spell_pal_divine_purpose : public SpellScriptLoader
 };
 
 // 64205 - Divine Sacrifice
-class spell_pal_divine_sacrifice : public SpellScriptLoader
+class spell_pal_divine_sacrifice : public AuraScript
 {
-    public:
-        spell_pal_divine_sacrifice() : SpellScriptLoader("spell_pal_divine_sacrifice") { }
+    PrepareAuraScript(spell_pal_divine_sacrifice);
 
-        class spell_pal_divine_sacrifice_AuraScript : public AuraScript
+    uint32 groupSize = 0, minHpPct = 0;
+    uint32 remainingAmount = 0;
+
+    bool Load() override
+    {
+        if (Unit* caster = GetCaster())
         {
-            PrepareAuraScript(spell_pal_divine_sacrifice_AuraScript);
-
-            uint32 groupSize, minHpPct;
-            int32 remainingAmount;
-
-            bool Load() override
+            if (caster->GetTypeId() == TYPEID_PLAYER)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (caster->ToPlayer()->GetGroup())
-                            groupSize = caster->ToPlayer()->GetGroup()->GetMembersCount();
-                        else
-                            groupSize = 1;
-                    }
-                    else
-                        return false;
-
-                    remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
-                    minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
-                    return true;
-                }
+                if (caster->ToPlayer()->GetGroup())
+                    groupSize = caster->ToPlayer()->GetGroup()->GetMembersCount();
+                else
+                    groupSize = 1;
+            }
+            else
                 return false;
-            }
 
-            void Split(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & splitAmount)
-            {
-                remainingAmount -= splitAmount;
-                // break when absorbed everything it could, or if the casters hp drops below 20%
-                if (Unit* caster = GetCaster())
-                    if (remainingAmount <= 0 || (caster->GetHealthPct() < minHpPct))
-                        caster->RemoveAura(SPELL_PALADIN_DIVINE_SACRIFICE);
-            }
-
-            void Register() override
-            {
-                OnEffectSplit += AuraEffectSplitFn(spell_pal_divine_sacrifice_AuraScript::Split, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_divine_sacrifice_AuraScript();
+            remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
+            minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
+            return true;
         }
+        return false;
+    }
+
+    void Split(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& splitAmount)
+    {
+        // break when splitted everything it could, or if the casters hp drops below 20%
+        if (remainingAmount >= splitAmount)
+            remainingAmount -= splitAmount;
+        else
+        {
+            splitAmount = remainingAmount;
+            Remove();
+            return;
+        }
+
+        if (Unit* caster = GetCaster())
+            if (caster->HealthBelowPct(minHpPct))
+                Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectSplit += AuraEffectSplitFn(spell_pal_divine_sacrifice::Split, EFFECT_0);
+    }
 };
 
 // 53385 - Divine Storm
@@ -915,54 +909,37 @@ class spell_pal_guarded_by_the_light : public SpellScriptLoader
 };
 
 // 6940 - Hand of Sacrifice
-class spell_pal_hand_of_sacrifice : public SpellScriptLoader
+class spell_pal_hand_of_sacrifice : public AuraScript
 {
-    public:
-        spell_pal_hand_of_sacrifice() : SpellScriptLoader("spell_pal_hand_of_sacrifice") { }
+    PrepareAuraScript(spell_pal_hand_of_sacrifice);
 
-        class spell_pal_hand_of_sacrifice_AuraScript : public AuraScript
+    uint32 remainingAmount = 0;
+
+    bool Load() override
+    {
+        if (Unit* caster = GetCaster())
         {
-            PrepareAuraScript(spell_pal_hand_of_sacrifice_AuraScript);
-
-        public:
-            spell_pal_hand_of_sacrifice_AuraScript()
-            {
-                remainingAmount = 0;
-            }
-
-        private:
-            int32 remainingAmount;
-
-            bool Load() override
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    remainingAmount = caster->GetMaxHealth();
-                    return true;
-                }
-                return false;
-            }
-
-            void Split(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & splitAmount)
-            {
-                remainingAmount -= splitAmount;
-
-                if (remainingAmount <= 0)
-                {
-                    GetTarget()->RemoveAura(SPELL_PALADIN_HAND_OF_SACRIFICE);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectSplit += AuraEffectSplitFn(spell_pal_hand_of_sacrifice_AuraScript::Split, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_hand_of_sacrifice_AuraScript();
+            remainingAmount = caster->GetMaxHealth();
+            return true;
         }
+        return false;
+    }
+
+    void Split(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& splitAmount)
+    {
+        if (remainingAmount >= splitAmount)
+            remainingAmount -= splitAmount;
+        else
+        {
+            splitAmount = remainingAmount;
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectSplit += AuraEffectSplitFn(spell_pal_hand_of_sacrifice::Split, EFFECT_0);
+    }
 };
 
 // 1038 - Hand of Salvation
@@ -2436,7 +2413,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
     new spell_pal_divine_purpose();
-    new spell_pal_divine_sacrifice();
+    RegisterAuraScript(spell_pal_divine_sacrifice);
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
@@ -2445,7 +2422,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_glyph_of_holy_light();
     new spell_pal_glyph_of_holy_light_dummy();
     new spell_pal_guarded_by_the_light();
-    new spell_pal_hand_of_sacrifice();
+    RegisterAuraScript(spell_pal_hand_of_sacrifice);
     new spell_pal_hand_of_salvation();
     new spell_pal_heart_of_the_crusader();
     new spell_pal_holy_shock();

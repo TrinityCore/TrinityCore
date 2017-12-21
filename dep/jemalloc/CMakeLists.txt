@@ -83,6 +83,8 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
       -D_REENTRAN)
 
   target_link_libraries(jemalloc
+    PRIVATE
+      trinity-dependency-interface
     PUBLIC
       threads
       valgrind

@@ -3779,6 +3779,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(34); // Twenty-Five yards
     });
 
+    // Summon Corpse Scarabs
+    ApplySpellFix({ 28864, 29105 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
@@ -4453,6 +4459,17 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
     // ENDOF ISLE OF CONQUEST SPELLS
 
+    // Aura of Fear
+    ApplySpellFix({ 40453 }, [](SpellInfo* spellInfo)
+    {
+        // Bad DBC data? Copying 25820 here due to spell description
+        // either is a periodic with chance on tick, or a proc
+
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
+        spellInfo->Effects[EFFECT_0].Amplitude = 0;
+        spellInfo->ProcChance = 10;
+    });
+
     ApplySpellFix({
         41485, // Deadly Poison - Black Temple
         41487  // Envenom - Black Temple
@@ -4471,11 +4488,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         5707,  // Lifestone Regeneration
         5760,  // Mind-numbing Poison
         6727,  // Poison Mushroom
+        6940,  // Hand of Sacrifice (handled remove in split hook)
         6984,  // Frost Shot (Rank 2)
         7164,  // Defensive Stance
         7288,  // Immolate Cumulative (TEST) (Rank 1)
         7291,  // Food (TEST)
         7331,  // Healing Aura (TEST) (Rank 1)
+        7366,  // Berserker Stance
         7824,  // Blacksmithing Skill +10
         12551, // Frost Shot
         13218, // Wound Poison (Rank 1)
@@ -4485,6 +4504,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         14795, // Venomhide Poison
         16610, // Razorhide
         18099, // Chill Nova
+        18499, // Berserker Rage (extra rage implemented in Unit::RewardRage)
         18802, // Frost Shot
         20000, // Alexander's Test Periodic Aura
         21163, // Polished Armor (Rank 1)
@@ -4494,6 +4514,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         23335, // Silverwing Flag
         25160, // Sand Storm
         27189, // Wound Poison V (Rank 5)
+        28313, // Aura of Fear
         28726, // Nightmare Seed
         28754, // Fury of the Ashbringer
         30802, // Unleashed Rage (Rank 1)
@@ -4503,6 +4524,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         32447, // Travel Form
         33370, // Spell Haste
         33807, // Abacus of Violent Odds
+        33891, // Tree of Life (Shapeshift)
         34132, // Gladiator's Totem of the Third Wind
         34135, // Libram of Justice
         34666, // Tamed Pet Passive 08 (DND)
@@ -4511,6 +4533,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         34889, // Fire Breath (Rank 1)
         34976, // Netherstorm Flag
         35131, // Bladestorm
+        35244, // Choking Vines
         35323, // Fire Breath (Rank 2)
         35336, // Energizing Spores
         36148, // Chill Nova
@@ -4527,6 +4550,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         40396, // Fel Infusion
         40603, // Taunt Gurtogg
         40803, // Ron's Test Buff
+        40879, // Prismatic Shield (no longer used since patch 2.2/adaptive prismatic shield)
+        41341, // Balance of Power (implemented by hooking absorb)
         41435, // The Twin Blades of Azzinoth
         42369, // Merciless Libram of Justice
         42371, // Merciless Gladiator's Totem of the Third Wind
@@ -4535,16 +4560,29 @@ void SpellMgr::LoadSpellInfoCorrections()
         43729, // Vengeful Gladiator's Totem of the Third Wind
         43817, // Focused Assault
         44305, // You're a ...! (Effects2)
+        44586, // Prayer of Mending (unknown, unused aura type)
         45384, // Birmingham Tools Test 4
         45433, // Birmingham Tools Test 5
         46093, // Brutal Libram of Justice
         46099, // Brutal Gladiator's Totem of the Third Wind
         46705, // Honorless Target
+        49145, // Spell Deflection (Rank 1) (implemented by hooking absorb)
         49883, // Flames
         50365, // Improved Blood Presence (Rank 1)
         50371, // Improved Blood Presence (Rank 2)
+        50462, // Anti-Magic Zone (implemented by hooking absorb)
+
+        50498, // Savage Rend (Rank 1) - proc from Savage Rend moved from attack itself to autolearn aura 50871
+        53578, // Savage Rend (Rank 2)
+        53579, // Savage Rend (Rank 3)
+        53580, // Savage Rend (Rank 4)
+        53581, // Savage Rend (Rank 5)
+        53582, // Savage Rend (Rank 6)
+
         50655, // Frost Cut
         50995, // Empowered Blood Presence (Rank 1)
+        51809, // First Aid
+        53032, // Flurry of Claws
         55482, // Fire Breath (Rank 3)
         55483, // Fire Breath (Rank 4)
         55484, // Fire Breath (Rank 5)
@@ -4555,12 +4593,26 @@ void SpellMgr::LoadSpellInfoCorrections()
         60302, // Meteorite Whetstone
         60437, // Grim Toll
         60492, // Embrace of the Spider
+        62142, // Improved Chains of Ice (Rank 3)
         63024, // Gravity Bomb
+        64205, // Divine Sacrifice (handled remove in split hook)
         64772, // Comet's Trail
         65004, // Alacrity of the Elements
         65019, // Mjolnir Runestone
         65024, // Implosion
+
+        66334, // Mistress' Kiss - currently not used in script, need implement?
+        67905, // Mistress' Kiss
+        67906, // Mistress' Kiss
+        67907, // Mistress' Kiss
+
         71003, // Vegard's Touch
+
+        72151, // Frenzied Bloodthirst - currently not used in script, need implement?
+        72648, // Frenzied Bloodthirst
+        72649, // Frenzied Bloodthirst
+        72650, // Frenzied Bloodthirst
+
         72559, // Birmingham Tools Test 3
         72560, // Birmingham Tools Test 3
         72561, // Birmingham Tools Test 5

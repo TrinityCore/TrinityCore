@@ -631,7 +631,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     UpdateMovementFlags();
     LoadCreaturesAddon();
-    LoadMechanicTemplateImmunity();
+    LoadTemplateImmunities();
     return true;
 }
 
@@ -2106,7 +2106,7 @@ void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& 
         ForcedDespawn(msTimeToDespawn, forceRespawnTimer);
 }
 
-void Creature::LoadMechanicTemplateImmunity()
+void Creature::LoadTemplateImmunities()
 {
     // uint32 max used for "spell id", the immunity system will not perform SpellInfo checks against invalid spells
     // used so we know which immunities were loaded from template
@@ -2115,6 +2115,9 @@ void Creature::LoadMechanicTemplateImmunity()
     // unapply template immunities (in case we're updating entry)
     for (uint32 i = MECHANIC_NONE + 1; i < MAX_MECHANIC; ++i)
         ApplySpellImmune(placeholderSpellId, IMMUNITY_MECHANIC, i, false);
+
+    for (uint32 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        ApplySpellImmune(placeholderSpellId, IMMUNITY_SCHOOL, 1 << i, false);
 
     // don't inherit immunities for hunter pets
     if (GetOwnerGUID().IsPlayer() && IsHunterPet())
@@ -2126,6 +2129,15 @@ void Creature::LoadMechanicTemplateImmunity()
         {
             if (mask & (1 << (i - 1)))
                 ApplySpellImmune(placeholderSpellId, IMMUNITY_MECHANIC, i, true);
+        }
+    }
+
+    if (uint32 mask = GetCreatureTemplate()->SpellSchoolImmuneMask)
+    {
+        for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        {
+            if (mask & (1 << i))
+                ApplySpellImmune(placeholderSpellId, IMMUNITY_SCHOOL, 1 << i, true);
         }
     }
 }
