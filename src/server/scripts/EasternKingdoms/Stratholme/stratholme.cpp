@@ -297,9 +297,43 @@ public:
 
 };
 
+class spell_ysida_saved_credit : public SpellScript
+{
+    PrepareSpellScript(spell_ysida_saved_credit);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_YSIDA_SAVED });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* obj)
+        {
+            return obj->GetTypeId() != TYPEID_PLAYER;
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetHitUnit()->ToPlayer())
+        {
+            player->AreaExploredOrEventHappens(QUEST_DEAD_MAN_PLEA);
+            player->KilledMonsterCredit(NPC_YSIDA);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ysida_saved_credit::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_ysida_saved_credit::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();
     new npc_restless_soul();
     new npc_spectral_ghostly_citizen();
+    RegisterSpellScript(spell_ysida_saved_credit);
 }
