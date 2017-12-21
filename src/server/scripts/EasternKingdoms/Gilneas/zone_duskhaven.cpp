@@ -1181,9 +1181,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(68735))
-                return false;
-            return true;
+            return ValidateSpellInfo({ 68735 });
         }
 
         void HandleEffectDummy(SpellEffIndex /*effIndex*/)
@@ -1544,8 +1542,12 @@ public:
 
                     if (Creature* lorna = ObjectAccessor::GetCreature(*me, m_lornaGUID))
                         if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
-                            if (m_lornaIsNear = (player->GetDistance(lorna) < 7.0f))
+                        {
+                            m_lornaIsNear = player->GetDistance(lorna) < 7.0f;
+
+                            if (m_lornaIsNear)
                                 player->ExitVehicle();
+                        }
 
                     m_events.ScheduleEvent(EVENT_CHECK_HEALTH_AND_LORNA, 1000);
                     break;
@@ -1572,9 +1574,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(68903))
-                return false;
-            return true;
+            return ValidateSpellInfo({ 68903  });
         }
 
         void HandleEffectDummy(SpellEffIndex /*effIndex*/)
