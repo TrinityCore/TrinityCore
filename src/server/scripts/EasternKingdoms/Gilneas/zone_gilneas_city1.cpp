@@ -1631,7 +1631,7 @@ public:
             m_events.ScheduleEvent(EventHelpPlayer, 250);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type = 0) override
+        void SetGUID(ObjectGuid guid, int32 /*type = 0*/) override
         {
             m_playerGUID = guid;
         }

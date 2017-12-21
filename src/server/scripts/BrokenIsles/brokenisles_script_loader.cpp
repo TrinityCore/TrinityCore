@@ -129,6 +129,17 @@ void AddSC_boss_helya_maw();
 //void AddSC_boss_saelorn();
 //void AddSC_boss_fel_lord_betrug();
 
+// Emerald Nightmare
+void AddSC_nythendra();
+void AddSC_ilgynoth();
+void AddSC_elerethe_renferal();
+void AddSC_ursoc();
+void AddSC_boss_dragons_of_nightmare();
+void AddSC_boss_cenarius();
+void AddSC_xavius();
+void AddSC_emerald_nightmare();
+void AddSC_instance_emerald_nightmare();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBrokenIslesScripts()
@@ -243,4 +254,15 @@ void AddBrokenIslesScripts()
     //AddSC_boss_shivermaw();
     //AddSC_boss_saelorn();
     //AddSC_boss_fel_lord_betrug();
+
+    // Emerald Nightmare
+    AddSC_nythendra();
+    AddSC_ilgynoth();
+    AddSC_elerethe_renferal();
+    AddSC_ursoc();
+    AddSC_boss_dragons_of_nightmare();
+    AddSC_boss_cenarius();
+    AddSC_xavius();
+    AddSC_emerald_nightmare();
+    AddSC_instance_emerald_nightmare();
 }
