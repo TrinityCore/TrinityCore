@@ -40,6 +40,11 @@ enum InstanceEvents
     EVENT_SLAUGHTER_SQUARE  = 2
 };
 
+enum StratholmeMisc
+{
+    SAY_YSIDA_SAVED         = 0
+};
+
 Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
 EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
@@ -80,8 +85,10 @@ class instance_stratholme : public InstanceMapScript
             ObjectGuid portGauntletGUID;
             ObjectGuid portSlaugtherGUID;
             ObjectGuid portElderGUID;
+            ObjectGuid ysidaCageGUID;
 
             ObjectGuid baronGUID;
+            ObjectGuid ysidaGUID;
             ObjectGuid ysidaTriggerGUID;
             GuidSet crystalsGUID;
             GuidSet abomnationGUID;
@@ -160,6 +167,9 @@ class instance_stratholme : public InstanceMapScript
                     case NPC_ABOM_VENOM:
                         abomnationGUID.insert(creature->GetGUID());
                         break;
+                    case NPC_YSIDA:
+                        ysidaGUID = creature->GetGUID();
+                        break;
                 }
             }
 
@@ -227,6 +237,9 @@ class instance_stratholme : public InstanceMapScript
                     case GO_PORT_ELDERS:
                         portElderGUID = go->GetGUID();
                         break;
+                    case GO_YSIDA_CAGE:
+                        ysidaCageGUID = go->GetGUID();
+                        break;
                 }
             }
 
@@ -246,14 +259,41 @@ class instance_stratholme : public InstanceMapScript
                                 break;
                             case FAIL:
                                 DoRemoveAurasDueToSpellOnPlayers(SPELL_BARON_ULTIMATUM);
+                                if (Creature* ysida = instance->GetCreature(ysidaGUID))
+                                    ysida->CastSpell(ysida, SPELL_PERM_FEIGN_DEATH, true);
                                 EncounterState[0] = data;
                                 break;
                             case DONE:
                                 EncounterState[0] = data;
-                                if (Creature* ysidaTrigger = instance->GetCreature(ysidaTriggerGUID))
+
+                                if (Creature* ysida = instance->GetCreature(ysidaGUID))
                                 {
-                                    Position ysidaPos = ysidaTrigger->GetPosition();
-                                    ysidaTrigger->SummonCreature(NPC_YSIDA, ysidaPos, TEMPSUMMON_TIMED_DESPAWN, 1800000);
+                                    if (GameObject* cage = instance->GetGameObject(ysidaCageGUID))
+                                        cage->UseDoorOrButton();
+
+                                    float x, y, z;
+                                    //! This spell handles the Dead man's plea quest completion
+                                    ysida->CastSpell(nullptr, SPELL_YSIDA_SAVED, true);
+                                    ysida->SetWalk(true);
+                                    ysida->AI()->Talk(SAY_YSIDA_SAVED);
+                                    ysida->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                                    ysida->GetClosePoint(x, y, z, ysida->GetObjectScale() / 3, 4.0f);
+                                    ysida->GetMotionMaster()->MovePoint(1, x, y, z);
+
+                                    Map::PlayerList const& players = instance->GetPlayers();
+
+                                    for (auto const& i : players)
+                                    {
+                                        if (Player* player = i.GetSource())
+                                        {
+                                            if (player->IsGameMaster())
+                                                continue;
+
+                                            //! im not quite sure what this one is supposed to do
+                                            //! this is server-side spell
+                                            player->CastSpell(ysida, SPELL_YSIDA_CREDIT_EFFECT, true);
+                                        }
+                                    }
                                 }
                                 events.CancelEvent(EVENT_BARON_RUN);
                                 break;
@@ -336,19 +376,9 @@ class instance_stratholme : public InstanceMapScript
                         {
                             HandleGameObject(portGauntletGUID, true);
                             if (GetData(TYPE_BARON_RUN) == IN_PROGRESS)
-                            {
                                 DoRemoveAurasDueToSpellOnPlayers(SPELL_BARON_ULTIMATUM);
-                                Map::PlayerList const& players = instance->GetPlayers();
-                                if (!players.isEmpty())
-                                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                        if (Player* player = itr->GetSource())
-                                            if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE)
-                                            {
-                                                player->AreaExploredOrEventHappens(QUEST_DEAD_MAN_PLEA);
-                                                player->KilledMonsterCredit(NPC_YSIDA);
-                                            }
-                                SetData(TYPE_BARON_RUN, DONE);
-                            }
+
+                            SetData(TYPE_BARON_RUN, DONE);
                         }
                         EncounterState[5] = data;
                         break;
@@ -442,6 +472,8 @@ class instance_stratholme : public InstanceMapScript
                         return baronGUID;
                     case DATA_YSIDA_TRIGGER:
                         return ysidaTriggerGUID;
+                    case NPC_YSIDA:
+                        return ysidaGUID;
                 }
                 return ObjectGuid::Empty;
             }
