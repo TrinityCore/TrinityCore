@@ -3287,67 +3287,6 @@ class spell_gen_tournament_pennant : public SpellScriptLoader
         }
 };
 
-enum PvPTrinketTriggeredSpells
-{
-    SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER         = 72752,
-    SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757
-};
-
-template <uint32 TriggeredSpellId>
-class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
-{
-    public:
-        spell_pvp_trinket_wotf_shared_cd(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
-
-        template <uint32 Triggered>
-        class spell_pvp_trinket_wotf_shared_cd_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pvp_trinket_wotf_shared_cd_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(Triggered))
-                    return false;
-                return true;
-            }
-
-            void HandleScript()
-            {
-                /*
-                 * @workaround: PendingCast flag normally means 'triggered' spell, however
-                 * if the spell is cast triggered, the core won't send SMSG_SPELL_GO packet
-                 * so client never registers the cooldown (see Spell::IsNeedSendToClient)
-                 *
-                 * ServerToClient: SMSG_SPELL_GO (0x0132) Length: 42 ConnIdx: 0 Time: 07/19/2010 02:32:35.000 Number: 362675
-                 * Caster GUID: Full: Player
-                 * Caster Unit GUID: Full: Player
-                 * Cast Count: 0
-                 * Spell ID: 72752 (72752)
-                 * Cast Flags: PendingCast, Unknown3, Unknown7 (265)
-                 * Time: 3901468825
-                 * Hit Count: 1
-                 * [0] Hit GUID: Player
-                 * Miss Count: 0
-                 * Target Flags: Unit (2)
-                 * Target GUID: 0x0
-                */
-
-                // Spell flags need further research, until then just cast not triggered
-                GetCaster()->CastSpell((Unit*)nullptr, Triggered, false);
-            }
-
-            void Register() override
-            {
-                AfterCast += SpellCastFn(spell_pvp_trinket_wotf_shared_cd_SpellScript::HandleScript);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pvp_trinket_wotf_shared_cd_SpellScript<TriggeredSpellId>();
-        }
-};
-
 enum FriendOrFowl
 {
     SPELL_TURKEY_VENGEANCE      = 25285
@@ -4408,6 +4347,46 @@ class spell_gen_armor_specialization : public SpellScriptLoader
         }
 };
 
+enum PvPTrinket
+{
+    SPELL_PVP_TRINKET_ALLIANCE  = 97403,
+    SPELL_PVP_TRINKET_HORDE     = 97404,
+    SPELL_PVP_TRINKET_NEUTRAL   = 97979,
+    SPELL_EVERY_MAN_FOR_HIMSELF = 59752
+};
+
+class spell_gen_pvp_trinket : public SpellScriptLoader
+{
+    public:
+        spell_gen_pvp_trinket() : SpellScriptLoader("spell_gen_pvp_trinket") { }
+
+        class spell_gen_pvp_trinket_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_pvp_trinket_SpellScript);
+
+            void HandlePvPTrinketVisual()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->GetTypeId() == TYPEID_PLAYER && GetSpellInfo()->Id != SPELL_EVERY_MAN_FOR_HIMSELF)
+                        caster->CastSpell(caster, caster->ToPlayer()->GetTeam() == ALLIANCE ? SPELL_PVP_TRINKET_ALLIANCE : SPELL_PVP_TRINKET_HORDE, true);
+                    else
+                        caster->CastSpell(caster, SPELL_PVP_TRINKET_NEUTRAL, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_gen_pvp_trinket_SpellScript::HandlePvPTrinketVisual);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_pvp_trinket_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4492,8 +4471,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_throw_shield();
     new spell_gen_tournament_duel();
     new spell_gen_tournament_pennant();
-    new spell_pvp_trinket_wotf_shared_cd<SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER>("spell_pvp_trinket_shared_cd");
-    new spell_pvp_trinket_wotf_shared_cd<SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF>("spell_wotf_shared_cd");
     new spell_gen_turkey_marker();
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_vampiric_touch();
@@ -4510,4 +4487,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_clear_debuffs();
     new spell_gen_pony_mount_check();
     new spell_gen_armor_specialization();
+    new spell_gen_pvp_trinket();
 }
