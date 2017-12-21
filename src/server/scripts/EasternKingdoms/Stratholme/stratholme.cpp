@@ -39,6 +39,7 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "stratholme.h"
 
 /*######
