@@ -3411,6 +3411,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(34); // Twenty-Five yards
     });
 
+    // Concussive Barrage
+    ApplySpellFix({ 35101 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(173); // Anywhere
+    });
+
     //
     // BLACK TEMPLE SPELLS
     //
