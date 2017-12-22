@@ -23,6 +23,7 @@
 #include "Util.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
+#include <algorithm>
 
 class Unit;
 class Player;
