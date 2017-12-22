@@ -51,8 +51,8 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
     if (_speed > 0.0f)
         init.SetVelocity(_speed);
 
-    if (_setFacing)
-        init.SetFacing(_orient);
+    if (_orient)
+        init.SetFacing(*_orient);
 
     init.Launch();
 

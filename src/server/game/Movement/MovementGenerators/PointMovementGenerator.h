@@ -20,6 +20,7 @@
 #define TRINITY_POINTMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Optional.h"
 
 class Creature;
 
@@ -29,8 +30,11 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
     public:
         PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f) : _movementId(id), _x(x), _y(y), _z(z), _speed(speed), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false) { }
 
-        PointMovementGenerator(uint32 id, Position const& _pos, bool generatePath, bool setFacingAtEndPoint, float speed = 0.0f) : _movementId(id), _x(_pos.GetPositionX()), _y(_pos.GetPositionY()), _z(_pos.GetPositionZ()), _speed(speed), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false),
-            _setFacing(setFacingAtEndPoint), _orient(_pos.GetOrientation()) { }
+        PointMovementGenerator(uint32 id, Position const& _pos, bool generatePath, bool setFacingAtEndPoint, float speed = 0.0f) : _movementId(id), _x(_pos.GetPositionX()), _y(_pos.GetPositionY()), _z(_pos.GetPositionZ()), _speed(speed), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false)
+        {
+            if (setFacingAtEndPoint)
+                _orient = _pos.GetOrientation();
+        }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
@@ -50,9 +54,8 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         bool _generatePath;
         bool _recalculateSpeed;
         bool _interrupt;
-        //! if _setFacing is true, then unit will turn to specified _orient in provided _pos
-        bool _setFacing;
-        float _orient;
+        //! if set then unit will turn to specified _orient in provided _pos
+        Optional<float> _orient;
 };
 
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
