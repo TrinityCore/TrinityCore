@@ -769,6 +769,11 @@ void Aura::RefreshDuration(bool withMods)
 
     if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
+
+    // also reset periodic counters
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (AuraEffect* aurEff = m_effects[i])
+            aurEff->ResetTicks();
 }
 
 void Aura::RefreshTimers(bool resetPeriodicTimer)
@@ -945,6 +950,9 @@ bool Aura::IsDeathPersistent() const
 bool Aura::CanBeSaved() const
 {
     if (IsPassive())
+        return false;
+
+    if (GetSpellInfo()->IsChanneled())
         return false;
 
     // Check if aura is single target, not only spell info

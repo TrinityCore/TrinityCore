@@ -22,6 +22,7 @@
 #include "CreatureAISelector.h"
 #include "DBCStores.h"
 #include "FleeingMovementGenerator.h"
+#include "FlightPathMovementGenerator.h"
 #include "FormationMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
@@ -155,17 +156,19 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
     return top()->GetMovementGeneratorType();
 }
 
-MovementGeneratorType MotionMaster::GetMotionSlotType(int slot) const
+MovementGeneratorType MotionMaster::GetMotionSlotType(MovementSlot slot) const
 {
-    if (!_slot[slot])
+    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
         return MAX_MOTION_TYPE;
-    else
-        return _slot[slot]->GetMovementGeneratorType();
+
+    return _slot[slot]->GetMovementGeneratorType();
 }
 
-MovementGenerator* MotionMaster::GetMotionSlot(int slot) const
+MovementGenerator* MotionMaster::GetMotionSlot(MovementSlot slot) const
 {
-    ASSERT(slot >= 0);
+    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
+        return nullptr;
+
     return _slot[slot];
 }
 
@@ -469,7 +472,9 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
-    _owner->GetClosePoint(x, y, z, _owner->GetCombatReach(), dist, angle);
+    _owner->GetNearPoint2D(x, y, dist, _owner->GetOrientation() + angle);
+    z = _owner->GetPositionZ() + _owner->GetMidsectionHeight();
+    _owner->UpdateAllowedPositionZ(x, y, z);
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
 }
 

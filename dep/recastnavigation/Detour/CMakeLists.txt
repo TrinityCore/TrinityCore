@@ -10,6 +10,7 @@
 
 set(Detour_STAT_SRCS
     Source/DetourAlloc.cpp 
+    Source/DetourAssert.cpp 
     Source/DetourCommon.cpp 
     Source/DetourNavMesh.cpp 
     Source/DetourNavMeshBuilder.cpp 
@@ -24,6 +25,8 @@ target_include_directories(Detour
     ${CMAKE_CURRENT_SOURCE_DIR}/Include)
 
 target_link_libraries(Detour
+  PRIVATE
+    trinity-dependency-interface
   PUBLIC
     zlib)
 

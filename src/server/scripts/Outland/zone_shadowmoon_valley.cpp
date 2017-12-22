@@ -1189,8 +1189,7 @@ public:
         {
             me->DespawnOrUnsummon();
             if (Creature* LordIllidan = (ObjectAccessor::GetCreature(*me, LordIllidanGUID)))
-                if (LordIllidan)
-                    ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();
+                ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1406,7 +1405,7 @@ enum Enraged_Dpirits
     // ENRAGED EARTH SPIRIT SPELLS
     SPELL_FIERY_BOULDER                     = 38498,
     SPELL_SUMMON_ENRAGED_EARTH_SHARD        = 38365,
-    
+
     // SOULS
     NPC_EARTHEN_SOUL                        = 21073,
     NPC_FIERY_SOUL                          = 21097,

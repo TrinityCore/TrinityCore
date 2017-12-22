@@ -253,4 +253,3 @@ class TC_GAME_API Channel
         AreaTableEntry const* _zoneEntry;
 };
 #endif
-

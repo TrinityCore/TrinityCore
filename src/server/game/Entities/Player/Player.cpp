@@ -3649,7 +3649,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                 }
 
                 // now re-learn if need re-activate
-                if (cur_active && !prev_itr->second->active && learn_low_rank)
+                if (!prev_itr->second->active && learn_low_rank)
                 {
                     if (AddSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
                     {
@@ -4000,7 +4000,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
         if (uint32 prevSpell = sSpellMgr->GetPrevSpellInChain(trainer_spell->ReqAbility[i]))
         {
             // check prev.rank requirement
-            if (prevSpell && !HasSpell(prevSpell))
+            if (!HasSpell(prevSpell))
                 return TRAINER_SPELL_RED;
         }
 
@@ -6444,6 +6444,12 @@ void Player::CheckAreaExploreAndOutdoor()
                 else
                 {
                     XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level)*sWorld->getRate(RATE_XP_EXPLORE));
+                }
+
+                if (sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO))
+                {
+                    uint32 minScaledXP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level)*sWorld->getRate(RATE_XP_EXPLORE)) * sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO) / 100;
+                    XP = std::max(minScaledXP, XP);
                 }
 
                 GiveXP(XP, nullptr);
@@ -9444,7 +9450,7 @@ void Player::SetVirtualItemSlot(uint8 i, Item* item)
             return;
         if (charges > 1)
             item->SetEnchantmentCharges(TEMP_ENCHANTMENT_SLOT, charges-1);
-        else if (charges <= 1)
+        else
         {
             ApplyEnchantment(item, TEMP_ENCHANTMENT_SLOT, false);
             item->ClearEnchantment(TEMP_ENCHANTMENT_SLOT);
@@ -11793,14 +11799,11 @@ void Player::SetAmmo(uint32 item)
         return;
 
     // check ammo
-    if (item)
+    InventoryResult msg = CanUseAmmo(item);
+    if (msg != EQUIP_ERR_OK)
     {
-        InventoryResult msg = CanUseAmmo(item);
-        if (msg != EQUIP_ERR_OK)
-        {
-            SendEquipError(msg, nullptr, nullptr, item);
-            return;
-        }
+        SendEquipError(msg, nullptr, nullptr, item);
+        return;
     }
 
     SetUInt32Value(PLAYER_AMMO_ID, item);
@@ -12502,7 +12505,7 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
     {
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
-            if (item && item->GetEntry() == itemEntry && !item->IsInTrade())
+            if (item->GetEntry() == itemEntry && !item->IsInTrade())
             {
                 if (item->GetCount() + remcount <= count)
                 {
@@ -13146,7 +13149,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
 
-        if (!released && IsBagPos(dst) && pDstItem)
+        if (!released && IsBagPos(dst))
         {
             Bag* bag = pDstItem->ToBag();
             for (uint32 i = 0; i < bag->GetBagSize(); ++i)
@@ -13567,7 +13570,7 @@ void Player::AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 dur
             break;
         }
     }
-    if (item && duration > 0)
+    if (duration > 0)
     {
         GetSession()->SendItemEnchantTimeUpdate(GetGUID(), item->GetGUID(), slot, uint32(duration/1000));
         m_enchantDuration.push_back(EnchantDuration(item, slot, duration));
@@ -15821,6 +15824,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
 
     // Remove seasonal quest also
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+    ASSERT(qInfo);
     if (qInfo->IsSeasonal())
     {
         uint16 eventId = qInfo->GetEventIdForQuest();
@@ -16539,7 +16543,7 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */, bool 
                     // allows custom amount drop when not 0
                     if (qinfo->ItemDropQuantity[j])
                     {
-                        if ((ownedCount < qinfo->ItemDropQuantity[j]) || (turnIn && ownedCount >= qinfo->ItemDropQuantity[j]))
+                        if (ownedCount < qinfo->ItemDropQuantity[j] || turnIn )
                             return true;
                     } else if (ownedCount < pProto->GetMaxStackSize())
                         return true;
@@ -17147,7 +17151,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         RelocateToHomebind();
     }
     // Player was saved in Arena or Bg
-    else if (mapEntry && mapEntry->IsBattlegroundOrArena())
+    else if (mapEntry->IsBattlegroundOrArena())
     {
         Battleground* currentBg = nullptr;
         if (m_bgData.bgInstanceID)                                                //saved in Battleground
@@ -20385,7 +20389,7 @@ Pet* Player::GetPet() const
         if (!pet)
             return nullptr;
 
-        if (IsInWorld() && pet)
+        if (IsInWorld())
             return pet;
 
         // there may be a guardian in this slot
@@ -23609,7 +23613,7 @@ bool Player::isHonorOrXPTarget(Unit* victim) const
     uint8 k_grey  = Trinity::XP::GetGrayLevel(getLevel());
 
     // Victim level less gray level
-    if (v_level <= k_grey)
+    if (v_level <= k_grey && !sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO))
         return false;
 
     if (Creature const* creature = victim->ToCreature())
@@ -26361,39 +26365,6 @@ bool Player::SetFeatherFall(bool apply, bool packetOnly /*= false*/)
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
     return true;
-}
-
-float Player::GetCollisionHeight(bool mounted) const
-{
-    if (mounted)
-    {
-        CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID));
-        if (!mountDisplayInfo)
-            return GetCollisionHeight(false);
-
-        CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelId);
-        if (!mountModelData)
-            return GetCollisionHeight(false);
-
-        CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
-        ASSERT(displayInfo);
-        CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelId);
-        ASSERT(modelData);
-
-        float scaleMod = GetObjectScale(); // 99% sure about this
-
-        return scaleMod * mountModelData->MountHeight + modelData->CollisionHeight * 0.5f;
-    }
-    else
-    {
-        //! Dismounting case - use basic default model data
-        CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
-        ASSERT(displayInfo);
-        CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelId);
-        ASSERT(modelData);
-
-        return modelData->CollisionHeight;
-    }
 }
 
 std::string Player::GetMapAreaAndZoneString() const

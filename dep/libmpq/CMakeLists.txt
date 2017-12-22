@@ -26,6 +26,8 @@ target_include_directories(mpq
     ${CMAKE_SOURCE_DIR}/dep/bzip2)
 
 target_link_libraries(mpq
+  PRIVATE
+    trinity-dependency-interface
   PUBLIC
     zlib
     bzip2)

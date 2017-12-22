@@ -178,6 +178,9 @@ class spell_talon_king_ikiss_blink : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                if (targets.empty())
+                    return;
+
                 WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);

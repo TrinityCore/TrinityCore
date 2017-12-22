@@ -102,7 +102,7 @@ class boss_jaraxxus : public CreatureScript
 
         struct boss_jaraxxusAI : public BossAI
         {
-            boss_jaraxxusAI(Creature* creature) : BossAI(creature, BOSS_JARAXXUS) { }
+            boss_jaraxxusAI(Creature* creature) : BossAI(creature, DATA_JARAXXUS) { }
 
             void Reset() override
             {
@@ -119,7 +119,7 @@ class boss_jaraxxus : public CreatureScript
             void JustReachedHome() override
             {
                 _JustReachedHome();
-                instance->SetBossState(BOSS_JARAXXUS, FAIL);
+                instance->SetBossState(DATA_JARAXXUS, FAIL);
                 DoCast(me, SPELL_JARAXXUS_CHAINS);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetImmuneToPC(true);
@@ -238,7 +238,7 @@ class npc_legion_flame : public CreatureScript
             void UpdateAI(uint32 /*diff*/) override
             {
                 UpdateVictim();
-                if (_instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (_instance->GetBossState(DATA_JARAXXUS) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
             private:
@@ -330,7 +330,7 @@ class npc_fel_infernal : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (_instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (_instance->GetBossState(DATA_JARAXXUS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -438,7 +438,7 @@ class npc_mistress_of_pain : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (_instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (_instance->GetBossState(DATA_JARAXXUS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;

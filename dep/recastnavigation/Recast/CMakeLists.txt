@@ -11,6 +11,7 @@
 set(Recast_STAT_SRCS
     Source/Recast.cpp 
     Source/RecastAlloc.cpp 
+	Source/RecastAssert.cpp 
     Source/RecastArea.cpp 
     Source/RecastContour.cpp 
     Source/RecastFilter.cpp 
@@ -28,6 +29,8 @@ target_include_directories(Recast
     ${CMAKE_CURRENT_SOURCE_DIR}/Include)
 
 target_link_libraries(Recast
+  PRIVATE
+    trinity-dependency-interface
   PUBLIC
     zlib)
 
