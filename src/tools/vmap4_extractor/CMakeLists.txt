@@ -20,6 +20,8 @@ endif()
 add_executable(vmap4extractor ${PRIVATE_SOURCES})
 
 target_link_libraries(vmap4extractor
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     bzip2
     extractor_common)
