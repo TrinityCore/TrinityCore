@@ -24,6 +24,8 @@ target_include_directories(Detour
     ${CMAKE_CURRENT_SOURCE_DIR}/Include)
 
 target_link_libraries(Detour
+  PRIVATE
+    trinity-dependency-interface
   PUBLIC
     zlib)
 

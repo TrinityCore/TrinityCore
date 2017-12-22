@@ -19,6 +19,8 @@ GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 add_executable(connection_patcher ${PRIVATE_SOURCES})
 
 target_link_libraries(connection_patcher
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     common
 )
