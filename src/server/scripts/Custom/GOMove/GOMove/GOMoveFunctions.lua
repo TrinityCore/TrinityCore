@@ -192,11 +192,6 @@ TID("SPAWNSPELL"        ,   false   ,   true    )
 --TID("BIG"             ,   false   ,   false   )
 --TID("SMALL"           ,   false   ,   false   )
 
-local tem = SendChatMessage
-local function SendChatMessage(...)
-    print(...)
-    tem(...)
-end
 function GOMove:Move(ID, input)
     if(UnitIsDeadOrGhost("player")) then
         NotWhileDeadError()
