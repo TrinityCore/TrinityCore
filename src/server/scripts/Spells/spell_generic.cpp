@@ -4387,6 +4387,154 @@ class spell_gen_pvp_trinket : public SpellScriptLoader
         }
 };
 
+enum Blink
+{
+    SPELL_BLINK_TARGET = 28401
+};
+
+class spell_gen_blink : public SpellScriptLoader
+{
+    public:
+        spell_gen_blink() : SpellScriptLoader("spell_gen_blink") { }
+
+        class spell_gen_blink_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_blink_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_BLINK_TARGET });
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                Trinity::Containers::RandomResize(targets, 1);
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    if (Creature* caster = GetCaster()->ToCreature())
+                    {
+                        if (HostileReference* ref = caster->getThreatManager().getCurrentVictim())
+                        {
+                            ref->setThreat(0.0f);
+                            if (caster->IsAIEnabled)
+                            {
+                                caster->CastSpell(target, SPELL_BLINK_TARGET, true);
+                                caster->AI()->AttackStart(target);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_blink_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_blink_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_blink_SpellScript();
+        }
+};
+
+class spell_gen_toxic_blow_dart : public SpellScriptLoader
+{
+public:
+    spell_gen_toxic_blow_dart() : SpellScriptLoader("spell_gen_toxic_blow_dart") { }
+
+    class spell_gen_toxic_blow_dart_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_toxic_blow_dart_SpellScript);
+
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            if (targets.empty())
+                return;
+
+            Trinity::Containers::RandomResize(targets, 1);
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_toxic_blow_dart_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_toxic_blow_dart_SpellScript();
+    }
+};
+
+enum ProjectileGoods
+{
+    SPELL_PROJECTILE_GOODS_1    = 84136,
+    SPELL_PROJECTILE_GOODS_2    = 84138,
+    SPELL_PROJECTILE_GOODS_3    = 84141,
+    SPELL_PROJECTILE_GOODS_4    = 84142
+};
+
+class spell_gen_projectile_goods : public SpellScriptLoader
+{
+public:
+    spell_gen_projectile_goods() : SpellScriptLoader("spell_gen_projectile_goods") { }
+
+    class spell_gen_projectile_goods_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_projectile_goods_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo(
+                {
+                SPELL_PROJECTILE_GOODS_1,
+                SPELL_PROJECTILE_GOODS_2,
+                SPELL_PROJECTILE_GOODS_3,
+                SPELL_PROJECTILE_GOODS_4,
+                });
+        }
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
+            uint32 spellId = 0;
+            switch (RAND(0, 3))
+            {
+                case 0:
+                    spellId = SPELL_PROJECTILE_GOODS_1;
+                    break;
+                case 1:
+                    spellId = SPELL_PROJECTILE_GOODS_2;
+                    break;
+                case 2:
+                    spellId = SPELL_PROJECTILE_GOODS_3;
+                    break;
+                case 3:
+                    spellId = SPELL_PROJECTILE_GOODS_4;
+                    break;
+            }
+            GetCaster()->CastSpell(GetHitUnit(), spellId, true);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_projectile_goods_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_projectile_goods_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4488,4 +4636,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_pony_mount_check();
     new spell_gen_armor_specialization();
     new spell_gen_pvp_trinket();
+    new spell_gen_blink();
+    new spell_gen_toxic_blow_dart();
+    new spell_gen_projectile_goods();
 }
