@@ -48,8 +48,11 @@ if (BUILD_SHARED_LIBS)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
       -fPIC
-      -fvisibility=hidden
       -Wno-attributes)
+
+  target_compile_options(trinity-hidden-symbols-interface
+    INTERFACE
+      -fvisibility=hidden)
 
   # Should break the build when there are TRINITY_*_API macros missing
   # but it complains about missing references in precompiled headers.

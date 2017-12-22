@@ -162,6 +162,8 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
       ${SCRIPT_MODULE_PRIVATE_SOURCES}
       ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
     target_link_libraries(${SCRIPT_MODULE_PROJECT_NAME}
+      PRIVATE
+        trinity-core-interface
       PUBLIC
         game)
     set_target_properties(${SCRIPT_MODULE_PROJECT_NAME}
@@ -202,6 +204,8 @@ add_library(scripts STATIC
   ${PRIVATE_SOURCES})
 
 target_link_libraries(scripts
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     game-interface)
 

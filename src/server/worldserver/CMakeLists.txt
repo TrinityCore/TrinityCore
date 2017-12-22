@@ -44,6 +44,8 @@ endif()
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
 target_link_libraries(worldserver
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     scripts
     game
