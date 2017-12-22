@@ -1026,7 +1026,10 @@ class spell_hun_steady_shot : public SpellScriptLoader
                     else if (caster->HasAura(SPELL_HUNTER_TERMINATION_R_1))
                         spellId = SPELL_HUNTER_TERMINATION_R_1;
 
-                    uint32 amount = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                    uint32 amount = 0;
+                    if (SpellInfo const* focusSpell = sSpellMgr->GetSpellInfo(SPELL_HUNTER_STEADY_SHOT_FOCUS))
+                        amount = focusSpell->Effects[EFFECT_0].BasePoints;
+
                     if (Aura* terminationAura = caster->GetAura(spellId))
                     {
                         if (Unit* spellTarget = GetExplTargetUnit())
