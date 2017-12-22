@@ -61,8 +61,8 @@ target_include_directories(common
 target_link_libraries(common
   PRIVATE
     process
-  PUBLIC
     trinity-core-interface
+  PUBLIC
     boost
     fmt
     g3dlib
