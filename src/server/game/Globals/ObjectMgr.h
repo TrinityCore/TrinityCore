@@ -1004,6 +1004,7 @@ class TC_GAME_API ObjectMgr
         void LoadGraveyardOrientations();
         void LoadCreatureTemplates();
         void LoadCreatureTemplateAddons();
+        void LoadCreatureSparringTemplate();
         void LoadCreatureTemplate(Field* fields);
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
         void LoadGameObjectQuestItems();
@@ -1239,6 +1240,19 @@ class TC_GAME_API ObjectMgr
             QuestGreetingLocaleContainer::const_iterator itr = _questGreetingLocaleStore.find(id);
             if (itr == _questGreetingLocaleStore.end()) return nullptr;
             return &itr->second;
+        }
+
+        CreatureSparring const* GetCreatureSparringInfo(uint32 attackerEntry, uint32 victimEntry) const
+        {
+            auto itr = _creatureSparringTemplateStore.find(attackerEntry);
+            if (itr == _creatureSparringTemplateStore.end())
+                return nullptr;
+
+            for (CreatureSparring const& sparring : itr->second)
+                if (sparring.victimEntry == victimEntry)
+                    return &sparring;
+
+            return nullptr;
         }
 
         TrinityString const* GetTrinityString(uint32 entry) const
@@ -1533,6 +1547,7 @@ class TC_GAME_API ObjectMgr
         CreatureModelContainer _creatureModelStore;
         CreatureAddonContainer _creatureAddonStore;
         CreatureAddonTemplateContainer _creatureTemplateAddonStore;
+        CreatureSparringTemplateMap _creatureSparringTemplateStore;
         GameObjectAddonContainer _gameObjectAddonStore;
         GameObjectQuestItemMap _gameObjectQuestItemStore;
         CreatureQuestItemMap _creatureQuestItemStore;

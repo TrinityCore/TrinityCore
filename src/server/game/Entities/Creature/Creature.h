@@ -353,6 +353,21 @@ struct CreatureAddon
 typedef std::unordered_map<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
 typedef std::unordered_map<uint32, CreatureAddon> CreatureAddonTemplateContainer;
 
+// `creature_sparring_template` table
+struct CreatureSparring
+{
+    CreatureSparring(uint32 _victimEntry, float _healthLimitPct)
+        : victimEntry(_victimEntry), healthLimitPct(_healthLimitPct) { }
+
+    uint32 victimEntry;
+    float healthLimitPct;
+
+    float GetHealthLimitPct() const { return healthLimitPct; }
+};
+
+typedef std::vector<CreatureSparring> CreatureSparringList;
+typedef std::unordered_map<uint32, CreatureSparringList> CreatureSparringTemplateMap;
+
 // Vendors
 struct VendorItem
 {
@@ -602,6 +617,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         Unit* SelectNearestTarget(float dist = 0, bool playerOnly = false) const;
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
         Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
+
+        CreatureSparring const* GetSparringData(uint32 attackerEntry, uint32 victimEntry) const;
+        bool CanSparrWith(Creature* victim) const;
+        float GetSparringHealthLimitPctFor(Creature* victim) const;
 
         void DoFleeToGetAssistance();
         void CallForHelp(float fRadius);
