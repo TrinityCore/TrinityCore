@@ -41,7 +41,10 @@ if (BUILD_SHARED_LIBS)
   # -fvisibility=hidden sets the default visibility to hidden to prevent exporting of all symbols.
   target_compile_options(trinity-compile-option-interface
     INTERFACE
-      -fPIC
+      -fPIC)
+
+  target_compile_options(trinity-hidden-symbols-interface
+    INTERFACE
       -fvisibility=hidden)
 
   # --no-undefined to throw errors when there are undefined symbols

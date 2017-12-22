@@ -22,8 +22,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif()
 
 target_link_libraries(vmap4assembler
-  common
-  zlib)
+  PRIVATE
+    trinity-core-interface
+  PUBLIC
+    common
+    zlib)
 
 set_target_properties(vmap4assembler
     PROPERTIES
