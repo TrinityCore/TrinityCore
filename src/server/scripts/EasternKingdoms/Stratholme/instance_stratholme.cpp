@@ -171,7 +171,7 @@ class instance_stratholme : public InstanceMapScript
                         break;
                     case NPC_YSIDA:
                         ysidaGUID = creature->GetGUID();
-                        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                        creature->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                         break;
                 }
             }
