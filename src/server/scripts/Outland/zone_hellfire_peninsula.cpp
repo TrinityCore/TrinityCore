@@ -1197,11 +1197,12 @@ public:
                         if (InfernalRainList.empty())
                             return;
 
-                        Creature* random = Trinity::Containers::SelectRandomContainerElement(InfernalRainList);
-
-                        if (random->isMoving() && random->GetPositionZ() < 118.0f)
+                        if (Creature* random = Trinity::Containers::SelectRandomContainerElement(InfernalRainList))
                         {
-                            me->CastSpell(random, SPELL_INFERNAL_RAIN, true);
+                            if (random->isMoving() && random->GetPositionZ() < 118.0f)
+                            {
+                                me->CastSpell(random, SPELL_INFERNAL_RAIN, true);
+                            }
                         }
 
                         _events.ScheduleEvent(EVENT_INFERNAL_RAIN_CAST, Seconds(1), Seconds(2));
