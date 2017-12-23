@@ -1056,7 +1056,9 @@ enum WatchCommanderLeonus
 
 struct npc_watch_commander_leonus : public ScriptedAI
 {
-    npc_watch_commander_leonus(Creature* creature) : ScriptedAI(creature)
+    npc_watch_commander_leonus(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
     {
         _events.ScheduleEvent(EVENT_LEONUS_TALK, 2min, 10min);
         _events.ScheduleEvent(EVENT_INFERNAL_RAIN_ATTACK, 2min, 10min);
@@ -1067,11 +1069,11 @@ struct npc_watch_commander_leonus : public ScriptedAI
     {
         switch (data)
         {
-        case 1:
-            _events.ScheduleEvent(EVENT_ACTIVE_FALSE, 1s);
-            break;
-        default:
-            break;
+            case 1:
+                _events.ScheduleEvent(EVENT_ACTIVE_FALSE, 1s);
+                break;
+            default:
+                break;
         }
     }
 
@@ -1091,7 +1093,7 @@ struct npc_watch_commander_leonus : public ScriptedAI
                 {
                     std::list<Creature*> infernalrainList;
                     Trinity::AllCreaturesOfEntryInRange checkerInfernalrain(me, NPC_INFERNAL_RAIN, 200.0f);
-                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher_infernal(me, infernalrainList, checkerInfernalrain);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcherInfernal(me, infernalrainList, checkerInfernalrain);
                     Cell::VisitAllObjects(me, checkerInfernalrain, 200.0f);
 
                     if (infernalrainList.empty())
@@ -1107,7 +1109,7 @@ struct npc_watch_commander_leonus : public ScriptedAI
                 {
                     std::list<Creature*> fearcontrollerList;
                     Trinity::AllCreaturesOfEntryInRange checkerFear(me, NPC_FEAR_CONTROLLER, 200.0f);
-                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher_fear(me, fearcontrollerList, checkerFear);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcherFear(me, fearcontrollerList, checkerFear);
                     Cell::VisitAllObjects(me, checkerFear, 200.0f);
 
                     if (fearcontrollerList.empty())
@@ -1151,12 +1153,12 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
     {
         switch (data)
         {
-        case 1:
-            _events.ScheduleEvent(EVENT_INFERNAL_RAIN_CAST, 1s, 2s);
-            _events.ScheduleEvent(EVENT_INFERNAL_RAIN_STOP, 60s);
-            break;
-        default:
-            break;
+            case 1:
+                _events.ScheduleEvent(EVENT_INFERNAL_RAIN_CAST, 1s, 2s);
+                _events.ScheduleEvent(EVENT_INFERNAL_RAIN_STOP, 60s);
+                break;
+            default:
+                break;
         }
     }
 
@@ -1189,8 +1191,8 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
                 {
                     _events.CancelEvent(EVENT_INFERNAL_RAIN_CAST);
 
-                    if (Creature* Watch_Commander_Leonus = me->FindNearestCreature(NPC_WATCH_COMMANDER_LEONUS, 200))
-                        Watch_Commander_Leonus->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+                    if (Creature* watchcommanderLeonus = me->FindNearestCreature(NPC_WATCH_COMMANDER_LEONUS, 200))
+                        watchcommanderLeonus->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
 
                     break;
                 }
@@ -1232,11 +1234,9 @@ struct npc_fear_controller : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_FEAR_CAST:
-                {
                     DoCastAOE(SPELL_FEAR);
                     _events.Repeat(10s);
                     break;
-                }
                 case EVENT_FEAR_STOP:
                     _events.CancelEvent(EVENT_FEAR_CAST);
                     break;
