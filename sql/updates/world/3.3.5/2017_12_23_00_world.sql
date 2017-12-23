@@ -2,7 +2,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_watch_commander_leonus' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_fear_controller' WHERE `entry`=19393;
 UPDATE `creature_template` SET `InhabitType`=4, `unit_flags`=33554688, `unit_flags2`=2099200, `mechanic_immune_mask`=16, `ScriptName`='npc_infernal_rain_hellfire' WHERE  `entry`=18729;
 
-SET @CGUID:=248565;
+SET @CGUID:=86515;
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+14;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
@@ -327,10 +327,10 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 -- Add text for watch_commander_leonus
 DELETE FROM `creature_text` WHERE `entry`=19392;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`, `BroadcastTextID`) VALUES
-(19392, 0, 0, 'Were under attack! RUN FOR COVER!', 14, 0, 100, 0, 0, 0, 'watch_commander_leonus', 16575),
-(19392, 0, 1, 'INFERNALS! CLEAR THE COURTYARD!', 14, 0, 100, 0, 0, 0, 'watch_commander_leonus', 16574),
-(19392, 0, 2, 'INFERNAL RAIN ON THE RISE! TAKE COVER!', 14, 0, 100, 0, 0, 0, 'watch_commander_leonus', 16573);
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(19392, 0, 0, 'Were under attack! RUN FOR COVER!', 14, 0, 100, 0, 0, 0, 16575, 0, 'Watch Commander Leonus');
+(19392, 0, 1, 'INFERNALS! CLEAR THE COURTYARD!', 14, 0, 100, 0, 0, 0, 16574, 0, 'Watch Commander Leonus');
+(19392, 0, 2, 'INFERNAL RAIN ON THE RISE! TAKE COVER!', 14, 0, 100, 0, 0, 0, 16573, 0, 'Watch Commander Leonus');
 
 -- Condition for source Spell implicit target condition type Near creature
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=2 AND `SourceEntry`=33814 AND `SourceId`=0;

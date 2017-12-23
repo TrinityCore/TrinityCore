@@ -4634,12 +4634,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS); // 3yd
     });
 
-    // Infernal Rain
-    ApplySpellFix({ 33814 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 1;
-    });
-
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
