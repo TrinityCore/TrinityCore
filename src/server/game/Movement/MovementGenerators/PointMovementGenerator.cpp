@@ -50,6 +50,10 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
     init.MoveTo(_x, _y, _z , _generatePath);
     if (_speed > 0.0f)
         init.SetVelocity(_speed);
+
+    if (_finalOrient)
+        init.SetFacing(*_finalOrient);
+
     init.Launch();
 
     // Call for creature group update
