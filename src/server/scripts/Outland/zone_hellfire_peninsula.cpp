@@ -1097,9 +1097,9 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     if (InfernalRainList.empty())
                         return;
 
-                    for (std::list<Creature*>::iterator itr = InfernalRainList.begin(); itr != InfernalRainList.end(); ++itr)
-                        if (!(*itr)->isMoving() && (*itr)->GetPositionZ() > 118.0f)
-                            (*itr)->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+                    for (Creature* Infernal : InfernalRainList)
+                        if (!Infernal->isMoving() && Infernal->GetPositionZ() > 118.0f)
+                            Infernal->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
 
                     break;
                 }
@@ -1113,8 +1113,8 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     if (FearControllerList.empty())
                         return;
 
-                    for (std::list<Creature*>::iterator itr = FearControllerList.begin(); itr != FearControllerList.end(); ++itr)
-                        (*itr)->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+                    for (Creature* fearController : FearControllerList)
+                        fearController->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
 
                     break;
                 }
