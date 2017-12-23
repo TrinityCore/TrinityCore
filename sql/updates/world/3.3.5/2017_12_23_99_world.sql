@@ -328,8 +328,8 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- Add text for watch_commander_leonus
 DELETE FROM `creature_text` WHERE `entry`=19392;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(19392, 0, 0, 'Were under attack! RUN FOR COVER!', 14, 0, 100, 0, 0, 0, 16575, 0, 'Watch Commander Leonus');
-(19392, 0, 1, 'INFERNALS! CLEAR THE COURTYARD!', 14, 0, 100, 0, 0, 0, 16574, 0, 'Watch Commander Leonus');
+(19392, 0, 0, 'Were under attack! RUN FOR COVER!', 14, 0, 100, 0, 0, 0, 16575, 0, 'Watch Commander Leonus'),
+(19392, 0, 1, 'INFERNALS! CLEAR THE COURTYARD!', 14, 0, 100, 0, 0, 0, 16574, 0, 'Watch Commander Leonus'),
 (19392, 0, 2, 'INFERNAL RAIN ON THE RISE! TAKE COVER!', 14, 0, 100, 0, 0, 0, 16573, 0, 'Watch Commander Leonus');
 
 -- Condition for source Spell implicit target condition type Near creature
