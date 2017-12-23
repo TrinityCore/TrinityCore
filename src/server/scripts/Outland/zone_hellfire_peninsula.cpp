@@ -1097,7 +1097,7 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     Cell::VisitAllObjects(me, checkerInfernalrain, 200.0f);
 
                     if (infernalrainList.empty())
-                        return;
+                        break;
 
                     for (Creature* infernal : infernalrainList)
                         if (!infernal->isMoving() && infernal->GetPositionZ() > 118.0f)
@@ -1113,7 +1113,7 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     Cell::VisitAllObjects(me, checkerFear, 200.0f);
 
                     if (fearcontrollerList.empty())
-                        return;
+                        break;
 
                     for (Creature* fearController : fearcontrollerList)
                         fearController->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
@@ -1127,11 +1127,6 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     break;
             }
         }
-
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1178,7 +1173,7 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
                     Cell::VisitAllObjects(me, searcher, 200.0f);
 
                     if (infernalrainList.empty())
-                        return;
+                        break;
 
                     if (Creature* random = Trinity::Containers::SelectRandomContainerElement(infernalrainList))
                         if (random->isMoving() && random->GetPositionZ() < 118.0f)
