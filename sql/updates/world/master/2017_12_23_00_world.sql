@@ -1,5 +1,5 @@
 -- Quest 25039: Have You Seen Anything Weird Out There?
-UPDATE `quest_template` SET `RewardNextQuest`=24993, WHERE `ID`=25039;
+UPDATE `quest_template` SET `RewardNextQuest`=24993 WHERE `ID`=25039;
 
 -- add ExclusiveGroup 24992 - only one of the quests must be available
 DELETE FROM `quest_template_addon` WHERE `ID` IN (24992,25039);
