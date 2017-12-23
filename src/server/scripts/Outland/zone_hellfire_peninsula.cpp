@@ -1089,31 +1089,31 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     break;
                 case EVENT_INFERNAL_RAIN_ATTACK:
                 {
-                    std::list<Creature*> InfernalRainList;
-                    Trinity::AllCreaturesOfEntryInRange checker_infernal(me, NPC_INFERNAL_RAIN, 200.0f);
-                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher_infernal(me, InfernalRainList, checker_infernal);
-                    Cell::VisitAllObjects(me, searcher_infernal, 200.0f);
+                    std::list<Creature*> infernalrainList;
+                    Trinity::AllCreaturesOfEntryInRange checkerInfernalrain(me, NPC_INFERNAL_RAIN, 200.0f);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher_infernal(me, infernalrainList, checkerInfernalrain);
+                    Cell::VisitAllObjects(me, checkerInfernalrain, 200.0f);
 
-                    if (InfernalRainList.empty())
+                    if (infernalrainList.empty())
                         return;
 
-                    for (Creature* Infernal : InfernalRainList)
-                        if (!Infernal->isMoving() && Infernal->GetPositionZ() > 118.0f)
-                            Infernal->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+                    for (Creature* infernal : infernalrainList)
+                        if (!infernal->isMoving() && infernal->GetPositionZ() > 118.0f)
+                            infernal->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
 
                     break;
                 }
                 case EVENT_FEAR_CONTROLLER_CAST:
                 {
-                    std::list<Creature*> FearControllerList;
-                    Trinity::AllCreaturesOfEntryInRange checker_fear(me, NPC_FEAR_CONTROLLER, 200.0f);
-                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher_fear(me, FearControllerList, checker_fear);
-                    Cell::VisitAllObjects(me, searcher_fear, 200.0f);
+                    std::list<Creature*> fearcontrollerList;
+                    Trinity::AllCreaturesOfEntryInRange checkerFear(me, NPC_FEAR_CONTROLLER, 200.0f);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher_fear(me, fearcontrollerList, checkerFear);
+                    Cell::VisitAllObjects(me, checkerFear, 200.0f);
 
-                    if (FearControllerList.empty())
+                    if (fearcontrollerList.empty())
                         return;
 
-                    for (Creature* fearController : FearControllerList)
+                    for (Creature* fearController : fearcontrollerList)
                         fearController->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
 
                     break;
@@ -1170,15 +1170,15 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
             {
                 case EVENT_INFERNAL_RAIN_CAST:
                 {
-                    std::list<Creature*> InfernalRainList;
+                    std::list<Creature*> infernalrainList;
                     Trinity::AllCreaturesOfEntryInRange checker(me, NPC_INFERNAL_RAIN, 200.0f);
-                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, InfernalRainList, checker);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, infernalrainList, checker);
                     Cell::VisitAllObjects(me, searcher, 200.0f);
 
-                    if (InfernalRainList.empty())
+                    if (infernalrainList.empty())
                         return;
 
-                    if (Creature* random = Trinity::Containers::SelectRandomContainerElement(InfernalRainList))
+                    if (Creature* random = Trinity::Containers::SelectRandomContainerElement(infernalrainList))
                         if (random->isMoving() && random->GetPositionZ() < 118.0f)
                             me->CastCustomSpell(SPELL_INFERNAL_RAIN, SPELLVALUE_MAX_TARGETS, 1, random, true);
 
