@@ -1094,7 +1094,7 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     std::list<Creature*> infernalrainList;
                     Trinity::AllCreaturesOfEntryInRange checkerInfernalrain(me, NPC_INFERNAL_RAIN, 200.0f);
                     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcherInfernal(me, infernalrainList, checkerInfernalrain);
-                    Cell::VisitAllObjects(me, checkerInfernalrain, 200.0f);
+                    Cell::VisitAllObjects(me, searcherInfernal, 200.0f);
 
                     if (infernalrainList.empty())
                         break;
@@ -1110,7 +1110,7 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     std::list<Creature*> fearcontrollerList;
                     Trinity::AllCreaturesOfEntryInRange checkerFear(me, NPC_FEAR_CONTROLLER, 200.0f);
                     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcherFear(me, fearcontrollerList, checkerFear);
-                    Cell::VisitAllObjects(me, checkerFear, 200.0f);
+                    Cell::VisitAllObjects(me, searcherFear, 200.0f);
 
                     if (fearcontrollerList.empty())
                         break;
