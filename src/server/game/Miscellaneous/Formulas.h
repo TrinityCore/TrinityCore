@@ -158,6 +158,13 @@ namespace Trinity
                     baseGain = 0;
             }
 
+            if (sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO))
+            {
+                // Use mob level instead of player level to avoid overscaling on gain in a min is enforced
+                uint32 baseGainMin = (mob_level * 5 + nBaseExp) * sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO) / 100;
+                baseGain = std::max(baseGainMin, baseGain);
+            }
+
             sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level, content);
             return baseGain;
         }

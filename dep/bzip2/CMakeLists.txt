@@ -30,6 +30,10 @@ else()
     PUBLIC
       ${CMAKE_CURRENT_SOURCE_DIR})
 
+  target_link_libraries(bzip2
+    PRIVATE
+      trinity-dependency-interface)
+
   set_target_properties(bzip2
     PROPERTIES
       FOLDER

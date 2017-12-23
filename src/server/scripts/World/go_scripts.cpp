@@ -37,7 +37,6 @@ go_soulwell
 go_bashir_crystalforge
 go_soulwell
 go_dragonflayer_cage
-go_tadpole_cage
 go_amberpine_outhouse
 go_hive_pod
 go_veil_skith_cage
@@ -1232,49 +1231,6 @@ public:
 };
 
 /*######
-## Quest 11560: Oh Noes, the Tadpoles!
-## go_tadpole_cage
-######*/
-
-enum Tadpoles
-{
-    QUEST_OH_NOES_THE_TADPOLES                    = 11560,
-    NPC_WINTERFIN_TADPOLE                         = 25201
-};
-
-class go_tadpole_cage : public GameObjectScript
-{
-public:
-    go_tadpole_cage() : GameObjectScript("go_tadpole_cage") { }
-
-    struct go_tadpole_cageAI : public GameObjectAI
-    {
-        go_tadpole_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
-            {
-                Creature* pTadpole = me->FindNearestCreature(NPC_WINTERFIN_TADPOLE, 1.0f);
-                if (pTadpole)
-                {
-                    pTadpole->DisappearAndDie();
-                    player->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE);
-                    //FIX: Summon minion tadpole
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_tadpole_cageAI(go);
-    }
-};
-
-/*######
 ## go_amberpine_outhouse
 ######*/
 
@@ -1528,10 +1484,18 @@ public:
 
 enum MidsummerPoleRibbon
 {
-    SPELL_POLE_DANCE      = 29726,
-    SPELL_BLUE_FIRE_RING  = 46842,
-    NPC_POLE_RIBBON_BUNNY = 17066,
-    ACTION_COSMETIC_FIRES = 0
+    SPELL_TEST_RIBBON_POLE_1 = 29705,
+    SPELL_TEST_RIBBON_POLE_2 = 29726,
+    SPELL_TEST_RIBBON_POLE_3 = 29727,
+    NPC_POLE_RIBBON_BUNNY    = 17066,
+    ACTION_COSMETIC_FIRES    = 0
+};
+
+uint32 const RibbonPoleSpells[3] =
+{
+    SPELL_TEST_RIBBON_POLE_1,
+    SPELL_TEST_RIBBON_POLE_2,
+    SPELL_TEST_RIBBON_POLE_3
 };
 
 class go_midsummer_ribbon_pole : public GameObjectScript
@@ -1548,7 +1512,7 @@ public:
             if (Creature* creature = me->FindNearestCreature(NPC_POLE_RIBBON_BUNNY, 10.0f))
             {
                 creature->GetAI()->DoAction(ACTION_COSMETIC_FIRES);
-                player->CastSpell(creature, SPELL_POLE_DANCE, true);
+                player->CastSpell(player, RibbonPoleSpells[urand(0, 2)], true);
             }
             return true;
         }
@@ -2101,7 +2065,6 @@ void AddSC_go_scripts()
     new go_table_theka();
     new go_inconspicuous_landmark();
     new go_soulwell();
-    new go_tadpole_cage();
     new go_dragonflayer_cage();
     new go_amberpine_outhouse();
     new go_hive_pod();

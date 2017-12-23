@@ -179,7 +179,10 @@ class boss_gormok : public CreatureScript
 
         struct boss_gormokAI : public BossAI
         {
-            boss_gormokAI(Creature* creature) : BossAI(creature, BOSS_BEASTS) { }
+            boss_gormokAI(Creature* creature) : BossAI(creature, DATA_GORMOK_THE_IMPALER)
+            {
+                SetBoundary(instance->GetBossBoundary(DATA_NORTHREND_BEASTS));
+            }
 
             void Reset() override
             {
@@ -192,7 +195,7 @@ class boss_gormok : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why) override
             {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                 ScriptedAI::EnterEvadeMode(why);
             }
 
@@ -204,7 +207,7 @@ class boss_gormok : public CreatureScript
                 switch (pointId)
                 {
                     case 0:
-                        instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                        instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -222,7 +225,7 @@ class boss_gormok : public CreatureScript
 
             void JustReachedHome() override
             {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                 instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
 
                 me->DespawnOrUnsummon();
@@ -230,8 +233,11 @@ class boss_gormok : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
-                _EnterCombat();
+                me->SetCombatPulseDelay(5);
+                me->setActive(true);
+                //DoZoneInCombat();
                 instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
+                instance->SetBossState(DATA_NORTHREND_BEASTS, IN_PROGRESS);
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage) override
@@ -387,7 +393,7 @@ class npc_snobold_vassal : public CreatureScript
 
             void MountOnBoss()
             {
-                Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_GORMOK));
+                Unit* gormok = _instance->GetCreature(DATA_GORMOK_THE_IMPALER);
                 if (gormok && gormok->IsAlive())
                 {
                     me->AttackStop();
@@ -511,7 +517,7 @@ class npc_firebomb : public CreatureScript
 
 struct boss_jormungarAI : public BossAI
 {
-    boss_jormungarAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
+    boss_jormungarAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId)
     {
         OtherWormEntry = 0;
         ModelStationary = 0;
@@ -525,6 +531,7 @@ struct boss_jormungarAI : public BossAI
         Phase = PHASE_MOBILE;
         Enraged = false;
         WasMobile = false;
+        SetBoundary(instance->GetBossBoundary(DATA_NORTHREND_BEASTS));
     }
 
     void Reset() override
@@ -539,9 +546,14 @@ struct boss_jormungarAI : public BossAI
         events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, 0, PHASE_MOBILE);
     }
 
+    uint32 GetOtherWormData(uint32 wormEntry)
+    {
+        return wormEntry == NPC_ACIDMAW ? DATA_ACIDMAW : DATA_DREADSCALE;
+    }
+
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* otherWorm = ObjectAccessor::GetCreature(*me, instance->GetGuidData(OtherWormEntry)))
+        if (Creature* otherWorm = instance->GetCreature(GetOtherWormData(OtherWormEntry)))
         {
             if (!otherWorm->IsAlive())
             {
@@ -651,7 +663,7 @@ struct boss_jormungarAI : public BossAI
         events.SetPhase(PHASE_SUBMERGED);
         events.ScheduleEvent(EVENT_EMERGE, 5*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-        me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
+        me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ() + me->GetMidsectionHeight());
         WasMobile = !WasMobile;
     }
 
@@ -714,7 +726,7 @@ class boss_acidmaw : public CreatureScript
 
         struct boss_acidmawAI : public boss_jormungarAI
         {
-            boss_acidmawAI(Creature* creature) : boss_jormungarAI(creature) { }
+            boss_acidmawAI(Creature* creature) : boss_jormungarAI(creature, DATA_ACIDMAW) { }
 
             void Reset() override
             {
@@ -745,7 +757,7 @@ class boss_dreadscale : public CreatureScript
 
         struct boss_dreadscaleAI : public boss_jormungarAI
         {
-            boss_dreadscaleAI(Creature* creature) : boss_jormungarAI(creature) { }
+            boss_dreadscaleAI(Creature* creature) : boss_jormungarAI(creature, DATA_DREADSCALE) { }
 
             void Reset() override
             {
@@ -772,7 +784,7 @@ class boss_dreadscale : public CreatureScript
                 switch (pointId)
                 {
                     case 0:
-                        instance->DoCloseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                        instance->DoCloseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -785,13 +797,13 @@ class boss_dreadscale : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why) override
             {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                 boss_jormungarAI::EnterEvadeMode(why);
             }
 
             void JustReachedHome() override
             {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
 
                 boss_jormungarAI::JustReachedHome();
             }
@@ -887,9 +899,10 @@ class boss_icehowl : public CreatureScript
 
         struct boss_icehowlAI : public BossAI
         {
-            boss_icehowlAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
+            boss_icehowlAI(Creature* creature) : BossAI(creature, DATA_ICEHOWL)
             {
                 Initialize();
+                SetBoundary(instance->GetBossBoundary(DATA_NORTHREND_BEASTS));
             }
 
             void Initialize()
@@ -946,7 +959,7 @@ class boss_icehowl : public CreatureScript
                         _movementFinish = true;
                         break;
                     case 2:
-                        instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                        instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -959,13 +972,13 @@ class boss_icehowl : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why) override
             {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                 ScriptedAI::EnterEvadeMode(why);
             }
 
             void JustReachedHome() override
             {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                 instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
                 me->DespawnOrUnsummon();
             }
@@ -1362,6 +1375,30 @@ public:
     }
 };
 
+// 66882 - Slime Pool
+class spell_jormungars_slime_pool : public AuraScript
+{
+    PrepareAuraScript(spell_jormungars_slime_pool);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        int32 const radius = static_cast<int32>(((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f);
+        GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_jormungars_slime_pool::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 class spell_jormungars_snakes_spray : public SpellScriptLoader
 {
 public:
@@ -1448,6 +1485,7 @@ void AddSC_boss_northrend_beasts()
     new boss_dreadscale();
     new npc_slime_pool();
     new spell_jormungars_paralytic_toxin();
+    RegisterAuraScript(spell_jormungars_slime_pool);
     new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
     new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
     new spell_jormungars_paralysis();

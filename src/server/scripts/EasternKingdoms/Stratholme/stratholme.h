@@ -57,6 +57,14 @@ enum STRCreatureIds
     NPC_ABOM_VENOM                      = 10417,
     NPC_BLACK_GUARD                     = 10394,
     NPC_YSIDA                           = 16031,
+
+    // Scarlet side creatures
+    NPC_CRIMSON_GUARDSMAN               = 10418,
+    NPC_CRIMSON_CONJUROR                = 10419,
+    NPC_CRIMSON_INITATE                 = 10420,
+    NPC_CRIMSON_GALLANT                 = 10424,
+
+    NPC_TIMMY_THE_CRUEL                 = 10808
 };
 
 enum STRGameobjectIds
@@ -71,7 +79,8 @@ enum STRGameobjectIds
     GO_ZIGGURAT5                        = 175796,  // baron
     GO_PORT_GAUNTLET                    = 175374,  // port from gauntlet to slaugther
     GO_PORT_SLAUGTHER                   = 175373,  // port at slaugther
-    GO_PORT_ELDERS                      = 175377   // port at elders square
+    GO_PORT_ELDERS                      = 175377,  // port at elders square
+    GO_YSIDA_CAGE                       = 181071
 };
 
 enum STRQuestIds
@@ -81,7 +90,17 @@ enum STRQuestIds
 
 enum STRSpellIds
 {
-    SPELL_BARON_ULTIMATUM               = 27861
+    SPELL_BARON_ULTIMATUM               = 27861,
+    SPELL_PERM_FEIGN_DEATH              = 29266,
+    SPELL_YSIDA_SAVED                   = 31912,
+    SPELL_YSIDA_CREDIT_EFFECT           = 31913
+};
+
+enum STRMisc
+{
+    //! amount of crusade monsters required to be killed in order for timmy the cruel to spawn
+    TIMMY_THE_CRUEL_CRUSADERS_REQUIRED  = 15,
+    MAX_ENCOUNTER                       = 6
 };
 
 template <class AI, class T>
