@@ -673,16 +673,17 @@ void WorldSession::HandleUnstablePetCallback(uint32 petId, PreparedQueryResult r
     if (pet)
         _player->RemovePet(pet, PET_SAVE_AS_DELETED);
 
-    Pet* newPet = new Pet(_player, HUNTER_PET);
-    if (!newPet->LoadPetFromDB(_player, petEntry, petId))
+    (new Pet(_player, HUNTER_PET))->LoadPetFromDB([this](bool loadResult, Pet* pet)
     {
-        delete newPet;
-        newPet = nullptr;
-        SendStableResult(STABLE_ERR_STABLE);
-        return;
-    }
+        if (!loadResult)
+        {
+            delete pet;
+            SendStableResult(STABLE_ERR_STABLE);
+            return;
+        }
 
-    SendStableResult(STABLE_SUCCESS_UNSTABLE);
+        SendStableResult(STABLE_SUCCESS_UNSTABLE);
+    }, _player, petEntry, petId);
 }
 
 void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
@@ -804,14 +805,17 @@ void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult
     _player->RemovePet(pet, pet->IsAlive() ? PetSaveMode(slot) : PET_SAVE_AS_DELETED);
 
     // summon unstabled pet
-    Pet* newPet = new Pet(_player);
-    if (!newPet->LoadPetFromDB(_player, petEntry, petId))
+    (new Pet(_player))->LoadPetFromDB([this](bool loadResult, Pet* pet)
     {
-        delete newPet;
-        SendStableResult(STABLE_ERR_STABLE);
-    }
-    else
+        if (!loadResult)
+        {
+            delete pet;
+            SendStableResult(STABLE_ERR_STABLE);
+            return;
+        }
+
         SendStableResult(STABLE_SUCCESS_UNSTABLE);
+    }, _player, petEntry, petId);
 }
 
 void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)

@@ -2991,26 +2991,43 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
 
     float x, y, z;
     owner->GetClosePoint(x, y, z, owner->GetCombatReach());
-    Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0);
-    if (!pet)
-        return;
 
-    if (m_caster->GetTypeId() == TYPEID_UNIT)
+    Position summonPos(x, y, z, owner->GetOrientation());
+    ObjectGuid casterGuid = m_caster->GetGUID();
+    SpellInfo const* spellInfo = m_spellInfo;
+    owner->SummonPet([petentry, spellInfo, casterGuid, effIndex](Pet* pet)
     {
-        if (m_caster->IsTotem())
-            pet->SetReactState(REACT_AGGRESSIVE);
-        else
-            pet->SetReactState(REACT_DEFENSIVE);
-    }
+        if (!pet)
+            return;
 
-    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+        Unit* caster = ObjectAccessor::GetUnit(*pet, casterGuid);
+        if (!caster)
+            return;
 
-    // generate new name for summon pet
-    std::string new_name = sObjectMgr->GeneratePetName(petentry);
-    if (!new_name.empty())
-        pet->SetName(new_name);
+        if (caster->GetTypeId() == TYPEID_UNIT)
+        {
+            if (caster->IsTotem())
+                pet->SetReactState(REACT_AGGRESSIVE);
+            else
+                pet->SetReactState(REACT_DEFENSIVE);
+        }
 
-    ExecuteLogEffectSummonObject(effIndex, pet);
+        pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellInfo->Id);
+
+        // generate new name for summon pet
+        std::string new_name = sObjectMgr->GeneratePetName(petentry);
+        if (!new_name.empty())
+            pet->SetName(new_name);
+
+        WorldPacket data(SMSG_SPELLLOGEXECUTE, (9 + 4 + 4 + 4 + 4 + 9));
+        data << caster->GetPackGUID();
+        data << uint32(spellInfo->Id);
+        data << uint32(1); // effects count
+        data << uint32(spellInfo->Effects[effIndex].Effect);             // spell effect
+        data << uint32(1); // target count
+        data << pet->GetPackGUID();
+        caster->SendMessageToSet(&data, true);
+    }, petentry, summonPos, 0);
 }
 
 void Spell::EffectLearnPetSpell(SpellEffIndex effIndex)
@@ -4841,7 +4858,7 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
     {
         // Position passed to SummonPet is irrelevant with current implementation,
         // pet will be relocated without using these coords in Pet::LoadPetFromDB
-        player->SummonPet(0, 0.0f, 0.0f, 0.0f, 0.0f, SUMMON_PET, 0);
+        player->SummonPet([](Pet* /*pet*/) {}, 0, Position(), 0);
         hadPet = false;
     }
 

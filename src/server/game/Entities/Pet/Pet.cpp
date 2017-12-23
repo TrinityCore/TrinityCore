@@ -32,6 +32,7 @@
 #include "Unit.h"
 #include "Util.h"
 #include "WorldPacket.h"
+#include "QueryCallback.h"
 #include "WorldSession.h"
 
 #define PET_XP_FACTOR 0.05f
@@ -39,7 +40,7 @@
 Pet::Pet(Player* owner, PetType type) :
     Guardian(nullptr, owner, true), m_usedTalentCount(0), m_removed(false),
     m_happinessTimer(7500), m_petType(type), m_duration(0), m_auraRaidUpdateMask(0), m_loading(false),
-    m_declinedname(nullptr)
+    m_declinedname()
 {
     ASSERT(GetOwner());
 
@@ -59,7 +60,6 @@ Pet::Pet(Player* owner, PetType type) :
 
 Pet::~Pet()
 {
-    delete m_declinedname;
 }
 
 void Pet::AddToWorld()
@@ -96,7 +96,16 @@ void Pet::RemoveFromWorld()
     }
 }
 
-bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current)
+void Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current)
+{
+    LoadPetFromDB([](bool loadResult, Pet* pet)
+    {
+        if (!loadResult)
+            delete pet;
+    }, owner, petEntry, petnumber, current);
+}
+
+void Pet::LoadPetFromDB(std::function<void(bool, Pet*)>&& callback, Player* owner, uint32 petEntry, uint32 petnumber, bool current)
 {
     m_loading = true;
 
@@ -137,18 +146,67 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
     }
 
-    result = CharacterDatabase.Query(stmt);
+    WorldSession* session = owner->GetSession();
+    Pet* pet = this;
+    session->GetQueryProcessor().AddQuery(CharacterDatabase.AsyncQuery(stmt)
+        .WithChainingPreparedCallback([pet, session, callback, current](QueryCallback& queryCallback, PreparedQueryResult result)
+    {
+        Player* player = session->GetPlayer();
+        if (!player || !player->IsInWorld())
+        {
+            delete pet;
+            return;
+        }
 
+        bool loadResult = pet->LoadPetFromDBCallback(result, player, current);
+        callback(loadResult, pet);
+
+        if (!loadResult)
+            return;
+
+        if (pet->getPetType() != HUNTER_PET)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
+            stmt->setUInt32(0, player->GetGUID().GetCounter());
+            stmt->setUInt32(1, pet->GetCharmInfo()->GetPetNumber());
+            queryCallback.SetNextQuery(CharacterDatabase.AsyncQuery(stmt));
+        }
+    })
+        .WithChainingPreparedCallback([session, pet](QueryCallback& /*queryCallback*/, PreparedQueryResult result)
+    {
+        Player* player = session->GetPlayer();
+        if (!player || !player->IsInWorld())
+        {
+            pet->CleanupsBeforeDelete();
+            delete pet;
+            return;
+        }
+
+        if (!result)
+            return;
+
+        DeclinedName* declinedNames = new DeclinedName();
+        Field* fields = result->Fetch();
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            declinedNames->name[i] = fields[i].GetString();
+
+        pet->SetDeclinedNames(declinedNames);
+    }));
+}
+
+bool Pet::LoadPetFromDBCallback(PreparedQueryResult result, Player* owner, bool current)
+{
     if (!result)
     {
         m_loading = false;
         return false;
     }
 
+    ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
     Field* fields = result->Fetch();
 
     // update for case of current pet "slot = 0"
-    petEntry = fields[1].GetUInt32();
+    uint32 petEntry = fields[1].GetUInt32();
     if (!petEntry)
         return false;
 
@@ -282,7 +340,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
         stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
         stmt->setUInt32(1, ownerid);
         stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
@@ -347,25 +405,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
 
     owner->SendTalentsInfoData(true);
-
-    if (getPetType() == HUNTER_PET)
-    {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
-        stmt->setUInt32(0, owner->GetGUID().GetCounter());
-        stmt->setUInt32(1, GetCharmInfo()->GetPetNumber());
-        result = CharacterDatabase.Query(stmt);
-
-        if (result)
-        {
-            delete m_declinedname;
-            m_declinedname = new DeclinedName;
-            Field* fields2 = result->Fetch();
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            {
-                m_declinedname->name[i] = fields2[i].GetString();
-            }
-        }
-    }
 
     //set last used pet number (for use in BG's)
     if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
