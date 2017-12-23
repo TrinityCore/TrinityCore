@@ -20,7 +20,6 @@
 #include "ObjectAccessor.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
-#include "Creature.h"
 #include "CreatureGroups.h"
 
 enum COF_Paths
@@ -68,7 +67,7 @@ enum COF_Events
     EVENT_WP_START_HOUSE = 3,
     EVENT_WP_START_LISA = 4,
     EVENT_PLAY_SOUNDS = 5,
-    EVENT_BEGIN_EVENT   = 6
+    EVENT_BEGIN_EVENT = 6
 };
 
 class npc_cameron : public CreatureScript
@@ -81,35 +80,7 @@ public:
         npc_cameronAI(Creature* creature) : ScriptedAI(creature)
         {
             _started = false;
-            ///! @Riztazz
-            ///! only for testing, should be called elsewhere
-            ///! its delayed by 10 seconds so everything is loaded around cameron before we start anything
-            ///! otherwise we might have issues with getting guids when cameron loads before everything else
-            ///! if you're going to use it in UpdateAI (checking localTime) do a delayed start as well
-            _events.ScheduleEvent(EVENT_BEGIN_EVENT, Seconds(10));
-        }
-
-        void BeginMovementEvent()
-        {
-            _childrenGUIDs.clear();
-
-            if (Creature* dana = me->FindNearestCreature(NPC_DANA, 25.0f))
-                _childrenGUIDs.push_back(dana->GetGUID());
-
-            if (Creature* john = me->FindNearestCreature(NPC_JOHN, 25.0f))
-                _childrenGUIDs.push_back(john->GetGUID());
-
-            if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 25.0f))
-                _childrenGUIDs.push_back(lisa->GetGUID());
-
-            if (Creature* aaron = me->FindNearestCreature(NPC_AARON, 25.0f))
-                _childrenGUIDs.push_back(aaron->GetGUID());
-
-            if (Creature* jose = me->FindNearestCreature(NPC_JOSE, 25.0f))
-                _childrenGUIDs.push_back(jose->GetGUID());
-
-            me->GetMotionMaster()->MovePath(STORMWIND_PATH, false);
-            _started = true;
+            _events.ScheduleEvent(EVENT_BEGIN_EVENT, Seconds(2));
         }
 
         static uint32 SoundPicker()
@@ -140,23 +111,21 @@ public:
 
             //! first we break formation because children will need to move on their own now
             for (auto guid : _childrenGUIDs)
-            {
                 if (Creature* child = ObjectAccessor::GetCreature(*me, guid))
                     if (child->GetFormation())
                         child->GetFormation()->RemoveMember(child);
-            }
 
+            // Move each child to an random position
             for (auto i = 0; i < _childrenGUIDs.size(); ++i)
             {
                 if (Creature* children = ObjectAccessor::GetCreature(*me, _childrenGUIDs.at(i)))
                 {
-                    children->GetMotionMaster()->MovePoint(0, MovePosPositions.at(i));
-                    me->SetHomePosition(MovePosPositions.at(i));
+                    children->SetWalk(true);
+                    children->GetMotionMaster()->MovePoint(0, MovePosPositions.at(i), true, MovePosPositions[i].GetOrientation());
                 }
             }
-
-            me->GetMotionMaster()->MovePoint(0, MovePosPositions.back());
-            me->SetHomePosition(MovePosPositions.back());
+            me->SetWalk(true);
+            me->GetMotionMaster()->MovePoint(0, MovePosPositions.back(), true, MovePosPositions.back().GetOrientation());
         }
 
         void WaypointReached(uint32 waypointId, uint32 pathId) override
@@ -167,7 +136,6 @@ public:
                 {
                     if (waypointId == STORMWIND_WAYPOINT)
                     {
-                        me->SetHomePosition(me->GetPosition());
                         me->GetMotionMaster()->MoveRandom(10.f);
                         _events.ScheduleEvent(EVENT_WP_START_GOLDSHIRE, Seconds(2)); // Minutes(11)
                     }
@@ -178,7 +146,6 @@ public:
                 {
                     if (waypointId == GOLDSHIRE_WAYPOINT)
                     {
-                        me->SetHomePosition(me->GetPosition());
                         me->GetMotionMaster()->MoveRandom(10.f);
                         _events.ScheduleEvent(EVENT_WP_START_WOODS, Seconds(2)); // Minutes(15)
                     }
@@ -188,7 +155,6 @@ public:
                 {
                     if (waypointId == WOODS_WAYPOINT)
                     {
-                        me->SetHomePosition(me->GetPosition());
                         me->GetMotionMaster()->MoveRandom(10.f);
                         _events.ScheduleEvent(EVENT_WP_START_HOUSE, Seconds(2));  // Minutes(6)
                         _events.ScheduleEvent(EVENT_WP_START_LISA, Seconds(2));
@@ -200,6 +166,7 @@ public:
                 {
                     if (waypointId == HOUSE_WAYPOINT)
                     {
+                        // Move childeren at last point 
                         MoveTheChildren();
 
                         // After 30 seconds a random sound should play
@@ -219,16 +186,15 @@ public:
             localtime_r(&time, &localTm);
 
             // Start event at 7 am
-            ///! @Riztazz
-            ///! THIS SHOULD BE MOVED TO EVENT_MAP AND CHECKED EVERY NOW AND AGAIN
-            ///! RIGHT NOW YOU'RE CALLING IT EVERY 50ms
-            if ((localTm.tm_hour >= 7) && !_started )
+            if ((localTm.tm_hour == 7 && localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started)
             {
-                _events.ScheduleEvent(EVENT_BEGIN_EVENT, Seconds(10));
+                // Begin pathing
+                _events.ScheduleEvent(EVENT_BEGIN_EVENT, Seconds(2));
+                _started = true;
             }
 
             // Reset event at 8 am
-            if ((localTm.tm_hour >= 8) && _started)
+            if ((localTm.tm_hour == 8 && localTm.tm_min == 0 && localTm.tm_sec == 0) && _started)
                 _started = false;
 
             while (uint32 eventId = _events.ExecuteEvent())
@@ -245,21 +211,46 @@ public:
                         me->GetMotionMaster()->MovePath(HOUSE_PATH, false);
                         break;
                     case EVENT_WP_START_LISA:
-                        ///! @Riztazz | U have guid store now, just iterate and find her GUID instead of another grid search
-                        ///! You need to break her formation first if you want her to execute her path
-                        ///! otherwise she will run away when she enters the house
-                        ///! you also need to think about next day, she runs away and rest of the kids stay near cameron
-                        ///! cameron will do a grid search to find all 5 childs but Lisa will be too far away
-                        if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 25.0f))
-                            lisa->GetMotionMaster()->MovePath(LISA_PATH, false);
-
+                        for (auto i = 0; i < _childrenGUIDs.size(); ++i)
+                            if (Creature* lisa = ObjectAccessor::GetCreature(*me, _childrenGUIDs.at(i)))
+                                if (lisa->GetEntry() == NPC_LISA)
+                                    lisa->GetMotionMaster()->MovePath(LISA_PATH, false);
                         break;
                     case EVENT_PLAY_SOUNDS:
                         me->PlayDistanceSound(SoundPicker());
                         break;
                     case EVENT_BEGIN_EVENT:
-                        BeginMovementEvent();
+                    {
+                        _childrenGUIDs.clear();
+
+                        // Get all childeren's guid's.
+                        if (Creature* dana = me->FindNearestCreature(NPC_DANA, 25.0f))
+                            _childrenGUIDs.push_back(dana->GetGUID());
+
+                        if (Creature* john = me->FindNearestCreature(NPC_JOHN, 25.0f))
+                            _childrenGUIDs.push_back(john->GetGUID());
+
+                        if (Creature* lisa = me->FindNearestCreature(NPC_LISA, 25.0f))
+                            _childrenGUIDs.push_back(lisa->GetGUID());
+
+                        if (Creature* aaron = me->FindNearestCreature(NPC_AARON, 25.0f))
+                            _childrenGUIDs.push_back(aaron->GetGUID());
+
+                        if (Creature* jose = me->FindNearestCreature(NPC_JOSE, 25.0f))
+                            _childrenGUIDs.push_back(jose->GetGUID());
+
+                        // If Formation was disbanded, remake.
+                        if (!me->GetFormation()->isFormed())
+                            for (auto guid : _childrenGUIDs)
+                                if (Creature* child = ObjectAccessor::GetCreature(*me, guid))
+                                    child->SearchFormation();
+
+                        // Start movement
+                        me->GetMotionMaster()->MovePath(STORMWIND_PATH, false);
+                        _started = true;
+
                         break;
+                    }
                     default:
                         break;
                 }
