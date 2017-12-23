@@ -3100,17 +3100,13 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
 
 uint32 SpellInfo::GetMaxTicks() const
 {
+    uint32 totalTicks = 0;
     int32 DotDuration = GetDuration();
-    if (DotDuration == 0)
-        return 1;
 
-    // 200% limit
-    if (DotDuration > 30000)
-        DotDuration = 30000;
-
-    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
+    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; ++x)
     {
         if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
+        {
             switch (Effects[x].ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
@@ -3127,13 +3123,20 @@ uint32 SpellInfo::GetMaxTicks() const
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
                 case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                    if (Effects[x].Amplitude != 0)
-                        return DotDuration / Effects[x].Amplitude;
+                case SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR:
+                    // skip infinite periodics
+                    if (Effects[x].Amplitude > 0 && DotDuration > 0)
+                    {
+                        totalTicks = static_cast<uint32>(DotDuration) / Effects[x].Amplitude;
+                        if (HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+                            ++totalTicks;
+                    }
                     break;
             }
+        }
     }
 
-    return 6;
+    return totalTicks;
 }
 
 uint32 SpellInfo::GetRecoveryTime() const

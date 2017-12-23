@@ -202,7 +202,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override 
+        void EnterCombat(Unit* /*who*/) override
         {
             DoPlaySoundToSet(me, SOUND_AGGRO);
         }

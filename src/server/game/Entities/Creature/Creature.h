@@ -96,6 +96,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanSwim() const override { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
         bool CanFly()  const override { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
         bool IsDungeonBoss() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS) != 0; }
+        bool IsAffectedByDiminishingReturns() const override { return Unit::IsAffectedByDiminishingReturns() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH) != 0; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() const { return m_reactState; }
@@ -106,7 +107,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
-        void LoadMechanicTemplateImmunity();
+        void LoadTemplateImmunities();
         bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const override;
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const override;
         bool isElite() const;
@@ -203,9 +204,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
         void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
 
-        SpellInfo const* reachWithSpellAttack(Unit* victim);
-        SpellInfo const* reachWithSpellCure(Unit* victim);
-
         uint32 m_spells[MAX_CREATURE_SPELLS];
 
         bool CanStartAttack(Unit const* u, bool force) const;
@@ -266,7 +264,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id)  const override;
 
-        bool CanRegenerateHealth() { return !_regenerateHealthLock && _regenerateHealth; }
+        bool CanRegenerateHealth() const { return !_regenerateHealthLock && _regenerateHealth; }
         void SetRegenerateHealth(bool value) { _regenerateHealthLock = !value; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
@@ -291,11 +289,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void GetTransportHomePosition(float& x, float& y, float& z, float& ori) const { m_transportHomePosition.GetPosition(x, y, z, ori); }
         Position const& GetTransportHomePosition() const { return m_transportHomePosition; }
 
-        uint32 GetWaypointPath() const { return m_path_id; }
-        void LoadPath(uint32 pathid) { m_path_id = pathid; }
+        uint32 GetWaypointPath() const { return _waypointPathId; }
+        void LoadPath(uint32 pathid) { _waypointPathId = pathid; }
 
-        uint32 GetCurrentWaypointID() const { return m_waypointID; }
-        void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
+        // nodeId, pathId
+        std::pair<uint32, uint32> GetCurrentWaypointInfo() const { return _currentWaypointNodeInfo; }
+        void UpdateCurrentWaypointInfo(uint32 nodeId, uint32 pathId) { _currentWaypointNodeInfo = { nodeId, pathId }; }
 
         bool IsReturningHome() const;
 
@@ -406,9 +405,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
         bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
 
-        //WaypointMovementGenerator vars
-        uint32 m_waypointID;
-        uint32 m_path_id;
+        // Waypoint path
+        uint32 _waypointPathId;
+        std::pair<uint32/*nodeId*/, uint32/*pathId*/> _currentWaypointNodeInfo;
 
         //Formation var
         CreatureGroup* m_formation;
