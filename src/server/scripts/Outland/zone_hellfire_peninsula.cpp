@@ -39,7 +39,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "WorldSession.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 
 /*######
 ## npc_aeranas
