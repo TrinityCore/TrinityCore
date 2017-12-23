@@ -1127,6 +1127,11 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     break;
             }
         }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1205,7 +1210,6 @@ enum fear_controller
     EVENT_FEAR_STOP = 2,
     SPELL_FEAR      = 33815 // Serverside spell
 };
-
 
 struct npc_fear_controller : public ScriptedAI
 {
