@@ -31,6 +31,8 @@ npc_fel_guard_hound
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -38,8 +40,6 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "WorldSession.h"
-#include "CellImpl.h"
-#include "GridNotifiersImpl.h"
 
 /*######
 ## npc_aeranas
