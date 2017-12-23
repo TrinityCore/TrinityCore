@@ -28,7 +28,7 @@ template<class T>
 class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-        PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Optional<float> finalOrient = nullptr) : _movementId(id), _x(x), _y(y), _z(z), _speed(speed), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false), _finalOrient(finalOrient) { }
+        PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Optional<float> finalOrient = {}) : _movementId(id), _x(x), _y(y), _z(z), _speed(speed), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false), _finalOrient(finalOrient) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
