@@ -121,7 +121,7 @@ public:
                 if (Creature* children = ObjectAccessor::GetCreature(*me, _childrenGUIDs.at(i)))
                 {
                     children->SetWalk(true);
-                    children->GetMotionMaster()->MovePoint(0, MovePosPositions.at(i), true, MovePosPositions[i].GetOrientation());
+                    children->GetMotionMaster()->MovePoint(0, MovePosPositions[i], true, MovePosPositions[i].GetOrientation());
                 }
             }
             me->SetWalk(true);
