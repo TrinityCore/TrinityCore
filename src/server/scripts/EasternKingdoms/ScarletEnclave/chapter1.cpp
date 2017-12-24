@@ -811,7 +811,7 @@ public:
             return GetCaster()->GetEntry() == NPC_HAVENSHIRE_STALLION || GetCaster()->GetEntry() == NPC_HAVENSHIRE_MARE || GetCaster()->GetEntry() == NPC_HAVENSHIRE_COLT;
         }
 
-        void HitTargetCheck(SpellEffIndex effIndex)
+        void HitTargetCheck(SpellEffIndex /*effIndex*/)
         {
             if (Player* player = GetHitPlayer())
                 player->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
