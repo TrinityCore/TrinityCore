@@ -52,6 +52,8 @@ enum PaladinSpells
     SPELL_PALADIN_ENDURING_JUDGEMENT             = 40472,
     SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1          = 9799,
     SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
+    SPELL_PALADIN_FINAL_STAND                    = 204077,
+    SPELL_PALADIN_FINAL_STAND_EFFECT             = 204079,
     SPELL_PALADIN_FORBEARANCE                    = 25771,
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
     SPELL_PALADIN_HOLY_MENDING                   = 64891,
@@ -335,6 +337,47 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
         }
 };
 
+// 1022 - Blessing of Protection
+// 204018 - Blessing of Spellwarding
+class spell_pal_blessing_of_protection : public SpellScript
+{
+    PrepareSpellScript(spell_pal_blessing_of_protection);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PALADIN_FORBEARANCE,
+            // uncomment when we have serverside only spells
+            //SPELL_PALADIN_IMMUNE_SHIELD_MARKER
+        }) && spellInfo->ExcludeTargetAuraSpell == SPELL_PALADIN_IMMUNE_SHIELD_MARKER;
+    }
+
+    SpellCastResult CheckForbearance()
+    {
+        Unit* target = GetExplTargetUnit();
+        if (!target || target->HasAura(SPELL_PALADIN_FORBEARANCE))
+            return SPELL_FAILED_TARGET_AURASTATE;
+
+        return SPELL_CAST_OK;
+    }
+
+    void TriggerForbearance()
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            GetCaster()->CastSpell(target, SPELL_PALADIN_FORBEARANCE, true);
+            GetCaster()->CastSpell(target, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pal_blessing_of_protection::CheckForbearance);
+        AfterHit += SpellHitFn(spell_pal_blessing_of_protection::TriggerForbearance);
+    }
+};
+
 // 115750 - Blinding Light
 class spell_pal_blinding_light : public SpellScript
 {
@@ -354,6 +397,52 @@ class spell_pal_blinding_light : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pal_blinding_light::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 642 - Divine Shield
+class spell_pal_divine_shield : public SpellScript
+{
+    PrepareSpellScript(spell_pal_divine_shield);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PALADIN_FINAL_STAND,
+            SPELL_PALADIN_FINAL_STAND_EFFECT,
+            SPELL_PALADIN_FORBEARANCE,
+            // uncomment when we have serverside only spells
+            //SPELL_PALADIN_IMMUNE_SHIELD_MARKER
+        }) && spellInfo->ExcludeCasterAuraSpell == SPELL_PALADIN_IMMUNE_SHIELD_MARKER;
+    }
+
+    SpellCastResult CheckForbearance()
+    {
+        if (GetCaster()->HasAura(SPELL_PALADIN_FORBEARANCE))
+            return SPELL_FAILED_TARGET_AURASTATE;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleFinalStand()
+    {
+        if (GetCaster()->HasAura(SPELL_PALADIN_FINAL_STAND))
+            GetCaster()->CastSpell((Unit*)nullptr, SPELL_PALADIN_FINAL_STAND_EFFECT, true);
+    }
+
+    void TriggerForbearance()
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
+        caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pal_divine_shield::CheckForbearance);
+        AfterCast += SpellCastFn(spell_pal_divine_shield::HandleFinalStand);
+        AfterCast += SpellCastFn(spell_pal_divine_shield::TriggerForbearance);
     }
 };
 
@@ -868,52 +957,44 @@ class spell_pal_judgement : public SpellScriptLoader
 };
 
 // 633 - Lay on Hands
-class spell_pal_lay_on_hands : public SpellScriptLoader
+class spell_pal_lay_on_hands : public SpellScript
 {
-    public:
-        spell_pal_lay_on_hands() : SpellScriptLoader("spell_pal_lay_on_hands") { }
+    PrepareSpellScript(spell_pal_lay_on_hands);
 
-        class spell_pal_lay_on_hands_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareSpellScript(spell_pal_lay_on_hands_SpellScript);
+            SPELL_PALADIN_FORBEARANCE,
+            // uncomment when we have serverside only spells
+            //SPELL_PALADIN_IMMUNE_SHIELD_MARKER
+        }) && spellInfo->ExcludeTargetAuraSpell == SPELL_PALADIN_IMMUNE_SHIELD_MARKER;
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_FORBEARANCE, SPELL_PALADIN_IMMUNE_SHIELD_MARKER });
-            }
+    SpellCastResult CheckForbearance()
+    {
+        Unit* target = GetExplTargetUnit();
+        if (!target || target->HasAura(SPELL_PALADIN_FORBEARANCE))
+            return SPELL_FAILED_TARGET_AURASTATE;
 
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetExplTargetUnit())
-                    if (caster == target)
-                        if (target->HasAura(SPELL_PALADIN_FORBEARANCE) || target->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
-                            return SPELL_FAILED_TARGET_AURASTATE;
+        return SPELL_CAST_OK;
+    }
 
-                return SPELL_CAST_OK;
-            }
-
-            void HandleScript()
-            {
-                Unit* caster = GetCaster();
-                if (caster == GetHitUnit())
-                {
-                    caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
-                    caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hands_SpellScript::CheckCast);
-                AfterHit += SpellHitFn(spell_pal_lay_on_hands_SpellScript::HandleScript);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
+    void TriggerForbearance()
+    {
+        Unit* caster = GetCaster();
+        if (caster == GetHitUnit())
         {
-            return new spell_pal_lay_on_hands_SpellScript();
+            GetCaster()->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
+            GetCaster()->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
         }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hands::CheckForbearance);
+        AfterHit += SpellHitFn(spell_pal_lay_on_hands::TriggerForbearance);
+    }
 };
 
 // 53651 - Light's Beacon - Beacon of Light
@@ -1352,7 +1433,9 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_aura_mastery_immune();
     new spell_pal_avenging_wrath();
     new spell_pal_blessing_of_faith();
+    RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
+    RegisterSpellScript(spell_pal_divine_shield);
     new spell_pal_divine_steed();
     new spell_pal_divine_storm();
     new spell_pal_exorcism_and_holy_wrath_damage();
@@ -1364,7 +1447,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_item_healing_discount();
     new spell_pal_item_t6_trinket();
     new spell_pal_judgement();
-    new spell_pal_lay_on_hands();
+    RegisterSpellScript(spell_pal_lay_on_hands);
     new spell_pal_light_s_beacon();
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();
