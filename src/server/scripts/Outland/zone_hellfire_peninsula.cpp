@@ -1069,7 +1069,7 @@ struct npc_watch_commander_leonus : public ScriptedAI
     {
         switch (data)
         {
-            case 1:
+            case DATA_ACTIVE:
                 _events.ScheduleEvent(EVENT_ACTIVE_FALSE, 1s);
                 break;
             default:
@@ -1177,9 +1177,6 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
                     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, infernalrainList, checker);
                     Cell::VisitAllObjects(me, searcher, 200.0f);
 
-                    if (infernalrainList.empty())
-                        break;
-
                     if (Creature* random = Trinity::Containers::SelectRandomContainerElement(infernalrainList))
                         if (random->isMoving() && random->GetPositionZ() < 118.0f)
                             me->CastCustomSpell(SPELL_INFERNAL_RAIN, SPELLVALUE_MAX_TARGETS, 1, random, true);
@@ -1188,14 +1185,11 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
                     break;
                 }
                 case EVENT_INFERNAL_RAIN_STOP:
-                {
                     _events.CancelEvent(EVENT_INFERNAL_RAIN_CAST);
-
                     if (Creature* watchcommanderLeonus = me->FindNearestCreature(NPC_WATCH_COMMANDER_LEONUS, 200))
                         watchcommanderLeonus->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
 
                     break;
-                }
             }
         }
     }
@@ -1217,7 +1211,7 @@ struct npc_fear_controller : public ScriptedAI
 
     void SetData(uint32 /*type*/, uint32 data) override
     {
-        if (data == 1)
+        if (data == DATA_ACTIVE)
         {
             _events.ScheduleEvent(EVENT_FEAR_CAST, 1s);
             _events.ScheduleEvent(EVENT_FEAR_STOP, 60s);
