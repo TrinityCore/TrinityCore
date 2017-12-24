@@ -205,7 +205,7 @@ struct npc_cameron : public ScriptedAI
                     me->GetMotionMaster()->MovePath(HOUSE_PATH, false);
                     break;
                 case EVENT_WP_START_LISA:
-                    for (auto i = 0; i < _childrenGUIDs.size(); ++i)
+                    for (uint32 i = 0; i < _childrenGUIDs.size(); ++i)
                         if (Creature* lisa = ObjectAccessor::GetCreature(*me, _childrenGUIDs.at(i)))
                             if (lisa->GetEntry() == NPC_LISA)
                                 lisa->GetMotionMaster()->MovePath(LISA_PATH, false);
