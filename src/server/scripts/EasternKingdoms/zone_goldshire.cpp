@@ -22,7 +22,7 @@
 #include "GameTime.h"
 #include "CreatureGroups.h"
 
-enum COF_Paths
+enum COG_Paths
 {
     STORMWIND_PATH  = 80500,
     GOLDSHIRE_PATH  = 80501,
@@ -31,7 +31,7 @@ enum COF_Paths
     LISA_PATH       = 80700
 };
 
-enum COF_Waypoints
+enum COG_Waypoints
 {
     STORMWIND_WAYPOINT  = 57,
     GOLDSHIRE_WAYPOINT  = 32,
@@ -40,7 +40,7 @@ enum COF_Waypoints
     LISA_WAYPOINT       = 4
 };
 
-enum COF_Sounds
+enum COG_Sounds
 {
     BANSHEE_DEATH           = 1171,
     BANSHEEPREAGGRO         = 1172,
@@ -50,7 +50,7 @@ enum COF_Sounds
     GHOSTDEATH              = 3416
 };
 
-enum COF_Creatures
+enum COG_Creatures
 {
     NPC_DANA    = 804,
     NPC_CAMERON = 805,
@@ -60,7 +60,7 @@ enum COF_Creatures
     NPC_JOSE    = 811
 };
 
-enum COF_Events
+enum COG_Events
 {
     EVENT_WP_START_GOLDSHIRE    = 1,
     EVENT_WP_START_WOODS        = 2,
@@ -110,7 +110,7 @@ struct npc_cameron : public ScriptedAI
                     child->GetFormation()->RemoveMember(child);
 
         // Move each child to an random position
-        for (auto i = 0; i < _childrenGUIDs.size(); ++i)
+        for (uint32 i = 0; i < _childrenGUIDs.size(); ++i)
         {
             if (Creature* children = ObjectAccessor::GetCreature(*me, _childrenGUIDs.at(i)))
             {
