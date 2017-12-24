@@ -10,10 +10,19 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (82382, 'spell_hoo_energy_flux_target_selector'),
 (74880, 'spell_hoo_arcane_energy_check');
 
+-- gameobject rotation of lightmachines, glass star 2
+UPDATE `gameobject` SET `rotation0` = -0.150109, `rotation1` = -0.150108, `rotation2` = -0.690989, `rotation3` = 0.690991 WHERE `guid` IN (220756, 220763);
+UPDATE `gameobject` SET `rotation0` =  0.150109, `rotation1` = -0.150108, `rotation2` =  0.690989, `rotation3` = 0.690991 WHERE `guid` IN (220757, 220764);
+UPDATE `gameobject` SET `rotation0` = 0, `rotation1` = 0, `rotation2` = -1, `rotation3` = 0 WHERE `guid` = 220755;
+
+-- set correct spawnMask to Beacons - normal (4) and heroic (2)
+UPDATE `gameobject` SET `spawnMask` = 4 WHERE `guid` IN (200968, 200969);
+UPDATE `gameobject` SET `spawnMask` = 2 WHERE `guid` IN (220773, 220775); 
+
 -- inhabitType 12 (root + disable gravity): Rune of Healing, Cave In Stalker, Dust Cloud Stalker, Searing Light, Spatial Flux, Isiset's Spatial Flux, 
 --   Budding Spore, Aqua Bomb, Alpha Beam, Omega Stance, Aggro Stalker, Beetle Stalker, Quick Sand, Living Vine, Chaos Portal, Void Rift, Chaos Blast, 
 --   Add Stalker, Starry Sky, Ammunae's Seedling Pod, Seedling Pod, Bloodpetal Blossom, Seedling Pod
-UPDATE `creature_template` SET `InhabitType` = 12 WHERE `entry` IN (39258, 39612, 40202, 40283, 40183 48707, 40669, 
+UPDATE `creature_template` SET `InhabitType` = 12 WHERE `entry` IN (39258, 39612, 40202, 40283, 40183, 48707, 40669, 
 41264, 41144, 41194, 40790, 40459, 40503, 40668, 41055, 39266, 41041, 41479, 39681, 40592, 40716, 40622, 40550); 
 
 -- random movement for trash at Seat of Magic

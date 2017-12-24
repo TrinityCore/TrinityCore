@@ -136,12 +136,6 @@ Position const AnraphetPath[AnraphetPathSize] =
 // Brann's intro
 Position const BrannBossHomePos = { -429.583f, 367.019f, 89.79282f, 0.01745329f };
 
-uint32 const BrannIntroPathSize = 1;
-Position const BrannIntroPath[BrannIntroPathSize] =
-{
-    { -429.583f, 367.019f, 89.79282f, 0.0f }
-};
-
 // Brann's outro
 uint32 const BrannOutroPathSize = 13;
 Position const BrannOutroPath[BrannOutroPathSize] =

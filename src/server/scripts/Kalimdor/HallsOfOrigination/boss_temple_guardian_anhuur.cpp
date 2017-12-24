@@ -117,6 +117,7 @@ public:
             CleanStalkers();
             me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
             DoCastAOE(SPELL_DEACTIVATE_BEACONS);
+            me->SetReactState(REACT_AGGRESSIVE);
             events.SetPhase(PHASE_FIGHT);
             events.ScheduleEvent(EVENT_DIVINE_RECKONING, Seconds(10), 0, PHASE_FIGHT);
             events.ScheduleEvent(EVENT_BURNING_LIGHT, Seconds(12), 0, PHASE_FIGHT);
@@ -153,6 +154,7 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+            CleanStalkers();
             Talk(SAY_AGGRO);
             _EnterCombat();
         }
@@ -271,6 +273,7 @@ public:
             _leftBeaconDisabled = false;
             _rightBeaconDisabled = false;
 
+            me->SetReactState(REACT_PASSIVE);
             me->InterruptNonMeleeSpells(true);
             me->AttackStop();
             DoCast(me, SPELL_TELEPORT);
@@ -310,7 +313,9 @@ public:
 
         void ExitShieldPhase()
         {
+            me->InterruptNonMeleeSpells(true);
             me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
+            me->SetReactState(REACT_AGGRESSIVE);
             Talk(EMOTE_UNSHIELD);
             events.SetPhase(PHASE_FIGHT);
         }
