@@ -197,7 +197,7 @@ struct boss_twin_baseAI : public BossAI
 
         summons.DespawnAll();
         events.SetPhase(PHASE_EVENT);
-        events.ScheduleEvent(EVENT_START_MOVE, Seconds(4));
+        events.ScheduleEvent(EVENT_START_MOVE, 4s);
     }
 
     void JustReachedHome() override
@@ -231,7 +231,7 @@ struct boss_twin_baseAI : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
-        me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
+        me->m_Events.AddEventAtOffset(new OrbsDespawner(me), 100ms);
     }
 
     void JustDied(Unit* /*killer*/) override

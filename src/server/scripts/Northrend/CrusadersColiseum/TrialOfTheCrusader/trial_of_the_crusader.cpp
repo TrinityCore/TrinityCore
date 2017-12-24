@@ -303,7 +303,7 @@ struct boss_lich_king_toc : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
         _instance->SetBossState(DATA_LICH_KING, IN_PROGRESS);
-        _events.ScheduleEvent(EVENT_START_MOVE, Seconds(1));
+        _events.ScheduleEvent(EVENT_START_MOVE, 1s);
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
@@ -312,7 +312,7 @@ struct boss_lich_king_toc : public ScriptedAI
             return;
 
         if (pointId == POINT_MIDDLE)
-            _events.ScheduleEvent(EVENT_START_TALK, Seconds(4));
+            _events.ScheduleEvent(EVENT_START_TALK, 4s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -339,19 +339,19 @@ struct boss_lich_king_toc : public ScriptedAI
                 case EVENT_EMOTE_TALK:
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                     me->GetMap()->SetZoneWeather(AREA_TRIAL_OF_THE_CRUSADER, WEATHER_STATE_FOG, 0.0f);
-                    _events.ScheduleEvent(EVENT_EMOTE_EXCLAMATION, Seconds(10));
+                    _events.ScheduleEvent(EVENT_EMOTE_EXCLAMATION, 10s);
                     break;
                 case EVENT_EMOTE_EXCLAMATION:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                    _events.ScheduleEvent(EVENT_EMOTE_KNEEL, Seconds(3));
+                    _events.ScheduleEvent(EVENT_EMOTE_KNEEL, 3s);
                     break;
                 case EVENT_EMOTE_KNEEL:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
                     break;
                 case EVENT_START_TALK:
                     Talk(LK_SAY_EMPIRE);
-                    _events.ScheduleEvent(EVENT_EMOTE_TALK, Seconds(4));
-                    _events.ScheduleEvent(EVENT_BREAK_PLATFORM, Seconds(18));
+                    _events.ScheduleEvent(EVENT_EMOTE_TALK, 4s);
+                    _events.ScheduleEvent(EVENT_BREAK_PLATFORM, 18s);
                     break;
                 default:
                     break;
@@ -405,10 +405,10 @@ struct npc_tirion_toc : public ScriptedAI
         {
             case ACTION_START_GORMOK:
                 Talk(TIRION_SAY_WELCOME);
-                _events.ScheduleEvent(EVENT_GORMOK_INTRO, Seconds(24));
+                _events.ScheduleEvent(EVENT_GORMOK_INTRO, 24s);
                 break;
             case ACTION_START_GORMOK_FAIL:
-                _events.ScheduleEvent(EVENT_GORMOK_INTRO, Milliseconds(1));
+                _events.ScheduleEvent(EVENT_GORMOK_INTRO, 1ms);
                 break;
             case ACTION_START_JORMUNGARS:
                 if (_jormungarsSummoned)
@@ -417,7 +417,7 @@ struct npc_tirion_toc : public ScriptedAI
                 Talk(TIRION_SAY_JORMUNGARS);
                 _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
                 me->SummonCreature(NPC_DREADSCALE, NorthrendBeastsSpawnPositions[1]);
-                _events.ScheduleEvent(EVENT_EXCLAMATION, Seconds(7));
+                _events.ScheduleEvent(EVENT_EXCLAMATION, 7s);
                 break;
             case ACTION_START_ICEHOWL:
                 if (_icehowlSummoned)
@@ -426,27 +426,27 @@ struct npc_tirion_toc : public ScriptedAI
                 Talk(TIRION_SAY_ICEHOWL);
                 _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
                 me->SummonCreature(NPC_ICEHOWL, NorthrendBeastsSpawnPositions[0], TEMPSUMMON_DEAD_DESPAWN);
-                _events.ScheduleEvent(EVENT_EXCLAMATION, Seconds(6));
+                _events.ScheduleEvent(EVENT_EXCLAMATION, 6s);
                 break;
             case ACTION_NORTHREND_BEASTS_WIPE:
                 _jormungarsSummoned = false;
                 _icehowlSummoned = false;
                 Talk(TIRION_SAY_BEASTS_WIPE);
-                _events.ScheduleEvent(EVENT_SUMMON_BARRET, Seconds(13));
+                _events.ScheduleEvent(EVENT_SUMMON_BARRET, 13s);
                 break;
             case ACTION_NORTHREND_BEASTS_DEFEATED:
                 Talk(TIRION_SAY_BEASTS_DONE);
-                _events.ScheduleEvent(EVENT_EXCLAMATION, Seconds(2));
-                _events.ScheduleEvent(EVENT_SUMMON_BARRET, Seconds(6));
+                _events.ScheduleEvent(EVENT_EXCLAMATION, 2s);
+                _events.ScheduleEvent(EVENT_SUMMON_BARRET, 6s);
                 break;
             case ACTION_START_JARAXXUS_EVENT:
-                _events.ScheduleEvent(EVENT_START_CALL_WILFRED, Seconds(1));
+                _events.ScheduleEvent(EVENT_START_CALL_WILFRED, 1s);
                 break;
             case ACTION_JARAXXUS_DEFEATED:
-                _events.ScheduleEvent(EVENT_TIRION_LAMENT, Seconds(7));
+                _events.ScheduleEvent(EVENT_TIRION_LAMENT, 7s);
                 break;
             case ACTION_JARAXXUS_WIPE:
-                _events.ScheduleEvent(EVENT_SUMMON_BARRET, Seconds(30));
+                _events.ScheduleEvent(EVENT_SUMMON_BARRET, 30s);
                 break;
             case ACTION_START_CHAMPIONS:
             {
@@ -454,40 +454,40 @@ struct npc_tirion_toc : public ScriptedAI
                 uint32 data = _instance->GetData(DATA_TEAM) == ALLIANCE ? DATA_GARROSH : DATA_VARIAN;
                 if (Creature* otherFactionLeader = _instance->GetCreature(data))
                     otherFactionLeader->AI()->DoAction(ACTION_START_CHAMPIONS);
-                _events.ScheduleEvent(EVENT_ALLOW_COMBAT, Seconds(26));
+                _events.ScheduleEvent(EVENT_ALLOW_COMBAT, 26s);
                 break;
             }
             case ACTION_FACTION_WIPE:
-                _events.ScheduleEvent(EVENT_SUMMON_BARRET, Seconds(4));
+                _events.ScheduleEvent(EVENT_SUMMON_BARRET, 4s);
                 break;
             case ACTION_START_CHAMPIONS_ENGAGE:
             {
                 uint32 data = _instance->GetData(DATA_TEAM) == ALLIANCE ? DATA_GARROSH : DATA_VARIAN;
                 if (Creature* otherFactionLeader = _instance->GetCreature(data))
                     otherFactionLeader->AI()->DoAction(ACTION_START_CHAMPIONS_ENGAGE);
-                _events.ScheduleEvent(EVENT_SUMMON_CHAMPIONS, Seconds(3));
+                _events.ScheduleEvent(EVENT_SUMMON_CHAMPIONS, 3s);
                 break;
             }
             case ACTION_CHAMPIONS_DEFEATED:
-                _events.ScheduleEvent(EVENT_TRAGIC_VICTORY, Seconds(7));
+                _events.ScheduleEvent(EVENT_TRAGIC_VICTORY, 7s);
                 break;
             case ACTION_SUMMON_JARAXXUS:
                 me->SummonCreature(NPC_JARAXXUS, JaraxxusSpawnPosition);
                 break;
             case ACTION_KILL_JARAXXUS:
-                _events.ScheduleEvent(EVENT_KILL_JARAXXUS, Seconds(6));
+                _events.ScheduleEvent(EVENT_KILL_JARAXXUS, 6s);
                 break;
             case ACTION_START_VALKYR:
                 Talk(TIRION_SAY_WORK_TOGETHER);
-                _events.ScheduleEvent(EVENT_SUMMON_VALKYR, Seconds(17));
+                _events.ScheduleEvent(EVENT_SUMMON_VALKYR, 17s);
                 break;
             case ACTION_VALKYR_WIPE:
-                _events.ScheduleEvent(EVENT_SUMMON_BARRET, Seconds(6));
+                _events.ScheduleEvent(EVENT_SUMMON_BARRET, 6s);
                 _summons.DespawnEntry(NPC_LIGHT_ESSENCE);
                 _summons.DespawnEntry(NPC_DARK_ESSENCE);
                 break;
             case ACTION_VALKYR_DEFEATED:
-                _events.ScheduleEvent(EVENT_SUMMON_BARRET, Seconds(4));
+                _events.ScheduleEvent(EVENT_SUMMON_BARRET, 4s);
                 if (Creature* factionLeader = _instance->GetCreature(_factionLeaderData))
                     factionLeader->AI()->DoAction(ACTION_VALKYR_DEFEATED);
                 _summons.DespawnEntry(NPC_LIGHT_ESSENCE);
@@ -495,16 +495,16 @@ struct npc_tirion_toc : public ScriptedAI
                 break;
             case ACTION_START_VALKYR_ENGAGE:
                 Talk(TIRION_SAY_GAME_BEGIN);
-                _events.ScheduleEvent(EVENT_SUMMON_VALKYR, Seconds(5));
+                _events.ScheduleEvent(EVENT_SUMMON_VALKYR, 5s);
                 break;
             case ACTION_START_LK_EVENT:
                 Talk(TIRION_SAY_UNITED);
                 me->GetMap()->SetZoneWeather(AREA_TRIAL_OF_THE_CRUSADER, WEATHER_STATE_LIGHT_SNOW, 0.5f);
-                _events.ScheduleEvent(EVENT_LICH_KING_SAY_CHALLENGE, Seconds(19));
-                _events.ScheduleEvent(EVENT_SAY_ARTHAS, Seconds(26));
+                _events.ScheduleEvent(EVENT_LICH_KING_SAY_CHALLENGE, 19s);
+                _events.ScheduleEvent(EVENT_SAY_ARTHAS, 26s);
                 break;
             case ACTION_LK_EVENT_FINISHED:
-                _events.ScheduleEvent(EVENT_LICH_KING_SAY_SOULS, Seconds(2));
+                _events.ScheduleEvent(EVENT_LICH_KING_SAY_SOULS, 2s);
                 break;
             default:
                 break;
@@ -529,15 +529,15 @@ struct npc_tirion_toc : public ScriptedAI
                     Talk(TIRION_SAY_GORMOK);
                     if (Creature* factionLeader = _instance->GetCreature(_factionLeaderData))
                         factionLeader->AI()->DoAction(ACTION_START_GORMOK);
-                    _events.ScheduleEvent(EVENT_GORMOK_EXCLAMATION, Seconds(6));
+                    _events.ScheduleEvent(EVENT_GORMOK_EXCLAMATION, 6s);
                     break;
                 case EVENT_GORMOK_EXCLAMATION:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                    _events.ScheduleEvent(EVENT_SPAWM_GORMOK, Seconds(6));
+                    _events.ScheduleEvent(EVENT_SPAWM_GORMOK, 6s);
                     break;
                 case EVENT_SPAWM_GORMOK:
                     _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
-                    me->SummonCreature(NPC_GORMOK, NorthrendBeastsSpawnPositions[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Seconds(12));
+                    me->SummonCreature(NPC_GORMOK, NorthrendBeastsSpawnPositions[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 12s);
                     break;
                 case EVENT_EXCLAMATION:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
@@ -547,15 +547,15 @@ struct npc_tirion_toc : public ScriptedAI
                     break;
                 case EVENT_START_CALL_WILFRED:
                     Talk(TIRION_SAY_WILFRED);
-                    _events.ScheduleEvent(EVENT_SUMMON_WILFRED, Seconds(7));
+                    _events.ScheduleEvent(EVENT_SUMMON_WILFRED, 7s);
                     break;
                 case EVENT_SUMMON_WILFRED:
                     _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
-                    me->SummonCreature(NPC_FIZZLEBANG, WilfredSpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Seconds(16));
+                    me->SummonCreature(NPC_FIZZLEBANG, WilfredSpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 16s);
                     break;
                 case EVENT_KILL_JARAXXUS:
                     Talk(TIRION_SAY_KILL_JARAXXUS);
-                    _events.ScheduleEvent(EVENT_EMOTE_SHEATHE, Seconds(2));
+                    _events.ScheduleEvent(EVENT_EMOTE_SHEATHE, 2s);
                     break;
                 case EVENT_EMOTE_SHEATHE:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NO_SHEATHE);
@@ -566,23 +566,23 @@ struct npc_tirion_toc : public ScriptedAI
                         varian->AI()->DoAction(ACTION_JARAXXUS_DEFEATED);
                     if (Creature* garrosh = _instance->GetCreature(DATA_GARROSH))
                         garrosh->AI()->DoAction(ACTION_JARAXXUS_DEFEATED);
-                    _events.ScheduleEvent(EVENT_TIRION_CALM_DOWN, Seconds(33));
+                    _events.ScheduleEvent(EVENT_TIRION_CALM_DOWN, 33s);
                     break;
                 case EVENT_TIRION_CALM_DOWN:
                     Talk(TIRION_SAY_CALM_DOWN);
-                    _events.ScheduleEvent(EVENT_SUMMON_BARRET, Seconds(20));
+                    _events.ScheduleEvent(EVENT_SUMMON_BARRET, 20s);
                     break;
                 case EVENT_ALLOW_COMBAT:
                     Talk(TIRION_SAY_ALLOW_COMBAT);
-                    _events.ScheduleEvent(EVENT_SUMMON_CHAMPIONS, Seconds(7));
+                    _events.ScheduleEvent(EVENT_SUMMON_CHAMPIONS, 7s);
                     break;
                 case EVENT_TRAGIC_VICTORY:
                     Talk(TIRION_SAY_TRAGIC_VICTORY);
-                    _events.ScheduleEvent(EVENT_SUMMON_BARRET, Seconds(24));
+                    _events.ScheduleEvent(EVENT_SUMMON_BARRET, 24s);
                     break;
                 case EVENT_SUMMON_VALKYR:
                     me->SummonCreatureGroup(GROUP_VALKYR);
-                    _events.ScheduleEvent(EVENT_OPEN_GATE, Seconds(3));
+                    _events.ScheduleEvent(EVENT_OPEN_GATE, 3s);
                     break;
                 case EVENT_OPEN_GATE:
                     _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
@@ -594,20 +594,20 @@ struct npc_tirion_toc : public ScriptedAI
                     if (Creature* lkVoice = _instance->GetCreature(DATA_LICH_KING_VOICE))
                         lkVoice->AI()->Talk(LK_VOICE_SAY_CHALLENGE);
                     if (Creature* arthasPortal = me->SummonCreature(NPC_ARTHAS_PORTAL, ArthasPortalSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, Seconds(34)))
-                        arthasPortal->m_Events.AddEventAtOffset(new ArthasPortalEvent(arthasPortal), Seconds(3));
-                    _events.ScheduleEvent(EVENT_SUMMON_LICH_KING, Seconds(5));
+                        arthasPortal->m_Events.AddEventAtOffset(new ArthasPortalEvent(arthasPortal), 3s);
+                    _events.ScheduleEvent(EVENT_SUMMON_LICH_KING, 5s);
                     break;
                 case EVENT_LICH_KING_SAY_SOULS:
                     if (Creature* lkVoice = _instance->GetCreature(DATA_LICH_KING_VOICE))
                         lkVoice->AI()->Talk(LK_VOICE_SAY_SOULS_WILL_BE_MINE);
                     break;
                 case EVENT_SUMMON_LICH_KING:
-                    me->SummonCreature(NPC_LICH_KING, LichKingSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, Seconds(30));
+                    me->SummonCreature(NPC_LICH_KING, LichKingSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, 30s);
                     break;
                 case EVENT_SUMMON_CHAMPIONS:
                     if (Creature* factitonController = me->SummonCreature(NPC_CHAMPIONS_CONTROLLER, ToCCommonLoc[1]))
                         factitonController->AI()->SetData(0, _instance->GetData(DATA_TEAM)); // will be changed to DoAction soon
-                    _events.ScheduleEvent(EVENT_START_CHAMPIONS, Seconds(3));
+                    _events.ScheduleEvent(EVENT_START_CHAMPIONS, 3s);
                     break;
                 case EVENT_START_CHAMPIONS:
                     if (Creature* factitonController = _instance->GetCreature(DATA_FACTION_CRUSADERS))
@@ -643,10 +643,10 @@ struct npc_open_portal_target_toc : public ScriptedAI
     {
         if (spellInfo->Id == SPELL_OPEN_PORTAL)
         {
-            _scheduler.Schedule(Seconds(2), [this](TaskContext /*wilfredPortal*/)
+            _scheduler.Schedule(2s, [this](TaskContext /*wilfredPortal*/)
             {
                 DoCastSelf(SPELL_WILFRED_PORTAL);
-                me->DespawnOrUnsummon(Seconds(9));
+                me->DespawnOrUnsummon(9s);
             });
         }
     }
@@ -677,9 +677,9 @@ struct npc_fizzlebang_toc : public ScriptedAI
         {
             _instance->DoUseDoorOrButton(_instance->GetGuidData(DATA_MAIN_GATE));
             Talk(WILFRED_SAY_INTRO);
-            _events.ScheduleEvent(EVENT_EMOTE_TALK, Seconds(2));
-            _events.ScheduleEvent(EVENT_REMOVE_EMOTE_TALK, Seconds(9));
-            _events.ScheduleEvent(EVENT_OBLIVION, Seconds(11));
+            _events.ScheduleEvent(EVENT_EMOTE_TALK, 2s);
+            _events.ScheduleEvent(EVENT_REMOVE_EMOTE_TALK, 9s);
+            _events.ScheduleEvent(EVENT_OBLIVION, 11s);
         }
     }
 
@@ -696,27 +696,27 @@ struct npc_fizzlebang_toc : public ScriptedAI
                     break;
                 case EVENT_OBLIVION:
                     me->SummonCreature(NPC_WILFRED_PORTAL, PortalTargetSpawnPosition);
-                    me->SummonCreature(NPC_PURPLE_GROUND, PurpleGroundSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, Seconds(16));
+                    me->SummonCreature(NPC_PURPLE_GROUND, PurpleGroundSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, 16s);
                     Talk(WILFRED_SAY_OBLIVION);
                     DoCastSelf(SPELL_OPEN_PORTAL);
-                    _events.ScheduleEvent(EVENT_SUMMON_JARAXXUS, Seconds(11));
+                    _events.ScheduleEvent(EVENT_SUMMON_JARAXXUS, 11s);
                     break;
                 case EVENT_SUMMON_JARAXXUS:
                     if (Creature* fordring = _instance->GetCreature(DATA_FORDRING))
                         fordring->AI()->DoAction(ACTION_SUMMON_JARAXXUS);
                     Talk(WILFRED_SAY_MASTER);
-                    _events.ScheduleEvent(EVENT_EMOTE_TALK, Seconds(2));
-                    _events.ScheduleEvent(EVENT_REMOVE_EMOTE_TALK, Seconds(7));
-                    _events.ScheduleEvent(EVENT_SET_TARGET, Seconds(4));
+                    _events.ScheduleEvent(EVENT_EMOTE_TALK, 2s);
+                    _events.ScheduleEvent(EVENT_REMOVE_EMOTE_TALK, 7s);
+                    _events.ScheduleEvent(EVENT_SET_TARGET, 4s);
                     break;
                 case EVENT_SET_TARGET:
                     if (Creature* jaraxxus = _instance->GetCreature(DATA_JARAXXUS))
                         me->SetTarget(jaraxxus->GetGUID());
-                    _events.ScheduleEvent(EVENT_EMOTE_SHEATHE, Seconds(6));
+                    _events.ScheduleEvent(EVENT_EMOTE_SHEATHE, 6s);
                     break;
                 case EVENT_EMOTE_SHEATHE:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NO_SHEATHE);
-                    _events.ScheduleEvent(EVENT_LAST_TALK, Seconds(9));
+                    _events.ScheduleEvent(EVENT_LAST_TALK, 9s);
                     break;
                 case EVENT_LAST_TALK:
                     Talk(WILFRED_SAY_DEAD);
@@ -749,13 +749,13 @@ struct npc_garrosh_toc : public ScriptedAI
         switch (action)
         {
             case ACTION_START_GORMOK:
-                _events.ScheduleEvent(EVENT_GORMOK_INTRO, Seconds(12));
+                _events.ScheduleEvent(EVENT_GORMOK_INTRO, 12s);
                 break;
             case ACTION_JARAXXUS_DEFEATED:
-                _events.ScheduleEvent(EVENT_ALLIANCE_DOGS, Seconds(14));
+                _events.ScheduleEvent(EVENT_ALLIANCE_DOGS, 14s);
                 break;
             case ACTION_START_CHAMPIONS:
-                _events.ScheduleEvent(EVENT_DEMAND_JUSTICE, Seconds(8));
+                _events.ScheduleEvent(EVENT_DEMAND_JUSTICE, 8s);
                 break;
             case ACTION_SAY_KILLED_PLAYER:
                 Talk(GARROSH_SAY_KILLED);
@@ -764,10 +764,10 @@ struct npc_garrosh_toc : public ScriptedAI
                 Talk(GARROSH_SAY_FACTION_DEAD);
                 break;
             case ACTION_VALKYR_DEFEATED:
-                _events.ScheduleEvent(EVENT_VALKYR_DEAD, Seconds(5));
+                _events.ScheduleEvent(EVENT_VALKYR_DEAD, 5s);
                 break;
             case ACTION_START_CHAMPIONS_ENGAGE:
-                _events.ScheduleEvent(EVENT_NO_MERCY, Seconds(6));
+                _events.ScheduleEvent(EVENT_NO_MERCY, 6s);
                 break;
             default:
                 break;
@@ -790,7 +790,7 @@ struct npc_garrosh_toc : public ScriptedAI
                     break;
                 case EVENT_DEMAND_JUSTICE:
                     Talk(GARROSH_SAY_DEMAND_JUSTICE);
-                    _events.ScheduleEvent(EVENT_NO_MERCY, Seconds(21));
+                    _events.ScheduleEvent(EVENT_NO_MERCY, 21s);
                     break;
                 case EVENT_NO_MERCY:
                     Talk(GARROSH_SAY_NO_MERCY);
@@ -818,13 +818,13 @@ struct npc_varian_toc : public ScriptedAI
         switch (action)
         {
             case ACTION_START_GORMOK:
-                _events.ScheduleEvent(EVENT_GORMOK_INTRO, Seconds(11));
+                _events.ScheduleEvent(EVENT_GORMOK_INTRO, 11s);
                 break;
             case ACTION_JARAXXUS_DEFEATED:
-                _events.ScheduleEvent(EVENT_COME_PIGS, Seconds(24));
+                _events.ScheduleEvent(EVENT_COME_PIGS, 24s);
                 break;
             case ACTION_START_CHAMPIONS:
-                _events.ScheduleEvent(EVENT_DEMAND_JUSTICE, Seconds(9));
+                _events.ScheduleEvent(EVENT_DEMAND_JUSTICE, 9s);
                 break;
             case ACTION_SAY_KILLED_PLAYER:
                 Talk(VARIAN_SAY_KILLED);
@@ -833,10 +833,10 @@ struct npc_varian_toc : public ScriptedAI
                 Talk(VARIAN_SAY_FACTION_DEAD);
                 break;
             case ACTION_VALKYR_DEFEATED:
-                _events.ScheduleEvent(EVENT_VALKYR_DEAD, Seconds(6));
+                _events.ScheduleEvent(EVENT_VALKYR_DEAD, 6s);
                 break;
             case ACTION_START_CHAMPIONS_ENGAGE:
-                _events.ScheduleEvent(EVENT_NO_MERCY, Seconds(6));
+                _events.ScheduleEvent(EVENT_NO_MERCY, 6s);
                 break;
             default:
                 break;
@@ -859,7 +859,7 @@ struct npc_varian_toc : public ScriptedAI
                     break;
                 case EVENT_DEMAND_JUSTICE:
                     Talk(VARIAN_SAY_DEMAND_JUSTICE);
-                    _events.ScheduleEvent(EVENT_NO_MERCY, Seconds(20));
+                    _events.ScheduleEvent(EVENT_NO_MERCY, 20s);
                     break;
                 case EVENT_NO_MERCY:
                     Talk(VARIAN_SAY_FIGHT_GLORY);

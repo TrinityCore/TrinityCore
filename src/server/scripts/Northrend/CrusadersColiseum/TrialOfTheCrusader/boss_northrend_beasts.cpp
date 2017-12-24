@@ -165,7 +165,7 @@ enum Events
 
 enum Phases
 {
-    PHASE_EVENT       = 1,
+    PHASE_EVENT = 1,
     PHASE_COMBAT,
     PHASE_MOBILE,
     PHASE_STATIONARY,
@@ -180,16 +180,12 @@ enum NorthrendBeastsPoint
     POINT_ICEHOWL_CHARGE
 };
 
-enum NorthrendBeastsSplines
-{
-    SPLINE_INITIAL_MOVEMENT = 1
-};
-
 enum Misc
 {
     DATA_NEW_TARGET         = 1,
     GORMOK_HAND_SEAT        = 4,
-    MAX_SNOBOLDS            = 4
+    MAX_SNOBOLDS            = 4,
+    SPLINE_INITIAL_MOVEMENT = 1
 };
 
 Position const CombatStalkerPosition = { 563.8941f, 137.3333f, 405.8467f };
@@ -338,9 +334,9 @@ struct boss_gormok : public boss_northrend_beastsAI
 
     void ScheduleTasks() override
     {
-        events.ScheduleEvent(EVENT_IMPALE, Seconds(10));
-        events.ScheduleEvent(EVENT_STAGGERING_STOMP, Seconds(15));
-        events.ScheduleEvent(EVENT_THROW, Seconds(20));
+        events.ScheduleEvent(EVENT_IMPALE, 10s);
+        events.ScheduleEvent(EVENT_STAGGERING_STOMP, 15s);
+        events.ScheduleEvent(EVENT_THROW, 20s);
     }
 
     void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
@@ -352,7 +348,7 @@ struct boss_gormok : public boss_northrend_beastsAI
     void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
-            events.ScheduleEvent(EVENT_ENGAGE, Seconds(7));
+            events.ScheduleEvent(EVENT_ENGAGE, 7s);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -365,18 +361,21 @@ struct boss_gormok : public boss_northrend_beastsAI
                 me->SetReactState(REACT_AGGRESSIVE);
                 // Npc that should keep raid in combat while boss change
                 if (Creature* combatStalker = me->SummonCreature(NPC_BEASTS_COMBAT_STALKER, CombatStalkerPosition))
+                {
+                    combatStalker->SetInCombatWithZone();
                     combatStalker->SetCombatPulseDelay(5);
+                }
                 DoZoneInCombat();
                 events.SetPhase(PHASE_COMBAT);
                 DoCastSelf(SPELL_TANKING_GORMOK, true);
                 break;
             case EVENT_IMPALE:
                 DoCastVictim(SPELL_IMPALE);
-                events.Repeat(Seconds(10));
+                events.Repeat(10s);
                 break;
             case EVENT_STAGGERING_STOMP:
                 DoCastVictim(SPELL_STAGGERING_STOMP);
-                events.Repeat(Seconds(22));
+                events.Repeat(22s);
                 break;
             case EVENT_THROW:
                 for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
@@ -390,7 +389,7 @@ struct boss_gormok : public boss_northrend_beastsAI
                         break;
                     }
                 }
-                events.Repeat(Seconds(20));
+                events.Repeat(20s);
                 break;
             default:
                 break;
@@ -425,8 +424,8 @@ struct npc_snobold_vassal : public ScriptedAI
 
     void EnterCombat(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_CHECK_MOUNT, Seconds(3));
-        _events.ScheduleEvent(EVENT_FIRE_BOMB, Seconds(12), Seconds(25));
+        _events.ScheduleEvent(EVENT_CHECK_MOUNT, 3s);
+        _events.ScheduleEvent(EVENT_FIRE_BOMB, 12s, 25s);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -439,7 +438,7 @@ struct npc_snobold_vassal : public ScriptedAI
         switch (action)
         {
             case ACTION_ENABLE_FIRE_BOMB:
-                _events.ScheduleEvent(EVENT_FIRE_BOMB, Seconds(12), Seconds(25));
+                _events.ScheduleEvent(EVENT_FIRE_BOMB, 12s, 25s);
                 break;
             case ACTION_DISABLE_FIRE_BOMB:
                 _events.CancelEvent(EVENT_FIRE_BOMB);
@@ -459,9 +458,9 @@ struct npc_snobold_vassal : public ScriptedAI
             {
                 _targetGUID = guid;
                 AttackStart(target);
-                _events.ScheduleEvent(EVENT_BATTER, Seconds(5));
-                _events.ScheduleEvent(EVENT_SNOBOLLED, Seconds(1));
-                _events.ScheduleEvent(EVENT_HEAD_CRACK, Seconds(1));
+                _events.ScheduleEvent(EVENT_BATTER, 5s);
+                _events.ScheduleEvent(EVENT_SNOBOLLED, 1s);
+                _events.ScheduleEvent(EVENT_HEAD_CRACK, 1s);
             }
     }
 
@@ -514,17 +513,17 @@ struct npc_snobold_vassal : public ScriptedAI
                 case EVENT_FIRE_BOMB:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         me->CastSpell(target, SPELL_FIRE_BOMB);
-                    _events.Repeat(Seconds(20), Seconds(30));
+                    _events.Repeat(20s, 30s);
                     break;
                 case EVENT_HEAD_CRACK:
                     if (Unit* target = me->GetVehicleBase())
                         DoCast(target, SPELL_HEAD_CRACK);
-                    _events.Repeat(Seconds(30));
+                    _events.Repeat(30s);
                     break;
                 case EVENT_BATTER:
                     if (Unit* target = me->GetVehicleBase())
                         DoCast(target, SPELL_BATTER);
-                    _events.Repeat(Seconds(10), Seconds(15));
+                    _events.Repeat(10s, 15s);
                     break;
                 case EVENT_SNOBOLLED:
                     DoCastSelf(SPELL_SNOBOLLED);
@@ -532,7 +531,7 @@ struct npc_snobold_vassal : public ScriptedAI
                 case EVENT_CHECK_MOUNT:
                     if (!me->GetVehicleBase())
                         MountOnBoss();
-                    _events.Repeat(Seconds(3));
+                    _events.Repeat(3s);
                     break;
                 default:
                     break;
@@ -561,8 +560,7 @@ struct npc_beasts_combat_stalker : public ScriptedAI
     void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
-        uint8 time = IsHeroic() ? 9 : 15;
-        _events.ScheduleEvent(EVENT_BERSERK, Minutes(time));
+        _events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 9min : 15min);
     }
 
     void DoAction(int32 action) override
@@ -570,13 +568,13 @@ struct npc_beasts_combat_stalker : public ScriptedAI
         switch (action)
         {
             case ACTION_START_JORMUNGARS:
-                _events.ScheduleEvent(EVENT_START_JORGMUNGARS, Minutes(2) + Seconds(30));
+                _events.ScheduleEvent(EVENT_START_JORGMUNGARS, 2min + 30s);
                 break;
             case ACTION_GORMOK_DEAD:
                 _events.CancelEvent(EVENT_START_JORGMUNGARS);
                 break;
             case ACTION_START_ICEHOWL:
-                _events.ScheduleEvent(EVENT_START_ICEHOWL, Minutes(2) + Seconds(30));
+                _events.ScheduleEvent(EVENT_START_ICEHOWL, 2min + 30s);
                 break;
             case ACTION_JORMUNGARS_DEAD:
                 _events.CancelEvent(EVENT_START_ICEHOWL);
@@ -654,18 +652,17 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
     {
         if (events.IsInPhase(PHASE_STATIONARY))
         {
-            uint8 time = me->GetEntry() == NPC_DREADSCALE ? 17 : 9;
-            events.ScheduleEvent(EVENT_SPRAY, Seconds(time), 0, PHASE_STATIONARY);
-            events.ScheduleEvent(EVENT_SWEEP, Seconds(16), 0, PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SPRAY, me->GetEntry() == NPC_DREADSCALE ? 17s : 9s, 0, PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SWEEP, 16s, 0, PHASE_STATIONARY);
         }
         else
         {
-            events.ScheduleEvent(EVENT_BITE, Seconds(5), 0, PHASE_MOBILE);
-            events.ScheduleEvent(EVENT_SPEW, Seconds(10), 0, PHASE_MOBILE);
-            events.ScheduleEvent(EVENT_SLIME_POOL, Seconds(14), 0, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_BITE, 5s, 0, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SPEW, 10s, 0, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SLIME_POOL, 14s, 0, PHASE_MOBILE);
         }
 
-        events.ScheduleEvent(EVENT_SUBMERGE, Seconds(45));
+        events.ScheduleEvent(EVENT_SUBMERGE, 45s);
     }
 
     uint32 GetOtherWormData(uint32 wormEntry)
@@ -701,7 +698,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             DoCastSelf(SPELL_ENRAGE, true);
             Talk(EMOTE_ENRAGE);
             if (events.IsInPhase(PHASE_SUBMERGED))
-                events.RescheduleEvent(EVENT_EMERGE, Milliseconds(1));
+                events.RescheduleEvent(EVENT_EMERGE, 1ms);
         }
     }
 
@@ -717,7 +714,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             me->SetSpeedRate(MOVE_RUN, 8.0f);
             DoCastSelf(SPELL_GROUND_VISUAL_0, true);
             events.SetPhase(PHASE_SUBMERGED);
-            events.ScheduleEvent(EVENT_EMERGE, Seconds(5), 0, PHASE_SUBMERGED);
+            events.ScheduleEvent(EVENT_EMERGE, 5s, 0, PHASE_SUBMERGED);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
         else
@@ -729,7 +726,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             DoCastSelf(SPELL_GROUND_VISUAL_0, true);
             events.SetPhase(PHASE_SUBMERGED);
             me->SetControlled(false, UNIT_STATE_ROOT);
-            events.ScheduleEvent(EVENT_EMERGE, Seconds(6), 0, PHASE_SUBMERGED);
+            events.ScheduleEvent(EVENT_EMERGE, 6s, 0, PHASE_SUBMERGED);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
         me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ() + me->GetMidsectionHeight());
@@ -779,7 +776,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
                     events.SetPhase(PHASE_MOBILE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     DoZoneInCombat();
-                    events.ScheduleEvent(EVENT_SUMMON_ACIDMAW, Milliseconds(1));
+                    events.ScheduleEvent(EVENT_SUMMON_ACIDMAW, 1ms);
                 }
                 else
                 {
@@ -795,15 +792,15 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
                 break;
             case EVENT_BITE:
                 DoCastVictim(biteSpell);
-                events.Repeat(Seconds(15));
+                events.Repeat(15s);
                 break;
             case EVENT_SPEW:
                 DoCastAOE(spewSpell);
-                events.Repeat(Seconds(21));
+                events.Repeat(21s);
                 break;
             case EVENT_SLIME_POOL:
                 DoCastSelf(SUMMON_SLIME_POOL);
-                events.Repeat(Seconds(12));
+                events.Repeat(12s);
                 break;
             case EVENT_SUMMON_ACIDMAW:
                 me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9]);
@@ -811,11 +808,11 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             case EVENT_SPRAY:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                     DoCast(target, spraySpell);
-                events.Repeat(Seconds(21));
+                events.Repeat(21s);
                 break;
             case EVENT_SWEEP:
                 DoCastAOE(SPELL_SWEEP);
-                events.Repeat(Seconds(17));
+                events.Repeat(17s);
                 break;
             default:
                 break;
@@ -919,18 +916,18 @@ struct boss_icehowl : public boss_northrend_beastsAI
 
     void ScheduleTasks() override
     {
-        events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, Seconds(8), 0, PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_ARCTIC_BREATH, Seconds(20), 0, PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_WHIRL, Seconds(15), 0, PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_MASSIVE_CRASH, Seconds(35), 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, 8s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_ARCTIC_BREATH, 20s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_WHIRL, 15s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_MASSIVE_CRASH, 35s, 0, PHASE_COMBAT);
     }
 
     void RescheduleTasks()
     {
-        events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, Seconds(8), 0, PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_ARCTIC_BREATH, Seconds(20), 0, PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_WHIRL, Seconds(15), 0, PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_MASSIVE_CRASH, Seconds(45), 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, 8s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_ARCTIC_BREATH, 20s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_WHIRL, 15s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_MASSIVE_CRASH, 45s, 0, PHASE_COMBAT);
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
@@ -941,11 +938,11 @@ struct boss_icehowl : public boss_northrend_beastsAI
         switch (pointId)
         {
             case POINT_INITIAL_MOVEMENT:
-                events.ScheduleEvent(EVENT_ENGAGE, Seconds(3));
+                events.ScheduleEvent(EVENT_ENGAGE, 3s);
                 break;
             case POINT_MIDDLE:
                 DoCastSelf(SPELL_MASSIVE_CRASH);
-                events.ScheduleEvent(EVENT_SELECT_CHARGE_TARGET, Seconds(4));
+                events.ScheduleEvent(EVENT_SELECT_CHARGE_TARGET, 4s);
                 break;
             case POINT_ICEHOWL_CHARGE:
                 events.Reset();
@@ -970,7 +967,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
         {
             DoCastSelf(SPELL_STAGGERED_DAZE, true);
             Talk(EMOTE_TRAMPLE_FAIL);
-            events.DelayEvents(Seconds(15));
+            events.DelayEvents(15s);
         }
     }
 
@@ -997,18 +994,18 @@ struct boss_icehowl : public boss_northrend_beastsAI
                     DoCast(target, SPELL_FURIOUS_CHARGE_SUMMON, true);
                     me->SetTarget(target->GetGUID());
                     Talk(EMOTE_TRAMPLE_ROAR, target);
-                    events.ScheduleEvent(EVENT_ICEHOWL_ROAR, Seconds(1));
+                    events.ScheduleEvent(EVENT_ICEHOWL_ROAR, 1s);
                 }
                 break;
             case EVENT_ICEHOWL_ROAR:
                 if (Creature* stalker = instance->GetCreature(DATA_FURIOUS_CHARGE))
                     DoCast(stalker, SPELL_ROAR);
-                events.ScheduleEvent(EVENT_JUMP_BACK, Seconds(3), 0, PHASE_CHARGE);
+                events.ScheduleEvent(EVENT_JUMP_BACK, 3s, 0, PHASE_CHARGE);
                 break;
             case EVENT_JUMP_BACK:
                 if (Creature* stalker = instance->GetCreature(DATA_FURIOUS_CHARGE))
                     DoCast(stalker, SPELL_JUMP_BACK);
-                events.ScheduleEvent(EVENT_TRAMPLE, Seconds(2), 0, PHASE_CHARGE);
+                events.ScheduleEvent(EVENT_TRAMPLE, 2s, 0, PHASE_CHARGE);
                 break;
             case EVENT_TRAMPLE:
                 if (Creature* stalker = instance->GetCreature(DATA_FURIOUS_CHARGE))
@@ -1017,16 +1014,16 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 break;
             case EVENT_FEROCIOUS_BUTT:
                 DoCastVictim(SPELL_FEROCIOUS_BUTT);
-                events.Repeat(Seconds(20));
+                events.Repeat(20s);
                 break;
             case EVENT_ARCTIC_BREATH:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     DoCast(target, SPELL_ARCTIC_BREATH);
-                events.Repeat(Seconds(24));
+                events.Repeat(24s);
                 break;
             case EVENT_WHIRL:
                 DoCastSelf(SPELL_WHIRL);
-                events.Repeat(Seconds(16));
+                events.Repeat(16s);
                 break;
             default:
                 break;

@@ -142,7 +142,7 @@ class boss_jaraxxus : public CreatureScript
                 {
                     me->SetReactState(REACT_PASSIVE);
                     events.SetPhase(PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO, Seconds(1));
+                    events.ScheduleEvent(EVENT_INTRO, 1s);
                 }
                 else if (action == ACTION_JARAXXUS_ENGAGE)
                 {
@@ -159,7 +159,7 @@ class boss_jaraxxus : public CreatureScript
                     if (Creature* wilfred = instance->GetCreature(DATA_FIZZLEBANG))
                     {
                         me->SetFacingToObject(wilfred);
-                        events.ScheduleEvent(EVENT_TAUNT_GNOME, Seconds(9));
+                        events.ScheduleEvent(EVENT_TAUNT_GNOME, 9s);
                     }
             }
 

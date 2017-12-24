@@ -28,6 +28,8 @@
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
 
+ // ToDo: Remove magic numbers of events
+
 BossBoundaryData const boundaries =
 {
     { DATA_NORTHREND_BEASTS,  new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
