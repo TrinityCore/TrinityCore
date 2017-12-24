@@ -250,15 +250,15 @@ class boss_jaraxxus : public CreatureScript
                             break;
                         case EVENT_TAUNT_GNOME:
                             Talk(SAY_INTRO);
-                            events.ScheduleEvent(EVENT_KILL_GNOME, Seconds(7));
+                            events.ScheduleEvent(EVENT_KILL_GNOME, 9s);
                             break;
                         case EVENT_KILL_GNOME:
                             DoCastSelf(SPELL_FEL_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHANGE_ORIENTATION, Seconds(3));
+                            events.ScheduleEvent(EVENT_CHANGE_ORIENTATION, 3s);
                             break;
                         case EVENT_CHANGE_ORIENTATION:
                             me->SetFacingTo(4.729842f);
-                            events.ScheduleEvent(EVENT_START_COMBAT, Seconds(7));
+                            events.ScheduleEvent(EVENT_START_COMBAT, 7s);
                             break;
                         case EVENT_START_COMBAT:
                             me->SetImmuneToPC(false);

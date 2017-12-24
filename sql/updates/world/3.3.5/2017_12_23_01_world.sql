@@ -1,4 +1,4 @@
-SET @CGUID := 2000000; -- 2 Guids needed
+SET @CGUID :=79369; -- 2 Guids needed
 DELETE FROM `creature` WHERE `guid` IN(@CGUID,  @CGUID+1);
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`,`ScriptName`,`VerifiedBuild`) VALUES
 (@CGUID,16980,649,0,0,15,1,0,0,646.073,60.3333,394.856,0,7200,0,0,4120,0,0,0,0,0,'',0), -- Lich King voice
