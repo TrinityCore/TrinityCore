@@ -134,19 +134,19 @@ Position const AnraphetPath[AnraphetPathSize] =
 };
 
 // Brann's intro
-Position const BrannBossHomePos = { -409.9531f, 367.0469f, 89.81111f, 0.01745329f };
+Position const BrannBossHomePos = { -429.583f, 367.019f, 89.79282f, 0.01745329f };
 
-uint32 const BrannIntroPathSize = 2;
+uint32 const BrannIntroPathSize = 1;
 Position const BrannIntroPath[BrannIntroPathSize] =
 {
-    { -429.583f,  367.019f,  89.79282f, 0.0f },
-    { -409.9531f, 367.0469f, 89.81111f, 0.0f }
+    { -429.583f, 367.019f, 89.79282f, 0.0f },
 };
 
 // Brann's outro
-uint32 const BrannOutroPathSize = 12;
+uint32 const BrannOutroPathSize = 13;
 Position const BrannOutroPath[BrannOutroPathSize] =
 {
+    { -409.9531f, 367.0469f, 89.81111f, 0.0f },
     { -397.8246f, 366.967f,  86.37722f, 0.0f },
     { -383.7813f, 366.8229f, 82.07919f, 0.0f },
     { -368.2604f, 366.7448f, 77.0984f,  0.0f },
