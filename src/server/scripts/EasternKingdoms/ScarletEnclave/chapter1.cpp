@@ -696,8 +696,8 @@ class npc_dark_rider_of_acherus : public CreatureScript
                         break;
                 }
             }
-			
-			void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == _horseGUID)
                     if (Creature* creature = target->ToCreature())
