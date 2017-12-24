@@ -3,7 +3,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
 'spell_gen_trigger_exclude_target_aura_spell');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (45438,  'spell_gen_trigger_exclude_caster_aura_spell'),
----
+--
 (100,    'spell_gen_trigger_exclude_target_aura_spell'),
 (172,    'spell_gen_trigger_exclude_caster_aura_spell'),
 (1454,   'spell_gen_trigger_exclude_caster_aura_spell'),
@@ -41,7 +41,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (213398, 'spell_gen_trigger_exclude_caster_aura_spell'),
 (213831, 'spell_gen_trigger_exclude_caster_aura_spell'),
 (219779, 'spell_gen_trigger_exclude_caster_aura_spell'),
----
+--
 (20484,  'spell_gen_trigger_exclude_target_aura_spell'),
 (20707,  'spell_gen_trigger_exclude_target_aura_spell'),
 (61999,  'spell_gen_trigger_exclude_target_aura_spell'),
