@@ -1,3 +1,13 @@
+if (MSVC)
+  # Specify the maximum PreCompiled Header memory allocation limit
+  # Fixes a compiler-problem when using PCH - the /Ym flag is adjusted by the compiler in MSVC2012,
+  # hence we need to set an upper limit with /Zm to avoid discrepancies)
+  # (And yes, this is a verified, unresolved bug with MSVC... *sigh*)
+  #
+  # Note: This workaround was verified to be required on MSVC 2017 as well
+  set(COTIRE_PCH_MEMORY_SCALING_FACTOR 500)
+endif()
+
 include(cotire)
 
 function(ADD_CXX_PCH TARGET_NAME_LIST PCH_HEADER)
