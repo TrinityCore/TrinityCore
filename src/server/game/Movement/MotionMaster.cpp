@@ -22,6 +22,7 @@
 #include "CreatureAISelector.h"
 #include "DBCStores.h"
 #include "FleeingMovementGenerator.h"
+#include "FlightPathMovementGenerator.h"
 #include "FormationMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
@@ -326,18 +327,18 @@ void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
     }
 }
 
-void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generatePath)
+void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generatePath, Optional<float> finalOrient)
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
         TC_LOG_DEBUG("misc", "Player (GUID: %u) targeted point (Id: %u X: %f Y: %f Z: %f).", _owner->GetGUID().GetCounter(), id, x, y, z);
-        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath), MOTION_SLOT_ACTIVE);
+        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath, 0.0f, finalOrient), MOTION_SLOT_ACTIVE);
     }
     else
     {
         TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) targeted point (ID: %u X: %f Y: %f Z: %f).",
             _owner->GetEntry(), _owner->GetGUID().GetCounter(), id, x, y, z);
-        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath), MOTION_SLOT_ACTIVE);
+        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, 0.0f, finalOrient), MOTION_SLOT_ACTIVE);
     }
 }
 
@@ -456,7 +457,9 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
-    _owner->GetClosePoint(x, y, z, _owner->GetCombatReach(), dist, angle);
+    _owner->GetNearPoint2D(x, y, dist, _owner->GetOrientation() + angle);
+    z = _owner->GetPositionZ() + _owner->GetMidsectionHeight();
+    _owner->UpdateAllowedPositionZ(x, y, z);
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
 }
 

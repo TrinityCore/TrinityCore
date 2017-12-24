@@ -20,6 +20,7 @@
 #define __EVENTPROCESSOR_H
 
 #include "Define.h"
+#include "Duration.h"
 #include <map>
 
 class EventProcessor;
@@ -76,9 +77,10 @@ class TC_COMMON_API EventProcessor
 
         void Update(uint32 p_time);
         void KillAllEvents(bool force);
-        void AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime = true);
-        void ModifyEventTime(BasicEvent* Event, uint64 newTime);
-        uint64 CalculateTime(uint64 t_offset) const;
+        void AddEvent(BasicEvent* event, uint64 e_time, bool set_addtime = true);
+        void AddEventAtOffset(BasicEvent* event, Milliseconds const& offset) { AddEvent(event, CalculateTime(offset.count())); }
+        void ModifyEventTime(BasicEvent* event, uint64 newTime);
+        uint64 CalculateTime(uint64 t_offset) const { return m_time + t_offset; }
 
     protected:
         uint64 m_time;

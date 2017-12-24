@@ -52,7 +52,9 @@ enum RogueSpells
     SPELL_ROGUE_T10_2P_BONUS                    = 70804,
     SPELL_ROGUE_GLYPH_OF_BACKSTAB_TRIGGER       = 63975,
     SPELL_ROGUE_QUICK_RECOVERY_ENERGY           = 31663,
-    SPELL_ROGUE_CRIPPLING_POISON                = 3409
+    SPELL_ROGUE_CRIPPLING_POISON                = 3409,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_BUFF         = 31665,
+    SPELL_ROGUE_OVERKILL_BUFF                   = 58427
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -476,6 +478,41 @@ class spell_rog_nerves_of_steel : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_rog_nerves_of_steel_AuraScript();
+        }
+};
+
+// 31666 - Master of Subtlety
+// 58428 - Overkill - aura remove spell (SERVERSIDE)
+template <uint32 RemoveSpell>
+class spell_rog_overkill_mos : public SpellScriptLoader
+{
+    public:
+        spell_rog_overkill_mos(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
+
+        template <uint32 RemoveSpellId>
+        class spell_rog_overkill_mos_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_overkill_mos_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ RemoveSpellId });
+            }
+
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(RemoveSpellId);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_overkill_mos_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_overkill_mos_AuraScript<RemoveSpell>();
         }
 };
 
@@ -1084,6 +1121,8 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_deadly_poison();
     new spell_rog_killing_spree();
     new spell_rog_nerves_of_steel();
+    new spell_rog_overkill_mos<SPELL_ROGUE_OVERKILL_BUFF>("spell_rog_overkill");
+    new spell_rog_overkill_mos<SPELL_ROGUE_MASTER_OF_SUBTLETY_BUFF>("spell_rog_master_of_subtlety");
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
     new spell_rog_quick_recovery();

@@ -64,4 +64,3 @@ void RemovalState::Update(Map& map, NGridType& grid, GridInfo& info, uint32 diff
         }
     }
 }
-
