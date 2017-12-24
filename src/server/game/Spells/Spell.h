@@ -625,7 +625,6 @@ class TC_GAME_API Spell
             } Raw;
         } m_misc;
         uint32 m_SpellVisual;
-        uint32 m_preCastSpell;
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
         SpellCustomErrors m_customError;
