@@ -1238,6 +1238,11 @@ bool SpellInfo::HasAreaAuraEffect() const
     return false;
 }
 
+bool SpellInfo::HasAnyAuraInterruptFlag() const
+{
+    return std::find_if(AuraInterruptFlags.begin(), AuraInterruptFlags.end(), [](uint32 flag) { return flag != 0; }) != AuraInterruptFlags.end();
+}
+
 bool SpellInfo::IsExplicitDiscovery() const
 {
     SpellEffectInfo const* effect0 = GetEffect(DIFFICULTY_NONE, EFFECT_0);
