@@ -526,7 +526,7 @@ class TC_GAME_API SpellInfo
         bool HasAttribute(SpellAttr13 attribute) const { return !!(AttributesEx13 & attribute); }
         bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
-        bool HasAnyAuraInterruptFlag() const { return std::find_if(AuraInterruptFlags.begin(), AuraInterruptFlags.end(), [](uint32 flag) { return flag != 0; }) != AuraInterruptFlags.end(); }
+        bool HasAnyAuraInterruptFlag() const;
         bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return (AuraInterruptFlags[AuraInterruptFlagIndex<SpellAuraInterruptFlags>::value] & flag) != 0; }
         bool HasAuraInterruptFlag(SpellAuraInterruptFlags2 flag) const { return (AuraInterruptFlags[AuraInterruptFlagIndex<SpellAuraInterruptFlags2>::value] & flag) != 0; }
 
