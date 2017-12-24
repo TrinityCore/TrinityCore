@@ -116,7 +116,7 @@ enum Points
     POINT_ANRAPHET_ACTIVATE,
     POINT_BRANN_SAY_TROGGS, 
     POINT_BRANN_SAY_MOMENT,
-    POINT_BRANN_TURN_BACK,
+    POINT_BRANN_TURN_BACK
 };
 
 // Anraphet's intro
@@ -139,7 +139,7 @@ Position const BrannBossHomePos = { -429.583f, 367.019f, 89.79282f, 0.01745329f 
 uint32 const BrannIntroPathSize = 1;
 Position const BrannIntroPath[BrannIntroPathSize] =
 {
-    { -429.583f, 367.019f, 89.79282f, 0.0f },
+    { -429.583f, 367.019f, 89.79282f, 0.0f }
 };
 
 // Brann's outro
@@ -467,7 +467,9 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                             events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, Seconds(3));
                             break;
                         case EVENT_BRANN_MOVE_INTRO:
-                            me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_SAY_TROGGS, BrannIntroPath, BrannIntroPathSize, true);
+                            //me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_SAY_TROGGS, BrannIntroPath, BrannIntroPathSize, true);
+                            me->SetWalk(true);
+                            me->GetMotionMaster()->MovePoint(POINT_BRANN_SAY_TROGGS, BrannBossHomePos, true);
                             break;
                         case EVENT_BRANN_THINK:
                             Talk(BRANN_SAY_THINK);
@@ -532,7 +534,6 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                             break;
                         case EVENT_BRANN_TURN_BACK:
                             me->SetFacingTo(DegToRad(180.0f)); // Sniff: 3.141593f
-                            // To-do: Change Brann's gossip menu ID here.
                             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             break;
                     }
@@ -541,12 +542,13 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
 
             void MovementInform(uint32 movementType, uint32 pointId) override
             {
-                if (movementType != EFFECT_MOTION_TYPE)
+                if (movementType != POINT_MOTION_TYPE && movementType != EFFECT_MOTION_TYPE)
                     return;
 
                 switch (pointId)
                 {
                     case POINT_BRANN_SAY_TROGGS:
+                        me->SetWalk(false);
                         Talk(BRANN_SAY_TROGGS);
                         events.ScheduleEvent(EVENT_BRANN_THINK, Seconds(15));
                         break;

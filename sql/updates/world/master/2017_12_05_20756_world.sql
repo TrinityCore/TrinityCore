@@ -3,16 +3,21 @@
 -- General: Elevator, trash mobs --
 -- script names, sniff corrections
 UPDATE `gameobject_template` SET `ScriptName` = 'go_hoo_the_makers_lift_controller' WHERE `entry` = 207669;
-UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `InhabitType` = 12, `unit_flags` = 33554496 WHERE `entry` = 39612;
+UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `unit_flags` = 33554496 WHERE `entry` = 39612;
 UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_energy_flux', `unit_flags` = 33554496, `speed_walk` = 5.5/2.5, `speed_run` = 5.5/2.5 WHERE `entry` = 44015;
-
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_hoo_energy_flux_target_selector', 'spell_hoo_arcane_energy_check');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (82382, 'spell_hoo_energy_flux_target_selector'),
 (74880, 'spell_hoo_arcane_energy_check');
 
+-- inhabitType 12 (root + disable gravity): Rune of Healing, Cave In Stalker, Dust Cloud Stalker, Searing Light, Spatial Flux, Isiset's Spatial Flux, 
+--   Budding Spore, Aqua Bomb, Alpha Beam, Omega Stance, Aggro Stalker, Beetle Stalker, Quick Sand, Living Vine, Chaos Portal, Void Rift, Chaos Blast, 
+--   Add Stalker, Starry Sky, Ammunae's Seedling Pod, Seedling Pod, Bloodpetal Blossom, Seedling Pod
+UPDATE `creature_template` SET `InhabitType` = 12 WHERE `entry` IN (39258, 39612, 40202, 40283, 40183 48707, 40669, 
+41264, 41144, 41194, 40790, 40459, 40503, 40668, 41055, 39266, 41041, 41479, 39681, 40592, 40716, 40622, 40550); 
+
 -- random movement for trash at Seat of Magic
-UPDATE `creature` SET `MovementType` = 1, `spawndist` = 10 WHERE `guid` IN (317535,313950,313951,313952,320781,320754,313949,313953);
+UPDATE `creature` SET `MovementType` = 1, `spawndist` = 10 WHERE `guid` IN (317535, 313950, 313951, 313952, 320781, 320754, 313949, 313953);
 
 -- Boss: Temple Guardian Anhuur --
 -- heroic entry
@@ -25,6 +30,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (76600, 'spell_anhuur_handle_beacons');
 
 -- Boss: Anraphet --
+-- speed corrections for Brann
+UPDATE `creature_template` SET `speed_walk` = 2.5/2.5, `speed_run` = 7/2.5 WHERE `entry` = 39908;
+
 -- broadcast text ids for Brann
 UPDATE `creature_text` SET `BroadcastTextId` = 40231 WHERE `CreatureID` = 39908 AND `GroupID` = 0;
 UPDATE `creature_text` SET `BroadcastTextId` = 40232 WHERE `CreatureID` = 39908 AND `GroupID` = 1;
@@ -71,7 +79,7 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_celestial_familiar' WHERE `en
 UPDATE `creature_template` SET `ScriptName` = 'npc_astral_shift_explosion_visual', `unit_flags` = 33554752 WHERE `entry` = 39787;
 UPDATE `creature_template` SET `ScriptName` = 'npc_starry_sky' WHERE `entry` = 39681;
 UPDATE `creature_template` SET `ScriptName` = 'npc_isiset_mirror_image' WHERE `entry` IN (39720, 39721, 39722);
-UPDATE `creature_template` SET `ScriptName` = 'npc_isiset_spatial_flux', `InhabitType` = 12, `unit_flags` = 33554496 WHERE `entry` = 48707;
+UPDATE `creature_template` SET `ScriptName` = 'npc_isiset_spatial_flux', `unit_flags` = 33554496 WHERE `entry` = 48707;
 UPDATE `creature_template` SET `ScriptName` = 'npc_isiset_energy_flux', `unit_flags` = 33554496, `speed_walk` = 5.5/2.5, `speed_run` = 5.5/2.5 WHERE `entry` = 48709;
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_isiset_veil_of_sky', 'spell_isiset_supernova_filter', 'spell_isiset_mirror_image_starry_sky_spawner', 'spell_isiset_mirror_image_spawner', 'spell_isiset_image_explosion', 'spell_isiset_astral_rain_controller', 'spell_isiset_mana_shield_controller', 'spell_isiset_astral_familiar_controller', 'spell_isiset_call_of_sky', 'spell_isiset_energy_flux_target_selector');
@@ -184,8 +192,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (48140, 0, 1, 0, 0, 0, 100, 0, 7000, 9000, 32000, 36000, '', 11, 89551, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Temple Runecaster - In Combat - Cast \'Curse of the Runecaster\''),
 (48140, 0, 2, 0, 0, 0, 100, 0, 12000, 12000, 33000, 35000, '', 11, 89549, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Temple Runecaster - In Combat - Cast \'Rune of Healing\'');
 
--- Rune of Healing SAI (root + disable gravity)
-UPDATE `creature_template` SET `AIName` = "SmartAI", `InhabitType` = 12, `unit_flags` = 34080832 WHERE `entry` = 39258;
+-- Rune of Healing SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI", `unit_flags` = 34080832 WHERE `entry` = 39258;
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 39258 AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (39258, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rune of Healing - On Reset - Set react state to passive'),
