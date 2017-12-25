@@ -27,6 +27,7 @@
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
+#include "AuthenticationPackets.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlenetRpcErrorCodes.h"
@@ -2110,6 +2111,7 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Initializing Opcodes...");
     opcodeTable.Initialize();
+    WorldPackets::Auth::ConnectTo::InitializeEncryption();
 
     TC_LOG_INFO("server.loading", "Starting Arena Season...");
     sGameEventMgr->StartArenaSeason();
