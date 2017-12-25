@@ -149,7 +149,7 @@ public:
                     continue;
 
                 if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_THE_HOME_OF_THE_FROSTWOLFES))
-                    player->AddQuest(quest, me);
+                    player->AddQuestAndCheckCompletion(quest, me);
             }
         }
     };
@@ -220,6 +220,11 @@ public:
             waitTimer = 1000;
         }
 
+        enum
+        {
+            SPELL_CREATE_GARRISON_HORDE = 160767,
+        };
+
         uint32 waitTimer;
 
         void UpdateAI(uint32 diff) override
@@ -243,15 +248,18 @@ public:
 
                 if (!player->GetGarrison(GARRISON_TYPE_GARRISON))
                 {
-                    player->CreateGarrison(player->IsInAlliance() ? GARRISON_SITE_WOD_ALLIANCE : GARRISON_SITE_WOD_HORDE);
+                    player->CastSpell(player, SPELL_CREATE_GARRISON_HORDE, true);
 
-                    uint32 movieID = player->GetGarrison(GARRISON_TYPE_GARRISON)->GetSiteLevel()->MovieID;
-                    uint32 mapID = player->GetGarrison(GARRISON_TYPE_GARRISON)->GetSiteLevel()->MapID;
+                    if (Garrison* garr = player->GetGarrison(GARRISON_TYPE_GARRISON))
+                    {
+                        if (GarrSiteLevelEntry const* garrSiteLevel = garr->GetSiteLevel())
+                        {
+                            player->AddMovieDelayedTeleport(garrSiteLevel->MovieID, garrSiteLevel->MapID, 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f);
+                            player->SendMovieStart(garrSiteLevel->MovieID);
 
-                    player->AddMovieDelayedTeleport(movieID, mapID, 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f);
-                    player->SendMovieStart(movieID);
-
-                    player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
+                            player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
+                        }
+                    }
                 }
             }
         }
