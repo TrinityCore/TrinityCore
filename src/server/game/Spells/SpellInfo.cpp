@@ -3162,8 +3162,14 @@ void SpellInfo::_LoadImmunityInfo()
                     case 34471: // The Beast Within
                     case 19574: // Bestial Wrath
                     case 42292: // PvP trinket
+                    case 46227: // Medallion of Immunity
                     case 59752: // Every Man for Himself
                     case 53490: // Bullheaded
+                    case 65547: // PvP Trinket
+                    case 134946: // Supremacy of the Alliance
+                    case 134956: // Supremacy of the Horde
+                    case 195710: // Honorable Medallion
+                    case 208683: // Gladiator's Medallion
                         mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
                         break;
                     case 54508: // Demonic Empowerment

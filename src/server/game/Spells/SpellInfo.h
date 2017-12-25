@@ -416,8 +416,6 @@ struct TC_GAME_API SpellDiminishInfo
     int32 DiminishDurationLimit = 0;
 };
 
-// struct
-
 struct SpellPowerCost
 {
     Powers Power;
