@@ -206,7 +206,6 @@ struct boss_northrend_beastsAI : public BossAI
     boss_northrend_beastsAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId)
     {
         SetBoundary(instance->GetBossBoundary(DATA_NORTHREND_BEASTS));
-        Initialize();
     }
 
     void Reset() override
@@ -216,7 +215,6 @@ struct boss_northrend_beastsAI : public BossAI
         summons.DespawnAll();
         me->SetReactState(REACT_PASSIVE);
         me->SetCombatPulseDelay(0);
-        Initialize();
         HandleInitialMovement();
     }
 
@@ -246,8 +244,6 @@ struct boss_northrend_beastsAI : public BossAI
                 combatStalker->AI()->DoAction(ACTION_START_ICEHOWL);
         }
     }
-
-    virtual void Initialize() { }
 
     void EnterCombat(Unit* /*who*/) override
     {
@@ -626,9 +622,12 @@ private:
 
 struct boss_jormungarAI : public boss_northrend_beastsAI
 {
-    boss_jormungarAI(Creature* creature, uint32 bossId) : boss_northrend_beastsAI(creature, bossId) { }
+    boss_jormungarAI(Creature* creature, uint32 bossId) : boss_northrend_beastsAI(creature, bossId)
+    {
+        Initialize();
+    }
 
-    void Initialize() override
+    void Initialize()
     {
         otherWormEntry = 0;
         modelStationary = 0;
@@ -638,6 +637,12 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
         spitSpell = 0;
         spraySpell = 0;
         wasMobile = false;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+        boss_northrend_beastsAI::Reset();
     }
 
     void JustSummoned(Creature* summoned) override
