@@ -27,8 +27,11 @@ class playerScript_from_cave_to_ridge : public PlayerScript
 public:
     playerScript_from_cave_to_ridge() : PlayerScript("playerScript_from_cave_to_ridge") { }
 
-    void OnSceneStart(Player* player, uint32 /*scenePackageId*/, uint32 /*sceneInstanceId*/) override
+    void OnSceneStart(Player* player, uint32 scenePackageId, uint32 /*sceneInstanceId*/) override
     {
+        if (scenePackageId != TanaanSceneObjects::SceneFromCaveToRidge)
+            return;
+
         player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockSlaves);
         player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockMainNpcs);
     }
