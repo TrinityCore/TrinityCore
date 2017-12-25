@@ -1177,9 +1177,10 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
                     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, infernalrainList, checker);
                     Cell::VisitAllObjects(me, searcher, 200.0f);
 
-                    if (Creature* random = Trinity::Containers::SelectRandomContainerElement(infernalrainList))
-                        if (random->isMoving() && random->GetPositionZ() < 118.0f)
-                            me->CastCustomSpell(SPELL_INFERNAL_RAIN, SPELLVALUE_MAX_TARGETS, 1, random, true);
+                    Creature* random = Trinity::Containers::SelectRandomContainerElement(infernalrainList);
+
+                    if (random->isMoving() && random->GetPositionZ() < 118.0f)
+                        me->CastCustomSpell(SPELL_INFERNAL_RAIN, SPELLVALUE_MAX_TARGETS, 1, random, true);
 
                     _events.ScheduleEvent(EVENT_INFERNAL_RAIN_CAST, 1s, 2s);
                     break;
