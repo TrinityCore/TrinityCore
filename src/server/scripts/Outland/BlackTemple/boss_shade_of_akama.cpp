@@ -51,7 +51,7 @@ enum Spells
     SPELL_FIXATE                     = 40607,
     SPELL_CHAIN_LIGHTNING            = 39945,
     SPELL_DESTRUCTIVE_POISON         = 40874,
-    SPELL_AKAMA_SOUL_EXPEL           = 40902,
+    SPELL_AKAMA_SOUL_RETRIEVE        = 40902,
     // Shade
     SPELL_THREAT                     = 41602,
     SPELL_SHADE_OF_AKAMA_TRIGGER     = 40955,
@@ -113,7 +113,7 @@ enum Events
     EVENT_CHAIN_LIGHTNING                =  4,
     EVENT_DESTRUCTIVE_POISON             =  5,
     EVENT_START_BROKEN_FREE              =  6,
-    EVENT_START_SOUL_EXPEL               =  7,
+    EVENT_START_SOUL_RETRIEVE            =  7,
     EVENT_EVADE_CHECK                    =  8,
     EVENT_BROKEN_FREE_1                  =  9,
     EVENT_BROKEN_FREE_2                  = 10,
@@ -255,7 +255,7 @@ public:
                     AttackStart(akama);
             }
 
-            if (spell->Id == SPELL_AKAMA_SOUL_EXPEL)
+            if (spell->Id == SPELL_AKAMA_SOUL_RETRIEVE)
                 DoCastSelf(SPELL_AKAMA_SOUL_EXPEL_CHANNEL);
         }
 
@@ -450,7 +450,7 @@ public:
             {
                 me->SetWalk(false);
                 me->SetFacingTo(0.08726646f, true);
-                _events.ScheduleEvent(EVENT_START_SOUL_EXPEL, Seconds(1));
+                _events.ScheduleEvent(EVENT_START_SOUL_RETRIEVE, Seconds(1));
             }
         }
 
@@ -494,14 +494,14 @@ public:
                         break;
                     case EVENT_CHAIN_LIGHTNING:
                         DoCastVictim(SPELL_CHAIN_LIGHTNING);
-                        _events.Repeat(randtime(Seconds(8), Seconds(15)));
+                        _events.Repeat(Seconds(8), Seconds(15));
                         break;
                     case EVENT_DESTRUCTIVE_POISON:
                         DoCastSelf(SPELL_DESTRUCTIVE_POISON);
-                        _events.Repeat(randtime(Seconds(3), Seconds(7)));
+                        _events.Repeat(Seconds(3), Seconds(7));
                         break;
-                    case EVENT_START_SOUL_EXPEL:
-                        DoCast(SPELL_AKAMA_SOUL_EXPEL);
+                    case EVENT_START_SOUL_RETRIEVE:
+                        DoCast(SPELL_AKAMA_SOUL_RETRIEVE);
                         _events.ScheduleEvent(EVENT_START_BROKEN_FREE, Seconds(15));
                         break;
                     case EVENT_START_BROKEN_FREE:
@@ -662,12 +662,12 @@ public:
                     if (_leftSide)
                     {
                         _events.ScheduleEvent(EVENT_SPAWN_WAVE_B, Milliseconds(100));
-                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_SORCERER, randtime(Seconds(2), Seconds(5)));
+                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_SORCERER, Seconds(2), Seconds(5));
                     }
                     else
                     {
                         _events.ScheduleEvent(EVENT_SPAWN_WAVE_B, Seconds(10));
-                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_DEFENDER, randtime(Seconds(2), Seconds(5)));
+                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_DEFENDER, Seconds(2), Seconds(5));
                     }
                     break;
                 case ACTION_STOP_SPAWNING:
@@ -692,15 +692,15 @@ public:
                 {
                     case EVENT_SPAWN_WAVE_B:
                         DoCastSelf(SPELL_ASHTONGUE_WAVE_B);
-                        _events.Repeat(randtime(Seconds(50), Seconds(60)));
+                        _events.Repeat(Seconds(50), Seconds(60));
                         break;
                     case EVENT_SUMMON_ASHTONGUE_SORCERER: // left
                         DoCastSelf(SPELL_SUMMON_ASHTONGUE_SORCERER);
-                        _events.Repeat(randtime(Seconds(30), Seconds(35)));
+                        _events.Repeat(Seconds(30), Seconds(35));
                         break;
                     case EVENT_SUMMON_ASHTONGUE_DEFENDER: // right
                         DoCastSelf(SPELL_SUMMON_ASHTONGUE_DEFENDER);
-                        _events.Repeat(randtime(Seconds(30), Seconds(40)));
+                        _events.Repeat(Seconds(30), Seconds(40));
                         break;
                     default:
                         break;
@@ -854,9 +854,9 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_HEROIC_STRIKE, Seconds(5));
-            _events.ScheduleEvent(EVENT_SHIELD_BASH, randtime(Seconds(10), Seconds(16)));
-            _events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, randtime(Seconds(10), Seconds(16)));
-            _events.ScheduleEvent(EVENT_WINDFURY, randtime(Seconds(8), Seconds(12)));
+            _events.ScheduleEvent(EVENT_SHIELD_BASH, Seconds(10), Seconds(16));
+            _events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, Seconds(10), Seconds(16));
+            _events.ScheduleEvent(EVENT_WINDFURY, Seconds(8), Seconds(12));
         }
 
 
@@ -873,19 +873,19 @@ public:
                 {
                     case EVENT_DEBILITATING_STRIKE:
                         DoCastVictim(SPELL_DEBILITATING_STRIKE);
-                        _events.Repeat(randtime(Seconds(20), Seconds(25)));
+                        _events.Repeat(Seconds(20), Seconds(25));
                         break;
                     case EVENT_HEROIC_STRIKE:
                         DoCastSelf(SPELL_HEROIC_STRIKE);
-                        _events.Repeat(randtime(Seconds(5), Seconds(15)));
+                        _events.Repeat(Seconds(5), Seconds(15));
                         break;
                     case EVENT_SHIELD_BASH:
                         DoCastVictim(SPELL_SHIELD_BASH);
-                        _events.Repeat(randtime(Seconds(10), Seconds(20)));
+                        _events.Repeat(Seconds(10), Seconds(20));
                         break;
                     case EVENT_WINDFURY:
                         DoCastVictim(SPELL_WINDFURY);
-                        _events.Repeat(randtime(Seconds(6), Seconds(8)));
+                        _events.Repeat(Seconds(6), Seconds(8));
                         break;
                     default:
                         break;
@@ -931,8 +931,8 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_DEBILITATING_POISON, randtime(Milliseconds(500), Seconds(2)));
-            _events.ScheduleEvent(EVENT_EVISCERATE, randtime(Seconds(2), Seconds(5)));
+            _events.ScheduleEvent(EVENT_DEBILITATING_POISON, Milliseconds(500), Seconds(2));
+            _events.ScheduleEvent(EVENT_EVISCERATE, Seconds(2), Seconds(5));
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override { }
@@ -950,11 +950,11 @@ public:
                 {
                     case EVENT_DEBILITATING_POISON:
                         DoCastVictim(SPELL_DEBILITATING_POISON);
-                        _events.Repeat(randtime(Seconds(15), Seconds(20)));
+                        _events.Repeat(Seconds(15), Seconds(20));
                         break;
                     case EVENT_EVISCERATE:
                         DoCastVictim(SPELL_EVISCERATE);
-                        _events.Repeat(randtime(Seconds(12), Seconds(20)));
+                        _events.Repeat(Seconds(12), Seconds(20));
                         break;
                     default:
                         break;
@@ -1019,11 +1019,11 @@ public:
                 {
                     case EVENT_RAIN_OF_FIRE:
                         DoCastVictim(SPELL_RAIN_OF_FIRE);
-                        _events.Repeat(randtime(Seconds(15), Seconds(20)));
+                        _events.Repeat(Seconds(15), Seconds(20));
                         break;
                     case EVENT_LIGHTNING_BOLT:
                         DoCastVictim(SPELL_LIGHTNING_BOLT);
-                        _events.Repeat(randtime(Seconds(8), Seconds(15)));
+                        _events.Repeat(Seconds(8), Seconds(15));
                         break;
                     default:
                         break;
@@ -1078,7 +1078,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_SPIRIT_HEAL, randtime(Seconds(5), Seconds(6)));
+            _events.ScheduleEvent(EVENT_SPIRIT_HEAL, Seconds(5), Seconds(6));
         }
 
         void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
@@ -1088,7 +1088,7 @@ public:
                 {
                     DoCastSelf(SPELL_SPIRIT_MEND);
                     _spiritMend = true;
-                    _events.ScheduleEvent(EVENT_SPIRIT_MEND_RESET, randtime(Seconds(10),Seconds(15)));
+                    _events.ScheduleEvent(EVENT_SPIRIT_MEND_RESET, Seconds(10),Seconds(15));
                 }
 
             if (!_chainHeal)
@@ -1096,7 +1096,7 @@ public:
                 {
                     DoCastSelf(SPELL_CHAIN_HEAL);
                     _chainHeal = true;
-                    _events.ScheduleEvent(EVENT_CHAIN_HEAL_RESET, randtime(Seconds(10), Seconds(15)));
+                    _events.ScheduleEvent(EVENT_CHAIN_HEAL_RESET, Seconds(10), Seconds(15));
                 }
 
         }
@@ -1113,7 +1113,7 @@ public:
                 {
                     case EVENT_SPIRIT_HEAL:
                         DoCastSelf(SPELL_SPIRITBINDER_SPIRIT_HEAL);
-                        _events.Repeat(randtime(Seconds(13), Seconds(16)));
+                        _events.Repeat(Seconds(13), Seconds(16));
                         break;
                     case EVENT_SPIRIT_MEND_RESET:
                         _spiritMend = false;
