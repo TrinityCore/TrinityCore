@@ -77,7 +77,8 @@ enum Phases
 enum Actions
 {
     ACTION_DISABLE_BEACON_L,
-    ACTION_DISABLE_BEACON_R
+    ACTION_DISABLE_BEACON_R,
+    ACTION_HYMN_EXPIRED
 };
 
 class boss_temple_guardian_anhuur : public CreatureScript
@@ -146,8 +147,8 @@ public:
             else //if (action == ACTION_DISABLE_BEACON_R)
                 _rightBeaconDisabled = true;
 
-            // Exit shield phase if both beacons are disabled.
-            if (_leftBeaconDisabled && _rightBeaconDisabled)
+            // Exit shield phase if both beacons are disabled or channeling Reverberating Hymn finished.
+            if ((_leftBeaconDisabled && _rightBeaconDisabled) || action == ACTION_HYMN_EXPIRED)
                 ExitShieldPhase();
         }
 
@@ -400,6 +401,35 @@ class spell_anhuur_shield_of_light : public SpellScriptLoader
         }
 };
 
+// 75322 - Reverberating Hymn
+class spell_anhuur_reverberating_hymn : public SpellScriptLoader
+{
+public:
+    spell_anhuur_reverberating_hymn() : SpellScriptLoader("spell_anhuur_reverberating_hymn") { }
+
+    class spell_anhuur_reverberating_hymn_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_anhuur_reverberating_hymn_AuraScript);
+
+        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                if (Creature* anhuur = GetCaster()->ToCreature())
+                    anhuur->AI()->DoAction(ACTION_HYMN_EXPIRED);
+        }
+
+        void Register() override
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_anhuur_reverberating_hymn_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_anhuur_reverberating_hymn_AuraScript();
+    }
+};
+
 // 76606 - Disable Beacon Beams L
 // 76608 - Disable Beacon Beams R
 class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
@@ -481,6 +511,7 @@ void AddSC_boss_temple_guardian_anhuur()
     new boss_temple_guardian_anhuur();
     new spell_anhuur_divine_reckoning();
     new spell_anhuur_shield_of_light();
+    new spell_anhuur_reverberating_hymn();
     new spell_anhuur_disable_beacon_beams();
     new spell_anhuur_handle_beacons();
 }

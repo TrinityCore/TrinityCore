@@ -1,6 +1,12 @@
 -- Halls of Origination work
+SET @CGUID := 999999; -- 1 entry needed
 
 -- General: Elevator, trash mobs --
+-- spawn missing Temple Fireshaper (not in old sniffs)
+DELETE FROM `creature` WHERE `guid` = @CGUID;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
+(@CGUID, 48143, 644, 0, 0, 6, 0, 0, 0, 0, -640.624, 396.364, 83.8651, 1.54741, 7200, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', -1);
+
 -- script names, sniff corrections
 UPDATE `gameobject_template` SET `ScriptName` = 'go_hoo_the_makers_lift_controller' WHERE `entry` = 207669;
 UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `unit_flags` = 33554496 WHERE `entry` = 39612;
@@ -33,8 +39,9 @@ UPDATE `creature` SET `MovementType` = 1, `spawndist` = 10 WHERE `guid` IN (3175
 UPDATE `creature_template` SET `difficulty_entry_1` = 49262 WHERE `entry` = 39425;
 
 -- script names ("spell_anhuur_activate_beacons" rewritten into "spell_anhuur_handle_beacons")
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_anhuur_activate_beacons', 'spell_anhuur_handle_beacons');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_anhuur_reverberating_hymn', 'spell_anhuur_activate_beacons', 'spell_anhuur_handle_beacons');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(75322, 'spell_anhuur_reverberating_hymn'),
 (76599, 'spell_anhuur_handle_beacons'),
 (76600, 'spell_anhuur_handle_beacons');
 
@@ -210,7 +217,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Creature Formations --
 -- trash groups
-DELETE FROM `creature_formations` WHERE `leaderGUID` IN (313971,313972,322519,322466,322210,320942,317604,317458);
+DELETE FROM `creature_formations` WHERE `leaderGUID` IN (313971,313972,322519,322466,322210,@CGUID,317604,317458);
 INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
 -- Isiset trash right-side formation
 (313971,313971,0,0,3,0,0),
@@ -240,8 +247,9 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (322210,321868,13,210,515,5,10),
 (322210,321867,7,180,515,5,10),
 -- Third group
-(320942,320942,0,0,3,0,0),
-(320942,321479,0,0,3,0,0),
+(@CGUID,@CGUID,0,0,3,0,0),
+(@CGUID,320942,0,0,3,0,0),
+(@CGUID,321479,0,0,3,0,0),
 -- Group before elevator
 (317604,317604,0,0,3,0,0),
 (317604,317603,9,140,515,0,0),
