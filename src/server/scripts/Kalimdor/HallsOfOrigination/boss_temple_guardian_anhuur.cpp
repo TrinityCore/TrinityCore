@@ -213,7 +213,7 @@ public:
                         break;
                     case EVENT_CAST_SHIELD:
                         me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-                        me->SetFacingTo(5.144157f); // Sniffs set it again
+                        me->SetFacingTo(1.5708f); // Sniffs set it again
                         DoCast(me, SPELL_SHIELD_OF_LIGHT);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_31);
                         events.ScheduleEvent(EVENT_ACTIVATE_BEACONS, Seconds(2), 0, PHASE_SHIELD);
@@ -277,7 +277,7 @@ public:
             me->InterruptNonMeleeSpells(true);
             me->AttackStop();
             DoCast(me, SPELL_TELEPORT);
-            me->SetFacingTo(5.144157f, true);
+            me->SetFacingTo(1.5708f, true); // Note: Wrong orientation in old sniffs - 5.144157f.
 
             Talk(EMOTE_SHIELD);
             Talk(SAY_SHIELD);

@@ -11,9 +11,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (74880, 'spell_hoo_arcane_energy_check');
 
 -- gameobject rotation of lightmachines, glass star 2
-UPDATE `gameobject` SET `rotation0` = -0.150109, `rotation1` = -0.150108, `rotation2` = -0.690989, `rotation3` = 0.690991 WHERE `guid` IN (220756, 220763);
-UPDATE `gameobject` SET `rotation0` =  0.150109, `rotation1` = -0.150108, `rotation2` =  0.690989, `rotation3` = 0.690991 WHERE `guid` IN (220757, 220764);
-UPDATE `gameobject` SET `rotation0` = 0, `rotation1` = 0, `rotation2` = -1, `rotation3` = 0 WHERE `guid` = 220755;
+UPDATE `gameobject` SET `rotation0` = -0.150109,  `rotation1` = -0.150108, `rotation2` = -0.690989,  `rotation3` = 0.690991 WHERE `guid` IN (220756, 220763);
+UPDATE `gameobject` SET `rotation0` =  0.150109,  `rotation1` = -0.150108, `rotation2` =  0.690989,  `rotation3` = 0.690991 WHERE `guid` IN (220757, 220764);
+UPDATE `gameobject` SET `rotation0` =  0.7071066, `rotation1` =  0,        `rotation2` = -0.7071066, `rotation3` = 0        WHERE `guid` = 220755;
 
 -- set correct spawnMask to Beacons - normal (4) and heroic (2)
 UPDATE `gameobject` SET `spawnMask` = 4 WHERE `guid` IN (200968, 200969);
