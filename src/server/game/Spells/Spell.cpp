@@ -6075,7 +6075,7 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict)
     float rangeMod = 0.0f;
     float minRange = 0.0f;
     float maxRange = 0.0f;
-    if (strict && IsNextMeleeSwingSpell())
+    if (strict && m_spellInfo->IsNextMeleeSwingSpell())
     {
         maxRange = 100.0f;
         return std::pair<float, float>(minRange, maxRange);
