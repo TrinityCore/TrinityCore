@@ -203,8 +203,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        if (target)
-                            target = me->GetVictim();
+                        target = me->GetVictim();
 
                         DoCast(target, SPELL_SHADOW_BOLT);
                         Shadowbolt_Timer = 4000 + rand32() % 2500;

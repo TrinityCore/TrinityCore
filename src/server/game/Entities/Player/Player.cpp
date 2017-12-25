@@ -17432,7 +17432,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
                 // examined item is a source item
                 if (qInfo->ItemDrop[j] == itemid)
                 {
-                    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
+                    ItemTemplate const* pProto = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(itemid));
 
                     // 'unique' item
                     if (pProto->GetMaxCount() && GetItemCount(itemid, true) < pProto->GetMaxCount())
