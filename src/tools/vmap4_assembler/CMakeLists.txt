@@ -18,9 +18,12 @@ endif()
 add_executable(vmap4assembler ${PRIVATE_SOURCES})
 
 target_link_libraries(vmap4assembler
-  common
-  casc
-  zlib)
+  PRIVATE
+    trinity-core-interface
+  PUBLIC
+    common
+    casc
+    zlib)
 
 set_target_properties(vmap4assembler
     PROPERTIES
