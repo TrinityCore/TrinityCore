@@ -63,6 +63,7 @@ ObjectData const creatureData[] =
 
 ObjectData const gameObjectData[] =
 {
+    { GO_DOODAD_ULDUM_DOOR_15,          DATA_ANHUUR_DOOR                },
     { GO_DOODAD_ULDUM_LASERBEAMS01,     DATA_LASERBEAMS_EARTH_WARDEN    },
     { GO_DOODAD_ULDUM_LASERBEAMS_01,    DATA_LASERBEAMS_FIRE_WARDEN     },
     { GO_DOODAD_ULDUM_LASERBEAMS_02,    DATA_LASERBEAMS_AIR_WARDEN      },
@@ -70,7 +71,6 @@ ObjectData const gameObjectData[] =
     { GO_SUN_MIRROR,                    DATA_ANRAPHET_SUN_MIRROR        },
     { GO_ANRAPHET_DOOR,                 DATA_ANRAPHET_DOOR              },
     { GO_LIFT_OF_THE_MAKERS,            DATA_LIFT_OF_THE_MAKERS         },
-//  { GO_LIFT_GLASS_STAR,               DATA_LIFT_GLASS_STAR            },
     { 0,                                0 } //END
 };
 

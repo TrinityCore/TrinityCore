@@ -244,13 +244,13 @@ public:
         void HandleSearingLight()
         {
             Unit* target = me->FindNearestCreature(NPC_SEARING_LIGHT, 100.0f);
-            if (!target)
+            GameObject* door = instance->GetGameObject(DATA_ANHUUR_DOOR);
+            if (!target || !door)
                 return;
 
             std::list<Creature*> stalkers;
             GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
-            stalkers.remove_if(Trinity::HeightDifferenceCheck(instance->GetGameObject(DATA_ANHUUR_DOOR), 5.0f, true));
-
+            stalkers.remove_if(Trinity::HeightDifferenceCheck(door, 5.0f, true));
             if (stalkers.empty())
                 return;
 
@@ -290,25 +290,18 @@ public:
         void HandleVisuals()
         {
             GameObject* door = instance->GetGameObject(DATA_ANHUUR_DOOR);
-            if (door)
-            {
-                std::list<Creature*> stalkers;
-                GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
+            if (!door)
+                return;
 
-                stalkers.remove_if(Trinity::HeightDifferenceCheck(door, 0.0f, false)); // Target only the bottom ones
-                for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
-                {
-                    if ((*itr)->GetPositionX() > door->GetPositionX())
-                    {
-                        (*itr)->CastSpell((*itr), SPELL_SHIELD_VISUAL_LEFT, true);
-                        (*itr)->CastSpell((*itr), SPELL_BEAM_OF_LIGHT_LEFT, true);
-                    }
-                    else
-                    {
-                        (*itr)->CastSpell((*itr), SPELL_SHIELD_VISUAL_RIGHT, true);
-                        (*itr)->CastSpell((*itr), SPELL_BEAM_OF_LIGHT_RIGHT, true);
-                    }
-                }
+            std::list<Creature*> stalkers;
+            GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
+            stalkers.remove_if(Trinity::HeightDifferenceCheck(door, 0.0f, false)); // Target only the bottom ones
+
+            for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
+            {
+                bool leftSide = (*itr)->GetPositionX() > door->GetPositionX();
+                (*itr)->CastSpell((*itr), leftSide ? SPELL_SHIELD_VISUAL_LEFT : SPELL_SHIELD_VISUAL_RIGHT, true);
+                (*itr)->CastSpell((*itr), leftSide ? SPELL_BEAM_OF_LIGHT_LEFT : SPELL_BEAM_OF_LIGHT_RIGHT, true);
             }
         }
 

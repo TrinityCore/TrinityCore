@@ -100,18 +100,11 @@ public:
         // Handle elevator: gossip item index => stopFrame (floor index).
         uint32 stopFrame = action - GOSSIP_ACTION_INFO_DEF;
         GameObject* elevator = instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS);
-        if (!elevator) // To-do: implement and check at what stopFrame transport is right now (GetTransportState or GetTransportStopFrame).
+        if (!elevator)
             return true;
 
         elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
         elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, stopFrame);
-
-        // Mechanism below the elevator (cosmetic). 
-        /* Note: It never activates in sniffs, neither on live.
-        if (GameObject* star = instance->GetGameObject(DATA_LIFT_GLASS_STAR))
-            star->SetGoState(GO_STATE_ACTIVE);
-        */     
-
         return true;
     }
 };
