@@ -12703,7 +12703,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                             GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
 
                         // if charmed two demons the same session, the 2nd gets the 1st one's name
-                        SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped
+                        SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(GameTime::GetGameTime())); // cast can't be helped
                     }
                 }
                 playerCharmer->CharmSpellInitialize();
@@ -14588,7 +14588,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                 {
                     FactionTemplateEntry const* ft1 = GetFactionTemplateEntry();
                     FactionTemplateEntry const* ft2 = target->GetFactionTemplateEntry();
-                    if (ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
+                    if (!ft1->IsFriendlyTo(*ft2))
                     {
                         if (index == UNIT_FIELD_BYTES_2)
                             // Allow targetting opposite faction in party when enabled in config

@@ -20,6 +20,7 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -926,7 +927,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         auctionEntry->bid = 0;
         auctionEntry->deposit = sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
         auctionEntry->auctionHouseEntry = ahEntry;
-        auctionEntry->expire_time = time(nullptr) + urand(config.GetMinTime(), config.GetMaxTime()) * HOUR;
+        auctionEntry->expire_time = GameTime::GetGameTime() + urand(config.GetMinTime(), config.GetMaxTime()) * HOUR;
 
         item->SaveToDB(trans);
         sAuctionMgr->AddAItem(item);

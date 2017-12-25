@@ -477,7 +477,7 @@ void GameObject::Update(uint32 diff)
                 case GAMEOBJECT_TYPE_FISHINGNODE:
                 {
                     // fishing code (bobber ready)
-                    if (time(nullptr) > m_respawnTime - FISHING_BOBBER_READY_TIME)
+                    if (GameTime::GetGameTime() > m_respawnTime - FISHING_BOBBER_READY_TIME)
                     {
                         // splash bobber (bobber ready now)
                         Unit* caster = GetOwner();
@@ -511,7 +511,7 @@ void GameObject::Update(uint32 diff)
             {
                 if (m_respawnTime > 0)                          // timer on
                 {
-                    time_t now = time(nullptr);
+                    time_t now = GameTime::GetGameTime();
                     if (m_respawnTime <= now)            // timer expired
                     {
                         ObjectGuid dbtableHighGuid(HighGuid::GameObject, GetEntry(), m_spawnId);
@@ -789,7 +789,7 @@ void GameObject::Update(uint32 diff)
             uint32 respawnDelay = m_respawnDelayTime;
             if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
                 GetMap()->ApplyDynamicModeRespawnScaling(this, this->m_spawnId, respawnDelay, scalingMode);
-            m_respawnTime = time(nullptr) + respawnDelay;
+            m_respawnTime = GameTime::GetGameTime() + respawnDelay;
 
             // if option not set then object will be saved at grid unload
             // Otherwise just save respawn time to map object memory
@@ -1000,7 +1000,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
             m_respawnTime = GetMap()->GetGORespawnTime(m_spawnId);
 
             // ready to respawn
-            if (m_respawnTime && m_respawnTime <= time(nullptr))
+            if (m_respawnTime && m_respawnTime <= GameTime::GetGameTime())
             {
                 m_respawnTime = 0;
                 GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId);
@@ -1107,7 +1107,7 @@ Unit* GameObject::GetOwner() const
 
 void GameObject::SaveRespawnTime(uint32 forceDelay, bool savetodb)
 {
-    if (m_goData && m_respawnTime > time(nullptr) && m_spawnedByDefault)
+    if (m_goData && m_respawnTime > GameTime::GetGameTime() && m_spawnedByDefault)
     {
         if (m_respawnCompatibilityMode)
         {
@@ -1115,7 +1115,7 @@ void GameObject::SaveRespawnTime(uint32 forceDelay, bool savetodb)
             return;
         }
 
-        uint32 thisRespawnTime = forceDelay ? time(nullptr) + forceDelay : m_respawnTime;
+        uint32 thisRespawnTime = forceDelay ? GameTime::GetGameTime() + forceDelay : m_respawnTime;
         GetMap()->SaveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, GetEntry(), thisRespawnTime, GetZoneId(), Trinity::ComputeGridCoord(GetPositionX(), GetPositionY()).GetId(), m_goData->dbData ? savetodb : false);
     }
 }
@@ -1177,11 +1177,26 @@ uint8 GameObject::getLevelForTarget(WorldObject const* target) const
     return 1;
 }
 
+time_t GameObject::GetRespawnTimeEx() const
+{
+    time_t now = GameTime::GetGameTime();
+    if (m_respawnTime > now)
+        return m_respawnTime;
+    else
+        return now;
+}
+
+void GameObject::SetRespawnTime(int32 respawn)
+{
+    m_respawnTime = respawn > 0 ? GameTime::GetGameTime() + respawn : 0;
+    m_respawnDelayTime = respawn > 0 ? respawn : 0;
+}
+
 void GameObject::Respawn()
 {
     if (m_spawnedByDefault && m_respawnTime > 0)
     {
-        m_respawnTime = time(nullptr);
+        m_respawnTime = GameTime::GetGameTime();
         GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, true);
     }
 }
@@ -2270,6 +2285,11 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 
         EnableCollision(collision);
     }
+}
+
+void GameObject::SetLootGenerationTime()
+{
+    m_lootGenerationTime = GameTime::GetGameTime();
 }
 
 void GameObject::SetGoState(GOState state)

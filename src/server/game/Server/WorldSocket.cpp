@@ -19,6 +19,7 @@
 #include "WorldSocket.h"
 #include "BigNumber.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
 #include "Random.h"
@@ -555,7 +556,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
-        mutetime = time(nullptr) + llabs(mutetime);
+        mutetime = GameTime::GetGameTime() + llabs(mutetime);
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
         stmt->setInt64(0, mutetime);

@@ -36,6 +36,7 @@
 #include "DisableMgr.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "SharedDefines.h"
@@ -166,7 +167,7 @@ void BattlegroundMgr::Update(uint32 diff)
     {
         if (m_AutoDistributionTimeChecker < diff)
         {
-            if (time(nullptr) > m_NextAutoDistributionTime)
+            if (GameTime::GetGameTime() > m_NextAutoDistributionTime)
             {
                 sArenaTeamMgr->DistributeArenaPoints();
                 m_NextAutoDistributionTime = m_NextAutoDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld->getIntConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
@@ -630,7 +631,7 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
         return;
 
     time_t wstime = time_t(sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME));
-    time_t curtime = time(nullptr);
+    time_t curtime = GameTime::GetGameTime();
     TC_LOG_DEBUG("bg.battleground", "Initializing Automatic Arena Point Distribution");
     if (wstime < curtime)
     {
