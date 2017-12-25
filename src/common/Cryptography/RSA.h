@@ -17,6 +17,7 @@
 
 #include "Define.h"
 #include <openssl/rsa.h>
+#include <string>
 #include <type_traits>
 
 namespace Trinity

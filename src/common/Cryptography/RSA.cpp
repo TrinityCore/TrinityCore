@@ -17,6 +17,10 @@
 
 #include "RSA.h"
 #include <openssl/pem.h>
+#include <algorithm>
+#include <iterator>
+#include <memory>
+#include <vector>
 
 #define CHECK_AND_DECLARE_FUNCTION_TYPE(name, publicKey, privateKey)                                        \
     static_assert(std::is_same<decltype(&publicKey), decltype(&privateKey)>::value,                         \
