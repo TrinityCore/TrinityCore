@@ -16,6 +16,7 @@
  */
 
 #include <openssl/rsa.h>
+#include <type_traits>
 
 namespace Trinity
 {
