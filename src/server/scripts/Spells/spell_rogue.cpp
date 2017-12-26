@@ -2036,7 +2036,6 @@ public:
 
         bool Load() override
         {
-            GetSpell()->m_preCastSpell = 0;
             return true;
         }
 
