@@ -65,7 +65,7 @@ enum DAMAGE_ABSORB_TYPE
     ONLY_MAGIC_ABSORB       = -1
 };
 
-enum AuraType
+enum AuraType : uint32
 {
     SPELL_AURA_NONE                                         = 0,
     SPELL_AURA_BIND_SIGHT                                   = 1,
