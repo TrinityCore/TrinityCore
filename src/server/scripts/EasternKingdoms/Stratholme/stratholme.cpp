@@ -31,12 +31,17 @@ npc_spectral_ghostly_citizen
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "stratholme.h"
-#include "Group.h"
-#include "Player.h"
-#include "SpellInfo.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "stratholme.h"
 
 /*######
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)

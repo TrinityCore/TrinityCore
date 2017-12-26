@@ -25,10 +25,16 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "stratholme.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "stratholme.h"
 
 enum InstanceEvents
 {
