@@ -274,7 +274,7 @@ public:
                     nerubian->DespawnOrUnsummon();
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*what*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             _anubar.push_back(guid);
         }
