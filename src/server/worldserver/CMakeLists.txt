@@ -23,10 +23,6 @@ endif()
 
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/worldPCH.h)
-  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/worldPCH.cpp)
-  if (MSVC)
-    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/worldPCH.cpp)
-  endif (MSVC)
 endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -49,6 +45,8 @@ set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAG
 
 if (WITH_CPR)
     target_link_libraries(worldserver
+      PRIVATE
+        trinity-core-interface
       PUBLIC
         scripts
         game
@@ -56,6 +54,8 @@ if (WITH_CPR)
         ${CPR_LIBRARIES})
 else()
     target_link_libraries(worldserver
+      PRIVATE
+        trinity-core-interface
       PUBLIC
         scripts
         game
@@ -117,5 +117,5 @@ endif()
 
 # Generate precompiled header
 if( USE_COREPCH )
-  add_cxx_pch(worldserver ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
+  add_cxx_pch(worldserver ${PRIVATE_PCH_HEADER})
 endif()
