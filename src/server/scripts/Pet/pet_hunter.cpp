@@ -236,7 +236,7 @@ class spell_pet_guard_dog : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(nullptr, SPELL_PET_GUARD_DOG_HAPPINESS, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, SPELL_PET_GUARD_DOG_HAPPINESS, aurEff);
 
                 float addThreat = CalculatePct(ASSERT_NOTNULL(eventInfo.GetSpellInfo())->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
                 eventInfo.GetProcTarget()->GetThreatManager().AddThreat(caster, addThreat, GetSpellInfo(), false, true);
@@ -288,7 +288,7 @@ class spell_pet_silverback : public SpellScriptLoader
                 PreventDefaultAction();
 
                 uint32 spellId = triggerSpell[GetSpellInfo()->GetRank() - 1];
-                eventInfo.GetActor()->CastSpell(nullptr, spellId, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, spellId, aurEff);
             }
 
             void Register() override

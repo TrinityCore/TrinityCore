@@ -43,7 +43,7 @@ public:
             if (timer <= diff)
             {
                 if (spell)
-                    me->CastSpell(me, spell, true);
+                    me->CastSpell(me, spell->Id, true);
                 timer = interval;
             }
             else

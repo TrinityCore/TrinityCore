@@ -3205,14 +3205,35 @@ void SpellMgr::LoadSpellInfoCorrections()
         52438, // Summon Skittering Swarmer (Force Cast)
         52449, // Summon Skittering Infector (Force Cast)
         53609, // Summon Anub'ar Assassin (Force Cast)
-        53457  // Summon Impale Trigger (AoE)
+        53457, // Summon Impale Trigger (AoE)
+        45907, // Torch Target Picker
+        68950, // Fear (Bronjahm - Forge of Souls)
+        68987, // Pursuit (Krick & Ick - Pit of Saron)
+        72299, // Malleable Goo Summon (Putricide @ Festergut)
+        73582, // Trigger Vile Spirit (Heroic LK)
+        70078, // Caress of Death (Sister Svalna)
+        56047, // Random Portal (Beam Visual - Malygos)
+        63820, // Summon Junk Bot Trigger (Mimiron)
+        64425, // Summon Assault Bot Trigger (Mimiron)
+        62978, // Summon Guardian (Yogg-Saron)
+        64132, // Summon Constrictor Tentacle (Yogg-Saron)
+        63747, // Sara's Fervor Target Selector (Yogg-Saron)
+        63744, // Sara's Anger Target Selector (Yogg-Saron)
+        63745, // Sara's Blessing Target Selector (Yogg-Saron)
+        63830, // Malady of the Mind (Yogg-Saron)
+        63795, // Psychosis (Yogg-Saron)
+        65206, // Destabilization Matrix (Thorim @ Yogg-Saron)
+        47669, // Awaken Sub-Boss (Gortok Palehoof)
+        30541  // Blaze Target (Magtheridon)
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
     });
 
-    // Skartax Purple Beam
-    ApplySpellFix({ 36384 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        36384, // Skartax Purple Beam
+        63802  // Brain Link (Yogg-Saron)
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 2;
     });
@@ -3230,7 +3251,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         29213, // Curse of the Plaguebringer - Noth
         28542, // Life Drain - Sapphiron
         66588, // Flaming Spear
-        54171  // Divine Storm
+        54171, // Divine Storm
+        64567, // Summon Initial Flames (Mimiron)
+        64620, // Summon Fire Bot Trigger (Mimiron)
+        40869, // Fatal Attraction - Teleport (Mother Shahraz)
+        41376  // Spite (Reliquary of Souls)
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 3;
@@ -3242,6 +3267,45 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 4;
+    });
+
+    ApplySpellFix({
+        42005, // Bloodboil
+        38296, // Spitfire Totem
+        37676, // Insidious Whisper
+        46008, // Negative Energy
+        45641, // Fire Bloom
+        55665, // Life Drain - Sapphiron (H)
+        28796, // Poison Bolt Volly - Faerlina
+        41303, // Soul Drain (Reliquary of Souls)
+        40243, // Crushing Shadows (Teron Gorefiend)
+        30657, // Quake (Magtheridon)
+        }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 5;
+    });
+
+    // Curse of the Plaguebringer - Noth (H)
+    ApplySpellFix({ 54835 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 8;
+    });
+
+    ApplySpellFix({
+        40827, // Sinful Beam
+        40859, // Sinister Beam
+        40860, // Vile Beam
+        40861, // Wicked Beam
+        54098  // Poison Bolt Volly - Faerlina (H)
+        }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 10;
+    });
+
+    // Unholy Frenzy
+    ApplySpellFix({ 50312 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 15;
     });
 
     ApplySpellFix({
@@ -3279,43 +3343,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_DUMMY;
         spellInfo->Effects[EFFECT_1].MiscValue = 127;
         spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
-    });
-
-    ApplySpellFix({
-        42005, // Bloodboil
-        38296, // Spitfire Totem
-        37676, // Insidious Whisper
-        46008, // Negative Energy
-        45641, // Fire Bloom
-        55665, // Life Drain - Sapphiron (H)
-        28796  // Poison Bolt Volly - Faerlina
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 5;
-    });
-
-
-    // Curse of the Plaguebringer - Noth (H)
-    ApplySpellFix({ 54835 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 8;
-    });
-
-    ApplySpellFix({
-        40827, // Sinful Beam
-        40859, // Sinister Beam
-        40860, // Vile Beam
-        40861, // Wicked Beam
-        54098  // Poison Bolt Volly - Faerlina (H)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 10;
-    });
-
-    // Unholy Frenzy
-    ApplySpellFix({ 50312 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 15;
     });
 
     // Murmur's Touch
