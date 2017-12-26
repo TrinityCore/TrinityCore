@@ -1,3 +1,4 @@
+/*
 --
 UPDATE `creature_template` SET `mingold` = 15123, `maxgold` = 19760 WHERE `entry` = 37328;
 UPDATE `creature_template` SET `mingold` = 15123, `maxgold` = 19760 WHERE `entry` = 37408;
@@ -24,3 +25,4 @@ UPDATE `creature_template` SET `mingold` = 4380, `maxgold` = 26180 WHERE `entry`
 UPDATE `creature_template` SET `mingold` = 570506, `maxgold` = 570506 WHERE `entry` = 38103;
 UPDATE `creature_template` SET `mingold` = 13390, `maxgold` = 24210 WHERE `entry` = 38197;
 UPDATE `creature_template` SET `mingold` = 650000, `maxgold` = 700000 WHERE `entry` = 35349;
+*/
