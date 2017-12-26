@@ -251,7 +251,7 @@ public:
                 events.ScheduleEvent(EVENT_START_CHANNELERS_AND_SPAWNERS, Seconds(1));
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                 events.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
-                if (Creature* akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
+                if (Creature* akama = instance->GetCreature(DATA_AKAMA_SHADE))
                     AttackStart(akama);
             }
 
@@ -278,7 +278,7 @@ public:
         {
             DoCastSelf(SPELL_SHADE_OF_AKAMA_TRIGGER);
 
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = instance->GetCreature(DATA_AKAMA_SHADE))
                 akama->AI()->DoAction(ACTION_SHADE_OF_AKAMA_DEAD);
 
             for (ObjectGuid const& spawnerGuid : _spawners)
@@ -406,7 +406,7 @@ public:
                 _isInCombat = true;
                 me->SetWalk(false);
                 me->RemoveAurasDueToSpell(SPELL_AKAMA_SOUL_CHANNEL);
-                if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+                if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 {
                     shade->RemoveAurasDueToSpell(SPELL_AKAMA_SOUL_CHANNEL);
                     AttackStart(shade);
@@ -546,7 +546,7 @@ public:
         {
             _summons.DespawnAll();
             Talk(SAY_DEAD);
-            if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+            if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 if (shade->IsAlive())
                     shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
@@ -592,7 +592,7 @@ public:
         {
             _scheduler.Schedule(Seconds(2), [this](TaskContext channel)
             {
-                if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+                if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 {
                     if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
@@ -741,16 +741,13 @@ public:
 
         void Reset() override
         {
-            if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+            if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
             {
                 if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                     me->GetMotionMaster()->MovePoint(0, shade->GetPosition());
 
-                else
-                {
-                    if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
-                        AttackStart(akama);
-                }
+                else if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
+                    AttackStart(akama);
             }
             Initialize();
         }
@@ -782,7 +779,7 @@ public:
 
                 _scheduler.Schedule(Seconds(1) + Milliseconds(500), [this](TaskContext sorcer_channel)
                 {
-                    if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+                    if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                     {
                         if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         {
@@ -794,7 +791,7 @@ public:
                         {
                             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                             _switchToCombat = true;
-                            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+                            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                                 AttackStart(akama);
                         }
                     }
@@ -842,7 +839,7 @@ public:
 
         void Reset() override
         {
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
         }
 
@@ -920,7 +917,7 @@ public:
 
         void Reset() override
         {
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
         }
 
@@ -989,7 +986,7 @@ public:
 
         void Reset() override
         {
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
         }
 
@@ -1067,7 +1064,7 @@ public:
         {
             Initialize();
 
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
         }
 
@@ -1162,7 +1159,7 @@ public:
             if (motionType != POINT_MOTION_TYPE)
                 return;
 
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 me->SetFacingToObject(akama);
         }
 
