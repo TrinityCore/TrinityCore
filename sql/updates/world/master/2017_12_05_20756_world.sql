@@ -38,6 +38,9 @@ UPDATE `creature` SET `MovementType` = 1, `spawndist` = 10 WHERE `guid` IN (3175
 -- heroic entry
 UPDATE `creature_template` SET `difficulty_entry_1` = 49262 WHERE `entry` = 39425;
 
+-- Pit Viper snakes respawn in 36 seconds and have random movement with small range.
+UPDATE `creature` SET `spawntimesecs` = 36, `spawndist` = 5, `MovementType` = 1 WHERE `map` = 644 AND `id` = 39444;
+
 -- script names ("spell_anhuur_activate_beacons" rewritten into "spell_anhuur_handle_beacons")
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_anhuur_reverberating_hymn', 'spell_anhuur_activate_beacons', 'spell_anhuur_handle_beacons');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -46,6 +49,20 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (76600, 'spell_anhuur_handle_beacons');
 
 -- Boss: Anraphet --
+-- Water Warden gets Aqua Bomb aura on aggro.
+DELETE FROM `creature_template_addon` WHERE `entry` = 39802;
+
+-- Flame Warden spell script for Lava Eruption dummy
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_flame_warden_lava_eruption', 'spell_whirling_winds_movement');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(77273, 'spell_flame_warden_lava_eruption'),
+(77333, 'spell_whirling_winds_movement');
+
+-- Vault of Lights achievement check spell not in dbc
+DELETE FROM `spell_dbc` WHERE `Id` = 94067;
+INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `AttributesEx8`, `AttributesEx9`, `AttributesEx10`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `SchoolMask`, `SpellAuraOptionsId`, `SpellCastingRequirementsId`, `SpellCategoriesId`, `SpellClassOptionsId`, `SpellEquippedItemsId`, `SpellLevelsId`, `SpellTargetRestrictionsId`, `SpellInterruptsId`, `Comment`) VALUES
+(94067, 384, 0, 5, 256, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vault of Lights achievement check');
+
 -- speed corrections for Brann
 UPDATE `creature_template` SET `speed_walk` = 2.5/2.5, `speed_run` = 7/2.5 WHERE `entry` = 39908;
 
@@ -153,26 +170,6 @@ INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `
 (48710, 56416, 0, 0, 0, 1, 1, 1, 1, NULL);
 
 -- SmartAI --
--- Spatial Anomaly SAI (cannot critically hit)
-UPDATE `creature_template` SET `AIName` = "SmartAI", `flags_extra` = `flags_extra` | 131072 WHERE `entry` = 40170;
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 40170 AND `source_type` = 0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(40170, 0, 0, 1, 4, 0, 100, 0, 0, 0, 0, 0, '', 11, 72242, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Spatial Anomaly - On Aggro - Cast \'Arcane Barrage\' on self'),
-(40170, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 74869, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Spatial Anomaly - Linked - Cast \'Arcane Form Dummy\' on self'),
-(40170, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 74880, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Spatial Anomaly - Linked - Cast \'Arcane Energy Periodic\' on self');
-
--- Flux Animator SAI
-UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40033;
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 40033 AND `source_type` = 0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(40033, 0, 0, 0, 0, 0, 100, 0, 0, 0, 7000, 11000, '', 11, 81013, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Flux Animator - In Combat - Cast \'Arcane Barrage\'');
-
--- Star Shard SAI
-UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40106;
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 40106 AND `source_type` = 0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(40106, 0, 0, 0, 0, 0, 100, 0, 0, 0, 1200, 1200, '', 11, 74791, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Star Shard - In Combat - Cast \'Star Shock\'');
-
 -- Temple Fireshaper SAI
 UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 48143;
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (48143,-322519) AND `source_type` = 0;
@@ -213,11 +210,92 @@ UPDATE `creature_template` SET `AIName` = "SmartAI", `unit_flags` = 34080832 WHE
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 39258 AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (39258, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rune of Healing - On Reset - Set react state to passive'),
-(39258, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 73695, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rune of Healing - On Reset - Cast \'Rune of Healing\' on self');
+(39258, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 73695, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rune of Healing - Linked - Cast \'Rune of Healing\' on self');
+
+-- Pit Viper SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 39444;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 39444 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(39444, 0, 0, 0, 0, 0, 100, 0, 8500, 8500, 8500, 8500, '', 11, 74538, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Pit Viper - In Combat - Cast \'Poison-tipped Fangs\'');
+
+-- Stone Trogg Brute SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40251;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40251 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40251, 0, 0, 0, 33, 0, 100, 0, 0, 0, 0, 0, '', 11, 77373, 32, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Stone Trogg Rock Flinger - Damaged Target - Cast \'Clobber\'');
+
+-- Stone Trogg Rock Flinger SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40252;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40252 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40252, 0, 0, 0, 0, 0, 100, 0, 10000, 15000, 10000, 15000, '', 11, 77389, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Stone Trogg Rock Flinger - In Combat - Cast \'Stone Throw\'');
+
+-- Flame Warden SAI (also set heroic entry)
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48894 WHERE `entry` = 39800;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 39800 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(39800, 0, 0, 0, 0, 0, 100, 0,  6500,  6500, 13000, 13000, '', 11, 77241, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Warden - In Combat - Cast \'Raging Inferno\''),
+(39800, 0, 1, 0, 0, 0, 100, 0, 13000, 13000, 13000, 13000, '', 11, 77273, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Flame Warden - In Combat - Cast \'Lava Eruption\'');
+
+-- Earth Warden SAI (also set heroic entry)
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48895 WHERE `entry` = 39801;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 39801 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(39801, 0, 0, 0, 0, 0, 100, 0, 6000, 6000, 13000, 15000, '', 11, 77234, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Earth Warden - In Combat - Cast \'Rockwave\''),
+(39801, 0, 1, 0, 0, 0, 100, 0, 9000, 9000, 20000, 20000, '', 11, 77235, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Earth Warden - In Combat - Cast \'Impale\'');
+
+-- Water Warden SAI (also set heroic entry)
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48892 WHERE `entry` = 39802;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 39802 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(39802, 0, 0, 0, 25, 0, 100, 0,     0,     0,     0,     0, '', 28, 77349, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Warden - On Reset - Remove \'Aqua Bomb\' aura'),
+(39802, 0, 1, 0,  4, 0, 100, 0,     0,     0,     0,     0, '', 11, 77349, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Warden - On Aggro - Cast \'Aqua Bomb\' on self'),
+(39802, 0, 2, 0,  0, 0, 100, 0, 10000, 10000, 15000, 15000, '', 11, 77335, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Water Warden - In Combat - Cast \'Bubble Bound\'');
+
+-- Aqua Bomb SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 41264;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 41264 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(41264, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 77354, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aqua Bomb - On Reset - Cast \'Auto Grow\' on self'),
+(41264, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 77350, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aqua Bomb - Linked - Cast \'Aqua Bomb\' on self');
+
+-- Air Warden SAI (also set heroic entry)
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48896 WHERE `entry` = 39803;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 39803 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(39803, 0, 0, 0, 0, 0, 100, 0, 6000, 6000, 12000, 12000, '', 11, 77316, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Air Warden - In Combat - Cast \'Whirling Winds\''),
+(39803, 0, 1, 0, 0, 0, 100, 0, 6000, 6000, 10000, 10000, '', 11, 77334, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Air Warden - In Combat - Cast \'Wind Shear\'');
+
+-- Whirling Winds SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 41245;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 41245 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(41245, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 77321, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Whirling Winds - On Reset - Cast \'Whirling Winds\' on self'),
+(41245, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 41, 10000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Whirling Winds - Linked - Despawn after 10 seconds');
+
+-- Spatial Anomaly SAI (cannot critically hit)
+UPDATE `creature_template` SET `AIName` = "SmartAI", `flags_extra` = `flags_extra` | 131072 WHERE `entry` = 40170;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40170 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40170, 0, 0, 1, 4, 0, 100, 0, 0, 0, 0, 0, '', 11, 72242, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Spatial Anomaly - On Aggro - Cast \'Arcane Barrage\' on self'),
+(40170, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 74869, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Spatial Anomaly - Linked - Cast \'Arcane Form Dummy\' on self'),
+(40170, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 74880, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Spatial Anomaly - Linked - Cast \'Arcane Energy Periodic\' on self');
+
+-- Flux Animator SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40033;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40033 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40033, 0, 0, 0, 0, 0, 100, 0, 0, 0, 7000, 11000, '', 11, 81013, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Flux Animator - In Combat - Cast \'Arcane Barrage\'');
+
+-- Star Shard SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40106;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40106 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40106, 0, 0, 0, 0, 0, 100, 0, 0, 0, 1200, 1200, '', 11, 74791, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Star Shard - In Combat - Cast \'Star Shock\'');
 
 -- Creature Formations --
 -- trash groups
-DELETE FROM `creature_formations` WHERE `leaderGUID` IN (313971,313972,322519,322466,322210,@CGUID,317604,317458);
+DELETE FROM `creature_formations` WHERE `leaderGUID` IN (313971,313972,322519,322466,322210,@CGUID,317604,317458,304273);
 INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
 -- Isiset trash right-side formation
 (313971,313971,0,0,3,0,0),
@@ -259,7 +337,19 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (317458,317458,0,0,3,0,0),
 (317458,320150,8,150,515,2,5),
 (317458,317381,8,210,515,2,5),
-(317458,317382,8,270,515,2,5);
+(317458,317382,8,270,515,2,5),
+-- Vault of Light troggs
+-- Group at Earth Warden
+(304273,304273,0,0,3,0,0),
+(304273,304272,4,0,515,0,0),
+(304273,304276,4,40,515,0,0),
+(304273,304281,4,80,515,0,0),
+(304273,304280,4,120,515,0,0),
+(304273,304278,4,160,515,0,0),
+(304273,304274,4,200,515,0,0),
+(304273,304275,4,240,515,0,0),
+(304273,304279,4,280,515,0,0),
+(304273,304277,4,320,515,0,0);
 
 -- Waypoints --
 -- trash paths
@@ -326,3 +416,46 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (3176040, 8, -640.856, 204.708, 81.80561, 0, 0, 0, 0, 100, 0),
 (3176040, 9, -640.3165, 193.7006, 81.9477, 0, 0, 0, 0, 100, 0),
 (3176040, 10, -634.005, 193.528, 81.82398, 0, 0, 0, 0, 100, 0);
+
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (304273);
+DELETE FROM `creature_addon` WHERE `guid` IN (304273);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(304273, 3042730, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (3042730);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(3042730,  1, -340.8974, 457.3196, 89.13029, 0, 0, 0, 0, 100, 0),
+(3042730,  2, -338.6441, 441.092, 89.15115, 0, 0, 0, 0, 100, 0),
+(3042730,  3, -336.803, 421.161, 83.844, 0, 0, 0, 0, 100, 0),
+(3042730,  4, -336.425, 402.235, 78.255, 0, 0, 0, 0, 100, 0),
+(3042730,  5, -340.507, 389.498, 75.913, 0, 0, 0, 0, 100, 0),
+(3042730,  6, -327.793, 380.275, 75.914, 0, 0, 0, 0, 100, 0),
+(3042730,  7, -320.367, 404.156, 78.804, 0, 0, 0, 0, 100, 0),
+(3042730,  8, -320.326, 387.264, 75.914, 0, 0, 0, 0, 100, 0),
+(3042730,  9, -322.123, 418.502, 83.045, 0, 0, 0, 0, 100, 0),
+(3042730, 10, -320.925, 445.385, 89.147, 0, 0, 0, 0, 100, 0),
+(3042730, 11, -314.721, 466.031, 89.134, 0, 0, 0, 0, 100, 0),
+(3042730, 12, -344.675, 464.471, 89.125, 0, 0, 0, 0, 100, 0);
+
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (304117);
+DELETE FROM `creature_addon` WHERE `guid` IN (304117);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(304117, 3041170, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (3041170);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(3041170,  1, -320.240, 348.689, 75.915, 0, 0, 0, 0, 100, 0),
+(3041170,  2, -322.295, 328.576, 79.189, 0, 0, 0, 0, 100, 0),
+(3041170,  3, -321.970, 303.343, 86.694, 0, 0, 0, 0, 100, 0),
+(3041170,  4, -320.053, 276.121, 89.126, 0, 0, 0, 0, 100, 0),
+(3041170,  5, -313.603, 268.022, 89.126, 0, 0, 0, 0, 100, 0),
+(3041170,  6, -344.487, 266.569, 89.126, 0, 0, 0, 0, 100, 0),
+(3041170,  7, -338.947, 281.011, 89.126, 0, 0, 0, 0, 100, 0),
+(3041170,  8, -338.379, 295.442, 89.009, 0, 0, 0, 0, 100, 0),
+(3041170,  9, -337.555, 312.697, 83.940, 0, 0, 0, 0, 100, 0),
+(3041170, 10, -337.478, 336.837, 76.707, 0, 0, 0, 0, 100, 0),
+(3041170, 11, -334.222, 347.829, 875.916, 0, 0, 0, 0, 100, 0);
+
+-- delete dupplicated troggs
+DELETE FROM `creature` WHERE `guid` IN (302467, 302522, 303916, 303354, 304073, 304072, 303997, 303941, 303275, 303274);
+DELETE FROM `creature` WHERE `guid` IN (260304, 304163, 316913, 316909, 316926, 316928, 316898, 316897, 316908, 316907, 316929, 316930);
+
+

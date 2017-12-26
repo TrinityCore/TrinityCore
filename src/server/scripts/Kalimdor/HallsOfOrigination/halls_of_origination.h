@@ -134,7 +134,6 @@ enum HOOMisc
 {
     AREA_TOMB_OF_THE_EARTHRAGER     = 4945,
     ACHIEV_VAULT_OF_LIGHTS_EVENT    = 24212, // Faster Than The Speed Of Light
-    SPELL_VAULT_OF_LIGHTS_CREDIT    = 94067, // Not in DBC
     SPELL_ZERO_ENERGY_NO_REGEN_AURA = 72242, // Zero Energy + Zero Regen (used by some npcs in HoO)
 //  SPELL_AURA_UNKNOWN_PURPOSE      = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
     SPELL_DUMMY_NUKE                = 68991,
