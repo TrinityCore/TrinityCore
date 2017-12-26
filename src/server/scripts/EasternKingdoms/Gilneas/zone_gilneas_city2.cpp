@@ -1498,7 +1498,7 @@ public:
                 if (Creature* follower = ObjectAccessor::GetCreature(*me, (*itr)))
                 {
                     float dist = frand(1.0f, 3.0f);
-                    float angl = frand(0.0f, M_PI * 2);
+                    float angl = frand(0.0f, float(M_PI) * 2);
                     follower->GetMotionMaster()->MoveFollow(me, dist, angl);
                     follower->AI()->SetGUID(me->GetGUID(), NPC_LEADER_GUID);
                 }
@@ -2102,7 +2102,7 @@ public:
                 if (Creature* follower = ObjectAccessor::GetCreature(*me, (*itr)))
                 {
                     float dist = frand(1.0f, 3.0f);
-                    float angl = frand(0.0f, M_PI * 2);
+                    float angl = frand(0.0f, float(M_PI) * 2);
                     follower->GetMotionMaster()->MoveFollow(me, dist, angl);
                     follower->AI()->SetGUID(me->GetGUID(), NPC_LEADER_GUID);
                 }
@@ -2524,7 +2524,7 @@ public:
                 if (Creature* follower = ObjectAccessor::GetCreature(*me, (*itr)))
                 {
                     float dist = frand(1.0f, 3.0f);
-                    float angl = frand(0.0f, M_PI * 2);
+                    float angl = frand(0.0f, float(M_PI) * 2);
                     follower->GetMotionMaster()->MoveFollow(me, dist, angl);
                     follower->AI()->SetGUID(me->GetGUID(), NPC_LEADER_GUID);
                 }
@@ -4568,7 +4568,7 @@ public:
                         if (Creature* leader = ObjectAccessor::GetCreature(*me, m_leaderGUID))
                         {
                             float dist = frand(1.0f, 3.0f);
-                            float angl = frand(0.0f, M_PI * 2);
+                            float angl = frand(0.0f, float(M_PI) * 2);
                             me->GetMotionMaster()->MoveFollow(leader, dist, angl);
                         }
                         break;

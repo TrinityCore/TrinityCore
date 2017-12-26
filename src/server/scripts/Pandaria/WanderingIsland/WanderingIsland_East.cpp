@@ -303,7 +303,7 @@ public:
                 case EVENT_SUMMON_WATER_SPOUT:
                 {
                     float x = 0.0f, y = 0.0f;
-                    GetPositionWithDistInOrientation(me, 5.0f, me->GetOrientation() + frand(-M_PI, M_PI), x, y);
+                    GetPositionWithDistInOrientation(me, 5.0f, me->GetOrientation() + frand(-float(M_PI), float(M_PI)), x, y);
                     waterSpoutGUID = ObjectGuid::Empty;
 
                     if (Creature* waterSpout = me->SummonCreature(60488, x, y, 92.189629f))
@@ -451,7 +451,7 @@ class spell_grab_carriage: public SpellScriptLoader
                     return;
 
                 //carriage->CastSpell(yak, 108627, true);
-                carriage->GetMotionMaster()->MoveFollow(yak, 0.0f, M_PI);
+                carriage->GetMotionMaster()->MoveFollow(yak, 0.0f, float(M_PI));
                 caster->EnterVehicle(carriage, 0);
             }
 

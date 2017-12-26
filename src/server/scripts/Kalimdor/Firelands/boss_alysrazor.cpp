@@ -1226,7 +1226,7 @@ class npc_alysrazor_brushfire : public CreatureScript
 
                 if (jump <= diff && needJump)
                 {
-                    me->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), 60.0f, 200, 8);
+                    me->GetMotionMaster()->MoveJump(me->GetPosition(), 60.0f, 200.0f, 8);
                     needJump = false;
                 } else jump -= diff;
 

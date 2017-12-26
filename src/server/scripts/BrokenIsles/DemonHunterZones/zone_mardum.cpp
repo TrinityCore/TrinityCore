@@ -310,7 +310,7 @@ public:
 
         void Reset() override
         {
-            if (Creature* infernal = me->SummonCreature(NPC_COLOSSAL_INFERNAL, 523.404, 2428.41, -117.087, 0.108873, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
+            if (Creature* infernal = me->SummonCreature(NPC_COLOSSAL_INFERNAL, 523.404f, 2428.41f, -117.087f, 0.108873f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
                 colossalInfernalguid = infernal->GetGUID();
         }
 

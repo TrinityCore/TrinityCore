@@ -216,7 +216,7 @@ public:
                                 _x = x + 3.0f * cos(o);
                                 _y = y + 3.0f * sin(o);
                                 me->SummonCreature(44711, _x, _y, z, o);
-                                o += M_PI / 2;
+                                o += float(M_PI) / 2;
                             }
 
                             me->CastSpell(me, SPELL_SHOCKWAVE, false);
