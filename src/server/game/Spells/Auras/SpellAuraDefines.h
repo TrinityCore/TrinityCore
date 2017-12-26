@@ -18,6 +18,8 @@
 #ifndef TRINITY_SPELLAURADEFINES_H
 #define TRINITY_SPELLAURADEFINES_H
 
+#include "Define.h"
+
 #define MAX_AURAS 255
 
 enum AURA_FLAGS
