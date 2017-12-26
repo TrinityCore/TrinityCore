@@ -91,6 +91,6 @@ void AddSC_legion_portal_at_scripts()
     new at_legion_instance_portal("at_legion_portal_helheim_entrance", 1463,    366.2969f, 365.1458f,  28.08436f, 13.97537f);
     new at_legion_instance_portal("at_legion_portal_helheim_exit",     1220, 3641.396973f, 774.1938f, -3.139639f, 2.321205f);
     new at_legion_instance_portal("at_legion_portal_warl_oh_exit",     1220, -796.369568f, 4577.488f, 700.57702f, 4.626544f);
-    new at_legion_instance_portal("at_legion_portal_archerus_to_upper",1220, -1469.25f,     1116.78f, 313.74f,    4.165537);
+    new at_legion_instance_portal("at_legion_portal_archerus_to_upper",1220, -1469.25f,     1116.78f, 313.74f,    4.165537f);
     new at_legion_instance_portal("at_legion_portal_archerus_to_lower",1220, -1473.09f,     1109.74f, 270.07f,    4.177318f);
 }

@@ -206,7 +206,7 @@ public:
                     case EVENT_STATIC_SHOCK:
                         {
                             uint8 dist = urand(5, 30);
-                            float angle = frand(0, M_PI);
+                            float angle = frand(0, float(M_PI));
                             float x, y;
                             me->GetNearPoint2D(x, y, (float)dist, angle);
                             me->CastSpell(x, y, FLOR_COORD_Z, StaticShock[uiStaticShockId], false);
@@ -537,7 +537,7 @@ class spell_wailing_winds: public SpellScriptLoader
                     return;
 
                 uint8 roll = urand(0, 1);
-                float angle = frand(0, M_PI);
+                float angle = frand(0, float(M_PI));
                 float SpeedXY = frand(10.0f, 30.0f);
                 float SpeedZ = frand(10.0f, 15.0f);
                 float x, y;

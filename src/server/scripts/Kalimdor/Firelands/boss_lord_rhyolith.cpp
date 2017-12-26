@@ -426,7 +426,7 @@ class boss_lord_rhyolith : public CreatureScript
                                 std::list<Creature*> volcanos_1;
                                 for (std::list<Creature*>::const_iterator itr = volcanos.begin(); itr != volcanos.end(); ++itr)
                                 {
-                                    if (me->HasInArc(M_PI / 2, (*itr)))
+                                    if (me->HasInArc(float(M_PI) / 2, (*itr)))
                                         volcanos_1.push_back((*itr));
                                 }
                                 pTarget = Trinity::Containers::SelectRandomContainerElement((volcanos_1.empty() ? volcanos : volcanos_1));
