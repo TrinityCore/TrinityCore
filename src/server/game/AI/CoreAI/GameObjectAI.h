@@ -21,6 +21,7 @@
 
 #include "Define.h"
 #include "QuestDef.h"
+#include "ObjectGuid.h"
 
 class GameObject;
 class Unit;
