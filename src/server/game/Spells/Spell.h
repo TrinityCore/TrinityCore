@@ -54,6 +54,7 @@ class Unit;
 class WorldObject;
 struct SpellPowerCost;
 struct SummonPropertiesEntry;
+enum AuraType : uint32;
 enum CurrentSpellTypes : uint8;
 enum LootType : uint8;
 enum SpellCastTargetFlags : uint32;
