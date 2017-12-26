@@ -222,7 +222,7 @@ public:
                     case EVENT_CALL_OF_SKY:
                         {
                             uint8 dist = urand(5, 30);
-                            float angle = frand(0, M_PI);
+                            float angle = frand(0, float(M_PI));
                             float x, y;
                             me->GetNearPoint2D(x, y, (float)dist, angle);
                             me->CastSpell(x, y, FLOR_COORD_Z, SPELL_CALL_OF_SKY, false);
