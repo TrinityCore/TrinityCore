@@ -308,7 +308,7 @@ public:
 
         ObjectGuid prisonerGUID;
 
-        void SetGUID(ObjectGuid const& guid, int32 data) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             if (!prisonerGUID)
                 prisonerGUID = guid;
