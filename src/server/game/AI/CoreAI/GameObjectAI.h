@@ -25,6 +25,7 @@
 #include "QuestDef.h"
 #include "GameObject.h"
 #include "CreatureAI.h"
+#include "ObjectGuid.h"
 
 class TC_GAME_API GameObjectAI
 {
