@@ -128,6 +128,11 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
+                    case BOSS_ANRAPHET: // Until far-visiblity is implemented.
+                    case NPC_BRANN_BRONZEBEARD_0:
+                    // Add troggs here
+                        creature->setActive(true);
+                        break;
                     case NPC_SPATIAL_FLUX:
                     case NPC_SPATIAL_ANOMALY:
                     case NPC_FLUX_ANIMATOR:
