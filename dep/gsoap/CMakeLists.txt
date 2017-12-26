@@ -23,6 +23,8 @@ target_compile_definitions(gsoap
     -DWITH_OPENSSL)
 
 target_link_libraries(gsoap
+  PRIVATE
+    trinity-dependency-interface
   PUBLIC
     openssl)
 
