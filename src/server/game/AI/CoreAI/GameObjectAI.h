@@ -19,6 +19,7 @@
 #define TRINITY_GAMEOBJECTAI_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include <list>
 
 class GameObject;
