@@ -77,7 +77,9 @@ bool Trinity::Crypto::RSA::LoadFromFile(std::string const& fileName, KeyTag)
 template <typename KeyTag>
 bool Trinity::Crypto::RSA::LoadFromString(std::string const& keyPem, KeyTag)
 {
-    std::unique_ptr<BIO, BIODeleter> keyBIO(BIO_new_mem_buf(keyPem.c_str(), keyPem.length() + 1));
+    std::unique_ptr<BIO, BIODeleter> keyBIO(BIO_new_mem_buf(
+        const_cast<char*>(keyPem.c_str()) /*api hack - this function assumes memory is readonly but lacks const modifier*/,
+        keyPem.length() + 1));
     if (!keyBIO)
         return false;
 
