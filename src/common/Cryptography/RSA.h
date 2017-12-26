@@ -24,7 +24,7 @@ namespace Trinity
 {
 namespace Crypto
 {
-class RSA
+class TC_COMMON_API RSA
 {
 public:
     struct NoPadding : std::integral_constant<int32, RSA_NO_PADDING> {};
