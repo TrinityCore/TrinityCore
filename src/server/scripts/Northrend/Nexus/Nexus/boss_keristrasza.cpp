@@ -144,7 +144,7 @@ class boss_keristrasza : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
                 if (id == DATA_INTENSE_COLD)
                     _intenseColdList.push_back(guid);

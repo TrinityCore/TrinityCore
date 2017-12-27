@@ -320,7 +320,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
                 _events.ScheduleEvent(EVENT_DESPAWN, 13 * IN_MILLISECONDS);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*id = 0*/) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
             {
                 _flameSphereTargetGUID = guid;
             }

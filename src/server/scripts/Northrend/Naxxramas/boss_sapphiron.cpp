@@ -440,9 +440,9 @@ struct npc_sapphiron_blizzard : public ScriptedAI
         return data == DATA_BLIZZARD_TARGET ? _targetGuid : ObjectGuid::Empty;
     }
 
-    void SetGUID(ObjectGuid guid, int32 data)  override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
-        if (data == DATA_BLIZZARD_TARGET)
+        if (id == DATA_BLIZZARD_TARGET)
             _targetGuid = guid;
     }
 

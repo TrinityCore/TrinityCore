@@ -106,7 +106,7 @@ public:
             Initialize();
         }
 
-        void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
             if (id == INNER_DEMON_VICTIM)
                 victimGUID = guid;

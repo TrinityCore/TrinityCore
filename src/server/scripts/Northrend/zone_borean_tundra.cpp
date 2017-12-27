@@ -2429,7 +2429,7 @@ public:
             _playerGUID.Clear();
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*action*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             if (!_playerGUID.IsEmpty())
                 return;
