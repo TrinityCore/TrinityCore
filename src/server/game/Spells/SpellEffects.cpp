@@ -311,9 +311,9 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235
-    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_GIVE_EXPERIENCE
+    &Spell::EffectGiveExperience,                           //236 SPELL_EFFECT_GIVE_EXPERIENCE
     &Spell::EffectNULL,                                     //237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
-    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_INCREASE_SKILL
+    &Spell::EffectIncreaseSkill,                            //238 SPELL_EFFECT_INCREASE_SKILL
     &Spell::EffectNULL,                                     //239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
     &Spell::EffectGiveArtifactPower,                        //240 SPELL_EFFECT_GIVE_ARTIFACT_POWER
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241
@@ -5823,6 +5823,61 @@ void Spell::EffectUpdateZoneAurasAndPhases(SpellEffIndex /*effIndex*/)
         return;
 
     unitTarget->ToPlayer()->UpdateAreaDependentAuras(unitTarget->GetAreaId());
+}
+
+void Spell::EffectGiveExperience(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    if (!unitTarget->IsPlayer())
+        return;
+
+    QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(unitTarget->getLevel());
+    if (!questXp || effectInfo->MiscValueB >= 10)
+        return;
+
+    Player* playerTarget = unitTarget->ToPlayer();
+    float questXpRate = playerTarget->GetPersonnalXpRate() ? playerTarget->GetPersonnalXpRate() : sWorld->getRate(RATE_XP_QUEST);
+    uint32 XP = questXp->Exp[effectInfo->MiscValueB] * questXpRate;
+
+    // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
+    Unit::AuraEffectList const& ModXPPctAuras = playerTarget->GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
+    for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
+        AddPct(XP, (*i)->GetAmount());
+
+    if (playerTarget->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        playerTarget->GiveXP(XP, nullptr);
+}
+
+void Spell::EffectIncreaseSkill(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    if (!unitTarget->IsPlayer())
+        return;
+
+    SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(effectInfo->MiscValue);
+    if (!skillLine)
+        return;
+
+    Player* playerTarget    = unitTarget->ToPlayer();
+    uint32 skillValue       = playerTarget->GetSkillValue(effectInfo->MiscValue);
+
+    // Target does not have that skill, do nothing
+    if (!skillValue)
+        return;
+
+    uint16 maxSkillValue = playerTarget->GetPureMaxSkillValue(effectInfo->MiscValue);
+
+    // Skill already too high
+    if (skillValue >= uint32(effectInfo->MiscValueB) ||
+        skillValue >= maxSkillValue)
+        return;
+
+    skillValue = std::min(std::min(int32(skillValue + effectInfo->BasePoints), effectInfo->MiscValueB), int32(maxSkillValue));
+    playerTarget->SetSkill(effectInfo->MiscValue, playerTarget->GetSkillStep(effectInfo->MiscValue), skillValue, maxSkillValue);
 }
 
 void Spell::EffectGiveArtifactPower(SpellEffIndex /*effIndex*/)
