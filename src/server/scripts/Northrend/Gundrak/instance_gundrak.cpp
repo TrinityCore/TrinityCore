@@ -320,7 +320,7 @@ class instance_gundrak : public InstanceMapScript
 
                     if (GameObject* altar = GetGameObject(altarId))
                         if (Creature* trigger = altar->FindNearestCreature(NPC_ALTAR_TRIGGER, 10.0f))
-                            trigger->CastSpell((Unit*)nullptr, spellId, true);
+                            trigger->CastSpell(nullptr, spellId, true);
 
                     // eventId equals statueId
                     ToggleGameObject(eventId, GO_STATE_READY);
