@@ -56,7 +56,7 @@ enum Gossip
 {
     GOSSIP_MENU_NO_TIME_TO_WASTE    = 11339, // Great, ye found yer way here!$b$bNo time to waste. Ye ready?
     GOSSIP_OPTION_WE_ARE_READY      = 0,     //   We're ready! Go, Brann!
-    GOSSIP_MENU_DESTROY_ELEMENTAL   = 11348, // Yep, destroy the four elementals, then the door will open. ...
+    GOSSIP_MENU_DESTROY_ELEMENTAL   = 11348, // Yep, destroy the four elementals, then the door will open. I'm sure of it. Just watch out for the Troggs. Nasty tempered, filthy creatures, even if they have not succumbed to the Curse of Flesh.
     GOSSIP_MENU_OCH_ITS_NOT_EASY    = 12512  // Och!$b$bWhy can''t it just be easy fer once?!
 };
 
@@ -90,9 +90,6 @@ enum Events
 
 enum Spells
 {
-    // Brann
-    SPELL_VAULT_OF_LIGHTS_CHECK         = 94067, // Achievement check, not in DBC
-
     // Flame Warden
     SPELL_LAVA_ERUPTION_VISUAL          = 97317,
 
@@ -183,9 +180,10 @@ public:
             _Reset();
 
             // Vault of Lights not yet done?
-            if (instance->GetData(DATA_DEAD_ELEMENTALS) < 4)
+            //if (instance->GetData(DATA_DEAD_ELEMENTALS) < 4)
+            if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE)
                 return;
- 
+
             me->SetHomePosition(AnraphetActivatePos);
             me->GetMotionMaster()->MoveTargetedHome();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -333,9 +331,9 @@ public:
         // What gossip menu shall we send?
         uint32 gossipMenuId = GOSSIP_MENU_NO_TIME_TO_WASTE;
 
-        if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE) // gossipMenuId already set, only add gossip option
+        if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) == NOT_STARTED) // gossipMenuId already set, only add gossip option
             AddGossipItemFor(player, gossipMenuId, GOSSIP_OPTION_WE_ARE_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        else if (instance->GetBossState(DATA_ANRAPHET) != DONE)
+        else if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE)
             gossipMenuId = GOSSIP_MENU_DESTROY_ELEMENTAL;
         else
             gossipMenuId = GOSSIP_MENU_OCH_ITS_NOT_EASY;
@@ -350,9 +348,9 @@ public:
 
         void Reset() override
         {
-            if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE) // Vault of Lights not yet started?
+            if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == NOT_STARTED)
                 events.ScheduleEvent(EVENT_BRANN_IDLE_EMOTE, Seconds(45));
-            else if (_instance->GetBossState(DATA_ANRAPHET) != DONE) // Anraphet not yet killed?
+            else if (_instance->GetBossState(DATA_ANRAPHET) != DONE)
                 me->SetHomePosition(BrannBossHomePos);
             else
                 me->SetHomePosition(BrannFinalHomePos);
@@ -365,11 +363,10 @@ public:
             if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
                 return;
 
-            _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
             events.Reset(); // Removes EVENT_BRANN_IDLE_EMOTE.
-            events.ScheduleEvent(EVENT_BRANN_START_INTRO, Seconds(1));
+            events.RescheduleEvent(EVENT_BRANN_START_INTRO, Seconds(1));
         }
 
         void DoAction(int32 action) override
@@ -381,8 +378,8 @@ public:
                 uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
                 if (dead < 4) // Say that an elemental has died.
                     Talk(BRANN_1_ELEMENTAL_DEAD + dead - 1);
-                else // Cast achievement credit rightaway.
-                    _instance->DoCastSpellOnPlayers(SPELL_VAULT_OF_LIGHTS_CHECK);
+                else // Last one died! Wait until laser beam is activated (9-second animation of light machine behind the warden).
+                    _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
                 events.RescheduleEvent(EVENT_BRANN_ACTIVATE_LASERBEAMS, Seconds(9));
                 break;
             }
@@ -411,12 +408,10 @@ public:
                     break;
                 case EVENT_BRANN_UNLOCK_DOOR:
                     Talk(BRANN_SAY_UNLOCK_DOOR);
-                    _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
-                    _instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_VAULT_OF_LIGHTS_EVENT);
+                    _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
                     events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, Seconds(3));
                     break;
                 case EVENT_BRANN_MOVE_INTRO:
-                    //me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_SAY_TROGGS, BrannIntroPath, BrannIntroPathSize, true);
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(POINT_BRANN_SAY_TROGGS, BrannBossHomePos, true);
                     break;
@@ -457,8 +452,7 @@ public:
                     if (_instance->GetBossState(DATA_FIRE_WARDEN) == DONE)
                         _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_FIRE_WARDEN));
 
-                    uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
-                    if (dead == 4) {
+                    if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE) {
                         // Note: In some old sniff file Sun Mirror gets activated every time an elemental dies (for 10 seconds).
                         // Needs to be checked on live. It makes sense that it is only activated after all four beams are active.
                         if (GameObject* mirror = _instance->GetGameObject(DATA_ANRAPHET_SUN_MIRROR))
@@ -592,8 +586,9 @@ public:
                 return;
 
             // Side of the room: WEST > 366.781f > EAST
-            warden->SetFacingTo(warden->GetPositionY() > 366.781f ? DegToRad(270) : DegToRad(90));
+            warden->SetOrientation(warden->GetPositionY() > 366.781f ? DegToRad(270) : DegToRad(90));
             warden->SetHomePosition(warden->GetPosition());
+            warden->GetMotionMaster()->MoveTargetedHome();
         }
 
         void Register() override
