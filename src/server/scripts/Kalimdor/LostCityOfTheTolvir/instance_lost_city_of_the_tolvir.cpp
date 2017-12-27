@@ -80,7 +80,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
 
             void Initialize()
             {
-                _heroicAughSpawned = false;
+                heroicAughSpawned = false;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -101,14 +101,14 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                     case DATA_LOCKMAW:
                         if (!instance->IsHeroic() && state == DONE)
                             SetBossState(DATA_LOCKMAW_AND_AUGH, DONE);
-                        else if (instance->IsHeroic() && state == DONE && !_heroicAughSpawned)
-                            _events.ScheduleEvent(EVENT_SPAWN_AUGH, Seconds(4));
+                        else if (instance->IsHeroic() && state == DONE && !heroicAughSpawned)
+                            events.ScheduleEvent(EVENT_SPAWN_AUGH, Seconds(4));
                         break;
                     case DATA_AUGH: // Since Augh is summoned, we need to handle his respawn here
                         if (state == DONE)
                             SetBossState(DATA_LOCKMAW_AND_AUGH, DONE);
                         else if (state == FAIL)
-                            _events.ScheduleEvent(EVENT_SPAWN_AUGH, Seconds(30));
+                            events.ScheduleEvent(EVENT_SPAWN_AUGH, Seconds(30));
                         break;
                     case DATA_GENERAL_HUSAM:
                     case DATA_LOCKMAW_AND_AUGH:
@@ -192,18 +192,18 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
 
             void Update(uint32 diff) override
             {
-                _events.Update(diff);
+                events.Update(diff);
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_SPAWN_AUGH:
-                            if (!_heroicAughSpawned)
+                            if (!heroicAughSpawned)
                             {
                                 if (Creature* augh = instance->SummonCreature(BOSS_AUGH, AughSpawnPos))
                                     augh->AI()->DoAction(ACTION_AUGH_INTRO);
-                                _heroicAughSpawned = true;
+                                heroicAughSpawned = true;
                             }
                             else if (_heroicAughSpawned)
                                 if (Creature* augh = instance->SummonCreature(BOSS_AUGH, AughHomePos))
@@ -216,8 +216,8 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
             }
 
         protected:
-            EventMap _events;
-            bool _heroicAughSpawned;
+            EventMap events;
+            bool heroicAughSpawned;
             GuidVector addStalkerGUIDs;
         };
 
