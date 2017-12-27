@@ -390,7 +390,7 @@ class npc_lockmaw_frenzied_crocolisk : public CreatureScript
                 me->DespawnOrUnsummon(Seconds(5));
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 if (Creature* lockmaw = _instance->GetCreature(DATA_LOCKMAW))
                     lockmaw->AI()->JustSummoned(me);
