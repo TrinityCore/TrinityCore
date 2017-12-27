@@ -139,9 +139,9 @@ class boss_gal_darah : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 type /*= 0*/) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
-                if (type == DATA_SHARE_THE_LOVE)
+                if (id == DATA_SHARE_THE_LOVE)
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
                         Talk(EMOTE_IMPALE, target);
