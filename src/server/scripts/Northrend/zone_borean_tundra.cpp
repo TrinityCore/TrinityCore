@@ -2433,7 +2433,7 @@ public:
         {
             if (GetTarget()->isDead())
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(NULL, SPELL_WINDSOUL_CREDT);
+                    caster->CastSpell(nullptr, SPELL_WINDSOUL_CREDT);
         }
 
         void Register() override
