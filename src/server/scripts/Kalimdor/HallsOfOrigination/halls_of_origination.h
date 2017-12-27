@@ -46,6 +46,7 @@ enum HOOData
 
     // Anraphet
     DATA_BRANN_0,
+    DATA_VAULT_OF_LIGHTS_DOOR,
     DATA_DEAD_ELEMENTALS,
     DATA_LASERBEAMS_EARTH_WARDEN,
     DATA_LASERBEAMS_FIRE_WARDEN,
@@ -135,13 +136,21 @@ enum HOOGameObjects
     GO_LIFT_GLASS_STAR_2            = 207674
 };
 
+enum Achievements
+{
+    // Faster Than The Speed Of Light (Criteria ID 16008)
+    ACHIEV_VAULT_OF_LIGHTS_START_EVENT = 24212,
+    SPELL_VAULT_OF_LIGHTS_CREDIT       = 94067, // Achievement aura, not in DBC
+};
+
 enum HOOMisc
 {
-    AREA_TOMB_OF_THE_EARTHRAGER     = 4945,
-    ACHIEV_VAULT_OF_LIGHTS_EVENT    = 24212, // Faster Than The Speed Of Light
+    AREA_TOMB_OF_THE_EARTHRAGER     =  4945,
     SPELL_ZERO_ENERGY_NO_REGEN_AURA = 72242, // Zero Energy + Zero Regen (used by some npcs in HoO)
 //  SPELL_AURA_UNKNOWN_PURPOSE      = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
     SPELL_DUMMY_NUKE                = 68991,
+
+    
 
     // Hmm... Do elementals use these spells to spawn on a random platform?
     SPELL_TELEPORT_EARTH            = 82329,

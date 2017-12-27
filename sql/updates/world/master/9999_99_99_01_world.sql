@@ -1,5 +1,6 @@
 -- Halls of Origination work
 SET @CGUID := 1000000; -- 91 entry needed (1000000 - 1000090)
+SET @SpellEffectID := 1000000; -- 1 entry needed
 
 -- General: Elevator, trash mobs --
 -- spawn missing Temple Fireshaper (not in old sniffs)
@@ -82,7 +83,12 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- Vault of Lights achievement check spell not in dbc
 DELETE FROM `spell_dbc` WHERE `Id` = 94067;
 INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `AttributesEx8`, `AttributesEx9`, `AttributesEx10`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `SchoolMask`, `SpellAuraOptionsId`, `SpellCastingRequirementsId`, `SpellCategoriesId`, `SpellClassOptionsId`, `SpellEquippedItemsId`, `SpellLevelsId`, `SpellTargetRestrictionsId`, `SpellInterruptsId`, `Comment`) VALUES
-(94067, 384, 0, 5, 256, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vault of Lights achievement check');
+(94067, 384, 0, 5, 256, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vault of Lights achievement credit');
+
+DELETE FROM `spelleffect_dbc` WHERE `Id` = @SpellEffectID;
+INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectItemType`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
+(@SpellEffectID, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 94067, 0);
+
 
 -- speed corrections for Brann
 UPDATE `creature_template` SET `speed_walk` = 2.5/2.5, `speed_run` = 7/2.5 WHERE `entry` = 39908;
