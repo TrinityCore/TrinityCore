@@ -13667,10 +13667,9 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             CastSpellExtraArgs args(item);
                             // Cast custom spell vs all equal basepoints got from enchant_amount
                             if (basepoints)
-                            {
-                                for (int i = 0; i < 3; ++i)
+                                for (uint32 i = 0; i < MAX_EFFECTS; ++i)
                                     args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), basepoints);
-                            }
+
                             CastSpell(this, enchant_spell_id, args);
                         }
                         else

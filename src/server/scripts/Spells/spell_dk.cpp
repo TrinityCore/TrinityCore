@@ -1548,7 +1548,7 @@ class spell_dk_improved_unholy_presence : public SpellScriptLoader
                     // Not listed as any effect, only base points set in dbc
                     int32 basePoints = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                     CastSpellExtraArgs args(aurEff);
-                    for (int i = 0; i < 3; ++i)
+                    for (uint32 i = 0; i < MAX_EFFECTS; ++i)
                         args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), basePoints);
                     target->CastSpell(target, SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, args);
                 }
@@ -1859,7 +1859,7 @@ class spell_dk_presence : public SpellScriptLoader
                         // Not listed as any effect, only base points set
                         int32 bp = impAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                         CastSpellExtraArgs args(aurEff);
-                        for (int i = 0; i < 3; ++i)
+                        for (uint32 i = 0; i < MAX_EFFECTS; ++i)
                             args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), bp);
                         target->CastSpell(target, SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, args);
                     }
