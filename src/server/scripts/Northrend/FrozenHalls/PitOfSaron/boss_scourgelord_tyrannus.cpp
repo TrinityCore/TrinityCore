@@ -338,9 +338,9 @@ class boss_rimefang : public CreatureScript
                     _EnterEvadeMode();
             }
 
-            void SetGUID(ObjectGuid guid, int32 type) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
-                if (type == GUID_HOARFROST)
+                if (id == GUID_HOARFROST)
                 {
                     _hoarfrostTargetGUID = guid;
                     _events.ScheduleEvent(EVENT_HOARFROST, 1000);

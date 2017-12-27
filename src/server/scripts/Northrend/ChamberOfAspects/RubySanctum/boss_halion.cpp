@@ -1147,7 +1147,7 @@ class npc_meteor_strike_flame : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*id = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
             {
                 _rootOwnerGuid = guid;
                 _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, Milliseconds(800));
