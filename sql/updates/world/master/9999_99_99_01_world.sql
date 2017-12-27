@@ -7,6 +7,9 @@ DELETE FROM `creature` WHERE `guid` = @CGUID+0;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
 (@CGUID+0, 48143, 644, 0, 0, 6, 0, 0, 0, 0, -640.624, 396.364, 83.8651, 1.54741, 7200, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', -1);
 
+-- delete transit devices, they are spawned after bosses die
+DELETE FROM `gameobject` WHERE `map` = 644 AND `ID` IN (204972, 204979);
+
 -- script names, sniff corrections
 UPDATE `gameobject_template` SET `ScriptName` = 'go_hoo_the_makers_lift_controller' WHERE `entry` = 207669;
 UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `unit_flags` = 33554496 WHERE `entry` = 39612;
@@ -15,6 +18,12 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_hoo_energy_flux_t
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (82382, 'spell_hoo_energy_flux_target_selector'),
 (74880, 'spell_hoo_arcane_energy_check');
+
+-- transit device that teleports to the upper floor
+UPDATE `gameobject_template` SET `Data10` = 82900 WHERE `entry` = 204972;
+DELETE FROM `spell_target_position` WHERE `ID` = 82900;
+INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
+(82900, 0, 644, -536.371, 193.255, 79.8388, -1);
 
 -- gameobject rotation of lightmachines, glass star 2
 UPDATE `gameobject` SET `rotation0` = -0.150109,  `rotation1` = -0.150108, `rotation2` = -0.690989,  `rotation3` = 0.690991 WHERE `guid` IN (220756, 220763);
@@ -49,12 +58,24 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (76600, 'spell_anhuur_handle_beacons');
 
 -- Boss: Anraphet --
+-- spell positions for wardens
+DELETE FROM `spell_target_position` WHERE `ID` IN (82329, 82330, 82331, 82332);
+INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
+(82329, 0, 644, -329.727, 481.142, 89.2101, -1), -- 
+(82330, 0, 644, -223.26,  488.222, 89.2102, -1), -- 4.71239
+(82331, 0, 644, -329.962, 246.302, 89.2101, -1), -- 
+(82332, 0, 644, -223.049, 243.161, 89.2102, -1); -- 1.58825
+
 -- Water Warden gets Aqua Bomb aura on aggro.
 DELETE FROM `creature_template_addon` WHERE `entry` = 39802;
 
 -- Flame Warden spell script for Lava Eruption dummy
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_flame_warden_lava_eruption', 'spell_whirling_winds_movement');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_hoo_platform_teleport', 'spell_flame_warden_lava_eruption', 'spell_whirling_winds_movement');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(82329, 'spell_hoo_platform_teleport'),
+(82330, 'spell_hoo_platform_teleport'),
+(82331, 'spell_hoo_platform_teleport'),
+(82332, 'spell_hoo_platform_teleport'),
 (77273, 'spell_flame_warden_lava_eruption'),
 (77333, 'spell_whirling_winds_movement');
 
@@ -603,11 +624,11 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@wp,  9, -233.215, 323.859, 80.5908, 0, 0, 0, 0, 100, 0),
 (@wp, 10, -233.501, 343.237, 75.9087, 0, 0, 0, 0, 100, 0);
 
-SET @wp := @CGUID+37+"0";
-UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (@CGUID+37);
-DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+37);
+SET @wp := @CGUID+36+"0";
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (@CGUID+36);
+DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+36);
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(@CGUID+37, @wp, 0, 0, 0, 0, 0, 0, 0, NULL);
+(@CGUID+36, @wp, 0, 0, 0, 0, 0, 0, 0, NULL);
 DELETE FROM `waypoint_data` WHERE `id` IN (@wp);
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
 (@wp,  1, -286.595, 362.899, 75.8408, 0, 0, 0, 0, 100, 0),

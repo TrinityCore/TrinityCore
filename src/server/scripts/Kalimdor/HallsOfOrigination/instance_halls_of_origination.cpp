@@ -75,6 +75,14 @@ ObjectData const gameObjectData[] =
     { 0,                                0 } //END
 };
 
+// Halls of Origination Transit Device positions
+const Position EntranceTransitDevicePos      = { -934.576f,  470.708f,  53.8334f, 3.08918f };
+const Position ElevatorTransitDevicePos      = { -536.462f,  193.262f,  79.839f,  3.08918f };
+const Position EarthragerTransitDevicePos    = { -506.194f, -337.028f, 162.363f,  1.55334f };
+const Position TempleTransitDevicePos        = { -506.766f, -686.826f, 139.97f,   1.55334f };
+const Position VaultOfLightsTransitDevicePos = { -276.288f,  366.781f,  75.8439f, 3.08918f };
+const Position AnraphetTransitDevicePos      = {  -74.1892f, 366.75f,   89.4228f, 3.08918f };
+
 class instance_halls_of_origination : public InstanceMapScript
 {
     public:
@@ -89,6 +97,12 @@ class instance_halls_of_origination : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
                 _deadElementals = 0;
+
+                _wardenPositionSpells.push_back(SPELL_TELEPORT_EARTH);
+                _wardenPositionSpells.push_back(SPELL_TELEPORT_AIR);
+                _wardenPositionSpells.push_back(SPELL_TELEPORT_FIRE);
+                _wardenPositionSpells.push_back(SPELL_TELEPORT_WATER);
+                Trinity::Containers::RandomShuffle(_wardenPositionSpells);
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -133,15 +147,23 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
-                    case BOSS_ANRAPHET: // active + far-visibility
+                    case BOSS_ANRAPHET: // active (their AI runs the event at the Vault of Lights)
                     case NPC_BRANN_BRONZEBEARD_0:
                         creature->setActive(true);
+                        break;
+                    case NPC_FIRE_WARDEN: // random teleport spell + far-visibility
+                    case NPC_EARTH_WARDEN:
+                    case NPC_WATER_WARDEN:
+                    case NPC_AIR_WARDEN:
+                        //creature->SetFarVisible(true); 
+                        creature->CastSpell(nullptr, _wardenPositionSpells.back());
+                        _wardenPositionSpells.pop_back();
                         // No break here!
-                    case NPC_STONE_TROGG_PILLAGER: // far-visibility only
+                    case NPC_STONE_TROGG_PILLAGER: // far-visibility
                     case NPC_STONE_TROGG_BRUTE:
                     case NPC_STONE_TROGG_ROCK_FLINGER:
                         // Requires implementation of far-visibility: https://github.com/TrinityCore/TrinityCore/pull/20725
-                        //creature->SetFarVisible(true); 
+                        //creature->SetFarVisible(true);
                         break;
                     case NPC_SPATIAL_FLUX:
                     case NPC_SPATIAL_ANOMALY:
@@ -205,15 +227,16 @@ class instance_halls_of_origination : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                     case BOSS_TEMPLE_GUARDIAN_ANHUUR:
-                        unit->SummonGameObject(204979, -934.576, 470.708f, 53.8334f, 3.08918f, QuaternionData(), 0);
+                        unit->SummonGameObject(GO_HOO_TRANSIT_DEVICE, EntranceTransitDevicePos, QuaternionData(), 0);
                         break;
                     case BOSS_EARTHRAGER_PTAH:
-                        unit->SummonGameObject(204979, -506.194f, -337.028f, 162.363f, 1.55334f, QuaternionData(), 0);
-                        unit->SummonGameObject(204979, -506.766f, -686.826f, 139.97f, 1.55334f, QuaternionData(), 0);
+                        unit->SummonGameObject(GO_HOO_TRANSIT_DEVICE, EarthragerTransitDevicePos, QuaternionData(), 0);
+                        unit->SummonGameObject(GO_HOO_TRANSIT_DEVICE, TempleTransitDevicePos, QuaternionData(), 0);
                         break;
                     case BOSS_ANRAPHET:
-                        unit->SummonGameObject(204979, -276.288f, 366.781f, 75.8439f, 3.08918f, QuaternionData(), 0);
-                        unit->SummonGameObject(204979, -74.1892f, 366.75f, 89.4228f, 3.08918f, QuaternionData(), 0);
+                        unit->SummonGameObject(GO_HOO_TRANSIT_DEVICE, VaultOfLightsTransitDevicePos, QuaternionData(), 0);
+                        unit->SummonGameObject(GO_HOO_TRANSIT_DEVICE, AnraphetTransitDevicePos, QuaternionData(), 0);
+                        unit->SummonGameObject(GO_HOO_TRANSIT_DEVICE_2, ElevatorTransitDevicePos, QuaternionData(), 0);
                         break;
                     case NPC_FIRE_WARDEN:
                     case NPC_EARTH_WARDEN:
@@ -262,6 +285,7 @@ class instance_halls_of_origination : public InstanceMapScript
             }
 
         protected:
+            std::vector<uint32> _wardenPositionSpells;
             GuidVector isisetTrashGUIDs;
             uint32 _deadElementals;
             uint32 _isisetPhase;

@@ -128,6 +128,8 @@ enum HOOGameObjects
     GO_REORIGINATION_MECHANISM_4    = 207454,
     GO_REORIGINATION_MECHANISM_5    = 207456,
 
+    GO_HOO_TRANSIT_DEVICE           = 204979, // Spell ID: 82916 - Teleports the caster to the lower floor of Halls of Origination.
+    GO_HOO_TRANSIT_DEVICE_2         = 204972, // Spell ID: 82900 - Teleports the caster to the upper floor of Halls of Origination. (dbc desc is wrong)
     GO_LIFT_OF_THE_MAKERS           = 207547,
     GO_LIFT_GLASS_STAR              = 207673,
     GO_LIFT_GLASS_STAR_2            = 207674
@@ -140,6 +142,12 @@ enum HOOMisc
     SPELL_ZERO_ENERGY_NO_REGEN_AURA = 72242, // Zero Energy + Zero Regen (used by some npcs in HoO)
 //  SPELL_AURA_UNKNOWN_PURPOSE      = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
     SPELL_DUMMY_NUKE                = 68991,
+
+    // Hmm... Do elementals use these spells to spawn on a random platform?
+    SPELL_TELEPORT_EARTH            = 82329,
+    SPELL_TELEPORT_AIR              = 82330,
+    SPELL_TELEPORT_FIRE             = 82331,
+    SPELL_TELEPORT_WATER            = 82332
 };
 
 enum HOOGlobalActions

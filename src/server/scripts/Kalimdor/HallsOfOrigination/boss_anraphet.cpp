@@ -574,6 +574,41 @@ public:
     }
 };
 
+// 82329 Teleport Earth, 82330 Teleport Air, 82331 Teleport Fire, 82332 Teleport Water:
+// Set orientation and update home position after warden has been teleported.
+class spell_hoo_platform_teleport : public SpellScriptLoader
+{
+public:
+    spell_hoo_platform_teleport() : SpellScriptLoader("spell_hoo_platform_teleport") { }
+
+    class spell_hoo_platform_teleport_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hoo_platform_teleport_SpellScript);
+
+        void SetOrientationAndUpdateHomePosition()
+        {
+            Creature* warden = GetCaster()->ToCreature();
+            if (warden)
+                return;
+
+            // Side of the room: WEST > 366.781f > EAST
+            warden->SetFacingTo(warden->GetPositionY() > 366.781f ? DegToRad(270) : DegToRad(90));
+            warden->SetHomePosition(warden->GetPosition());
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_hoo_platform_teleport_SpellScript::SetOrientationAndUpdateHomePosition);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hoo_platform_teleport_SpellScript();
+    }
+};
+
+
 // 77273 Lava Eruption
 class spell_flame_warden_lava_eruption : public SpellScriptLoader
 {
@@ -619,7 +654,11 @@ public:
 
         void StartMovement(SpellEffIndex /*effIndex*/)
         {
-            if (Player* target = GetRandomPlayer())
+            Player* target = GetRandomPlayer(false);
+            if (!target) // Try to get tank.
+                target = GetRandomPlayer(true);
+
+            if (target)
             {
                 GetCaster()->SetWalk(true);
                 GetCaster()->GetMotionMaster()->MoveChase(target);
@@ -640,7 +679,7 @@ public:
         }
 
     private:
-        Player* GetRandomPlayer()
+        Player* GetRandomPlayer(bool includingTank)
         {
             Creature* whirlwind = GetCaster()->ToCreature();
             if (!whirlwind || whirlwind->isMoving())
@@ -662,7 +701,7 @@ public:
             // Target must be a player that is not tanking Air Warden and has not been recently hit by this spell.
             for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 if (Unit* refTarget = (*itr)->getTarget())
-                    if (refTarget->GetTypeId() == TYPEID_PLAYER && refTarget != warden->GetVictim() && !refTarget->HasAura(m_scriptSpellId))
+                    if (refTarget->GetTypeId() == TYPEID_PLAYER && (includingTank || refTarget != warden->GetVictim()) && !refTarget->HasAura(m_scriptSpellId))
                         targets.push_back(refTarget->ToPlayer());
 
             if (targets.empty())
@@ -780,6 +819,7 @@ void AddSC_boss_anraphet()
     new npc_brann_bronzebeard_anraphet();
     new npc_alpha_beam();
     new npc_omega_stance();
+    new spell_hoo_platform_teleport();
     new spell_flame_warden_lava_eruption();
     new spell_whirling_winds_movement();
     new spell_anraphet_alpha_beams();
