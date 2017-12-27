@@ -547,7 +547,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //479
     &AuraEffect::HandleNULL,                                      //480
     &AuraEffect::HandleNoImmediateEffect,                         //481 SPELL_AURA_CONVERT_CONSUMED_RUNE implemented in Spell::TakeRunePower
-    &AuraEffect::HandleNULL,                                      //482
+    &AuraEffect::HandleProfilCamera,                              //482 SPELL_AURA_PROFIL_CAMERA
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_SUPPRESS_TRANSFORMS
     &AuraEffect::HandleNULL,                                      //484
     &AuraEffect::HandleNULL,                                      //485
@@ -6504,5 +6504,49 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
     {
         if (Unit* caster = GetCaster())
             caster->RemoveAreaTrigger(this);
+    }
+}
+
+enum HandleProfilCameraData
+{
+    PhotoBomberNPC  = 91977,
+    VisualKit       = 54168
+};
+
+void AuraEffect::HandleProfilCamera(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (!target->IsPlayer())
+        return;
+
+    if (apply)
+    {
+        target->ToPlayer()->SendPlaySpellVisualKit(VisualKit, 2, 0);
+
+        std::list<Creature*> photoBomberList;
+        target->GetCreatureListWithEntryInGrid(photoBomberList, PhotoBomberNPC, 100.0f);
+
+        /// Remove other players Master PhotoBomber
+        for (Creature* photoBomber : photoBomberList)
+        {
+            Unit* owner = photoBomber->GetOwner();
+            if (owner != nullptr && owner->GetGUID() == target->GetGUID() && photoBomber->IsSummon())
+            {
+                target->Variables.Set("PhotoBomberGUID", photoBomber->GetGUID());
+                break;
+            }
+        }
+    }
+    else
+    {
+        if (Creature* photoBomber = ObjectAccessor::GetCreature(*target, target->Variables.GetValue<ObjectGuid>("PhotoBomberGUID")))
+            photoBomber->DespawnOrUnsummon();
+
+        target->Variables.Remove("PhotoBomberGUID");
+        target->ToPlayer()->SendCancelSpellVisualKit(VisualKit);
     }
 }
