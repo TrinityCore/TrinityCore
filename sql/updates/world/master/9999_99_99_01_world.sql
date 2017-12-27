@@ -408,15 +408,15 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@CGUID+31,@CGUID+58,0,0,3,0,0),
 -- Third middle group
 (@CGUID+37,@CGUID+37,0,0,3,0,0),
-(@CGUID+37,@CGUID+38,4,180,515,5,13),
-(@CGUID+37,@CGUID+59,4,220,515,5,13),
-(@CGUID+37,@CGUID+60,4,260,515,5,13),
-(@CGUID+37,@CGUID+61,4,300,515,5,13),
-(@CGUID+37,@CGUID+62,4,340,515,5,13),
-(@CGUID+37,@CGUID+63,4,20,515,5,13),
-(@CGUID+37,@CGUID+64,4,60,515,5,13),
-(@CGUID+37,@CGUID+65,4,100,515,5,13),
-(@CGUID+37,@CGUID+66,4,140,515,5,13),
+(@CGUID+37,@CGUID+38,0,0,3,0,0),
+(@CGUID+37,@CGUID+59,0,0,3,0,0),
+(@CGUID+37,@CGUID+60,0,0,3,0,0),
+(@CGUID+37,@CGUID+61,0,0,3,0,0),
+(@CGUID+37,@CGUID+62,0,0,3,0,0),
+(@CGUID+37,@CGUID+63,0,0,3,0,0),
+(@CGUID+37,@CGUID+64,0,0,3,0,0),
+(@CGUID+37,@CGUID+65,0,0,3,0,0),
+(@CGUID+37,@CGUID+66,0,0,3,0,0),
 -- Forth middle group
 (@CGUID+34,@CGUID+34,0,0,3,0,0),
 (@CGUID+34,@CGUID+35,0,0,3,0,0),
@@ -452,15 +452,15 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@CGUID+40,@CGUID+83,4,140,515,0,0),
 -- Moving middle group
 (@CGUID+36,@CGUID+36,0,0,3,0,0),
-(@CGUID+36,@CGUID+32,0,0,3,0,0),
-(@CGUID+36,@CGUID+50,0,0,3,0,0),
-(@CGUID+36,@CGUID+49,0,0,3,0,0),
-(@CGUID+36,@CGUID+47,0,0,3,0,0),
-(@CGUID+36,@CGUID+45,0,0,3,0,0),
-(@CGUID+36,@CGUID+43,0,0,3,0,0),
-(@CGUID+36,@CGUID+44,0,0,3,0,0),
-(@CGUID+36,@CGUID+46,0,0,3,0,0),
-(@CGUID+36,@CGUID+48,0,0,3,0,0);
+(@CGUID+36,@CGUID+32,4,180,515,0,0),
+(@CGUID+36,@CGUID+50,4,220,515,0,0),
+(@CGUID+36,@CGUID+49,4,260,515,0,0),
+(@CGUID+36,@CGUID+47,4,300,515,0,0),
+(@CGUID+36,@CGUID+45,4,340,515,0,0),
+(@CGUID+36,@CGUID+43,4,20,515,0,0),
+(@CGUID+36,@CGUID+44,4,60,515,0,0),
+(@CGUID+36,@CGUID+46,4,100,515,0,0),
+(@CGUID+36,@CGUID+48,4,140,515,0,0);
 
 -- Waypoints --
 -- trash paths
@@ -630,3 +630,9 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@wp, 18, -302.983, 356.94,  75.8865, 0, 0, 0, 0, 100, 0);
 
 -- to-do: random movement with very dist for troggs without wp
+UPDATE `creature` SET `spawndist` = 3, `MovementType` = 1 WHERE `guid` IN
+(@CGUID+21, @CGUID+22, @CGUID+23, @CGUID+24, @CGUID+25, @CGUID+26, @CGUID+27, @CGUID+28, @CGUID+29, @CGUID+30,
+ @CGUID+31, @CGUID+33, @CGUID+51, @CGUID+52, @CGUID+53, @CGUID+54, @CGUID+55, @CGUID+56, @CGUID+57, @CGUID+58, 
+ @CGUID+37, @CGUID+38, @CGUID+59, @CGUID+60, @CGUID+61, @CGUID+62, @CGUID+63, @CGUID+64, @CGUID+65, @CGUID+66, 
+ @CGUID+34, @CGUID+35, @CGUID+76, @CGUID+77, @CGUID+78, @CGUID+82, @CGUID+86, @CGUID+88, @CGUID+89, @CGUID+90);
+ 

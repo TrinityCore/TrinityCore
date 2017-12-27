@@ -87,6 +87,9 @@ enum HOOCreatures
 
     NPC_BRANN_BRONZEBEARD_0         = 39908,
     NPC_OMEGA_STANCE                = 41194,
+    NPC_STONE_TROGG_PILLAGER        = 39804,
+    NPC_STONE_TROGG_BRUTE           = 40251,
+    NPC_STONE_TROGG_ROCK_FLINGER    = 40252,
 
     // Isiset trash
     NPC_SPATIAL_FLUX                = 39612,

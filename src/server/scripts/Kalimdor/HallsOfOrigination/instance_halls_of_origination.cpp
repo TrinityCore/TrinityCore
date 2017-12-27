@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -120,6 +121,10 @@ class instance_halls_of_origination : public InstanceMapScript
                     default:
                         break;
                 }
+
+                // Pretty much all instance gameobjects are far-visible, no?
+                // Requires implementation of far-visibility: https://github.com/TrinityCore/TrinityCore/pull/20725
+                //go->SetFarVisible(true);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -128,10 +133,15 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
-                    case BOSS_ANRAPHET: // Until far-visiblity is implemented.
+                    case BOSS_ANRAPHET: // active + far-visibility
                     case NPC_BRANN_BRONZEBEARD_0:
-                    // Add troggs here
                         creature->setActive(true);
+                        // No break here!
+                    case NPC_STONE_TROGG_PILLAGER: // far-visibility only
+                    case NPC_STONE_TROGG_BRUTE:
+                    case NPC_STONE_TROGG_ROCK_FLINGER:
+                        // Requires implementation of far-visibility: https://github.com/TrinityCore/TrinityCore/pull/20725
+                        //creature->SetFarVisible(true); 
                         break;
                     case NPC_SPATIAL_FLUX:
                     case NPC_SPATIAL_ANOMALY:
@@ -194,6 +204,17 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
+                    case BOSS_TEMPLE_GUARDIAN_ANHUUR:
+                        unit->SummonGameObject(204979, -934.576, 470.708f, 53.8334f, 3.08918f, QuaternionData(), 0);
+                        break;
+                    case BOSS_EARTHRAGER_PTAH:
+                        unit->SummonGameObject(204979, -506.194f, -337.028f, 162.363f, 1.55334f, QuaternionData(), 0);
+                        unit->SummonGameObject(204979, -506.766f, -686.826f, 139.97f, 1.55334f, QuaternionData(), 0);
+                        break;
+                    case BOSS_ANRAPHET:
+                        unit->SummonGameObject(204979, -276.288f, 366.781f, 75.8439f, 3.08918f, QuaternionData(), 0);
+                        unit->SummonGameObject(204979, -74.1892f, 366.75f, 89.4228f, 3.08918f, QuaternionData(), 0);
+                        break;
                     case NPC_FIRE_WARDEN:
                     case NPC_EARTH_WARDEN:
                     case NPC_WATER_WARDEN:
