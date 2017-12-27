@@ -1044,8 +1044,6 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     if (!CreateFromProto(guidlow, entry, data, vehId))
         return false;
 
-    UpdatePositionData();
-
     if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS && map->IsDungeon())
         m_respawnDelay = 0; // special value, prevents respawn for dungeon bosses unless overridden
 
@@ -1443,14 +1441,6 @@ float Creature::GetSpellDamageMod(int32 Rank) const
 
 bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
-    SetZoneScript();
-    if (GetZoneScript() && data)
-    {
-        entry = GetZoneScript()->GetCreatureEntry(guidlow, data);
-        if (!entry)
-            return false;
-    }
-
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
     {
@@ -1464,6 +1454,15 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
 
     if (!UpdateEntry(entry, data))
         return false;
+
+    UpdatePositionData();
+    SetZoneScript();
+    if (GetZoneScript() && data)
+    {
+        entry = GetZoneScript()->GetCreatureEntry(guidlow, data);
+        if (!entry)
+            return false;
+    }
 
     if (!vehId)
     {
