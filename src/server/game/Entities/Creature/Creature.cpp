@@ -1036,6 +1036,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
         TC_LOG_ERROR("entities.unit", "Creature::Create(): given coordinates for creature (guidlow %d, entry %d) are not valid (X: %f, Y: %f, Z: %f, O: %f)", guidlow, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
         return false;
     }
+    UpdatePositionData();
 
     // Allow players to see those units while dead, do it here (mayby altered by addon auras)
     if (cinfo->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE)
@@ -1441,6 +1442,14 @@ float Creature::GetSpellDamageMod(int32 Rank) const
 
 bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
+    SetZoneScript();
+    if (GetZoneScript() && data)
+    {
+        entry = GetZoneScript()->GetCreatureEntry(guidlow, data);
+        if (!entry)
+            return false;
+    }
+
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
     {
@@ -1454,15 +1463,6 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
 
     if (!UpdateEntry(entry, data))
         return false;
-
-    UpdatePositionData();
-    SetZoneScript();
-    if (GetZoneScript() && data)
-    {
-        entry = GetZoneScript()->GetCreatureEntry(guidlow, data);
-        if (!entry)
-            return false;
-    }
 
     if (!vehId)
     {
