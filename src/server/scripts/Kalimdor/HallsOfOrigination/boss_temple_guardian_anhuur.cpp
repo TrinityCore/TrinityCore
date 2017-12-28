@@ -120,8 +120,7 @@ public:
             DoCastAOE(SPELL_DEACTIVATE_BEACONS);
             me->SetReactState(REACT_AGGRESSIVE);
             events.SetPhase(PHASE_FIGHT);
-            events.ScheduleEvent(EVENT_DIVINE_RECKONING, Seconds(10), 0, PHASE_FIGHT);
-            events.ScheduleEvent(EVENT_BURNING_LIGHT, Seconds(12), 0, PHASE_FIGHT);
+            ScheduleEvents();
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -240,6 +239,13 @@ public:
         }
 
     private:
+        void ScheduleEvents()
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_DIVINE_RECKONING, Seconds(10), 0, PHASE_FIGHT);
+            events.ScheduleEvent(EVENT_BURNING_LIGHT, Seconds(12), 0, PHASE_FIGHT);
+        }
+
         // To-do: Ideal for a custom spell.
         void HandleSearingLight()
         {
@@ -312,6 +318,7 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
             Talk(EMOTE_UNSHIELD);
             events.SetPhase(PHASE_FIGHT);
+            ScheduleEvents();
         }
 
         uint8 _countShield;
