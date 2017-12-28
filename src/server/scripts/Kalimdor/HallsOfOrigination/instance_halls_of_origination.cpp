@@ -75,14 +75,6 @@ ObjectData const gameObjectData[] =
     { 0,                                0 } //END
 };
 
-// Halls of Origination Transit Device positions
-const Position EntranceTransitDevicePos      = { -934.576f,  470.708f,  53.8334f, 3.08918f };
-const Position ElevatorTransitDevicePos      = { -536.462f,  193.262f,  79.839f,  3.08918f };
-const Position EarthragerTransitDevicePos    = { -506.194f, -337.028f, 162.363f,  1.55334f };
-const Position TempleTransitDevicePos        = { -506.766f, -686.826f, 139.97f,   1.55334f };
-const Position VaultOfLightsTransitDevicePos = { -276.288f,  366.781f,  75.8439f, 3.08918f };
-const Position AnraphetTransitDevicePos      = {  -74.1892f, 366.75f,   89.4228f, 3.08918f };
-
 class instance_halls_of_origination : public InstanceMapScript
 {
     public:
@@ -111,6 +103,11 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (go->GetEntry())
                 {
+                    case GO_HOO_TRANSIT_DEVICE: // 5 spawns
+                    case GO_HOO_TRANSIT_DEVICE_2: // 1 spawn: elevator
+                        transitDeviceGUIDs.push_back(go->GetGUID());
+                        HandleTransitDevice(go);
+                        break;
                     case GO_LIFT_OF_THE_MAKERS:
                         go->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
                         go->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 0);
@@ -163,26 +160,8 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
-                    case BOSS_TEMPLE_GUARDIAN_ANHUUR:
-                        if (GetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR) == DONE)
-                            creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, EntranceTransitDevicePos, QuaternionData(), 0);
-                        break;
-                    case BOSS_EARTHRAGER_PTAH:
-                        if (GetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR) == DONE)
-                        {
-                            creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, EarthragerTransitDevicePos, QuaternionData(), 0);
-                            creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, TempleTransitDevicePos, QuaternionData(), 0);
-                        }
-                        break;
-                    case BOSS_ANRAPHET:
-                        if (GetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR) == DONE)
-                        {
-                            creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, VaultOfLightsTransitDevicePos, QuaternionData(), 0);
-                            creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, AnraphetTransitDevicePos, QuaternionData(), 0);
-                            creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE_2, ElevatorTransitDevicePos, QuaternionData(), 0);
-                        }
-                        // No break here! Must be active (AI runs the event at the Vault of Lights).
-                    case NPC_BRANN_BRONZEBEARD_0: // active (AI runs the event at the Vault of Lights)
+                    case BOSS_ANRAPHET: // Must be active (their AI runs the event at the Vault of Lights).
+                    case NPC_BRANN_BRONZEBEARD_0:
                         creature->setActive(true);
                         break;
                     case NPC_FIRE_WARDEN: // random teleport spell + far-visibility
@@ -287,17 +266,11 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
-                    case BOSS_TEMPLE_GUARDIAN_ANHUUR:
-                        creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, EntranceTransitDevicePos, QuaternionData(), 0);
-                        break;
+                    case BOSS_TEMPLE_GUARDIAN_ANHUUR: // Check/spawn transit devices.
                     case BOSS_EARTHRAGER_PTAH:
-                        creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, EarthragerTransitDevicePos, QuaternionData(), 0);
-                        creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, TempleTransitDevicePos, QuaternionData(), 0);
-                        break;
-                    case BOSS_ANRAPHET: // 
-                        creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, VaultOfLightsTransitDevicePos, QuaternionData(), 0);
-                        creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE, AnraphetTransitDevicePos, QuaternionData(), 0);
-                        creature->SummonGameObject(GO_HOO_TRANSIT_DEVICE_2, ElevatorTransitDevicePos, QuaternionData(), 0);
+                    case BOSS_ANRAPHET:
+                        for (ObjectGuid guid : transitDeviceGUIDs)
+                            HandleTransitDevice(instance->GetGameObject(guid));
                         break;
                     case NPC_FIRE_WARDEN:
                     case NPC_EARTH_WARDEN:
@@ -345,8 +318,19 @@ class instance_halls_of_origination : public InstanceMapScript
                 data >> _deadElementals;
             }
 
-        protected:
+        private:
+            void HandleTransitDevice(GameObject* transit)
+            {
+                if (transit->GetPositionX() < -900.f) // The southernmost transit: x = -934.576
+                    transit->SetRespawnTime(GetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR) == DONE ? 0 : DAY);
+                else if (transit->GetPositionY() < -300.f) // The two easternmost transits: y = -337.028, y = -686.826
+                    transit->SetRespawnTime(GetBossState(DATA_EARTHRAGER_PTAH) == DONE ? 0 : DAY);
+                else // All other transits.
+                    transit->SetRespawnTime(GetBossState(DATA_ANRAPHET) == DONE ? 0 : DAY);
+            }
+
             std::vector<uint32> _wardenPositionSpells;
+            GuidVector transitDeviceGUIDs;
             GuidVector isisetTrashGUIDs;
             uint32 _deadElementals;
             uint32 _isisetPhase;

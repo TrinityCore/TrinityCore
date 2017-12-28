@@ -8,9 +8,6 @@ DELETE FROM `creature` WHERE `guid` = @CGUID+0;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
 (@CGUID+0, 48143, 644, 0, 0, 6, 0, 0, 0, 0, -640.624, 396.364, 83.8651, 1.54741, 7200, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', -1);
 
--- delete transit devices, they are spawned after bosses die
-DELETE FROM `gameobject` WHERE `map` = 644 AND `ID` IN (204972, 204979);
-
 -- script names, sniff corrections
 UPDATE `gameobject_template` SET `ScriptName` = 'go_hoo_the_makers_lift_controller' WHERE `entry` = 207669;
 UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `unit_flags` = 33554496 WHERE `entry` = 39612;
@@ -24,7 +21,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 UPDATE `gameobject_template` SET `Data10` = 82900 WHERE `entry` = 204972;
 DELETE FROM `spell_target_position` WHERE `ID` = 82900;
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
-(82900, 0, 644, -536.371, 193.255, 79.8388, -1);
+(82900, 0, 644, -477.742, 193.255, 330.658, -1);
 
 -- gameobject rotation of lightmachines, glass star 2
 UPDATE `gameobject` SET `rotation0` = -0.150109,  `rotation1` = -0.150108, `rotation2` = -0.690989,  `rotation3` = 0.690991 WHERE `guid` IN (220756, 220763);
@@ -59,13 +56,16 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (76600, 'spell_anhuur_handle_beacons');
 
 -- Boss: Anraphet --
+-- respawn time of wardens set to one day
+UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `map` = 644 AND `id` in (39800, 39801, 39802, 39803)
+
 -- spell positions for wardens
 DELETE FROM `spell_target_position` WHERE `ID` IN (82329, 82330, 82331, 82332);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
-(82329, 0, 644, -329.727, 481.142, 89.2101, -1), -- 
-(82330, 0, 644, -223.26,  488.222, 89.2102, -1), -- 4.71239
-(82331, 0, 644, -329.962, 246.302, 89.2101, -1), -- 
-(82332, 0, 644, -223.049, 243.161, 89.2102, -1); -- 1.58825
+(82329, 0, 644, -329.727, 481.142, 89.2101, -1),
+(82330, 0, 644, -223.26,  488.222, 89.2102, -1),
+(82331, 0, 644, -329.962, 246.302, 89.2101, -1),
+(82332, 0, 644, -223.049, 243.161, 89.2102, -1);
 
 -- Water Warden gets Aqua Bomb aura on aggro.
 DELETE FROM `creature_template_addon` WHERE `entry` = 39802;
@@ -89,9 +89,11 @@ DELETE FROM `spelleffect_dbc` WHERE `Id` = @SpellEffectID;
 INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectItemType`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
 (@SpellEffectID, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 94067, 0);
 
-
 -- speed corrections for Brann
 UPDATE `creature_template` SET `speed_walk` = 2.5/2.5, `speed_run` = 7/2.5 WHERE `entry` = 39908;
+
+-- delete menu condition (that is not even working)
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` = 12512` AND `SourceEntry` = 17600;
 
 -- broadcast text ids for Brann
 UPDATE `creature_text` SET `BroadcastTextId` = 40231 WHERE `CreatureID` = 39908 AND `GroupID` = 0;

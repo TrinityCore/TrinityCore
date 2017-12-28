@@ -133,7 +133,7 @@ enum HOOGameObjects
     GO_HOO_TRANSIT_DEVICE_2         = 204972, // Spell ID: 82900 - Teleports the caster to the upper floor of Halls of Origination. (dbc desc is wrong)
     GO_LIFT_OF_THE_MAKERS           = 207547,
     GO_LIFT_GLASS_STAR              = 207673,
-    GO_LIFT_GLASS_STAR_2            = 207674
+    GO_LIFT_GLASS_STAR_2            = 207674,
 };
 
 enum Achievements
