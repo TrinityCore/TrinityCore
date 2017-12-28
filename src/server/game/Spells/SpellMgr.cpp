@@ -1650,6 +1650,8 @@ void SpellMgr::LoadSpellProcs()
                     procEntry.Charges = spellInfo->ProcCharges;
                 if (!procEntry.Chance && !procEntry.ProcsPerMinute)
                     procEntry.Chance = float(spellInfo->ProcChance);
+                if (procEntry.Cooldown == Milliseconds::zero())
+                    procEntry.Cooldown = Milliseconds(spellInfo->ProcCooldown);
 
                 // validate data
                 if (procEntry.SchoolMask & ~SPELL_SCHOOL_MASK_ALL)
@@ -1896,7 +1898,7 @@ void SpellMgr::LoadSpellProcs()
 
         procEntry.ProcsPerMinute  = 0;
         procEntry.Chance          = spellInfo->ProcChance;
-        procEntry.Cooldown        = Milliseconds::zero();
+        procEntry.Cooldown        = Milliseconds(spellInfo->ProcCooldown);
         procEntry.Charges         = spellInfo->ProcCharges;
 
         mSpellProcMap[spellInfo->Id] = procEntry;
