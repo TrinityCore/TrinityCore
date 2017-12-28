@@ -179,7 +179,7 @@ public:
 
                 Creature* lastSpawnedGuard = SpawnedGUID.IsEmpty() ? NULL : GetSummonedGuard();
 
-                // prevent calling Unit::GetUnit at next MoveInLineOfSight call - speedup
+                // prevent calling ObjectAccessor::GetUnit at next MoveInLineOfSight call - speedup
                 if (!lastSpawnedGuard)
                     SpawnedGUID.Clear();
 

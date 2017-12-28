@@ -30,22 +30,22 @@ enum Spells
 
     ///Fire spells
     SPELL_FI_BURNING_BOMB = 217877, // - NO SCRIPT NEEDED
-    
-    //WF = Wrathful Flames 
+
+    //WF = Wrathful Flames
     SPELL_FI_WF_TARGET_PICKER   = 217893, //Picks 10 targets in 100 yards radius
     SPELL_FI_WF_MISSILE         = 217897, //Creates a missile that will spawn a Wrathful Flames (see NPCs)
     SPELL_FI_WF_AT              = 217903, //Creates the Area Trigger that will deal damage.
     SPELL_FI_WF_DAMAGE          = 217907, //Deals damage - NO SCRIPT NEEDED
 
     ///Frost spells
-    
+
     //IC = Icy Comet
     SPELL_FR_IC_AOE             = 217919, //This spell starts the others. It launches the target picker, and also spawns 5 random Icy Comets in 60 yards radius.
     SPELL_FR_IC_TARGET_PICKER   = 217920, //Picks 10 random players to cast a missile on.
     SPELL_FR_IC_MISSILE         = 218390, //Missile that casts DAMAGE_AT.
     SPELL_FR_IC_DAMAGE_AT       = 217922, //Deals damage and create AT
     SPELL_FR_IC_SLOW            = 217925,
-    
+
     SPELL_FR_HG_BUFF            = 217966, //This buff launches the damage, and also creates the area trigger.
     SPELL_FR_HG_AT              = 217967, //This creates an area trigger that pulls everyone near the center.
     ///Arcane spells
@@ -167,7 +167,7 @@ public:
                     me->CastSpell(me, SPELL_AR_ARCANE, true);
                     events.ScheduleEvent(EVENT_CHANGE_PHASE, 20000);
                     events.ScheduleEvent(EVENT_ARCANE_DESOLATION, 200);
-                    
+
                     lastPhase = PHASE_ARCANE;
                     break;
 
@@ -317,9 +317,9 @@ public:
             SPELL_TO_CAST = SPELL_FI_WF_AT
         };
 
-        void Reset()
+        void Reset() override
         {
-            //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             ApplyBuff();
         }
 
@@ -332,7 +332,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_calamir_wrathful_flamesAI(creature);
     }
@@ -445,7 +445,7 @@ public:
 
     struct at_calamir_icy_cometAI : AreaTriggerAI
     {
-        at_calamir_icy_cometAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) 
+        at_calamir_icy_cometAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
         {
             timeInterval = 0;
         }
@@ -528,7 +528,7 @@ public:
             if (!caster)
                 return;
         }
-    
+
         /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
         {
             if (!caster)
@@ -614,7 +614,7 @@ public:
             timeInterval += p_Time;
             if (timeInterval < 1000)
                 return;
-        
+
             for (auto guid : at->GetInsideUnits())
                 if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
                     if (unit->GetTypeId() == TYPEID_PLAYER)

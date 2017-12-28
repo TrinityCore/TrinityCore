@@ -715,7 +715,7 @@ public:
     class spell_mage_pyroblast_clearcasting_driver_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_mage_pyroblast_clearcasting_driver_AuraScript);
-        
+
         bool CheckProc(ProcEventInfo& eventInfo)
         {
             //Only Scorch, Fireball, Fire Blast, Flamestrike, Pyroblast and Phoenix Flames should proc

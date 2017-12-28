@@ -444,7 +444,7 @@ class spell_staghelm_concentration_aura : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_staghelm_concentration_aura_AuraScript();
         }

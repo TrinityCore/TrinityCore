@@ -35,14 +35,14 @@ enum whackSpells
     SPELL_WHACK             = 101604,
     SPELL_KILL_CREDIT       = 101835,
     SPELL_DOLL_STUN         = 101679,
-    
+
     SPELL_SPAWN_VISUAL      = 102136,
     SPELL_OK_TO_HIT         = 101996,
-    
+
     SPELL_SUMMON_GNOLL      = 102036,
     SPELL_SUMMON_DOLL       = 102043,
     SPELL_SUMMON_BOSS       = 102044,
-    
+
     SPELL_FORBIDDEN_ZONE    = 109977,
 };
 
@@ -75,24 +75,24 @@ class npc_whack_gnoll_bunny : public CreatureScript
 
         struct npc_whack_gnoll_bunnyAI : ScriptedAI
         {
-            npc_whack_gnoll_bunnyAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_whack_gnoll_bunnyAI(Creature* pCreature) : ScriptedAI(pCreature)
             {}
-            
+
             std::list<ObjectGuid> barrelList;
             EventMap events;
 
-            void Reset()
+            void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
                 GetBarrels();
-                
+
                 events.Reset();
                 events.ScheduleEvent(EVENT_SUMMON_GNOLL,        GNOLL_TIMER);
                 events.ScheduleEvent(EVENT_SUMMON_DOLL,         DOLL_TIMER);
                 events.ScheduleEvent(EVENT_SUMMON_BOSS,         BOSS_TIMER);
                 events.ScheduleEvent(EVENT_CHECK_PLAYER_POS,    1000);
             }
-            
+
             void GetBarrels()
             {
                 barrelList.clear();
@@ -102,17 +102,17 @@ class npc_whack_gnoll_bunny : public CreatureScript
                 for (auto barrel : templist)
                     barrelList.push_back(barrel->GetGUID());
             }
-            
+
             // We need to find a barrel that do not already have a summon
             Creature* GetRandomBarrel()
             {
                 std::list<ObjectGuid> tempList = barrelList;
-                
+
                 while (tempList.size())
                 {
                     auto it = tempList.begin();
                     std::advance(it, urand(0, tempList.size() - 1));
-                    
+
                     if (Creature* barrel = ObjectAccessor::GetCreature(*me, *it))
                     {
                         if (barrel->HasAura(SPELL_OK_TO_HIT))
@@ -121,15 +121,15 @@ class npc_whack_gnoll_bunny : public CreatureScript
                             return barrel;
                     }
                 }
-                
+
                 return nullptr;
             }
-            
+
             void SummonFromBarrel(Creature* barrel, uint32 spellId)
             {
                 if (!barrel)
                     return;
-                    
+
                 if (spellId != SPELL_SUMMON_GNOLL && spellId != SPELL_SUMMON_DOLL && spellId != SPELL_SUMMON_BOSS)
                     return;
 
@@ -197,7 +197,7 @@ class npc_whack_gnoll_bunny : public CreatureScript
                         }
                     }
                 }
-            }            
+            }
         };
 };
 
@@ -263,10 +263,10 @@ class npc_whack_gnoll_barrel : public CreatureScript
 
         struct npc_whack_gnoll_barrelAI : ScriptedAI
         {
-            npc_whack_gnoll_barrelAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_whack_gnoll_barrelAI(Creature* pCreature) : ScriptedAI(pCreature)
             {}
 
-            void Reset()
+            void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -302,10 +302,10 @@ class spell_whack_gnoll_whack : public SpellScriptLoader
             SpellCastResult CheckCast()
             {
                 Unit* caster = GetCaster();
-                
+
                 if (!caster)
                     return SPELL_CAST_OK;
-            
+
                 // Todo : On peut rendre le code plus propre en changant la TargetA du spell par 46 et ajouter des conditions, mais perso j'ai la flemme
                 std::list<Creature*> targetList;
                 caster->GetCreatureListWithEntryInGrid(targetList, NPC_GNOLL, 3.0f);
@@ -375,7 +375,7 @@ public:
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
-            
+
             if (!target)
                 return;
 

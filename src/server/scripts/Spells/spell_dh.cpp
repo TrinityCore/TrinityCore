@@ -484,7 +484,7 @@ public:
                     return SPELL_CAST_OK;
                 }
             }
-            
+
             return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
         }
 
@@ -497,7 +497,7 @@ public:
 
             caster->CastSpell(target, SPELL_DH_SPIRIT_BOMB_DAMAGE, true);
         }
-        
+
         void Register() override
         {
             OnCheckCast += SpellCheckCastFn(spell_dh_spirit_bomb_SpellScript::CheckCast);
@@ -1058,7 +1058,7 @@ public:
             Unit* caster = aurEff->GetCaster();
             if (!caster->HasAura(SPELL_DH_BURNING_ALIVE))
                 return;
-            
+
             WorldObject* owner = GetOwner();
             if (!owner->ToUnit())
                 return;
@@ -2083,7 +2083,7 @@ public:
     class spell_dh_fel_rush_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_dh_fel_rush_SpellScript);
-        
+
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DH_FEL_RUSH_DASH))
@@ -2092,7 +2092,7 @@ public:
                 return false;
             return true;
         }
-        
+
         void HandleDashGround(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
@@ -2106,7 +2106,7 @@ public:
                     caster->CastSpell(caster, SPELL_DH_MOMENTUM_BUFF, true);
             }
         }
-        
+
         void HandleDashAir(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
@@ -2117,7 +2117,7 @@ public:
                     caster->CastSpell(caster, SPELL_DH_FEL_RUSH_DAMAGE, true);
                 }
         }
-        
+
         void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_dh_fel_rush_SpellScript::HandleDashGround, EFFECT_0, SPELL_EFFECT_DUMMY);

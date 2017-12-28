@@ -45,7 +45,7 @@ class mob_shadow_of_doubt : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-                
+
                 events.ScheduleEvent(EVENT_DEAFENED, 30000);
                 events.ScheduleEvent(EVENT_GROWING_DOUBT, 9000);
                 events.ScheduleEvent(EVENT_SHA_BOLT, 15000);
@@ -57,7 +57,7 @@ class mob_shadow_of_doubt : public CreatureScript
                     return;
 
                 events.Update(diff);
-                
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)

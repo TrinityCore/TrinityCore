@@ -95,6 +95,6 @@ class instance_emerald_nightmare : public InstanceMapScript
 };
 
 void AddSC_instance_emerald_nightmare()
-{ 
+{
     new instance_emerald_nightmare();
 }

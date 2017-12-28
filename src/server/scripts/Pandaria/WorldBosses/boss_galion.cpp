@@ -246,7 +246,7 @@ class boss_galion : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case EVENT_WARN_STOMP:
-                        //me->MonsterTextEmote("Galleon is about to |cFFFF0000|Hspell:121787|h[Stomp]|h|r !", 0, true);
+                        //me->TextEmote("Galleon is about to |cFFFF0000|Hspell:121787|h[Stomp]|h|r !", 0, true);
                         break;
                     case EVENT_STOMP:
                         me->CastSpell(me, SPELL_STOMP, false);
@@ -258,7 +258,7 @@ class boss_galion : public CreatureScript
                     {
                         if (!m_CanonReady)
                         {
-                            //me->MonsterTextEmote("Galleon prepares to unleash |cFFFF0000|Hspell:121600|h[Canon Barrage]|h|r !", 0, true);
+                            //me->TextEmote("Galleon prepares to unleash |cFFFF0000|Hspell:121600|h[Canon Barrage]|h|r !", 0, true);
 
                             if (Unit* l_ChiefSalyis = me->GetVehicleKit()->GetPassenger(2))
                                 l_ChiefSalyis->ToCreature()->AI()->Talk(TALK_CANON);

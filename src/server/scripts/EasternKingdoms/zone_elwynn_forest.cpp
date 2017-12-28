@@ -48,7 +48,7 @@ class npc_stormwind_infantry : public CreatureScript
 public:
     npc_stormwind_infantry() : CreatureScript("npc_stormwind_infantry") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_stormwind_infantryAI (creature);
     }
@@ -146,7 +146,7 @@ class npc_stormwind_injured_soldier : public CreatureScript
 public:
     npc_stormwind_injured_soldier() : CreatureScript("npc_stormwind_injured_soldier") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_stormwind_injured_soldierAI(creature);
     }
@@ -327,7 +327,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_training_dummy_start_zonesAI(creature);
     }

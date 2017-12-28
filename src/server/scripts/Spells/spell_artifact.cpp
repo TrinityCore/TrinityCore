@@ -593,7 +593,8 @@ public:
         int32 timer = 0;
         int32 counter = 0;
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
+
         {
             timer += diff;
             switch (me->GetArmor())
@@ -658,7 +659,8 @@ public:
         int32 timer = 0;
         int32 counter = 0;
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
+
         {
             if (counter >= 7)
                 return;

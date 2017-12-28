@@ -117,7 +117,7 @@ public:
         if (player && p_Quest && (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
             player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
     }
- 
+
     void OnSceneStart(Player* player, uint32 p_ScenePackageId, uint32 /*sceneInstanceId*/) override
     {
         if (p_ScenePackageId != TanaanSceneObjects::SceneFinaleIronBastion)

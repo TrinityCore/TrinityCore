@@ -651,7 +651,7 @@ class vehicle_artillery : public VehicleScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new vehicle_artilleryAI(creature);
         }

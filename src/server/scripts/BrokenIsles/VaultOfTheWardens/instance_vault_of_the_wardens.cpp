@@ -42,6 +42,6 @@ class instance_vault_of_the_wardens : public InstanceMapScript
 };
 
 void AddSC_instance_vault_of_the_wardens()
-{ 
+{
     new instance_vault_of_the_wardens();
 }

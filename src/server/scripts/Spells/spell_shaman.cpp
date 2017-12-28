@@ -2058,7 +2058,7 @@ public:
         void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
-            
+
             //Proc Chance is increased by 6.24% of Mastery (ceiled)
             float masteryBonus = 0.0f;
             if (Player* player = eventInfo.GetActor()->ToPlayer())
@@ -2145,7 +2145,7 @@ public:
 
         bool CheckEffectProc(ProcEventInfo& eventInfo)
         {
-            if (eventInfo.GetDamageInfo()->GetAttackType() == BASE_ATTACK || 
+            if (eventInfo.GetDamageInfo()->GetAttackType() == BASE_ATTACK ||
                 eventInfo.GetDamageInfo()->GetAttackType() == OFF_ATTACK ||
                 eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_WINDFURY_ATTACK)
                 return true;
@@ -2254,7 +2254,7 @@ public:
                 caster->SetPower(POWER_MAELSTROM, caster->GetPower(POWER_MAELSTROM) - 5);
             else
                 caster->RemoveAura(SPELL_SHAMAN_FURY_OF_AIR);
-            
+
         }
 
         void Register() override
@@ -2325,7 +2325,7 @@ public:
         }
     };
 
-    AuraScript* GetAuraScript() const override 
+    AuraScript* GetAuraScript() const override
     {
         return new spell_sha_resonance_effect_AuraScript();
     }
@@ -2605,11 +2605,11 @@ class spell_sha_earthen_rage_passive : public SpellScriptLoader
 {
 public:
     spell_sha_earthen_rage_passive() : SpellScriptLoader("spell_sha_earthen_rage_passive") { }
-        
+
     class spell_sha_earthen_rage_passive_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_sha_earthen_rage_passive_AuraScript);
-            
+
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE))
@@ -2620,20 +2620,20 @@ public:
                 return false;
             return true;
         }
-            
+
         void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
             GetAura()->Variables.Set("procTargetGUID", eventInfo.GetProcTarget()->GetGUID());
             eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC, true);
         }
-            
+
         void Register() override
         {
             OnEffectProc += AuraEffectProcFn(spell_sha_earthen_rage_passive_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
         }
     };
-       
+
     AuraScript* GetAuraScript() const override
     {
         return new  spell_sha_earthen_rage_passive_AuraScript();
@@ -2793,7 +2793,7 @@ public:
 };
 
 
-//NPC ID : 97285 
+//NPC ID : 97285
 //NPC NAME : Wind Rush Totem
 class npc_wind_rush_totem : public CreatureScript
 {
@@ -2947,7 +2947,7 @@ public:
                 return;
 
             me->CastSpell(me, SPELL_TO_CAST, false);
-            
+
         }
     };
 
@@ -3088,7 +3088,7 @@ public:
                 m_uiBuffTimer -= uiDiff;
         }
 
-        
+
 
         void ApplyBuff()
         {
@@ -3108,9 +3108,9 @@ public:
                         alreadyRooted.push_back(itr);
                         //me->Say("Should apply root on " + itr->GetName(), LANG_UNIVERSAL);
                         if(!itr->HasAura(SPELL_ROOT))
-                            me->CastSpell(itr, SPELL_ROOT, true);     
+                            me->CastSpell(itr, SPELL_ROOT, true);
                     }
-                    
+
                     //me->Say("Should apply slow on " + itr->GetName(), LANG_UNIVERSAL);
                     me->CastSpell(itr, SPELL_SLOW, true);
                 }
@@ -3299,7 +3299,7 @@ public:
 
         void UpdateAI(uint32 /*uiDiff*/) override
         {
-            
+
         }
 
         void ApplyBuff()
@@ -3435,7 +3435,7 @@ public:
 
             if (!caster)
                 return;
-    
+
             for (auto itr : at->GetInsideUnits())
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*caster, itr))
@@ -3479,10 +3479,10 @@ public:
             Unit* owner = caster->GetOwner();
             if(!owner)
                 return;
-                
+
             if(dmgInfo.GetDamage() - owner->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, true) > 0)
                 absorbAmount = owner->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, true);
-            else 
+            else
                 absorbAmount = dmgInfo.GetDamage();
 
             //201657 - The damager
@@ -3641,7 +3641,7 @@ public:
             amount = -1;
         }
 
-        
+
         void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)

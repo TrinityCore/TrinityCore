@@ -1,339 +1,685 @@
 /*
-* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+ * Copyright (C) 2010 - 2012 ProjectSkyfire <http://www.projectskyfire.org/>
+ *
+ * Copyright (C) 2011 - 2012 ArkCORE <http://www.arkania.net/>
+ * Copyright (C) 2008 - 2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
+ #include "InstanceScript.h"
 #include "ScriptMgr.h"
-#include"the_vortex_pinnacle.h"
-#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "Cell.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "the_vortex_pinnacle.h"
+#include "G3D/Vector3.h"
+#include "G3D/Triangle.h"
+#include "G3D/Plane.h"
+#include "G3D/CollisionDetection.h"
 
-enum ScriptTexts
+using G3D::Vector3;
+
+enum AsaadTexts
 {
-    SAY_AGGRO   = 0,
-    SAY_KILL    = 1,
-    SAY_SPELL   = 2,
-    SAY_DEATH   = 3,
+    SAY_AGGRO                   = 0,
+    SAY_LIGHTNING               = 1,
+    SAY_DEATH                   = 2,
 };
 
-enum Spells
+enum AsaadSpells
 {
-    SPELL_CHAIN_LIGHTNING                       = 87622,
-    SPELL_CHAIN_LIGHTNING_H                     = 93993,
-    SPELL_UNSTABLE_GROUNDING_FIELD              = 86911,
-    SPELL_GROUNDING_FIELD_VISUAL_BEAMS          = 87517,
+    SPELL_SUPREMACY_OF_THE_STORM            = 86930,
+    SPELL_UNSTABLE_GROUNDING_FIELD          = 86911,
+    SPELL_CHAIN_LIGHTNING                   = 87622,
+    SPELL_SUMMON_SKYFALL                    = 96260,
+    SPELL_SUMMON_UNSTABLE_GROUND_FIELD      = 86658,
+    SPELL_SUMMON_GROUNDING_FIELD            = 87521,
+    SPELL_CHANNEL_GROUNDING_FIELD           = 86911,
+    SPELL_SUPREMACY_TELEPORT                = 87328,
+    SPELL_GROUNDING_FIELD                   = 87514,
+    SPELL_GROUNDING_FIELD_BUFF              = 87474,
+    SPELL_ARCANE_BARRAGE                    = 87854,
 
-    SPELL_SUPREMACY_OF_THE_STORM                = 86930,
+    // Heroic Mode
+    SPELL_STATIC_CLING                      = 87618,
 
-    SPELL_SUPREMACY_OF_THE_STORM_DUMMY          = 86715,
-    SPELL_SUPREMACY_OF_THE_STORM_DMG            = 87553,
-    SPELL_SUPREMACY_OF_THE_STORM_DMG_H          = 93994,
-
-    SPELL_SUPREMACY_OF_THE_STORM_DUMMY_1        = 87521,
-    SPELL_SUPREMACY_OF_THE_STORM_SUM            = 87518,
-    SPELL_SUPREMACY_OF_THE_STORM_TELE           = 87328,
-
-    SPELL_STATIC_CLING                          = 87618,
+    SPELL_UG_TRIG                           = 86926,
+    SPELL_STORM_RUNE_BEM                    = 86981,
+    SPELL_STORM_RUNE_BEM_A                  = 86921,
+    SPELL_STORM_RUNE_BEM_B                  = 86923,
+    SPELL_STORM_RUNE_BEM_C                  = 86925
 };
 
-enum Events
+enum AsaadEvents
 {
-    EVENT_FIELD             = 1,
-    EVENT_FIELD_1           = 2,
-    EVENT_FIELD_2           = 3,
-    EVENT_FIELD_3           = 4,
-    EVENT_FIELD_4           = 5,
-    EVENT_FIELD_5           = 6,
-    EVENT_FIELD_6           = 7,
-    EVENT_CHAIN_LIGHTNING   = 8,
-    EVENT_STATIC_CLING      = 9,
-    EVENT_SUMMON_STAR       = 10,
+    EVENT_CHAIN_LIGHTNING               = 1,
+    EVENT_SUMMON_SKYFALL                = 2,
+    EVENT_STATIC_CLING                  = 3,
+    EVENT_SUMMON_UNSTABLE_GROUND_FIELD  = 4,
+    EVENT_SUPREMACY_OF_THE_STORM        = 5,
+    EVENT_CLEAN_UP                      = 6,
+    EVENT_ARCANE_BARRAGE                = 7
 };
 
-enum Adds
+enum AsaadData
 {
-    NPC_UNSTABLE_GROUNDING_FIELD    = 46492,
-    NPC_SKYFALL_STAR                = 52019,
-    NPC_STORM_TARGET                = 46387,
-    NPC_GROUNDING_FIELD             = 47000,
+    DATA_TRIGGER_GUID           = 1,
+    DATA_SUMMON_TRIGGER_GUID    = 2,
 };
 
-const Position fieldPos[4]    =
+enum Actions
 {
-    {-644.20f, 489.00f, 646.63f, 0.0f },
-    {-638.38f, 480.68f, 646.63f, 0.0f },
-    {-635.43f, 492.11f, 646.63f, 0.0f },
-    {-639.23f, 488.13f, 656.63f, 0.0f },
+    ACTION_CLEAN_UP             = 1,
+    ACTION_TELEPORT             = 2,
+    INTERUPT_SLIPSTREAM_CAST    = 3
 };
 
-const Position starPos[6] =
+enum AsaadMovementPositionPoints
 {
-    {-583.77f, 516.56f, 649.51f, 5.65f },
-    {-591.65f, 476.39f, 649.19f, 4.39f },
-    {-617.69f, 544.79f, 650.12f, 0.11f },
-    {-652.62f, 532.48f, 649.03f, 1.53f },
-    {-618.65f, 463.05f, 650.63f, 0.0f  },
-    {-649.24f, 474.11f, 649.63f, 0.0f  },
+    DATA_FIRST_POSITION         = 1,
+    DATA_SECOND_POSITION        = 2,
+    DATA_THIRD_POSITION         = 3
 };
+
+Position const centerPos = { -620.0f, 501.95f, 646.7f, 0.0f };
 
 class boss_asaad : public CreatureScript
 {
     public:
-        boss_asaad() : CreatureScript("boss_asaad") { }
-
-        CreatureAI* GetAI(Creature* pCreature) const override
+        boss_asaad() : CreatureScript("boss_asaad")
         {
-            return new boss_asaadAI(pCreature);
         }
-        struct boss_asaadAI : public BossAI
+
+        struct script_impl : public BossAI
         {
-            boss_asaadAI(Creature* pCreature) : BossAI(pCreature, DATA_ASAAD)
+            script_impl(Creature* creature) : BossAI(creature, BOSS_ASAAD)
             {
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                me->setActive(true);
             }
 
-            bool bField;
-            ObjectGuid _field1;
-            ObjectGuid _field2;
-            ObjectGuid _field3;
-
-            void InitializeAI() override
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(VPScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
+            std::list<ObjectGuid > failedAchievementGUIDs;
 
             void Reset() override
             {
                 _Reset();
-                me->SetCanFly(false);
-                bField = false;
-            }
-
-            void EnterCombat(Unit* /*pWho*/) override
-            {
-                events.ScheduleEvent(EVENT_SUMMON_STAR, urand(10000, 20000));
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(5000, 10000));
-                events.ScheduleEvent(EVENT_FIELD, 45000);
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
+                events.ScheduleEvent(EVENT_SUMMON_SKYFALL, urand(15000, 25000));
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_STATIC_CLING, urand(12000, 18000));
-                Talk(SAY_AGGRO);
-                bField = false;
-                DoZoneInCombat();
-                instance->SetBossState(DATA_ASAAD, IN_PROGRESS);
+                    events.ScheduleEvent(EVENT_STATIC_CLING, urand(10000, 15000));
+                events.ScheduleEvent(EVENT_SUMMON_UNSTABLE_GROUND_FIELD, 20000);
+                failedAchievementGUIDs.clear();
+                me->SetCanFly(false);
+                stormTargetGUID = ObjectGuid::Empty;
             }
 
-            void KilledUnit(Unit* /*killer*/) override
+            void EnterCombat(Unit* /*who*/)
             {
-                Talk(SAY_KILL);
+                _EnterCombat();
             }
 
-            void JustDied(Unit* /*pWho*/) override
+            void JustDied(Unit* /*who*/)
             {
                 _JustDied();
-                me->SetCanFly(false);
-                Talk(SAY_DEATH);
             }
 
+            void JustReachedHome()
+            {
+                if (Creature *c = ObjectAccessor::GetCreature(*me, stormTargetGUID))
+                    me->Kill(c);
+            }
 
-            void UpdateAI(const uint32 diff) override
+            void DoAction(const int32 act)
+            {
+                switch (act)
+                {
+                    case INTERUPT_SLIPSTREAM_CAST:
+                    {
+                        me->InterruptNonMeleeSpells(false);
+                        me->CastStop();
+                        me->SetCanFly(true);
+                        me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 10, pos.GetOrientation());
+                        if (Creature *c = ObjectAccessor::GetCreature(*me, stormTargetGUID))
+                        {
+                            c->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 10, pos.GetOrientation());
+                            if (Creature *c1 = c->SummonCreature(463874, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 10, TEMPSUMMON_MANUAL_DESPAWN))
+                                c1->CastSpell(c1, SPELL_STORM_RUNE_BEM_A, true);
+                            if (Creature *c1 = c->SummonCreature(463874, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 10, TEMPSUMMON_MANUAL_DESPAWN))
+                                c1->CastSpell(c1, SPELL_STORM_RUNE_BEM_B, true);
+                            if (Creature *c1 = c->SummonCreature(463874, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 10, TEMPSUMMON_MANUAL_DESPAWN))
+                                c1->CastSpell(c1, SPELL_STORM_RUNE_BEM_C, true);
+                            for (int i = 0; i < 40; i++)
+                            {
+                                pos = me->GetRandomPoint(centerPos, 40);
+                                c->SummonCreature(46387, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 10, TEMPSUMMON_MANUAL_DESPAWN);
+                            }
+                        }
+                        me->CastSpell(me, SPELL_SUPREMACY_OF_THE_STORM, true);
+                        events.ScheduleEvent(EVENT_CLEAN_UP, 1);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            ObjectGuid GetRandomStormTarget() const
+            {
+                std::list<Creature* > triggerList;
+                me->GetCreatureListWithEntryInGrid(triggerList, NPC_STORM_TARGET, 100.0f);
+                if (!triggerList.empty())
+                    return Trinity::Containers::SelectRandomContainerElement(triggerList)->GetGUID();
+                return ObjectGuid::Empty;
+            }
+
+            void JustSummoned(Creature* summoned)
+            {
+                switch (summoned->GetEntry())
+                {
+                    case 46492:
+                        me->CastSpell(summoned, SPELL_UNSTABLE_GROUNDING_FIELD, true);
+                        break;
+                    case NPC_SKYFALL:
+                        summoned->SetInCombatWithZone();
+                        summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
+            {
+                if (spell->Id == SPELL_STATIC_CLING && IsHeroic())
+                    failedAchievementGUIDs.push_back(target->GetGUID());
+            }
+
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING) && !bField)
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
+
+                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_CHAIN_LIGHTNING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(15000, 20000));
+                            if (Unit* const target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                me->CastSpell(target, SPELL_CHAIN_LIGHTNING, false);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(50000, 65000));
                             break;
-                        case EVENT_SUMMON_STAR:
-                            me->SummonCreature(NPC_SKYFALL_STAR, starPos[urand(0, 5)]);
-                            events.ScheduleEvent(EVENT_SUMMON_STAR, urand(24000, 30000));
+                        case EVENT_SUMMON_SKYFALL:
+                            me->CastSpell(me, SPELL_SUMMON_SKYFALL, true);
+                            events.ScheduleEvent(EVENT_SUMMON_SKYFALL, 20000);
                             break;
                         case EVENT_STATIC_CLING:
-                            DoCast(SPELL_STATIC_CLING);
-                            events.ScheduleEvent(EVENT_STATIC_CLING, urand(20000, 23000));
+                            me->CastSpell(me, SPELL_STATIC_CLING, false);
+                            events.ScheduleEvent(EVENT_STATIC_CLING, urand(12000, 15000));
                             break;
-                        case EVENT_FIELD:
-                            bField = true;
-                            events.CancelEvent(EVENT_CHAIN_LIGHTNING);
-                            events.CancelEvent(EVENT_STATIC_CLING);
-                            events.CancelEvent(EVENT_SUMMON_STAR);
-                            me->InterruptNonMeleeSpells(false);
-                            Talk(SAY_SPELL);
-                            me->AttackStop();
-                            me->SetReactState(REACT_PASSIVE);
-                            if (Creature*c  = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[0]))
-                            {
-                                _field1 = c->GetGUID();
-                                DoCast(c, SPELL_UNSTABLE_GROUNDING_FIELD);
-                            }
-                            events.ScheduleEvent(EVENT_FIELD_4, 20000);
-                            events.ScheduleEvent(EVENT_FIELD_1, 6000);
+                        case EVENT_SUMMON_UNSTABLE_GROUND_FIELD:
+                            pos = me->GetRandomPoint(centerPos, 25.0f);
+                            if (Creature *c = me->SummonCreature(46492, pos, TEMPSUMMON_MANUAL_DESPAWN))
+                                stormTargetGUID = c->GetGUID();
                             break;
-                        case EVENT_FIELD_1:
-                            if (Creature*c = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[1]))
-                            {
-                                _field2 = c->GetGUID();
-
-                                if (Creature*c2 = me->GetMap()->GetCreature(_field1))
-                                    c2->CastSpell(c, SPELL_UNSTABLE_GROUNDING_FIELD, true);
-                            }
-                            events.ScheduleEvent(EVENT_FIELD_2, 6000);
-                            break;
-                        case EVENT_FIELD_2:
-                            if (Creature*c = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[2]))
-                            {
-                                _field3 = c->GetGUID();
-                                if (Creature* c2 = me->GetMap()->GetCreature(_field2))
-                                    c2->CastSpell(c, SPELL_UNSTABLE_GROUNDING_FIELD, true);
-                            }
-                            events.ScheduleEvent(EVENT_FIELD_3, 6000);
-                            break;
-                        case EVENT_FIELD_3:
-                        {
-                            Creature* c1 = me->GetMap()->GetCreature(_field1);
-                            Creature* c2 = me->GetMap()->GetCreature(_field3);
-                            if (c1 && c2)
-                                c2->CastSpell(c1, SPELL_UNSTABLE_GROUNDING_FIELD, true);
-
-                            break;
-                        }
-                        case EVENT_FIELD_4:
-                            me->SetCanFly(true);
-                            me->SetDisableGravity(true);
-                            me->NearTeleportTo(
-                                fieldPos[3].GetPositionX(),
-                                fieldPos[3].GetPositionY(),
-                                fieldPos[3].GetPositionZ(),
-                                0.0f);
-                            events.ScheduleEvent(EVENT_FIELD_5, 800);
-                            break;
-                        case EVENT_FIELD_5:
-                            DoCast(SPELL_SUPREMACY_OF_THE_STORM);
-                            events.ScheduleEvent(EVENT_FIELD_6, 6000);
-                            break;
-                        case EVENT_FIELD_6:
-                            if (Creature* c = me->GetMap()->GetCreature(_field1))
-                                c->DespawnOrUnsummon();
-                            if (Creature* c = me->GetMap()->GetCreature(_field2))
-                                c->DespawnOrUnsummon();
-                            if (Creature* c = me->GetMap()->GetCreature(_field3))
-                                c->DespawnOrUnsummon();
-                            bField = false;
+                        case EVENT_CLEAN_UP:
                             me->SetCanFly(false);
-                            me->SetDisableGravity(false);
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            AttackStart(me->GetVictim());
-                            events.ScheduleEvent(EVENT_FIELD, 45000);
-                            events.ScheduleEvent(EVENT_SUMMON_STAR, urand(10000, 20000));
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(5000, 10000));
-                            if (IsHeroic())
-                                events.ScheduleEvent(EVENT_STATIC_CLING, urand(12000, 18000));
+                            if (Creature *c = ObjectAccessor::GetCreature(*me, stormTargetGUID))
+                                me->Kill(c);
+                            events.ScheduleEvent(EVENT_SUMMON_UNSTABLE_GROUND_FIELD, urand(20000, 25000));
                             break;
-                        }
+                        default:
+                            break;
+                    }
                 }
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            Position pos;
+            ObjectGuid stormTargetGUID;
         };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetVortexPinnacleAI<script_impl>(creature);
+        }
 };
 
-class npc_unstable_grounding_field : public CreatureScript
+class npc_asaad_grounding_field_trigger : public CreatureScript
 {
     public:
-        npc_unstable_grounding_field() : CreatureScript("npc_unstable_grounding_field") { }
-
-        CreatureAI* GetAI(Creature* pCreature) const override
+        npc_asaad_grounding_field_trigger() : CreatureScript("npc_asaad_grounding_field_trigger")
         {
-            return new npc_unstable_grounding_fieldAI(pCreature);
         }
-        struct npc_unstable_grounding_fieldAI : public Scripted_NoMovementAI
+
+        struct script_impl : public ScriptedAI
         {
-            npc_unstable_grounding_fieldAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
-            {
-                me->SetReactState(REACT_PASSIVE);
-            }
+            script_impl(Creature* creature) : ScriptedAI(creature), summons(creature), instance(creature->GetInstanceScript()){ }
+
 
             void Reset() override
             {
+                pointId = 0;
+                GenerateTrianglePos();
+                isMoving = false;
+                mui_timerMove = 1000;
+                triggerCount = 0;
+                me->SetSpeed(MOVE_WALK, 1.0f);
+                me->SetSpeed(MOVE_RUN, 1.0f);
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void CleanUp()
             {
+                if (InstanceScript* const instance = me->GetInstanceScript())
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GROUNDING_FIELD_BUFF);
+                me->DespawnOrUnsummon();
             }
-     };
-};
 
-class spell_asaad_supremacy_of_the_storm: public SpellScriptLoader
-{
-    public:
-        spell_asaad_supremacy_of_the_storm() : SpellScriptLoader("spell_asaad_supremacy_of_the_storm") { }
-
-
-        class spell_asaad_supremacy_of_the_storm_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_asaad_supremacy_of_the_storm_SpellScript);
-
-
-            void HandleScript(SpellMissInfo /*missInfo*/)
+            void GenerateTrianglePos()
             {
-                if (!GetCaster() || !GetHitUnit())
+                float x, y;
+                me->GetNearPoint2D(x, y, urand(5.0f, 7.0f), me->GetOrientation());
+
+                _trianglePos[0].m_positionX = x;
+                _trianglePos[0].m_positionY = y;
+                _trianglePos[0].m_positionZ = me->GetPositionZ();
+                _trianglePos[0].SetOrientation(0.0f);
+
+                me->GetNearPoint2D(x, y, urand(5.0f, 7.0f), me->GetOrientation() + M_PI / 2);
+
+                _trianglePos[1].m_positionX = x;
+                _trianglePos[1].m_positionY = y;
+                _trianglePos[1].m_positionZ = me->GetPositionZ();
+                _trianglePos[1].SetOrientation(0.0f);
+
+                me->GetNearPoint2D(x, y, urand(5.0f, 7.0f), me->GetOrientation() + M_PI);
+
+                _trianglePos[2].m_positionX = x;
+                _trianglePos[2].m_positionY = y;
+                _trianglePos[2].m_positionZ = me->GetPositionZ();
+                _trianglePos[2].SetOrientation(0.0f);
+
+                me->NearTeleportTo(_trianglePos[0].m_positionX,  _trianglePos[0].m_positionY,  _trianglePos[0].m_positionZ, 0.0f);
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE)
                     return;
 
-                if (GetCaster()->GetDistance2d(GetHitUnit()) < 5.0f)
-                    SetHitDamage(0);
+                switch (id)
+                {
+                    case DATA_FIRST_POSITION:
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->InterruptNonMeleeSpells(true);
+                        Position _centerPos = me->GetHomePosition();
+                        me->GetMotionMaster()->MovePoint(42, _centerPos.m_positionX,  _centerPos.m_positionY,  _centerPos.m_positionZ + 10.0f);
+                        break;
+                    }
+                    case DATA_SECOND_POSITION:
+                    case DATA_THIRD_POSITION:
+                        isMoving = false;
+                        break;
+                    case 42:
+                        me->SummonCreature(463871, _trianglePos[0], TEMPSUMMON_MANUAL_DESPAWN);
+                        me->SummonCreature(463872, _trianglePos[1], TEMPSUMMON_MANUAL_DESPAWN);
+                        me->SummonCreature(463873, _trianglePos[2], TEMPSUMMON_MANUAL_DESPAWN);
+                        if (Creature *c = me->FindNearestCreature(NPC_ASAAD, 100.0f))
+                            c->AI()->DoAction(INTERUPT_SLIPSTREAM_CAST);
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            void Register() override
+            void JustSummoned(Creature* summoned)
             {
-                BeforeHit += BeforeSpellHitFn(spell_asaad_supremacy_of_the_storm_SpellScript::HandleScript);
+                me->InterruptNonMeleeSpells(true);
+                if (triggerCount <= 3)
+                    triggerId[triggerCount] = summoned->GetGUID();
+                triggerCount++;
+                summons.Summon(summoned);
+                summoned->SetSpeed(MOVE_WALK, 1.0f);
+                summoned->SetSpeed(MOVE_RUN, 1.0f);
             }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                summons.DespawnAll();
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (pointId == 4 || isMoving)
+                    return;
+
+                if (mui_timerMove <= diff)
+                {
+                    if (pointId == 2)
+                    {
+                        if (Creature *c1 = me->SummonCreature(46387, _trianglePos[pointId], TEMPSUMMON_MANUAL_DESPAWN))
+                            if (Creature *c2 = me->SummonCreature(463870, _trianglePos[pointId], TEMPSUMMON_MANUAL_DESPAWN))
+                            {
+                                c2->CastSpell(c1, SPELL_STORM_RUNE_BEM, true);
+                                c2->GetMotionMaster()->MovePoint(1, _trianglePos[0]);
+                            }
+                        me->GetMotionMaster()->MovePoint(1, _trianglePos[0]);
+                    }
+                    else
+                    {
+                        if (Creature *c1 = me->SummonCreature(46387, _trianglePos[pointId], TEMPSUMMON_MANUAL_DESPAWN))
+                            if (Creature *c2 = me->SummonCreature(463870, _trianglePos[pointId], TEMPSUMMON_MANUAL_DESPAWN))
+                            {
+                                c2->CastSpell(c1, SPELL_STORM_RUNE_BEM, true);
+                                c2->GetMotionMaster()->MovePoint(pointId + 2, _trianglePos[pointId + 1]);
+                            }
+                        me->GetMotionMaster()->MovePoint(pointId + 2, _trianglePos[pointId + 1]);
+                    }
+                    pointId++;
+                    isMoving = true;
+                    mui_timerMove = 2500;
+                }
+                else
+                    mui_timerMove -= diff;
+            }
+
+            Position _trianglePos[3];
+        private:
+            uint32 mui_timerMove;
+            uint8 pointId;
+            uint8 triggerCount;
+            SummonList summons;
+            InstanceScript const* instance;
+            ObjectGuid triggerId[3];
+            bool isMoving;
         };
 
-        SpellScript* GetSpellScript() const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new spell_asaad_supremacy_of_the_storm_SpellScript();
+            return GetVortexPinnacleAI<script_impl>(creature);
         }
+};
+
+class npc_skyfall_star : public CreatureScript
+{
+public:
+    npc_skyfall_star() : CreatureScript("npc_skyfall_star") { }
+
+    struct npc_skyfall_starAI : public ScriptedAI
+    {
+        npc_skyfall_starAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3000, 10000));
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_ARCANE_BARRAGE:
+                        if(Player* player = me->SelectNearestPlayer(55.0f))
+                        {
+                            me->AddThreat(player, 55.0f);
+                            me->AI()->AttackStart(player);
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_ARCANE_BARRAGE, true);
+                        }
+                        _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3000, 5000));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap _events;
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_skyfall_starAI (creature);
+    }
+};
+
+class TriangleCheck
+{
+    WorldObject* const _target;
+    Position const _position1;
+    Position const _position2;
+    Position const _position3;
+
+    public:
+        TriangleCheck(WorldObject* target, Position position1, Position position2, Position position3)
+            : _target(target), _position1(position1), _position2(position2), _position3(position3) {}
+
+        bool Check() const
+        {
+            if (IsInTriangle())
+                return true;
+
+            return false;
+        }
+
+    private:
+        bool IsInTriangle() const
+        {
+            G3D::Triangle const triangle(PositionToVector3(_position1), PositionToVector3(_position2), PositionToVector3(_position3));
+            G3D::Vector3 const vector(_target->GetPositionX(), _target->GetPositionY(), _target->GetPositionZ());
+            float b[3];
+
+            return G3D::CollisionDetection::isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), vector, b, triangle.primaryAxis());
+        }
+
+        G3D::Vector3 PositionToVector3(Position const& position) const
+        {
+            return G3D::Vector3(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
+        }
+};
+
+class achievement_not_static_at_all : public AchievementCriteriaScript
+{
+    bool OnCheck(Player* player, Unit* target)
+    {
+        if (!target || !target->ToCreature())
+            return false;
+
+        std::list<ObjectGuid> failedAchievementGUIDs = CAST_AI(boss_asaad::script_impl, target->ToCreature()->AI())->failedAchievementGUIDs;
+        if (!failedAchievementGUIDs.empty())
+            for (std::list<ObjectGuid>::iterator itr = failedAchievementGUIDs.begin(); itr != failedAchievementGUIDs.end(); ++itr)
+                if (player->GetGUID() == *itr)
+                    return false;
+
+        return true;
+    }
+
+public:
+    achievement_not_static_at_all() : AchievementCriteriaScript("achievement_not_static_at_all"){}
+};
+
+class spell_asaad_static_cling : public SpellScriptLoader
+{
+    class StaticClingCheck
+    {
+        public:
+            StaticClingCheck()
+            {
+            }
+
+            bool operator() (WorldObject* obj)
+            {
+                if (Unit *target = obj->ToUnit())
+                    if (target->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+                        return true;
+                return false;
+            }
+    };
+
+public:
+    spell_asaad_static_cling() : SpellScriptLoader("spell_asaad_static_cling")
+    {
+    }
+
+    class script_impl : public SpellScript
+    {
+        PrepareSpellScript(script_impl);
+
+        bool Load()
+        {
+            return true;
+        }
+
+        void FilterTargets(std::list<WorldObject*>& unitList)
+        {
+            unitList.remove_if(StaticClingCheck());
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(script_impl::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(script_impl::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new script_impl();
+    }
+};
+
+class spell_asaad_supremacy_entry : public SpellScriptLoader
+{
+public :
+    spell_asaad_supremacy_entry() : SpellScriptLoader("spell_asaad_supremacy_entry") {}
+
+    class spell_asaad_supremacy_entry_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_asaad_supremacy_entry_SpellScript);
+
+        Targets _targets;
+        Position position[3];
+
+        bool Load()
+        {
+            return true;
+        }
+
+        void FilterTargets(std::list<WorldObject*>& unitList)
+        {
+            Creature* const trigger = GetCaster()->FindNearestCreature(NPC_UNSTABLE_GROUNDING_FIELD, 100.0f, true);
+            position[0] = CAST_AI(npc_asaad_grounding_field_trigger::script_impl, trigger->AI())->_trianglePos[0];
+            position[1] = CAST_AI(npc_asaad_grounding_field_trigger::script_impl, trigger->AI())->_trianglePos[1];
+            position[2] = CAST_AI(npc_asaad_grounding_field_trigger::script_impl, trigger->AI())->_trianglePos[2];
+
+            for (std::list<WorldObject*>::iterator itr = unitList.begin(); itr != unitList.end();)
+            {
+                TriangleCheck const* const triangle = new TriangleCheck(*itr, position[0], position[1], position[2]);
+                if (triangle->Check())
+                    unitList.remove(*itr++);
+                else
+                    ++itr;
+            }
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_supremacy_entry_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_asaad_supremacy_entry_SpellScript();
+    }
+};
+
+class spell_asaad_supremacy_dummy : public SpellScriptLoader
+{
+public :
+    spell_asaad_supremacy_dummy() : SpellScriptLoader("spell_asaad_supremacy_dummy") {}
+
+    class spell_asaad_supremacy_dummy_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_asaad_supremacy_dummy_SpellScript);
+
+        Targets _targets;
+        Position position[3];
+
+        bool Load()
+        {
+            return true;
+        }
+
+        void FilterTargets(std::list<WorldObject*>& unitList)
+        {
+            Creature* const trigger = GetCaster()->FindNearestCreature(NPC_UNSTABLE_GROUNDING_FIELD, 100.0f, true);
+            position[0] = CAST_AI(npc_asaad_grounding_field_trigger::script_impl, trigger->AI())->_trianglePos[0];
+            position[1] = CAST_AI(npc_asaad_grounding_field_trigger::script_impl, trigger->AI())->_trianglePos[1];
+            position[2] = CAST_AI(npc_asaad_grounding_field_trigger::script_impl, trigger->AI())->_trianglePos[2];
+
+            for (std::list<WorldObject*>::iterator itr = unitList.begin(); itr != unitList.end();)
+            {
+                TriangleCheck const* const triangle = new TriangleCheck(*itr, position[0], position[1], position[2]);
+                if (triangle->Check())
+                    unitList.remove(*itr++);
+                else
+                    ++itr;
+            }
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_asaad_supremacy_dummy_SpellScript::FilterTargets, EFFECT_0,  TARGET_UNIT_SRC_AREA_ENEMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_asaad_supremacy_dummy_SpellScript();
+    }
 };
 
 void AddSC_boss_asaad()
 {
     new boss_asaad();
-    new npc_unstable_grounding_field();
-    new spell_asaad_supremacy_of_the_storm();
+    new npc_asaad_grounding_field_trigger();
+    new npc_skyfall_star();
+    new achievement_not_static_at_all();
+    new spell_asaad_static_cling();
+    new spell_asaad_supremacy_entry();
+    new spell_asaad_supremacy_dummy();
 }

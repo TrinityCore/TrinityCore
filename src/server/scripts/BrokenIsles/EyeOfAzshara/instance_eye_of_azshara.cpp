@@ -42,6 +42,6 @@ class instance_eye_of_azshara : public InstanceMapScript
 };
 
 void AddSC_instance_eye_of_azshara()
-{ 
+{
     new instance_eye_of_azshara();
 }

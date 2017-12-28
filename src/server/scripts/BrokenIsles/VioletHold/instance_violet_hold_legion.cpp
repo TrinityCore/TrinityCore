@@ -42,6 +42,6 @@ class instance_violet_hold_legion : public InstanceMapScript
 };
 
 void AddSC_instance_violet_hold_legion()
-{ 
+{
     new instance_violet_hold_legion();
 }

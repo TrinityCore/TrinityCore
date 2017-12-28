@@ -889,7 +889,7 @@ class mob_nomi : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new mob_nomiAI(creature);
         }

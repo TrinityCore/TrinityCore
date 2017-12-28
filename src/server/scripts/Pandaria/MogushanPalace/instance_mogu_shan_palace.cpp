@@ -534,10 +534,10 @@ public:
                             if (!adepts.empty())
                             {
                                 std::list<ObjectGuid>::iterator itr = adepts.begin();
-                            
+
                                 if (adepts.size() > 1)
                                     std::advance(itr, urand(0, adepts.size() - 1));
-    
+
                                 Creature* adept = instance->GetCreature(*itr);
                                 if (creature && adept)
                                     creature->Attack(adept, true);

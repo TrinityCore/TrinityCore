@@ -119,7 +119,7 @@ public:
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-            
+
             //This is a safecheck. If Nithogg ever happens to not plan any attack, his cycle starts.
             if(me->IsInCombat())
                 if (events.Empty())
@@ -294,7 +294,7 @@ public:
 
         void Reset() override
         {
-            //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE); //TODO : Change this to a spline once those work/I know how to use them.
+            //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL); //TODO : Change this to a spline once those work/I know how to use them.
             ApplyBuff();
         }
 
@@ -304,7 +304,7 @@ public:
             if (visualTimer < visualTick)
                 return;
 
-            
+
             me->CastSpell(me, SPELL_ELECTRICAL_STORM_VISUAL, true);
             visualTimer = 0;
             visualTick = urand(250, 550);
@@ -319,7 +319,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_nithogg_electrical_storm_AI(creature);
     }
@@ -465,7 +465,7 @@ public:
             Unit* target = GetHitUnit();
             if (!target)
                 return;
-                
+
             if (Unit* caster = GetCaster())
                 caster->CastSpell(target, SPELL_CRACKLING_JOLT_MISSILE, false);
         }
@@ -553,7 +553,7 @@ public:
 
             if (timer < 300)
                 return;
-            
+
             Unit* unit = ObjectAccessor::GetUnit(*me, me->GetTarget());
             if (!unit)
                 return;
@@ -571,7 +571,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_nithogg_static_orb_AI(creature);
     }

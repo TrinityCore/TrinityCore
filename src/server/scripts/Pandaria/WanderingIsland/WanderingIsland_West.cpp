@@ -966,10 +966,10 @@ class mob_guardian_of_the_elders : public CreatureScript
         {
             mob_guardian_of_the_eldersAI(Creature* creature) : ScriptedAI(creature)
             {
-                playerGuid = 0;
+                playerGUID = ObjectGuid::Empty;
             }
 
-            uint64 playerGuid;
+            ObjectGuid playerGUID;
 
             void JustDied(Unit* p_Killer) override
             {

@@ -42,6 +42,6 @@ class instance_halls_of_valor : public InstanceMapScript
 };
 
 void AddSC_instance_halls_of_valor()
-{ 
+{
     new instance_halls_of_valor();
 }

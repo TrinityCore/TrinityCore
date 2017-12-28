@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -211,7 +212,7 @@ class npc_archmage_khadgar_gossip : public CreatureScript
         {
             if (player->GetQuestStatus(QuestStartDraenor) == QUEST_STATUS_NONE)
                 return true;
-            
+
             if (player->GetQuestStatus(TanaanQuests::QuestTheHomeStretchHorde) == QUEST_STATUS_REWARDED)
             {
                 player->TeleportTo(1116, 5538.213379f, 5015.2690f, 13.0f, player->GetOrientation());

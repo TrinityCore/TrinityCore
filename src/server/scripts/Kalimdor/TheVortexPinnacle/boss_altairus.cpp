@@ -1,244 +1,350 @@
 /*
-* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+ * Copyright (C) 2010 - 2012 ProjectSkyfire <http://www.projectskyfire.org/>
+ *
+ * Copyright (C) 2011 - 2012 ArkCORE <http://www.arkania.net/>
+ * Copyright (C) 2008 - 2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
+#include "SpellScript.h"
 #include "ScriptMgr.h"
-#include"the_vortex_pinnacle.h"
-#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
+#include "Cell.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "the_vortex_pinnacle.h"
 
-enum Spells
+enum spells
 {
-    SPELL_CALL_OF_WIND              = 88244,
-    SPELL_CALL_OF_WIND_DUMMY_1      = 88276,
-    SPELL_CALL_OF_WIND_DUMMY_2      = 88772,
-    SPELL_DOWNWIND_OF_ALTAIRUS      = 88286,
-    SPELL_UPWIND_OF_ALTAIRUS        = 88282,
-    SPELL_CHILLING_BREATH           = 88308,
-    SPELL_CHILLING_BREATH_DUMMY     = 88322,
-    SPELL_LIGHTNING_BLAST           = 88357,
-    SPELL_LIGHTNING_BLAST_DUMMY     = 88332,
-    SPELL_TWISTER_AURA              = 88313,
-    SPELL_TWISTER_AURA_DMG          = 88314,
-
+    SPELL_CHILLING_BREATH               = 88308,
+    SPELL_UPWIND_OF_ALTAIRUS            = 88282,
+    SPELL_DOWNWIND_OF_ALTAIRUS          = 88286,
+    SPELL_TWISTER_AURA                  = 88313,
+    SPELL_LIGHTNING_BLAST               = 88357,
+    SPELL_SAFE_ZONE                     = 88350,
+    SPELL_CALL_THE_WIND_VISUAL          = 88772,
+    SPELL_WIND_OF_ALTAIRUS              = 88244
 };
 
-enum Events
+enum events
 {
-    EVENT_CALL_OF_WIND      = 1,
-    EVENT_CHILLING_BREATH   = 2,
-    EVENT_LIGHTNING_BLAST   = 3,
-    EVENT_CHECK_FACING      = 4,
-    EVENT_RESET_WIND        = 5,
+    EVENT_CHILLING_BREATH               = 1,
+    EVENT_SUMMON                        = 2,
+    EVENT_CALL_THE_WIND                 = 3,
+    EVENT_DOWNWIND_OF_ALTAIRUS          = 4,
+    EVENT_LIGHTNING_BLAST               = 5,
+    EVENT_CALL_THE_WIND_POST            = 6
 };
 
-enum Adds
+enum Texts
 {
-    NPC_TWISTER        = 47342,
-    NPC_AIR_CURRENT    = 47305,
+    EMOTE_WINDS                         = 0
 };
 
-const float orientations[4] = {5.70f, 2.54f, 0.84f, 4.44f };
+Position const platform = { -1213.83f, 62.99f, 735.2f, 0.0f };
 
-const Position twisterPos[8] =
+Position const summonPositions[4] =
 {
-    {-1213.09f, 37.58f, 734.17f, 0.0f },
-    {-1208.80f, 54.49f, 734.17f, 0.0f },
-    {-1219.45f, 68.33f, 734.17f, 0.0f },
+    {-1208.316f, 74.2533f, 734.174f, 4.89f},
+    {-1222.620f, 73.7265f, 734.174f, 4.89f},
+    {-1224.178f, 60.8424f, 734.174f, 4.89f},
+    {-1218.436f, 46.5356f, 734.174f, 4.89f},
 };
+
+class MoveTornade : public BasicEvent
+{
+public:
+    MoveTornade(Unit* owner) : _owner(owner), _instance(owner->GetInstanceScript())
+    {
+    }
+
+    bool Execute(uint64 execTime, uint32 /*diff*/)
+    {
+        if (!_owner->HasAura(SPELL_TWISTER_AURA))
+            _owner->CastSpell(_owner, SPELL_TWISTER_AURA, true);
+        _owner->m_Events.AddEvent(this, execTime + 1000);
+        return false;
+    }
+
+private:
+    Unit* _owner;
+    InstanceScript* _instance;
+};
+
 
 class boss_altairus : public CreatureScript
 {
-    public:
-        boss_altairus() : CreatureScript("boss_altairus") { }
+public:
+    boss_altairus() : CreatureScript("boss_altairus")
+    {
+    }
 
-        CreatureAI* GetAI(Creature* pCreature) const override
+    struct boss_altairusAI : public BossAI
+    {
+        boss_altairusAI(Creature* creature) : BossAI(creature, BOSS_ALTAIRUS)
         {
-            return new boss_altairusAI(pCreature);
         }
-        struct boss_altairusAI : public BossAI
+
+        void Reset() override
         {
-            boss_altairusAI(Creature* pCreature) : BossAI(pCreature, DATA_ALTAIRUS)
+            _Reset();
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOWNWIND_OF_ALTAIRUS);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UPWIND_OF_ALTAIRUS);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WIND_OF_ALTAIRUS);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+            //me->SetHoverGroundTargetable(true);
+            //me->SetHover(true);
+            summons.DespawnAll();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            _EnterCombat();
+
+            events.ScheduleEvent(EVENT_CALL_THE_WIND, urand(7500, 10000));
+            events.ScheduleEvent(EVENT_CHILLING_BREATH, urand(20000, 30000));
+            events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 1000);
+
+            if (IsHeroic())
+            events.ScheduleEvent(EVENT_SUMMON, urand(2000, 3000), 0, 0);
+        }
+
+        void JustReachedHome()
+        {
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOWNWIND_OF_ALTAIRUS);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UPWIND_OF_ALTAIRUS);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WIND_OF_ALTAIRUS);
+        }
+
+        void JustSummoned(Creature* summoned)
+        {
+            switch (summoned->GetEntry())
             {
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                me->setActive(true);
-            }
-
-            ObjectGuid _aircurrent;
-            uint8 _twisternum;
-
-            void InitializeAI() override
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(VPScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                _twisternum = 0;
-            }
-
-            void EnterCombat(Unit* /*pWho*/) override
-            {
-                events.ScheduleEvent(EVENT_CHILLING_BREATH, urand(5000, 10000));
-                events.ScheduleEvent(EVENT_CALL_OF_WIND, 2000);
-                events.ScheduleEvent(EVENT_CHECK_FACING, 2500);
-                DoZoneInCombat();
-                instance->SetBossState(DATA_ALTAIRUS, IN_PROGRESS);
-            }
-
-            void JustDied(Unit* /*pWho*/) override
-            {
-                _JustDied();
-            }
-
-            bool CheckOrientation(float player, float creature)
-            {
-                float _cur, _up, _down;
-
-                if (creature > M_PI)
-                    _cur = creature - M_PI;
-                else
-                    _cur = creature + M_PI;
-
-
-                _up = _cur + 1.0f;
-                _down = _cur - 1.0f;
-
-                if (player > _down && player < _up)
-                    return true;
-                else
-                    return false;
-            }
-
-            void UpdateAI(const uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (me->GetVictim())
-                    if (me->GetVictim()->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 55.0f)
+                case NPC_WIND:
+                    summoned->CastSpell(summoned, SPELL_CALL_THE_WIND_VISUAL, true);
+                    break;
+                case NPC_TWISTER:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true, 0))
                     {
-                        DoCast(me->GetVictim(), SPELL_LIGHTNING_BLAST);
+                        summoned->SetSpeed(MOVE_RUN, 0.4f);
+                        summoned->SetSpeed(MOVE_WALK, 0.4f);
+                        summoned->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                        summoned->Attack(target, true);
+                        summoned->AddAura(88313, summoned);
+                        summoned->GetMotionMaster()->MoveChase(target, 1.0f, 1.0f);
+                        summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            summons.Summon(summoned);
+        }
+
+        void JustDied(Unit* /*who*/)
+        {
+            _JustDied();
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WIND_OF_ALTAIRUS);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOWNWIND_OF_ALTAIRUS);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UPWIND_OF_ALTAIRUS);
+            summons.DespawnAll();
+            me->SetHover(false);
+
+            Creature * Slipstream = me->SummonCreature(NPC_SLIPSTREAM_TWO, -1198.95f, 106.13f, 743.16f, 1.2f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            Slipstream->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CHILLING_BREATH:
+                        DoCastRandom(SPELL_CHILLING_BREATH, 0.0f);
+                        events.ScheduleEvent(EVENT_CHILLING_BREATH, urand(7500, 12500));
+                        break;
+                    case EVENT_SUMMON:
+                        for (uint8 i = 0; i < 4; i++)
+                        {
+                            if (urand(0, 3) == 1)
+                                me->SummonCreature(NPC_TWISTER, summonPositions[i], TEMPSUMMON_TIMED_DESPAWN, 7000);
+                        }
+                        events.ScheduleEvent(EVENT_SUMMON, urand(6000, 9000), 0, 0);
+                        break;
+                    case EVENT_CALL_THE_WIND:
+                    {
+                        if (Creature *c = me->FindNearestCreature(NPC_WIND, 100))
+                            c->DespawnOrUnsummon();
+                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WIND_OF_ALTAIRUS);
+                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOWNWIND_OF_ALTAIRUS);
+                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UPWIND_OF_ALTAIRUS);
+                        events.ScheduleEvent(EVENT_CALL_THE_WIND, urand(14000, 19000));
+                        events.ScheduleEvent(EVENT_CALL_THE_WIND_POST, 2000);
+                        break;
+                    }
+                    case EVENT_CALL_THE_WIND_POST:
+                    {
+                        Talk(EMOTE_WINDS);
+                        float orientation = 0.0f;
+                        switch (rand() % 4)
+                        {
+                            case 0:
+                                orientation = M_PI / 2;
+                                break;
+                            case 1:
+                                orientation = M_PI;
+                                break;
+                            case 2:
+                                orientation = 3 * M_PI / 2;
+                                break;
+                            case 3:
+                                orientation = 2 * M_PI;
+                                break;
+                            default:
+                                orientation = M_PI;
+                                break;
+                        }
+                        me->SummonCreature(NPC_WIND, -1213.83f, 62.99f, 734.2f, orientation, TEMPSUMMON_MANUAL_DESPAWN);
+                        WindOfAltairus();
+                        events.CancelEvent(EVENT_CALL_THE_WIND_POST);
+                        break;
+                    }
+                    case EVENT_LIGHTNING_BLAST:
+                        CheckPlatform();
+                        events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 5000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+        void WindOfAltairus()
+        {
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            if (!playerList.isEmpty())
+                for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                    if (Player* player = itr->GetSource())
+                        player->CastSpell(player, SPELL_WIND_OF_ALTAIRUS, true);
+        }
+
+        void CheckPlatform()
+        {
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            if (!playerList.isEmpty())
+                for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                    if (Player* player = itr->GetSource())
+                        if (player->GetDistance2d(platform.m_positionX, platform.m_positionY) > 25.0f)
+                            me->CastSpell(player, SPELL_LIGHTNING_BLAST, true);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetVortexPinnacleAI<boss_altairusAI>(creature);
+    }
+};
+
+class spell_wind_of_alth : public SpellScriptLoader
+{
+public:
+    spell_wind_of_alth() : SpellScriptLoader("spell_wind_of_alth") { }
+
+    class spell_wind_of_alth_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_wind_of_alth_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/)
+        {
+            return true;
+        }
+
+        void RemovedWrongAuras()
+        {
+            GetCaster()->RemoveAurasDueToSpell(SPELL_WIND_OF_ALTAIRUS);
+            GetCaster()->RemoveAurasDueToSpell(SPELL_UPWIND_OF_ALTAIRUS);
+            GetCaster()->RemoveAurasDueToSpell(SPELL_DOWNWIND_OF_ALTAIRUS);
+        }
+
+        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+        {
+            PreventDefaultAction();
+            if (!GetCaster())
+                return;
+            if (Creature *c = GetCaster()->FindNearestCreature(42844, 100, true))
+            {
+                if (InstanceScript *instance = c->GetInstanceScript())
+                {
+                    if (instance->GetBossState(BOSS_ALTAIRUS) != IN_PROGRESS)
+                    {
+                        RemovedWrongAuras();
                         return;
                     }
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                    if (Creature *wind = instance->instance->GetCreature(instance->GetGuidData(NPC_WIND)))
                     {
-                        case EVENT_CHILLING_BREATH:
-                            if (Unit* target  = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_CHILLING_BREATH);
-                            events.ScheduleEvent(EVENT_CHILLING_BREATH, urand(10000, 16000));
-                            break;
-                        case EVENT_RESET_WIND:
-                            if (Creature*c = me->GetMap()->GetCreature(_aircurrent))
-                                c->DespawnOrUnsummon();
-                            events.DelayEvents(1000);
-                            events.ScheduleEvent(EVENT_CALL_OF_WIND, 800);
-                            break;
-                        case EVENT_CALL_OF_WIND:
-                            if (Creature* c = me->SummonCreature(NPC_AIR_CURRENT,
-                                me->GetPositionX(),
-                                me->GetPositionY(),
-                                me->GetPositionZ(),
-                                orientations[urand(0, 3)]))
-                                _aircurrent = c->GetGUID();
-                            events.ScheduleEvent(EVENT_RESET_WIND, 18000);
-                            break;
-                        case EVENT_CHECK_FACING:
+                        float windOrientation = wind->GetOrientation();
+                        float orientationDiff = GetCaster()->GetOrientation();
+                        float left_limit = windOrientation - M_PI / 2;
+                        float right_limit = windOrientation + M_PI / 2;
+                        if (orientationDiff >= left_limit && orientationDiff <= right_limit)
                         {
-                            if (me->GetMap()->GetPlayers().isEmpty())
-                                break;
-
-                            Creature* c =me->GetMap()->GetCreature(_aircurrent);
-                            if (!c)
-                                break;
-
-                            for (Map::PlayerList::const_iterator itr = me->GetMap()->GetPlayers().begin(); itr != me->GetMap()->GetPlayers().end(); ++itr)
-                            {
-                                if (CheckOrientation(itr->GetSource()->GetOrientation(), c->GetOrientation()))
-                                {
-                                    itr->GetSource()->RemoveAurasDueToSpell(SPELL_DOWNWIND_OF_ALTAIRUS);
-                                    me->AddAura(SPELL_UPWIND_OF_ALTAIRUS, itr->GetSource());
-                                }
-                                else
-                                {
-                                    itr->GetSource()->RemoveAurasDueToSpell(SPELL_UPWIND_OF_ALTAIRUS);
-                                    me->AddAura(SPELL_DOWNWIND_OF_ALTAIRUS, itr->GetSource());
-                                }
-                            }
-                            events.ScheduleEvent(EVENT_CHECK_FACING, 3000);
-                            break;
+                            if (GetCaster()->HasAura(SPELL_UPWIND_OF_ALTAIRUS))
+                                GetCaster()->RemoveAurasDueToSpell(SPELL_UPWIND_OF_ALTAIRUS);
+                            if (!GetCaster()->HasAura(SPELL_DOWNWIND_OF_ALTAIRUS))
+                                GetCaster()->AddAura(SPELL_DOWNWIND_OF_ALTAIRUS, GetCaster());
+                        }
+                        else
+                        {
+                            if (GetCaster()->HasAura(SPELL_DOWNWIND_OF_ALTAIRUS))
+                                GetCaster()->RemoveAurasDueToSpell(SPELL_DOWNWIND_OF_ALTAIRUS);
+                            if (!GetCaster()->HasAura(SPELL_UPWIND_OF_ALTAIRUS))
+                                GetCaster()->AddAura(SPELL_UPWIND_OF_ALTAIRUS, GetCaster());
                         }
                     }
                 }
-
-                DoMeleeAttackIfReady();
+                else
+                    RemovedWrongAuras();
             }
-        };
-};
-
-class npc_air_current : public CreatureScript
-{
-    public:
-        npc_air_current() : CreatureScript("npc_air_current") { }
-
-        CreatureAI* GetAI(Creature* pCreature) const override
-        {
-            return new npc_air_currentAI(pCreature);
+            else
+                RemovedWrongAuras();
         }
-        struct npc_air_currentAI : public Scripted_NoMovementAI
+
+        void Register() override
         {
-            npc_air_currentAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
-            {
-                me->SetReactState(REACT_PASSIVE);
-            }
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_wind_of_alth_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
 
-            void Reset() override
-            {
-
-                //DoCast(me, SPELL_CALL_OF_WIND_DUMMY_1);
-                DoCast(me, SPELL_CALL_OF_WIND_DUMMY_2);
-                //DoCast(me, SPELL_CALL_OF_WIND);
-            }
-     };
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_wind_of_alth_AuraScript();
+    }
 };
 
 void AddSC_boss_altairus()
 {
     new boss_altairus();
-    new npc_air_current();
+    new spell_wind_of_alth();
 }

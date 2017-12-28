@@ -228,7 +228,7 @@ public:
         void HandleSummon(Creature* /*creature*/)
         {
             Unit* caster = GetCaster();
-            
+
             if (!caster)
                 return;
 

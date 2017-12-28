@@ -3201,9 +3201,9 @@ public:
 
             //If the target is a player, only cast for the time said in ABSOLUTE_CORRUPTION
             if(caster->HasAura(SPELL_WARLOCK_ABSOLUTE_CORRUPTION))
-                GetAura()->SetDuration(target->GetTypeId() == TYPEID_PLAYER ? sSpellMgr->GetSpellInfo(SPELL_WARLOCK_ABSOLUTE_CORRUPTION)->GetEffect(EFFECT_0)->BasePoints * IN_MILLISECONDS : 60 * 60 * IN_MILLISECONDS); //If not player, 1 hour 
+                GetAura()->SetDuration(target->GetTypeId() == TYPEID_PLAYER ? sSpellMgr->GetSpellInfo(SPELL_WARLOCK_ABSOLUTE_CORRUPTION)->GetEffect(EFFECT_0)->BasePoints * IN_MILLISECONDS : 60 * 60 * IN_MILLISECONDS); //If not player, 1 hour
         }
-        
+
         /*
         Removes the aura if the caster is null, far away or dead.
         */
@@ -3219,7 +3219,7 @@ public:
                 target->RemoveAura(SPELL_WARLOCK_CORRUPTION_DAMAGE);
                 return;
             }
-            
+
             if(caster->isDead())
                 target->RemoveAura(SPELL_WARLOCK_CORRUPTION_DAMAGE);
 

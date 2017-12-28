@@ -377,7 +377,7 @@ public:
             SPELL_TO_CAST = 223355
         };
 
-        void Reset()
+        void Reset() override
         {
             std::list<Unit*> targets;
             me->GetAttackableUnitListInRange(targets, 30.0f);
@@ -400,7 +400,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_flotsam_regurgitated_marshstomperAI(creature);
     }
