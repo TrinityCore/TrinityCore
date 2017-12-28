@@ -301,9 +301,9 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            switch (type)
+            switch (id)
             {
                 case GUID_TYPE_PET:
                 {
