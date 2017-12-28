@@ -3796,7 +3796,7 @@ inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo cons
     switch (result)
     {
         case SPELL_FAILED_NOT_READY:
-            if (*param1)
+            if (param1)
                 packet.FailedArg1 = *param1;
             else
                 packet.FailedArg1 = 0;                              // unknown (value 1 update cooldowns on client flag)
