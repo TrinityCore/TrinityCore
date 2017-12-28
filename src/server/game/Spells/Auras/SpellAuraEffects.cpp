@@ -4044,7 +4044,7 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
 
     // Calculate the change.
     float change = target->GetMaxPower(powerType);
-    ApplyPercentModFloatVar(amount, pct, apply);
+    ApplyPercentModFloatVar(change, pct, apply);
     change -= target->GetMaxPower(powerType);
 
     if (!apply) // We reduce power before removal of aura effect.
