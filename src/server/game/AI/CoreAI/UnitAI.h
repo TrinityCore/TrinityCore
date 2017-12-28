@@ -239,6 +239,7 @@ class TC_GAME_API UnitAI
         void DoCastSelf(uint32 spellId, bool triggered = false) { DoCast(me, spellId, triggered); }
         void DoCastVictim(uint32 spellId, bool triggered = false);
         void DoCastAOE(uint32 spellId, bool triggered = false);
+        void DoCastRandom(uint32 spellId, float dist, bool triggered = false, int32 aura = 0, uint32 position = 0);
 
         void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spellId);

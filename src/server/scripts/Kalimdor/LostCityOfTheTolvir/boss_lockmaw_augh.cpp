@@ -283,7 +283,7 @@ class npc_frenzied_croc : public CreatureScript
 public:
     npc_frenzied_croc() : CreatureScript("npc_frenzied_croc") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_frenzied_crocAI (creature);
     }
@@ -357,7 +357,7 @@ class npc_augh_intro : public CreatureScript
 public:
     npc_augh_intro() : CreatureScript("npc_augh_intro") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_augh_introAI (creature);
     }

@@ -386,7 +386,7 @@ public:
 
             MaxInitialSpawn = 30
         };
-        
+
 
         void Reset() override
         {

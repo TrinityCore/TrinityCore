@@ -184,7 +184,7 @@ class spell_darkmoon_canon_preparation : public SpellScriptLoader
 
             void Register() override
             {
-				OnEffectPeriodic += AuraEffectPeriodicFn(spell_darkmoon_canon_preparation_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_darkmoon_canon_preparation_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 

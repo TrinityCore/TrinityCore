@@ -183,7 +183,7 @@ class npc_wrathion_mason : public CreatureScript
                 }
             }
         };
-        
+
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_wrathion_masonAI(creature);

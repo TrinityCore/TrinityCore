@@ -217,6 +217,6 @@ class instance_darkheart_thicket : public InstanceMapScript
 };
 
 void AddSC_instance_darkheart_thicket()
-{ 
+{
     new instance_darkheart_thicket();
 }

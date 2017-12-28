@@ -42,7 +42,7 @@ class npc_spring_rabbit : public CreatureScript
 public:
     npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_spring_rabbitAI(creature);
     }
@@ -57,7 +57,7 @@ public:
         uint32 searchTimer;
         ObjectGuid rabbitGUID;
 
-        void Reset()
+        void Reset() override
         {
             inLove = false;
             rabbitGUID = ObjectGuid::Empty;

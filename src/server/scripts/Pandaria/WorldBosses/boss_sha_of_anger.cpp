@@ -423,11 +423,11 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
  {
     public:
         spell_sha_of_anger_overcome_by_anger() : SpellScriptLoader("spell_sha_of_anger_overcome_by_anger") { }
- 
+
         class spell_sha_of_anger_overcome_by_anger_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_sha_of_anger_overcome_by_anger_AuraScript);
- 
+
             enum eNpcs
             {
                 ShaOfAngerBunny = 35114
@@ -442,13 +442,13 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
                 if (caster->FindNearestCreature(eNpcs::ShaOfAngerBunny, 20.0f) == nullptr)
                     caster->RemoveAura(SPELL_OVERCOME_BY_ANGER);
             }
- 
+
             void Register() override
             {
                 OnAuraUpdate += AuraUpdateFn(spell_sha_of_anger_overcome_by_anger_AuraScript::OnUpdate);
             }
         };
- 
+
         AuraScript* GetAuraScript() const override
         {
             return new spell_sha_of_anger_overcome_by_anger_AuraScript();

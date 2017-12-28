@@ -284,7 +284,7 @@ public:
     }
 };
 
-//216817 
+//216817
 class spell_humongris_you_go_bang : public SpellScriptLoader
 {
 public:

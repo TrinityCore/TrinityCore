@@ -1,82 +1,156 @@
 /*
-* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+ * Copyright (C) 2010-2011 Trinity <http://www.projecttrinity.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "Creature.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "the_vortex_pinnacle.h"
-#include "ScriptMgr.h"
-#include "ScriptMgr.h"
-
-#define MAX_ENCOUNTER 3
 
 class instance_the_vortex_pinnacle : public InstanceMapScript
 {
     public:
-        instance_the_vortex_pinnacle() : InstanceMapScript("instance_the_vortex_pinnacle", 657) { }
+        instance_the_vortex_pinnacle() : InstanceMapScript("instance_the_vortex_pinnacle", 657)
+        {
+        }
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
             return new instance_the_vortex_pinnacle_InstanceMapScript(map);
         }
 
         struct instance_the_vortex_pinnacle_InstanceMapScript: public InstanceScript
         {
-            instance_the_vortex_pinnacle_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
-
-            ObjectGuid uiGrandVizierErtanGUID;
-            ObjectGuid uiAltairusGUID;
-            ObjectGuid uiAsaadGUID;
-
-            void Initialize() override
+            instance_the_vortex_pinnacle_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
-                SetBossNumber(MAX_ENCOUNTER);
             }
 
-            void OnCreatureCreate(Creature* pCreature) override
+            ObjectGuid grandVizierErtanGUID;
+            ObjectGuid altairusGUID;
+            ObjectGuid asaadGUID;
+            ObjectGuid npcWindGUID;
+            uint32 goldenOrbCount;
+
+            void Initialize()
             {
-                switch(pCreature->GetEntry())
+                npcWindGUID = ObjectGuid::Empty;
+                SetBossNumber(MAX_BOSSES);
+                underMapTimer = 2000;
+                goldenOrbCount = 0;
+            }
+
+            void OnCreatureCreate(Creature* creature)
+            {
+                switch (creature->GetEntry())
                 {
                     case NPC_GRAND_VIZIER_ERTAN:
-                        uiGrandVizierErtanGUID = pCreature->GetGUID();
+                        grandVizierErtanGUID = creature->GetGUID();
                         break;
                     case NPC_ALTAIRUS:
-                        uiAltairusGUID = pCreature->GetGUID();
+                        altairusGUID = creature->GetGUID();
                         break;
                     case NPC_ASAAD:
-                        uiAsaadGUID = pCreature->GetGUID();
+                        asaadGUID = creature->GetGUID();
+                        break;
+                    case NPC_WIND:
+                        if (!npcWindGUID.IsEmpty())
+                            if (Creature *c = instance->GetCreature(npcWindGUID))
+                                c->DespawnOrUnsummon();
+                        npcWindGUID = creature->GetGUID();
+                        break;
+                    default:
                         break;
                 }
-
             }
 
-            ObjectGuid GetGuidData(uint32 identifier) const override
+            bool SetBossState(uint32 type, EncounterState state)
             {
-                switch(identifier)
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+                return true;
+            }
+
+            ObjectGuid GetGuidData(uint32 data) const
+            {
+                switch (data)
                 {
-                    case DATA_ERTAN:
-                        return uiGrandVizierErtanGUID;
-                    case DATA_ALTAIRUS:
-                        return uiAltairusGUID;
-                    case DATA_ASAAD:
-                        return uiAsaadGUID;
+                    case BOSS_GRAND_VIZIER_ERTAN:
+                        return grandVizierErtanGUID;
+                    case BOSS_ALTAIRUS:
+                        return altairusGUID;
+                    case BOSS_ASAAD:
+                        return asaadGUID;
+                    case NPC_WIND:
+                        return npcWindGUID;
                 }
 
                 return ObjectGuid::Empty;
             }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                switch (type)
+                {
+                    case DATA_GOLDEN_ORB:
+                    {
+                        goldenOrbCount++;
+                        if (goldenOrbCount == 5)
+                            DoCompleteAchievement(5289);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            void Update(uint32 diff)
+            {
+                if (underMapTimer <= diff)
+                {
+                    Map::PlayerList const& players = instance->GetPlayers();
+                    for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+                    {
+                        if (Player* player = i->GetSource())
+                        {
+                            Position pos = player->GetPosition();
+                            if (player->GetPositionZ() <= 568.0f)
+                            {
+                                if (Creature *sp = instance->SummonCreature(NPC_SLIPSTREAM, pos))
+                                {
+                                    sp->AI()->SetGUID(player->GetGUID());
+                                    sp->GetMotionMaster()->MoveJump(savePlayersPos[player->GetGUID()], 20, 50, 42);
+                                }
+                            }
+                            else if (!player->IsFalling() && !player->GetVehicle() && player->GetPositionZ() > 568.0f)
+                            {
+                                pos.m_positionZ += 1.0f;
+                                savePlayersPos[player->GetGUID()] = pos;
+                            }
+                        }
+                    }
+                    underMapTimer = 1000;
+                }
+                else
+                    underMapTimer -= diff;
+            }
+
+        private:
+            uint32 underMapTimer;
+            std::map<ObjectGuid, Position> savePlayersPos;
         };
 };
 

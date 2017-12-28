@@ -943,7 +943,7 @@ public:
             // Ghouls should display their Birth Animation
             // Crawling out of the ground
             //DoCast(me, 35177, true);
-            //me->MonsterSay("Mommy?", LANG_UNIVERSAL, 0);
+            //me->Say("Mommy?", LANG_UNIVERSAL, 0);
             me->SetReactState(REACT_DEFENSIVE);
         }
 

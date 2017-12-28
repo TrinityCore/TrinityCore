@@ -85,7 +85,7 @@ public:
         void JustReachedHome() override
         {
             _JustReachedHome();
-            instance->SetBossState(DATA_DRESARON, FAIL); 
+            instance->SetBossState(DATA_DRESARON, FAIL);
         }
 
         void EnterCombat(Unit* /*who*/) override

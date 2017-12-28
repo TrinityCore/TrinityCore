@@ -367,7 +367,7 @@ public:
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
                 {
                     if (!boss->IsAlive())
-                    {//do not call EnterEvadeMode(), it will create infinit loops
+                    {//do not call EnterEvadeMode(EvadeReason /*why*/), it will create infinit loops
                         boss->Respawn();
                         boss->RemoveAllAuras();
                         boss->DeleteThreatList();

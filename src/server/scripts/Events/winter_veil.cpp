@@ -88,7 +88,7 @@ class npc_racer_slam_bunny : public CreatureScript
 
                                             summoner->AddAura(SPELL_HF, summoner);
 
-                                            //SummonerPlayer->GetAchievementMgr()->UpdateCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_HF);
+                                            //SummonerPlayer->GetAchievementMgr()->UpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_HF);
                                         }
                                     }
                                 }
@@ -134,7 +134,7 @@ public:
             EVENT_THROW_TREE        = 2,
             EVENT_THROW_SNOWMAN     = 3,
             EVENT_ABOMINABLE_CRUSH  = 4,
-            EVENT_SHRINK_HEART      = 5 
+            EVENT_SHRINK_HEART      = 5
         };
 
         enum eCreature
@@ -611,7 +611,7 @@ void AddSC_event_winter_veil()
     new npc_sergent_vanderlip();
     new spell_winter_veil_mistletoe();
     new spell_winter_veil_snowball();
-    
+
     new playerScript_winter_veil_quest_reward();
 }
 

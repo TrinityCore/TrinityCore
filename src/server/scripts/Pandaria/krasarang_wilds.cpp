@@ -835,7 +835,7 @@ class mob_ellia_ravenmane : public CreatureScript
                             break;
                         default:
                             break;
-                        
+
                     }
                 }
             }

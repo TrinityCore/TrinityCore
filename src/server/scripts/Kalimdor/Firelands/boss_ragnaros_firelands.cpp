@@ -1159,7 +1159,7 @@ class npc_sulfuras_lava_wave: public CreatureScript // 53363
                 me->SetReactState(REACT_PASSIVE);
                 me->AddAura(SPELL_LAVA_WAVE, me);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                
+
                 Position pos = me->GetPosition();
                 GetPositionWithDistInOrientation(me, 200.0f, me->GetOrientation(), pos);
                 me->GetMotionMaster()->MovePoint(1, pos);

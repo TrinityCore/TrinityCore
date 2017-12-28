@@ -225,7 +225,7 @@ public:
 
             if (!caster->HasAura(SPELL_MONK_ENHANCED_ROLL))
                 return;
-                
+
             amount = 377;
         }
 
@@ -460,13 +460,6 @@ public:
     {
         return new spell_monk_item_s12_4p_mistweaver_SpellScript();
     }
-};
-
-struct auraData
-{
-    auraData(uint32 id, uint64 casterGUID) : m_id(id), m_casterGuid(casterGUID) {}
-    uint32 m_id;
-    uint64 m_casterGuid;
 };
 
 // Diffuse Magic - 122783
@@ -1122,7 +1115,7 @@ class spell_monk_disable : public SpellScriptLoader
 {
 public:
     spell_monk_disable() : SpellScriptLoader("spell_monk_disable") {}
-    
+
     class spell_monk_disable_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_monk_disable_SpellScript);
@@ -1274,7 +1267,7 @@ public:
 
         void DoDamageCalc(const AuraEffect* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
-            
+
             if (Unit* caster = GetCaster())
             {
                 uint32 baseDamage = caster->GetMaxHealth();
@@ -1285,7 +1278,7 @@ public:
                     {
                         baseDamage *= 0.5; //-50% damage against players
                     }
-                
+
                 amount = baseDamage;
             }
         }
@@ -1843,8 +1836,8 @@ public:
                     staggerVisualSpellId = SPELL_MONK_MODERATE_STAGGER;
                 else
                     staggerVisualSpellId = SPELL_MONK_LIGHT_STAGGER;
-            
-                
+
+
                 if (staggerVisualSpellId == visualAura->GetSpellInfo()->Id)
                 {
                     visualAura->GetEffect(EFFECT_0)->ChangeAmount(staggerPerTick);
@@ -1925,7 +1918,7 @@ public:
                 caster->RemoveAura(SPELL_MONK_MODERATE_STAGGER);
                 caster->RemoveAura(SPELL_MONK_HEAVY_STAGGER);
                 caster->RemoveAura(SPELL_MONK_STAGGER);
-            } 
+            }
             else
             {
                 visualAura->GetEffect(EFFECT_1)->ChangeAmount(newAmount);
@@ -2669,7 +2662,7 @@ public:
         {
             Unit* caster = GetCaster();
             Unit* target = GetHitUnit();
-            
+
             if (caster->HasAura(SPELL_MONK_TEACHINGS_OF_THE_MONASTERY) && roll_chance_i(15)) //15% chance to reset cooldown of RSK
             {
                 caster->ToPlayer()->GetSpellHistory()->ResetCooldown(SPELL_MONK_RISING_SUN_KICK, true);
@@ -2868,7 +2861,7 @@ public:
                             targets.resize(1);
 
                         caster->CastSpell(targets.front(), SPELL_MONK_RENEWING_MIST_PERIODIC, true);
-                        
+
                         if(targets.front()->HasAura(SPELL_MONK_RENEWING_MIST_PERIODIC))
                         {
                             targets.front()->GetAura(SPELL_MONK_RENEWING_MIST_PERIODIC)->SetDuration(remainingDuration);
@@ -3003,7 +2996,7 @@ public:
                 return;
             Unit* caster = GetCaster();
 
-            //Formula:  [(((Spell power * 31.164) + 0)) * (1 + $versadmg)] 
+            //Formula:  [(((Spell power * 31.164) + 0)) * (1 + $versadmg)]
             //Simplified to : [(Spellpower * 31.164)]
             //Versatility will be taken into account at a later date.
             amount += caster->GetTotalSpellPowerValue(GetSpellInfo()->GetSchoolMask(), true) * 31.164;
@@ -3145,7 +3138,7 @@ public:
         {
             pickupDelay = 1000;
         }
-    
+
         enum SpellsUsed
         {
             SPELL_MONK_GIFT_OF_THE_OX_HEAL      = 178173,
@@ -3156,7 +3149,7 @@ public:
         {
             if(pickupDelay >= 0)
                 pickupDelay -= diff;
-        
+
             if(pickupDelay < 0)
                 pickupDelay = 0;
         }
@@ -3244,10 +3237,10 @@ public:
     {
         if(!damage || !victim)
             return;
-        
+
         if(!victim->HasAura(SPELL_MONK_GIFT_OF_THE_OX_AURA))
             return;
-        
+
         uint32 spellToCast = spellsToCast[urand(0, spellsToCast.size())];
 
         if(roll_chance_i((0.75 * damage / victim->GetMaxHealth()) * (3 - 2 * (victim->GetHealthPct() / 100)) * 100))
@@ -3532,7 +3525,7 @@ public:
     struct at_monk_song_of_chijiAI : AreaTriggerAI
     {
         at_monk_song_of_chijiAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-    
+
         /*void OnSetCreatePosition(Unit* caster, Position& startPos, Position& endPos, std::list<Position>& path) override
         {
             if (!caster)

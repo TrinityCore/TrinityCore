@@ -61,12 +61,12 @@ public:
 
     private:
 
-        void Register()
+        void Register() override
         {
             OnAuraUpdate += AuraUpdateFn(spell_thousand_needles_speedbarge_diving_helm_check_SpellScript::OnUpdate);
         }
     };
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_thousand_needles_speedbarge_diving_helm_check_SpellScript();
     }
@@ -107,12 +107,12 @@ public:
 
     private:
 
-        void Register()
+        void Register() override
         {
             OnAuraUpdate += AuraUpdateFn(spell_thousand_needles_speedbarge_diving_helm_effect_SpellScript::OnUpdate);
         }
     };
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_thousand_needles_speedbarge_diving_helm_effect_SpellScript();
     }

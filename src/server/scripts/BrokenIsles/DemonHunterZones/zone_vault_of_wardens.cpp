@@ -17,5 +17,5 @@
 
 void AddSC_zone_vault_of_wardens()
 {
-    
+
 }

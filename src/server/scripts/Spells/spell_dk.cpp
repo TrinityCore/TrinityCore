@@ -134,7 +134,7 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_GRIP_ONLY_JUMP               = 146599,
     SPELL_DK_HEART_STRIKE                       = 206930,
     SPELL_DK_FESTERING_WOUND                    = 194310,
-	SPELL_DK_BONE_SHIELD                        = 195181,
+    SPELL_DK_BONE_SHIELD                        = 195181,
     SPELL_DK_BLOOD_MIRROR_DAMAGE                = 221847,
     SPELL_DK_BLOOD_MIRROR                       = 206977,
     SPELL_DK_BONESTORM_HEAL                     = 196545
@@ -445,11 +445,6 @@ class spell_dk_death_and_decay : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_dk_death_and_decay_SpellScript();
-        }
-
         class spell_dk_death_and_decay_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dk_death_and_decay_AuraScript);
@@ -465,6 +460,11 @@ class spell_dk_death_and_decay : public SpellScriptLoader
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_death_and_decay_AuraScript::HandleDummyTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dk_death_and_decay_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const override
         {
@@ -485,7 +485,7 @@ class spell_dk_death_coil : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_COIL_DAMAGE) || 
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_COIL_DAMAGE) ||
                     !sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_COIL_HEAL))
                     return false;
                 return true;
@@ -529,7 +529,7 @@ class spell_dk_death_coil : public SpellScriptLoader
 
             void HandleCast()
             {
-                if (Unit* caster = GetCaster()) 
+                if (Unit* caster = GetCaster())
                 {
                     if (caster->HasAura(SPELL_DK_NECROSIS))
                         caster->CastSpell(caster, SPELL_DK_NECROSIS_EFFECT, true);
@@ -1445,32 +1445,32 @@ public:
 class spell_dk_purgatory : public SpellScriptLoader
 {
 public:
-	spell_dk_purgatory() : SpellScriptLoader("spell_dk_purgatory") { }
+    spell_dk_purgatory() : SpellScriptLoader("spell_dk_purgatory") { }
 
-	class spell_dk_purgatory_AuraScript : public AuraScript
-	{
-		PrepareAuraScript(spell_dk_purgatory_AuraScript);
+    class spell_dk_purgatory_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_purgatory_AuraScript);
 
-		void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-		{
-			if (Player* _player = GetTarget()->ToPlayer())
-			{
-				AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-				if (removeMode == AURA_REMOVE_BY_EXPIRE)
-					_player->CastSpell(_player, SPELL_DK_PURGATORY_INSTAKILL, true);
-			}
-		}
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Player* _player = GetTarget()->ToPlayer())
+            {
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (removeMode == AURA_REMOVE_BY_EXPIRE)
+                    _player->CastSpell(_player, SPELL_DK_PURGATORY_INSTAKILL, true);
+            }
+        }
 
-		void Register() override
-		{
-			OnEffectRemove += AuraEffectRemoveFn(spell_dk_purgatory_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-		}
-	};
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_dk_purgatory_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
 
-	AuraScript* GetAuraScript() const override
-	{
-		return new spell_dk_purgatory_AuraScript();
-	}
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_purgatory_AuraScript();
+    }
 };
 
 
@@ -1478,53 +1478,53 @@ public:
 class spell_dk_purgatory_absorb : public SpellScriptLoader
 {
 public:
-	spell_dk_purgatory_absorb() : SpellScriptLoader("spell_dk_purgatory_absorb") { }
+    spell_dk_purgatory_absorb() : SpellScriptLoader("spell_dk_purgatory_absorb") { }
 
-	class spell_dk_purgatory_absorb_AuraScript : public AuraScript
-	{
-		PrepareAuraScript(spell_dk_purgatory_absorb_AuraScript);
+    class spell_dk_purgatory_absorb_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_purgatory_absorb_AuraScript);
 
-		void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
-		{
-			amount = -1;
-		}
+        void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            amount = -1;
+        }
 
-		void Absorb(AuraEffect* /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
-		{
-			Unit* target = GetTarget();
+        void Absorb(AuraEffect* /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+        {
+            Unit* target = GetTarget();
 
-			if (dmgInfo.GetDamage() < target->GetHealth())
-				return;
+            if (dmgInfo.GetDamage() < target->GetHealth())
+                return;
 
-			// No damage received under Shroud of Purgatory
-			if (target->ToPlayer()->HasAura(SPELL_DK_SHROUD_OF_PURGATORY))
-			{
-				absorbAmount = dmgInfo.GetDamage();
-				return;
-			}
+            // No damage received under Shroud of Purgatory
+            if (target->ToPlayer()->HasAura(SPELL_DK_SHROUD_OF_PURGATORY))
+            {
+                absorbAmount = dmgInfo.GetDamage();
+                return;
+            }
 
-			if (target->ToPlayer()->HasAura(SPELL_DK_PERDITION))
-				return;
+            if (target->ToPlayer()->HasAura(SPELL_DK_PERDITION))
+                return;
 
-			int32 bp = dmgInfo.GetDamage();
+            int32 bp = dmgInfo.GetDamage();
 
-			target->CastCustomSpell(target, SPELL_DK_SHROUD_OF_PURGATORY, &bp, NULL, NULL, true);
-			target->CastSpell(target, SPELL_DK_PERDITION, true);
-			target->SetHealth(1);
-			absorbAmount = dmgInfo.GetDamage();
-		}
+            target->CastCustomSpell(target, SPELL_DK_SHROUD_OF_PURGATORY, &bp, NULL, NULL, true);
+            target->CastSpell(target, SPELL_DK_PERDITION, true);
+            target->SetHealth(1);
+            absorbAmount = dmgInfo.GetDamage();
+        }
 
-		void Register() override
-		{
-			DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_purgatory_absorb_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-			OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_purgatory_absorb_AuraScript::Absorb, EFFECT_0);
-		}
-	};
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_purgatory_absorb_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_purgatory_absorb_AuraScript::Absorb, EFFECT_0);
+        }
+    };
 
-	AuraScript* GetAuraScript() const override
-	{
-		return new spell_dk_purgatory_absorb_AuraScript();
-	}
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_purgatory_absorb_AuraScript();
+    }
 };
 
 // Called by Chains of Ice - 45524
@@ -1997,7 +1997,7 @@ public:
         {
             if (Unit* caster = GetCaster())
                 amount = int32((caster->GetMaxHealth()*25.0f) / 100.0f);
-            
+
             aurEff->GetCaster()->DealDamage(aurEff->GetCaster(), 6969); //debug
         }
 
@@ -2039,7 +2039,7 @@ public:
 
             if (l_Caster->GetPower(POWER_RUNIC_POWER) <= 130)
                 l_Caster->RemoveAura(SPELL_DK_BREATH_OF_SINDRAGOSA);
-            
+
         }
 
         void Register() override
@@ -2306,7 +2306,7 @@ public:
             Unit* caster = GetCaster();
             if (!caster)
                 return;
-    
+
             for(int i = 0; i < GetSpellInfo()->GetEffect(effIndex)->BasePoints;i++)
                 caster->CastSpell(caster, SPELL_DK_BONE_SHIELD);
         }
@@ -2392,7 +2392,7 @@ public:
         bool HandleProc(ProcEventInfo& /*procInfo*/)
         {
             Unit* caster = GetCaster();
-            
+
             if (!caster)
                 return false;
 

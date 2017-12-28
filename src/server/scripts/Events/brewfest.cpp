@@ -91,10 +91,10 @@ enum eBeliersQuests
     QUEST_SPEED_ALLIANCE        = 11318,
     QUEST_SPEED_HORDE           = 11320,
     QUEST_SPEED_LOW             = 11409,
-    
+
     QUEST_ALLIANCE_BARLEYBREWS  = 11293,
     QUEST_ALLIANCE_THUNDERBREWS = 11294,
-    
+
     QUEST_HORDE_DROHN           = 11407,
     QUEST_HORDE_VAUDOO          = 11408,
 };
@@ -676,7 +676,7 @@ class spell_hol_wolpertinger_net : public SpellScriptLoader
 
                 if (!wolpertinger)
                     return;
-                
+
                 wolpertinger->AddAura(59260, wolpertinger);
                 wolpertinger->ToCreature()->DespawnOrUnsummon(2000);
                 caster->ToPlayer()->AddItem(ITEM_CAPTURED_WOLPERTINGER, 1);

@@ -18,6 +18,7 @@
 
 #include "InstanceScript.h"
 #include "AreaBoundary.h"
+#include "AchievementMgr.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
@@ -702,6 +703,34 @@ void InstanceScript::DoKilledMonsterKredit(uint32 questId, uint32 entry, ObjectG
             if (Player* pPlayer = i->GetSource())
                 if (pPlayer->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                     pPlayer->KilledMonsterCredit(entry, guid);
+}
+
+// Complete Achievement for all players in instance
+void InstanceScript::DoCompleteAchievement(uint32 achievement)
+{
+    AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievement);
+    if (!achievementEntry)
+    {
+        TC_LOG_ERROR("scripts", "DoCompleteAchievement called for not existing achievement %u", achievement);
+        return;
+    }
+
+    Map::PlayerList const& playerList = instance->GetPlayers();
+    if (!playerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->CompletedAchievement(achievementEntry);
+}
+
+// Update Achievement Criteria for all players in instance
+void InstanceScript::DoUpdateAchievementCriteria(CriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
+{
+    Map::PlayerList const& playerList = instance->GetPlayers();
+
+    if (!playerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->GetAchievementMgr()->UpdateCriteria(type, miscValue1, miscValue2, 0, unit);
 }
 
 // Add aura on all players in instance

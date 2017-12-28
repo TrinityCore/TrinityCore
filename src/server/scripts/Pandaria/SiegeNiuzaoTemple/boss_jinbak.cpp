@@ -125,7 +125,7 @@ class npc_sap_puddle : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_sap_puddleAI(creature);
         }

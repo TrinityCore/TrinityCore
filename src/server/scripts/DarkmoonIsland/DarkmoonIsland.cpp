@@ -35,7 +35,7 @@ class playerscript_darkmoon_carousel : public PlayerScript
         }*/
 };
 
-// Whee! - 46668 
+// Whee! - 46668
 class spell_darkmoon_carousel_whee : public SpellScriptLoader
 {
 public:

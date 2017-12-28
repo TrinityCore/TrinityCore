@@ -47,7 +47,7 @@ public:
         bool Active;
         uint32 CanIteract;
 
-        void Reset()
+        void Reset() override
         {
             Active = true;
             CanIteract = 3500;
@@ -113,7 +113,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_dancing_flamesAI(creature);
     }
@@ -175,7 +175,7 @@ class npc_midsummer_brasero : public CreatureScript
 public:
     npc_midsummer_brasero() : CreatureScript("npc_midsummer_brasero") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_midsummer_braseroAI(creature);
     }
@@ -187,7 +187,7 @@ public:
         uint32 targetTimer;
         bool HasAura;
 
-        void Reset()
+        void Reset() override
         {
             targetTimer = 0;
             HasAura = false;
@@ -281,7 +281,7 @@ class spell_gen_torch_launch : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
-                
+
                 std::list<Creature*> braseroList;
                 std::list<Creature*>::iterator Itr;
 

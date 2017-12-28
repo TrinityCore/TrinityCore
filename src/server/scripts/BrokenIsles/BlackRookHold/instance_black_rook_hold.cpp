@@ -42,6 +42,6 @@ class instance_black_rook_hold : public InstanceMapScript
 };
 
 void AddSC_instance_black_rook_hold()
-{ 
+{
     new instance_black_rook_hold();
 }

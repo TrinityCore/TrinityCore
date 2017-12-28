@@ -49,7 +49,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_wild_turkeyAI(creature);
     }
@@ -70,7 +70,7 @@ public:
     {
         npc_lonely_turkeyAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
+        void Reset() override
         {
             if (me->IsSummon())
                 if (Unit* owner = me->ToTempSummon()->GetSummoner())
@@ -92,7 +92,7 @@ public:
         uint32 _StinkerBrokenHeartTimer;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_lonely_turkeyAI(creature);
     }

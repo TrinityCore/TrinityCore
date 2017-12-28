@@ -42,6 +42,6 @@ class instance_neltharions_lair : public InstanceMapScript
 };
 
 void AddSC_instance_neltharions_lair()
-{ 
+{
     new instance_neltharions_lair();
 }
