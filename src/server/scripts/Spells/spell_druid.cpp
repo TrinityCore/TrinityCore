@@ -1007,7 +1007,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
                 });
             }
 
-            void _handleRemove(Unit* target, AuraEffect const* aurEff, uint32 stack)
+            void OnRemoveEffect(Unit* target, AuraEffect const* aurEff, uint32 stack)
             {
                 int32 healAmount = aurEff->GetAmount();
                 if (Unit* caster = GetCaster())
@@ -1035,19 +1035,14 @@ class spell_dru_lifebloom : public SpellScriptLoader
                     return;
 
                 // final heal
-                _handleRemove(GetTarget(), aurEff, GetStackAmount());
+                OnRemoveEffect(GetTarget(), aurEff, GetStackAmount());
             }
 
             void HandleDispel(DispelInfo* dispelInfo)
             {
                 if (Unit* target = GetUnitOwner())
-                {
                     if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
-                    {
-                        // final heal
-                        _handleRemove(target, aurEff, dispelInfo->GetRemovedCharges());
-                    }
-                }
+                        OnRemoveEffect(target, aurEff, dispelInfo->GetRemovedCharges()); // final heal
             }
 
             void Register() override
