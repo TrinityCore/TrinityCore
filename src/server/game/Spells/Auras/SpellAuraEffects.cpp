@@ -4043,17 +4043,18 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
     float pct = float(GetAmount());
 
     // Calculate the change.
-    int32 change = target->GetMaxPower(powerType);
-    ApplyPct(change, apply ? pct : (100 - 100 / (1 + pct / 100))); // On removal (!apply) GetMaxPower is already increased by pct.
+    float change = target->GetMaxPower(powerType);
+    ApplyPercentModFloatVar(amount, pct, apply);
+    change -= target->GetMaxPower(powerType);
 
     if (!apply) // We reduce power before removal of aura effect.
-        target->ModifyPower(powerType, -change);
+        target->ModifyPower(powerType, int32(change));
 
     // The actual aura effect for max power.
     target->HandleStatModifier(unitMod, TOTAL_PCT, pct, apply);
 
     if (apply) // We increase power after application of aura effect.
-        target->ModifyPower(powerType, change);
+        target->ModifyPower(powerType, int32(change));
 }
 
 void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
