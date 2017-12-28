@@ -213,7 +213,7 @@ public:
             me->SetVisible(false);
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*param*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             if (!guid)
                 return;

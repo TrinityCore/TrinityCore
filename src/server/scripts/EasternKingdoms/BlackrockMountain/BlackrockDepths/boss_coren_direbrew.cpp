@@ -282,9 +282,9 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
 {
     npc_coren_direbrew_sisters(Creature* creature) : ScriptedAI(creature) { }
 
-    void SetGUID(ObjectGuid guid, int32 data) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
-        if (data == DATA_TARGET_GUID)
+        if (id == DATA_TARGET_GUID)
             _targetGUID = guid;
     }
 

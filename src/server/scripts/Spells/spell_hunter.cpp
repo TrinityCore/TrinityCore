@@ -32,6 +32,7 @@
 
 enum HunterSpells
 {
+    SPELL_HUNTER_ASPECT_OF_THE_BEAST                = 13161,
     SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET            = 61669,
     SPELL_HUNTER_ASPECT_OF_THE_VIPER                = 34074,
     SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE       = 34075,
@@ -117,6 +118,34 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
         {
             return new spell_hun_aspect_of_the_beast_AuraScript();
         }
+};
+
+// 61669 - Aspect of the Beast
+class spell_hun_aspect_of_the_beast_pet : public AuraScript
+{
+    PrepareAuraScript(spell_hun_aspect_of_the_beast_pet);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_ASPECT_OF_THE_BEAST });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->GetSpellModOwner();
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* owner = GetUnitOwner()->GetSpellModOwner();
+        if (!owner->HasAura(SPELL_HUNTER_ASPECT_OF_THE_BEAST))
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_hun_aspect_of_the_beast_pet::OnApply, EFFECT_0, SPELL_AURA_UNTRACKABLE, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 34074 - Aspect of the Viper
@@ -1593,6 +1622,7 @@ class spell_hun_viper_attack_speed : public SpellScriptLoader
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
+    RegisterAuraScript(spell_hun_aspect_of_the_beast_pet);
     new spell_hun_ascpect_of_the_viper();
     new spell_hun_chimera_shot();
     new spell_hun_cobra_strikes();

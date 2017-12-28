@@ -1591,7 +1591,7 @@ struct npc_shadow_demon : public PassiveAI
         });
     }
 
-    void SetGUID(ObjectGuid guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
     {
         _targetGUID = guid;
         if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
