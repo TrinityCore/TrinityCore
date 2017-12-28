@@ -1,6 +1,6 @@
 -- Halls of Origination work
-SET @CGUID := 1000000; -- 91 entry needed (1000000 - 1000090)
-SET @SpellEffectID := 1000000; -- 1 entry needed
+SET @CGUID := 1000000; -- 91 entries needed (1000000 - 1000090)
+SET @SpellEffectID := 1000000; -- 2 entries needed
 
 -- General: Elevator, trash mobs --
 -- spawn missing Temple Fireshaper (not in old sniffs)
@@ -55,6 +55,24 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (76599, 'spell_anhuur_handle_beacons'),
 (76600, 'spell_anhuur_handle_beacons');
 
+-- Boss: Earthrager Ptah
+UPDATE `creature_template` SET `ScriptName` = 'npc_ptah_beetle_stalker' WHERE `entry` = 40459;
+
+-- server-side spell Summon Quicksand
+DELETE FROM `spell_dbc` WHERE `Id` = 75550;
+INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `AttributesEx8`, `AttributesEx9`, `AttributesEx10`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `SchoolMask`, `SpellAuraOptionsId`, `SpellCastingRequirementsId`, `SpellCategoriesId`, `SpellClassOptionsId`, `SpellEquippedItemsId`, `SpellLevelsId`, `SpellTargetRestrictionsId`, `SpellInterruptsId`, `Comment`) VALUES
+(75550, 128, 0, 4, 262144, 128, 8, 0, 0, 0, 0, 0, 1, 18, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Summon Quicksand');
+
+DELETE FROM `spelleffect_dbc` WHERE `Id` = @SpellEffectID+0;
+INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectItemType`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
+(0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40503, 64, 0, 0, 0, 0, 0, 0, 0, 25, 0, 75550, 0);
+
+-- delete third and forth event for both adds - merge 4th action into 3rd event (set data not needed anymore)
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (40450, 40458) AND `source_type` = 0 AND `id` IN (3, 4);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40450, 0, 3, 0, 6, 0, 100, 512, 0, 0, 0, 0, '',  90, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dustbone Horror - On Death - Add byte for submerged'),
+(40458, 0, 3, 0, 6, 0, 100, 512, 0, 0, 0, 0, '',  90, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jeweled Scarab - On Death - Add byte for submerged');
+
 -- Boss: Anraphet --
 -- respawn time of wardens set to one day
 UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `map` = 644 AND `id` in (39800, 39801, 39802, 39803)
@@ -85,9 +103,9 @@ DELETE FROM `spell_dbc` WHERE `Id` = 94067;
 INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `AttributesEx8`, `AttributesEx9`, `AttributesEx10`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `SchoolMask`, `SpellAuraOptionsId`, `SpellCastingRequirementsId`, `SpellCategoriesId`, `SpellClassOptionsId`, `SpellEquippedItemsId`, `SpellLevelsId`, `SpellTargetRestrictionsId`, `SpellInterruptsId`, `Comment`) VALUES
 (94067, 384, 0, 5, 256, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vault of Lights achievement credit');
 
-DELETE FROM `spelleffect_dbc` WHERE `Id` = @SpellEffectID;
+DELETE FROM `spelleffect_dbc` WHERE `Id` = @SpellEffectID+1;
 INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectItemType`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
-(@SpellEffectID, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 94067, 0);
+(@SpellEffectID+1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 94067, 0);
 
 -- speed corrections for Brann
 UPDATE `creature_template` SET `speed_walk` = 2.5/2.5, `speed_run` = 7/2.5 WHERE `entry` = 39908;

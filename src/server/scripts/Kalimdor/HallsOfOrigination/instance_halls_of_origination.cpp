@@ -272,6 +272,11 @@ class instance_halls_of_origination : public InstanceMapScript
                         for (ObjectGuid guid : transitDeviceGUIDs)
                             HandleTransitDevice(instance->GetGameObject(guid));
                         break;
+                    case NPC_DUSTBONE_HORROR:
+                    case NPC_BEETLE_STALKER:
+                        if (Creature* ptah = GetCreature(DATA_EARTHRAGER_PTAH))
+                            ptah->GetAI()->DoAction(ACTION_PTAH_ADD_DIED);
+                        break;
                     case NPC_FIRE_WARDEN:
                     case NPC_EARTH_WARDEN:
                     case NPC_WATER_WARDEN:

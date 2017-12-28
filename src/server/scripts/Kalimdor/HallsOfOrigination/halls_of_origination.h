@@ -74,8 +74,8 @@ enum HOOCreatures
 
     BOSS_EARTHRAGER_PTAH            = 39428,
     NPC_BEETLE_STALKER              = 40459, // Summons both Jeweled Scarab and Dustbone Horror
-    NPC_JEWELED_SCARAB              = 40458,
-    NPC_DUSTBONE_HORROR             = 40450,
+    NPC_JEWELED_SCARAB              = 40458, // Summoned by spell: 75462 Summon Jeweled Scarab
+    NPC_DUSTBONE_HORROR             = 40450, // Summoned by spell: 75521 Summon Dustbone Horror
     NPC_QUICKSAND                   = 40503, // Summoned by a spell not in dbc (75550)
 
     BOSS_ANRAPHET                   = 39788,
@@ -161,6 +161,7 @@ enum HOOMisc
 
 enum HOOGlobalActions
 {
+    ACTION_PTAH_ADD_DIED,
     ACTION_ANRAPHET_INTRO,
     ACTION_ELEMENTAL_DIED,
     ACTION_ANRAPHET_DIED,
