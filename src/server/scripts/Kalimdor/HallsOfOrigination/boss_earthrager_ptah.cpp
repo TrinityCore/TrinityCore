@@ -208,7 +208,7 @@ public:
 
             for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
             {
-                if (390.f < (*itr)->GetPositionY() && (*itr)->GetPositionY < 400.f) // 2 stalkers in the middle
+                if (390.f < (*itr)->GetPositionY() && (*itr)->GetPositionY() < 400.f) // 2 stalkers in the middle
                     (*itr)->CastSpell((*itr), SPELL_SUMMON_DUSTBONE_HORROR);
                 else
                     (*itr)->CastSpell((*itr), SPELL_BEETLE_BURROW);

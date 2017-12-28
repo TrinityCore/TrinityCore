@@ -65,7 +65,7 @@ INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `A
 
 DELETE FROM `spelleffect_dbc` WHERE `Id` = @SpellEffectID+0;
 INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectItemType`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
-(0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40503, 64, 0, 0, 0, 0, 0, 0, 0, 25, 0, 75550, 0);
+(@SpellEffectID+0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40503, 64, 0, 0, 0, 0, 0, 0, 0, 25, 0, 75550, 0);
 
 -- delete third and forth event for both adds - merge 4th action into 3rd event (set data not needed anymore)
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (40450, 40458) AND `source_type` = 0 AND `id` IN (3, 4);
@@ -75,7 +75,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Boss: Anraphet --
 -- respawn time of wardens set to one day
-UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `map` = 644 AND `id` in (39800, 39801, 39802, 39803)
+UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `map` = 644 AND `id` in (39800, 39801, 39802, 39803);
 
 -- spell positions for wardens
 DELETE FROM `spell_target_position` WHERE `ID` IN (82329, 82330, 82331, 82332);
@@ -111,7 +111,7 @@ INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectA
 UPDATE `creature_template` SET `speed_walk` = 2.5/2.5, `speed_run` = 7/2.5 WHERE `entry` = 39908;
 
 -- delete menu condition (that is not even working)
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` = 12512` AND `SourceEntry` = 17600;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` = 12512 AND `SourceEntry` = 17600;
 
 -- broadcast text ids for Brann
 UPDATE `creature_text` SET `BroadcastTextId` = 40231 WHERE `CreatureID` = 39908 AND `GroupID` = 0;
