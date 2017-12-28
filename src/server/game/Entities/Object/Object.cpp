@@ -2556,10 +2556,7 @@ float WorldObject::GetFloorZ() const
 float WorldObject::GetMapWaterOrGroundLevel(float x, float y, float z, float* ground/* = nullptr*/) const
 {
     if (Unit const* unit = ToUnit())
-    {
-        *ground = z;
         return GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, ground, !unit->HasAuraType(SPELL_AURA_WATER_WALK), GetCollisionHeight());
-    }
 
     return z;
 }
