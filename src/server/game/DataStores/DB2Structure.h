@@ -1160,7 +1160,7 @@ struct GarrMissionEntry
     uint8  FollowerType;
     uint8  BaseBonusChance;
     uint8  LostChance;
-    uint8  unk1;
+    uint8  GarrTypeID;
     uint32 ID;
     uint32 TravelTime;
     uint32 SubCategory2;
