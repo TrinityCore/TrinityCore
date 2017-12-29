@@ -166,7 +166,7 @@ public:
 
         m_timer = 1000;
 
-        if (!player->GetSceneMgr().HasScene(TanaanSceneObjects::SceneFinaleIronBastion))
+        if (!player->GetSceneMgr().HasSceneWithPackageId(TanaanSceneObjects::SceneFinaleIronBastion))
             return;
 
         for (uint8 i = 0; i < MAX_IRON_BASTION_PROGRESS; ++i)
