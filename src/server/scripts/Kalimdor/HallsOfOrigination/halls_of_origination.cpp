@@ -33,6 +33,8 @@
 
 enum Spells
 {
+    SPELL_SUBMERGE                      = 76084,
+
     // Isiset trash and adds
     SPELL_ARCANE_ENERGY                 = 74881,
     SPELL_ARCANE_BURST                  = 74888, // On retail not working! Should probably be cast at full energy.
@@ -227,6 +229,33 @@ public:
     }
 };
 
+// 75764 - Emerge
+class spell_hoo_emerge : public SpellScriptLoader
+{
+public:
+    spell_hoo_emerge() : SpellScriptLoader("spell_hoo_emerge") { }
+
+    class spell_hoo_emerge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hoo_emerge_SpellScript);
+
+        void RemoveSubmergeAura(SpellEffIndex /*effIndex*/)
+        {
+            GetHitUnit()->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hoo_emerge_SpellScript::RemoveSubmergeAura, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hoo_emerge_SpellScript();
+    }
+};
+
 // 82382 - Energy Flux (trash mob Spatial Flux)
 class spell_hoo_energy_flux_target_selector : public SpellScriptLoader
 {
@@ -310,6 +339,7 @@ void AddSC_halls_of_origination()
     new go_hoo_the_makers_lift_controller();
     new npc_hoo_spatial_flux();
     new npc_hoo_energy_flux();
+    new spell_hoo_emerge();
     new spell_hoo_energy_flux_target_selector();
     new spell_hoo_arcane_energy_check();
 }

@@ -197,6 +197,7 @@ public:
             events.SetPhase(PHASE_EARTHSTORM);
             _hasDispersed = true;
 
+            me->InterruptNonMeleeSpells(true);
             me->AttackStop();
             DoCast(me, SPELL_SANDSTORM);
             me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
