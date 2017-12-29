@@ -27615,12 +27615,16 @@ void Player::DeleteGarrison(GarrisonType type)
 
 void Player::AddGarrisonFollower(uint32 garrFollowerId)
 {
-    GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(garrFollowerId);
+    if (GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(garrFollowerId))
+        if (Garrison* garrison = GetGarrison((GarrisonType)followerEntry->GarrTypeID))
+            garrison->AddFollower(garrFollowerId);
+}
 
-    if (!followerEntry)
-        return;
-
-    GetGarrison((GarrisonType)followerEntry->GarrTypeID)->AddFollower(garrFollowerId);
+void Player::AddGarrisonMission(uint32 garrMissionId)
+{
+    if (GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrFollowerId))
+        if (Garrison* garrison = GetGarrison((GarrisonType)missionEntry->GarrTypeID))
+            garrison->AddMission(garrMissionId);
 }
 
 void Player::SendGarrisonInfo() const

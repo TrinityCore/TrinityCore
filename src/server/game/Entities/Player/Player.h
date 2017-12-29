@@ -2384,6 +2384,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Garrison* GetGarrison(GarrisonType type) const { auto garItr = _garrisons.find(type); return (garItr != _garrisons.end()) ? garItr->second.get() : nullptr; }
 
         void AddGarrisonFollower(uint32 garrFollowerId);
+        void AddGarrisonMission(uint32 garrMissionId);
 
         void SendGarrisonInfo() const;
         void SendGarrisonRemoteInfo() const;
