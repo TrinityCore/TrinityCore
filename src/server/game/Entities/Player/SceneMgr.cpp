@@ -174,6 +174,15 @@ bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 
     return false;
 }
 
+bool SceneMgr::HasSceneWithPackageId(uint32 sceneScriptPackageId) const
+{
+    for (auto scene : _scenesByInstance)
+        if (scene.second.ScenePackageId == sceneScriptPackageId)
+            return true;
+
+    return false;
+}
+
 void SceneMgr::AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const sceneTemplate)
 {
     _scenesByInstance[sceneInstanceID] = sceneTemplate;

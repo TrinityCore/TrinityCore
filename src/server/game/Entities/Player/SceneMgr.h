@@ -60,6 +60,7 @@ public:
     }
 
     bool HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId = 0) const;
+    bool HasSceneWithPackageId(uint32 sceneScriptPackageId) const;
 
     void AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const sceneTemplate);
     void CancelSceneBySceneId(uint32 sceneId);
