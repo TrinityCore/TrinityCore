@@ -3762,6 +3762,14 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
+        19503, // Scatter Shot
+        34490  // Silencing Shot
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Speed = 0.f;
+    });
+
+    ApplySpellFix({
         55741, // Desecration (Rank 1)
         68766, // Desecration (Rank 2)
         57842  // Killing Spree (Off hand damage)
