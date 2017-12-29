@@ -27622,7 +27622,7 @@ void Player::AddGarrisonFollower(uint32 garrFollowerId)
 
 void Player::AddGarrisonMission(uint32 garrMissionId)
 {
-    if (GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrFollowerId))
+    if (GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(garrMissionId))
         if (Garrison* garrison = GetGarrison((GarrisonType)missionEntry->GarrTypeID))
             garrison->AddMission(garrMissionId);
 }
