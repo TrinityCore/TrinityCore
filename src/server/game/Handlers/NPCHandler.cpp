@@ -536,7 +536,7 @@ void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult
 
     // summon unstabled pet
     Pet* newPet = new Pet(_player);
-    if (!newPet->LoadPetFromDB(_player, petEntry, petId))
+    if (!newPet->LoadPetData(_player, petEntry, petId))
     {
         delete newPet;
         SendPetStableResult(STABLE_ERR_STABLE);

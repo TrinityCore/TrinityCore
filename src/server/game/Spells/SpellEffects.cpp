@@ -4518,7 +4518,7 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
     if (!player->GetPet())
     {
         // Position passed to SummonPet is irrelevant with current implementation,
-        // pet will be relocated without using these coords in Pet::LoadPetFromDB
+        // pet will be relocated without using these coords in Pet::LoadPetData
         player->SummonPet(0, 0.0f, 0.0f, 0.0f, 0.0f, SUMMON_PET, 0);
         hadPet = false;
     }
