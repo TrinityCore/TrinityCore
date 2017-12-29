@@ -51,6 +51,7 @@ public:
         EVENT_ROT               = 1,
         EVENT_VOLATILE_ROT      = 2,
         EVENT_INFESTED_BREATH   = 3,
+        EVENT_TAIL_LASH         = 4,
     };
 
     struct boss_nythendraAI : public BossAI
@@ -62,6 +63,7 @@ public:
             events.ScheduleEvent(EVENT_ROT, Seconds(15));
             events.ScheduleEvent(EVENT_VOLATILE_ROT, Seconds(1));
             events.ScheduleEvent(EVENT_INFESTED_BREATH, Seconds(1));
+            events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(6));
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -85,6 +87,12 @@ public:
                     events.ScheduleEvent(EVENT_VOLATILE_ROT, Seconds(15));
                     break;
                 }
+                case EVENT_TAIL_LASH:
+                {
+                    DoCast(SPELL_TAIL_LASH);
+                    events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(6));
+                    break;
+                }
                 default:
                     break;
             }
@@ -97,10 +105,10 @@ public:
     }
 };
 
-//196354
-class spell_nythendra_rots_AuraScript : public AuraScript
+//203096
+class spell_nythendra_rot : public AuraScript
 {
-    PrepareAuraScript(spell_nythendra_rots_AuraScript);
+    PrepareAuraScript(spell_nythendra_rot);
 
     void AfterRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -110,7 +118,42 @@ class spell_nythendra_rots_AuraScript : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_nythendra_rots_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_nythendra_rot::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+//204470
+class spell_nythendra_volatile_rot_damage : public SpellScript
+{
+    PrepareSpellScript(spell_nythendra_volatile_rot_damage);
+
+    void CalcDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetExplTargetUnit();
+
+        if (!target)
+            return;
+
+        float castertoTargetDist = GetCaster()->GetDistance2d(target);
+
+        int32 damage = GetHitDamage();
+        SetHitDamage(damage * (1 / castertoTargetDist));
+    }
+
+    void HandleAfterCast()
+    {
+        for (uint8 i = 0; i < 3; ++i)
+        {
+            Position castPos;
+            GetRandPosFromCenterInDist(GetCaster(), 5.0f, castPos);
+            GetCaster()->CastSpell(castPos, SPELL_INFESTED_GROUND, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nythendra_volatile_rot_damage::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        AfterCast += SpellCastFn(spell_nythendra_volatile_rot_damage::HandleAfterCast);
     }
 };
 
@@ -148,7 +191,8 @@ void AddSC_nythendra()
 {
     new boss_nythendra();
 
-    RegisterAuraScript(spell_nythendra_rots_AuraScript);
+    RegisterAuraScript(spell_nythendra_rot);
+    RegisterSpellScript(spell_nythendra_volatile_rot_damage);
 
     new at_nythendra_infested_ground();
 }
