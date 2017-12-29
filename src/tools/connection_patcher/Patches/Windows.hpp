@@ -25,27 +25,13 @@ namespace Connection_Patcher
 {
     namespace Patches
     {
-        namespace Windows
+        struct Windows
         {
             static std::vector<unsigned char> LauncherLoginParametersLocation()
             {
                 char const path[] = R"(Software\TrinityCore Developers\Battle.net\Launch Options\)";
                 return std::vector<unsigned char>(std::begin(path), std::end(path));
             }
-
-            struct x86
-            {
-                static std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x6A, 0x01 }; }
-                static std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0x59, 0x59, 0x84, 0xC0, 0xEB }; }
-                static std::vector<unsigned char> LauncherLoginParametersLocation() { return ::Connection_Patcher::Patches::Windows::LauncherLoginParametersLocation(); }
-            };
-
-            struct x64
-            {
-                static std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x41, 0xB1, 0x01 }; }
-                static std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0xEB }; }
-                static std::vector<unsigned char> LauncherLoginParametersLocation() { return ::Connection_Patcher::Patches::Windows::LauncherLoginParametersLocation(); }
-            };
         };
     }
 }

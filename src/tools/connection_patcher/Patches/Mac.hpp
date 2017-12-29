@@ -25,18 +25,13 @@ namespace Connection_Patcher
 {
     namespace Patches
     {
-        namespace Mac
+        struct Mac
         {
-            struct x64
+            static std::vector<unsigned char> LauncherLoginParametersLocation()
             {
-                static std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x48, 0x8D, 0x55, 0xDC, 0x31, 0xDB, 0xB1, 0x01 }; }
-                static std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0x45, 0x84, 0xFF, 0xB0, 0x01, 0xEB, 0x03, 0x44, 0x89 }; }
-                static std::vector<unsigned char> LauncherLoginParametersLocation()
-                {
-                    char const path[] = "org.trnity"; // not a typo, length must match original
-                    return std::vector<unsigned char>(std::begin(path), std::end(path));
-                }
-            };
+                char const path[] = "org.trnity"; // not a typo, length must match original
+                return std::vector<unsigned char>(std::begin(path), std::end(path));
+            }
         };
     }
 }
