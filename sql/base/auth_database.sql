@@ -2072,7 +2072,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int(10) unsigned NOT NULL DEFAULT '24742',
+  `gamebuild` int(10) unsigned NOT NULL DEFAULT '25549',
   `Region` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `Battlegroup` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -2086,7 +2086,7 @@ CREATE TABLE `realmlist` (
 
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
-INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,2,1,0,0,24742,2,1);
+INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,2,1,0,0,25549,2,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2224,6 +2224,7 @@ INSERT INTO `updates` VALUES
 ('2017_08_13_00_auth_2016_09_22_00_auth.sql','70047954E3556BFA430ADD5680EF8797F74A4B9E','RELEASED','2017-08-13 12:00:00',0),
 ('2017_09_22_00_auth.sql','9313CCE80A18212E6F0C78D83316DE8582AE8084','RELEASED','2017-09-22 18:05:17',0),
 ('2017_11_11_01_auth.sql','0D6EDB6B2FC8B9FBDF11ECD79B4B8E943328B6A9','RELEASED','2017-11-11 18:49:45',0);
+('2017_12_30_00_auth.sql','F360E9555AC68E28834E3FF807E4E37A090EF363','RELEASED','2017-12-30 00:23:32',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
