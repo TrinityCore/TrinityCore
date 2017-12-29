@@ -712,6 +712,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoCorrections();
         void LoadSpellInfoSpellSpecificAndAuraState();
         void LoadSpellInfoDiminishing();
+        void LoadSpellInfoImmunities();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;

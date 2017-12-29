@@ -24,6 +24,8 @@
 #include "Object.h"
 #include "SpellAuraDefines.h"
 
+#include <boost/container/flat_set.hpp>
+
 class Unit;
 class Player;
 class Item;
@@ -303,6 +305,18 @@ private:
     static StaticData _data[TOTAL_SPELL_TARGETS];
 };
 
+struct TC_GAME_API ImmunityInfo
+{
+    uint32 SchoolImmuneMask = 0;
+    uint32 ApplyHarmfulAuraImmuneMask = 0;
+    uint32 MechanicImmuneMask = 0;
+    uint32 DispelImmune = 0;
+    uint32 DamageSchoolMask = 0;
+
+    boost::container::flat_set<AuraType> AuraTypeImmune;
+    boost::container::flat_set<SpellEffectName> SpellEffectImmune;
+};
+
 class TC_GAME_API SpellEffectInfo
 {
 public:
@@ -373,6 +387,8 @@ public:
     SpellEffectImplicitTargetTypes GetImplicitTargetType() const;
     SpellTargetObjectTypes GetUsedTargetObjectType() const;
 
+    ImmunityInfo const* GetImmunityInfo() const { return &_immunityInfo; }
+
 private:
     struct StaticData
     {
@@ -380,6 +396,8 @@ private:
         SpellTargetObjectTypes UsedTargetObjectType; // defines valid target object type for spell effect
     };
     static StaticData _data[TOTAL_SPELL_EFFECTS];
+
+    ImmunityInfo _immunityInfo;
 };
 
 typedef std::vector<SpellEffectInfo const*> SpellEffectInfoVector;
@@ -578,8 +596,8 @@ class TC_GAME_API SpellInfo
         bool IsAffectedBySpellMods() const;
         bool IsAffectedBySpellMod(SpellModifier const* mod) const;
 
-        bool CanPierceImmuneAura(SpellInfo const* aura) const;
-        bool CanDispelAura(SpellInfo const* aura) const;
+        bool CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const;
+        bool CanDispelAura(SpellInfo const* auraSpellInfo) const;
 
         bool IsSingleTarget() const;
         bool IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const;
@@ -646,6 +664,11 @@ class TC_GAME_API SpellInfo
         DiminishingLevels GetDiminishingReturnsMaxLevel() const;
         int32 GetDiminishingReturnsLimitDuration() const;
 
+        // spell immunities
+        void ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const* effect, bool apply) const;
+        bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
+        bool CanSpellCastOverrideAuraEffect(AuraEffect const* aurEff) const;
+
     private:
         // loading helpers
         void _InitializeExplicitTargetMask();
@@ -655,6 +678,7 @@ class TC_GAME_API SpellInfo
         void _LoadSpellSpecific();
         void _LoadAuraState();
         void _LoadSpellDiminishInfo();
+        void _LoadImmunityInfo();
 
         // unloading helpers
         void _UnloadImplicitTargetConditionLists();
