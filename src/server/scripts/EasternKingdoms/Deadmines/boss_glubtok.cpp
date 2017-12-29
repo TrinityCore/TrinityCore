@@ -24,7 +24,7 @@
 #include "MoveSplineInit.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
-#include "G3D\Vector3.h"
+#include <G3D/Vector3.h>
 #include "SpellHistory.h"
 
 enum Spells

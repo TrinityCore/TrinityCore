@@ -33,7 +33,7 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "MovementPackets.h"
 #include "MoveSplineInit.h"
-#include "G3D\Vector3.h"
+#include <G3D/Vector3.h>
 
 enum Spells
 {
