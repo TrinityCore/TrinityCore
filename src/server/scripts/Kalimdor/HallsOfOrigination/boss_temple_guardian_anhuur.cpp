@@ -143,8 +143,10 @@ public:
         {
             if (action == ACTION_DISABLE_BEACON_L)
                 _leftBeaconDisabled = true;
-            else //if (action == ACTION_DISABLE_BEACON_R)
+            else if (action == ACTION_DISABLE_BEACON_R)
                 _rightBeaconDisabled = true;
+            else if (action == ACTION_HYMN_EXPIRED) // We manually deactivate beacons.
+                DoCastAOE(SPELL_DEACTIVATE_BEACONS);
 
             // Exit shield phase if both beacons are disabled or channeling Reverberating Hymn finished.
             if ((_leftBeaconDisabled && _rightBeaconDisabled) || action == ACTION_HYMN_EXPIRED)

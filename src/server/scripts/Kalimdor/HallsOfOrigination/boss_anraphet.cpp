@@ -62,7 +62,7 @@ enum Gossip
 
 enum Events
 {
-    EVENT_BRANN_IDLE_EMOTE             = 1,
+    EVENT_BRANN_IDLE_EMOTE_COOLDOWN    = 1,
     EVENT_BRANN_START_INTRO            = 2,
     EVENT_BRANN_UNLOCK_DOOR            = 3,
     EVENT_BRANN_MOVE_INTRO             = 4,
@@ -104,6 +104,11 @@ enum Spells
     SPELL_OMEGA_STANCE_SUMMON           = 77106,
     SPELL_OMEGA_STANCE                  = 75622,
     SPELL_OMEGA_STANCE_SPIDER_TRIGGER   = 77121
+};
+
+enum Actions
+{
+    ACTION_BRANN_IDLE_EMOTE,
 };
 
 enum Phases
@@ -164,6 +169,20 @@ Position const BrannFinalPath[BrannFinalPathSize] =
     { -103.559f,  366.5938f, 89.79725f, 0.0f },
     { -71.58507f, 367.0278f, 89.77069f, 0.0f },
     { -35.04861f, 366.6563f, 89.77447f, 0.0f }
+};
+
+class at_hoo_brann_idle_emote : public AreaTriggerScript
+{
+public:
+    at_hoo_brann_idle_emote() : AreaTriggerScript("at_hoo_brann_idle_emote") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (Creature* brann = instance->GetCreature(DATA_BRANN_0))
+                brann->AI()->DoAction(ACTION_BRANN_IDLE_EMOTE);
+        return true;
+    }
 };
 
 class boss_anraphet : public CreatureScript
@@ -348,8 +367,10 @@ public:
 
         void Reset() override
         {
+            canSayIdleEmote = false;
+
             if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == NOT_STARTED)
-                events.ScheduleEvent(EVENT_BRANN_IDLE_EMOTE, Seconds(45));
+                canSayIdleEmote = true;
             else if (_instance->GetBossState(DATA_ANRAPHET) != DONE)
                 me->SetHomePosition(BrannBossHomePos);
             else
@@ -373,20 +394,28 @@ public:
         {
             switch (action)
             {
-            case ACTION_ELEMENTAL_DIED:
-            {
-                uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
-                if (dead < 4) // Say that an elemental has died.
-                    Talk(BRANN_1_ELEMENTAL_DEAD + dead - 1);
-                else // Last one died! Wait until laser beam is activated (9-second animation of light machine behind the warden).
-                    _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
-                events.RescheduleEvent(EVENT_BRANN_ACTIVATE_LASERBEAMS, Seconds(9));
-                break;
-            }
-            case ACTION_ANRAPHET_DIED:
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                events.ScheduleEvent(EVENT_BRANN_MOVE_OUTRO, Seconds(5));
-                break;
+                case ACTION_BRANN_IDLE_EMOTE:
+                    if (canSayIdleEmote)
+                    {
+                        canSayIdleEmote = false;
+                        Talk(urand(0, 1) ? BRANN_SAY_BLASTED_TITANS : BRANN_SAY_THIS_SYMBOL);
+                        events.ScheduleEvent(EVENT_BRANN_IDLE_EMOTE_COOLDOWN, Seconds(45)); // Cooldown for AreaTrigger
+                    }
+                    break;
+                case ACTION_ELEMENTAL_DIED:
+                {
+                    uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
+                    if (dead < 4) // Say that an elemental has died.
+                        Talk(BRANN_1_ELEMENTAL_DEAD + dead - 1);
+                    else // Last one died! Wait until laser beam is activated (9-second animation of light machine behind the warden).
+                        _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
+                    events.RescheduleEvent(EVENT_BRANN_ACTIVATE_LASERBEAMS, Seconds(9));
+                    break;
+                }
+                case ACTION_ANRAPHET_DIED:
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    events.ScheduleEvent(EVENT_BRANN_MOVE_OUTRO, Seconds(5));
+                    break;
             }
         }
 
@@ -398,87 +427,86 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_BRANN_IDLE_EMOTE:
-                    Talk(urand(0, 1) ? BRANN_SAY_BLASTED_TITANS : BRANN_SAY_THIS_SYMBOL);
-                    events.Repeat(Seconds(45));
-                    break;
-                case EVENT_BRANN_START_INTRO:
-                    Talk(BRANN_SAY_DOOR_INTRO);
-                    events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, Seconds(7));
-                    break;
-                case EVENT_BRANN_UNLOCK_DOOR:
-                    Talk(BRANN_SAY_UNLOCK_DOOR);
-                    _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
-                    events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, Seconds(3));
-                    break;
-                case EVENT_BRANN_MOVE_INTRO:
-                    me->SetWalk(true);
-                    me->GetMotionMaster()->MovePoint(POINT_BRANN_SAY_TROGGS, BrannBossHomePos, true);
-                    break;
-                case EVENT_BRANN_THINK:
-                    Talk(BRANN_SAY_THINK);
-                    events.ScheduleEvent(EVENT_BRANN_LOOK_RIGHT, Seconds(6));
-                    break;
-                case EVENT_BRANN_LOOK_RIGHT:
-                    me->SetFacingTo(DegToRad(312.0f)); // Sniff: o = 5.445427f
-                    Talk(BRANN_SAY_MIRRORS);
-                    events.ScheduleEvent(EVENT_BRANN_LOOK_LEFT, Seconds(1));
-                    break;
-                case EVENT_BRANN_LOOK_LEFT:
-                    me->SetFacingTo(DegToRad(36.0f)); // Sniff: o = 0.6283185f
-                    events.ScheduleEvent(EVENT_BRANN_SAY_ELEMENTALS, Seconds(3));
-                    break;
-                case EVENT_BRANN_SAY_ELEMENTALS:
-                    me->SetFacingTo(DegToRad(1.0f)); // Sniff: o = 0.01745329f
-                    Talk(BRANN_SAY_ELEMENTALS);
-                    events.ScheduleEvent(EVENT_BRANN_SAY_GET_IT, Seconds(4));
-                    break;
-                case EVENT_BRANN_SAY_GET_IT:
-                    Talk(BRANN_SAY_GET_IT);
-                    events.ScheduleEvent(EVENT_BRANN_SET_FLAG_GOSSIP, Seconds(16));
-                    break;
-                case EVENT_BRANN_SET_FLAG_GOSSIP:
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    break;
-                case EVENT_BRANN_ACTIVATE_LASERBEAMS:
-                {
-                    // Activate laserbeams
-                    if (_instance->GetBossState(DATA_EARTH_WARDEN) == DONE)
-                        _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_EARTH_WARDEN));
-                    if (_instance->GetBossState(DATA_WATER_WARDEN) == DONE)
-                        _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_WATER_WARDEN));
-                    if (_instance->GetBossState(DATA_AIR_WARDEN) == DONE)
-                        _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_AIR_WARDEN));
-                    if (_instance->GetBossState(DATA_FIRE_WARDEN) == DONE)
-                        _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_FIRE_WARDEN));
+                    case EVENT_BRANN_IDLE_EMOTE_COOLDOWN:
+                        canSayIdleEmote = true;
+                        break;
+                    case EVENT_BRANN_START_INTRO:
+                        Talk(BRANN_SAY_DOOR_INTRO);
+                        events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, Seconds(7));
+                        break;
+                    case EVENT_BRANN_UNLOCK_DOOR:
+                        Talk(BRANN_SAY_UNLOCK_DOOR);
+                        _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
+                        events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, Seconds(3));
+                        break;
+                    case EVENT_BRANN_MOVE_INTRO:
+                        me->SetWalk(true);
+                        me->GetMotionMaster()->MovePoint(POINT_BRANN_SAY_TROGGS, BrannBossHomePos, true);
+                        break;
+                    case EVENT_BRANN_THINK:
+                        Talk(BRANN_SAY_THINK);
+                        events.ScheduleEvent(EVENT_BRANN_LOOK_RIGHT, Seconds(6));
+                        break;
+                    case EVENT_BRANN_LOOK_RIGHT:
+                        me->SetFacingTo(DegToRad(312.0f)); // Sniff: o = 5.445427f
+                        Talk(BRANN_SAY_MIRRORS);
+                        events.ScheduleEvent(EVENT_BRANN_LOOK_LEFT, Seconds(1));
+                        break;
+                    case EVENT_BRANN_LOOK_LEFT:
+                        me->SetFacingTo(DegToRad(36.0f)); // Sniff: o = 0.6283185f
+                        events.ScheduleEvent(EVENT_BRANN_SAY_ELEMENTALS, Seconds(3));
+                        break;
+                    case EVENT_BRANN_SAY_ELEMENTALS:
+                        me->SetFacingTo(DegToRad(1.0f)); // Sniff: o = 0.01745329f
+                        Talk(BRANN_SAY_ELEMENTALS);
+                        events.ScheduleEvent(EVENT_BRANN_SAY_GET_IT, Seconds(4));
+                        break;
+                    case EVENT_BRANN_SAY_GET_IT:
+                        Talk(BRANN_SAY_GET_IT);
+                        events.ScheduleEvent(EVENT_BRANN_SET_FLAG_GOSSIP, Seconds(16));
+                        break;
+                    case EVENT_BRANN_SET_FLAG_GOSSIP:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        break;
+                    case EVENT_BRANN_ACTIVATE_LASERBEAMS:
+                    {
+                        // Activate laserbeams
+                        if (_instance->GetBossState(DATA_EARTH_WARDEN) == DONE)
+                            _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_EARTH_WARDEN));
+                        if (_instance->GetBossState(DATA_WATER_WARDEN) == DONE)
+                            _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_WATER_WARDEN));
+                        if (_instance->GetBossState(DATA_AIR_WARDEN) == DONE)
+                            _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_AIR_WARDEN));
+                        if (_instance->GetBossState(DATA_FIRE_WARDEN) == DONE)
+                            _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_FIRE_WARDEN));
 
-                    if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE) {
-                        // Note: In some old sniff file Sun Mirror gets activated every time an elemental dies (for 10 seconds).
-                        // Needs to be checked on live. It makes sense that it is only activated after all four beams are active.
-                        if (GameObject* mirror = _instance->GetGameObject(DATA_ANRAPHET_SUN_MIRROR))
-                            mirror->SetGoState(GO_STATE_ACTIVE);
-                        if (GameObject* door = _instance->GetGameObject(DATA_ANRAPHET_DOOR))
-                            door->SetGoState(GO_STATE_ACTIVE);
-                        events.ScheduleEvent(EVENT_BRANN_SAY_ALL_ELEMENTAL_DEAD, Seconds(4)); // Note: 4600 ms
+                        if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE) {
+                            // Note: In some old sniff file Sun Mirror gets activated every time an elemental dies (for 10 seconds).
+                            // Needs to be checked on live. It makes sense that it is only activated after all four beams are active.
+                            if (GameObject* mirror = _instance->GetGameObject(DATA_ANRAPHET_SUN_MIRROR))
+                                mirror->SetGoState(GO_STATE_ACTIVE);
+                            if (GameObject* door = _instance->GetGameObject(DATA_ANRAPHET_DOOR))
+                                door->SetGoState(GO_STATE_ACTIVE);
+                            events.ScheduleEvent(EVENT_BRANN_SAY_ALL_ELEMENTAL_DEAD, Seconds(4)); // Note: 4600 ms
+                        }
+                        break;
                     }
-                    break;
-                }
-                case EVENT_BRANN_SAY_ALL_ELEMENTAL_DEAD:
-                    Talk(BRANN_4_ELEMENTAL_DEAD);
-                    if (Creature* anraphet = _instance->GetCreature(DATA_ANRAPHET))
-                        anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
-                    break;
-                case EVENT_BRANN_MOVE_OUTRO:
-                    Talk(BRANN_SAY_ANRAPHET_DIED);
-                    me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_SAY_MOMENT, BrannOutroPath, BrannOutroPathSize, false);
-                    break;
-                case EVENT_BRANN_MOVE_FINAL:
-                    me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_TURN_BACK, BrannFinalPath, BrannFinalPathSize, false);
-                    break;
-                case EVENT_BRANN_TURN_BACK:
-                    me->SetFacingTo(DegToRad(180.0f)); // Sniff: 3.141593f
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    break;
+                    case EVENT_BRANN_SAY_ALL_ELEMENTAL_DEAD:
+                        Talk(BRANN_4_ELEMENTAL_DEAD);
+                        if (Creature* anraphet = _instance->GetCreature(DATA_ANRAPHET))
+                            anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
+                        break;
+                    case EVENT_BRANN_MOVE_OUTRO:
+                        Talk(BRANN_SAY_ANRAPHET_DIED);
+                        me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_SAY_MOMENT, BrannOutroPath, BrannOutroPathSize, false);
+                        break;
+                    case EVENT_BRANN_MOVE_FINAL:
+                        me->GetMotionMaster()->MoveSmoothPath(POINT_BRANN_TURN_BACK, BrannFinalPath, BrannFinalPathSize, false);
+                        break;
+                    case EVENT_BRANN_TURN_BACK:
+                        me->SetFacingTo(DegToRad(180.0f)); // Sniff: 3.141593f
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        break;
                 }
             }
         }
@@ -507,9 +535,10 @@ public:
             }
         }
 
-    protected:
-        EventMap events;
+    private:
         InstanceScript* _instance;
+        EventMap events;
+        bool canSayIdleEmote;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

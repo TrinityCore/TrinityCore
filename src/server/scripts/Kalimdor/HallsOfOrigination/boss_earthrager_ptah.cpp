@@ -272,7 +272,11 @@ public:
             events.Update(diff);
 
             if (events.ExecuteEvent() == EVENT_SUMMON_JEWELED_SCARAB)
+            {
                 DoCastAOE(SPELL_SUMMON_JEWELED_SCARAB);
+                me->RemoveAurasDueToSpell(SPELL_BEETLE_BURROW);
+            }
+                
         }
 
     private:
