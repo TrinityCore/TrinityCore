@@ -114,6 +114,11 @@ DELETE FROM `spelleffect_dbc` WHERE `Id` = @SpellEffectID+1;
 INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectItemType`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
 (@SpellEffectID+1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 94067, 0);
 
+-- area trigger for Brann's emote
+DELETE FROM `areatrigger_scripts` WHERE `entry` = 1702;
+INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
+(1702, 'at_hoo_brann_idle_emote');
+
 -- speed corrections for Brann
 UPDATE `creature_template` SET `speed_walk` = 2.5/2.5, `speed_run` = 7/2.5 WHERE `entry` = 39908;
 
