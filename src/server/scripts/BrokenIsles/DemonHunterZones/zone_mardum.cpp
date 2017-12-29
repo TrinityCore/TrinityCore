@@ -509,7 +509,7 @@ public:
 
             for (Player* player : players)
             {
-                player->CompleteQuest(QUEST_BEFORE_OVERRUN);
+                player->ForceCompleteQuest(QUEST_BEFORE_OVERRUN);
 
                 if (!player->HasSpell(SPELL_LEARN_CONSUME_MAGIC))
                     player->CastSpell(player, SPELL_LEARN_CONSUME_MAGIC);
@@ -558,7 +558,7 @@ public:
     {
         if (player->GetQuestObjectiveData(QUEST_SHIVARRA_FORCES, 0))
         {
-            player->CompleteQuest(QUEST_SHIVARRA_FORCES);
+            player->ForceCompleteQuest(QUEST_SHIVARRA_FORCES);
             player->CastSpell(player, SPELL_SCENE_MARDUM_SHIVARRA_FORCES, true);
         }
 
@@ -708,7 +708,7 @@ public:
 
             for (Player* player : players)
             {
-                player->CompleteQuest(QUEST_HIDDEN_NO_MORE);
+                player->ForceCompleteQuest(QUEST_HIDDEN_NO_MORE);
 
                 if (!player->HasSpell(SPELL_LEARN_CONSUME_MAGIC))
                     player->CastSpell(player, SPELL_LEARN_CONSUME_MAGIC);
