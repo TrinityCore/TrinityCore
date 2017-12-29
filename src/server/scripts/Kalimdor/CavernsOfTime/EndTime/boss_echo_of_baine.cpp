@@ -27,7 +27,9 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "CellImpl.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "end_time.h"
 #include "SpellInfo.h"
 #include "GameObject.h"
