@@ -73,10 +73,12 @@ INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectA
 (@SpellEffectID+0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40503, 64, 0, 0, 0, 0, 0, 0, 0, 25, 0, 75550, 0);
 
 -- delete third and forth event for both adds - merge 4th action into 3rd event (set data not needed anymore)
+/* SAI rewritten below
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (40450, 40458) AND `source_type` = 0 AND `id` IN (3, 4);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (40450, 0, 3, 0, 6, 0, 100, 512, 0, 0, 0, 0, '',  90, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dustbone Horror - On Death - Add byte for submerged'),
 (40458, 0, 3, 0, 6, 0, 100, 512, 0, 0, 0, 0, '',  90, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jeweled Scarab - On Death - Add byte for submerged');
+*/
 
 -- Boss: Anraphet --
 -- respawn time of wardens set to one day
@@ -294,7 +296,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (42556, 0, 3, 4, 4, 0, 100, 0, 0, 0, 0, 0, '', 91, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jeweled Scarab - On Aggro - Remove byte for submerged'),
 (42556, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75764, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jeweled Scarab - Linked - Cast \'Emerge\' on self'),
 (42556, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 19, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jeweled Scarab - Linked - Remove not-selectable flag'),
-(42556, 0, 6, 0, 0, 0, 100, 0, 2000, 2000, 10000, 10000, '', 11, 83233, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Jeweled Scarab - In Combat - Cast \'Surge\' on random player'),
+(42556, 0, 6, 0, 0, 0, 100, 0, 2000, 2000, 10000, 10000, '', 11, 83233, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Jeweled Scarab - In Combat - Cast \'Surge\' on random player');
 
 -- Jeweled Scarab 2 SAI
 UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40458;
@@ -327,11 +329,11 @@ DELETE FROM `smart_scripts` WHERE `entryorguid` = 40787 AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (40787, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '',  90, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dustbone Horror - On Reset - Add byte for submerged'),
 (40787, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 76084, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dustbone Horror - Linked - Cast \'Submerge\' on self'),
-(39440, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 18, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Venomous Skitterer - Linked - Set not-selectable flag'),
+(40787, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 18, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Venomous Skitterer - Linked - Set not-selectable flag'),
 (40787, 0, 3, 4, 4, 0, 100, 0, 0, 0, 0, 0, '', 91, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dustbone Horror - On Aggro - Remove byte for submerged'),
 (40787, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75764, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dustbone Horror - Linked - Cast \'Emerge\' on self'),
-(39440, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 19, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Venomous Skitterer - Linked - Remove not-selectable flag'),
-(40787, 0, 6, 0, 0, 0, 100, 0, 1250, 1250, 10000, 10000, '', 11, 75453, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Dustbone Horror - In Combat - Cast \'Smash\' on victim'),
+(40787, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 19, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Venomous Skitterer - Linked - Remove not-selectable flag'),
+(40787, 0, 6, 0, 0, 0, 100, 0, 1250, 1250, 10000, 10000, '', 11, 75453, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Dustbone Horror - In Combat - Cast \'Smash\' on victim');
 
 -- Dustbone Horror 2 SAI 
 UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40808;
@@ -499,12 +501,12 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (317458,317382,8,90,515,2,5);
 
 -- First group east from elevator
-DELETE FROM `creature_formations` WHERE `memberGUID` IN (313971, 307310, 307320, 307320);
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (307307, 307310, 307320, 307308);
 INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
 (307307,307307,0,0,3,0,0),
 (307307,307310,0,0,3,0,0),
 (307307,307320,0,0,3,0,0),
-(307307,307320,0,0,3,0,0);
+(307307,307308,0,0,3,0,0);
 
 -- Second group east from elevator
 DELETE FROM `creature_formations` WHERE `memberGUID` IN (307365, 307452, 307418, 307453, 307333, 307360);
