@@ -28,6 +28,7 @@ public:
     enum
     {
         SPELL_MAGE_LEARN_GUARDIAN_HALL_TP   = 204287,
+        SPELL_WAR_LEARN_JUMP_TO_SKYHOLD     = 192084,
         SPELL_CREATE_CLASS_HALL_ALLIANCE    = 185506,
         SPELL_CREATE_CLASS_HALL_HORDE       = 192191,
     };
@@ -38,6 +39,8 @@ public:
         {
             if (player->getClass() == CLASS_MAGE)
                 player->CastSpell(player, SPELL_MAGE_LEARN_GUARDIAN_HALL_TP, true);
+            else if (player->getClass() == CLASS_WARRIOR)
+                player->CastSpell(player, SPELL_WAR_LEARN_JUMP_TO_SKYHOLD, true);
 
             player->CastSpell(player, player->IsInAlliance() ? SPELL_CREATE_CLASS_HALL_ALLIANCE : SPELL_CREATE_CLASS_HALL_HORDE, true);
         }
