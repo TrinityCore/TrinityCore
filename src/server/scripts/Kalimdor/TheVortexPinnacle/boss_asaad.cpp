@@ -29,10 +29,10 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "the_vortex_pinnacle.h"
-#include "G3D/Vector3.h"
-#include "G3D/Triangle.h"
-#include "G3D/Plane.h"
-#include "G3D/CollisionDetection.h"
+#include <G3D/Vector3.h>
+#include <G3D/Triangle.h>
+#include <G3D/Plane.h>
+#include <G3D/CollisionDetection.h>
 
 using G3D::Vector3;
 
