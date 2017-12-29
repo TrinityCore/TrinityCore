@@ -1171,7 +1171,6 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
         index_mult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
-        petType = HUNTER_PET;
     }
 
     switch (petType)
@@ -1188,6 +1187,9 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             value = CalculatePct(m_owner->GetTotalAttackPowerValue(BASE_ATTACK), 100.f);
             // Bluetracker says 100% (needs ingame data)
             break;
+        case ENTRY_IMP:
+            value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 100.f);
+            SetBonusDamage(value);
         default:
             break;
         }
@@ -1195,8 +1197,6 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     }
     case HUNTER_PET:
         value = CalculatePct(m_owner->GetTotalAttackPowerValue(ranged ? RANGED_ATTACK : BASE_ATTACK), 60.f);
-        if (ranged)
-            SetBonusDamage(CalculatePct(m_owner->GetTotalAttackPowerValue(RANGED_ATTACK), 60.f));
         break;
     default:
         break;
