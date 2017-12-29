@@ -192,7 +192,10 @@ public:
                 float pos_y = caster->GetPositionY();
                 float pos_z = caster->GetPositionZ() + 30.0f;
 
-                caster->GetMotionMaster()->MoveJump(pos_x, pos_y, pos_z, caster->GetOrientation(), 20.f, 20.f, EVENT_JUMP, false/*, SPELL_WARRIOR_JUMP_TO_SKYHOLD_TELEPORT*/);
+                JumpArrivalCastArgs arrivalCast;
+                arrivalCast.SpellId = SPELL_WARRIOR_JUMP_TO_SKYHOLD_TELEPORT;
+                arrivalCast.Target = caster->GetGUID();
+                caster->GetMotionMaster()->MoveJump(pos_x, pos_y, pos_z, caster->GetOrientation(), 20.f, 20.f, EVENT_JUMP, false, &arrivalCast);
 
                 caster->RemoveAurasDueToSpell(SPELL_WARRIOR_JUMP_TO_SKYHOLD_AURA);
             }
