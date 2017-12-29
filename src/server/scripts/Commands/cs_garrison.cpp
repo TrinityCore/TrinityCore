@@ -74,27 +74,8 @@ public:
             return false;
         }
 
-        char* garrisonTypeStr = strtok((char*)args, " ");
-        char* followerIdStr = strtok(NULL, " ");
-
-        if (!garrisonTypeStr || !followerIdStr)
-            return false;
-
-        uint32 garrisonType = atoi(garrisonTypeStr);
-        uint32 followerId   = atoi(followerIdStr);
-
-        if (garrisonType < GARRISON_TYPE_MIN || garrisonType > GARRISON_TYPE_MAX)
-            return false;
-
-        Garrison* garrison = target->GetGarrison(GarrisonType(garrisonType));
-        if (!garrison)
-            return false;
-
-        GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(followerId);
-        if (!followerEntry)
-            return false;
-
-        garrison->AddFollower(followerId);
+        uint32 followerId = atoi((char*)args);
+        target->AddGarrisonFollower(followerId);
         return true;
     }
 
@@ -111,27 +92,8 @@ public:
             return false;
         }
 
-        char* garrisonTypeStr = strtok((char*)args, " ");
-        char* missionIdStr = strtok(NULL, " ");
-
-        if (!garrisonTypeStr || !missionIdStr)
-            return false;
-
-        uint32 garrisonType = atoi(garrisonTypeStr);
-        uint32 missionId = atoi(missionIdStr);
-
-        if (garrisonType < GARRISON_TYPE_MIN || garrisonType > GARRISON_TYPE_MAX)
-            return false;
-
-        Garrison* garrison = target->GetGarrison(GarrisonType(garrisonType));
-        if (!garrison)
-            return false;
-
-        GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(missionId);
-        if (!missionEntry)
-            return false;
-
-        garrison->AddMission(missionId);
+        uint32 missionId = atoi((char*)args);
+        target->AddGarrisonMission(missionId);
         return true;
     }
 };
