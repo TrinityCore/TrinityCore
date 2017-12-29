@@ -97,7 +97,7 @@ class boss_echo_of_jaina : public CreatureScript
                 Summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
 
@@ -110,7 +110,7 @@ class boss_echo_of_jaina : public CreatureScript
                 events.ScheduleEvent(EVENT_FLARECORE, 5000); // 30 seconds
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 instance->SetData(DATA_BOSS_COUNT, 1);

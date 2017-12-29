@@ -323,7 +323,7 @@ public:
                 }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -373,13 +373,13 @@ public:
         InstanceScript* instance;
         bool Active;
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*pWho*/) override
         {
             if (Active)
                 Talk(AUGH_SAY_INTRO_1);
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 const /*diff*/) override
         {
             if (!UpdateVictim())
                 return;

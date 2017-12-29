@@ -355,7 +355,7 @@ public:
         Creature* ysera = me->FindNearestCreature(NPC_YSERA_DRAGON, 500.0f, true);
         Creature* kalec = me->FindNearestCreature(NPC_KALECGOS_DRAGON, 500.0f, true);
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
@@ -392,7 +392,7 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
         }
@@ -683,7 +683,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -756,7 +756,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*kller*/)
+        void JustDied(Unit* /*kller*/) override
         {
             if (instance)
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -785,7 +785,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -863,7 +863,7 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->GetInstanceScript())
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, TRALL_MENU, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -927,7 +927,7 @@ public:
         bool firstBlistering;
         bool secondBlistering;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -951,7 +951,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             me->setActive(true);
         }
@@ -970,7 +970,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -1038,7 +1038,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (Creature* dwing = me->FindNearestCreature(NPC_DEATHWING, 500.0f, true))
                 dwing->AI()->DoAction(ACTION_PLATFORM_DONE);
@@ -1077,7 +1077,7 @@ public:
         bool firstBlistering;
         bool secondBlistering;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -1101,7 +1101,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             me->setActive(true);
         }
@@ -1120,7 +1120,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -1188,7 +1188,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (Creature* dwing = me->FindNearestCreature(NPC_DEATHWING, 500.0f, true))
                 dwing->AI()->DoAction(ACTION_PLATFORM_DONE);
@@ -1236,7 +1236,7 @@ public:
         bool firstBlistering;
         bool secondBlistering;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -1263,7 +1263,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             me->setActive(true);
         }
@@ -1281,7 +1281,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -1349,7 +1349,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (Creature* dwing = me->FindNearestCreature(NPC_DEATHWING, 500.0f, true))
                 dwing->AI()->DoAction(ACTION_PLATFORM_DONE);
@@ -1400,7 +1400,7 @@ public:
         EventMap events;
         bool reachedPos;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -1447,7 +1447,7 @@ public:
                 }
         }
 
-        void JustDied(Unit* /*kller*/)
+        void JustDied(Unit* /*kller*/) override
         {
             me->DespawnOrUnsummon();
         }
@@ -1479,7 +1479,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -1489,7 +1489,7 @@ public:
             events.ScheduleEvent(EVENT_CRUSH, 1000);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             me->setActive(true);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -1559,7 +1559,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->setRegeneratingHealth(false);
             me->setPowerType(POWER_ENERGY);
@@ -1570,7 +1570,7 @@ public:
             DoCast(SPELL_DEGENERATIVE_BITE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_INCREASE_ENERGY, 1000);
         }
@@ -1636,14 +1636,14 @@ public:
         EventMap events;
         bool reachedPos;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             DoCast(SPELL_BLISTERING_HEAT);
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_SPELLWEAVE, true);
         }
 
-        void JustDied(Unit* /*kller*/)
+        void JustDied(Unit* /*kller*/) override
         {
             me->DespawnOrUnsummon();
         }
@@ -1670,7 +1670,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -1716,7 +1716,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -1804,7 +1804,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetCanFly(true);
@@ -1849,7 +1849,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetCanFly(true);
@@ -1896,7 +1896,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
         }
@@ -1945,7 +1945,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetHomePosition(congealingDest);

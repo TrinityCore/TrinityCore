@@ -29,7 +29,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
 public:
     instance_throne_of_the_tides() : InstanceMapScript("instance_throne_of_the_tides", 643) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_throne_of_the_tides_InstanceMapScript(map);
     }
@@ -84,7 +84,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -194,7 +194,7 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 identifier) const
+        ObjectGuid GetGuidData(uint32 identifier) const override
         {
             switch (identifier)
             {
@@ -222,7 +222,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -290,7 +290,7 @@ class GoHelloThroneDefenseSystem : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
+        bool OnGossipHello(Player* player, GameObject* /*go*/) override
         {
             Map::PlayerList const &PlList = player->GetMap()->GetPlayers();
 
@@ -358,7 +358,7 @@ class at_tott_first_tunnel : public AreaTriggerScript
                         if (Creature* c = ObjectAccessor::GetCreature(*player, (*itr)))
                         {
                             c->GetRandomPoint(pos, 8.0f, x,y,z);
-                            c->GetMotionMaster()->MoveJump(x, y, z, 20, 20);
+                            c->GetMotionMaster()->MoveJump(x, y, z, pos.GetOrientation(), 20.0f, 20.0f);
                             c->SetHomePosition(x,y,z, pos.GetOrientation());
                         }
                     }
@@ -461,7 +461,7 @@ public:
 
                         float x,y,z;
                         c->GetRandomPoint(pos, 6.0f, x,y,z);
-                        c->GetMotionMaster()->MoveJump(x, y, z, 20, 20);
+                        c->GetMotionMaster()->MoveJump(x, y, z, pos.GetOrientation(), 20.0f, 20.0f);
                         c->SetHomePosition(x,y,z, pos.GetOrientation());
                     }
                 }
@@ -525,7 +525,7 @@ class npc_tot_teleporter : public CreatureScript
 public:
     npc_tot_teleporter() : CreatureScript("npc_tot_teleporter") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -544,7 +544,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
 

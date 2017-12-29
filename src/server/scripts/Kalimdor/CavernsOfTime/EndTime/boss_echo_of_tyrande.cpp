@@ -102,7 +102,7 @@ class boss_echo_of_tyrande : public CreatureScript
                 Summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
 
@@ -115,18 +115,18 @@ class boss_echo_of_tyrande : public CreatureScript
                 events.ScheduleEvent(EVENT_MOONLANCE, 5000);
             }
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 // ToDo:
                 // Trash event!
                 DoAction(ACTION_TYRANDE_START);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) override
             {
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 instance->SetData(DATA_BOSS_COUNT, 1);
@@ -249,7 +249,7 @@ class npc_moonlance_single : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 me->SetSpeed(MOVE_RUN, 1.5f);
                 me->CastSpell(me, SPELL_MOONLANCE_AOE, true);
@@ -356,7 +356,7 @@ class npc_eye_of_the_goddess : public CreatureScript
                 }
             }
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 rotationStart = false;
 

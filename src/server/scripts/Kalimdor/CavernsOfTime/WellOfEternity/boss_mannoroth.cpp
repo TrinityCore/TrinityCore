@@ -186,7 +186,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(WoEScriptName))
                 me->IsAIEnabled = false;
@@ -215,7 +215,7 @@ public:
                 pIllidan->AI()->DoAction(7); // ACTION_MANNOROTH_RESET
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
@@ -223,7 +223,7 @@ public:
             me->Attack(who, false);
         }
 
-        void EnterCombat(Unit* attacker)
+        void EnterCombat(Unit* attacker) override
         {
             if (Creature* pVarothen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROTHEN)))
                 if (!pVarothen->IsInCombat())
@@ -257,7 +257,7 @@ public:
             instance->SetBossState(DATA_MANNOROTH, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
             if (who && who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_MANNOROTH_KILL);
@@ -268,7 +268,7 @@ public:
             return bAchieve;
         }
 
-        void DoAction(const int32 action)
+        void DoAction(int32 const action) override
         {
             if (action == ACTION_VAROTHEN_DIED)
             {
@@ -280,7 +280,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*who*/, uint32 &damage)
+        void DamageTaken(Unit* /*who*/, uint32&damage) override
         {
             if (!bDebilitating)
                 if (me->HealthBelowPctDamaged(88, damage))
@@ -290,7 +290,7 @@ public:
                 damage = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -554,7 +554,7 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
-        void EnterCombat(Unit* attacker)
+        void EnterCombat(Unit* attacker) override
         {
             Talk(SAY_VAROTHEN_AGGRO);
             events.ScheduleEvent(EVENT_MAGNISTRIKE, urand(3000, 7000));
@@ -565,7 +565,7 @@ public:
                         DoZoneInCombat(pMannoroth);
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
             if (who && who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_VAROTHEN_KILL);
@@ -577,7 +577,7 @@ public:
                 DoCast(who, SPELL_ARCHIVED_VAROTHEN_2, true);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_VAROTHEN_DEATH);
 
@@ -595,7 +595,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -662,13 +662,13 @@ public:
             events.ScheduleEvent(EVENT_DEBILITATING_FLAY, 1000);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (Creature* pTyrande = me->FindNearestCreature(NPC_TYRANDE, 100.0f))
                 pTyrande->AI()->DoAction(8); // ACTION_DEBILITATING_OFF
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -721,7 +721,7 @@ class achievement_thats_not_cannon : public AchievementCriteriaScript
 public:
     achievement_thats_not_cannon() : AchievementCriteriaScript("achievement_thats_not_cannon") { }
 
-    bool OnCheck(Player* source, Unit* target)
+    bool OnCheck(Player* source, Unit* target) override
     {
         if (!target)
             return false;

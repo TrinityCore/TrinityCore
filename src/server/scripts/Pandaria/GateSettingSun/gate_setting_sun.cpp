@@ -241,7 +241,7 @@ class go_setting_sun_elevator : public GameObjectScript
 
         InstanceScript* m_Instance;
 
-        bool OnGossipHello(Player* p_Player, GameObject* /*go*/)
+        bool OnGossipHello(Player* p_Player, GameObject* /*go*/) override
         {
             if (!p_Player)
                 return false;

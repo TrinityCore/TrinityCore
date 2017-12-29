@@ -71,14 +71,14 @@ enum Spells
 
 enum ScriptTexts
 {
-    SAY_MASSACRE                    = -1900028, // announce - Chimaeron prepares to massacre his foes!
+    SAY_MASSACRE                    = 0, // announce - Chimaeron prepares to massacre his foes!
 
     // Finkle
-    SAY_INTRO                       = -1851023,
-    SAY_SYSTEM_FAILURE              = -1851026,
-    SAY_DEATH                       = -1851027,
-    SAY_F_OUTRO                     = -1851028,
-    SAY_P2                          = -1851029
+    SAY_INTRO                       = 1,
+    SAY_SYSTEM_FAILURE              = 2,
+    SAY_DEATH                       = 3,
+    SAY_F_OUTRO                     = 4,
+    SAY_P2                          = 5
 };
 
 Position const BilePositions[6] =

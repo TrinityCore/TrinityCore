@@ -72,7 +72,7 @@ public:
         uint8 count;
         bool cooldownVictim;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -102,7 +102,7 @@ public:
 
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
 
             _JustDied();
@@ -116,7 +116,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*Ent*/)
+        void EnterCombat(Unit* /*Ent*/) override
         {
             _EnterCombat();
             DoZoneInCombat();
@@ -138,7 +138,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32&damage) override
         {
             if(damage > 0)
             {
@@ -277,7 +277,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
             events.ScheduleEvent(EVENT_ICY_BOULDER, urand(3000, 7000));
@@ -288,7 +288,7 @@ public:
             events.ScheduleEvent(EVENT_ICY_BOULDER, 1000);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage) override
         {
             if (Unit* thrall = me->FindNearestCreature(NPC_THRALL, 100.0f, true))
             {
@@ -400,7 +400,7 @@ public:
             events.Reset();
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL, 50.0f, true))
             {

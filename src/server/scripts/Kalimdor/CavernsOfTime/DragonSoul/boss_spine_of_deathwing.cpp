@@ -215,7 +215,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
@@ -478,7 +478,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             instance->SetBossState(DATA_SPINE, DONE);
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEGRADATION);
@@ -521,7 +521,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             DoZoneInCombat(me);
             me->AddAura(SPELL_GRASPING_TENDRILS, me);
@@ -553,7 +553,7 @@ public:
         EventMap events;
         Position pos;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             DoZoneInCombat(me);
         }
@@ -566,7 +566,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (!me || !me->IsAlive() || me->HasAura(SPELL_RESIDUE))
                 return;
@@ -645,7 +645,7 @@ public:
         EventMap events;
         uint32 stacks;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             DoZoneInCombat(me);
 
@@ -679,7 +679,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -726,7 +726,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (Aura * absorbed = me->GetAura(SPELL_ABSORBED_BLOOD))
                 if (stacks = absorbed->GetStackAmount() == 9)
@@ -764,7 +764,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
             me->SetReactState(REACT_PASSIVE);
@@ -825,7 +825,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             me->NearTeleportTo(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ() + 0.5f, me->GetHomePosition().GetOrientation());
 
@@ -865,7 +865,7 @@ public:
         Vehicle* vehicle;
         Position pos;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -897,7 +897,7 @@ public:
                 vehicle->InstallAccessory(NPC_KAANU_REEVS, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_FIERY_GRIP, urand(7000, 22000));
             events.ScheduleEvent(EVENT_SEARING_PLASMA, 18000);
@@ -943,7 +943,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -954,7 +954,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             me->SummonCreature(NPC_HIDEOUS_AMALGAMATION, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
             me->SummonCreature(NPC_SPAWNER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);

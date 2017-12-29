@@ -268,7 +268,7 @@ public:
             _EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*pWho*/) override
         {
             EnterPhaseIntro();
 
@@ -296,7 +296,7 @@ public:
             _JustDied();
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL-urand(0,1));
         }
@@ -758,7 +758,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -850,7 +850,7 @@ public:
 
         void UpdateAI(const uint32 diff) { }
 
-        void JustDied(Unit* /*killer*/) { }
+        void JustDied(Unit* /*killer*/) override { }
     };
 };
 
@@ -941,7 +941,7 @@ public:
             } else timerDespawn -= diff;
         }
 
-        void JustDied(Unit* /*killer*/) { }
+        void JustDied(Unit* /*killer*/) override { }
     };
 };
 

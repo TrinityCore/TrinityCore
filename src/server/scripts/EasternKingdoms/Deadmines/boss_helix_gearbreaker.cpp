@@ -120,7 +120,7 @@ public:
             OafSupport();
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*pWho*/) override
         {
             if (!me)
                 return;
@@ -159,7 +159,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summons.Summon(summoned);
         }
@@ -201,7 +201,7 @@ public:
                 events.ScheduleEvent(EVENT_CHEST_BOMB, 5000);
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -284,7 +284,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*pWho*/) override
         {
             if (!me)
                 return;
@@ -292,7 +292,7 @@ public:
             events.ScheduleEvent(EVENT_OAFQUARD, 5000);
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             if (Creature* Helix = me->FindNearestCreature(NPC_HELIX_GEARBREAKER, 200, true))
                 if (boss_helix_gearbreaker::boss_helix_gearbreakerAI* pAI = CAST_AI(boss_helix_gearbreaker::boss_helix_gearbreakerAI, Helix->AI()))
@@ -307,7 +307,7 @@ public:
             me->SetInCombatWithZone();
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -343,7 +343,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -430,7 +430,7 @@ public:
             DoCast(me, SPELL_CHEST_BOMB);
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!me)
                 return;

@@ -100,7 +100,7 @@ class boss_baron_ashbury : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WRACKING_PAIN);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 Talk(SAY_KILL);
             }
@@ -112,7 +112,7 @@ class boss_baron_ashbury : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WRACKING_PAIN);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (IsHeroic())
                     if(!enraged && !me->IsNonMeleeSpellCast(false) && HealthBelowPct(20))
@@ -123,7 +123,7 @@ class boss_baron_ashbury : public CreatureScript
                     }
             }
 
-            void AttackStart(Unit* victim)
+            void AttackStart(Unit* victim) override
             {
                 if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                     BossAI::AttackStart(victim);

@@ -96,7 +96,7 @@ public:
             }
         }
 
-        void JustDied(Unit* who)
+        void JustDied(Unit* who) override
         {
             Talk(SAY_DEATH);
             if (who && who->GetTypeId() == TYPEID_PLAYER)
@@ -112,7 +112,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* Ent)
+        void EnterCombat(Unit* Ent) override
         {
             Talk(SAY_AGGRO);
             if (Ent && Ent->GetTypeId() == TYPEID_PLAYER)

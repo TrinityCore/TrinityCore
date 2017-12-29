@@ -122,7 +122,7 @@ class VoidSpawnSummon : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _owner->CastSpell(nullptr, SPELL_SUMMON_VOID_SENTINEL, true);
             return true;

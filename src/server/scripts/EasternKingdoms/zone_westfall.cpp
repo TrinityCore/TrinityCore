@@ -82,7 +82,7 @@ public:
             SummonTimer = 2000;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             ScriptedAI::MoveInLineOfSight(who);
 
@@ -305,7 +305,7 @@ public:
             TextTimer = 1000;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             ScriptedAI::MoveInLineOfSight(who);
 
@@ -455,7 +455,7 @@ class npc_westplains_drifter : public CreatureScript
 public:
     npc_westplains_drifter() : CreatureScript("npc_westplains_drifter") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(26209) == QUEST_STATUS_INCOMPLETE)
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HELLO_DRIFTER1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -467,7 +467,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -841,7 +841,7 @@ public:
             SummonTimer = 2000;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             ScriptedAI::MoveInLineOfSight(who);
 
@@ -1088,7 +1088,7 @@ public:
             bExit = false;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             ScriptedAI::MoveInLineOfSight(who);
 
@@ -1291,12 +1291,12 @@ class npc_rise_br : public CreatureScript
     public:
     npc_rise_br() : CreatureScript("npc_rise_br") {}
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_rise_brAI (creature);
-        }
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_rise_brAI (creature);
+    }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_RISE_OF_THE_BROTHERHOOD)
         {
@@ -1770,7 +1770,7 @@ public:
             me->CastSpell(me, 71025, true);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_TOSS_TORCH)
             {
@@ -1849,7 +1849,7 @@ public:
             TextTimer = 1000;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             ScriptedAI::MoveInLineOfSight(who);
 

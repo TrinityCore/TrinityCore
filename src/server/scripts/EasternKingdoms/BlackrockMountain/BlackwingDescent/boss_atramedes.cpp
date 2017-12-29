@@ -367,7 +367,7 @@ public:
             _JustDied();
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(RAND(SAY_KILL_1, SAY_KILL_2));
         }
@@ -745,7 +745,7 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->GetMap()->IsHeroic())
         {

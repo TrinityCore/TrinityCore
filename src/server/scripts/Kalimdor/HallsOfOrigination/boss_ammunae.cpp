@@ -81,7 +81,7 @@ class boss_ammunae : public CreatureScript
             _JustDied();
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -209,7 +209,7 @@ class npc_bloodpetal_blossom : public CreatureScript
                 summoner->AddAura(SPELL_ENERGIZE, summoner);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (TempSummon* summon = me->ToTempSummon())
                 if (Unit* summoner = summon->GetSummoner())
@@ -222,7 +222,7 @@ class npc_bloodpetal_blossom : public CreatureScript
                 actionTimer = 100;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!done)
             {
@@ -278,7 +278,7 @@ class npc_ammunae_spore : public CreatureScript
     {
         npc_ammunae_sporeAI(Creature * creature) : ScriptedAI(creature) {}
 
-        void DamageTaken(Unit * /*done_by*/, uint32& damage)
+        void DamageTaken(Unit* /*done_by*/, uint32& damage) override
         {
             if(damage >= me->GetHealth())
             {
@@ -323,19 +323,19 @@ public:
                passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_SPORE_BLAST, 2000);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if(Unit* passenger = me->GetVehicleKit()->GetPassenger(1))
                passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             me->DespawnOrUnsummon(100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -384,12 +384,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_SPORE_CLOUD, 2000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!UpdateVictim())
                 return;

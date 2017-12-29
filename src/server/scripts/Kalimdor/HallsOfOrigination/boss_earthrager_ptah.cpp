@@ -76,7 +76,7 @@ class SummonScarab : public BasicEvent
 public:
     SummonScarab(Unit* owner, InstanceScript* instance) : _owner(owner), _instance(instance) { }
 
-    bool Execute(uint64 /*execTime*/, uint32 /*diff*/)
+    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
     {
         if (!_instance || _instance->GetBossState(DATA_EARTHRAGER_PTAH) != IN_PROGRESS)
             return true;    // delete event
@@ -144,7 +144,7 @@ public:
             events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (me->HealthBelowPct(50) && !_hasDispersed)
             {
@@ -178,7 +178,7 @@ public:
             }
         }
 
-        void SetData(uint32 index, uint32 /*value*/)
+        void SetData(uint32 index, uint32 /*value*/) override
         {
             if (index == DATA_SUMMON_DEATHS)
             {
@@ -195,14 +195,14 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(SAY_AGGRO);
             _EnterCombat();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             Talk(SAY_DEATH);
@@ -217,7 +217,7 @@ public:
             instance->SetBossState(DATA_EARTHRAGER_PTAH, FAIL);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;

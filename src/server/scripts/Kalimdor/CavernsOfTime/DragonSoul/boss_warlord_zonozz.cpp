@@ -171,7 +171,7 @@ public:
         bool bIntro;
         bool bAchieve;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             if (instance->GetBossState(DATA_MORCHOK) == NOT_STARTED)
                 me->SetVisible(false);
@@ -189,7 +189,7 @@ public:
             instance->SetBossState(DATA_ZONOZZ, NOT_STARTED);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!bIntro && me->GetDistance(who) <= 70.0f)
             {
@@ -201,7 +201,7 @@ public:
             BossAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
@@ -225,7 +225,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim && victim->GetTypeId() == TYPEID_PLAYER)
             {
@@ -351,7 +351,7 @@ public:
         }
 
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
 
@@ -479,9 +479,9 @@ public:
                     break;
 
                 case EVENT_ROTATE:
-                    dir = ori + M_PI;
-                    if (dir >= 2*M_PI)
-                        dir-= 2*M_PI;
+                    dir = ori + float(M_PI);
+                    if (dir >= 2 * float(M_PI))
+                        dir-= 2 * float(M_PI);
                     events.ScheduleEvent(EVENT_ROTATE, 100);
                     break;
                 default:
@@ -533,7 +533,7 @@ public:
             events.ScheduleEvent(EVENT_SHADOW_GAZE, 3000);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             std::list<Player*> targets;
             me->GetPlayerListInGrid(targets, 500.0f);
@@ -609,7 +609,7 @@ public:
             events.ScheduleEvent(EVENT_WILD_FLAIL, 5000);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             std::list<Player*> targets;
             me->GetPlayerListInGrid(targets, 500.0f);
@@ -681,7 +681,7 @@ public:
             events.Reset();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             std::list<Player*> targets;
             me->GetPlayerListInGrid(targets, 500.0f);

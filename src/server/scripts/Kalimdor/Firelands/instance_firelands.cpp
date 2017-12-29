@@ -42,7 +42,7 @@ class instance_firelands : public InstanceMapScript
     public:
         instance_firelands() : InstanceMapScript("instance_firelands", 720) { }
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_firelands_InstanceMapScript(map);
         }

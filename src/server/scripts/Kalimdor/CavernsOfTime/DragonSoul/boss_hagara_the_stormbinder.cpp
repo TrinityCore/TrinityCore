@@ -215,7 +215,7 @@ public:
         bool initphase;
         bool icephase;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             if (GameObject* iris = me->FindNearestGameObject(210132, 100.0f))
                 iris->RemoveFromWorld();
@@ -235,7 +235,7 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             _EnterCombat();
@@ -244,7 +244,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 480000);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim && victim->GetTypeId() == TYPEID_PLAYER)
             {
@@ -467,7 +467,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) <= 22.0f)
             {
@@ -481,7 +481,7 @@ public:
             BossAI::MoveInLineOfSight(who);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             instance->SetBossState(DATA_HAGARA, DONE);
@@ -499,7 +499,7 @@ public:
     {
         npc_ds_ice_tombAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             me->SetReactState(REACT_PASSIVE);
@@ -521,7 +521,7 @@ public:
     {
         npc_frozen_binding_crystalAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -530,7 +530,7 @@ public:
                     DoCast(hagara, SPELL_CRYSTALLINE_TETHER);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* hagara = me->FindNearestCreature(NPC_HAGARA, 100.0f, true))
                     hagara->RemoveAura(SPELL_CRYSTALLINE_TETHER);
@@ -552,7 +552,7 @@ public:
     {
         npc_bound_lightning_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (Creature* conductor = me->FindNearestCreature(NPC_CRYSTAL_CONDUCTOR, 10.0f, true))
                 conductor->CastSpell(conductor, SPELL_LIGHTNING_ROD);
@@ -585,7 +585,7 @@ class npc_ice_lance : public CreatureScript
             InstanceScript* instance;
             EventMap events;
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -649,7 +649,7 @@ class npc_ice_wave : public CreatureScript
             float row;
 
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 events.ScheduleEvent(EVENT_RADIATE, 100);
             }
@@ -679,11 +679,11 @@ class npc_ice_wave : public CreatureScript
                         if (me->GetPositionX()> 13612.0f)
                             ori=(0);
                         else if (me->GetPositionX()< 13562.0f)
-                            ori=(M_PI);
+                            ori=float(M_PI);
                         else if (me->GetPositionY()> 13638.0f)
-                            ori=(M_PI/2);
+                            ori=(float(M_PI)/2.0f);
                         else if (me->GetPositionY()< 13584.0f)
-                            ori=(1.5f* M_PI);
+                            ori=(1.5f* float(M_PI));
 
                         me->SetFacingTo(ori);
                         events.ScheduleEvent(EVENT_CIRCLING, 1000);
@@ -702,7 +702,7 @@ class npc_ice_wave : public CreatureScript
 
                         ori-= 0.0415f;
                         if (ori <= 0)
-                            ori+= 2*M_PI;
+                            ori += 2.0f * float(M_PI);
                         float X = centerpos.GetPositionX() + row*cos(ori);
                         float Y = centerpos.GetPositionY() + row*sin(ori);
                         me->GetMotionMaster()->MovePoint(0, X, Y, centerpos.GetPositionZ());
@@ -729,7 +729,7 @@ public:
 
         EventMap events;
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 DoCast(me, SPELL_ICICLE);
                 events.ScheduleEvent(EVENT_FALL, 4000);
@@ -782,7 +782,7 @@ class npc_crystal_conductor : public CreatureScript
             InstanceScript* instance;
             EventMap events;
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);

@@ -138,7 +138,7 @@ class npc_whack_gnoll_bunny : public CreatureScript
                 barrel->AddAura(SPELL_OK_TO_HIT, barrel);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const diff) override
             {
                 events.Update(diff);
 
@@ -206,7 +206,7 @@ class npc_whack_gnoll_mola : public CreatureScript
     public:
         npc_whack_gnoll_mola() : CreatureScript("npc_whack_gnoll_mola") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
@@ -218,7 +218,7 @@ class npc_whack_gnoll_mola : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
         {
             if (!player->HasItemCount(ITEM_DARKMOON_TOKEN))
             {

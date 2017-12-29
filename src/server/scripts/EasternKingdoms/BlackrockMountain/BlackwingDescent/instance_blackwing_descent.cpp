@@ -73,7 +73,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -157,7 +157,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch(go->GetEntry())
             {
@@ -182,7 +182,7 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 identifier) const
+        ObjectGuid GetGuidData(uint32 identifier) const override
         {
             switch(identifier)
             {
@@ -255,7 +255,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 value) override
         {
             switch(type)
             {
@@ -323,7 +323,7 @@ public:
         uint32 Encounter[MAX_ENCOUNTER];
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_blackwing_descent_InstanceMapScript(map);
     }

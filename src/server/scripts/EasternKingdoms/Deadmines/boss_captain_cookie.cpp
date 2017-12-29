@@ -152,7 +152,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (instance->GetBossState(DATA_RIPSNARL) != DONE)
                 return;
@@ -176,7 +176,7 @@ public:
             instance->SetBossState(DATA_COOKIE, IN_PROGRESS);
         }
 
-        void MovementInform(uint32 type, uint32 data)
+        void MovementInform(uint32 type, uint32 data) override
         {
             if (type == POINT_MOTION_TYPE)
                 if (data == POINT_MOVE)
@@ -215,7 +215,7 @@ public:
                     case EVENT_CAULDRON_2:
                     {
                         if (Creature* pCauldron = me->FindNearestCreature(NPC_CAULDRON, 20.0f))
-                            me->GetMotionMaster()->MoveJump(pCauldron->GetPositionX(), pCauldron->GetPositionY(), pCauldron->GetPositionZ(), 5, 10);
+                            me->GetMotionMaster()->MoveJump(pCauldron->GetPositionX(), pCauldron->GetPositionY(), pCauldron->GetPositionZ(), 0.0f, 5, 10);
                         events.ScheduleEvent(EVENT_THROW_FOOD, 3000);
                         break;
                     }
@@ -266,7 +266,7 @@ public:
         return new npc_captain_cookie_good_foodAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         InstanceScript* pInstance = pCreature->GetInstanceScript();
         if (!pInstance)
@@ -292,7 +292,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 const /*diff*/) override
         {
             if (!pInstance)
                 return;
@@ -317,7 +317,7 @@ public:
         return new npc_captain_cookie_bad_foodAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         InstanceScript* pInstance = pCreature->GetInstanceScript();
         if (!pInstance)
@@ -343,7 +343,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 const /*diff*/) override
         {
             if (!pInstance)
                 return;

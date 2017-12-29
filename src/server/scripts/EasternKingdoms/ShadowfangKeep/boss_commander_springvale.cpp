@@ -85,7 +85,7 @@ class boss_commander_springvale : public CreatureScript
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WORD_OF_SHAME);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(RAND(SAY_KILL_1, SAY_KILL_2));
         }

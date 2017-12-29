@@ -116,13 +116,13 @@ public:
             me->RemoveAura(SPELL_AURA_PURIFIED);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->IsWithinDistInMap(who, 15) && !speakIntro)
                 Talk(0);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             switch(summon->GetEntry())
             {
@@ -142,7 +142,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             damage = 0;
         }
@@ -184,7 +184,7 @@ public:
             Summons.Summon(summon);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (killer)
                 me->Say(SAY_DEATH, LANG_UNIVERSAL, killer);
@@ -359,7 +359,7 @@ public:
         SummonList Summons;
     };
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == 1000)
@@ -373,7 +373,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
         if (instance)
@@ -494,7 +494,7 @@ public:
             mui_blight_spray_timer = 3000;
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (killer->HasAura(HEROIC_DEFEAT_BEHEMOT_WITH_SURGE_EFFECT) && IsHeroic())
                 instance->DoCompleteAchievement(SPELL_MAREE_POWER);

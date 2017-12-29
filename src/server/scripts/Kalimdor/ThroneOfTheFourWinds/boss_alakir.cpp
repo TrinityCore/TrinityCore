@@ -197,7 +197,7 @@ public:
             instance->SetData(DATA_ALAKIR_EVENT, IN_PROGRESS);
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer) override
         {
             _JustDied();
             Talk(7);
@@ -207,12 +207,12 @@ public:
             instance->SetData(DATA_ALAKIR_EVENT, DONE);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summons.Summon(summoned);
         }
 
-        void DamageTaken(Unit* /*damageDealer*/, uint32& damage)
+        void DamageTaken(Unit* /*damageDealer*/, uint32& damage) override
         {
             if (!HealthAbovePct(80) && phase == PHASE_ICE_STORM)
             {
@@ -348,7 +348,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiI, uint32 uiValue)
+        void SetData(uint32 uiI, uint32 uiValue) override
         {
             if (uiValue == DATA_ALAKIR_BUFF)
             {
@@ -356,7 +356,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -613,7 +613,7 @@ public:
             DebuffRemoveTimer = 6000;
         }
 
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
             if (!me)
                 return;
@@ -624,7 +624,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (mounted)
             {
@@ -683,7 +683,7 @@ public:
             me->DespawnOrUnsummon(20000);
         }
 
-        void UpdateAI(uint32 const diff) { }
+        void UpdateAI(uint32 const diff) override { }
     };
 };
 
@@ -749,7 +749,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (changeAngelRainTimer <= diff)
             {
@@ -800,7 +800,7 @@ public:
             me->CastSpell(me, SPELL_STORMLING_PRE_AURA, true);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (summonTimmer <= diff)
             {
@@ -838,7 +838,7 @@ public:
             me->CastSpell(me, SPELL_STORMLING_AURA_VISUAL, true);
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             if (Creature *boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALAKIR)))
             {
@@ -854,7 +854,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!me->GetVictim())
                 return;
@@ -962,7 +962,7 @@ public:
                 playerGUID = summoner->GetGUID();
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (playerReturnTimer <= diff)
             {
@@ -972,7 +972,7 @@ public:
                     {
                         player->RemoveAurasDueToSpell(SPELL_RELENTLESS_STORM_VISUAL);
                         player->GetMotionMaster()->Clear();
-                        player->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 20.0f, 6.0f);
+                        player->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 20.0f, 6.0f);
                     }
                 }
                 me->DespawnOrUnsummon();
@@ -1005,7 +1005,7 @@ public:
 
         InstanceScript *instance;
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -1068,7 +1068,7 @@ public:
             readyDealDamageTimer = 4000;
         }
 
-        void SetData(uint32 uiI, uint32 uiValue)
+        void SetData(uint32 uiI, uint32 uiValue) override
         {
             if (uiValue == DATA_CLOUDS_DEAL_DMG)
             {
@@ -1076,7 +1076,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (lightningVisual <= diff)
             {
@@ -1158,7 +1158,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (changeAngelTimer <= diff)
             {

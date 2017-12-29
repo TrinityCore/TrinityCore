@@ -104,7 +104,7 @@ class boss_echo_of_baine : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 me->SetSpeed(MOVE_WALK, 2.0f);
@@ -117,11 +117,11 @@ class boss_echo_of_baine : public CreatureScript
                 events.ScheduleEvent(EVENT_THROW_TOTEM, 10000);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) override
             {
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 instance->SetData(DATA_BOSS_COUNT, 1);

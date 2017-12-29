@@ -104,7 +104,7 @@ class instance_end_time : public InstanceMapScript
                 }
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -114,7 +114,7 @@ class instance_end_time : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -172,7 +172,7 @@ class instance_end_time : public InstanceMapScript
             uint32 bossCount;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_end_time_InstanceMapScript(map);
         }
@@ -184,7 +184,7 @@ class time_deliver_device : public GameObjectScript
     public:
         time_deliver_device() : GameObjectScript("time_deliver_device") { }
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* player, GameObject* go) override
         {
             go->SetGoState(GO_STATE_READY);
             if (InstanceScript* instance = go->GetInstanceScript())
@@ -222,7 +222,7 @@ class time_deliver_device : public GameObjectScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action)
+        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
             CloseGossipMenuFor(player);

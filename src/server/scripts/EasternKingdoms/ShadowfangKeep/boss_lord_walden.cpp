@@ -88,7 +88,7 @@ class boss_lord_walden : public CreatureScript
                 instance->HandleGameObject(instance->GetGuidData(GO_LORD_WALDEN_DOOR), true);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 Talk(RAND(SAY_KILLER_1, SAY_KILLER_2));
             }

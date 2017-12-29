@@ -60,7 +60,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
 public:
     instance_throne_of_the_four_winds() : InstanceMapScript("instance_throne_of_the_four_winds", 754) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_throne_of_the_four_winds_InstanceMapScript(map);
     }
@@ -124,7 +124,7 @@ public:
             return false;
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -161,7 +161,7 @@ public:
             }
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -182,7 +182,7 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 identifier) const
+        ObjectGuid GetGuidData(uint32 identifier) const override
         {
             switch (identifier)
             {
@@ -198,7 +198,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -387,7 +387,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 id, EncounterState state)
+        bool SetBossState(uint32 id, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(id, state))
                 return false;

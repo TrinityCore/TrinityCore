@@ -123,7 +123,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             Talk(SAY_AGGRO);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -136,13 +136,13 @@ public:
             BossAI::EnterCombat(who);
         }
 
-        void KilledUnit(Unit* killed)
+        void KilledUnit(Unit* killed) override
         {
             Talk(SAY_SLAY);
             BossAI::KilledUnit(killed);
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             Talk(SAY_DEATH);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -153,7 +153,7 @@ public:
             Slipstream->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -221,7 +221,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 const action) override
         {
             switch (action)
             {
@@ -242,7 +242,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -252,7 +252,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 pointId)
+        void MovementInform(uint32 type, uint32 pointId) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -300,7 +300,7 @@ public:
             me->RemoveAllAuras();
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (Boo <= diff)
             {

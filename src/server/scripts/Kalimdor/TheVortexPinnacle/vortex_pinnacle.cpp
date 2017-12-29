@@ -34,7 +34,7 @@ class npc_slipstream : public CreatureScript
 public:
     npc_slipstream() : CreatureScript("npc_slipstream") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -52,7 +52,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
@@ -69,7 +69,7 @@ class npc_slipstream_two : public CreatureScript
 public:
     npc_slipstream_two() : CreatureScript("npc_slipstream_two") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -90,7 +90,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
@@ -128,7 +128,7 @@ public:
             Summons.DespawnAll();
             for (int i = 0; i < NB_STARS; i++)
             {
-                orient += 2 * M_PI / NB_STARS;
+                orient += 2.0f * float(M_PI) / NB_STARS;
                 float x, y;
                 me->GetNearPoint2D(x, y, radius, orient);
                 me->SummonCreature(NPC_STAR, x, y, me->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
@@ -137,12 +137,12 @@ public:
             start = false;
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             Summons.DespawnAll();
         }
 
-        void DamageTaken(Unit* pDone_by, uint32& uiDamage)
+        void DamageTaken(Unit* pDone_by, uint32& uiDamage) override
         {
             uiDamage = 0;
         }
@@ -152,7 +152,7 @@ public:
             return;
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             own_stars.push_back(summoned->GetGUID());
             Summons.Summon(summoned);
@@ -178,13 +178,13 @@ public:
                 mui_timer_despawn -= diff;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance2d(who) < 25.0f)
                 start = true;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!start)
                 return;
@@ -199,7 +199,7 @@ public:
                     if (Creature *vortex = ObjectAccessor::GetCreature(*me, (*itr)))
                     {
                         float x,y;
-                        orient +=  2 * M_PI / NB_STARS;
+                        orient += 2.0f * float(M_PI) / NB_STARS;
                         me->GetNearPoint2D(x, y, radius, orient);
                         vortex->GetMotionMaster()->Clear();
                         vortex->GetMotionMaster()->MovePoint(0, x, y,  me->GetPositionZ());
@@ -249,7 +249,7 @@ public:
             m_timer2 = 4000;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -311,7 +311,7 @@ public:
             updateAch = false;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (updateAch || !IsHeroic() || me->GetDistance2d(who) > 1.0f)
                 return;
@@ -320,7 +320,7 @@ public:
             updateAch = true;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
         }
 

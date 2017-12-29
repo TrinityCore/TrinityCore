@@ -484,7 +484,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* /*who*/) override
         {
             Talk(SAY_SLAY-urand(0,1));
         }
@@ -529,7 +529,7 @@ public:
             summon->AI()->DoZoneInCombat();
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE || id != 1)
                 return;

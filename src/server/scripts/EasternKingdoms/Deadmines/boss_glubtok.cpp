@@ -118,7 +118,7 @@ class DelayedCastEvent : public BasicEvent
 public:
     DelayedCastEvent(Unit* trigger, uint32 spellId) : _trigger(trigger), _spellId(spellId) { }
 
-    bool Execute(uint64 /*time*/, uint32 /*diff*/)
+    bool Execute(uint64 /*time*/, uint32 /*diff*/) override
     {
         _trigger->CastSpell(_trigger, _spellId, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
         return true;
@@ -168,13 +168,13 @@ public:
             events.ScheduleEvent(EVENT_ELEMENTAL_FISTS, 5000);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             BossAI::JustDied(killer);
             platter->AI()->DoAction(ACTION_STOP_FIREWALL);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim != me)
                 Talk(SAY_KILL);
@@ -198,7 +198,7 @@ public:
             summon->AI()->AttackStart(me->GetVictim());
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (!_phase2 && me->HealthBelowPctDamaged(50, damage) && !me->HasUnitState(UNIT_STATE_CASTING))
             {
@@ -240,9 +240,9 @@ public:
             for (uint8 i = 0; i < 8; ++i)
             {
                 if (left)
-                    angle = me->GetOrientation() - M_PI / 2  + frand(-M_PI / 3.0, M_PI / 6.0f);
+                    angle = me->GetOrientation() - float(M_PI) / 2  + frand(-float(M_PI) / 3.0, float(M_PI) / 6.0f);
                 else
-                    angle = me->GetOrientation() + M_PI / 2  + frand(-M_PI / 6.0f, M_PI / 3.0f);
+                    angle = me->GetOrientation() + float(M_PI) / 2  + frand(-float(M_PI) / 6.0f, float(M_PI) / 3.0f);
 
                 pos.z = me->GetPositionZ() + frand(4.0f, 23.0f);
 
@@ -291,7 +291,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != EFFECT_MOTION_TYPE)
                 return;
@@ -314,7 +314,7 @@ public:
         }
 
 
-        void AttackStart(Unit* victim)
+        void AttackStart(Unit* victim) override
         {
             if (me->HasUnitState(UNIT_STATE_CASTING))
             {
@@ -476,7 +476,7 @@ public:
             _events.Reset();
         }
 
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool /*apply*/)
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool /*apply*/) override
         {
             who->SetDisableGravity(true);
         }
@@ -487,7 +487,7 @@ public:
                 passenger->GetAI()->DoAction(ACTION_START_FIREWALL);
         }
 
-        void DoAction(int32 const actionID)
+        void DoAction(int32 const actionID) override
         {
             if (actionID == ACTION_STOP_FIREWALL)
             {
@@ -560,7 +560,7 @@ public:
     {
         npc_glubtok_secondary_platterAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
-        void DoAction(int32 const actionID)
+        void DoAction(int32 const actionID) override
         {
             if (actionID != ACTION_START_FIREWALL && actionID != ACTION_STOP_FIREWALL)
                 return;
@@ -594,7 +594,7 @@ public:
 
         }
 
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool /*apply*/)
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool /*apply*/) override
         {
             who->SetDisableGravity(true);
         }

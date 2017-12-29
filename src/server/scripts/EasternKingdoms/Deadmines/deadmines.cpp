@@ -105,7 +105,7 @@ public:
             return false;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) override { }
 
         void GetCreature()
         {
@@ -122,7 +122,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!me)
                 return;
@@ -174,7 +174,7 @@ public:
             uiTimer = 2000;
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (!me)
                 return;
@@ -194,7 +194,7 @@ public:
                 return;
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!me || !me->AI() || !UpdateVictim())
                 return;
@@ -242,7 +242,7 @@ class go_defias_cannon : public GameObjectScript
 public:
     go_defias_cannon() : GameObjectScript("go_defias_cannon") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         if (!go || !player)
             return false;
@@ -306,7 +306,7 @@ public:
             uiTimerEyeGouge = urand(7000, 9000);
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!me)
                 return;
@@ -370,7 +370,7 @@ public:
                 me->AddAura(57626, me);
         }
 
-        void UpdateAI(uint32 const uiDiff) { }
+        void UpdateAI(uint32 const uiDiff) override { }
     };
 };
 
@@ -399,7 +399,7 @@ public:
         }
     }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         if (!go || !player)
             return false;
@@ -420,7 +420,7 @@ class go_deadmines_tp : public GameObjectScript
 public:
     go_deadmines_tp() : GameObjectScript("go_deadmines_tp") { }
 
-    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action)
+    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action) override
     {
         if (player->HasAura(SPELL_NIGHTMARE_ELIXIR))
             return false;
@@ -442,7 +442,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         if (player->HasAura(SPELL_NIGHTMARE_ELIXIR))
             return false;
@@ -480,7 +480,7 @@ public:
 
         bool damaged;
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (damaged)
                 return;

@@ -65,7 +65,7 @@ class boss_isiset : public CreatureScript
             _Reset();
         }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32&damage) override
         {
             if(split)
                 damage = 0;
@@ -154,7 +154,7 @@ class boss_isiset : public CreatureScript
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!UpdateVictim() || split)
                 return;
@@ -274,7 +274,7 @@ class npc_spatial_flux : public CreatureScript
             DoCast(SPELL_ENERGY_FLUX_BEAM);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(summonTimer <= diff)
             {

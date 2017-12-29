@@ -109,7 +109,7 @@ class boss_anraphet : public CreatureScript
             BossAI::EnterCombat(who);
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if(type == WAYPOINT_MOTION_TYPE)
             {
@@ -141,7 +141,7 @@ class boss_anraphet : public CreatureScript
             BossAI::JustDied(killer);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(intro)
             {
@@ -263,7 +263,7 @@ class npc_air_warden_hoo : public CreatureScript
                 instance->SetData(DATA_AIR_WARDEN, DONE);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -414,7 +414,7 @@ class npc_earth_warden_hoo : public CreatureScript
                 instance->SetData(DATA_EARTH_WARDEN, DONE);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!rockWave && !UpdateVictim())
                 return;
@@ -502,7 +502,7 @@ class npc_flame_warden_hoo : public CreatureScript
                     instance->SetData(DATA_FLAME_WARDEN, 1);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -580,7 +580,7 @@ class npc_water_warden_hoo : public CreatureScript
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             if(summoned->GetEntry() == NPC_WATER_BUBBLE)
             {
@@ -611,7 +611,7 @@ class npc_water_warden_hoo : public CreatureScript
             DoCast(me, SPELL_AQUA_BOMB_AURA, true);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -722,7 +722,7 @@ class npc_brann_bronzebeard_hoo : public CreatureScript
             elementals = 0;
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 uiType, uint32 uiData) override
         {
             if(!EventInProgress && uiType == DATA_BRANN_EVENT)
             {
@@ -740,7 +740,7 @@ class npc_brann_bronzebeard_hoo : public CreatureScript
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!EventInProgress)
                 return;
@@ -800,7 +800,7 @@ public:
         return new npc_brann_bronzebeard_hooAI(creature);
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
@@ -808,7 +808,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
     {
         player->PlayerTalkClass->ClearMenus();
         creature->AI()->SetData(DATA_BRANN_EVENT, 1);

@@ -28,7 +28,7 @@ class npc_eiendormi : public CreatureScript
     public:
         npc_eiendormi() : CreatureScript("npc_eiendormi") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (InstanceScript* instance = creature->GetInstanceScript())
             {
@@ -48,7 +48,7 @@ class npc_valeera_tele : public CreatureScript
     public:
         npc_valeera_tele() : CreatureScript("npc_valeera_tele") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (InstanceScript* instance = creature->GetInstanceScript())
             {
@@ -68,7 +68,7 @@ class npc_nethestrasz : public CreatureScript
     public:
         npc_nethestrasz() : CreatureScript("npc_nethestrasz") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (InstanceScript* instance = creature->GetInstanceScript())
             {
@@ -88,7 +88,7 @@ class travel_to_wyrmrest_base : public CreatureScript
     public:
         travel_to_wyrmrest_base() : CreatureScript("travel_to_wyrmrest_base") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (InstanceScript* instance = creature->GetInstanceScript())
             {
@@ -109,7 +109,7 @@ class travel_to_wyrmrest_summit : public CreatureScript
     public:
         travel_to_wyrmrest_summit() : CreatureScript("travel_to_wyrmrest_summit") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (InstanceScript* instance = creature->GetInstanceScript())
             {
@@ -130,7 +130,7 @@ class travel_to_the_eye_of_eternity : public CreatureScript
     public:
         travel_to_the_eye_of_eternity() : CreatureScript("travel_to_the_eye_of_eternity") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (InstanceScript* instance = creature->GetInstanceScript())
             {
@@ -151,7 +151,7 @@ class travel_to_the_deck_of_the_skyfire : public CreatureScript
     public:
         travel_to_the_deck_of_the_skyfire() : CreatureScript("travel_to_the_deck_of_the_skyfire") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (InstanceScript* instance = creature->GetInstanceScript())
             {

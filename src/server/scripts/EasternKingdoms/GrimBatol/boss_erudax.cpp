@@ -188,7 +188,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             Talk(4);
         }
@@ -369,7 +369,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type == POINT_MOTION_TYPE)
             {
@@ -390,7 +390,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 if (victim->GetEntry() == 40486)
@@ -451,7 +451,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             DoCastAOE(SPELL_SUMMON_TWILIGHT_HATCHLINGS, true);
         }

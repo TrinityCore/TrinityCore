@@ -188,7 +188,7 @@ public:
             _EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             _EnterCombat();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, IN_PROGRESS);
@@ -214,7 +214,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -237,7 +237,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!instance)
                 return;
@@ -367,7 +367,7 @@ public:
             summon->AI()->DoZoneInCombat();
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer) override
         {
             _JustDied();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, DONE);
@@ -436,7 +436,7 @@ public:
             uiCheckAgroo = 5000;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -521,7 +521,7 @@ public:
             _EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             _EnterCombat();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, IN_PROGRESS);
@@ -549,7 +549,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -572,7 +572,7 @@ public:
             }
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer) override
         {
             _JustDied();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, DONE);
@@ -582,7 +582,7 @@ public:
             //Talk(RAND(SAY_DEATH_1, SAY_DEATH_2));
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!instance)
                 return;
@@ -733,7 +733,7 @@ public:
 
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (DespawnTimer <= diff)
             {
@@ -772,7 +772,7 @@ public:
 
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (DespawnTimer <= diff)
             {
@@ -808,7 +808,7 @@ public:
             uiPathTimer = 2000;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (uiPathTimer <= diff)
             {
@@ -890,7 +890,7 @@ public:
             _EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             _EnterCombat();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, IN_PROGRESS);
@@ -929,7 +929,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -952,7 +952,7 @@ public:
             }
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer) override
         {
             _JustDied();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, DONE);
@@ -997,7 +997,7 @@ public:
                 me->SetTarget(temp->GetGUID());
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!instance)
                 return;
@@ -1231,7 +1231,7 @@ class PlayerInRangeCheck
 
         bool operator() (WorldObject* unit)
         {
-            if (caster->HasInArc(M_PI*104/180, unit))
+            if (caster->HasInArc(float(M_PI) * 104.0f / 180.0f, unit))
                 return false;
 
             return true;

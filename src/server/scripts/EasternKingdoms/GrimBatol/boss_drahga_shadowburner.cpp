@@ -129,7 +129,7 @@ public:
                 pInstance->SetData(DATA_DRAHGA_SHADOWBURNER_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*pWho*/) override
         {
             phase = PHASE_CASTER_PHASE;
             me->SetReactState(REACT_AGGRESSIVE);
@@ -169,7 +169,7 @@ public:
                 pInstance->SetData(DATA_DRAHGA_SHADOWBURNER_EVENT, DONE);
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type == POINT_MOTION_TYPE)
             {
@@ -295,7 +295,7 @@ public:
 
         void EnterCombat(Unit* /*pWho*/) {}
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32&damage) override
         {
             if (!HealthAbovePct(20))
             {
@@ -379,7 +379,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;

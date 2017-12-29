@@ -94,7 +94,7 @@ public:
         {
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (SlipstreamPosition >= DIR_ERROR || (who->GetTypeId() != TYPEID_PLAYER && !who->IsPet()) || !isActive)
                 return;
@@ -113,11 +113,11 @@ public:
                 else
                     me->GetMap()->CreatureRelocation(who->ToCreature(), SlipstreamPositions[SlipstreamPosition].GetPositionX(), SlipstreamPositions[SlipstreamPosition].GetPositionY(), SlipstreamPositions[SlipstreamPosition].GetPositionZ(), SlipstreamPositions[SlipstreamPosition].GetOrientation());
 
-                who->GetMotionMaster()->MoveJump(SlipstreamPositions[SlipstreamPosition].GetPositionX(), SlipstreamPositions[SlipstreamPosition].GetPositionY(), 198.458481f, 1, 6);
+                who->GetMotionMaster()->MoveJump(SlipstreamPositions[SlipstreamPosition].GetPositionX(), SlipstreamPositions[SlipstreamPosition].GetPositionY(), 198.458481f, SlipstreamPositions[SlipstreamPosition].GetOrientation(), 1.0f, 6.0f);
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             // The Slipstreams are Deactivated before each Ultimate ability
 
@@ -173,7 +173,7 @@ public:
         {
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             ScriptedAI::MoveInLineOfSight(who);
             if (instance)
@@ -187,14 +187,14 @@ public:
             {
                 switch (me->GetEntry())
                 {
-                    case 470660: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-82.05f, 1019.41f, 199.49f, 75.0f, 25.0f); break;
-                    case 470661: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-263.82f, 840.92f, 199.49f, 75.0f, 25.0f); break;
-                    case 470662: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-81.59f, 607.18f, 199.49f, 75.0f, 25.0f); break;
-                    case 470663: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-261.84f, 790.64f, 199.49f, 75.0f, 25.0f); break;
-                    case 470664: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(158.55f, 783.50f, 199.49f, 75.0f, 25.0f); break;
-                    case 470665: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-20.90f, 606.96f, 199.49f, 75.0f, 25.0f); break;
-                    case 470666: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-16.75f, 1022.54f, 199.49f, 75.0f, 25.0f); break;
-                    case 470667: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(157.76f, 844.96f, 199.49f, 75.0f, 25.0f); break;
+                    case 470660: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-82.05f, 1019.41f, 199.49f, 0.0f, 75.0f, 25.0f); break;
+                    case 470661: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-263.82f, 840.92f, 199.49f, 0.0f, 75.0f, 25.0f); break;
+                    case 470662: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-81.59f, 607.18f, 199.49f, 0.0f, 75.0f, 25.0f); break;
+                    case 470663: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-261.84f, 790.64f, 199.49f, 0.0f, 75.0f, 25.0f); break;
+                    case 470664: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(158.55f, 783.50f, 199.49f, 0.0f, 75.0f, 25.0f); break;
+                    case 470665: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-20.90f, 606.96f, 199.49f, 0.0f, 75.0f, 25.0f); break;
+                    case 470666: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(-16.75f, 1022.54f, 199.49f, 0.0f, 75.0f, 25.0f); break;
+                    case 470667: me->AddAura(SPELL_SLIPSTREAM_BUFF, who); me->AddAura(SPELL_SLIPSTREAM_PLAYER_VISUAL, who); who->GetMotionMaster()->MoveJump(157.76f, 844.96f, 199.49f, 0.0f, 75.0f, 25.0f); break;
                 }
             }
         }
@@ -206,7 +206,7 @@ class npc_slipstream_alakir : public CreatureScript
 public:
     npc_slipstream_alakir() : CreatureScript("npc_slipstream_alakir") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         player->TeleportTo(754, -111.186859f, 815.128662f, 221.018799f, 0.02332f);
         return true;

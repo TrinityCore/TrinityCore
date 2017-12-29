@@ -117,7 +117,7 @@ class npc_thrall_hot : public CreatureScript
 public:
     npc_thrall_hot() : CreatureScript("npc_thrall_hot") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         npc_thrall_hotAI* ai = CAST_AI(npc_thrall_hot::npc_thrall_hotAI, creature->AI());
@@ -171,12 +171,12 @@ public:
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summons.Summon(summoned);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             /*if (instance)
                 if (instance->GetData(DATA_ARCURION_EVENT) != IN_PROGRESS)*/
@@ -184,7 +184,7 @@ public:
             events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Reset();
         }
@@ -390,13 +390,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
                 instance->SetData(DATA_TRASH_KILLED, 1);
@@ -463,19 +463,19 @@ public:
             events.Reset();
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
            me->SetReactState(REACT_PASSIVE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
             events.ScheduleEvent(EVENT_FS_SPELL, urand(3000, 7000));
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
                 instance->SetData(DATA_TRASH_KILLED, 1);
@@ -548,7 +548,7 @@ class npc_thrall_second_hot : public CreatureScript
 public:
     npc_thrall_second_hot() : CreatureScript("npc_thrall_second_hot") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         npc_thrall_second_hotAI* ai = CAST_AI(npc_thrall_second_hot::npc_thrall_second_hotAI, creature->AI());
@@ -591,7 +591,7 @@ public:
 
         uint32 gossipStep;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetVisible(false);
             gossipStep = 0;
@@ -614,12 +614,12 @@ public:
 
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summons.Summon(summoned);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
             if (instance)
@@ -790,7 +790,7 @@ public:
         InstanceScript *instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->CastSpell(me, SPELL_STEALTH, false);
         }
@@ -800,14 +800,14 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_SECOND, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
             events.ScheduleEvent(EVENT_EVISCERATE, 6000);
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             //instance->SetData(DATA_TRASH_KILLED, 1);
         }
@@ -874,7 +874,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_SECOND, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
@@ -883,7 +883,7 @@ public:
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, 7000);
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
                 instance->SetData(DATA_TRASH_KILLED, 1);
@@ -954,7 +954,7 @@ public:
             cooldownDisengage = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_SECOND, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
@@ -962,7 +962,7 @@ public:
             events.ScheduleEvent(EVENT_ICE_ARROW, urand(3000, 7000));
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
                 instance->SetData(DATA_TRASH_KILLED, 1);
@@ -973,7 +973,7 @@ public:
             me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32&damage) override
         {
             if(damage > 0 && cooldownDisengage == false)
             {
@@ -1042,7 +1042,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_SECOND, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
@@ -1050,7 +1050,7 @@ public:
             events.ScheduleEvent(EVENT_BEATDOWN, 10000);
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
                 instance->SetData(DATA_TRASH_KILLED, 1);
@@ -1117,7 +1117,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_SECOND, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
@@ -1125,7 +1125,7 @@ public:
             events.ScheduleEvent(EVENT_HUNGERING_SHADOWS, 10000);
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
                 instance->SetData(DATA_TRASH_KILLED, 1);
@@ -1214,7 +1214,7 @@ class npc_thrall_final_hot : public CreatureScript
 public:
     npc_thrall_final_hot() : CreatureScript("npc_thrall_final_hot") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         npc_thrall_final_hotAI* ai = CAST_AI(npc_thrall_final_hot::npc_thrall_final_hotAI, creature->AI());
@@ -1235,7 +1235,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         npc_thrall_final_hotAI* ai = CAST_AI(npc_thrall_final_hot::npc_thrall_final_hotAI, creature->AI());
 
@@ -1271,7 +1271,7 @@ public:
 
         uint32 gossipStep;
 
-        /*void InitializeAI()
+        /*void InitializeAI() override
         {
             me->SetVisible(false);
         }*/
@@ -1285,12 +1285,12 @@ public:
             summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summons.Summon(summoned);
         }
@@ -1449,7 +1449,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_FINAL, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
@@ -1457,7 +1457,7 @@ public:
             events.ScheduleEvent(EVENT_HUNGERING_SHADOWS, 10000);
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
                 instance->SetData(DATA_TRASH_KILLED, 1);
@@ -1522,7 +1522,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_FINAL, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
@@ -1530,7 +1530,7 @@ public:
             events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(7000, 10000));
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
                 instance->SetData(DATA_TRASH_KILLED, 1);
@@ -1597,14 +1597,14 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_FINAL, 100.0f, true))
                 thrall->SetReactState(REACT_AGGRESSIVE);
             events.ScheduleEvent(EVENT_SHADOW_BORE, urand(2000, 5000));
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
                 instance->SetData(DATA_TRASH_KILLED, 1);

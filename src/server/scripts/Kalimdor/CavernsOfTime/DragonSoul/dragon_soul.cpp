@@ -149,7 +149,7 @@ class npc_trall_vs_ultraxion : public CreatureScript
                 phase = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (!phase && me->GetExactDist(who) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -239,7 +239,7 @@ class npc_trall_vs_ultraxion : public CreatureScript
 
         };
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
         {
             if (Creature* deathwing = creature->FindNearestCreature(NPC_DEATHWING_PREULTRAXION, 1000.0f, true))
             {
@@ -303,7 +303,7 @@ class npc_ysera : public CreatureScript
                 phase = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (!phase && me->GetExactDist(who) < 5.0f)
                     if (Player* player = who->ToPlayer())
@@ -550,7 +550,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!phase && me->GetExactDist(who) < 10.0f)
                 if (Player* player = who->ToPlayer())
@@ -644,7 +644,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
             events.ScheduleEvent(EVENT_TWILIGHT_BREATH, 4000);
@@ -693,7 +693,7 @@ public:
         uint32 path;
         uint32 text;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetSpeed(MOVE_FLIGHT, 3.0f);
             text = 0;
@@ -810,7 +810,7 @@ public:
                 me->GetMotionMaster()->MoveChase(stalker);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             DoCast(SPELL_FIERY_EXPLOSION);
         }
@@ -831,7 +831,7 @@ public:
     {
         npc_ds_defendersAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -870,7 +870,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(tyr, 3.0f, 0);
         }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (!who)
                     return;

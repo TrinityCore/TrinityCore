@@ -128,12 +128,12 @@ class boss_asaad : public CreatureScript
                 stormTargetGUID = ObjectGuid::Empty;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*who*/) override
             {
                 _JustDied();
             }
@@ -144,7 +144,7 @@ class boss_asaad : public CreatureScript
                     me->Kill(c);
             }
 
-            void DoAction(const int32 act)
+            void DoAction(int32 const act) override
             {
                 switch (act)
                 {
@@ -187,7 +187,7 @@ class boss_asaad : public CreatureScript
                 return ObjectGuid::Empty;
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) override
             {
                 switch (summoned->GetEntry())
                 {
@@ -209,7 +209,7 @@ class boss_asaad : public CreatureScript
                     failedAchievementGUIDs.push_back(target->GetGUID());
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -323,7 +323,7 @@ class npc_asaad_grounding_field_trigger : public CreatureScript
                 me->NearTeleportTo(_trianglePos[0].m_positionX,  _trianglePos[0].m_positionY,  _trianglePos[0].m_positionZ, 0.0f);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -354,7 +354,7 @@ class npc_asaad_grounding_field_trigger : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) override
             {
                 me->InterruptNonMeleeSpells(true);
                 if (triggerCount <= 3)
@@ -365,12 +365,12 @@ class npc_asaad_grounding_field_trigger : public CreatureScript
                 summoned->SetSpeed(MOVE_RUN, 1.0f);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 summons.DespawnAll();
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const diff) override
             {
                 if (pointId == 4 || isMoving)
                     return;
@@ -431,12 +431,12 @@ public:
     {
         npc_skyfall_starAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3000, 10000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -513,7 +513,7 @@ class TriangleCheck
 
 class achievement_not_static_at_all : public AchievementCriteriaScript
 {
-    bool OnCheck(Player* player, Unit* target)
+    bool OnCheck(Player* player, Unit* target) override
     {
         if (!target || !target->ToCreature())
             return false;

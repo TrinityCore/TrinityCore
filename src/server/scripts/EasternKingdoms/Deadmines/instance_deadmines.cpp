@@ -35,7 +35,7 @@ public:
             SetBossNumber(MAX_BOSSES);
         };
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             Map::PlayerList const &players = instance->GetPlayers();
             if (!players.isEmpty())
@@ -88,9 +88,7 @@ public:
             }
         }
 
-        virtual void Update(uint32 diff) { }
-
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -109,7 +107,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 value) override
         {
             switch (type)
             {
@@ -131,7 +129,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 id, EncounterState state)
+        bool SetBossState(uint32 id, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(id, state))
                 return false;
@@ -201,7 +199,7 @@ public:
             return true;
         }
 
-        ObjectGuid GetGuidData(uint32 data) const
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             switch (data)
             {
@@ -235,7 +233,7 @@ public:
         uint32 TeamInInstance;
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_deadmines_InstanceMapScript(map);
     }
