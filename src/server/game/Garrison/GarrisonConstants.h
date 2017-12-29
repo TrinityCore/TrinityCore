@@ -30,7 +30,10 @@ enum GarrisonSite
 enum GarrisonType
 {
     GARRISON_TYPE_GARRISON      = 2,
-    GARRISON_TYPE_CLASS_HALL    = 3
+    GARRISON_TYPE_CLASS_HALL    = 3,
+
+    GARRISON_TYPE_MIN           = GARRISON_TYPE_GARRISON,
+    GARRISON_TYPE_MAX           = GARRISON_TYPE_CLASS_HALL,
 };
 
 enum GarrisonFactionIndex
