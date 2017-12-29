@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* To-do: */
+// - AreaTrigger: unknown purpose (id: 1843; pos: front-left stairs) - dust animation, aggro snakes? 
+
 #include "ScriptMgr.h"
 #include "GridNotifiers.h"
 #include "halls_of_origination.h"

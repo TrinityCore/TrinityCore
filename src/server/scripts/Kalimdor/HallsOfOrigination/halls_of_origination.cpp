@@ -15,9 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- /* To-do: */
- // - Find out what Dummy Nuke (68991) spell does.
- // - Spatial Flux won't enter combat on second aggro from creature group (but it should).
+/* To-do: */
+// - Summoner Enabler dummy npc: unknown purpose (at the entrance)
+// - AreaTrigger: unknown purpose (id: 2275; pos: hole in the left wall at the entrance)
+// - Find out what Dummy Nuke (68991) spell does.
+// - Spatial Flux won't enter combat on second aggro from creature group (but it should).
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
