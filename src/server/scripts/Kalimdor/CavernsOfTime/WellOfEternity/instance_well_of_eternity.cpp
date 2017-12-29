@@ -33,7 +33,7 @@ class instance_well_of_eternity : public InstanceMapScript
 public:
     instance_well_of_eternity() : InstanceMapScript("instance_well_of_eternity", 939) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_well_of_eternity_InstanceMapScript(map);
     }
@@ -62,7 +62,7 @@ public:
             uiAfterPerotharnDoors.clear();
         }
 
-        void OnCreatureCreate(Creature* pCreature)
+        void OnCreatureCreate(Creature* pCreature) override
         {
             switch (pCreature->GetEntry())
             {
@@ -83,7 +83,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo)
+        void OnGameObjectCreate(GameObject* pGo) override
         {
             switch (pGo->GetEntry())
             {
@@ -136,7 +136,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -180,7 +180,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 type) const
+        ObjectGuid GetGuidData(uint32 type) const override
         {
             switch (type)
             {
@@ -203,7 +203,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;

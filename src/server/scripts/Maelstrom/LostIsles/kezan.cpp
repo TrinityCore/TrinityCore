@@ -552,7 +552,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action)
+    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(player);
@@ -986,7 +986,7 @@ public:
         return false;
     }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* _Quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* _Quest) override
     {
         if (_Quest->GetQuestId() == QUEST_BRUTALITY_NECESSARY || _Quest->GetQuestId() == QUEST_BRUTALITY_NECESSARY_ROUND_2)
         {
@@ -1040,7 +1040,7 @@ public:
             activate = true;
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 value) override
         {
             if (value != ACCEPT_EVENT)
                 return;
@@ -1165,7 +1165,7 @@ class npc_chipie_quest_giver_end_event : public CreatureScript
 public:
     npc_chipie_quest_giver_end_event() : CreatureScript("npc_chipie_quest_giver_end_event") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -1905,7 +1905,7 @@ public:
             m_timerValidGoalEvent = 100;
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 value) override
         {
             activate = true;
         }
@@ -2022,7 +2022,7 @@ public:
             delayedEnterVehicle = 1000;
         }
 
-        void DoAction(const int32 /*param*/)
+        void DoAction(int32 const /*param*/) override
         {
         }
 

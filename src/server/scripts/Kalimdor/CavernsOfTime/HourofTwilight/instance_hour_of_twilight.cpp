@@ -40,7 +40,7 @@ public:
     instance_hour_of_twilight() : InstanceMapScript("instance_hour_of_twilight", 940) // CHANGE THIS MAPID!!!
     { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_hour_of_twilight_InstanceMapScript(map);
     }
@@ -86,7 +86,7 @@ public:
                 uiTeamInInstance = player->GetTeam();
         }
 
-        void OnCreatureCreate(Creature* pCreature)
+        void OnCreatureCreate(Creature* pCreature) override
         {
             Map::PlayerList const &players = instance->GetPlayers();
 
@@ -113,7 +113,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -127,7 +127,7 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 identifier) const
+        ObjectGuid GetGuidData(uint32 identifier) const override
         {
             switch (identifier)
             {
@@ -166,7 +166,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {

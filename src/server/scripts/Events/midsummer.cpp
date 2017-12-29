@@ -63,7 +63,7 @@ public:
             //me->SendMessageToSet(&data, true);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!Active)
             {
@@ -137,7 +137,7 @@ class npc_midsummer_quest_torch : public CreatureScript
 public:
     npc_midsummer_quest_torch() : CreatureScript("npc_midsummer_quest_torch") { }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
     {
         switch (quest->GetQuestId())
         {
@@ -193,7 +193,7 @@ public:
             HasAura = false;
         }
 
-        void DoAction(const int32 param)
+        void DoAction(int32 const param) override
         {
             if (param == 1)
             {
@@ -227,7 +227,7 @@ public:
                     pBrasero->AI()->DoAction(1);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (HasAura)
             {
@@ -249,7 +249,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (HasAura)
             {

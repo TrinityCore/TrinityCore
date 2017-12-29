@@ -94,7 +94,7 @@ public:
                 return true;
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -166,7 +166,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 uiType, uint32 /*uiId*/) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;

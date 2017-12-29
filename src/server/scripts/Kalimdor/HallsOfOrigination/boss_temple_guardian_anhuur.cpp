@@ -160,7 +160,7 @@ class boss_anhuur : public CreatureScript
             //RemoveSummons();
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_KILL);
@@ -203,7 +203,7 @@ class boss_anhuur : public CreatureScript
             }
         }
 
-        void DamageTaken(Unit * done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32&damage) override
         {
             if ((me->HealthBelowPct(66) && _shieldCount == 0) ||
                 (me->HealthBelowPct(33) && _shieldCount == 1))
@@ -277,7 +277,7 @@ class boss_anhuur : public CreatureScript
         }
 
         /*
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             if(!shielded || type != DATA_SHIELD)
                 return;
@@ -323,7 +323,7 @@ class boss_anhuur : public CreatureScript
         }
         */
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -543,7 +543,7 @@ class achievement_hate_that_song : public AchievementCriteriaScript
 public:
     achievement_hate_that_song() : AchievementCriteriaScript("achievement_hate_that_song") { }
 
-    bool OnCheck(Player* /*source*/, Unit* target)
+    bool OnCheck(Player* /*source*/, Unit* target) override
     {
         if (!target)
             return false;

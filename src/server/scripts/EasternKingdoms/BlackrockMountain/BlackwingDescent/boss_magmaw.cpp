@@ -137,7 +137,7 @@ class boss_magmaw : public CreatureScript
             _Reset();
         }
 
-        void PassengerBoarded(Unit* who, int8 seatId, bool apply)
+        void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
         {
             if(seatId == 2 && apply)
             {
@@ -220,7 +220,7 @@ class boss_magmaw : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_LAVA_SPEW, urand(5000, 8000));
@@ -251,7 +251,7 @@ class boss_magmaw : public CreatureScript
                 DoStartNoMovement(target);
         }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32&damage) override
         {
             if(!below30 && me->HealthBelowPctDamaged(30, damage))
             {
@@ -445,7 +445,7 @@ class npc_spike_stalker : public CreatureScript
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 const /*diff*/) override
         {
         }
     };
@@ -688,7 +688,7 @@ class npc_blazing_bone_construct : public CreatureScript
                 magmaw->AI()->JustSummoned(summon);
         }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32&damage) override
         {
             if(!armageddon && me->HealthBelowPctDamaged(20, damage))
             {

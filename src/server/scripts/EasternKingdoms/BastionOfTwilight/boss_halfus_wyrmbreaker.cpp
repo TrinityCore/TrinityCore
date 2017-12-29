@@ -192,7 +192,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 360000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
                 if (instance)
                 {
@@ -202,13 +202,13 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 me->Yell("The burden of the damned falls upon you!", LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, 20188);
             }
 
-            void DamageTaken(Unit* who, uint32 &damage)
+            void DamageTaken(Unit* who, uint32&damage) override
             {
                 if (damage > 0)
                 {
@@ -343,7 +343,7 @@ class npc_halfus_dragon : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
                 if (Creature* halfus = pInstance->GetCreature(DATA_WYRMBREAKER))
                     if (halfus->HasAura(SPELL_DRAGONS_VEGEANCE))
@@ -358,7 +358,7 @@ class npc_halfus_dragon : public CreatureScript
                         me->AddAura(SPELL_DRAGONS_VEGEANCE, halfus);
             }
 
-            void UpdateAI(uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff) override
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE))
                 {
@@ -374,7 +374,7 @@ class npc_halfus_dragon : public CreatureScript
             return new npc_halfus_dragonAI(creature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (!player || !creature)
                 return false;
@@ -424,7 +424,7 @@ class npc_halfus_dragon : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction) override
         {
             return true;
         }
@@ -496,7 +496,7 @@ class go_whelp_cage : public GameObjectScript
 public:
     go_whelp_cage() : GameObjectScript("go_whelp_cage") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* pPlayer, GameObject* pGO) override
     {
         if (!pPlayer || !pPlayer->ToUnit() || !pGO)
             return false;

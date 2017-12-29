@@ -137,7 +137,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             if (summoned->GetAI())
                 summoned->GetAI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
@@ -155,7 +155,7 @@ public:
             RemoveAuraFromMap();
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             summons.Despawn(summon);
         }
@@ -174,7 +174,7 @@ public:
             me->SummonCreature(NPC_CAPTAIN_COOKIE, CookieSpawn);
         }
 
-        void SetData(uint32 uiI, uint32 uiValue)
+        void SetData(uint32 uiI, uint32 uiValue) override
         {
             if (uiValue == VAPOR_CASTED_COALESCE && numberCastCoalesce < 3)
             {
@@ -271,7 +271,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!me || !instance)
                 return;
@@ -433,7 +433,7 @@ public:
                 me->AddAura(SPELL_CONDENSATION, me);
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             if (Creature* Ripsnarl = me->FindNearestCreature(NPC_ADMIRAL_RIPSNARL, 250, true))
                 if (boss_admiral_ripsnarl::boss_admiral_ripsnarlAI* pAI = CAST_AI(boss_admiral_ripsnarl::boss_admiral_ripsnarlAI, Ripsnarl->AI()))

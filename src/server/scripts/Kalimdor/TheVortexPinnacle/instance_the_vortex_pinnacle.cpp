@@ -28,7 +28,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
         {
         }
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_the_vortex_pinnacle_InstanceMapScript(map);
         }
@@ -53,7 +53,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                 goldenOrbCount = 0;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -77,14 +77,14 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
                 return true;
             }
 
-            ObjectGuid GetGuidData(uint32 data) const
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -101,7 +101,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {

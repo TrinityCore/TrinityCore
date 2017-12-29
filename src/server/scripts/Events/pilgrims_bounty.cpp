@@ -42,7 +42,7 @@ public:
     {
         npc_wild_turkeyAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (killer && killer->GetTypeId() == TYPEID_PLAYER)
                 killer->CastSpell(killer, SPELL_TURKEY_TRACKER);
@@ -79,7 +79,7 @@ public:
             _StinkerBrokenHeartTimer = 3.5 * IN_MILLISECONDS;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (_StinkerBrokenHeartTimer <= diff)
             {

@@ -150,7 +150,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(WoEScriptName))
                 me->IsAIEnabled = false;
@@ -171,7 +171,7 @@ public:
             addsCount = 0;
         }
 
-        void EnterCombat(Unit* attacker)
+        void EnterCombat(Unit* attacker) override
         {
             Talk(SAY_AGGRO);
 
@@ -189,13 +189,13 @@ public:
             addsCount = 0;
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
             if(who)
                 me->Attack(who, false);
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
             if (who && who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_KILL);
@@ -232,7 +232,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -328,7 +328,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void DoAction(const int32 action)
+        void DoAction(int32 const action) override
         {
             if (action == ACTION_ATTACK)
             {
@@ -350,14 +350,14 @@ public:
             }
         }
 
-        /*void MovementInform(uint32 type, uint32 data)
+        /*void MovementInform(uint32 type, uint32 data) override
         {
         if (me->GetEntry() == NPC_ENCHANTED_MAGUS_FROST && data == EVENT_CHARGE)
         if (Player* pPlayer = me->SelectNearestPlayer(5.0f))
         DoCast(pPlayer, SPELL_BLADES_OF_ICE_DMG, true);
         }*/
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -448,7 +448,7 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (bDespawn)
                 return;

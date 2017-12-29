@@ -118,13 +118,13 @@ class boss_setesh : public CreatureScript
             }
         }
 
-        void MovementInform(uint32 /*type*/, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == POINT_CHAOS_PORTAL)
                 events.ScheduleEvent(EVENT_CHAOS_PORTAL, 500, 0, PHASE_CHAOS_PORTAL);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             BossAI::EnterCombat(who);
             events.ScheduleEvent(EVENT_CHAOS_BLAST, urand(10000, 12000), 0, PHASE_NORMAL);
@@ -140,7 +140,7 @@ class boss_setesh : public CreatureScript
             Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -232,7 +232,7 @@ class npc_chaos_seed : public CreatureScript
     {
         npc_chaos_seedAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void MovementInform(uint32 /*type*/, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == 1)
             {
@@ -281,7 +281,7 @@ class npc_chaos_portal : public CreatureScript
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void SetData(uint32 type, uint32 /*value*/)
+        void SetData(uint32 type, uint32 /*value*/) override
         {
             if (type == DATA_CHAOS_PORTAL)
             {
@@ -317,7 +317,7 @@ class npc_chaos_portal : public CreatureScript
         {
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 

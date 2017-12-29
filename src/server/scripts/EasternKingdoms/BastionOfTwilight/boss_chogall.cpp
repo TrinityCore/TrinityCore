@@ -129,7 +129,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (me->GetHealthPct() <= 25.0f && phase == 0)
             {
@@ -721,13 +721,13 @@ class npc_darkened_creation : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit* victim) override
             {
                 events.ScheduleEvent(EVENT_DEBILITATING_BEAM, urand(3000, 5000));
                 DoZoneInCombat(me);
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit* who) override
             {
                 if (!who)
                     return;
@@ -782,12 +782,12 @@ class npc_spiked_tentacle : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit* victim) override
             {
                 DoZoneInCombat(me);
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit* who) override
             {
                 if (!who)
                     return;

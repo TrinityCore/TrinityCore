@@ -89,12 +89,12 @@ public:
             bRemoveFlag = false;
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/)
+        void SetGUID(ObjectGuid guid, int32 /*id*/) override
         {
             uiPlayerGUID = guid;
         }
 
-        void SetData(uint32 uiId, uint32 uiValue)
+        void SetData(uint32 uiId, uint32 uiValue) override
         {
             bRemoveFlag = true;
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -130,7 +130,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 uiDiff) override
         {
             ScriptedAI::UpdateAI(uiDiff);
 
@@ -226,7 +226,7 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         switch (quest->GetQuestId())
         {
@@ -291,7 +291,7 @@ public:
     {
         npc_hurp_derpAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() { }
+        void Reset() override { }
 
         void EnterEvadeMode(EvadeReason /*why*/) override
         {
@@ -305,7 +305,7 @@ public:
             events.ScheduleEvent(EVENT_WHIRLWIND, 15000);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
@@ -402,7 +402,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_S_CHARGE, 10000);
             events.ScheduleEvent(EVENT_UPPERCUT, 5000);
@@ -410,7 +410,7 @@ public:
             me->SummonCreature(NPC_GLOOMWING, SpawnPosition[3], TEMPSUMMON_CORPSE_DESPAWN, 5000);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
@@ -493,7 +493,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
@@ -586,7 +586,7 @@ public:
             events.ScheduleEvent(EVENT_REPULSIVE_KICK, 8000);
         }
 
-        void DamageTaken(Unit* attacker, uint32& /*damage*/)
+        void DamageTaken(Unit* attacker, uint32& /*damage*/) override
         {
             if(!inhaled && !me->IsNonMeleeSpellCast(false) && HealthBelowPct(20))
             {
@@ -618,7 +618,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void JustDied(Unit* /*killer*/) { }
+        void JustDied(Unit* /*killer*/) override { }
 
         void UpdateAI(const uint32 diff) override
         {
@@ -728,7 +728,7 @@ public:
             events.ScheduleEvent(EVENT_GEOF_UCUT, 5000);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             if(!transformed && !me->IsNonMeleeSpellCast(false) && HealthBelowPct(20))
             {
@@ -740,7 +740,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
@@ -816,7 +816,7 @@ public:
     {
         npc_emberscar_devourerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() { }
+        void Reset() override { }
 
         void EnterEvadeMode(EvadeReason /*why*/) override
         {
@@ -828,7 +828,7 @@ public:
             events.ScheduleEvent(EVENT_FIREBALL, 1000);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
@@ -901,12 +901,12 @@ public:
                 AttackStartNoMove(playersearch);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_GLOOM_BALL, 2000);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
             if (!who)
                 return;

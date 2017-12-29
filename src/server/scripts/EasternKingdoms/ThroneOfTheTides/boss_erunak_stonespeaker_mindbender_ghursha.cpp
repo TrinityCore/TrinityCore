@@ -134,7 +134,7 @@ public:
                 Talk(RAND(SAY_KILL_PLAYER_1, SAY_KILL_PLAYER_2));
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_LAVA_BOLT
@@ -434,7 +434,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*pKiller*/) override
         {
             Talk(SAY_DEATH_MINDBENDER);
             if (pInstance)

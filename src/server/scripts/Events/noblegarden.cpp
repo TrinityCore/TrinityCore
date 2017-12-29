@@ -70,14 +70,14 @@ public:
 
         void EnterCombat(Unit * /*who*/) { }
 
-        void DoAction(const int32 /*param*/)
+        void DoAction(int32 const /*param*/) override
         {
             inLove = true;
             if (Unit* owner = me->GetOwner())
                 owner->CastSpell(owner, SPELL_SPRING_FLING, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (inLove)
             {

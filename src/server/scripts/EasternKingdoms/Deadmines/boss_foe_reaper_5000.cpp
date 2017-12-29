@@ -240,7 +240,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (!spell || !me)
                 return;
@@ -255,7 +255,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 /*type*/, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == 0)
             {
@@ -278,7 +278,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (!me)
                 return;
@@ -466,7 +466,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (!me || damage <= 0 || Status == true)
                 return;
@@ -494,7 +494,7 @@ public:
     achievement_prototype_reaper() : AchievementCriteriaScript("achievement_prototype_reaper")
     {}
 
-    bool OnCheck(Player* source, Unit* target)
+    bool OnCheck(Player* source, Unit* target) override
     {
         if (target && target->IsAIEnabled)
         {

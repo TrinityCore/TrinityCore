@@ -40,7 +40,7 @@ class go_well_of_eternity_teleport : public GameObjectScript
 public:
     go_well_of_eternity_teleport() : GameObjectScript("go_well_of_eternity_teleport") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* pPlayer, GameObject* pGo) override
     {
         if (pPlayer->IsInCombat())
             return true;
@@ -66,7 +66,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action)
+    bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) override
     {
         //player->PlayerTalkClass->ClearMenus();
         if (player->IsInCombat())

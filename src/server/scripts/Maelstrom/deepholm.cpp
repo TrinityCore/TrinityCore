@@ -85,7 +85,7 @@ class npc_imposing_confrontation_quest : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const diff) override
             {
                 if(eventStarted)
                 {
@@ -210,7 +210,7 @@ class npc_lodestone : public CreatureScript
     {
         npc_lodestoneAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if(Player* player = killer->ToPlayer())
             {
@@ -268,7 +268,7 @@ class npc_slaincrewmember : public CreatureScript
                 }
             }
         }
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if(!QuestInProgress)
                 return;
@@ -559,7 +559,7 @@ public:
 
         }
 
-        void EnterCombat(Unit* /*Ent*/)
+        void EnterCombat(Unit* /*Ent*/) override
         {
             events.ScheduleEvent(EVENT_TWILIGHT_BUFFET, 20000);
             events.ScheduleEvent(EVENT_TWILIGHT_FISSURE, 23000);
@@ -666,7 +666,7 @@ public:
             cSay = 1;                      // Start from 1
         }
 
-        void EnterCombat(Unit* /*Ent*/)
+        void EnterCombat(Unit* /*Ent*/) override
         {
             Talk(SAY_AGGRO);
             DoCast(SPELL_EARTHBOLT);
@@ -678,12 +678,12 @@ public:
             events.ScheduleEvent(EVENT_WATERBOLT, 1000);
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
 
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
 
         }

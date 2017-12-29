@@ -155,7 +155,7 @@ class boss_theralion : public CreatureScript
             bool   forw;
             bool   introDone;
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 introDone = false;
             }
@@ -178,7 +178,7 @@ class boss_theralion : public CreatureScript
                 }
             }
 
-            /*void MoveInLineOfSight(Unit* who)
+            /*void MoveInLineOfSight(Unit* who) override
             {
                 if (!introDone && me->IsWithinDistInMap(who, 70.0f))
                 {
@@ -232,7 +232,7 @@ class boss_theralion : public CreatureScript
                 me->SetOrientation(me->GetHomePosition().GetOrientation());
             }
 
-            void MovementInform(uint32 type, uint32 point)
+            void MovementInform(uint32 type, uint32 point) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -281,7 +281,7 @@ class boss_theralion : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32 &damage)
+            void DamageTaken(Unit* who, uint32&damage) override
             {
                 if (!me || !me->IsAlive())
                     return;
@@ -306,7 +306,7 @@ class boss_theralion : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit* victim) override
             {
                 DoZoneInCombat(me);
 
@@ -345,7 +345,7 @@ class boss_theralion : public CreatureScript
                 breathcount = 0;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
                 summons.DespawnAll();
                 /*
@@ -377,7 +377,7 @@ class boss_theralion : public CreatureScript
                 instance->SetData(DATA_VALIONA_THERALION_EVENT, DONE);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 if (!victim || victim->GetTypeId() != TYPEID_PLAYER || killtimer > 0)
                     return;
@@ -625,7 +625,7 @@ class boss_valiona : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 if (!victim || victim->GetTypeId() != TYPEID_PLAYER || killtimer > 0)
                     return;
@@ -634,7 +634,7 @@ class boss_valiona : public CreatureScript
                 killtimer = 8000;
             }
 
-            void MovementInform(uint32 type, uint32 point)
+            void MovementInform(uint32 type, uint32 point) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -675,7 +675,7 @@ class boss_valiona : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
                 me->LowerPlayerDamageReq(me->GetMaxHealth());
 
@@ -685,7 +685,7 @@ class boss_valiona : public CreatureScript
                 instance->SetData(DATA_VALIONA_THERALION_EVENT, DONE);
             }
 
-            void DamageTaken(Unit* who, uint32 &damage)
+            void DamageTaken(Unit* who, uint32&damage) override
             {
                 if (!me || !me->IsAlive())
                     return;
@@ -896,7 +896,7 @@ class boss_valiona : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit* victim) override
             {
                 DoZoneInCombat(me);
 
@@ -1104,13 +1104,13 @@ class npc_twilight_portal_bot : public CreatureScript
     public:
         npc_twilight_portal_bot() : CreatureScript("npc_twilight_portal_bot") { }
 
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
         {
             pPlayer->RemoveAura(74807);
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
             ClearGossipMenuFor(player);
             return true;
@@ -1166,7 +1166,7 @@ public:
 
         InstanceScript* instance;
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             instance->SetData(DATA_FIEND_KILLS, 1);
         }

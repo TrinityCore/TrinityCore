@@ -164,7 +164,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             _JustDied();
             if (instance)
@@ -205,7 +205,7 @@ public:
 
         }
 
-        void EnterCombat(Unit* /*Ent*/)
+        void EnterCombat(Unit* /*Ent*/) override
         {
             _EnterCombat();
 
@@ -224,7 +224,7 @@ public:
             me->SetHomePosition(HomePoints[1]);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32&damage) override
         {
             if (me->HealthBelowPct(60) && twilightPhase == false)
             {
@@ -451,7 +451,7 @@ public:
         InstanceScript *instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
         }
@@ -528,7 +528,7 @@ public:
         InstanceScript *instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetSpeed(MOVE_RUN, 2.0f);
@@ -633,7 +633,7 @@ public:
         InstanceScript *instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
         }
@@ -656,7 +656,7 @@ public:
             events.ScheduleEvent(EVENT_TWILIGHT_CHARGE, 8000);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32&damage) override
         {
             /*if (damage > 0)
             {
@@ -718,7 +718,7 @@ public:
         InstanceScript *instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetSpeed(MOVE_RUN, 2.0f);
@@ -729,7 +729,7 @@ public:
             events.Reset();
         }
 
-        void AttackStart(Unit* victim)
+        void AttackStart(Unit* victim) override
         {
             return;
         }

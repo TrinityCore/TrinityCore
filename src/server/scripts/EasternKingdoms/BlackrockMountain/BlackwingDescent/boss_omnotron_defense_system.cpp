@@ -469,7 +469,7 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (id > 3)
                 return;
@@ -779,7 +779,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void SetData(uint32 Type, uint32 Data)
+        void SetData(uint32 Type, uint32 Data) override
         {
             if(Type != DATA_IS_FIRST_TRON)
                 return;
@@ -789,7 +789,7 @@ public:
             isFirstTron = (Data == 0) ? false : true;
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if(me->HasAura(SPELL_UNSTABLE_SHIELD)) // For electron thingy.
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
@@ -858,7 +858,7 @@ public:
             HasTarget = false;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if (HasTarget)
                 me->GetMotionMaster()->MoveChase(myTarget);
@@ -941,7 +941,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if(uiDespawn <= uiDiff)
             {
@@ -981,7 +981,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 const uiDiff) override
         {
             if(uiDespawn <= uiDiff)
             {

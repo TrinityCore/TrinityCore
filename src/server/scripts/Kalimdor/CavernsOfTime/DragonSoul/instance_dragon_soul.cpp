@@ -29,7 +29,7 @@ class instance_dragon_soul : public InstanceMapScript
 public:
     instance_dragon_soul() : InstanceMapScript("instance_dragon_soul", 967) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_dragon_soul_InstanceMapScript(map);
     }
@@ -49,7 +49,7 @@ public:
                 uiTeamInInstance = pPlayer->GetTeam();
         }
 
-        void OnCreatureCreate(Creature* pCreature)
+        void OnCreatureCreate(Creature* pCreature) override
         {
             switch (pCreature->GetEntry())
             {
@@ -159,7 +159,7 @@ public:
                 uiBlackhornGUID = ObjectGuid::Empty;
         }
 
-        void OnGameObjectCreate(GameObject* pGo)
+        void OnGameObjectCreate(GameObject* pGo) override
         {
             switch (pGo->GetEntry())
             {
@@ -207,7 +207,7 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 type) const
+        ObjectGuid GetGuidData(uint32 type) const override
         {
             switch (type)
             {
@@ -244,7 +244,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             if (type == DATA_HAGARA_EVENT)
             {
@@ -261,7 +261,7 @@ public:
             return 0;
         }
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;

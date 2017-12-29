@@ -327,7 +327,7 @@ public:
 
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (npc_id != 1 || bTalk || !pInstance)
                 return;
@@ -348,7 +348,7 @@ public:
             pInstance->SetData(DATA_EVENT_NOZDORMU, IN_PROGRESS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!bTalk)
                 return;
@@ -427,7 +427,7 @@ public:
                     me->DespawnOrUnsummon(500);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_STRIKE_FEAR, urand(5000, 7000));
             //DoCast(who, SPELL_CRUSHING_LEAP);
@@ -439,7 +439,7 @@ public:
                 DoCast(who, SPELL_ARCHIVED_DEMON_2, true);
         }
 
-        void MovementInform(uint32 type, uint32 data)
+        void MovementInform(uint32 type, uint32 data) override
         {
             if (data == EVENT_JUMP)
             {
@@ -448,7 +448,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             if (npc_id)
                 if (pInstance)
@@ -466,7 +466,7 @@ public:
                             pPlayer->CastSpell(me, SPELL_ARCHIVED_DEMON_1, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -511,7 +511,7 @@ public:
         return new npc_well_of_eternity_illidan_1AI(pCreature);
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*sender*/, uint32 /*action*/)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*sender*/, uint32 /*action*/) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(pPlayer);
@@ -545,14 +545,14 @@ public:
                     me->DespawnOrUnsummon(500);
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (who->GetGUID() == me->GetGUID())
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (bTalk || !pInstance)
                 return;
@@ -570,7 +570,7 @@ public:
             me->GetMotionMaster()->MovePoint(POINT_ILLIDAN_1_1, illidan1Pos[0]);
         }
 
-        void MovementInform(uint32 type, uint32 data)
+        void MovementInform(uint32 type, uint32 data) override
         {
             if (type == POINT_MOTION_TYPE)
             {
@@ -609,13 +609,13 @@ public:
             }
         }
 
-        void DoAction(const int32 action)
+        void DoAction(int32 const action) override
         {
             if (action == ACTION_PEROTHARN_DEAD)
                 events.ScheduleEvent(EVENT_ILLIDAN_OUTRO_1_1, 6000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!bTalk)
                 return;
@@ -691,13 +691,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_QUEENS_BLADE, urand(2000, 6000));
             events.ScheduleEvent(EVENT_SHIMMERING_STRIKE, urand(9000, 12000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -749,12 +749,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_FEL_FLAMES, urand(2000, 10000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -803,7 +803,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             if (me->GetEntry() == NPC_ENCHANTED_HIGHMISTRESS_1)
             {
@@ -816,7 +816,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -882,7 +882,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_SWEET_LULLABY, urand(7000, 12000));
         }
@@ -893,7 +893,7 @@ public:
                 DoCast(who, SPELL_ARCHIVED_HANDMAIDEN_2, true);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (!pInstance)
                 return;
@@ -907,7 +907,7 @@ public:
                             pPlayer->CastSpell(me, SPELL_ARCHIVED_HANDMAIDEN_1, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -979,7 +979,7 @@ public:
         void Reset() override
         { }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             if (!who)
                 return;
@@ -992,7 +992,7 @@ public:
                         (*itr)->AI()->AttackStart(who);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (InstanceScript* pInstance = me->GetInstanceScript())
                 if (Creature* pIllidan = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_EVENT_ILLIDAN_2)))
@@ -1031,14 +1031,14 @@ public:
         void EnterEvadeMode(EvadeReason /*why*/)
         { }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (who->GetGUID() == me->GetGUID())
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (bTalk || !pInstance)
                 return;
@@ -1062,7 +1062,7 @@ public:
             events.ScheduleEvent(EVENT_MALFURION_INTRO_1, 7000);
         }
 
-        void MovementInform(uint32 type, uint32 data)
+        void MovementInform(uint32 type, uint32 data) override
         {
             if (type == POINT_MOTION_TYPE)
             {
@@ -1111,7 +1111,7 @@ public:
             }
         }
 
-        void DoAction(const int32 action)
+        void DoAction(int32 const action) override
         {
             if (action == ACTION_DOOMGUARD_DIED)
             {
@@ -1142,7 +1142,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!bTalk && !bMove)
                 return;
@@ -1297,7 +1297,7 @@ public:
                 }
         }
 
-        void DoAction(const int32 action)
+        void DoAction(int32 const action) override
         {
             switch (action)
             {
@@ -1358,7 +1358,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 data)
+        void MovementInform(uint32 type, uint32 data) override
         {
             if (type == POINT_MOTION_TYPE)
             {
@@ -1384,7 +1384,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -1490,12 +1490,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ABYSSAL_FLAMES, 5000);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (InstanceScript* pInstance = me->GetInstanceScript())
                 if (Creature* pIllidan = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_EVENT_ILLIDAN_2)))
@@ -1504,7 +1504,7 @@ public:
             me->DespawnOrUnsummon(3000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;

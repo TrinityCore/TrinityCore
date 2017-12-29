@@ -1171,8 +1171,8 @@ public:
         void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot_SpellScript::RecalculateDamage, EFFECT_4, SPELL_EFFECT_NORMALIZED_WEAPON_DMG); //This should be deprecated
-                                                                                                                                                      //OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot_SpellScript::CalcDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE); //This is the explicit target one
-                                                                                                                                                      //OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot_SpellScript::CalcDamage, EFFECT_3, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE); //This is for other targets
+            //OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot_SpellScript::CalcDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE); //This is the explicit target one
+            //OnEffectHitTarget += SpellEffectFn(spell_hun_piercing_shot_SpellScript::CalcDamage, EFFECT_3, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE); //This is for other targets
         }
     };
 

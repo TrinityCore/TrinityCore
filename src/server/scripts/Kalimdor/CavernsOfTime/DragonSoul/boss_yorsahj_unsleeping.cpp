@@ -210,13 +210,13 @@ public:
             memset(bAchieve, false, sizeof(bAchieve));
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             if (instance->GetBossState(DATA_MORCHOK) == NOT_STARTED)
                 me->SetVisible(false);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!bIntro && me->GetDistance(who) <= 70.0f)
             {
@@ -242,7 +242,7 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             Talk(SAY_AGGRO);
             DoCastAOE(SPELL_YORSAHJ_WHISPER_AGGRO, true);
@@ -257,7 +257,7 @@ public:
             instance->SetBossState(DATA_YORSAHJ, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
 
@@ -273,7 +273,7 @@ public:
             return bAchieve[Id];
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim && victim->GetTypeId() == TYPEID_PLAYER)
             {
@@ -298,7 +298,7 @@ public:
                 summon->GetMotionMaster()->MoveRandom(25.0f);
         }
 
-        void MovementInform(uint32 type, uint32 pointId)
+        void MovementInform(uint32 type, uint32 pointId) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -635,7 +635,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             DoCastAOE(SPELL_FUSING_VAPORS_IMMUNE, true);
         }
@@ -729,7 +729,7 @@ public:
             events.ScheduleEvent(EVENT_CONTINUE, 1000);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             me->DespawnOrUnsummon(3000);
         }
@@ -800,7 +800,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             DoCastAOE(SPELL_MANA_DIFFUSION, true);
             me->DespawnOrUnsummon(1000);
@@ -987,7 +987,7 @@ class achievement_taste_the_rainbow : public AchievementCriteriaScript
 public:
     achievement_taste_the_rainbow(char const* scriptName, uint32 Id) : AchievementCriteriaScript(scriptName), _Id(Id) { }
 
-    bool OnCheck(Player* source, Unit* target)
+    bool OnCheck(Player* source, Unit* target) override
     {
         if (!target)
             return false;

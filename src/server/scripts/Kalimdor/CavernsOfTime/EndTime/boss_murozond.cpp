@@ -74,7 +74,7 @@ class MurozondLandEvent : public BasicEvent
     public:
         MurozondLandEvent(Creature& owner, Position const& dest) : _owner(owner), _dest(dest) { }
 
-        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
+        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
         {
             _owner.GetMotionMaster()->MoveLand(POINT_MUROZOND_LAND, _dest);
             return true;
@@ -90,7 +90,7 @@ class MurozondStartAttack : public BasicEvent
     public:
         MurozondStartAttack(Creature& owner, Position const& dest) : _owner(owner), _dest(dest) { }
 
-        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
+        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
         {
             _owner.SetReactState(REACT_AGGRESSIVE);
             return true;
@@ -137,7 +137,7 @@ class boss_murozond : public CreatureScript
                 Summons.DespawnAll();
             }
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 instance->SetData(DATA_MUROZOND_STARTED, false);
                 if (!instance->GetData(DATA_MUROZOND_TRASH))
@@ -155,7 +155,7 @@ class boss_murozond : public CreatureScript
                 DoAction(ACTION_MUROZOND_REMOVE_TEMPORAL_BOMB);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
 
@@ -200,11 +200,11 @@ class boss_murozond : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) override
             {
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
@@ -339,7 +339,7 @@ class npc_murozond_trash : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 // Increase add count
                 if (!me->isDead())
@@ -371,7 +371,7 @@ class go_hourglass_of_time : public GameObjectScript
 public:
     go_hourglass_of_time() : GameObjectScript("go_hourglass_of_time") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* pPlayer, GameObject* pGO) override
     {
         InstanceScript* _instance = pGO->GetInstanceScript();
 

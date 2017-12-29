@@ -148,7 +148,7 @@ public:
             DoCast(me, SPELL_CAMOUFLAGE, true);
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(WoEScriptName))
                 me->IsAIEnabled = false;
@@ -172,7 +172,7 @@ public:
             }
         }
 
-        void DoAction(const int32 action)
+        void DoAction(int32 const action) override
         {
             if (action == ACTION_START)
             {
@@ -190,7 +190,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* attacker)
+        void EnterCombat(Unit* attacker) override
         {
             Talk(SAY_AGGRO);
 
@@ -209,7 +209,7 @@ public:
             instance->SetBossState(DATA_PEROTHARN, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(SAY_DEATH);
@@ -234,7 +234,7 @@ public:
                 }
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
             if (who && who->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_KILL);
@@ -250,7 +250,7 @@ public:
             return bAchieve;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -322,7 +322,7 @@ public:
                     break;
                 case EVENT_HUNTING:
                     events.ScheduleEvent(EVENT_END_HUNT, 45000);
-                    for (float i = 0.0f; i < 2 * M_PI; i += (M_PI / 4))
+                    for (float i = 0.0f; i < 2 * float(M_PI); i += (float(M_PI) / 4))
                     {
                         Position pos;
                         pos = me->GetNearPosition(5.0f, i);
@@ -402,19 +402,19 @@ public:
             me->SetSpeed(MOVE_RUN, 0.5f);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_NEXT_MOVE, urand(500, 2000));
         }
 
-        void MovementInform(uint32 type, uint32 data)
+        void MovementInform(uint32 type, uint32 data) override
         {
             if (type == POINT_MOTION_TYPE)
                 if (data == POINT_EYE)
                     events.ScheduleEvent(EVENT_NEXT_MOVE, 500);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -576,7 +576,7 @@ class achievement_lazy_eye : public AchievementCriteriaScript
 public:
     achievement_lazy_eye() : AchievementCriteriaScript("achievement_lazy_eye") { }
 
-    bool OnCheck(Player* source, Unit* target)
+    bool OnCheck(Player* source, Unit* target) override
     {
         if (!target)
             return false;

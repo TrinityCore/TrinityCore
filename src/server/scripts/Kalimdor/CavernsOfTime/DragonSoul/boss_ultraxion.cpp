@@ -137,7 +137,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             Talk(SAY_INTRO);
 
@@ -182,7 +182,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             bIntro = true;
@@ -302,12 +302,12 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             Talk(SAY_DEATH);
             me->SetCanFly(true);
@@ -347,7 +347,7 @@ class go_aspect_gift : public GameObjectScript
 public:
     go_aspect_gift() : GameObjectScript("go_aspect_gift") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         if (player->GetSpecializationId() == TALENT_SPEC_PRIEST_HOLY         ||
             player->GetSpecializationId() == TALENT_SPEC_PRIEST_DISCIPLINE   ||

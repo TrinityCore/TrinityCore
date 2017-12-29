@@ -29,7 +29,7 @@ class go_tonk_console : public GameObjectScript
 public:
     go_tonk_console() : GameObjectScript("go_tonk_console") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* /*go*/)
+    bool OnGossipHello(Player* /*player*/, GameObject* /*go*/) override
     {
         return false;
     }

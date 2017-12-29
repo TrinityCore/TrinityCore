@@ -135,7 +135,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
@@ -174,13 +174,13 @@ public:
             }
         }
 
-        void KilledUnit(Unit* killed)
+        void KilledUnit(Unit* killed) override
         {
             if (killed->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
         }
 
-        void MovementInform(uint32 type, uint32 pointId)
+        void MovementInform(uint32 type, uint32 pointId) override
         {
             switch (pointId)
             {
@@ -193,7 +193,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -256,7 +256,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             _JustDied();
             Talk(SAY_DEATH);
@@ -304,7 +304,7 @@ public:
             me->GetMotionMaster()->MoveRandom(50.0f);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -354,7 +354,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void MovementInform(uint32 type, uint32 pointId)
+        void MovementInform(uint32 type, uint32 pointId) override
         {
             switch (pointId)
             {
@@ -367,7 +367,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -411,7 +411,7 @@ public:
     {
         npc_elementar_1AI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_FLAME_WAVE, 9000);
             events.ScheduleEvent(EVENT_SEARING_FLAME, 6000);
@@ -422,7 +422,7 @@ public:
             events.Reset();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             if(!me->IsNonMeleeSpellCast(false) && HealthBelowPct(3))
             {
@@ -433,7 +433,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -494,7 +494,7 @@ public:
     {
         npc_elementar_2AI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_FLAME_WAVE, 9000);
             events.ScheduleEvent(EVENT_SEARING_FLAME, 6000);
@@ -506,7 +506,7 @@ public:
             events.Reset();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             if(!me->IsNonMeleeSpellCast(false) && HealthBelowPct(3))
             {
@@ -516,7 +516,7 @@ public:
                 me->RemoveAllAuras();
             }
         }
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -577,7 +577,7 @@ public:
     {
         npc_suntouched_speakerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_FIRE_STORM, 10000);
             events.ScheduleEvent(EVENT_STOMP, 6000);
@@ -588,7 +588,7 @@ public:
             events.Reset();
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 

@@ -69,7 +69,7 @@ public:
         bool doneBarrier;
         bool cooldownVictim;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -86,7 +86,7 @@ public:
             cooldownVictim = false;
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             if (instance)
             {
@@ -99,7 +99,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*Ent*/)
+        void EnterCombat(Unit* /*Ent*/) override
         {
             DoZoneInCombat();
 
@@ -113,7 +113,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage) override
         {
             if(damage > 0 && doneBarrier == false)
             {

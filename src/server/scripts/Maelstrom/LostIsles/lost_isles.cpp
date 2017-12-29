@@ -1520,7 +1520,7 @@ public:
             isBoarded = false;
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             damage = 0;
         }
@@ -1815,7 +1815,7 @@ public:
             mui_soufle = 2000;
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
         }
 
@@ -1914,7 +1914,7 @@ public:
             mui_soufle = urand(1100, 2000);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
         }
 
@@ -2156,7 +2156,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (end)
             {

@@ -201,7 +201,7 @@ class boss_sinestra : public CreatureScript
                 DoZoneInCombat(summon);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
                 if (instance)
                 {
@@ -210,7 +210,7 @@ class boss_sinestra : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 me->Yell(urand(0, 1) == 1 ? YELL_KILL_0 : YELL_KILL_1, LANG_UNIVERSAL, 0);
             }
@@ -242,7 +242,7 @@ class boss_sinestra : public CreatureScript
                 return ObjectGuid::Empty;
             }
 
-            void SummonedCreatureDespawn(Creature* summon)
+            void SummonedCreatureDespawn(Creature* summon) override
             {
                 if (summon->GetEntry() == 46842)
                 {
@@ -476,7 +476,7 @@ class npc_sinestra_twilight_whelp : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
                 if (respawned)
                     return;
@@ -492,7 +492,7 @@ class npc_sinestra_twilight_whelp : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff) override
             {
                 events.Update(uiDiff);
 
@@ -545,7 +545,7 @@ class npc_sinestra_add : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) override
             {
                 if (me->GetEntry() == 55636)
                     events.ScheduleEvent(EVENT_TWILIGHT_BREATH, urand(7000, 10000));
@@ -553,7 +553,7 @@ class npc_sinestra_add : public CreatureScript
                     events.ScheduleEvent(EVENT_UNLEASH_ESSENCE, urand(22000, 30000));
             }
 
-            void UpdateAI(uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff) override
             {
                 if (!UpdateVictim())
                     return;

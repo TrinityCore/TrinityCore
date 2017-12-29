@@ -85,7 +85,7 @@ public:
         uint32 spell_2_Timer;
         uint32 spell_1_Timer;
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             me->Respawn();
             Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
@@ -96,7 +96,7 @@ public:
                 i->GetSource()->TeleportTo(861, 1166.23f, 532.65f, 18.0f, 0.0f);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* pWho) override
         {
             DoCast(79938);
         }
@@ -107,7 +107,7 @@ public:
             spell_2_Timer = 6000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -159,7 +159,7 @@ public:
         uint32 spell_2_Timer;
         uint32 spell_3_Timer;
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* pWho) override
         {
             DoCast(98701);
         }
@@ -171,7 +171,7 @@ public:
             spell_3_Timer = 14000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -243,14 +243,14 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_INCATFORM, 2000);
             events.ScheduleEvent(EVENT_PYROBLAST, 3000);
             events.ScheduleEvent(EVENT_SCORCH, 6000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -311,13 +311,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_LAVA_SHOWER, 15000);
             events.ScheduleEvent(EVENT_BURNING_HUNGER, urand(9000, 17000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -375,14 +375,14 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, 4000);
             events.ScheduleEvent(EVENT_TWO, 6000);
             events.ScheduleEvent(EVENT_THREE, 9000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -448,12 +448,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, 4000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -493,7 +493,7 @@ public:
         return new npc_bear_cubAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(pPlayer);
@@ -521,12 +521,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -576,7 +576,7 @@ public:
         EventMap events;
         bool kick;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             Creature* creature1 = GetClosestCreatureWithEntry(me, 39939, 15.0f);
             Creature* creature2 = GetClosestCreatureWithEntry(me, 39974, 15.0f);
@@ -613,12 +613,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -657,7 +657,7 @@ public:
         return new npc_child_of_tortollaAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(pPlayer);
@@ -685,12 +685,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -738,7 +738,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -775,12 +775,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -828,7 +828,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -865,12 +865,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -918,7 +918,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -955,12 +955,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1016,13 +1016,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 7000));
             events.ScheduleEvent(EVENT_TWO, urand(9000, 10000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1067,7 +1067,7 @@ public:
         return new npc_toogaAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(pPlayer);
@@ -1096,11 +1096,11 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1156,13 +1156,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 7000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1218,13 +1218,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1283,13 +1283,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1373,13 +1373,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             events.ScheduleEvent(EVENT_TWO, urand(27000, 30000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1449,7 +1449,7 @@ public:
         return new npc_arch_druid_hamuul_runetotemAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         if (pPlayer->GetQuestStatus(29199))
         {
@@ -1470,7 +1470,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -1495,12 +1495,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1548,7 +1548,7 @@ public:
 
         EventMap events;
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
             if (!PlayerList.isEmpty())
@@ -1566,13 +1566,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             events.ScheduleEvent(EVENT_TWO, urand(9000, 10000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1617,7 +1617,7 @@ public:
         return new npc_elderlimbAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         if (pPlayer->GetQuestStatus(29283) == QUEST_STATUS_COMPLETE)
         {
@@ -1637,7 +1637,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -1665,12 +1665,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1710,7 +1710,7 @@ public:
         return new npc_thisalee_crowAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         pPlayer->ToPlayer()->GetAchievementMgr()->UpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, 101176, 0, 0, pCreature);
         return false;
@@ -1724,7 +1724,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -1752,12 +1752,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1805,7 +1805,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -1833,12 +1833,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1878,7 +1878,7 @@ public:
         return new npc_melfurion_stormrageAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         pPlayer->ToPlayer()->GetAchievementMgr()->UpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, 101174, 0, 0, pCreature);
         return false;
@@ -1892,7 +1892,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -1922,20 +1922,20 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1983,7 +1983,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -2005,12 +2005,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2066,13 +2066,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
             if (!PlayerList.isEmpty())
@@ -2083,11 +2083,11 @@ public:
                 i->GetSource()->ToPlayer()->GetAchievementMgr()->UpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, 101167, 0, 0, me);
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2132,7 +2132,7 @@ public:
         return new npc_rayne_feathersongAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         Creature* summoned = GetClosestCreatureWithEntry(pPlayer, 53083, 100.0f);
 
@@ -2161,11 +2161,11 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2223,21 +2223,21 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(500, 1000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2295,7 +2295,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -2315,12 +2315,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2360,7 +2360,7 @@ public:
         return new npc_fireside_chatAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         if (pCreature->GetEntry() == 52921)
             pPlayer->ToPlayer()->GetAchievementMgr()->UpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, 101179, 0, 0, pCreature);
@@ -2403,11 +2403,11 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2448,7 +2448,7 @@ public:
         return new npc_currency_required_quest_takerAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         if (pCreature->GetEntry() == 52490 && pPlayer->GetQuestStatus(29181) == QUEST_STATUS_COMPLETE)
         {
@@ -2484,12 +2484,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2545,22 +2545,22 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             events.ScheduleEvent(EVENT_TWO, urand(7000, 9000));
             events.ScheduleEvent(EVENT_THREE, urand(12000, 15000));
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2630,16 +2630,16 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, 1000);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
             if (who->GetEntry() == 53093)
             {
@@ -2652,7 +2652,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2707,22 +2707,22 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(1000, 2000));
             events.ScheduleEvent(EVENT_TWO, urand(7000, 10000));
             events.ScheduleEvent(EVENT_THREE, urand(15000, 18000));
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2857,22 +2857,22 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             Creature* helper1 = GetClosestCreatureWithEntry(me, 531430, 50.0f);
             me->CastSpell(helper1, 98393, true);
             events.ScheduleEvent(EVENT_ONE, 2000);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2925,20 +2925,20 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_ONE, 2000);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3005,7 +3005,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 me->CastSpell(pTarget, 32323, true);
@@ -3013,17 +3013,17 @@ public:
             events.ScheduleEvent(EVENT_TWO, urand(22000, 29000));
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             if (me->HasAura(98169))
                 killer->ToPlayer()->GetAchievementMgr()->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, 53085, 0, 0, me);
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3083,14 +3083,14 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 me->CastSpell(pTarget, 53148, true);
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             //if (killer)
             //killer->ToPlayer()->KilledMonsterCredit(53263);
@@ -3098,11 +3098,11 @@ public:
             me->SummonCreature(53013, me->GetPositionX(), me->GetPositionY() + urand(4, 7), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5000);
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3142,7 +3142,7 @@ public:
         return new npc_trained_firehawkAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(pPlayer);
@@ -3177,12 +3177,12 @@ public:
             //me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -3222,7 +3222,7 @@ public:
         EventMap events;
         bool kick;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) > 10.0f)
                 return;
@@ -3258,12 +3258,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3318,11 +3318,11 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
             if (!PlayerList.isEmpty())
@@ -3345,11 +3345,11 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*who*/)
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3380,7 +3380,7 @@ class go_ungoro_soil : public GameObjectScript
 public:
     go_ungoro_soil() : GameObjectScript("go_ungoro_soil") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         if (player->GetQuestStatus(29249) == QUEST_STATUS_INCOMPLETE)
         {
@@ -3407,7 +3407,7 @@ public:
         return new npc_little_lasherAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(pPlayer);
@@ -3439,12 +3439,12 @@ public:
             //me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -3482,7 +3482,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) > 20.0f)
                 return;
@@ -3510,12 +3510,12 @@ public:
             //me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -3546,7 +3546,7 @@ public:
         return new npc_flame_protection_runeAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(pPlayer);
@@ -3576,12 +3576,12 @@ public:
             //me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -3619,7 +3619,7 @@ public:
 
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) > 100.0f)
                 return;
@@ -3646,12 +3646,12 @@ public:
             //me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -3672,7 +3672,7 @@ class go_solar_core : public GameObjectScript
 public:
     go_solar_core() : GameObjectScript("go_solar_core") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         if (player->GetQuestStatus(29211) == QUEST_STATUS_INCOMPLETE)
         {
@@ -3716,7 +3716,7 @@ public:
             //me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(2000, 5000));
             events.ScheduleEvent(EVENT_TWO, urand(7000, 10000));
@@ -3743,7 +3743,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3819,7 +3819,7 @@ public:
         return new npc_cinderweb_cocoonAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(pPlayer);
@@ -3849,12 +3849,12 @@ public:
             //me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
 
@@ -3884,7 +3884,7 @@ public:
         return new npc_molten_front_vendorAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         if (pCreature->GetEntry() == 53882)
         {
@@ -3926,11 +3926,11 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3977,7 +3977,7 @@ public:
         {
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) > 15.0f)
                 return;

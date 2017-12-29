@@ -310,20 +310,20 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             Talk(SAY_INTRO);
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCast(me, SPELL_VENGEANCE);
             _EnterCombat();
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim && victim->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
@@ -343,7 +343,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -409,7 +409,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             Talk(SAY_DEATH);
             instance->SetBossState(DATA_BLACKHORN, DONE);
@@ -441,7 +441,7 @@ public:
         Position pos;
         Vehicle* vehicle;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -456,7 +456,7 @@ public:
             events.ScheduleEvent(EVENT_TWILIGHT_ONSLAUGHT, 48000);
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* who, uint32&damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -754,7 +754,7 @@ class npc_sky_captain_swayze : public CreatureScript
             }
         };
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (creature->FindNearestGameObject(GO_ALLIANCE_SHIP_1, 300.0f))
             {
@@ -785,7 +785,7 @@ class npc_sky_captain_swayze : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
             CloseGossipMenuFor(player);
@@ -867,7 +867,7 @@ class npc_twilight_assault_drake : public CreatureScript
             Vehicle* vehicle;
             Position pos;
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
@@ -946,7 +946,7 @@ class npc_twilight_assault_drake : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
                 if (Creature* harpoon = me->FindNearestCreature(NPC_SKYFIRE_HARPOON_GUN, 50.0f, true))
                     harpoon->AI()->DoAction(ACTION_HARPOON_DEATH);
@@ -1098,12 +1098,12 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             DoZoneInCombat(me);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_BRUTAL_STRIKE, urand(7000, 22000));
             events.ScheduleEvent(EVENT_BLADE_RUSH, 18000);
@@ -1185,12 +1185,12 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             DoZoneInCombat(me);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_DEGENERATION, urand(7000, 22000));
             events.ScheduleEvent(EVENT_BLADE_RUSH, 18000);
@@ -1268,7 +1268,7 @@ public:
         EventMap events;
         Vehicle* vehicle;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -1316,7 +1316,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetHomePosition(sapperPos);
@@ -1457,7 +1457,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) <= 50.0f)
             {
@@ -1488,7 +1488,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetEntry() == NPC_BLACKHORN)
             {
@@ -1497,7 +1497,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             std::list<Creature*> Explosion;
             me->GetCreatureListWithEntryInGrid(Explosion, NPC_MASSIVE_EXPLOSION, 200.0f);

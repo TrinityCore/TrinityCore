@@ -292,7 +292,7 @@ public:
             events.ScheduleEvent(EVENT_SUMMON_ADD_1, 9000);
             events.ScheduleEvent(EVENT_BACKSLASH, 15000);
 
-            me->GetMotionMaster()->MoveJump(-65.585f, -820.742f, 41.022f, 10.0f, 5.0f);
+            me->GetMotionMaster()->MoveJump(-65.585f, -820.742f, 41.022f, 0.0f, 10.0f, 5.0f);
             me->SetReactState(REACT_AGGRESSIVE);
             me->Yell(COMBAT_START, LANG_UNIVERSAL);
 
@@ -321,7 +321,7 @@ public:
             summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             switch (summon->GetEntry())
             {
@@ -332,7 +332,7 @@ public:
             summons.Despawn(summon);
         }
 
-        void MovementInform(uint32 /*type*/, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == 0)
             {
@@ -368,7 +368,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32& damage)
+        void DamageTaken(Unit* done_by, uint32& damage) override
         {
             if (PlayerGUID.IsEmpty())
             {
@@ -523,7 +523,7 @@ public:
                     case EVENT_CLEAR_SHIP:
                         RemoveFiresFromShip();
                         me->SetVisible(true);
-                        me->GetMotionMaster()->MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
+                        me->GetMotionMaster()->MoveJump(-65.93f, -820.33f, 40.98f, 0.0f, 10.0f, 8.0f);
                         me->RemoveAllAuras();
                         events.ScheduleEvent(EVENT_SHADOWGUARD, 27000);
 
@@ -944,7 +944,7 @@ public:
                             Phase++;
                             break;
                         case 1:
-                            me->GetMotionMaster()->MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
+                            me->GetMotionMaster()->MoveJump(-65.93f, -820.33f, 40.98f, 0.0f, 10.0f, 8.0f);
                             me->Say(VANESSA_SAY_1, LANG_UNIVERSAL);
                             PongTimer = 6000;
                             Phase++;
@@ -1106,7 +1106,7 @@ class npc_note : public CreatureScript
 public:
     npc_note() : CreatureScript("npc_note") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player)
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, INTRUDER_SAY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -1115,7 +1115,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -1219,12 +1219,12 @@ public:
                 Phase = 23;
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             summons.Despawn(summon);
         }
@@ -1558,7 +1558,7 @@ public:
             events.ScheduleEvent(EVENT_SPIRIT_STRIKE, 6000);
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             std::list<Player*> players;
             me->GetPlayerListInGrid(players, 150.0f);
@@ -1637,7 +1637,7 @@ public:
             me->SummonCreature(NPC_MAIN_SPIDER, NightmareSpidersSpawn[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             switch (summoned->GetEntry())
             {
@@ -1726,7 +1726,7 @@ public:
             events.Reset();
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->IsWithinDistInMap(who, 10) && me->IsWithinLOSInMap(who))
                 EnterCombat(who);
@@ -1793,7 +1793,7 @@ public:
             DoZoneInCombat();
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             if (Creature* Vanessa = me->FindNearestCreature(NPC_VANESSA_NIGHTMARE, 500, true))
                 if (npc_vanessa_nightmare::npc_vanessa_nightmareAI* pAI = CAST_AI(npc_vanessa_nightmare::npc_vanessa_nightmareAI, Vanessa->AI()))
@@ -1821,7 +1821,7 @@ public:
     {
         npc_james_dmAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             if (Creature* Vanessa = me->FindNearestCreature(NPC_VANESSA_NIGHTMARE, 500, true))
                 if (npc_vanessa_nightmare::npc_vanessa_nightmareAI* pAI = CAST_AI(npc_vanessa_nightmare::npc_vanessa_nightmareAI, Vanessa->AI()))
@@ -1829,7 +1829,7 @@ public:
 
         }
 
-        void UpdateAI(uint32 const /*diff*/)
+        void UpdateAI(uint32 const /*diff*/) override
         {
             if (!me->GetVehicleKit())
                 return;
@@ -1917,14 +1917,14 @@ public:
             me->SetSpeed(MOVE_FLIGHT, 3.0f);
         }
 
-        void MovementInform(uint32 /*type*/, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == 1)
                 if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
                     passenger->ExitVehicle();
         }
 
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -1992,7 +1992,7 @@ public:
             achievementTimer = 300000;
         }
 
-        void SetData(uint32 uiI, uint32 uiValue)
+        void SetData(uint32 uiI, uint32 uiValue) override
         {
             if (uiValue == START_TIMER_ACHIEVEMENT && startTimerAchievement == false)
             {

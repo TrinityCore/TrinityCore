@@ -124,7 +124,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 me->SetReactState(REACT_DEFENSIVE);
                 JustReachedHome();
@@ -136,7 +136,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                 DoCast(me, SPELL_CALLING_IMMUNITY);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->setActive(true);
                 DoZoneInCombat();
@@ -156,7 +156,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                 DoPlaySoundToSet(me, SOU_AGGRO);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 me->Yell(SAY_DEATH, LANG_UNIVERSAL);
@@ -302,7 +302,7 @@ class mob_ghoul_summoner : public CreatureScript
             EventMap events;
             float size;
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 size = 2.5f;
                 me->GetMotionMaster()->Clear();
@@ -383,7 +383,7 @@ class mob_risen_ghoul : public CreatureScript
             float arc;
             float checkDistance;
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 me->GetMotionMaster()->Clear();
                 me->SetReactState(REACT_PASSIVE);
@@ -401,11 +401,11 @@ class mob_risen_ghoul : public CreatureScript
                 events.ScheduleEvent(EVENT_WRACKING_PAIN_LINK, 4000);
                 events.ScheduleEvent(EVENT_DESPAWN, 33000);
                 checkTimer = 5000;
-                arc = M_PI;
+                arc = float(M_PI);
                 checkDistance = 50.0f;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 // When ghoul dies, it has to kill its own summoner (the nearest)
                 me->DisappearAndDie();
@@ -613,7 +613,7 @@ class mob_blighted_arrows : public CreatureScript
             InstanceScript* instance;
             EventMap events;
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 DoStopAttack();
                 me->SetReactState(REACT_PASSIVE);

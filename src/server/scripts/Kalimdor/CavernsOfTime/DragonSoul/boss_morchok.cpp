@@ -158,7 +158,7 @@ public:
             bFirstCrystal = false;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             Talk(SAY_AGGRO);
 
@@ -191,7 +191,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
 
@@ -246,7 +246,7 @@ public:
                 summon->SetHealth(me->GetHealth());
             }
         }
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim && victim->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_KILL);
@@ -483,7 +483,7 @@ public:
             bEnrage = false;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -538,7 +538,7 @@ public:
                 DoZoneInCombat(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             summons.Despawn(summon);
         }
@@ -632,7 +632,7 @@ public:
 
         EventMap events;
 
-        void Reset() { }
+        void Reset() override { }
 
         void IsSummonedBy(Unit* /*owner*/)
         {
@@ -1032,7 +1032,7 @@ class achievement_dont_stay_so_close_to_me : public AchievementCriteriaScript
 public:
     achievement_dont_stay_so_close_to_me() : AchievementCriteriaScript("achievement_dont_stay_so_close_to_me") { }
 
-    bool OnCheck(Player* source, Unit* target)
+    bool OnCheck(Player* source, Unit* target) override
     {
         if (!target)
             return false;

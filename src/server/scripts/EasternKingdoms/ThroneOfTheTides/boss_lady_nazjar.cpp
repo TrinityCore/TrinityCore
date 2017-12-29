@@ -102,7 +102,7 @@ public:
                 instance->SetData(DATA_LADY_NAZJAR_EVENT, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*Kill*/)
+        void JustDied(Unit* /*Kill*/) override
         {
             Talk(SAY_DEATH);
 
@@ -110,7 +110,7 @@ public:
                 instance->SetData(DATA_LADY_NAZJAR_EVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*Ent*/)
+        void EnterCombat(Unit* /*Ent*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -127,12 +127,12 @@ public:
                 instance->HandleGameObject(instance->GetGuidData(GO_LADY_NAZJAR_DOOR), true);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(RAND(SAY_KILL_1,SAY_KILL_2));
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             switch(summon->GetEntry())
             {

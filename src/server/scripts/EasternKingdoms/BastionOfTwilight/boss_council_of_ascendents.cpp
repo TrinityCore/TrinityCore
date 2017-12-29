@@ -1117,7 +1117,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             me->AI()->DoAction(COUNCIL_EVENT_FINISHED);
             me->Yell(SAY_DEATH, LANG_UNIVERSAL);
@@ -1135,7 +1135,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() != TYPEID_PLAYER || killtimer > 0)
                 return;
@@ -1257,7 +1257,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (!victim || victim->GetTypeId() != TYPEID_PLAYER || killtimer > 0)
                 return;
@@ -1309,7 +1309,7 @@ public: npc_council_violent_cyclone() : CreatureScript("npc_council_violent_cycl
         uint32 checkMovement;
         int chase;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             me->SetSpeed(MOVE_WALK,   0.5f);
             me->SetSpeed(MOVE_RUN,    0.5f);
@@ -1396,7 +1396,7 @@ public: npc_council_frozen_orb() : CreatureScript("npc_council_frozen_orb") { }
         Unit* chase;
         Unit* flamestrike;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             InstanceScript* instance = me->ToCreature()->GetInstanceScript();
             Unit *monstrosity;
@@ -1554,7 +1554,7 @@ public: npc_council_water_bomb() : CreatureScript("npc_council_water_bomb") {}
         uint32 death;
         Unit* feludius;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             death = 5000;
             InstanceScript* instance = me->ToCreature()->GetInstanceScript();
@@ -1612,7 +1612,7 @@ public: npc_council_lava_seed() : CreatureScript("npc_council_lava_seed") {}
         Unit* monstrosity;
         bool casted;
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             casted = false;
             InstanceScript* instance = me->ToCreature()->GetInstanceScript();
@@ -1668,7 +1668,7 @@ public: npc_council_inferno_rush() : CreatureScript("npc_council_inferno_rush") 
         uint32 timer;
         Unit* igna;
 
-         void InitializeAI()
+         void InitializeAI() override
         {
             Isready = false;
             timer = 250;
@@ -1726,7 +1726,7 @@ public: npc_council_flamestrike() : CreatureScript("npc_council_flamestrike") {}
     uint32 timer;
     bool casted;
 
-    void InitializeAI()
+    void InitializeAI() override
     {
         casted= false;
         InstanceScript* instance = me->ToCreature()->GetInstanceScript();
@@ -1773,7 +1773,7 @@ public: npc_council_liquid_ice() : CreatureScript("npc_council_liquid_ice") {}
     {
         npc_council_liquid_iceAI(Creature *c) :ScriptedAI(c) {}
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             InstanceScript* instance = me->ToCreature()->GetInstanceScript();
             Unit *monstrosity;

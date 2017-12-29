@@ -29,7 +29,7 @@ class instance_the_bastion_of_twilight : public InstanceMapScript
 public:
     instance_the_bastion_of_twilight() : InstanceMapScript("instance_the_bastion_of_twilight", 671) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_the_bastion_of_twilight_InstanceMapScript(map);
     }

@@ -59,7 +59,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 brannGUID = ObjectGuid::Empty;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -78,7 +78,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -110,7 +110,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 /*data*/)
+            void SetData(uint32 type, uint32 /*data*/) override
             {
                 switch(type)
                 {
@@ -137,7 +137,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -160,7 +160,7 @@ class instance_halls_of_origination : public InstanceMapScript
             std::set<ObjectGuid> teleporterSet;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_halls_of_origination_InstanceMapScript(map);
         }

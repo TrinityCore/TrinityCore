@@ -35,7 +35,7 @@ class instance_grim_batol : public InstanceMapScript
 public:
     instance_grim_batol() : InstanceMapScript("instance_grim_batol", 670) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_grim_batol_InstanceMapScript(map);
     }
@@ -68,7 +68,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -103,7 +103,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {

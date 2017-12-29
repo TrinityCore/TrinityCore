@@ -72,7 +72,7 @@ public:
     {
     }
 
-    bool Execute(uint64 execTime, uint32 /*diff*/)
+    bool Execute(uint64 execTime, uint32 /*diff*/) override
     {
         if (!_owner->HasAura(SPELL_TWISTER_AURA))
             _owner->CastSpell(_owner, SPELL_TWISTER_AURA, true);
@@ -111,7 +111,7 @@ public:
             summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
 
@@ -130,7 +130,7 @@ public:
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WIND_OF_ALTAIRUS);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             switch (summoned->GetEntry())
             {
@@ -155,7 +155,7 @@ public:
             summons.Summon(summoned);
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             _JustDied();
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WIND_OF_ALTAIRUS);
@@ -168,7 +168,7 @@ public:
             Slipstream->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -209,19 +209,19 @@ public:
                         switch (rand() % 4)
                         {
                             case 0:
-                                orientation = M_PI / 2;
+                                orientation = float(M_PI) / 2.0f;
                                 break;
                             case 1:
-                                orientation = M_PI;
+                                orientation = float(M_PI);
                                 break;
                             case 2:
-                                orientation = 3 * M_PI / 2;
+                                orientation = 3.0f * float(M_PI) / 2.0f;
                                 break;
                             case 3:
-                                orientation = 2 * M_PI;
+                                orientation = 2.0f * float(M_PI);
                                 break;
                             default:
-                                orientation = M_PI;
+                                orientation = float(M_PI);
                                 break;
                         }
                         me->SummonCreature(NPC_WIND, -1213.83f, 62.99f, 734.2f, orientation, TEMPSUMMON_MANUAL_DESPAWN);

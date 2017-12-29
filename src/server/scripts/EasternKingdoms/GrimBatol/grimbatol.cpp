@@ -107,7 +107,7 @@ class npc_battered_red_drake: public CreatureScript
             boarded = false;
         }
 
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -131,7 +131,7 @@ class npc_battered_red_drake: public CreatureScript
         }
 
         //Called at waypoint reached or PointMovement end
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
 
             if (id == uiPoint && (!FlyDisabled || FlyAway))
