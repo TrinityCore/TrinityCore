@@ -54,6 +54,7 @@ class Unit;
 class WorldObject;
 struct SpellPowerCost;
 struct SummonPropertiesEntry;
+enum AuraType : uint32;
 enum CurrentSpellTypes : uint8;
 enum LootType : uint8;
 enum SpellCastTargetFlags : uint32;
@@ -529,7 +530,7 @@ class TC_GAME_API Spell
         void TakeReagents();
         void TakeCastItem();
 
-        SpellCastResult CheckCast(bool strict);
+        SpellCastResult CheckCast(bool strict, uint32* param1 = nullptr, uint32* param2 = nullptr);
         SpellCastResult CheckPetCast(Unit* target);
 
         // handlers
@@ -539,12 +540,20 @@ class TC_GAME_API Spell
         void _handle_immediate_phase();
         void _handle_finish_phase();
 
-        SpellCastResult CheckItems();
-        SpellCastResult CheckRange(bool strict);
-        SpellCastResult CheckPower();
-        SpellCastResult CheckRuneCost();
-        SpellCastResult CheckCasterAuras() const;
+        SpellCastResult CheckItems(uint32* param1, uint32* param2) const;
+        SpellCastResult CheckRange(bool strict) const;
+        SpellCastResult CheckPower() const;
+        SpellCastResult CheckRuneCost() const;
+        SpellCastResult CheckCasterAuras(uint32* param1) const;
         SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
+
+        bool CheckCasterHasNotImmunedAuraType(AuraType auraType, uint32* param1) const;
+        bool CheckCasterNotImmunedCharmAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedStunAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedSilenceAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedPacifyAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedFearAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedDisorientAuras(uint32* param1) const;
 
         int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const;
 
@@ -563,9 +572,9 @@ class TC_GAME_API Spell
         void CheckSrc();
         void CheckDst();
 
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint32 spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, uint32* misc = nullptr);
-        void SendCastResult(SpellCastResult result);
-        void SendPetCastResult(SpellCastResult result);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint32 spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, uint32* param1 = nullptr, uint32* param2 = nullptr);
+        void SendCastResult(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr) const;
+        void SendPetCastResult(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr) const;
         void SendSpellStart();
         void SendSpellGo();
         void SendSpellCooldown();
@@ -693,7 +702,7 @@ class TC_GAME_API Spell
         void CancelGlobalCooldown();
 
         void SendLoot(ObjectGuid guid, LootType loottype);
-        std::pair<float, float> GetMinMaxRange(bool strict);
+        std::pair<float, float> GetMinMaxRange(bool strict) const;
 
         Unit* const m_caster;
 
