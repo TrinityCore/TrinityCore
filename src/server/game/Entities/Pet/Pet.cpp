@@ -99,7 +99,7 @@ void Pet::RemoveFromWorld()
     }
 }
 
-bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current)
+bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool current)
 {
     m_loading = true;
 
@@ -398,7 +398,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
         stmt->setString(12, GenerateActionBarData());
 
-        stmt->setUInt32(13, time(NULL));
+        stmt->setUInt32(13, time(NULL)); // unsure about this
         stmt->setUInt32(14, GetUInt32Value(UNIT_CREATED_BY_SPELL));
         stmt->setUInt8(15, getPetType());
         stmt->setUInt16(16, m_petSpecialization);

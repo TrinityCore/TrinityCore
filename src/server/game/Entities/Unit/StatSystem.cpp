@@ -1256,24 +1256,44 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     float mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
 
-    /// @todo: remove this
-    Unit::AuraEffectList const& mDummy = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACKSPEED);
-    for (Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
+    switch (IsHunterPet() ? HUNTER_PET : SUMMON_PET)
     {
-        switch ((*itr)->GetSpellInfo()->Id)
+    case SUMMON_PET:
+    {
+        switch (GetEntry())
         {
-            case 61682:
-            case 61683:
-                AddPct(mindamage, -(*itr)->GetAmount());
-                AddPct(maxdamage, -(*itr)->GetAmount());
-                break;
-            default:
-                break;
+        default:
+            break;
+        }
+        break;
+    }
+    case HUNTER_PET:
+        mindamage = GetTotalAttackPowerValue(attType) / 3.5f * 2.0f;
+        maxdamage = mindamage;
+        break;
+    default:
+        break;
+    }
+
+    AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+    for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+    {
+        if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+        {
+            AddPct(mindamage, (*i)->GetAmount());
+            AddPct(maxdamage, (*i)->GetAmount());
         }
     }
 
     SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
     SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
+    if (IsHunterPet())
+    {
+        SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, mindamage);
+        SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxdamage);
+        SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage / 2.0f);
+        SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdamage / 2.0f);
+    }
 }
 
 void Guardian::SetBonusDamage(int32 damage)

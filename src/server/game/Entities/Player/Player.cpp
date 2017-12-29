@@ -18854,7 +18854,7 @@ void Player::LoadPet()
     if (IsInWorld())
     {
         Pet* pet = new Pet(this);
-        if (!pet->LoadPetFromDB(this, 0, 0, true))
+        if (!pet->LoadPetData(this, 0, 0, true))
             delete pet;
     }
 }
@@ -26229,7 +26229,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
         return;
 
     Pet* NewPet = new Pet(this);
-    if (!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
+    if (!NewPet->LoadPetData(this, 0, m_temporaryUnsummonedPetNumber, true))
         delete NewPet;
 
     m_temporaryUnsummonedPetNumber = 0;
@@ -27305,10 +27305,10 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 {
     Pet* pet = new Pet(this, petType);
 
-    if (petType == HUNTER_PET && pet->LoadPetFromDB(this, entry))
+    if (petType == HUNTER_PET && pet->LoadPetData(this, entry))
         return nullptr;
 
-    if (petType == SUMMON_PET && pet->LoadPetFromDB(this, entry))
+    if (petType == SUMMON_PET && pet->LoadPetData(this, entry))
     {
         if (duration > 0)
             pet->SetDuration(duration);
