@@ -16,7 +16,7 @@
  */
 
 /* To-do: */
-// - AreaTrigger: unknown purpose (id: 1843; pos: front-left stairs) - dust animation, aggro snakes? 
+// - AreaTrigger: unknown purpose (id: 1843; pos: front-right stairs) - dust animation, aggro snakes? 
 
 #include "ScriptMgr.h"
 #include "GridNotifiers.h"
@@ -45,7 +45,7 @@ enum Events
     EVENT_DIVINE_RECKONING       = 3,
     EVENT_CAST_SHIELD            = 4,
     EVENT_ACTIVATE_BEACONS       = 5,
-    EVENT_HANDLE_VISUALS         = 6
+    EVENT_CAST_BEAMS             = 6
 };
 
 enum Spells
@@ -103,17 +103,6 @@ public:
             _rightBeaconDisabled = false;
         }
 
-        void CleanStalkers()
-        {
-            std::list<Creature*> stalkers;
-            GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
-            for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
-            {
-                (*itr)->RemoveAurasDueToSpell(SPELL_BEAM_OF_LIGHT_RIGHT);
-                (*itr)->RemoveAurasDueToSpell(SPELL_BEAM_OF_LIGHT_LEFT);
-            }
-        }
-
         void Reset() override
         {
             Initialize();
@@ -159,7 +148,6 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-            CleanStalkers();
             Talk(SAY_AGGRO);
             _EnterCombat();
         }
@@ -224,12 +212,14 @@ public:
                         events.ScheduleEvent(EVENT_ACTIVATE_BEACONS, Seconds(2), 0, PHASE_SHIELD);
                         break;
                     case EVENT_ACTIVATE_BEACONS:
-                        DoCastAOE(SPELL_ACTIVATE_BEACONS);
                         DoCast(me, SPELL_REVERBERATING_HYMN);
-                        events.ScheduleEvent(EVENT_HANDLE_VISUALS, Seconds(1), 0, PHASE_SHIELD);
+                        HandleVisuals(SPELL_SHIELD_VISUAL_LEFT, SPELL_SHIELD_VISUAL_RIGHT, true);
+                        DoCastAOE(SPELL_ACTIVATE_BEACONS);
+                        Talk(EMOTE_SHIELD);
+                        events.ScheduleEvent(EVENT_CAST_BEAMS, Seconds(1), 0, PHASE_SHIELD);
                         break;
-                    case EVENT_HANDLE_VISUALS:
-                        HandleVisuals();
+                    case EVENT_CAST_BEAMS:
+                        HandleVisuals(SPELL_BEAM_OF_LIGHT_LEFT, SPELL_BEAM_OF_LIGHT_RIGHT, true);
                         break;
                     default:
                         break;
@@ -291,39 +281,49 @@ public:
             DoCast(me, SPELL_TELEPORT);
             me->SetFacingTo(1.5708f, true); // Note: Wrong orientation in old sniffs - 5.144157f.
 
-            Talk(EMOTE_SHIELD);
             Talk(SAY_SHIELD);
 
-            events.ScheduleEvent(EVENT_ACTIVATE_BEACONS, Seconds(1), 0, PHASE_SHIELD);
-        }
-
-        // To-do: Ideal for a custom spell.
-        void HandleVisuals()
-        {
-            GameObject* door = instance->GetGameObject(DATA_ANHUUR_DOOR);
-            if (!door)
-                return;
-
-            std::list<Creature*> stalkers;
-            GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
-            stalkers.remove_if(Trinity::HeightDifferenceCheck(door, 0.0f, false)); // Target only the bottom ones
-
-            for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
-            {
-                bool leftSide = (*itr)->GetPositionX() > door->GetPositionX();
-                (*itr)->CastSpell((*itr), leftSide ? SPELL_SHIELD_VISUAL_LEFT : SPELL_SHIELD_VISUAL_RIGHT, true);
-                (*itr)->CastSpell((*itr), leftSide ? SPELL_BEAM_OF_LIGHT_LEFT : SPELL_BEAM_OF_LIGHT_RIGHT, true);
-            }
+            events.ScheduleEvent(EVENT_CAST_SHIELD, Seconds(1), 0, PHASE_SHIELD);
         }
 
         void ExitShieldPhase()
         {
+            CleanStalkers();
             me->InterruptNonMeleeSpells(true);
             me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
             me->SetReactState(REACT_AGGRESSIVE);
             Talk(EMOTE_UNSHIELD);
             events.SetPhase(PHASE_FIGHT);
             ScheduleEvents();
+        }
+
+        void CleanStalkers()
+        {
+            HandleVisuals(SPELL_SHIELD_VISUAL_LEFT, SPELL_SHIELD_VISUAL_RIGHT, false);
+            HandleVisuals(SPELL_BEAM_OF_LIGHT_LEFT, SPELL_BEAM_OF_LIGHT_RIGHT, false);
+        }
+
+        void HandleVisuals(uint32 leftSpellId, uint32 rightSpellId, bool apply)
+        {
+            std::list<Creature*> stalkers;
+            GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
+            for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
+            {
+                // Target only the bottom stalkers (Y: 65.392f and 64.9004f)
+                if ((*itr)->GetPositionZ() > 70.f)
+                    return;
+
+                // Left stalker X: -603.465f; right stalker X: -678.132f
+                uint32 spellId = (*itr)->GetPositionX() > -640.f ? leftSpellId : rightSpellId;
+                if (apply)
+                    (*itr)->CastSpell((*itr), spellId, true);
+                else
+                {
+                    (*itr)->InterruptNonMeleeSpells(true, spellId);
+                    (*itr)->RemoveAurasDueToSpell(spellId);
+                }
+            }
+
         }
 
         uint8 _countShield;
@@ -371,6 +371,7 @@ public:
 
 // 74930 - Shield of Light (left)
 // 76573 - Shield of Light (right)
+/*
 class spell_anhuur_shield_of_light : public SpellScriptLoader
 {
     public:
@@ -404,7 +405,7 @@ class spell_anhuur_shield_of_light : public SpellScriptLoader
         {
             return new spell_anhuur_shield_of_light_SpellScript();
         }
-};
+};*/
 
 // 75322 - Reverberating Hymn
 class spell_anhuur_reverberating_hymn : public SpellScriptLoader
@@ -448,7 +449,7 @@ class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->RemoveAurasDueToSpell(GetEffectValue());
+                GetHitUnit()->InterruptNonMeleeSpells(true, GetEffectValue());
             }
 
             void Notify(SpellEffIndex /*index*/)
@@ -515,7 +516,7 @@ void AddSC_boss_temple_guardian_anhuur()
 {
     new boss_temple_guardian_anhuur();
     new spell_anhuur_divine_reckoning();
-    new spell_anhuur_shield_of_light();
+//  new spell_anhuur_shield_of_light();
     new spell_anhuur_reverberating_hymn();
     new spell_anhuur_disable_beacon_beams();
     new spell_anhuur_handle_beacons();

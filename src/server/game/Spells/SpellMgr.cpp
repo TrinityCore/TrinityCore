@@ -3290,12 +3290,20 @@ void SpellMgr::LoadSpellInfoCorrections()
     // HALLS OF ORIGINATION SPELLS
     //
     ApplySpellFix({
-        76606, // Disable Beacon Beams L
-        76608  // Disable Beacon Beams R
+        74930, // Shield of Light (left)
+        76573  // Shield of Light (right)
     }, [](SpellInfo* spellInfo)
     {
-        // Little hack, Increase the radius so it can hit the Cave In Stalkers in the platform.
-        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_45_YARDS);
+        // Including the caster, these spells hit all three stalkers in 20 yard range.
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS);
+    });
+
+    ApplySpellFix({
+        75764, // Emerge
+    }, [](SpellInfo* spellInfo)
+    {
+        // Fix not being able to cast Emerge while Submerged (cannot be cast while stunned error). AttributesEx3: 0x10000000 (SPELL_ATTR3_UNK28)?
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
     });
 
     // ENDOF HALLS OF ORIGINATION SPELLS

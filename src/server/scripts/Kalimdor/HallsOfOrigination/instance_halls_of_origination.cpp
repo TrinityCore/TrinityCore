@@ -270,7 +270,8 @@ class instance_halls_of_origination : public InstanceMapScript
                     case BOSS_EARTHRAGER_PTAH:
                     case BOSS_ANRAPHET:
                         for (ObjectGuid guid : transitDeviceGUIDs)
-                            HandleTransitDevice(instance->GetGameObject(guid));
+                            if (GameObject* transit = instance->GetGameObject(guid))
+                                HandleTransitDevice(transit);
                         break;
                     case NPC_DUSTBONE_HORROR:
                     case NPC_BEETLE_STALKER:
