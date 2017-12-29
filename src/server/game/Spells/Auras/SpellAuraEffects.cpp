@@ -4040,21 +4040,14 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
     Powers powerType = Powers(GetMiscValue());
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
-    float pct = float(GetAmount());
+    int32 oldPower = target->GetPower(powerType);
+    int32 oldMaxPower = target->GetMaxPower(powerType);
 
-    // Calculate the change.
-    float change = target->GetMaxPower(powerType);
-    ApplyPercentModFloatVar(change, pct, apply);
-    change -= target->GetMaxPower(powerType);
+    target->HandleStatModifier(unitMod, TOTAL_PCT, float(GetAmount()), apply);
 
-    if (!apply) // We reduce power before removal of aura effect.
-        target->ModifyPower(powerType, int32(change));
-
-    // The actual aura effect for max power.
-    target->HandleStatModifier(unitMod, TOTAL_PCT, pct, apply);
-
-    if (apply) // We increase power after application of aura effect.
-        target->ModifyPower(powerType, int32(change));
+    int32 change = target->GetMaxPower(powerType) - oldMaxPower;
+    change = (oldPower + change) - target->GetPower(powerType);
+    target->ModifyPower(powerType, change);
 }
 
 void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
