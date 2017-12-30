@@ -244,7 +244,7 @@ bool DynamicMapTree::isInLineOfSight(float x1, float y1, float z1, float x2, flo
 
 float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, uint32 phasemask) const
 {
-    G3D::Vector3 v(x, y, z + 0.5f);
+    G3D::Vector3 v(x, y, z);
     G3D::Ray r(v, G3D::Vector3(0, 0, -1));
     DynamicTreeIntersectionCallback callback(phasemask);
     impl->intersectZAllignedRay(r, callback, maxSearchDist);
