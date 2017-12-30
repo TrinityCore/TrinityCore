@@ -2713,20 +2713,27 @@ int TFileNameDatabasePtr::CreateDatabase(LPBYTE pbMarData, DWORD cbMarData)
         return ERROR_INVALID_PARAMETER;
 
     pDatabase = new TFileNameDatabase;
-    if(pDatabase == NULL)
+    if(pDatabase != NULL)
+    {
+        nError = ByteStream.SetByteBuffer(pbMarData, cbMarData);
+        if(nError == ERROR_SUCCESS)
+        {
+            // HOTS: 1956E11
+            nError = pDatabase->LoadFromStream_Exchange(ByteStream);
+            if(nError == ERROR_SUCCESS)
+            {
+                pDB = pDatabase;
+                return ERROR_SUCCESS;
+            }
+        }
+
+        delete pDatabase;
+        return nError;
+    }
+    else
+    {
         return ERROR_NOT_ENOUGH_MEMORY;
-
-    nError = ByteStream.SetByteBuffer(pbMarData, cbMarData);
-    if(nError != ERROR_SUCCESS)
-        return nError;
-
-    // HOTS: 1956E11
-    nError = pDatabase->LoadFromStream_Exchange(ByteStream);
-    if(nError != ERROR_SUCCESS)
-        return nError;
-
-    pDB = pDatabase;
-    return ERROR_SUCCESS;
+    }
 }
 
 // HOTS: 19584B0

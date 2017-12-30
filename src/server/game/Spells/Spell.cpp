@@ -4482,7 +4482,8 @@ void Spell::SendChannelUpdate(uint32 time)
     if (time == 0)
     {
         m_caster->ClearDynamicValue(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS);
-        m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
+        m_caster->SetChannelSpellId(0);
+        m_caster->SetChannelSpellXSpellVisualId(0);
     }
 
     WorldPackets::Spells::SpellChannelUpdate spellChannelUpdate;
@@ -4517,8 +4518,8 @@ void Spell::SendChannelStart(uint32 duration)
     for (GOTargetInfo const& target : m_UniqueGOTargetInfo)
         m_caster->AddChannelObject(target.targetGUID);
 
-    m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
-    m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL_X_SPELL_VISUAL, m_SpellVisual);
+    m_caster->SetChannelSpellId(m_spellInfo->Id);
+    m_caster->SetChannelSpellXSpellVisualId(m_SpellVisual);
 }
 
 void Spell::SendResurrectRequest(Player* target)
@@ -6953,7 +6954,7 @@ bool Spell::IsProcDisabled() const
 
 bool Spell::IsChannelActive() const
 {
-    return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0;
+    return m_caster->GetChannelSpellId() != 0;
 }
 
 bool Spell::IsAutoActionResetSpell() const
