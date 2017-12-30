@@ -301,7 +301,7 @@ public:
     {
         mob_facelessAI(Creature* creature) : ScriptedAI(creature), isAtAnEgg(false), instance(creature->GetInstanceScript())  {}
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             Creature *pTarget = NULL;
             pTargetGUID = ObjectGuid::Empty;

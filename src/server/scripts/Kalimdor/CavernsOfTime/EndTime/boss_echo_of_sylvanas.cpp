@@ -314,7 +314,7 @@ class mob_ghoul_summoner : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner) override
             {
                 DoCast(me, SPELL_GHOUL_CIRCLE);
                 events.ScheduleEvent(EVENT_SUMMON_GHOUL, 1000);
@@ -393,7 +393,7 @@ class mob_risen_ghoul : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner) override
             {
                 events.Reset();
                 me->SetSpeed(MOVE_WALK, 0.4f);
@@ -620,7 +620,7 @@ class mob_blighted_arrows : public CreatureScript
                 me->setActive(false);
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner) override
             {
                 DoStopAttack();
                 me->setActive(false);

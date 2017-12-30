@@ -283,7 +283,7 @@ public:
             events.ScheduleEvent(EVENT_ICY_BOULDER, urand(3000, 7000));
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             events.ScheduleEvent(EVENT_ICY_BOULDER, 1000);
         }

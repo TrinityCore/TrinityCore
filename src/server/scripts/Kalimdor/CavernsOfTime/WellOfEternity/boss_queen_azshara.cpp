@@ -201,7 +201,7 @@ public:
                 Talk(SAY_KILL);
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
         {
             if (Spell* spell = me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                 if (spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))

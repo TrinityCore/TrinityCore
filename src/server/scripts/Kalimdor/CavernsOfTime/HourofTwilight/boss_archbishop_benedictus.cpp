@@ -461,7 +461,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->SetObjectScale(0.1f);
             me->SetDisableGravity(true);
@@ -539,7 +539,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->CastSpell(me, SPELL_WAVE_OF_VIRTUE_WAVE, true);
 
@@ -643,7 +643,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->SetObjectScale(0.1f);
             me->SetDisableGravity(true);
@@ -734,7 +734,7 @@ public:
             return;
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->CastSpell(me, SPELL_WAVE_OF_TWILIGHT_WAVE, true);
 

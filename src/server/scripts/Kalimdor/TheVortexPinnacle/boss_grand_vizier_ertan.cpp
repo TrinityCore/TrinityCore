@@ -295,7 +295,7 @@ public:
         uint32 Boo;
         ObjectGuid BossGUID;
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->RemoveAllAuras();
         }

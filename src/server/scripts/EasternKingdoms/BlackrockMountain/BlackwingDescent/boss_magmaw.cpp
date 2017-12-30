@@ -639,7 +639,7 @@ class npc_magmaws_pincer : public VehicleScript
 public:
     npc_magmaws_pincer() : VehicleScript("npc_magmaws_pincer") { }
 
-    void OnAddPassenger(Vehicle* veh, Unit* /*passenger*/, int8 /*seatId*/)
+    void OnAddPassenger(Vehicle* veh, Unit* /*passenger*/, int8 /*seatId*/) override
     {
         if (Unit* unit = veh->GetBase())
         {

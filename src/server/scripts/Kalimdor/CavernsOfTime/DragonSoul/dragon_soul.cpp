@@ -804,7 +804,7 @@ public:
     {
         npc_ds_Twilight_siege_breakerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             if (Creature* stalker = me->FindNearestCreature(57261, 500.0f, true))
                 me->GetMotionMaster()->MoveChase(stalker);
@@ -861,7 +861,7 @@ public:
     {
         npc_ds_lord_afrasastraszAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             Talk(SAY_AFRA_1);
             me->SetSpeed(MOVE_WALK, 1.5f);
@@ -905,7 +905,7 @@ public:
     {
         npc_ds_lifebinderAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             if (Creature* tyr = me->FindNearestCreature(NPC_TYRYGOSA, 5.0f, true))
                 me->CastSpell(tyr, SPELL_LIFEBINDING);
@@ -927,7 +927,7 @@ public:
     {
         npc_ds_tyrygosaAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_LIFEBINDING)
             {

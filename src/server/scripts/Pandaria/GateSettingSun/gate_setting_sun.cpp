@@ -182,7 +182,7 @@ class vehicle_artillery_to_wall : public VehicleScript
     public:
         vehicle_artillery_to_wall() : VehicleScript("vehicle_artillery_to_wall") {}
 
-        void OnAddPassenger(Vehicle* veh, Unit* /*passenger*/, int8 /*seatId*/)
+        void OnAddPassenger(Vehicle* veh, Unit* /*passenger*/, int8 /*seatId*/) override
         {
             if (veh->GetBase())
                 if (veh->GetBase()->ToCreature())

@@ -367,7 +367,7 @@ public:
             events.ScheduleEvent(PHASE_1, 1000);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             Talk(SAY_AGGRO);
             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
@@ -940,7 +940,7 @@ public:
             secondBlistering = false;
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
         }
@@ -1090,7 +1090,7 @@ public:
             secondBlistering = false;
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
         }
@@ -1252,7 +1252,7 @@ public:
             secondBlistering = false;
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
         }
@@ -1901,7 +1901,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             DoCast(me, SPELL_UNSTABLE_CORRUPTION);
         }

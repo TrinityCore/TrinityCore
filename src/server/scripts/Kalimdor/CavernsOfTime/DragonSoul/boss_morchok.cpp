@@ -507,7 +507,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             DoCast(me, SPELL_MORCHOK_JUMP, true);
             events.ScheduleEvent(EVENT_CONTINUE, 5000);
@@ -634,7 +634,7 @@ public:
 
         void Reset() override { }
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             DoCast(SPELL_RESONATING_CRYSTAL_AURA);
             events.ScheduleEvent(EVENT_EXPLODE, 12000);

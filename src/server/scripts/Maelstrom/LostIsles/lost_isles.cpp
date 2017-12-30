@@ -367,7 +367,7 @@ public:
             st = true;
         }
 
-        void Unload()
+        void Unload() override
         {
             if (GetCastItem())
                 if (Unit* caster = GetCastItem()->GetOwner())
@@ -1152,7 +1152,7 @@ public:
         {
             if (param == 1)
             {
-                if (go = me->FindNearestGameObject(GO_PIEGE, 25))
+                if (GameObject* go = me->FindNearestGameObject(GO_PIEGE, 25))
                 {
                     start = false;
                     me->CastSpell(me, 66726, true);
@@ -1168,8 +1168,6 @@ public:
 
     private :
         bool start;
-        GameObject* go;
-
     };
 };
 
@@ -1419,10 +1417,11 @@ public:
                 {
                     if (Creature *zone = me->FindNearestCreature(38450, 3))
                     {
-                        if (Player *player =  ObjectAccessor::GetPlayer(*me, playerGUID))
+                        if (Player* player =  ObjectAccessor::GetPlayer(*me, playerGUID))
                         {
                             me->Say(CRACK_PROVOC, LANG_UNIVERSAL, player);
-                            if (naga = player->SummonCreature(38448, zone->GetPositionX(), zone->GetPositionY(), zone->GetPositionZ() + 2, zone->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILLISECONDS))
+                            naga = player->SummonCreature(38448, zone->GetPositionX(), zone->GetPositionY(), zone->GetPositionZ() + 2, zone->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60 * IN_MILLISECONDS);
+                            if (naga)
                                 naga->setFaction(35);
                         }
                         zone->DespawnOrUnsummon();

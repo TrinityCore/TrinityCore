@@ -571,7 +571,7 @@ public:
                 Talk(SAY_VAROTHEN_KILL);
         }
 
-        void SpellHit(Unit* who, const SpellInfo* spellInfo)
+        void SpellHit(Unit* who, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_ARCHIVED_VAROTHEN_1)
                 DoCast(who, SPELL_ARCHIVED_VAROTHEN_2, true);
@@ -657,7 +657,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             events.ScheduleEvent(EVENT_DEBILITATING_FLAY, 1000);
         }

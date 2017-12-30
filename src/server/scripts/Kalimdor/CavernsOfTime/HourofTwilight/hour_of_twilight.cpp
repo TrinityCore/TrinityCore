@@ -402,7 +402,7 @@ public:
                 instance->SetData(DATA_TRASH_KILLED, 1);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             if (instance)
             {
@@ -481,7 +481,7 @@ public:
                 instance->SetData(DATA_TRASH_KILLED, 1);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             if (instance)
             {
@@ -889,7 +889,7 @@ public:
                 instance->SetData(DATA_TRASH_KILLED, 1);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
         }
@@ -968,7 +968,7 @@ public:
                 instance->SetData(DATA_TRASH_KILLED, 1);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
         }
@@ -1056,7 +1056,7 @@ public:
                 instance->SetData(DATA_TRASH_KILLED, 1);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
         }
@@ -1131,7 +1131,7 @@ public:
                 instance->SetData(DATA_TRASH_KILLED, 1);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
         }
@@ -1463,7 +1463,7 @@ public:
                 instance->SetData(DATA_TRASH_KILLED, 1);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
         }
@@ -1536,7 +1536,7 @@ public:
                 instance->SetData(DATA_TRASH_KILLED, 1);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
         }
@@ -1662,7 +1662,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             events.ScheduleEvent(EVENT_WATER_SHELL_RANGE, 250);
         }

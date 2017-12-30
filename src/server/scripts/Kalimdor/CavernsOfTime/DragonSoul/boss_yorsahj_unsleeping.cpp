@@ -608,7 +608,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             switch (me->GetEntry())
             {
@@ -622,7 +622,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_COLOR_COMBINATION_1 ||
                 spellInfo->Id == SPELL_COLOR_COMBINATION_2 ||
@@ -724,7 +724,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             events.ScheduleEvent(EVENT_CONTINUE, 1000);
         }

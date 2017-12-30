@@ -691,7 +691,7 @@ public:
         Unit* target;
         uint32 timerChecktarget;
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             target = summoner;
             timerChecktarget = 500;

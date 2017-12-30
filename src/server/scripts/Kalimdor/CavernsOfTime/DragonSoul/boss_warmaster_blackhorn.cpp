@@ -968,7 +968,7 @@ public:
     {
         npc_deck_fireAI(Creature* creature) : ScriptedAI(creature){}
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             events.ScheduleEvent(EVENT_FIRE_DAMAGE, 1000);
         }
@@ -1017,7 +1017,7 @@ public:
     {
         npc_skyfire_brigadeAI(Creature* creature) : ScriptedAI(creature){}
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             me->SetCanFly(true);
             me->SetDisableGravity(true);

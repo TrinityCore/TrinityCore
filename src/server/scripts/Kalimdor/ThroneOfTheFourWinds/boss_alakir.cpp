@@ -535,7 +535,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             if (!me->GetVehicleKit())
                 return;
@@ -846,7 +846,7 @@ public:
             }
         }
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
@@ -956,7 +956,7 @@ public:
             playerReturnTimer = 13000;
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             if (summoner->GetTypeId() == TYPEID_PLAYER)
                 playerGUID = summoner->GetGUID();

@@ -318,7 +318,7 @@ public:
                 summon->AI()->DoZoneInCombat();
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             dragahGUID = summoner->GetGUID();
             me->SetReactState(REACT_PASSIVE);
@@ -463,7 +463,7 @@ public:
             checkTargetTimer = 1000;
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             DoZoneInCombat();
             if (Player *player = me->SelectNearestPlayer(100))

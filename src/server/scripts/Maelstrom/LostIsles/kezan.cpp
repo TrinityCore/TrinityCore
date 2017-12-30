@@ -79,7 +79,7 @@ public:
             //me->LoadEquipment(2901, true);
         }
 
-        void JustReachedHome() { }
+        void JustReachedHome() override { }
 
         void SpellHits(Unit* caster, const SpellEntry* spell)
         {
@@ -890,7 +890,7 @@ public:
             _t = 1000;
         }
 
-        void JustReachedHome() {}
+        void JustReachedHome() override { }
 
         void UpdateAI(const uint32 diff) override
         {
@@ -930,7 +930,7 @@ public:
             _c = 600000;
         }
 
-        void JustReachedHome() {}
+        void JustReachedHome() override { }
 
         void UpdateAI(const uint32 diff) override
         {
@@ -1384,11 +1384,14 @@ public:
                 return;
             m_ty = 2000;
             _prev_aura = param;
-            Player *player = NULL;
-            if (Unit *p = me->ToTempSummon()->GetSummoner())
-                if (player = p->ToPlayer())
+            Player* player = NULL;
+            if (Unit* p = me->ToTempSummon()->GetSummoner())
+            {
+                player = p->ToPlayer();
+                if (player)
                     if (param != ACTION_FAIL)
                         player->PlayDirectSound(11595, player);
+            }
             if (_prev_aura != _will_aura)
             {
                 if (player)

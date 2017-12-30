@@ -245,7 +245,7 @@ public:
             _Reset();
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             DoZoneInCombat();
             if(Creature* Onyxia = me->FindNearestCreature(NPC_ONYXIA, 150.0f, true))
@@ -919,7 +919,7 @@ public:
         uint32 timerCheckskeleton;
         uint32 timerDespawn;
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             timerCheckskeleton = 100;
             timerDespawn = 6100;

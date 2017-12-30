@@ -852,7 +852,7 @@ public:
         bool HasTarget;
         Unit* myTarget;
 
-        void IsSummonedBy(Unit* /*who*/)
+        void IsSummonedBy(Unit* /*who*/) override
         {
             uiFixate = 3000;
             HasTarget = false;
@@ -900,7 +900,7 @@ public:
     {
         npc_poison_puddleAI(Creature * pCreature) : ScriptedAI(pCreature) {}
 
-        void IsSummonedBy(Unit* /*who*/)
+        void IsSummonedBy(Unit* /*who*/) override
         {
             DoCast(me, SPELL_POISON_PUDDLE);
             me->SetReactState(REACT_PASSIVE);
