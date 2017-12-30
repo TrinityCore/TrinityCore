@@ -35,7 +35,7 @@ class Unit;
 class WorldObject;
 class WorldPacket;
 struct BattlegroundScore;
-struct PvpDifficultyEntry;
+struct PVPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
 namespace WorldPackets
@@ -115,6 +115,7 @@ enum BattlegroundSpells
 {
     SPELL_WAITING_FOR_RESURRECT     = 2584,                 // Waiting to Resurrect
     SPELL_SPIRIT_HEAL_CHANNEL       = 22011,                // Spirit Heal Channel
+    VISUAL_SPIRIT_HEAL_CHANNEL      = 3060,
     SPELL_SPIRIT_HEAL               = 22012,                // Spirit Heal
     SPELL_RESURRECTION_VISUAL       = 24171,                // Resurrection Impact Visual
     SPELL_ARENA_PREPARATION         = 32727,                // use this one, 32728 not correct
@@ -300,7 +301,7 @@ class TC_GAME_API Battleground
         void SetTypeID(BattlegroundTypeId TypeID) { m_TypeID = TypeID; }
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
         //here we can count minlevel and maxlevel for players
-        void SetBracket(PvpDifficultyEntry const* bracketEntry);
+        void SetBracket(PVPDifficultyEntry const* bracketEntry);
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
         void SetStatus(BattlegroundStatus Status) { m_Status = Status; }
         void SetClientInstanceID(uint32 InstanceID) { m_ClientInstanceID = InstanceID; }

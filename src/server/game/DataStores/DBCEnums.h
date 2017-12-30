@@ -155,7 +155,7 @@ enum ArtifactPowerFlag : uint8
     ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 2073
+#define BATTLE_PET_SPECIES_MAX_ID 2137
 
 enum ChrSpecializationFlag
 {
@@ -487,10 +487,13 @@ enum CriteriaTypes : uint8
     // 202 - 0 criterias (Legion - 23420)
     CRITERIA_TYPE_COMPLETE_WORLD_QUEST                  = 203,
     // 204 - Special criteria type to award players for some external events? Comes with what looks like an identifier, so guessing it's not unique.
-    CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED                 = 205
+    CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED                 = 205,
+    CRITERIA_TYPE_GAIN_PARAGON_REPUTATION               = 206,
+    CRITERIA_TYPE_EARN_HONOR_XP                         = 207,
+    CRITERIA_TYPE_RELIC_TALENT_UNLOCKED                 = 211
 };
 
-#define CRITERIA_TYPE_TOTAL 208
+#define CRITERIA_TYPE_TOTAL 212
 
 enum CriteriaTreeFlags : uint16
 {
@@ -592,6 +595,7 @@ enum Difficulty : uint8
     DIFFICULTY_EVENT_SCENARIO_6     = 30,
     DIFFICULTY_WORLD_PVP_SCENARIO_2 = 32,
     DIFFICULTY_TIMEWALKING_RAID     = 33,
+    DIFFICULTY_PVP                  = 34,
 
     MAX_DIFFICULTY
 };
@@ -644,7 +648,7 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
-#define MAX_ITEM_PROTO_FLAGS 3
+#define MAX_ITEM_PROTO_FLAGS 4
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
 
@@ -883,7 +887,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 243
+#define TaxiMaskSize 253
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -1026,6 +1030,11 @@ enum CurrencyTypes
     CURRENCY_TYPE_VALOR_POINTS          = 396,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
     CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
+};
+
+enum WorldMapTransformsFlags
+{
+    WORLD_MAP_TRANSFORMS_FLAG_DUNGEON   = 0x04
 };
 
 #endif
