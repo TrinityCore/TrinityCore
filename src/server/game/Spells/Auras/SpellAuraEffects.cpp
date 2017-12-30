@@ -5416,6 +5416,16 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         if (funnelDamage > healInfo.GetEffectiveHeal() && healInfo.GetEffectiveHeal())
             funnelDamage = healInfo.GetEffectiveHeal();
 
+        //Handle with Improved Health Funnel
+        if (caster->GetTypeId() == TYPEID_PLAYER)
+            caster->ToPlayer()->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_COST, funnelDamage);
+
+        if (caster->GetHealth() <= funnelDamage)
+        {
+            GetBase()->Remove();
+            return;
+        }
+
         uint32 funnelAbsorb = 0;
         caster->DealDamageMods(caster, funnelDamage, &funnelAbsorb);
         caster->SendSpellNonMeleeDamageLog(caster, GetId(), funnelDamage, GetSpellInfo()->GetSchoolMask(), funnelAbsorb, 0, false, 0, false);
