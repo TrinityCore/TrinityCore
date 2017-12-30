@@ -654,7 +654,7 @@ class npc_ice_wave : public CreatureScript
                 events.ScheduleEvent(EVENT_RADIATE, 100);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/)
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -791,7 +791,7 @@ class npc_crystal_conductor : public CreatureScript
                     DoCast(target, SPELL_CRYSTAL_CONDUCTOR);
             }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_LIGHTNING_ROD)
                 events.ScheduleEvent(EVENT_CAST_CRYSTAL, 1000);

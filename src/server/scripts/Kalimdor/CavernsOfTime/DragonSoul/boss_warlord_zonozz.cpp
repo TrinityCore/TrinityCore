@@ -216,7 +216,7 @@ public:
             instance->SetBossState(DATA_ZONOZZ, IN_PROGRESS);
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_VOID_DIFFUSION_DMG) // When the ball hits the boss he will trigger the black phase
             {
@@ -410,13 +410,13 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             dir = me->GetOrientation();
             DoCast(me, SPELL_VOID_OF_THE_UNMAKING_VISUAL);
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_VOID_OF_THE_UNMAKING_VISUAL)
             {
@@ -522,7 +522,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -602,7 +602,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             events.ScheduleEvent(EVENT_SLUDGE_SPEW, 6000);
@@ -698,7 +698,7 @@ public:
             }
         }
 
-        void IsSummonedBy(Unit* /*owner*/)
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             events.ScheduleEvent(EVENT_MELEE_CHECK, 5000);

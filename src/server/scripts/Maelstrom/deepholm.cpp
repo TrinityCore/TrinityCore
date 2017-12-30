@@ -353,7 +353,7 @@ public:
         uint64 uiProcessDialog;
         Unit* SpeakPlayer;
 
-        void SpellHit(Unit* Caster,const SpellInfo* Spell)
+        void SpellHit(Unit* Caster, const SpellInfo* Spell) override
         {
             if(Spell->Id != SPELL_EARTHEN_RING_PROCLAMATION/* || Caster->ToPlayer()->GetQuestStatus(QUEST_TAKE_HIM_TO_THE_EARTHCALLER) != QUEST_STATUS_INCOMPLETE*/) // The Quest if clause didn't work^^ don#t know why
                 return;
@@ -368,7 +368,7 @@ public:
 
         void UpdateAI(const uint32 diff) override
         {
-            if(DialogNumber == NULL)
+            if(DialogNumber == 0)
                 return;
 
             if (uiProcessDialog <= diff)
@@ -442,7 +442,7 @@ public:
             uiExplode = 0;
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             uiExplode = 3500;
             player = summoner->ToPlayer();
@@ -450,7 +450,7 @@ public:
 
         void UpdateAI(const uint32 diff) override
         {
-            if (uiExplode == NULL)
+            if (uiExplode == 0)
                 return;
 
             if (uiExplode <= diff)
@@ -504,7 +504,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL    | UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             std::list<Creature*> creatures;
             GetCreatureListWithEntryInGrid(creatures, me, NPC_STONEHEART_DEFENDER, 10.0f /*Range is official*/);

@@ -461,7 +461,7 @@ class npc_sinestra_twilight_whelp : public CreatureScript
                 events.ScheduleEvent(EVENT_SPIT, urand(10000, 35000));
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner) override
             {
                 respawned = false;
             }

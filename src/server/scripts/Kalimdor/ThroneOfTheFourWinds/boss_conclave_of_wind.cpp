@@ -201,7 +201,7 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void SpellHit(Unit* hitter, const SpellInfo* spell)
+        void SpellHit(Unit* hitter, const SpellInfo* spell) override
         {
             if (!hitter || !spell)
                 return;
@@ -536,7 +536,7 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void SpellHit(Unit* hitter, const SpellInfo* spell)
+        void SpellHit(Unit* hitter, const SpellInfo* spell) override
         {
             if (!hitter || !spell)
                 return;
@@ -916,7 +916,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* hitter, const SpellInfo* spell)
+        void SpellHit(Unit* hitter, const SpellInfo* spell) override
         {
             if (!hitter || !spell)
                 return;

@@ -433,7 +433,7 @@ public:
             //DoCast(who, SPELL_CRUSHING_LEAP);
         }
 
-        void SpellHit(Unit* who, const SpellInfo* spellInfo)
+        void SpellHit(Unit* who, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_ARCHIVED_DEMON_1)
                 DoCast(who, SPELL_ARCHIVED_DEMON_2, true);
@@ -887,7 +887,7 @@ public:
             events.ScheduleEvent(EVENT_SWEET_LULLABY, urand(7000, 12000));
         }
 
-        void SpellHit(Unit* who, const SpellInfo* spellInfo)
+        void SpellHit(Unit* who, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_ARCHIVED_HANDMAIDEN_1)
                 DoCast(who, SPELL_ARCHIVED_HANDMAIDEN_2, true);
@@ -1284,7 +1284,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) { }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+        void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_DEBILITATING_FLAY)
                 if (!bDebilitating)

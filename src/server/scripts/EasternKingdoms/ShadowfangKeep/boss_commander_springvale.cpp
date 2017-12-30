@@ -90,7 +90,7 @@ class boss_commander_springvale : public CreatureScript
             Talk(RAND(SAY_KILL_1, SAY_KILL_2));
         }
 
-        void SpellHit(Unit* hitter, const SpellInfo* spell)
+        void SpellHit(Unit* hitter, const SpellInfo* spell) override
         {
             if (!hitter || !spell)
                 return;

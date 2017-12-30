@@ -291,7 +291,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -343,7 +343,7 @@ public:
     {
         npc_sunballAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC);
             DoCast(me, SPELL_SUN);

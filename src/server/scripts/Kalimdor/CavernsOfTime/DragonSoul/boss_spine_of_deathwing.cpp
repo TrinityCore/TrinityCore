@@ -883,7 +883,7 @@ public:
                 summon->AI()->Talk(SAY_SWAYZE_INTRO_SPINE);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             vehicle = me->GetVehicleKit();
 
