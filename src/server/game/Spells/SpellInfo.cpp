@@ -2369,9 +2369,8 @@ void SpellInfo::_LoadSpellSpecific()
                         case 8115: // Agility
                         case 8091: // Armor
                             return SPELL_SPECIFIC_SCROLL;
-                        case 12880: // Enrage (Enrage)
-                        case 57518: // Enrage (Wrecking Crew)
-                            return SPELL_SPECIFIC_WARRIOR_ENRAGE;
+                        default:
+                            break;
                     }
                 }
                 break;
