@@ -23,7 +23,6 @@
 #include "Errors.h"
 #include "Log.h"
 #include "ProtobufJSON.h"
-#include "SHA256.h"
 #include "Util.h"
 #include "game_utilities_service.pb.h"
 #include "RealmList.pb.h"
@@ -397,13 +396,12 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::
         BigNumber serverSecret;
         serverSecret.SetRand(8 * 32);
 
-        SHA256Hash wowSessionKey;
-        wowSessionKey.UpdateData(clientSecret.data(), clientSecret.size());
-        wowSessionKey.UpdateData(serverSecret.AsByteArray(32).get(), 32);
-        wowSessionKey.Finalize();
+        std::array<uint8, 64> keyData;
+        memcpy(&keyData[0], clientSecret.data(), 32);
+        memcpy(&keyData[32], serverSecret.AsByteArray(32).get(), 32);
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
-        stmt->setString(0, ByteArrayToHexStr(wowSessionKey.GetDigest(), wowSessionKey.GetLength(), true));
+        stmt->setString(0, ByteArrayToHexStr(keyData.data(), keyData.size()));
         stmt->setString(1, clientAddress.to_string());
         stmt->setUInt8(2, locale);
         stmt->setString(3, os);

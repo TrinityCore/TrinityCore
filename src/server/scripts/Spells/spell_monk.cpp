@@ -2440,7 +2440,7 @@ public:
             Unit* caster = GetCaster();
             DynamicFieldStructuredView<ObjectGuid> channelObjects = caster->GetChannelObjects();
 
-            if (caster->GetUInt32Value(UNIT_CHANNEL_SPELL) == SPELL_MONK_SOOTHING_MIST)
+            if (caster->GetChannelSpellId() == SPELL_MONK_SOOTHING_MIST)
                 if (Unit* soothingMistTarget = (channelObjects.size() == 1 ? ObjectAccessor::GetUnit(*target, *channelObjects.begin()) : nullptr))
                     target = soothingMistTarget;
         }
@@ -2486,7 +2486,7 @@ public:
         void SelectTarget(std::list<WorldObject*>& targets)
         {
             Unit* caster = GetCaster();
-            if (caster->GetUInt32Value(UNIT_CHANNEL_SPELL) == SPELL_MONK_SOOTHING_MIST)
+            if (caster->GetChannelSpellId() == SPELL_MONK_SOOTHING_MIST)
             {
                 targets.clear();
                 DynamicFieldStructuredView<ObjectGuid> channelObjects = caster->GetChannelObjects();

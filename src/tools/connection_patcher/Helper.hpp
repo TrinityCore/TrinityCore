@@ -38,7 +38,6 @@ namespace Connection_Patcher
         void CopyDir(boost::filesystem::path const & source, boost::filesystem::path const & destination);
         void DownloadFile(const std::string& serverName, int port, const std::string& getCommand, std::ostream& out);
         Constants::BinaryTypes GetBinaryType(std::vector<unsigned char> const& data);
-        std::string GetFileChecksum(std::vector<unsigned char> const& data);
         std::set<size_t> SearchOffset(std::vector<unsigned char> const& binary, std::vector<unsigned char> const& pattern);
         uint32_t GetBuildNumber(std::vector<unsigned char> const& binary);
     }
