@@ -519,7 +519,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
 
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
 
-                DoCastAOE(SPELL_SUMMON_GUARDIAN_2);
+                DoCastAOE(SPELL_SUMMON_GUARDIAN_2, { SPELLVALUE_MAX_TARGETS, 1 });
                 DoCast(me, SPELL_SANITY_PERIODIC);
 
                 events.ScheduleEvent(EVENT_LOCK_DOOR, 15000);
@@ -563,7 +563,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                             events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 10000);    // cast it again after a short while, players can survive
                             break;
                         case EVENT_SUMMON_GUARDIAN_OF_YOGG_SARON:
-                            DoCastAOE(SPELL_SUMMON_GUARDIAN_2);
+                            DoCastAOE(SPELL_SUMMON_GUARDIAN_2, { SPELLVALUE_MAX_TARGETS, 1 });
                             ++_guardiansCount;
                             if (_guardiansCount <= 6 && _guardiansCount % 3 == 0)
                                 _guardianTimer -= 5000;
@@ -574,7 +574,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                             events.ScheduleEvent(EVENT_SUMMON_CORRUPTOR_TENTACLE, 30000, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
                             break;
                         case EVENT_SUMMON_CONSTRICTOR_TENTACLE:
-                            DoCastAOE(SPELL_CONSTRICTOR_TENTACLE);
+                            DoCastAOE(SPELL_CONSTRICTOR_TENTACLE, { SPELLVALUE_MAX_TARGETS, 1 });
                             events.ScheduleEvent(EVENT_SUMMON_CONSTRICTOR_TENTACLE, 25000, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
                             break;
                         case EVENT_SUMMON_CRUSHER_TENTACLE:
@@ -796,15 +796,15 @@ class boss_sara : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SARAS_FERVOR:
-                            DoCastAOE(SPELL_SARAS_FERVOR_TARGET_SELECTOR);
+                            DoCastAOE(SPELL_SARAS_FERVOR_TARGET_SELECTOR, { SPELLVALUE_MAX_TARGETS, 1 });
                             _events.ScheduleEvent(EVENT_SARAS_FERVOR, 6000, 0, PHASE_ONE);
                             break;
                         case EVENT_SARAS_ANGER:
-                            DoCastAOE(SPELL_SARAS_ANGER_TARGET_SELECTOR);
+                            DoCastAOE(SPELL_SARAS_ANGER_TARGET_SELECTOR, { SPELLVALUE_MAX_TARGETS, 1 });
                             _events.ScheduleEvent(EVENT_SARAS_ANGER, urand(6000, 8000), 0, PHASE_ONE);
                             break;
                         case EVENT_SARAS_BLESSING:
-                            DoCastAOE(SPELL_SARAS_BLESSING_TARGET_SELECTOR);
+                            DoCastAOE(SPELL_SARAS_BLESSING_TARGET_SELECTOR, { SPELLVALUE_MAX_TARGETS, 1 });
                             _events.ScheduleEvent(EVENT_SARAS_BLESSING, urand(6000, 30000), 0, PHASE_ONE);
                             break;
                         case EVENT_TRANSFORM_1:
@@ -838,15 +838,15 @@ class boss_sara : public CreatureScript
                             _events.ScheduleEvent(EVENT_DEATH_RAY, 21000, 0, PHASE_TWO);
                             break;
                         case EVENT_MALADY_OF_THE_MIND:
-                            DoCastAOE(SPELL_MALADY_OF_THE_MIND);
+                            DoCastAOE(SPELL_MALADY_OF_THE_MIND, { SPELLVALUE_MAX_TARGETS, 1 });
                             _events.ScheduleEvent(EVENT_MALADY_OF_THE_MIND, urand(18000, 25000), 0, PHASE_TWO);
                             break;
                         case EVENT_PSYCHOSIS:
-                            DoCastAOE(SPELL_PSYCHOSIS);
+                            DoCastAOE(SPELL_PSYCHOSIS, { SPELLVALUE_MAX_TARGETS, 1 });
                             _events.ScheduleEvent(EVENT_PSYCHOSIS, 4000, 0, PHASE_TWO);
                             break;
                         case EVENT_BRAIN_LINK:
-                            DoCastAOE(SPELL_BRAIN_LINK);
+                            DoCastAOE(SPELL_BRAIN_LINK, { SPELLVALUE_MAX_TARGETS, 2 });
                             _events.ScheduleEvent(EVENT_BRAIN_LINK, urand(23000, 26000), 0, PHASE_TWO);
                             break;
                         default:
@@ -1642,7 +1642,7 @@ class npc_yogg_saron_keeper : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DESTABILIZATION_MATRIX:
-                            DoCastAOE(SPELL_DESTABILIZATION_MATRIX);
+                            DoCastAOE(SPELL_DESTABILIZATION_MATRIX, { SPELLVALUE_MAX_TARGETS, 1 });
                             _events.ScheduleEvent(EVENT_DESTABILIZATION_MATRIX, urand(15000, 25000), 0, PHASE_TWO);
                             break;
                         case EVENT_HODIRS_PROTECTIVE_GAZE:

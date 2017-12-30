@@ -493,7 +493,7 @@ class TriggerWickedSpirit : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            _owner->CastSpell(nullptr, SPELL_TRIGGER_VILE_SPIRIT_HEROIC);
+            _owner->CastSpell(nullptr, SPELL_TRIGGER_VILE_SPIRIT_HEROIC, { SPELLVALUE_MAX_TARGETS, 1 });
 
             if (--_counter)
             {

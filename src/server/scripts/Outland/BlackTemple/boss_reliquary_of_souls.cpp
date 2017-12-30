@@ -377,7 +377,7 @@ struct boss_essence_of_suffering : public BossAI
             switch (eventId)
             {
                 case EVENT_SOUL_DRAIN:
-                    DoCastSelf(SPELL_SOUL_DRAIN);
+                    DoCastSelf(SPELL_SOUL_DRAIN, { SPELLVALUE_MAX_TARGETS, 5 });
                     events.Repeat(Seconds(30), Seconds(35));
                     break;
                 case EVENT_FRENZY:
@@ -581,7 +581,7 @@ struct boss_essence_of_anger : public BossAI
                     break;
                 case EVENT_SPITE:
                     Talk(ANGER_SAY_SPITE);
-                    DoCastSelf(SPELL_SPITE);
+                    DoCastSelf(SPELL_SPITE, { SPELLVALUE_MAX_TARGETS, 3 });
                     events.Repeat(Seconds(20));
                     break;
                 case EVENT_START_CHECK_TANKER:

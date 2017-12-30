@@ -495,7 +495,7 @@ class boss_mimiron : public CreatureScript
                     {
                         case EVENT_SUMMON_FLAMES:
                             if (Creature* worldtrigger = instance->GetCreature(DATA_MIMIRON_WORLD_TRIGGER))
-                                worldtrigger->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_SUMMON_FLAMES_INITIAL, me->GetGUID());
+                                worldtrigger->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_SUMMON_FLAMES_INITIAL, CastSpellExtraArgs(me->GetGUID()).AddSpellMod(SPELLVALUE_MAX_TARGETS, 3));
                             events.RescheduleEvent(EVENT_SUMMON_FLAMES, 28000);
                             break;
                         case EVENT_INTRO_1:
@@ -1233,15 +1233,15 @@ class boss_aerial_command_unit : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SUMMON_FIRE_BOTS:
-                            DoCastAOE(SPELL_SUMMON_FIRE_BOT_TRIGGER, true);
+                            DoCastAOE(SPELL_SUMMON_FIRE_BOT_TRIGGER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 3));
                             events.RescheduleEvent(EVENT_SUMMON_FIRE_BOTS, 45000, 0, PHASE_AERIAL_COMMAND_UNIT);
                             break;
                         case EVENT_SUMMON_JUNK_BOT:
-                            DoCastAOE(SPELL_SUMMON_JUNK_BOT_TRIGGER, true);
+                            DoCastAOE(SPELL_SUMMON_JUNK_BOT_TRIGGER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                             events.RescheduleEvent(EVENT_SUMMON_JUNK_BOT, urand(11000, 12000), 0, PHASE_AERIAL_COMMAND_UNIT);
                             break;
                         case EVENT_SUMMON_ASSAULT_BOT:
-                            DoCastAOE(SPELL_SUMMON_ASSAULT_BOT_TRIGGER, true);
+                            DoCastAOE(SPELL_SUMMON_ASSAULT_BOT_TRIGGER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                             events.RescheduleEvent(EVENT_SUMMON_ASSAULT_BOT, 30000, 0, PHASE_AERIAL_COMMAND_UNIT);
                             break;
                         case EVENT_SUMMON_BOMB_BOT:

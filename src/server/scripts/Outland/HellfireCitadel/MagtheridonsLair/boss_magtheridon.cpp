@@ -237,11 +237,11 @@ class boss_magtheridon : public CreatureScript
                             events.Repeat(Seconds(10));
                             break;
                         case EVENT_BLAZE:
-                            DoCastAOE(SPELL_BLAZE_TARGET);
+                            DoCastAOE(SPELL_BLAZE_TARGET, { SPELLVALUE_MAX_TARGETS, 1 });
                             events.Repeat(Seconds(20));
                             break;
                         case EVENT_QUAKE:
-                            DoCastAOE(SPELL_QUAKE);
+                            DoCastAOE(SPELL_QUAKE, { SPELLVALUE_MAX_TARGETS, 5 });
                             events.Repeat(Seconds(60));
                             break;
                         case EVENT_START_FIGHT:

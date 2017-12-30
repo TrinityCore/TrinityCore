@@ -779,7 +779,7 @@ public:
                 {
                     case EVENT_START_FIRST_RANDOM_PORTAL:
                     case EVENT_RANDOM_PORTAL:
-                        DoCastAOE(SPELL_RANDOM_PORTAL);
+                        DoCastAOE(SPELL_RANDOM_PORTAL, { SPELLVALUE_MAX_TARGETS,1 });
                         break;
                     case EVENT_STOP_PORTAL_BEAM:
                         me->InterruptNonMeleeSpells(true);

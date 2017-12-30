@@ -169,28 +169,18 @@ void UnitAI::DoCast(uint32 spellId)
         me->CastSpell(target, spellId, false);
 }
 
-void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
+void UnitAI::DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args)
 {
-    if (!victim || (me->HasUnitState(UNIT_STATE_CASTING) && !triggered))
+    if (me->HasUnitState(UNIT_STATE_CASTING) && !(args.TriggerFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
         return;
 
-    me->CastSpell(victim, spellId, triggered);
+    me->CastSpell(victim, spellId, args);
 }
 
-void UnitAI::DoCastVictim(uint32 spellId, bool triggered)
+void UnitAI::DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args)
 {
-    if (!me->GetVictim() || (me->HasUnitState(UNIT_STATE_CASTING) && !triggered))
-        return;
-
-    me->CastSpell(me->GetVictim(), spellId, triggered);
-}
-
-void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
-{
-    if (!triggered && me->HasUnitState(UNIT_STATE_CASTING))
-        return;
-
-    me->CastSpell(nullptr, spellId, triggered);
+    if (Unit* victim = me->GetVictim())
+        DoCast(victim, spellId, args);
 }
 
 uint32 UnitAI::GetDialogStatus(Player* /*player*/)

@@ -171,7 +171,7 @@ struct boss_mother_shahraz : public BossAI
                 break;
             case EVENT_FATAL_ATTRACTION:
                 Talk(SAY_SPELL);
-                DoCastSelf(SPELL_FATAL_ATTRACTION_TELEPORT);
+                DoCastSelf(SPELL_FATAL_ATTRACTION_TELEPORT, { SPELLVALUE_MAX_TARGETS, 3 });
                 events.Repeat(Seconds(30));
                 break;
             case EVENT_SILENCING_SHRIEK:

@@ -832,7 +832,7 @@ class boss_sister_svalna : public CreatureScript
                 switch (action)
                 {
                     case ACTION_KILL_CAPTAIN:
-                        DoCastSelf(SPELL_CARESS_OF_DEATH, true);
+                        DoCastSelf(SPELL_CARESS_OF_DEATH, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                         break;
                     case ACTION_START_GAUNTLET:
                         me->setActive(true);

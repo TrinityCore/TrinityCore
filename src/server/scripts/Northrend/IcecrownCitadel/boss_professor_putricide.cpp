@@ -589,7 +589,7 @@ class boss_professor_putricide : public CreatureScript
                             EnterEvadeMode();
                             break;
                         case EVENT_FESTERGUT_GOO:
-                            DoCastAOE(SPELL_MALLEABLE_GOO_SUMMON, true);
+                            DoCastAOE(SPELL_MALLEABLE_GOO_SUMMON, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                             events.ScheduleEvent(EVENT_FESTERGUT_GOO, (Is25ManRaid() ? 10000 : 30000) + urand(0, 5000), 0, PHASE_FESTERGUT);
                             break;
                         case EVENT_ROTFACE_DIES:
