@@ -986,7 +986,7 @@ void Unit::CastSpell(WorldObject* target, uint32 spellId, CastSpellExtraArgs con
             targets.SetGOTarget(goTarget);
         else
         {
-            TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target with GUID %s passed to spell cast by %s\n", target->GetGUID().ToString().c_str(), GetGUID().ToString().c_str());
+            TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target %s passed to spell cast by %s\n", target->GetGUID().ToString().c_str(), GetGUID().ToString().c_str());
             return;
         }
     }
