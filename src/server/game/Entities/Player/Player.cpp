@@ -11324,7 +11324,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             {
                 if (eslot == EQUIPMENT_SLOT_OFFHAND)
                 {
-                    if (!CanTitanGrip())
+                    if (!CanTitanGrip() || pProto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
                         return EQUIP_ERR_ITEM_CANT_BE_EQUIPPED;
                 }
                 else if (eslot != EQUIPMENT_SLOT_MAINHAND)
