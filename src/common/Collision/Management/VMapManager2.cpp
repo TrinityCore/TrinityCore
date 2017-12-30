@@ -297,6 +297,8 @@ namespace VMAP
             Vector3 pos = convertPositionToInternalRep(x, y, z);
             if (instanceTree->second->GetLocationInfo(pos, info))
             {
+                ASSERT(info.hitModel);
+                ASSERT(info.hitInstance);
                 data.floorZ = info.ground_Z;
                 uint32 liquidType = info.hitModel->GetLiquidType();
                 float liquidLevel;
