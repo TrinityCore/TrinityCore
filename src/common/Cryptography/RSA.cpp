@@ -16,6 +16,8 @@
  */
 
 #include "RSA.h"
+#include "BigNumber.h"
+#include <openssl/bn.h>
 #include <openssl/pem.h>
 #include <algorithm>
 #include <iterator>
@@ -88,11 +90,26 @@ bool Trinity::Crypto::RSA::LoadFromString(std::string const& keyPem, KeyTag)
     return true;
 }
 
+BigNumber Trinity::Crypto::RSA::GetModulus() const
+{
+    BigNumber bn;
+    BN_copy(bn.BN(), _rsa->n);
+    return bn;
+}
+
 template <typename KeyTag>
 bool Trinity::Crypto::RSA::Encrypt(uint8 const* data, std::size_t dataLength, uint8* output, int32 paddingType)
 {
     std::vector<uint8> inputData(std::make_reverse_iterator(data + dataLength), std::make_reverse_iterator(data));
     int result = get_RSA_encrypt<KeyTag>()(inputData.size(), inputData.data(), output, _rsa, paddingType);
+    std::reverse(output, output + GetOutputSize());
+    return result != -1;
+}
+
+bool Trinity::Crypto::RSA::Sign(int32 hashType, uint8 const* dataHash, std::size_t dataHashLength, uint8* output)
+{
+    uint32 signatureLength = 0;
+    int result = RSA_sign(hashType, dataHash, dataHashLength, output, &signatureLength, _rsa);
     std::reverse(output, output + GetOutputSize());
     return result != -1;
 }

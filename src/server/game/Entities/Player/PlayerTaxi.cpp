@@ -110,9 +110,15 @@ void PlayerTaxi::LoadTaxiMask(std::string const &data)
 void PlayerTaxi::AppendTaximaskTo(WorldPackets::Taxi::ShowTaxiNodes& data, bool all)
 {
     if (all)
-        data.Nodes = &sTaxiNodesMask;              // all existed nodes
+    {
+        data.CanLandNodes = &sTaxiNodesMask;              // all existed nodes
+        data.CanUseNodes = &sTaxiNodesMask;
+    }
     else
-        data.Nodes = &m_taximask;                  // known nodes
+    {
+        data.CanLandNodes = &m_taximask;                  // known nodes
+        data.CanUseNodes = &m_taximask;
+    }
 }
 
 bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint32 team)
