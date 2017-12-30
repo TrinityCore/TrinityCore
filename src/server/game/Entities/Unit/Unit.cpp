@@ -8217,15 +8217,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     return gain;
 }
 
-// returns negative amount on power reduction
-int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
-{
-    float amount = (float)GetMaxPower(power);
-    ApplyPercentModFloatVar(amount, pct, apply);
-
-    return ModifyPower(power, (int32)amount - GetMaxPower(power));
-}
-
 bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
 {
     if (WorldObject::IsAlwaysVisibleFor(seer))
