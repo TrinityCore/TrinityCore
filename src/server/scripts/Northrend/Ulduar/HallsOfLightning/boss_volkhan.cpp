@@ -200,7 +200,7 @@ public:
                     summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
 
                 // Why healing when just summoned?
-                summoned->CastSpell(summoned, SPELL_HEAT, false, nullptr, nullptr, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_HEAT, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
             }
         }
 

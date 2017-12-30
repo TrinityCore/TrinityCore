@@ -261,8 +261,9 @@ class spell_egg_explosion : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    int32 damage = std::max<int32>(0, -16 * GetCaster()->GetDistance(target) + 500);
-                    GetCaster()->CastCustomSpell(SPELL_EXPLOSION_DAMAGE, SPELLVALUE_BASE_POINT0, damage, target, true);
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.AddSpellBP0(std::max<int32>(0, -16 * GetCaster()->GetDistance(target) + 500));
+                    GetCaster()->CastSpell(target, SPELL_EXPLOSION_DAMAGE, args);
                 }
             }
 

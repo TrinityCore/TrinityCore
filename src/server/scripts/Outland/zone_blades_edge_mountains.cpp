@@ -849,7 +849,7 @@ class npc_simon_bunny : public CreatureScript
                 if (spell->Id == SPELL_BAD_PRESS_TRIGGER)
                 {
                     int32 bp = (int32)((float)(fails)*0.33f*target->GetMaxHealth());
-                    target->CastCustomSpell(target, SPELL_BAD_PRESS_DAMAGE, &bp, nullptr, nullptr, true);
+                    target->CastSpell(target, SPELL_BAD_PRESS_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(bp));
                 }
             }
 

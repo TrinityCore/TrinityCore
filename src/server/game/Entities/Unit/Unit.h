@@ -39,125 +39,6 @@
 #define SPELL_DH_DOUBLE_JUMP 196055
 #define DISPLAYID_HIDDEN_MOUNT 73200
 
-enum class SpellModOp : uint8
-{
-    HealingAndDamage            = 0,
-    Duration                    = 1,
-    Hate                        = 2,
-    PointsIndex0                = 3,
-    ProcCharges                 = 4,
-    Range                       = 5,
-    Radius                      = 6,
-    CritChance                  = 7,
-    Points                      = 8,
-    ResistPushback              = 9,
-    ChangeCastTime              = 10,
-    Cooldown                    = 11,
-    PointsIndex1                = 12,
-    TargetResistance            = 13,
-    PowerCost0                  = 14, // Used when SpellPowerEntry::PowerIndex == 0
-    CritDamageAndHealing        = 15,
-    HitChance                   = 16,
-    ChainTargets                = 17,
-    ProcChance                  = 18,
-    Period                      = 19,
-    ChainAmplitude              = 20,
-    StartCooldown               = 21,
-    PeriodicHealingAndDamage    = 22,
-    PointsIndex2                = 23,
-    BonusCoefficient            = 24,
-    TriggerDamage               = 25, // NYI
-    ProcFrequency               = 26,
-    Amplitude                   = 27,
-    DispelResistance            = 28,
-    CrowdDamage                 = 29, // NYI
-    PowerCostOnMiss             = 30,
-    Doses                       = 31,
-    PointsIndex3                = 32,
-    PointsIndex4                = 33,
-    PowerCost1                  = 34, // Used when SpellPowerEntry::PowerIndex == 1
-    ChainJumpDistance           = 35,
-    AreaTriggerMaxSummons       = 36, // NYI
-    MaxAuraStacks               = 37,
-    ProcCooldown                = 38,
-    PowerCost2                  = 39, // Used when SpellPowerEntry::PowerIndex == 2
-};
-
-#define MAX_SPELLMOD 40
-
-enum SpellValueMod : uint8
-{
-    SPELLVALUE_BASE_POINT0,
-    SPELLVALUE_BASE_POINT1,
-    SPELLVALUE_BASE_POINT2,
-    SPELLVALUE_BASE_POINT3,
-    SPELLVALUE_BASE_POINT4,
-    SPELLVALUE_BASE_POINT5,
-    SPELLVALUE_BASE_POINT6,
-    SPELLVALUE_BASE_POINT7,
-    SPELLVALUE_BASE_POINT8,
-    SPELLVALUE_BASE_POINT9,
-    SPELLVALUE_BASE_POINT10,
-    SPELLVALUE_BASE_POINT11,
-    SPELLVALUE_BASE_POINT12,
-    SPELLVALUE_BASE_POINT13,
-    SPELLVALUE_BASE_POINT14,
-    SPELLVALUE_BASE_POINT15,
-    SPELLVALUE_BASE_POINT16,
-    SPELLVALUE_BASE_POINT17,
-    SPELLVALUE_BASE_POINT18,
-    SPELLVALUE_BASE_POINT19,
-    SPELLVALUE_BASE_POINT20,
-    SPELLVALUE_BASE_POINT21,
-    SPELLVALUE_BASE_POINT22,
-    SPELLVALUE_BASE_POINT23,
-    SPELLVALUE_BASE_POINT24,
-    SPELLVALUE_BASE_POINT25,
-    SPELLVALUE_BASE_POINT26,
-    SPELLVALUE_BASE_POINT27,
-    SPELLVALUE_BASE_POINT28,
-    SPELLVALUE_BASE_POINT29,
-    SPELLVALUE_BASE_POINT30,
-    SPELLVALUE_BASE_POINT31,
-    SPELLVALUE_BASE_POINT_END,
-    SPELLVALUE_RADIUS_MOD,
-    SPELLVALUE_MAX_TARGETS,
-    SPELLVALUE_AURA_STACK
-};
-
-class CustomSpellValues
-{
-    typedef std::pair<SpellValueMod, int32> CustomSpellValueMod;
-    typedef std::vector<CustomSpellValueMod> StorageType;
-
-public:
-    typedef StorageType::const_iterator const_iterator;
-
-public:
-    void AddSpellMod(SpellValueMod mod, int32 value)
-    {
-        storage_.push_back(CustomSpellValueMod(mod, value));
-    }
-
-    const_iterator begin() const
-    {
-        return storage_.begin();
-    }
-
-    const_iterator end() const
-    {
-        return storage_.end();
-    }
-
-private:
-    StorageType storage_;
-};
-
-enum SpellFacingFlags
-{
-    SPELL_FACING_FLAG_INFRONT = 0x0001
-};
-
 #define MAX_SPELL_CHARM         4
 #define MAX_SPELL_VEHICLE       6
 #define MAX_SPELL_POSSESS       8
@@ -282,36 +163,6 @@ enum WeaponDamageRange
 {
     MINDAMAGE,
     MAXDAMAGE
-};
-
-enum TriggerCastFlags : uint32
-{
-    TRIGGERED_NONE                                  = 0x00000000,   //! Not triggered
-    TRIGGERED_IGNORE_GCD                            = 0x00000001,   //! Will ignore GCD
-    TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD          = 0x00000002,   //! Will ignore Spell and Category cooldowns
-    TRIGGERED_IGNORE_POWER_AND_REAGENT_COST         = 0x00000004,   //! Will ignore power and reagent cost
-    TRIGGERED_IGNORE_CAST_ITEM                      = 0x00000008,   //! Will not take away cast item or update related achievement criteria
-    TRIGGERED_IGNORE_AURA_SCALING                   = 0x00000010,   //! Will ignore aura scaling
-    TRIGGERED_IGNORE_CAST_IN_PROGRESS               = 0x00000020,   //! Will not check if a current cast is in progress
-    TRIGGERED_IGNORE_COMBO_POINTS                   = 0x00000040,   //! Will ignore combo point requirement
-    TRIGGERED_CAST_DIRECTLY                         = 0x00000080,   //! In Spell::prepare, will be cast directly without setting containers for executed spell
-    TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS           = 0x00000100,   //! Will ignore interruptible aura's at cast
-    TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   //! Will not adjust facing to target (if any)
-    TRIGGERED_IGNORE_SHAPESHIFT                     = 0x00000400,   //! Will ignore shapeshift checks
-    TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00000800,   //! Will ignore caster aura states including combat requirements and death state
-    TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00001000,   //! Disallows proc events from triggered spell (default)
-    TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE   = 0x00002000,   //! Will ignore mounted/on vehicle restrictions
-    // reuse                                        = 0x00004000,
-    // reuse                                        = 0x00008000,
-    TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   //! Will ignore caster aura restrictions or requirements
-    TRIGGERED_DONT_RESET_PERIODIC_TIMER             = 0x00020000,   //! Will allow periodic aura timers to keep ticking (instead of resetting)
-    TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
-    TRIGGERED_FULL_MASK                             = 0x0007FFFF,   //! Used when doing CastSpell with triggered == true
-
-    // debug flags (used with .cast triggered commands)
-    TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT      = 0x00080000,   //! Will ignore equipped item requirements
-    TRIGGERED_IGNORE_TARGET_CHECK                   = 0x00100000,   //! Will ignore most target checks (mostly DBC target checks)
-    TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
 
 enum UnitMods
@@ -1326,21 +1177,10 @@ class TC_GAME_API Unit : public WorldObject
         void EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType);
         void EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType);
 
-        void CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastSpell(Unit* victim, uint32 spellId, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastSpell(std::nullptr_t, uint32 spellId, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty) { CastSpell((Unit*)nullptr, spellId, triggered, castItem, triggeredByAura, originalCaster); }
-        void CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastSpell(std::nullptr_t, uint32 spellId, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty) { CastSpell((Unit*)nullptr, spellId, triggerFlags, castItem, triggeredByAura, originalCaster); }
-        void CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastSpell(Unit* victim, SpellInfo const* spellInfo, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastSpell(float x, float y, float z, uint32 spellId, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastSpell(Item* target, uint32 spellId, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastCustomSpell(Unit* victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* victim, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* victim = nullptr, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastCustomSpell(uint32 spellId, CustomSpellValues const& value, Unit* victim = nullptr, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
+        // CastSpell's third arg can be a variety of things - check out CastSpellExtraArgs' constructors!
+        void CastSpell(SpellCastTargets const& targets, uint32 spellId, CastSpellExtraArgs const& args = {});
+        void CastSpell(WorldObject* target, uint32 spellId, CastSpellExtraArgs const& args = {});
+        void CastSpell(Position const& dest, uint32 spellId, CastSpellExtraArgs const& args = {});
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);

@@ -1010,7 +1010,7 @@ public:
                 {
                     if (Creature* trigger = DoSummonFlyer(NPC_MIMIRON_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
                     {
-                        trigger->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_MIMIRON_S_INFERNO, true);
+                        trigger->CastSpell(me->GetPosition(), SPELL_MIMIRON_S_INFERNO, true);
                         infernoTimer = 2000;
                     }
                 }

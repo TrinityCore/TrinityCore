@@ -460,8 +460,7 @@ struct boss_lady_malande : public IllidariCouncilBossAI
     void HealReceived(Unit* /*who*/, uint32& addhealth) override
     {
         // Need be negative to heal trigger
-        int32 bp = addhealth * (-1);
-        me->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, nullptr, true);
+        me->CastSpell(nullptr, SPELL_SHARED_RULE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(-int32(addhealth)));
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -607,8 +606,7 @@ class spell_illidari_council_balance_of_power : public AuraScript
     void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
     {
         PreventDefaultAction();
-        int32 bp = dmgInfo.GetDamage();
-        GetTarget()->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, nullptr, true, nullptr, aurEff);
+        GetTarget()->CastSpell(nullptr, SPELL_SHARED_RULE, CastSpellExtraArgs(aurEff).AddSpellBP0(dmgInfo.GetDamage()));
     }
 
     void Register() override
@@ -632,7 +630,7 @@ class spell_illidari_council_deadly_strike : public AuraScript
         PreventDefaultAction();
 
         if (Unit* victim = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
-            GetTarget()->CastSpell(victim, SPELL_DEADLY_POISON, true, nullptr, aurEff);
+            GetTarget()->CastSpell(victim, SPELL_DEADLY_POISON, aurEff);
     }
 
     void Register() override
@@ -679,8 +677,7 @@ class spell_illidari_council_reflective_shield : public AuraScript
         if (dmgInfo.GetAttacker() == target)
             return;
 
-        int32 bp = absorbAmount / 2;
-        target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_DAMAGE, &bp, nullptr, nullptr, true, nullptr, aurEff);
+        target->CastSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(absorbAmount/2));
     }
 
     void Register() override

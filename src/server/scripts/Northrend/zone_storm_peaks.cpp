@@ -829,7 +829,7 @@ public:
             if (seatId != SEAT_INITIAL)
                 return;
 
-            me->CastCustomSpell(SPELL_GRIP, SPELLVALUE_AURA_STACK, 50);
+            me->CastSpell(nullptr, SPELL_GRIP, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_AURA_STACK, 50));
             DoCastAOE(SPELL_CLAW_SWIPE_PERIODIC);
 
             _scheduler.Async([this]

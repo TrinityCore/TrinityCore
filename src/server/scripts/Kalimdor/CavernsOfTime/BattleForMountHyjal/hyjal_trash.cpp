@@ -1339,7 +1339,7 @@ public:
                 {
                     if (StrikeTimer <= diff)
                     {
-                        me->CastSpell(DummyTarget[0], DummyTarget[1], DummyTarget[2], SPELL_GARGOYLE_STRIKE, false);
+                        me->CastSpell({ DummyTarget[0], DummyTarget[1], DummyTarget[2] }, SPELL_GARGOYLE_STRIKE, false);
                         StrikeTimer = 2000 + rand32() % 1000;
                     } else StrikeTimer -= diff;
                     }
@@ -1452,8 +1452,9 @@ public:
                     EnterEvadeMode();
                     return;
                 }
-                int dmg = 500 + rand32() % 700;
-                me->CastCustomSpell(me->GetVictim(), SPELL_EXPLODING_SHOT, &dmg, nullptr, nullptr, false);
+                CastSpellExtraArgs args;
+                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, 500 + rand32() % 700);
+                me->CastSpell(me->GetVictim(), SPELL_EXPLODING_SHOT, args);
                 ExplodeTimer = 5000 + rand32() % 5000;
             } else ExplodeTimer -= diff;
             DoMeleeAttackIfReady();

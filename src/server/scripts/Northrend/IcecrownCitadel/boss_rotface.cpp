@@ -472,7 +472,7 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                     return;
 
                 triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
-                GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, nullptr, nullptr, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty);
+                GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -550,7 +550,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->CastSpell(target, uint32(GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue()), true, nullptr, aurEff, GetCasterGUID());
+                target->CastSpell(target, uint32(GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue()), { aurEff, GetCasterGUID() });
             }
 
             void Register() override
@@ -678,7 +678,7 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
 
                         if (Creature* cre = GetCaster()->ToCreature())
                             cre->AI()->DoAction(EVENT_STICKY_OOZE);
-                        GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE_EXPLOSION, false, nullptr, nullptr, GetCaster()->GetGUID());
+                        GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE_EXPLOSION, CastSpellExtraArgs().SetOriginalCaster(GetCaster()->GetGUID()));
                         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                             instance->SetData(DATA_OOZE_DANCE_ACHIEVEMENT, uint32(false));
                     }
@@ -759,7 +759,7 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
                 // let Rotface handle the cast - caster dies before this executes
                 if (InstanceScript* script = GetCaster()->GetInstanceScript())
                     if (Creature* rotface = script->instance->GetCreature(script->GetGuidData(DATA_ROTFACE)))
-                        rotface->CastSpell(x, y, z, triggered_spell_id, true, nullptr, nullptr, GetCaster()->GetGUID());
+                        rotface->CastSpell({x, y, z}, triggered_spell_id, GetCaster()->GetGUID());
             }
 
             void Register() override

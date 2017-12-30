@@ -514,8 +514,7 @@ public:
                     if (me->IsWithinDist(me->GetVictim(), 30))
                     {
                         //DoCastVictim(SPELL_CHAOS_BLAST, true);
-                        int damage = 100;
-                        me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, nullptr, nullptr, false, nullptr, nullptr, me->GetGUID());
+                        me->CastSpell(me->GetVictim(), SPELL_CHAOS_BLAST, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()).AddSpellBP0(100));
                     }
                     ChaosBlast_Timer = 3000;
                 } else ChaosBlast_Timer -= diff;
@@ -671,8 +670,7 @@ public:
                 if (me->IsWithinDist(me->GetVictim(), 30))
                 {
                     //DoCastVictim(SPELL_CHAOS_BLAST, true);
-                    int damage = 100;
-                    me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, nullptr, nullptr, false, nullptr, nullptr, me->GetGUID());
+                    me->CastSpell(me->GetVictim(), SPELL_CHAOS_BLAST, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()).AddSpellBP0(100));
                     ChaosBlast_Timer = 3000;
                 }
              } else ChaosBlast_Timer -= diff;

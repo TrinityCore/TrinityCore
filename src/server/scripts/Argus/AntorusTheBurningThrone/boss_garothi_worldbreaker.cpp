@@ -526,7 +526,7 @@ class spell_garothi_apocalypse_drive : public AuraScript
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_APOCALYPSE_DRIVE_PERIODIC_DAMAGE, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_APOCALYPSE_DRIVE_PERIODIC_DAMAGE, aurEff);
     }
 
     void Register() override
@@ -630,7 +630,7 @@ class spell_garothi_searing_barrage_dummy : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastCustomSpell(SPELL_SEARING_BARRAGE_SELECTOR, SPELLVALUE_BASE_POINT0, GetSpellInfo()->Id, GetHitUnit(), true);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SEARING_BARRAGE_SELECTOR, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_BASE_POINT0, GetSpellInfo()->Id));
     }
 
     void Register() override
@@ -870,7 +870,7 @@ class spell_garothi_cannon_chooser : public SpellScript
                 float x = AnnihilationCenterReferencePos.GetPositionX() + cos(frand(0.0f, float(M_PI * 2))) * frand(15.0f, 30.0f);
                 float y = AnnihilationCenterReferencePos.GetPositionY() + sin(frand(0.0f, float(M_PI * 2))) * frand(15.0f, 30.0f);
                 float z = caster->GetMap()->GetHeight(caster->GetPhaseShift(), x, y, AnnihilationCenterReferencePos.GetPositionZ());
-                annihilator->CastSpell(x, y, z, SPELL_ANNIHILATION_SUMMON, true);
+                annihilator->CastSpell({ x, y, z }, SPELL_ANNIHILATION_SUMMON, true);
             }
 
             annihilator->CastSpell(annihilator, SPELL_ANNIHILATION_DUMMY);

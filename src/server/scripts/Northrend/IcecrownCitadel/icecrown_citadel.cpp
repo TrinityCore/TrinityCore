@@ -832,7 +832,7 @@ class boss_sister_svalna : public CreatureScript
                 switch (action)
                 {
                     case ACTION_KILL_CAPTAIN:
-                        me->CastCustomSpell(SPELL_CARESS_OF_DEATH, SPELLVALUE_MAX_TARGETS, 1, me, true);
+                        DoCastSelf(SPELL_CARESS_OF_DEATH, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                         break;
                     case ACTION_START_GAUNTLET:
                         me->setActive(true);
@@ -887,7 +887,9 @@ class boss_sister_svalna : public CreatureScript
                         if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))
                         {
                             Talk(EMOTE_SVALNA_IMPALE, target);
-                            summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, 1, target, false);
+                            CastSpellExtraArgs args;
+                            args.SpellValueOverrides.AddBP0(1);
+                            summon->CastSpell(target, VEHICLE_SPELL_RIDE_HARDCODED, args);
                             summon->AddUnitFlag2(UnitFlags2(UNIT_FLAG2_UNK1 | UNIT_FLAG2_ALLOW_ENEMY_INTERACT));
                         }
                         break;

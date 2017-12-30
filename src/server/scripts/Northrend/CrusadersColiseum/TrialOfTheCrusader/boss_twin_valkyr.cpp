@@ -312,7 +312,11 @@ struct boss_twin_baseAI : public BossAI
                 break;
             case EVENT_TOUCH:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true, OtherEssenceSpellId))
-                    me->CastCustomSpell(TouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
+                {
+                    CastSpellExtraArgs args;
+                    args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, 1); // @todo spellmgr correction instead?
+                    me->CastSpell(target, TouchSpellId, args);
+                }
                 events.ScheduleEvent(EVENT_TOUCH, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
                 break;
             case EVENT_BERSERK:
@@ -716,8 +720,11 @@ class spell_bullet_controller : public AuraScript
         if (!caster)
             return;
 
-        caster->CastCustomSpell(SPELL_SUMMON_PERIODIC_LIGHT, SPELLVALUE_MAX_TARGETS, urand(1, 6), GetTarget(), true);
-        caster->CastCustomSpell(SPELL_SUMMON_PERIODIC_DARK, SPELLVALUE_MAX_TARGETS, urand(1, 6), GetTarget(), true);
+        CastSpellExtraArgs args1(TRIGGERED_FULL_MASK), args2(TRIGGERED_FULL_MASK);
+        args1.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
+        args2.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
+        caster->CastSpell(GetTarget(), SPELL_SUMMON_PERIODIC_LIGHT, args1);
+        caster->CastSpell(GetTarget(), SPELL_SUMMON_PERIODIC_DARK, args2);
     }
 
     void Register() override

@@ -183,7 +183,7 @@ class DelayedCastEvent : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            _trigger->CastSpell(_trigger, _spellId, false, nullptr, nullptr, _originalCaster);
+            _trigger->CastSpell(_trigger, _spellId, _originalCaster);
             if (_despawnTime)
                 _trigger->DespawnOrUnsummon(_despawnTime);
             return true;
@@ -1111,7 +1111,7 @@ class npc_dream_cloud : public CreatureScript
                         case EVENT_EXPLODE:
                             me->GetMotionMaster()->MoveIdle();
                             // must use originalCaster the same for all clouds to allow stacking
-                            me->CastSpell(me, EMERALD_VIGOR, false, nullptr, nullptr, _instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
+                            me->CastSpell(me, EMERALD_VIGOR, _instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
                             me->DespawnOrUnsummon(100);
                             break;
                         default:
@@ -1239,7 +1239,7 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true, nullptr, nullptr, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
+                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
             }
 
             void Register() override
@@ -1330,7 +1330,7 @@ class spell_dreamwalker_summon_suppresser_effect : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true, nullptr, nullptr, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
+                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
             }
 
             void Register() override
@@ -1466,7 +1466,7 @@ class spell_dreamwalker_twisted_nightmares : public SpellScriptLoader
                 //    return;
 
                 if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
-                    GetHitUnit()->CastSpell(nullptr, GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true, nullptr, nullptr, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
+                    GetHitUnit()->CastSpell(nullptr, GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
             }
 
             void Register() override

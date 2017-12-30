@@ -697,8 +697,8 @@ public:
                 return;
 
             target->ExitVehicle();
-            DynamicObject* dynamicObject = GetCaster()->GetDynObject(SPELL_SEISMIC_SHARD_TARGETING);
-            target->CastSpell(dynamicObject->GetPositionX(), dynamicObject->GetPositionY(), dynamicObject->GetPositionZ(), SPELL_SEISMIC_SHARD_MISSLE, true);
+            if (DynamicObject* dynamicObject = GetCaster()->GetDynObject(SPELL_SEISMIC_SHARD_TARGETING))
+                target->CastSpell(dynamicObject->GetPosition(), SPELL_SEISMIC_SHARD_MISSLE, true);
         }
 
         void Register() override

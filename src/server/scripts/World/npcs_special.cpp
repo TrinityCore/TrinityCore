@@ -468,10 +468,10 @@ public:
         {
             _scheduler.Schedule(Seconds(2), [this](TaskContext context)
             {
-                me->CastCustomSpell(SPELL_TORCH_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1);
+                me->CastSpell(nullptr, SPELL_TORCH_TARGET_PICKER);
                 _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
                 {
-                    me->CastCustomSpell(SPELL_TORCH_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1);
+                    me->CastSpell(nullptr, SPELL_TORCH_TARGET_PICKER);
                 });
                 context.Repeat(Seconds(5));
             });
@@ -2284,7 +2284,7 @@ public:
             }
             else
                 //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
-                me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), GetFireworkSpell(me->GetEntry()), true);
+                me->CastSpell(me->GetPosition(), GetFireworkSpell(me->GetEntry()), true);
         }
     };
 

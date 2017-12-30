@@ -608,7 +608,7 @@ class spell_alar_flame_quills : public AuraScript
 
         // cast 24 spells 34269-34289, 34314-34316
         for (uint32 spellId : flameQuillsSpells)
-            GetTarget()->CastSpell(nullptr, spellId, true, nullptr, aurEff);
+            GetTarget()->CastSpell(nullptr, spellId, aurEff);
     }
 
     void Register() override

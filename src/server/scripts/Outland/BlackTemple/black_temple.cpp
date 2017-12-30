@@ -264,7 +264,7 @@ class spell_illidari_nightlord_shadow_inferno : public AuraScript
     {
         PreventDefaultAction();
         int32 bp = aurEffect->GetTickNumber() * aurEffect->GetAmount();
-        GetUnitOwner()->CastCustomSpell(SPELL_SHADOW_INFERNO_DAMAGE, SPELLVALUE_BASE_POINT0, bp, GetUnitOwner(), true);
+        GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_SHADOW_INFERNO_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(bp));
     }
 
     void Register() override

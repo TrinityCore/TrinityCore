@@ -3455,14 +3455,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         52438, // Summon Skittering Swarmer (Force Cast)
         52449, // Summon Skittering Infector (Force Cast)
         53609, // Summon Anub'ar Assassin (Force Cast)
-        53457  // Summon Impale Trigger (AoE)
+        53457, // Summon Impale Trigger (AoE)
+        45907  // Torch Target Picker
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
     });
 
-    // Skartax Purple Beam
-    ApplySpellFix({ 36384 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        36384  // Skartax Purple Beam
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 2;
     });

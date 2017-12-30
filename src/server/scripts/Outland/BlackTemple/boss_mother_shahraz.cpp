@@ -42,7 +42,7 @@ enum Spells
     SPELL_FATAL_ATTRACTION_DAMAGE   = 40871,
     SPELL_SILENCING_SHRIEK          = 40823,
     SPELL_SABER_LASH_IMMUNITY       = 43690,
-    SPELL_FATAL_ATTACTION_TELEPORT  = 40869,
+    SPELL_FATAL_ATTRACTION_TELEPORT = 40869,
     SPELL_BERSERK                   = 45078,
     SPELL_FATAL_ATTRACTION          = 41001,
     SPELL_SINISTER_PERIODIC         = 40863,
@@ -173,7 +173,7 @@ struct boss_mother_shahraz : public BossAI
                 break;
             case EVENT_FATAL_ATTRACTION:
                 Talk(SAY_SPELL);
-                me->CastCustomSpell(SPELL_FATAL_ATTACTION_TELEPORT, SPELLVALUE_MAX_TARGETS, 3, me);
+                DoCastSelf(SPELL_FATAL_ATTRACTION_TELEPORT, { SPELLVALUE_MAX_TARGETS, 3 });
                 events.Repeat(Seconds(30));
                 break;
             case EVENT_SILENCING_SHRIEK:

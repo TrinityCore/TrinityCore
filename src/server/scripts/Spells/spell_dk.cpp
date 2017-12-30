@@ -144,8 +144,9 @@ public:
 
         if (!GetTarget()->HasAura(SPELL_DK_VOLATILE_SHIELDING))
         {
-            int32 bp = 2 * absorbAmount * 100 / maxHealth;
-            GetTarget()->CastCustomSpell(SPELL_DK_RUNIC_POWER_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, nullptr, aurEff);
+            CastSpellExtraArgs args(aurEff);
+            args.SpellValueOverrides.AddBP0(CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
+            GetTarget()->CastSpell(GetTarget(), SPELL_DK_RUNIC_POWER_ENERGIZE, args);
         }
     }
 
@@ -153,8 +154,9 @@ public:
     {
         if (AuraEffect const* volatileShielding = GetTarget()->GetAuraEffect(SPELL_DK_VOLATILE_SHIELDING, EFFECT_1))
         {
-            int32 damage = CalculatePct(absorbedAmount, volatileShielding->GetAmount());
-            GetTarget()->CastCustomSpell(SPELL_DK_VOLATILE_SHIELDING_DAMAGE, SPELLVALUE_BASE_POINT0, damage, nullptr, TRIGGERED_FULL_MASK, nullptr, volatileShielding);
+            CastSpellExtraArgs args(volatileShielding);
+            args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbedAmount, volatileShielding->GetAmount()));
+            GetTarget()->CastSpell(nullptr, SPELL_DK_VOLATILE_SHIELDING_DAMAGE, args);
         }
     }
 
@@ -308,7 +310,7 @@ class spell_dk_death_and_decay : public SpellScript
     {
         if (GetCaster()->HasAura(SPELL_DK_TIGHTENING_GRASP))
             if (WorldLocation const* pos = GetExplTargetDest())
-                GetCaster()->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), SPELL_DK_TIGHTENING_GRASP_SLOW, true);
+                GetCaster()->CastSpell(*pos, SPELL_DK_TIGHTENING_GRASP_SLOW, true);
     }
 
     void Register() override
@@ -325,7 +327,7 @@ class spell_dk_death_and_decay_AuraScript : public AuraScript
         void HandleDummyTick(AuraEffect const* aurEff)
         {
             if (Unit* caster = GetCaster())
-                caster->CastSpell(GetTarget(), SPELL_DK_DEATH_AND_DECAY_DAMAGE, true, nullptr, aurEff);
+                caster->CastSpell(GetTarget(), SPELL_DK_DEATH_AND_DECAY_DAMAGE, aurEff);
         }
 
         void Register() override
@@ -349,7 +351,7 @@ class spell_dk_death_coil : public SpellScript
         Unit* caster = GetCaster();
         caster->CastSpell(GetHitUnit(), SPELL_DK_DEATH_COIL_DAMAGE, true);
         if (AuraEffect const* unholyAura = caster->GetAuraEffect(SPELL_DK_UNHOLY, EFFECT_6)) // can be any effect, just here to send SPELL_FAILED_DONT_REPORT on failure
-            caster->CastSpell(caster, SPELL_DK_UNHOLY_VIGOR, true, nullptr, unholyAura);
+            caster->CastSpell(caster, SPELL_DK_UNHOLY_VIGOR, unholyAura);
     }
 
     void Register() override
@@ -481,10 +483,10 @@ class spell_dk_death_strike : public SpellScript
             int32 pctOfMaxHealth = CalculatePct(spellInfo->GetEffect(EFFECT_2)->CalcValue(GetCaster()), caster->GetMaxHealth());
             heal = std::max(heal, pctOfMaxHealth);
 
-            caster->CastCustomSpell(SPELL_DK_DEATH_STRIKE_HEAL, SPELLVALUE_BASE_POINT0, heal, caster, true);
+            caster->CastSpell(caster, SPELL_DK_DEATH_STRIKE_HEAL, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_BASE_POINT0, heal));
 
             if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_BLOOD_SHIELD_MASTERY, EFFECT_0))
-                caster->CastCustomSpell(SPELL_DK_BLOOD_SHIELD_ABSORB, SPELLVALUE_BASE_POINT0, CalculatePct(heal, aurEff->GetAmount()), caster);
+                caster->CastSpell(caster, SPELL_DK_BLOOD_SHIELD_ABSORB, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(heal, aurEff->GetAmount())));
 
             if (caster->HasAura(SPELL_DK_FROST))
                 caster->CastSpell(GetHitUnit(), SPELL_DK_DEATH_STRIKE_OFFHAND, true);
@@ -558,7 +560,7 @@ class spell_dk_festering_strike : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastCustomSpell(SPELL_DK_FESTERING_WOUND, SPELLVALUE_AURA_STACK, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_FESTERING_WOUND, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_AURA_STACK, GetEffectValue()));
     }
 
     void Register() override

@@ -176,7 +176,7 @@ void ScriptedAI::DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool trig
         return;
 
     me->StopMoving();
-    me->CastSpell(target, spellInfo, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
+    me->CastSpell(target, spellInfo->Id, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
 }
 
 void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)

@@ -1152,7 +1152,7 @@ class spell_jormungars_paralytic_toxin : public AuraScript
             slowEff->ChangeAmount(newAmount);
 
             if (newAmount == -100 && !GetTarget()->HasAura(SPELL_PARALYSIS))
-                GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, true, nullptr, slowEff, GetCasterGUID());
+                GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, CastSpellExtraArgs(slowEff).SetOriginalCaster(GetCasterGUID()));
         }
     }
 
@@ -1197,7 +1197,9 @@ class spell_jormungars_slime_pool : public AuraScript
         PreventDefaultAction();
 
         int32 const radius = static_cast<int32>(((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f);
-        GetTarget()->CastCustomSpell(GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff);
+        CastSpellExtraArgs args(aurEff);
+        args.SpellValueOverrides.AddMod(SPELLVALUE_RADIUS_MOD, radius);
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, args);
     }
 
     void Register() override

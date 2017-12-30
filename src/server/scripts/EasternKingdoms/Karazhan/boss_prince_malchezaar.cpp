@@ -339,7 +339,10 @@ public:
                     enfeeble_targets[i] = target->GetGUID();
                     enfeeble_health[i] = target->GetHealth();
 
-                    target->CastSpell(target, SPELL_ENFEEBLE, true, nullptr, nullptr, me->GetGUID());
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.OriginalCaster = me->GetGUID();
+                    target->CastSpell(target, SPELL_ENFEEBLE, args);
                     target->SetHealth(1);
                 }
         }

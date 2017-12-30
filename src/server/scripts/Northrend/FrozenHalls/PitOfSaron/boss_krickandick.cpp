@@ -266,7 +266,7 @@ class boss_ick : public CreatureScript
                                 krick->AI()->Talk(SAY_KRICK_BARRAGE_1);
                                 krick->AI()->Talk(SAY_KRICK_BARRAGE_2);
                                 krick->CastSpell(krick, SPELL_EXPLOSIVE_BARRAGE_KRICK, true);
-                                DoCast(me, SPELL_EXPLOSIVE_BARRAGE_ICK);
+                                DoCastAOE(SPELL_EXPLOSIVE_BARRAGE_ICK);
                             }
                             events.DelayEvents(20000);
                             break;
@@ -275,12 +275,12 @@ class boss_ick : public CreatureScript
                                 krick->AI()->Talk(SAY_KRICK_POISON_NOVA);
 
                             Talk(SAY_ICK_POISON_NOVA);
-                            DoCast(me, SPELL_POISON_NOVA);
+                            DoCastAOE(SPELL_POISON_NOVA);
                             break;
                         case EVENT_PURSUIT:
                             if (Creature* krick = GetKrick())
                                 krick->AI()->Talk(SAY_KRICK_CHASE);
-                            me->CastCustomSpell(SPELL_PURSUIT, SPELLVALUE_MAX_TARGETS, 1, me);
+                            DoCastSelf(SPELL_PURSUIT, { SPELLVALUE_MAX_TARGETS, 1 });
                             break;
                         default:
                             break;

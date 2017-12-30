@@ -223,7 +223,7 @@ class spell_uk_second_wind : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
-                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, aurEff);
             }
 
             void Register() override

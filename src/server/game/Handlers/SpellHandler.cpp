@@ -342,7 +342,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     spell->m_fromClient = true;
     spell->m_misc.Raw.Data[0] = cast.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = cast.Cast.Misc[1];
-    spell->prepare(&targets);
+    spell->prepare(targets);
 }
 
 void WorldSession::HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& packet)
@@ -489,14 +489,10 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes)
     if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
-    auto const& selfResSpells = _player->m_activePlayerData->SelfResSpells;
-    if (std::find(selfResSpells.begin(), selfResSpells.end(), selfRes.SpellID) == selfResSpells.end())
+    if (_player->m_activePlayerData->SelfResSpells.FindIndex(selfRes.SpellID) < 0)
         return;
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(selfRes.SpellID, _player->GetMap()->GetDifficultyID());
-    if (spellInfo)
-        _player->CastSpell(_player, spellInfo, false, nullptr);
-
+    _player->CastSpell(_player, selfRes.SpellID, _player->GetMap()->GetDifficultyID());
     _player->RemoveSelfResSpell(selfRes.SpellID);
 }
 

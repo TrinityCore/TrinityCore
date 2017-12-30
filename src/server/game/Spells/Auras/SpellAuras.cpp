@@ -1249,7 +1249,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (*itr < 0)
                         target->RemoveAurasDueToSpell(-(*itr));
                     else if (removeMode != AURA_REMOVE_BY_DEATH)
-                        target->CastSpell(target, *itr, true, nullptr, nullptr, GetCasterGUID());
+                        target->CastSpell(target, *itr, GetCasterGUID());
                 }
             }
             if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
@@ -1311,8 +1311,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Druid T8 Restoration 4P Bonus
                     if (caster->HasAura(64760))
                     {
-                        int32 heal = GetEffect(EFFECT_0)->GetAmount();
-                        caster->CastCustomSpell(target, 64801, &heal, nullptr, nullptr, true, nullptr, GetEffect(EFFECT_0));
+                        CastSpellExtraArgs args(GetEffect(EFFECT_0));
+                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, GetEffect(EFFECT_0)->GetAmount());
+                        caster->CastSpell(target, 64801, args);
                     }
                 }
                 break;
@@ -1329,7 +1330,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 66: // Invisibility
                         if (removeMode != AURA_REMOVE_BY_EXPIRE)
                             break;
-                        target->CastSpell(target, 32612, true, nullptr, GetEffect(1));
+                        target->CastSpell(target, 32612, GetEffect(1));
                         target->CombatStop();
                         break;
                     default:
@@ -1363,8 +1364,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (AuraEffect const* aurEff = aura->GetEffect(0))
                         {
                             float multiplier = float(aurEff->GetAmount());
-                            int32 basepoints0 = int32(CalculatePct(caster->GetMaxPower(POWER_MANA), multiplier));
-                            caster->CastCustomSpell(caster, 47755, &basepoints0, nullptr, nullptr, true);
+                            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                            args.SpellValueOverrides.AddBP0(CalculatePct(caster->GetMaxPower(POWER_MANA), multiplier));
+                            caster->CastSpell(caster, 47755, args);
                         }
                     }
                 }
@@ -1391,7 +1393,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (owner->HasAura(34692))
                         {
                             if (apply)
-                                owner->CastSpell(owner, 34471, true, nullptr, GetEffect(0));
+                                owner->CastSpell(owner, 34471, GetEffect(0));
                             else
                                 owner->RemoveAurasDueToSpell(34471);
                         }

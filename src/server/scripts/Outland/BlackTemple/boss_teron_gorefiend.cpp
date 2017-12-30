@@ -199,7 +199,7 @@ struct boss_teron_gorefiend : public BossAI
                     events.Repeat(Seconds(30), Seconds(35));
                     break;
                 case EVENT_CRUSHING_SHADOWS:
-                    me->CastCustomSpell(SPELL_CRUSHING_SHADOWS, SPELLVALUE_MAX_TARGETS, 5, me);
+                    DoCastSelf(SPELL_CRUSHING_SHADOWS, { SPELLVALUE_MAX_TARGETS, 5 });
                     Talk(SAY_CRUSHING);
                     events.Repeat(Seconds(18), Seconds(30));
                     break;

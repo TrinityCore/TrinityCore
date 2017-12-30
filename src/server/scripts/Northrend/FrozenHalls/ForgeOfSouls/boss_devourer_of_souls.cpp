@@ -409,8 +409,9 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
                 if (!damageInfo || !damageInfo->GetDamage())
                     return;
 
-                int32 damage = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), 45);
-                GetTarget()->CastCustomSpell(SPELL_MIRRORED_SOUL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetCaster(), true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), 45));
+                GetTarget()->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_DAMAGE, args);
             }
 
             void Register() override

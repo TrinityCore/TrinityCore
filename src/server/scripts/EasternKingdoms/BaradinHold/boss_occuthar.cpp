@@ -364,7 +364,7 @@ class spell_occuthar_occuthars_destruction : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     if (IsExpired())
-                        caster->CastSpell(nullptr, SPELL_OCCUTHARS_DESTUCTION, true, nullptr, aurEff);
+                        caster->CastSpell(nullptr, SPELL_OCCUTHARS_DESTUCTION, aurEff);
 
                     caster->ToCreature()->DespawnOrUnsummon(500);
                 }

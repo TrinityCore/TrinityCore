@@ -776,13 +776,11 @@ public:
                 switch (eventId)
                 {
                     case EVENT_START_FIRST_RANDOM_PORTAL:
-                        me->CastCustomSpell(SPELL_RANDOM_PORTAL, SPELLVALUE_MAX_TARGETS, 1);
+                    case EVENT_RANDOM_PORTAL:
+                        DoCastAOE(SPELL_RANDOM_PORTAL, { SPELLVALUE_MAX_TARGETS,1 });
                         break;
                     case EVENT_STOP_PORTAL_BEAM:
                         me->InterruptNonMeleeSpells(true);
-                        break;
-                    case EVENT_RANDOM_PORTAL:
-                        me->CastCustomSpell(SPELL_RANDOM_PORTAL, SPELLVALUE_MAX_TARGETS, 1);
                         break;
                     case EVENT_LAND_START_ENCOUNTER:
                         if (GameObject* iris = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_FOCUSING_IRIS_GUID)))
@@ -2029,7 +2027,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
             void TriggerDamageSpellFromPlayer()
             {
                 if (Player* hitTarget = GetHitPlayer())
-                    hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, true, nullptr, nullptr, GetCaster()->GetGUID());
+                    hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, GetCaster()->GetGUID());
             }
 
             void Register() override

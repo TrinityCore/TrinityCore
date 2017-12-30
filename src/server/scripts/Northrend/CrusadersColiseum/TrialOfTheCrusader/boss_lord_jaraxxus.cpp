@@ -219,9 +219,13 @@ class boss_jaraxxus : public CreatureScript
                             events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             break;
                         case EVENT_NETHER_POWER:
-                            me->CastCustomSpell(SPELL_NETHER_POWER, SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5, 10, 5, 10), me, true);
-                            events.ScheduleEvent(EVENT_NETHER_POWER, 40*IN_MILLISECONDS);
+                        {
+                            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                            args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, RAID_MODE(5, 10, 5, 10));
+                            me->CastSpell(me, SPELL_NETHER_POWER, args);
+                            events.ScheduleEvent(EVENT_NETHER_POWER, 40 * IN_MILLISECONDS);
                             break;
+                        }
                         case EVENT_LEGION_FLAME:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_LORD_HITTIN))
                             {

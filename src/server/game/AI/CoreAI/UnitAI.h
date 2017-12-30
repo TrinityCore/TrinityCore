@@ -298,10 +298,10 @@ class TC_GAME_API UnitAI
         void AttackStartCaster(Unit* victim, float dist);
 
         void DoCast(uint32 spellId);
-        void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
-        void DoCastSelf(uint32 spellId, bool triggered = false) { DoCast(me, spellId, triggered); }
-        void DoCastVictim(uint32 spellId, bool triggered = false);
-        void DoCastAOE(uint32 spellId, bool triggered = false);
+        void DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args = {});
+        void DoCastSelf(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(me, spellId, args); }
+        void DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
+        void DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(nullptr, spellId, args); }
 
         virtual bool ShouldSparWith(Unit const* /*target*/) const { return false; }
 

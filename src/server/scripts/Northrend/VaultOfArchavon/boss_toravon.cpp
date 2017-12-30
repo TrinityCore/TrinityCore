@@ -78,9 +78,11 @@ struct boss_toravon : public BossAI
             switch (eventId)
             {
                 case EVENT_FROZEN_ORB:
-                    me->CastCustomSpell(SPELL_FROZEN_ORB, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3), me);
+                {
+                    me->CastSpell(me, SPELL_FROZEN_ORB, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3)));
                     events.Repeat(Seconds(32));
                     break;
+                }
                 case EVENT_WHITEOUT:
                     DoCastSelf(SPELL_WHITEOUT);
                     events.Repeat(Seconds(38));
