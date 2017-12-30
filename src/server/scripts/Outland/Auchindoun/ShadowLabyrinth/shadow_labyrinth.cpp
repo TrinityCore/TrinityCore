@@ -46,7 +46,7 @@ class spell_mark_of_malice : public SpellScriptLoader
                 if (aurEff->GetBase()->GetCharges() > 1)
                     return;
 
-                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_MALICE_TRIGGERED, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_MALICE_TRIGGERED, aurEff);
             }
 
             void Register() override

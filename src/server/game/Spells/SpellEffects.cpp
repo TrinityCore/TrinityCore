@@ -466,7 +466,9 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             if (AuraEffect* aurEff = owner->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, 214, 0))
                             {
                                 int32 bp0 = aurEff->GetId() == 54037 ? 4 : 8;
-                                m_caster->CastCustomSpell(m_caster, 54425, &bp0, nullptr, nullptr, true);
+                                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, bp0);
+                                m_caster->CastSpell(m_caster, 54425, args);
                             }
                         }
                     }
@@ -487,7 +489,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             int chance = (*i)->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster);
                             if (roll_chance_i(chance))
                                 // Mind Trauma
-                                m_caster->CastSpell(unitTarget, 48301, true, nullptr);
+                                m_caster->CastSpell(unitTarget, 48301, true);
                             break;
                         }
                     }
@@ -855,17 +857,14 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
             targets.SetUnitTarget(m_caster);
     }
 
-    CustomSpellValues values;
+    CastSpellExtraArgs args(m_originalCasterGUID);
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
-    {
-        values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
-        values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
-        values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
-    }
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     // original caster guid only for GO cast
-    m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, nullptr, nullptr, m_originalCasterGUID);
+    m_caster->CastSpell(targets, spellInfo->Id, args);
 }
 
 void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
@@ -902,18 +901,14 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
         targets.SetUnitTarget(m_caster);
     }
 
-    CustomSpellValues values;
+    CastSpellExtraArgs args(m_originalCasterGUID);
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE)
-    {
-        // maybe need to set value only when basepoints == 0?
-        values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
-        values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
-        values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
-    }
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     // original caster guid only for GO cast
-    m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, nullptr, nullptr, m_originalCasterGUID);
+    m_caster->CastSpell(targets, spellInfo->Id, args);
 }
 
 void Spell::EffectForceCast(SpellEffIndex effIndex)
@@ -945,32 +940,28 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
                 break;
             case 52463: // Hide In Mine Car
             case 52349: // Overtake
-                unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, nullptr, nullptr, true, nullptr, nullptr, m_originalCasterGUID);
+            {
+                CastSpellExtraArgs args(m_originalCasterGUID);
+                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damage);
+                unitTarget->CastSpell(unitTarget, spellInfo->Id, args);
                 return;
+            }
         }
     }
 
     switch (spellInfo->Id)
     {
         case 72298: // Malleable Goo Summon
-            unitTarget->CastSpell(unitTarget, spellInfo->Id, true, nullptr, nullptr, m_originalCasterGUID);
+            unitTarget->CastSpell(unitTarget, spellInfo->Id, m_originalCasterGUID);
             return;
     }
 
-    CustomSpellValues values;
-    // set basepoints for trigger with value effect
+    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_FORCE_CAST_WITH_VALUE)
-    {
-        // maybe need to set value only when basepoints == 0?
-        values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
-        values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
-        values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
-    }
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
-    SpellCastTargets targets;
-    targets.SetUnitTarget(m_caster);
-
-    unitTarget->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK);
+    unitTarget->CastSpell(m_caster, spellInfo->Id, args);
 }
 
 void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
@@ -989,7 +980,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
 
     finish();
 
-    m_caster->CastSpell(nullptr, spellInfo, false);
+    m_caster->CastSpell(nullptr, spellInfo->Id, false);
 }
 
 void Spell::EffectJump(SpellEffIndex effIndex)
@@ -2292,11 +2283,13 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     spellId = spellInfo->Id;
             }
 
+            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+
             // if we have small value, it indicates seat position
             if (basePoints > 0 && basePoints < MAX_VEHICLE_SEATS)
-                m_originalCaster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, basePoints, summon, true);
-            else
-                m_originalCaster->CastSpell(summon, spellId, true);
+                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, basePoints);
+
+            m_originalCaster->CastSpell(summon, spellId, args);
 
             uint32 faction = properties->Faction;
             if (!faction)
@@ -2430,12 +2423,13 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     // Devour Magic
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->GetCategory() == SPELLCATEGORY_DEVOUR_MAGIC)
     {
-        int32 heal_amount = m_spellInfo->Effects[EFFECT_1].CalcValue();
-        m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, nullptr, nullptr, true);
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, m_spellInfo->Effects[EFFECT_1].CalcValue());
+        m_caster->CastSpell(m_caster, 19658, args);
         // Glyph of Felhunter
         if (Unit* owner = m_caster->GetOwner())
             if (owner->GetAura(56249))
-                owner->CastCustomSpell(owner, 19658, &heal_amount, nullptr, nullptr, true);
+                owner->CastSpell(owner, 19658, args);
     }
 }
 
@@ -2796,7 +2790,7 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
                     Spell* spell = new Spell(m_caster, spellInfo, TRIGGERED_FULL_MASK);
                     SpellCastTargets targets;
                     targets.SetItemTarget(item);
-                    spell->prepare(&targets);
+                    spell->prepare(targets);
                 }
             }
         }
@@ -3183,7 +3177,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             // Skyshatter Harness item set bonus
             // Stormstrike
             if (AuraEffect* aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
-                m_caster->CastSpell(m_caster, 38430, true, nullptr, aurEff);
+                m_caster->CastSpell(m_caster, 38430, aurEff);
             break;
         }
         case SPELLFAMILY_DRUID:
@@ -3532,7 +3526,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
                     uint32 spell_id = roll_chance_i(20) ? 8854 : 8855;
 
-                    m_caster->CastSpell(m_caster, spell_id, true, nullptr);
+                    m_caster->CastSpell(m_caster, spell_id, true);
                     return;
                 }
                 // Brittle Armor - need remove one 24575 Brittle Armor aura
@@ -3737,7 +3731,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     for (uint8 i = 0; i < 15; ++i)
                     {
                         m_caster->GetRandomPoint(*destTarget, radius, x, y, z);
-                        m_caster->CastSpell(x, y, z, 54522, true);
+                        m_caster->CastSpell({x, y, z}, 54522, true);
                     }
                     break;
                 }
@@ -3841,7 +3835,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     // proc a spellcast
                     if (Aura* chargesAura = m_caster->GetAura(59907))
                     {
-                        m_caster->CastSpell(unitTarget, spell_heal, true, nullptr, nullptr, m_caster->ToTempSummon()->GetSummonerGUID());
+                        m_caster->CastSpell(unitTarget, spell_heal, m_caster->ToTempSummon()->GetSummonerGUID());
                         if (chargesAura->ModCharges(-1))
                             m_caster->ToTempSummon()->UnSummon();
                     }
@@ -3860,7 +3854,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 58590: // Rank 9
                 case 58591: // Rank 10
                 {
-                    int32 basepoints0 = damage;
                     // Cast Absorb on totems
                     for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
                     {
@@ -3870,14 +3863,17 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         Creature* totem = unitTarget->GetMap()->GetCreature(unitTarget->m_SummonSlot[slot]);
                         if (totem && totem->IsTotem())
                         {
-                            m_caster->CastCustomSpell(totem, 55277, &basepoints0, nullptr, nullptr, true);
+                            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                            args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damage);
+                            m_caster->CastSpell(totem, 55277, args);
                         }
                     }
                     // Glyph of Stoneclaw Totem
                     if (AuraEffect* aur = unitTarget->GetAuraEffect(63298, 0))
                     {
-                        basepoints0 *= aur->GetAmount();
-                        m_caster->CastCustomSpell(unitTarget, 55277, &basepoints0, nullptr, nullptr, true);
+                        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damage * aur->GetAmount());
+                        m_caster->CastSpell(unitTarget, 55277, args);
                     }
                     break;
                 }
@@ -4305,7 +4301,9 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
     player->DestroyItemCount(foodItem, count, true);
     /// @todo fix crash when a spell has two effects, both pointed at the same item target
 
-    m_caster->CastCustomSpell(pet, m_spellInfo->Effects[effIndex].TriggerSpell, &benefit, nullptr, nullptr, true);
+    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+    args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, benefit);
+    m_caster->CastSpell(pet, m_spellInfo->Effects[effIndex].TriggerSpell, args);
 }
 
 void Spell::EffectDismissPet(SpellEffIndex effIndex)
@@ -4899,7 +4897,11 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
     }
     ApplyPct(mana, damage);
     if (mana)
-        m_caster->CastCustomSpell(m_caster, 39104, &mana, nullptr, nullptr, true);
+    {
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, mana);
+        m_caster->CastSpell(m_caster, 39104, args);
+    }
 }
 
 void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
