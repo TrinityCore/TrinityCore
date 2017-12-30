@@ -359,7 +359,7 @@ namespace WorldPackets
     namespace Hotfix
     {
         class DBQueryBulk;
-        class HotfixQuery;
+        class HotfixRequest;
     }
 
     namespace Inspect
@@ -924,7 +924,7 @@ class TC_GAME_API WorldSession
 
         void SendAuthResponse(uint32 code, bool queued, uint32 queuePos = 0);
         void SendClientCacheVersion(uint32 version);
-        void SendHotfixList(int32 version);
+        void SendAvailableHotfixes(int32 version);
 
         void InitializeSession();
         void InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQueryHolder* holder);
@@ -1237,7 +1237,7 @@ class TC_GAME_API WorldSession
         void HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet);
 
         void HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery);
-        void HandleHotfixQuery(WorldPackets::Hotfix::HotfixQuery& hotfixQuery);
+        void HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotfixQuery);
 
         void HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& packet);
         void HandleMoveWorldportAck();                // for server-side calls

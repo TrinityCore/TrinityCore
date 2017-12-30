@@ -871,7 +871,7 @@ public:
                         unit->AddAura(SPELL_DRAW_SHA_2, c);
                         c->CastSpell(unit, SPELL_DRAW_SHA_3, false);
                         c->SetGuidValue(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS, scroll);
-                        c->SetChannelSpellID(42808);
+                        c->SetChannelSpellId(42808);
                         c->ForcedDespawn(2000);
                     }
 

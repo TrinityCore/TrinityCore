@@ -14520,22 +14520,17 @@ bool Unit::VisibleAuraSlotCompare::operator()(AuraApplication* left, AuraApplica
     return left->GetSlot() < right->GetSlot();
 }
 
-void Unit::SetChannelSpellID(uint32 p_SpellID)
+void Unit::SetChannelSpellId(uint32 channelSpellId)
 {
-    SetChannelSpellID(sSpellMgr->GetSpellInfo(p_SpellID));
-}
-
-void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
-{
-    if (p_SpellInfo)
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(channelSpellId))
     {
-        SetUInt32Value(UNIT_CHANNEL_SPELL, p_SpellInfo->Id);
-        SetUInt32Value(UNIT_CHANNEL_SPELL_X_SPELL_VISUAL, p_SpellInfo->GetSpellXSpellVisualId(this));
+        SetUInt32Value(UNIT_FIELD_CHANNEL_DATA, spellInfo->Id);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_DATA + 1, spellInfo->GetSpellXSpellVisualId(this));
     }
     else
     {
-        SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
-        SetUInt32Value(UNIT_CHANNEL_SPELL_X_SPELL_VISUAL, 0);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_DATA, 0);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_DATA + 1, 0);
     }
 }
 
