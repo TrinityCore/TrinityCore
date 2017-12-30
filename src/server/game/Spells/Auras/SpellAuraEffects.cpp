@@ -3619,15 +3619,7 @@ void AuraEffect::HandleAuraModIncreaseEnergy(AuraApplication const* aurApp, uint
         return;
 
     Unit* target = aurApp->GetTarget();
-
     Powers powerType = Powers(GetMiscValue());
-    // do not check power type, we can always modify the maximum
-    // as the client will not see any difference
-    // also, placing conditions that may change during the aura duration
-    // inside effect handlers is not a good idea
-    //if (int32(powerType) != GetMiscValue())
-    //    return;
-
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
     target->HandleStatFlatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
@@ -3642,9 +3634,11 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
     Powers powerType = Powers(GetMiscValue());
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
-    uint32 curPower = target->GetPower(powerType);
-    uint32 oldMaxPower = target->GetMaxPower(powerType);
+    // Save old powers for further calculation
+    int32 oldPower = int32(target->GetPower(powerType));
+    int32 oldMaxPower = int32(target->GetMaxPower(powerType));
 
+    // Handle aura effect for max power
     if (apply)
     {
         float amount = float(GetAmount());
@@ -3656,16 +3650,10 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
         target->SetStatPctModifier(unitMod, TOTAL_PCT, amount);
     }
 
-    int32 dmax = ((int32)target->GetMaxPower(powerType)) - oldMaxPower;
-    if (dmax >= 0) // increase current power by dmax on both buff application and debuff removal
-        target->SetPower(powerType, curPower + dmax);
-    else if (apply) // do not reduce current power on buff removal (Hymn of Hope et al), but reduce it on debuff application (Aura of Desire)
-    {
-        if ((uint32)(-dmax) <= curPower)
-            target->SetPower(powerType, curPower + dmax);
-        else
-            target->SetPower(powerType, 0);
-    }
+    // Calculate the current power change
+    int32 change = target->GetMaxPower(powerType) - oldMaxPower;
+    change = (oldPower + change) - target->GetPower(powerType);
+    target->ModifyPower(powerType, change);
 }
 
 void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
