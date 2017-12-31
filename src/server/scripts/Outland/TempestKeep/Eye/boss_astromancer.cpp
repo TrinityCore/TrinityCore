@@ -169,10 +169,10 @@ class boss_high_astromancer_solarian : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void SummonMinion(uint32 entry, float x, float y, float z)
@@ -448,7 +448,7 @@ class npc_solarium_priest : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {

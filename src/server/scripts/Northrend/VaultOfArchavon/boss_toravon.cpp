@@ -52,7 +52,7 @@ struct boss_toravon : public BossAI
 {
     boss_toravon(Creature* creature) : BossAI(creature, DATA_TORAVON) { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_FROZEN_MALLET);
 
@@ -60,7 +60,7 @@ struct boss_toravon : public BossAI
         events.ScheduleEvent(EVENT_WHITEOUT, Seconds(25));
         events.ScheduleEvent(EVENT_FREEZING_GROUND, Seconds(7));
 
-        _EnterCombat();
+        _JustEngagedWith();
     }
 
     void UpdateAI(uint32 diff) override
@@ -113,7 +113,7 @@ struct npc_frost_warder : public ScriptedAI
         _events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoZoneInCombat();
 

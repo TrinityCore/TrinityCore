@@ -118,7 +118,7 @@ class boss_rotface : public CreatureScript
                 infectionCooldown = 14000;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_ROTFACE, who->ToPlayer()))
                 {

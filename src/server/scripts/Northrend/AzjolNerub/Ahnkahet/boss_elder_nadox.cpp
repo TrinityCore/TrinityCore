@@ -78,9 +78,9 @@ class boss_elder_nadox : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_PLAGUE, 13 * IN_MILLISECONDS);

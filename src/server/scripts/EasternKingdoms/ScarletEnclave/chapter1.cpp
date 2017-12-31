@@ -135,7 +135,7 @@ public:
             me->LoadEquipment(0, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ICY_TOUCH, 1000, GCD_CAST);
             events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3000, GCD_CAST);
@@ -852,7 +852,7 @@ public:
     {
         npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             me->ExitVehicle();
         }

@@ -86,9 +86,9 @@ class boss_moorabi : public CreatureScript
                 events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 DoCastSelf(SPELL_MOJO_FRENZY, true);
 

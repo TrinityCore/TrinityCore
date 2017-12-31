@@ -113,9 +113,9 @@ public:
             me->SetSpeed(UnitMoveType::MOVE_RUN, 12.0f);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_WOUND, Seconds(10));
             events.ScheduleEvent(EVENT_ENRAGE, randtime(Seconds(16), Seconds(22)));
             events.ScheduleEvent(EVENT_DECIMATE, randtime(Minutes(1)+Seconds(50), Minutes(2)));

@@ -219,9 +219,9 @@ public:
                 _orb = summon->GetGUID();
         }
 
-        void EnterCombat (Unit* /*who*/) override
+        void JustEngagedWith (Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_ARCING_SMASH, Seconds(7));
             events.ScheduleEvent(EVENT_IMPALE, Seconds(11));
@@ -333,7 +333,7 @@ struct PalehoofMinionsBossAI : public BossAI
         DoCastSelf(SPELL_FREEZE, true);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);

@@ -150,9 +150,9 @@ class boss_high_priestess_azil : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, 40000);
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 DoCast(me, SPELL_ENERGY_SHIELD);
                 Talk(SAY_AGGRO);

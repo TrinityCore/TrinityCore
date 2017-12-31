@@ -161,7 +161,7 @@ public:
         uint32 _spell;
         uint32 _spell2;
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void SetType(uint32 _type)
         {
             switch (Creaturetype = _type)
@@ -259,7 +259,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SaySound(uint8 textEntry, Unit* target = nullptr)
         {
@@ -503,7 +503,7 @@ public:
             ++id;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             instance->SetBossState(DATA_HORSEMAN_EVENT, IN_PROGRESS);
             DoZoneInCombat();
@@ -814,7 +814,7 @@ public:
             me->AddUnitFlag(UNIT_FLAG_STUNNED);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {

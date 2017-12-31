@@ -65,7 +65,7 @@ class npc_dragonflayer_forge_master : public CreatureScript
                     _instance->SetData(DATA_FORGE_1 + _forgeId - 1, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (!_forgeId)
                     _forgeId = GetForgeMasterType();

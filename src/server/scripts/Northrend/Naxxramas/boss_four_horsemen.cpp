@@ -287,7 +287,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             DoCastAOE(SPELL_ENCOUNTER_CREDIT, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance->GetBossState(BOSS_HORSEMEN) == IN_PROGRESS || instance->GetBossState(BOSS_HORSEMEN) == DONE) // another horseman already did it
                 return;

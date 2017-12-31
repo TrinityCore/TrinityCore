@@ -130,9 +130,9 @@ public:
 
         bool CanAIAttack(Unit const* /*who*/) const override { return true; } // do not check boundary here
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
 
             if (GameObject* door = instance->GetGameObject(DATA_ANUBARAK_WALL))
                 door->SetGoState(GO_STATE_ACTIVE); // open door for now

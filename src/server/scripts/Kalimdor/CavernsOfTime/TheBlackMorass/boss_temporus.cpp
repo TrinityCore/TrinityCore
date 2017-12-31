@@ -61,7 +61,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_HASTE, urand(15000, 23000));
             events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);

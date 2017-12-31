@@ -868,7 +868,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 _rocketeersYellCooldown = time_t(0);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 _events.SetPhase(PHASE_COMBAT);
                 DoCast(me, _instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_FRIENDLY_BOSS_DAMAGE_MOD : SPELL_MELEE_TARGETING_ON_ORGRIMS_HAMMER, true);
@@ -1137,7 +1137,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 _mortarYellCooldown = time_t(0);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 _events.SetPhase(PHASE_COMBAT);
                 DoCast(me, _instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? SPELL_FRIENDLY_BOSS_DAMAGE_MOD : SPELL_MELEE_TARGETING_ON_SKYBREAKER, true);
@@ -1564,9 +1564,9 @@ class npc_gunship_boarding_leader : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* target) override
+            void JustEngagedWith(Unit* target) override
             {
-                npc_gunship_boarding_addAI::EnterCombat(target);
+                npc_gunship_boarding_addAI::JustEngagedWith(target);
                 _events.ScheduleEvent(EVENT_BLADESTORM, urand(13000, 18000));
                 _events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(8000, 10000));
             }

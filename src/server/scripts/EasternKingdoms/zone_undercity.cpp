@@ -121,7 +121,7 @@ public:
             _events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoPlaySoundToSet(me, SOUND_AGGRO);
             _events.ScheduleEvent(EVENT_FADE, 30000);
@@ -294,7 +294,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

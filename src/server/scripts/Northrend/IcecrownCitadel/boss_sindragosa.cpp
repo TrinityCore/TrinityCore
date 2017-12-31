@@ -269,7 +269,7 @@ class boss_sindragosa : public CreatureScript
 
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
                 if (!instance->CheckRequiredBosses(DATA_SINDRAGOSA, victim->ToPlayer()))
                 {
@@ -880,7 +880,7 @@ class npc_rimefang : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
                 DoCast(me, SPELL_FROST_AURA_RIMEFANG, true);
             }

@@ -61,9 +61,9 @@ class boss_broggok : public CreatureScript
                 DoAction(ACTION_RESET_BROGGOK);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
             }
 

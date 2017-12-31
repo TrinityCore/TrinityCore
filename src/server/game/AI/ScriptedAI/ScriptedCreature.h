@@ -184,9 +184,9 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     void Reset() override { }
 
     //Called at creature aggro either by MoveInLOS or Attack Start
-    void EnterCombat(Unit* /*victim*/) override { }
+    void JustEngagedWith(Unit* /*victim*/) override { }
 
-    // Called before EnterCombat even before the creature is in combat.
+    // Called before JustEngagedWith even before the creature is in combat.
     void AttackStart(Unit* /*target*/) override;
 
     // *************
@@ -353,7 +353,7 @@ class TC_GAME_API BossAI : public ScriptedAI
         virtual void ScheduleTasks() { }
 
         void Reset() override { _Reset(); }
-        void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
+        void JustEngagedWith(Unit* /*who*/) override { _JustEngagedWith(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
 
@@ -361,7 +361,7 @@ class TC_GAME_API BossAI : public ScriptedAI
 
     protected:
         void _Reset();
-        void _EnterCombat();
+        void _JustEngagedWith();
         void _JustDied();
         void _JustReachedHome();
         void _DespawnAtEvade(Seconds delayToRespawn, Creature* who = nullptr);
@@ -395,12 +395,12 @@ class TC_GAME_API WorldBossAI : public ScriptedAI
         virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
         void Reset() override { _Reset(); }
-        void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
+        void JustEngagedWith(Unit* /*who*/) override { _JustEngagedWith(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
 
     protected:
         void _Reset();
-        void _EnterCombat();
+        void _JustEngagedWith();
         void _JustDied();
 
         EventMap events;

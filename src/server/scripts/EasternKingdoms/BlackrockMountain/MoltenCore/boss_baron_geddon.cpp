@@ -60,9 +60,9 @@ class boss_baron_geddon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_INFERNO, 45000);
                 events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
                 events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);

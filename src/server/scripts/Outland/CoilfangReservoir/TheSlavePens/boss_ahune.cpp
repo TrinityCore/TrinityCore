@@ -182,9 +182,9 @@ public:
             me->SetControlled(true, UNIT_STATE_ROOT);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_INITIAL_EMERGE, Milliseconds(4));
             events.ScheduleEvent(EVENT_SYNCH_HEALTH, Seconds(3));
         }

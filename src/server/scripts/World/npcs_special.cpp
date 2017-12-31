@@ -287,7 +287,7 @@ public:
             me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -408,7 +408,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void ReceiveEmote(Player* player, uint32 emote) override
         {
@@ -793,7 +793,7 @@ public:
 
         void UpdateAI(uint32 diff) override;
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void QuestAccept(Player* player, Quest const* quest) override
         {
@@ -865,7 +865,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
@@ -1071,7 +1071,7 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(70));
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
@@ -1173,7 +1173,7 @@ public:
             me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -1386,7 +1386,7 @@ public:
         npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void OnPossess(bool apply)
         {
@@ -1439,7 +1439,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void AttackStart(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -2347,7 +2347,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DoAction(int32 /*param*/) override
         {

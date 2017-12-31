@@ -175,9 +175,9 @@ class boss_sapphiron : public CreatureScript
                 damage = me->GetHealth()-1; // don't die during air phase
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 me->CastSpell(me, SPELL_FROST_AURA, true);
 

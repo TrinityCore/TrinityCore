@@ -163,7 +163,7 @@ public:
             instance->SetBossState(DATA_DELRISSA, FAIL);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO);
 
@@ -385,7 +385,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         if (!who)
             return;
@@ -621,7 +621,7 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_SUMMON_IMP);
         }
@@ -929,7 +929,7 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_BATTLE_SHOUT);
         }

@@ -104,9 +104,9 @@ public:
     {
         boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA)  {  }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_WRAP, Seconds(20));
             events.ScheduleEvent(EVENT_SPRAY, Seconds(40));
             events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));

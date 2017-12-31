@@ -173,7 +173,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_BLOOD_QUEEN_LANA_THEL, who->ToPlayer()))
                 {

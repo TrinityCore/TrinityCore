@@ -119,9 +119,9 @@ struct boss_mother_shahraz : public BossAI
         _enraged = false;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_SILENCING_SHRIEK, Seconds(22));
         events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, Seconds(15));

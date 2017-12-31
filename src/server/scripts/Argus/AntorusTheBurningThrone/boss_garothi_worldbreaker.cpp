@@ -219,10 +219,10 @@ struct boss_garothi_worldbreaker : public BossAI
         me->SummonCreatureGroup(SUMMON_GROUP_ID_SURGING_FEL);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetReactState(REACT_AGGRESSIVE);
-        _EnterCombat();
+        _JustEngagedWith();
         Talk(SAY_AGGRO);
         DoCastSelf(SPELL_MELEE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

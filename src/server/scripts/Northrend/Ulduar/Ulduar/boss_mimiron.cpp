@@ -419,12 +419,12 @@ class boss_mimiron : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (!me->GetVehicleBase())
                     return;
 
-                _EnterCombat();
+                _JustEngagedWith();
                 me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveAurasDueToSpell(SPELL_WELD);
                 DoCast(me->GetVehicleBase(), SPELL_SEAT_6);
@@ -1280,7 +1280,7 @@ class npc_mimiron_assault_bot : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_MAGNETIC_FIELD, 14000);
             }

@@ -157,7 +157,7 @@ class boss_lord_marrowgar : public CreatureScript
                 _boneSpikeImmune.clear();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 

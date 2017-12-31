@@ -276,7 +276,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (_dead)
                     return;

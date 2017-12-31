@@ -60,7 +60,7 @@ class boss_koralon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_BURNING_FURY);
 
@@ -69,7 +69,7 @@ class boss_koralon : public CreatureScript
                 events.ScheduleEvent(EVENT_METEOR_FISTS, 75000);    // 1st after 75sec, then every 45sec
                 events.ScheduleEvent(EVENT_FLAME_CINDER, 30000);    /// @todo check timer
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override
@@ -139,7 +139,7 @@ class npc_flame_warder : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
 

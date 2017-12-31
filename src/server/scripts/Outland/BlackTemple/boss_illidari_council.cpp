@@ -143,12 +143,12 @@ struct boss_illidari_council : public BossAI
         DoCastSelf(SPELL_EMPYREAL_BALANCE, true);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         if (!_inCombat)
         {
             _inCombat = true;
-            _EnterCombat();
+            _JustEngagedWith();
             for (uint32 bossData : CouncilData)
             {
                 if (Creature* council = instance->GetCreature(bossData))
@@ -251,7 +251,7 @@ struct IllidariCouncilBossAI : public BossAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);

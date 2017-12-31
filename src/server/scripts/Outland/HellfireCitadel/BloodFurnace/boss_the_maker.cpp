@@ -51,9 +51,9 @@ class boss_the_maker : public CreatureScript
         {
             boss_the_makerAI(Creature* creature) : BossAI(creature, DATA_THE_MAKER) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_ACID_SPRAY, 15000);

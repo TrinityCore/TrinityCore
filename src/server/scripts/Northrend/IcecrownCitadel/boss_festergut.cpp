@@ -113,7 +113,7 @@ class boss_festergut : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
                 {
@@ -312,7 +312,7 @@ class npc_stinky_icc : public CreatureScript
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }

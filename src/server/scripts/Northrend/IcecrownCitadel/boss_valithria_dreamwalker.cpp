@@ -365,7 +365,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 }
                 else if (_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == NOT_STARTED)
                     if (Creature* archmage = me->FindNearestCreature(NPC_RISEN_ARCHMAGE, 30.0f))
-                        archmage->AI()->DoZoneInCombat();   // call EnterCombat on one of them, that will make it all start
+                        archmage->AI()->DoZoneInCombat();   // call JustEngagedWith on one of them, that will make it all start
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -512,7 +512,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void EnterCombat(Unit* target) override
+            void JustEngagedWith(Unit* target) override
             {
                 if (!instance->CheckRequiredBosses(DATA_VALITHRIA_DREAMWALKER, target->ToPlayer()))
                 {
@@ -620,7 +620,7 @@ class npc_the_lich_king_controller : public CreatureScript
                 me->setActive(false);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 Talk(SAY_LICH_KING_INTRO);
                 me->setActive(true);
@@ -704,7 +704,7 @@ class npc_risen_archmage : public CreatureScript
 
             void Initialize()
             {
-                _canCallEnterCombat = true;
+                _canCallJustEngagedWith = true;
             }
 
             bool CanAIAttack(Unit const* target) const override
@@ -721,10 +721,10 @@ class npc_risen_archmage : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 me->FinishSpell(CURRENT_CHANNELED_SPELL, false);
-                if (me->GetSpawnId() && _canCallEnterCombat)
+                if (me->GetSpawnId() && _canCallJustEngagedWith)
                 {
                     std::list<Creature*> archmages;
                     RisenArchmageCheck check;
@@ -746,9 +746,9 @@ class npc_risen_archmage : public CreatureScript
                 if (action != ACTION_ENTER_COMBAT)
                     return;
 
-                _canCallEnterCombat = false;
+                _canCallJustEngagedWith = false;
                 DoZoneInCombat();
-                _canCallEnterCombat = true;
+                _canCallJustEngagedWith = true;
             }
 
             void JustSummoned(Creature* summon) override
@@ -803,7 +803,7 @@ class npc_risen_archmage : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* _instance;
-            bool _canCallEnterCombat;
+            bool _canCallJustEngagedWith;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

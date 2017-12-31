@@ -301,7 +301,7 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
         return ObjectGuid::Empty;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_PORT_TO_COREN);
 
@@ -380,10 +380,10 @@ struct npc_direbrew_antagonist : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         Talk(SAY_ANTAGONIST_COMBAT, who);
-        ScriptedAI::EnterCombat(who);
+        ScriptedAI::JustEngagedWith(who);
     }
 };
 

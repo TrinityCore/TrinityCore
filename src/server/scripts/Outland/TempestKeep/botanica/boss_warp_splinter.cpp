@@ -92,7 +92,7 @@ class npc_warp_splinter_treant : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -171,7 +171,7 @@ class boss_warp_splinter : public CreatureScript
                 me->SetSpeedRate(MOVE_RUN, 0.7f);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }

@@ -171,9 +171,9 @@ class boss_alar : public CreatureScript
                 me->setActive(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->SetDisableGravity(true); // after enterevademode will be set walk movement
                 me->setActive(true);
             }
@@ -510,7 +510,7 @@ class npc_ember_of_alar : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }
@@ -574,7 +574,7 @@ class npc_flame_patch_alar : public CreatureScript
         {
             npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) { }
             void Reset() override { }
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void AttackStart(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
 

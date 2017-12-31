@@ -90,7 +90,7 @@ class boss_doomwalker : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }

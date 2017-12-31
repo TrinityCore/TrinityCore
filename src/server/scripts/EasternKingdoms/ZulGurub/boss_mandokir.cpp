@@ -130,9 +130,9 @@ class boss_mandokir : public CreatureScript
                 _reviveGUID.Clear();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 DoCastAOE(SPELL_BLOODLORD_AURA);
@@ -313,7 +313,7 @@ class npc_ohgan : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCastAOE(SPELL_OHGAN_ORDERS, true);
             }

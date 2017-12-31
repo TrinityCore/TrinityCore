@@ -245,7 +245,7 @@ struct boss_northrend_beastsAI : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);
@@ -418,7 +418,7 @@ struct npc_snobold_vassal : public ScriptedAI
             ScriptedAI::AttackStart(victim);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_CHECK_MOUNT, 3s);
         _events.ScheduleEvent(EVENT_FIRE_BOMB, 12s, 25s);

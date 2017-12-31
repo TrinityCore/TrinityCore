@@ -66,9 +66,9 @@ class boss_sulfuron : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_DARK_STRIKE, 10000);
                 events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 15000);
                 events.ScheduleEvent(EVENT_INSPIRE, 13000);
@@ -156,9 +156,9 @@ class npc_flamewaker_priest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                ScriptedAI::EnterCombat(victim);
+                ScriptedAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_HEAL, urand(15000, 30000));
                 events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 2000);
                 events.ScheduleEvent(EVENT_IMMOLATE, 8000);

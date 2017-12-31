@@ -212,10 +212,10 @@ class boss_xt002 : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
@@ -749,7 +749,7 @@ class npc_life_spark : public CreatureScript
                 _scheduler.CancelAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCastSelf(SPELL_STATIC_CHARGED);
                 _scheduler.Schedule(Seconds(12), [this](TaskContext spellShock)
