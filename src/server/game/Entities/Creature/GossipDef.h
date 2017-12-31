@@ -278,10 +278,10 @@ class TC_GAME_API PlayerMenu
         void SendQuestGiverQuestListMessage(ObjectGuid npcGUID);
 
         void SendQuestQueryResponse(Quest const* quest) const;
-        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const;
+        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const;
 
-        void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const;
-        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool closeOnCancel) const;
+        void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const;
+        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const;
 
         static void AddQuestLevelToTitle(std::string &title, int32 level);
 

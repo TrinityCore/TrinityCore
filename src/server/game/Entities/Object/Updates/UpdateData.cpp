@@ -68,4 +68,3 @@ void UpdateData::Clear()
     m_blockCount = 0;
     m_map = 0;
 }
-

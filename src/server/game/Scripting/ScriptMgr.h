@@ -72,6 +72,7 @@ struct CreatureData;
 struct ItemTemplate;
 struct MapEntry;
 struct OutdoorPvPData;
+struct QuestObjective;
 struct SceneTemplate;
 
 enum BattlegroundTypeId : uint32;
@@ -891,6 +892,20 @@ class TC_GAME_API SceneScript : public ScriptObject
         virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
 };
 
+class TC_GAME_API QuestScript : public ScriptObject
+{
+    protected:
+
+        QuestScript(const char* name);
+
+    public:
+        // Called when a quest status change
+        virtual void OnQuestStatusChange(Player* /*player*/, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus /*newStatus*/) { }
+
+        // Called when a quest objective data change
+        virtual void OnQuestObjectiveChange(Player* /*player*/, Quest const* /*quest*/, QuestObjective const& /*objective*/, int32 /*oldAmount*/, int32 /*newAmount*/) { }
+};
+
 // Manages registration, loading, and execution of scripts.
 class TC_GAME_API ScriptMgr
 {
@@ -1183,6 +1198,11 @@ class TC_GAME_API ScriptMgr
         void OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string const& triggerName);
         void OnSceneCancel(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+
+    public: /* QuestScript */
+
+        void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus);
+        void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount);
 
     private:
         uint32 _scriptCount;

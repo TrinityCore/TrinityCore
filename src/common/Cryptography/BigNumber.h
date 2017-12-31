@@ -99,4 +99,3 @@ class TC_COMMON_API BigNumber
 
 };
 #endif
-

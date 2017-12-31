@@ -53,4 +53,3 @@ inline AI* GetOldHillsbradAI(Creature* creature)
 
 
 #endif
-

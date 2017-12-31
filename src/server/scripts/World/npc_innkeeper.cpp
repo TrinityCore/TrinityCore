@@ -136,4 +136,3 @@ void AddSC_npc_innkeeper()
 {
     new npc_innkeeper();
 }
-

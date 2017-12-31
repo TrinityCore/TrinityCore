@@ -86,4 +86,3 @@ class UpdateData
         UpdateData& operator=(UpdateData const& right) = delete;
 };
 #endif
-

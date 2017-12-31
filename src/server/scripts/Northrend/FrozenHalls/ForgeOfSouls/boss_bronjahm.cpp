@@ -245,7 +245,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
                 if (instance->GetGuidData(DATA_BRONJAHM).GetCounter() != id)
                     return;
 
-                me->CastSpell((Unit*)nullptr, SPELL_CONSUME_SOUL, true);
+                me->CastSpell(nullptr, SPELL_CONSUME_SOUL, true);
                 me->DespawnOrUnsummon();
             }
 

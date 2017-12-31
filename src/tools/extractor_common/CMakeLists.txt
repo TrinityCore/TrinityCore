@@ -15,6 +15,8 @@ CollectSourceFiles(
 add_library(extractor_common STATIC ${PRIVATE_SOURCES})
 
 target_link_libraries(extractor_common
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     casc
     common)

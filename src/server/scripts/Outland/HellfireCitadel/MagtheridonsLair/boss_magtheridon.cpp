@@ -633,4 +633,3 @@ void AddSC_boss_magtheridon()
     new npc_abyssal();
     new go_manticron_cube();
 }
-

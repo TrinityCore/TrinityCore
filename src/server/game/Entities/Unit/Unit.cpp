@@ -124,7 +124,7 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
             break;
     }
 
-    if (m_absorb)
+    if (dmgInfo.HitInfo & (HITINFO_PARTIAL_ABSORB | HITINFO_FULL_ABSORB))
         m_hitMask |= PROC_HIT_ABSORB;
 
     if (dmgInfo.HitInfo & HITINFO_FULL_RESIST)
@@ -133,6 +133,8 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
     if (m_block)
         m_hitMask |= PROC_HIT_BLOCK;
 
+    bool const damageNullified = (dmgInfo.HitInfo & (HITINFO_FULL_ABSORB | HITINFO_FULL_RESIST)) != 0 ||
+        (m_hitMask & (PROC_HIT_IMMUNE | PROC_HIT_FULL_BLOCK)) != 0;
     switch (dmgInfo.hitOutCome)
     {
         case MELEE_HIT_MISS:
@@ -150,10 +152,12 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
         case MELEE_HIT_CRUSHING:
         case MELEE_HIT_GLANCING:
         case MELEE_HIT_NORMAL:
-            m_hitMask |= PROC_HIT_NORMAL;
+            if (!damageNullified)
+                m_hitMask |= PROC_HIT_NORMAL;
             break;
         case MELEE_HIT_CRIT:
-            m_hitMask |= PROC_HIT_CRITICAL;
+            if (!damageNullified)
+                m_hitMask |= PROC_HIT_CRITICAL;
             break;
         default:
             break;
@@ -191,7 +195,10 @@ void DamageInfo::ResistDamage(uint32 amount)
     m_resist += amount;
     m_damage -= amount;
     if (!m_damage)
+    {
         m_hitMask |= PROC_HIT_FULL_RESIST;
+        m_hitMask &= ~(PROC_HIT_NORMAL | PROC_HIT_CRITICAL);
+    }
 }
 
 void DamageInfo::BlockDamage(uint32 amount)
@@ -201,7 +208,10 @@ void DamageInfo::BlockDamage(uint32 amount)
     m_damage -= amount;
     m_hitMask |= PROC_HIT_BLOCK;
     if (!m_damage)
+    {
         m_hitMask |= PROC_HIT_FULL_BLOCK;
+        m_hitMask &= ~(PROC_HIT_NORMAL | PROC_HIT_CRITICAL);
+    }
 }
 
 uint32 DamageInfo::GetHitMask() const
@@ -309,12 +319,9 @@ Unit::Unit(bool isWorldObject) :
 
     m_auraUpdateIterator = m_ownedAuras.end();
 
-    m_interruptMask = 0;
+    m_interruptMask.fill(0);
     m_transform = 0;
     m_canModifyStats = false;
-
-    for (uint8 i = 0; i < MAX_SPELL_IMMUNITY; ++i)
-        m_spellImmune[i].clear();
 
     for (uint8 i = 0; i < UNIT_MOD_END; ++i)
     {
@@ -634,13 +641,15 @@ void Unit::RemoveVisibleAura(AuraApplication* aurApp)
 
 void Unit::UpdateInterruptMask()
 {
-    m_interruptMask = 0;
-    for (AuraApplicationList::const_iterator i = m_interruptableAuras.begin(); i != m_interruptableAuras.end(); ++i)
-        m_interruptMask |= (*i)->GetBase()->GetSpellInfo()->AuraInterruptFlags;
+    m_interruptMask.fill(0);
+    for (AuraApplication const* aurApp : m_interruptableAuras)
+        for (std::size_t i = 0; i < m_interruptMask.size(); ++i)
+            m_interruptMask[i] |= aurApp->GetBase()->GetSpellInfo()->AuraInterruptFlags[i];
 
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if (spell->getState() == SPELL_STATE_CASTING)
-            m_interruptMask |= spell->m_spellInfo->ChannelInterruptFlags;
+            for (std::size_t i = 0; i < m_interruptMask.size(); ++i)
+                m_interruptMask[i] |= spell->m_spellInfo->ChannelInterruptFlags[i];
 }
 
 bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const
@@ -660,7 +669,7 @@ bool Unit::HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura) const
     AuraEffectList const& auras = GetAuraEffectsByType(type);
     for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         if ((!excludeAura || excludeAura != (*itr)->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
-            ((*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_TAKE_DAMAGE))
+            (*itr)->GetSpellInfo()->HasAuraInterruptFlag(AURA_INTERRUPT_FLAG_TAKE_DAMAGE))
             return true;
     return false;
 }
@@ -902,12 +911,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                         }
 
                 if (Spell* spell = victim->m_currentSpells[CURRENT_CHANNELED_SPELL])
-                    if (spell->getState() == SPELL_STATE_CASTING)
-                    {
-                        uint32 channelInterruptFlags = spell->m_spellInfo->ChannelInterruptFlags;
-                        if (((channelInterruptFlags & CHANNEL_FLAG_DELAY) != 0) && (damagetype != DOT))
-                            spell->DelayedChannel();
-                    }
+                    if (spell->getState() == SPELL_STATE_CASTING && spell->m_spellInfo->HasChannelInterruptFlag(CHANNEL_FLAG_DELAY) && damagetype != DOT)
+                        spell->DelayedChannel();
             }
         }
 
@@ -966,7 +971,7 @@ void Unit::CastSpell(Unit* victim, uint32 spellId, bool triggered, Item* castIte
     CastSpell(victim, spellId, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
-void Unit::CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags /*= TRIGGER_NONE*/, Item* castItem /*= NULL*/, AuraEffect const* triggeredByAura /*= NULL*/, ObjectGuid originalCaster /*= ObjectGuid::Empty*/)
+void Unit::CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags /*= TRIGGER_NONE*/, Item* castItem /*= nullptr*/, AuraEffect const* triggeredByAura /*= nullptr*/, ObjectGuid originalCaster /*= ObjectGuid::Empty*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -978,7 +983,7 @@ void Unit::CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags
     CastSpell(victim, spellInfo, triggerFlags, castItem, triggeredByAura, originalCaster);
 }
 
-void Unit::CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem/*= NULL*/, AuraEffect const* triggeredByAura /*= NULL*/, ObjectGuid originalCaster /*= ObjectGuid::Empty*/)
+void Unit::CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem/*= nullptr*/, AuraEffect const* triggeredByAura /*= nullptr*/, ObjectGuid originalCaster /*= ObjectGuid::Empty*/)
 {
     CastSpell(victim, spellInfo, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
@@ -987,7 +992,7 @@ void Unit::CastSpell(Unit* victim, SpellInfo const* spellInfo, TriggerCastFlags 
 {
     SpellCastTargets targets;
     targets.SetUnitTarget(victim);
-    CastSpell(targets, spellInfo, NULL, triggerFlags, castItem, triggeredByAura, originalCaster);
+    CastSpell(targets, spellInfo, nullptr, triggerFlags, castItem, triggeredByAura, originalCaster);
 }
 
 void Unit::CastCustomSpell(Unit* target, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster)
@@ -1041,7 +1046,21 @@ void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, 
     SpellCastTargets targets;
     targets.SetDst(x, y, z, GetOrientation());
 
-    CastSpell(targets, spellInfo, NULL, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+    CastSpell(targets, spellInfo, nullptr, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+}
+
+void Unit::CastSpell(float x, float y, float z, uint32 spellId, TriggerCastFlags triggerFlags, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster)
+{
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    if (!spellInfo)
+    {
+        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell id %u by caster: %s", spellId, GetGUID().ToString().c_str());
+        return;
+    }
+    SpellCastTargets targets;
+    targets.SetDst(x, y, z, GetOrientation());
+
+    CastSpell(targets, spellInfo, nullptr, triggerFlags, castItem, triggeredByAura, originalCaster);
 }
 
 void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castItem, AuraEffect* triggeredByAura, ObjectGuid originalCaster)
@@ -1055,7 +1074,7 @@ void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castI
     SpellCastTargets targets;
     targets.SetGOTarget(go);
 
-    CastSpell(targets, spellInfo, NULL, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+    CastSpell(targets, spellInfo, nullptr, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
 void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit)
@@ -1161,7 +1180,6 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilit
         return;
 
     Unit* victim = damageInfo->target;
-
     if (!victim)
         return;
 
@@ -1446,47 +1464,48 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
         AuraEffectList vDamageShieldsCopy(victim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD));
-        for (AuraEffectList::const_iterator dmgShieldItr = vDamageShieldsCopy.begin(); dmgShieldItr != vDamageShieldsCopy.end(); ++dmgShieldItr)
+        for (AuraEffect const* aurEff : vDamageShieldsCopy)
         {
-            SpellInfo const* i_spellProto = (*dmgShieldItr)->GetSpellInfo();
+            SpellInfo const* spellInfo = aurEff->GetSpellInfo();
+
             // Damage shield can be resisted...
-            if (SpellMissInfo missInfo = victim->SpellHitResult(this, i_spellProto, false))
+            SpellMissInfo missInfo = victim->SpellHitResult(this, spellInfo, false);
+            if (missInfo != SPELL_MISS_NONE)
             {
-                victim->SendSpellMiss(this, i_spellProto->Id, missInfo);
+                victim->SendSpellMiss(this, spellInfo->Id, missInfo);
                 continue;
             }
 
             // ...or immuned
-            if (IsImmunedToDamage(i_spellProto))
+            if (IsImmunedToDamage(spellInfo))
             {
-                victim->SendSpellDamageImmune(this, i_spellProto->Id, false);
+                victim->SendSpellDamageImmune(this, spellInfo->Id, false);
                 continue;
             }
 
-            uint32 damage = (*dmgShieldItr)->GetAmount();
-
-            if (Unit* caster = (*dmgShieldItr)->GetCaster())
+            uint32 damage = aurEff->GetAmount();
+            if (Unit* caster = aurEff->GetCaster())
             {
-                damage = caster->SpellDamageBonusDone(this, i_spellProto, damage, SPELL_DIRECT_DAMAGE, (*dmgShieldItr)->GetSpellEffectInfo());
-                damage = this->SpellDamageBonusTaken(caster, i_spellProto, damage, SPELL_DIRECT_DAMAGE, (*dmgShieldItr)->GetSpellEffectInfo());
+                damage = caster->SpellDamageBonusDone(this, spellInfo, damage, SPELL_DIRECT_DAMAGE, aurEff->GetSpellEffectInfo());
+                damage = this->SpellDamageBonusTaken(caster, spellInfo, damage, SPELL_DIRECT_DAMAGE, aurEff->GetSpellEffectInfo());
             }
 
-            DamageInfo damageInfo(this, victim, damage, i_spellProto, i_spellProto->GetSchoolMask(), SPELL_DIRECT_DAMAGE, BASE_ATTACK);
+            DamageInfo damageInfo(this, victim, damage, spellInfo, spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, BASE_ATTACK);
             victim->CalcAbsorbResist(damageInfo);
             damage = damageInfo.GetDamage();
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
-            victim->DealDamageMods(this, damage, NULL);
+            victim->DealDamageMods(this, damage, nullptr);
 
             WorldPackets::CombatLog::SpellDamageShield damageShield;
             damageShield.Attacker = victim->GetGUID();
             damageShield.Defender = GetGUID();
-            damageShield.SpellID = i_spellProto->Id;
+            damageShield.SpellID = spellInfo->Id;
             damageShield.TotalDamage = damage;
             damageShield.OverKill = std::max(int32(damage) - int32(GetHealth()), 0);
-            damageShield.SchoolMask = i_spellProto->SchoolMask;
+            damageShield.SchoolMask = spellInfo->SchoolMask;
             damageShield.LogAbsorbed = damageInfo.GetAbsorb();
 
-            victim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, i_spellProto->GetSchoolMask(), i_spellProto, true);
+            victim->DealDamage(this, damage, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
 
             damageShield.LogData.Initialize(this);
             victim->SendCombatLogMessage(&damageShield);
@@ -2209,7 +2228,7 @@ void Unit::SendMeleeAttackStop(Unit* victim)
 bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType)
 {
     // These spells can't be blocked
-    if (spellProto && spellProto->HasAttribute(SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK))
+    if (spellProto && (spellProto->HasAttribute(SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK) || spellProto->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT)))
         return false;
 
     // Can't block when casting/controlled
@@ -2274,11 +2293,6 @@ bool Unit::CanUseAttackType(uint8 attacktype) const
 // Melee based spells hit result calculations
 SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const
 {
-    // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will additionally fully ignore
-    // resist and deflect chances
-    if (spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
-        return SPELL_MISS_NONE;
-
     WeaponAttackType attType = BASE_ATTACK;
 
     // Check damage class instead of attack type to correctly handle judgements
@@ -2418,7 +2432,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const
 {
     // Can`t miss on dead target (on skinning for example)
-    if ((!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER) || spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+    if ((!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER))
         return SPELL_MISS_NONE;
 
     SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
@@ -2503,18 +2517,22 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 //   Resist
 SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool CanReflect)
 {
+    if (spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+        return SPELL_MISS_NONE;
+
     // Check for immune
     if (victim->IsImmunedToSpell(spellInfo))
+        return SPELL_MISS_IMMUNE;
+
+    // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
+    // returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
+    if (spellInfo->HasOnlyDamageEffects() && victim->IsImmunedToDamage(spellInfo))
         return SPELL_MISS_IMMUNE;
 
     // All positive spells can`t miss
     /// @todo client not show miss log for this spells - so need find info for this in dbc and use it!
     if (spellInfo->IsPositive() && !IsHostileTo(victim)) // prevent from affecting enemy by "positive" spell
         return SPELL_MISS_NONE;
-
-    // Check for immune
-    if (victim->IsImmunedToDamage(spellInfo))
-        return SPELL_MISS_IMMUNE;
 
     if (this == victim)
         return SPELL_MISS_NONE;
@@ -3024,10 +3042,13 @@ int32 Unit::GetCurrentSpellCastTime(uint32 spell_id) const
 bool Unit::CanMoveDuringChannel() const
 {
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-        if (spell->getState() != SPELL_STATE_FINISHED)
-            return spell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING) && spell->IsChannelActive();
+    {
+        if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
+            if (!spell->GetSpellInfo()->IsMoveAllowedChannel())
+                return false;
+    }
 
-    return false;
+    return true;
 }
 
 bool Unit::isInFrontInMap(Unit const* target, float distance,  float arc) const
@@ -3236,7 +3257,7 @@ AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint32 effMask)
     AuraApplication * aurApp = new AuraApplication(this, caster, aura, effMask);
     m_appliedAuras.insert(AuraApplicationMap::value_type(aurId, aurApp));
 
-    if (aurSpellInfo->AuraInterruptFlags)
+    if (aurSpellInfo->HasAnyAuraInterruptFlag())
     {
         m_interruptableAuras.push_back(aurApp);
         AddInterruptMask(aurSpellInfo->AuraInterruptFlags);
@@ -3280,7 +3301,7 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask)
         return;
 
     // Sitdown on apply aura req seated
-    if (aura->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !IsSitState())
+    if (aura->GetSpellInfo()->HasAuraInterruptFlag(AURA_INTERRUPT_FLAG_NOT_SEATED) && !IsSitState())
         SetStandState(UNIT_STAND_STATE_SIT);
 
     Unit* caster = aura->GetCaster();
@@ -3321,7 +3342,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     // Remove all pointers from lists here to prevent possible pointer invalidation on spellcast/auraapply/auraremove
     m_appliedAuras.erase(i);
 
-    if (aura->GetSpellInfo()->AuraInterruptFlags)
+    if (aura->GetSpellInfo()->HasAnyAuraInterruptFlag())
     {
         m_interruptableAuras.remove(aurApp);
         UpdateInterruptMask();
@@ -3899,9 +3920,10 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
     }
 }
 
-void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
+template <typename InterruptFlags>
+void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, uint32 except)
 {
-    if (!(m_interruptMask & flag))
+    if (!(m_interruptMask[AuraInterruptFlagIndex<InterruptFlags>::value] & flag))
         return;
 
     // interrupt auras
@@ -3909,7 +3931,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
     {
         Aura* aura = (*iter)->GetBase();
         ++iter;
-        if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except)
+        if (aura->GetSpellInfo()->AuraInterruptFlags[AuraInterruptFlagIndex<InterruptFlags>::value] & flag && (!except || aura->GetId() != except)
             && !(flag & AURA_INTERRUPT_FLAG_MOVE && HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, aura->GetSpellInfo())))
         {
             uint32 removedAuras = m_removedAurasCount;
@@ -3922,13 +3944,16 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
     // interrupt channeled spell
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if (spell->getState() == SPELL_STATE_CASTING
-            && (spell->m_spellInfo->ChannelInterruptFlags & flag)
-            && spell->m_spellInfo->Id != except
+            && (spell->GetSpellInfo()->ChannelInterruptFlags[AuraInterruptFlagIndex<InterruptFlags>::value] & flag)
+            && spell->GetSpellInfo()->Id != except
             && !(flag & AURA_INTERRUPT_FLAG_MOVE && HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, spell->GetSpellInfo())))
             InterruptNonMeleeSpells(false);
 
     UpdateInterruptMask();
 }
+
+template TC_GAME_API void Unit::RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags flag, uint32 except);
+template TC_GAME_API void Unit::RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2 flag, uint32 except);
 
 void Unit::RemoveAurasWithFamily(SpellFamilyNames family, flag128 const& familyFlag, ObjectGuid casterGUID)
 {
@@ -4369,17 +4394,22 @@ bool Unit::HasAuraTypeWithValue(AuraType auratype, int32 value) const
     return false;
 }
 
-bool Unit::HasNegativeAuraWithInterruptFlag(uint32 flag, ObjectGuid guid) const
+template <typename InterruptFlags>
+bool Unit::HasNegativeAuraWithInterruptFlag(InterruptFlags flag, ObjectGuid guid) const
 {
-    if (!(m_interruptMask & flag))
+    if (!(m_interruptMask[AuraInterruptFlagIndex<InterruptFlags>::value] & flag))
         return false;
+
     for (AuraApplicationList::const_iterator iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end(); ++iter)
-    {
-        if (!(*iter)->IsPositive() && (*iter)->GetBase()->GetSpellInfo()->AuraInterruptFlags & flag && (!guid || (*iter)->GetBase()->GetCasterGUID() == guid))
+        if (!(*iter)->IsPositive() && (*iter)->GetBase()->GetSpellInfo()->AuraInterruptFlags[AuraInterruptFlagIndex<InterruptFlags>::value] & flag &&
+            (!guid || (*iter)->GetBase()->GetCasterGUID() == guid))
             return true;
-    }
+
     return false;
 }
+
+template TC_GAME_API bool Unit::HasNegativeAuraWithInterruptFlag(SpellAuraInterruptFlags flag, ObjectGuid guid) const;
+template TC_GAME_API bool Unit::HasNegativeAuraWithInterruptFlag(SpellAuraInterruptFlags2 flag, ObjectGuid guid) const;
 
 bool Unit::HasNegativeAuraWithAttribute(uint32 flag, ObjectGuid guid) const
 {
@@ -7161,18 +7191,18 @@ int32 Unit::SpellBaseHealingBonusTaken(SpellSchoolMask schoolMask) const
     return advertisedBenefit;
 }
 
-bool Unit::IsImmunedToDamage(SpellSchoolMask shoolMask) const
+bool Unit::IsImmunedToDamage(SpellSchoolMask schoolMask) const
 {
     // If m_immuneToSchool type contain this school type, IMMUNE damage.
-    SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
-    for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
-        if (itr->type & shoolMask)
+    SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
+    for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
+        if ((itr->first & schoolMask) != 0)
             return true;
 
     // If m_immuneToDamage type contain magic, IMMUNE damage.
-    SpellImmuneList const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
-    for (SpellImmuneList::const_iterator itr = damageList.begin(); itr != damageList.end(); ++itr)
-        if (itr->type & shoolMask)
+    SpellImmuneContainer const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
+    for (auto itr = damageList.begin(); itr != damageList.end(); ++itr)
+        if ((itr->first & schoolMask) != 0)
             return true;
 
     return false;
@@ -7180,23 +7210,23 @@ bool Unit::IsImmunedToDamage(SpellSchoolMask shoolMask) const
 
 bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
 {
-    if (spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+    if (!spellInfo)
         return false;
 
-    uint32 shoolMask = spellInfo->GetSchoolMask();
-    if (spellInfo->Id != 42292 && spellInfo->Id != 59752)
-    {
-        // If m_immuneToSchool type contain this school type, IMMUNE damage.
-        SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
-        for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
-            if (itr->type & shoolMask && !spellInfo->CanPierceImmuneAura(sSpellMgr->GetSpellInfo(itr->spellId)))
-                return true;
-    }
+    if (spellInfo->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) || spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
+        return false;
+
+    uint32 schoolMask = spellInfo->GetSchoolMask();
+    // If m_immuneToSchool type contain this school type, IMMUNE damage.
+    SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
+    for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
+        if ((itr->first & schoolMask) && !spellInfo->CanPierceImmuneAura(sSpellMgr->GetSpellInfo(itr->second)))
+            return true;
 
     // If m_immuneToDamage type contain magic, IMMUNE damage.
-    SpellImmuneList const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
-    for (SpellImmuneList::const_iterator itr = damageList.begin(); itr != damageList.end(); ++itr)
-        if (itr->type & shoolMask)
+    SpellImmuneContainer const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
+    for (auto itr = damageList.begin(); itr != damageList.end(); ++itr)
+        if ((itr->first & schoolMask) != 0)
             return true;
 
     return false;
@@ -7208,29 +7238,26 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
         return false;
 
     // Single spell immunity.
-    SpellImmuneList const& idList = m_spellImmune[IMMUNITY_ID];
-    for (SpellImmuneList::const_iterator itr = idList.begin(); itr != idList.end(); ++itr)
-        if (itr->type == spellInfo->Id)
-            return true;
+    SpellImmuneContainer const& idList = m_spellImmune[IMMUNITY_ID];
+    if (idList.count(spellInfo->Id) > 0)
+        return true;
 
     if (spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
         return false;
 
-    if (spellInfo->Dispel)
+    if (uint32 dispel = spellInfo->Dispel)
     {
-        SpellImmuneList const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
-        for (SpellImmuneList::const_iterator itr = dispelList.begin(); itr != dispelList.end(); ++itr)
-            if (itr->type == spellInfo->Dispel)
-                return true;
+        SpellImmuneContainer const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
+        if (dispelList.count(dispel) > 0)
+            return true;
     }
 
     // Spells that don't have effectMechanics.
-    if (spellInfo->Mechanic)
+    if (uint32 mechanic = spellInfo->Mechanic)
     {
-        SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
-        for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
-            if (itr->type == spellInfo->Mechanic)
-                return true;
+        SpellImmuneContainer const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+        if (mechanicList.count(mechanic) > 0)
+            return true;
     }
 
     bool immuneToAllEffects = true;
@@ -7238,7 +7265,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
     {
         // State/effect immunities applied by aura expect full spell immunity
         // Ignore effects with mechanic, they are supposed to be checked separately
-        if (!effect || !effect->IsEffect())
+        if (!effect)
             continue;
         if (!IsImmunedToSpellEffect(spellInfo, effect->EffectIndex))
         {
@@ -7250,13 +7277,13 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
     if (immuneToAllEffects) //Return immune only if the target is immune to all spell effects.
         return true;
 
-    if (spellInfo->Id != 42292 && spellInfo->Id != 59752)
+    if (!spellInfo->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
     {
-        SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
-        for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
+        SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
+        for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
         {
-            SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->spellId);
-            if ((itr->type & spellInfo->GetSchoolMask())
+            SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->second);
+            if ((itr->first & spellInfo->GetSchoolMask())
                 && !(immuneSpellInfo && immuneSpellInfo->IsPositive() && spellInfo->IsPositive())
                 && !spellInfo->CanPierceImmuneAura(immuneSpellInfo))
                 return true;
@@ -7269,9 +7296,9 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
 uint32 Unit::GetSchoolImmunityMask() const
 {
     uint32 mask = 0;
-    SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_SCHOOL];
-    for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
-        mask |= itr->type;
+    SpellImmuneContainer const& mechanicList = m_spellImmune[IMMUNITY_SCHOOL];
+    for (auto itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
+        mask |= itr->first;
 
     return mask;
 }
@@ -7279,9 +7306,9 @@ uint32 Unit::GetSchoolImmunityMask() const
 uint32 Unit::GetMechanicImmunityMask() const
 {
     uint32 mask = 0;
-    SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
-    for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
-        mask |= (1 << itr->type);
+    SpellImmuneContainer const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+    for (auto itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
+        mask |= (1 << itr->first);
 
     return mask;
 }
@@ -7292,7 +7319,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
         return false;
 
     SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), index);
-    if (!effect || !effect->IsEffect())
+    if (!effect)
         return false;
 
     if (spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
@@ -7300,33 +7327,35 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
 
     // If m_immuneToEffect type contain this effect type, IMMUNE effect.
     uint32 eff = effect->Effect;
-    SpellImmuneList const& effectList = m_spellImmune[IMMUNITY_EFFECT];
-    for (SpellImmuneList::const_iterator itr = effectList.begin(); itr != effectList.end(); ++itr)
-        if (itr->type == eff)
-            return true;
+    auto const& effectList = m_spellImmune[IMMUNITY_EFFECT];
+    if (effectList.count(eff) > 0)
+        return true;
 
     if (uint32 mechanic = effect->Mechanic)
     {
-        SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
-        for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
-            if (itr->type == mechanic)
-                return true;
+        auto const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+        if (mechanicList.count(mechanic) > 0)
+            return true;
     }
 
-    if (uint32 aura = effect->ApplyAuraName)
+    if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
     {
-        SpellImmuneList const& list = m_spellImmune[IMMUNITY_STATE];
-        for (SpellImmuneList::const_iterator itr = list.begin(); itr != list.end(); ++itr)
-            if (itr->type == aura)
-                if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
-                    return true;
-
-        // Check for immune to application of harmful magical effects
-        AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
-        for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
-            if (((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&  // Check school
-                !spellInfo->IsPositiveEffect(index))                                  // Harmful
+        if (uint32 aura = effect->ApplyAuraName)
+        {
+            SpellImmuneContainer const& list = m_spellImmune[IMMUNITY_STATE];
+            if (list.count(aura) > 0)
                 return true;
+
+            if (!spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
+            {
+                // Check for immune to application of harmful magical effects
+                AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
+                for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
+                    if (((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&  // Check school
+                        !spellInfo->IsPositiveEffect(index))                       // Harmful
+                        return true;
+            }
+        }
     }
 
     return false;
@@ -7529,52 +7558,14 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
 void Unit::ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply)
 {
     if (apply)
-    {
-        for (SpellImmuneList::iterator itr = m_spellImmune[op].begin(), next; itr != m_spellImmune[op].end(); itr = next)
-        {
-            next = itr; ++next;
-            if (itr->type == type)
-            {
-                m_spellImmune[op].erase(itr);
-                next = m_spellImmune[op].begin();
-            }
-        }
-        SpellImmune Immune;
-        Immune.spellId = spellId;
-        Immune.type = type;
-        m_spellImmune[op].push_back(Immune);
-    }
+        m_spellImmune[op].emplace(type, spellId);
     else
     {
-        for (SpellImmuneList::iterator itr = m_spellImmune[op].begin(); itr != m_spellImmune[op].end(); ++itr)
+        auto bounds = m_spellImmune[op].equal_range(type);
+        for (auto itr = bounds.first; itr != bounds.second;)
         {
-            if (itr->spellId == spellId && itr->type == type)
-            {
-                m_spellImmune[op].erase(itr);
-                break;
-            }
-        }
-    }
-}
-
-void Unit::ApplySpellDispelImmunity(const SpellInfo* spellProto, DispelType type, bool apply)
-{
-    ApplySpellImmune(spellProto->Id, IMMUNITY_DISPEL, type, apply);
-
-    if (apply && spellProto->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-    {
-        // Create dispel mask by dispel type
-        uint32 dispelMask = SpellInfo::GetDispelMask(type);
-        // Dispel all existing auras vs current dispel type
-        AuraApplicationMap& auras = GetAppliedAuras();
-        for (AuraApplicationMap::iterator itr = auras.begin(); itr != auras.end();)
-        {
-            SpellInfo const* spell = itr->second->GetBase()->GetSpellInfo();
-            if (spell->GetDispelMask() & dispelMask)
-            {
-                // Dispel aura
-                RemoveAura(itr);
-            }
+            if (itr->second == spellId)
+                itr = m_spellImmune[op].erase(itr);
             else
                 ++itr;
         }
@@ -7693,11 +7684,27 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     if (!capabilities)
         return nullptr;
 
-    uint32 zoneId, areaId;
-    GetZoneAndAreaId(zoneId, areaId);
+    uint32 areaId = GetAreaId();
     uint32 ridingSkill = 5000;
+    uint32 mountFlags = 0;
+    bool isSubmerged = false;
+    bool isInWater = false;
+
     if (GetTypeId() == TYPEID_PLAYER)
         ridingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
+
+    if (HasAuraType(SPELL_AURA_MOUNT_RESTRICTIONS))
+    {
+        for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOUNT_RESTRICTIONS))
+            mountFlags |= auraEffect->GetMiscValue();
+    }
+    else if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(areaId))
+        mountFlags = areaTable->MountFlags;
+
+    LiquidData liquid;
+    ZLiquidStatus liquidStatus = GetMap()->getLiquidStatus(GetPositionX(), GetPositionY(), GetPositionZ(), MAP_ALL_LIQUIDS, &liquid);
+    isSubmerged = (liquidStatus & LIQUID_MAP_UNDER_WATER) != 0 || HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    isInWater = (liquidStatus & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
 
     for (MountTypeXCapabilityEntry const* mountTypeXCapability : *capabilities)
     {
@@ -7708,32 +7715,50 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         if (ridingSkill < mountCapability->RequiredRidingSkill)
             continue;
 
-        if (HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
+        if (!(mountCapability->Flags & MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS))
         {
-            if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_CAN_PITCH))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND && !(mountFlags & AREA_MOUNT_FLAG_GROUND_ALLOWED))
                 continue;
-        }
-        else if (HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
-        {
-            if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_CAN_SWIM))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLYING && !(mountFlags & AREA_MOUNT_FLAG_FLYING_ALLOWED))
                 continue;
-        }
-        else if (!(mountCapability->Flags & 0x1))   // unknown flags, checked in 4.2.2 14545 client
-        {
-            if (!(mountCapability->Flags & 0x2))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT && !(mountFlags & AREA_MOUNT_FLAG_FLOAT_ALLOWED))
+                continue;
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER && !(mountFlags & AREA_MOUNT_FLAG_UNDERWATER_ALLOWED))
                 continue;
         }
 
-        if (mountCapability->RequiredMap != -1 && int32(GetMapId()) != mountCapability->RequiredMap)
+        if (!isSubmerged)
+        {
+            if (!isInWater)
+            {
+                // player is completely out of water
+                if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND))
+                    continue;
+            }
+            else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
+                continue;
+        }
+        else if (isInWater)
+        {
+            if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
+                continue;
+        }
+        else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT))
             continue;
 
-        if (mountCapability->RequiredArea && (mountCapability->RequiredArea != zoneId && mountCapability->RequiredArea != areaId))
+        if (mountCapability->RequiredMap != -1 &&
+            int32(GetMapId()) != mountCapability->RequiredMap &&
+            GetMap()->GetEntry()->CosmeticParentMapID != mountCapability->RequiredMap &&
+            GetMap()->GetEntry()->ParentMapID != mountCapability->RequiredMap)
+            continue;
+
+        if (mountCapability->RequiredArea && !DB2Manager::IsInArea(areaId, mountCapability->RequiredArea))
             continue;
 
         if (mountCapability->RequiredAura && !HasAura(mountCapability->RequiredAura))
             continue;
 
-        if (mountCapability->RequiredSpell && (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->HasSpell(mountCapability->RequiredSpell)))
+        if (mountCapability->RequiredSpell && !HasSpell(mountCapability->RequiredSpell))
             continue;
 
         return mountCapability;
@@ -8208,15 +8233,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     }
 
     return gain;
-}
-
-// returns negative amount on power reduction
-int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
-{
-    float amount = (float)GetMaxPower(power);
-    ApplyPercentModFloatVar(amount, pct, apply);
-
-    return ModifyPower(power, (int32)amount - GetMaxPower(power));
 }
 
 bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
@@ -9260,8 +9276,21 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_RAGE:
         case UNIT_MOD_FOCUS:
         case UNIT_MOD_ENERGY:
-        case UNIT_MOD_RUNE:
-        case UNIT_MOD_RUNIC_POWER:          UpdateMaxPower(GetPowerTypeByAuraGroup(unitMod));          break;
+        case UNIT_MOD_COMBO_POINTS:
+        case UNIT_MOD_RUNES:
+        case UNIT_MOD_RUNIC_POWER:
+        case UNIT_MOD_SOUL_SHARDS:
+        case UNIT_MOD_ECLIPSE:
+        case UNIT_MOD_HOLY_POWER:
+        case UNIT_MOD_ALTERNATIVE:
+        case UNIT_MOD_MAELSTROM:
+        case UNIT_MOD_CHI:
+        case UNIT_MOD_INSANITY:
+        case UNIT_MOD_BURNING_EMBERS:
+        case UNIT_MOD_DEMONIC_FURY:
+        case UNIT_MOD_ARCANE_CHARGES:
+        case UNIT_MOD_FURY:
+        case UNIT_MOD_PAIN:                UpdateMaxPower(Powers(unitMod - UNIT_MOD_POWER_START));     break;
 
         case UNIT_MOD_RESISTANCE_HOLY:
         case UNIT_MOD_RESISTANCE_FIRE:
@@ -9278,6 +9307,7 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_DAMAGE_RANGED:       UpdateDamagePhysical(RANGED_ATTACK);  break;
 
         default:
+            ASSERT(false, "Not implemented UnitMod %u", unitMod);
             break;
     }
 
@@ -9369,20 +9399,6 @@ Stats Unit::GetStatByAuraGroup(UnitMods unitMod) const
     }
 
     return stat;
-}
-
-Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
-{
-    switch (unitMod)
-    {
-        case UNIT_MOD_RAGE:        return POWER_RAGE;
-        case UNIT_MOD_FOCUS:       return POWER_FOCUS;
-        case UNIT_MOD_ENERGY:      return POWER_ENERGY;
-        case UNIT_MOD_RUNE:        return POWER_RUNES;
-        case UNIT_MOD_RUNIC_POWER: return POWER_RUNIC_POWER;
-        default:
-        case UNIT_MOD_MANA:        return POWER_MANA;
-    }
 }
 
 float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
@@ -10235,6 +10251,11 @@ void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplica
 
 void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& aurasTriggeringProc)
 {
+    Spell const* triggeringSpell = eventInfo.GetProcSpell();
+    bool const disableProcs = triggeringSpell && triggeringSpell->IsProcDisabled();
+    if (disableProcs)
+        SetCantProc(true);
+
     for (auto const& aurAppProc : aurasTriggeringProc)
     {
         AuraApplication* aurApp;
@@ -10253,6 +10274,9 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
         if (spellInfo->HasAttribute(SPELL_ATTR3_DISABLE_PROC))
             SetCantProc(false);
     }
+
+    if (disableProcs)
+        SetCantProc(false);
 }
 
 SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
@@ -11804,8 +11828,9 @@ bool Unit::IsInPartyWith(Unit const* unit) const
     else if ((u2->GetTypeId() == TYPEID_PLAYER && u1->GetTypeId() == TYPEID_UNIT && u1->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) ||
         (u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_UNIT && u2->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))
         return true;
-    else
-        return false;
+
+    // else u1->GetTypeId() == u2->GetTypeId() == TYPEID_UNIT
+    return u1->getFaction() == u2->getFaction();
 }
 
 bool Unit::IsInRaidWith(Unit const* unit) const
@@ -11823,8 +11848,9 @@ bool Unit::IsInRaidWith(Unit const* unit) const
     else if ((u2->GetTypeId() == TYPEID_PLAYER && u1->GetTypeId() == TYPEID_UNIT && u1->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) ||
             (u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_UNIT && u2->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))
         return true;
-    else
-        return false;
+
+    // else u1->GetTypeId() == u2->GetTypeId() == TYPEID_UNIT
+    return u1->getFaction() == u2->getFaction();
 }
 
 void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)

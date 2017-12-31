@@ -68,7 +68,7 @@ enum RBACPermissions
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_CLASSMASK        = 15,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK         = 16,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME     = 17,
-    RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT     = 18,
+    RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT     = 18,  // deprecated since Draenor DON'T reuse
     RBAC_PERM_SKIP_CHECK_CHAT_CHANNEL_REQ                    = 19,
     RBAC_PERM_SKIP_CHECK_DISABLE_MAP                         = 20,
     RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED           = 21,
@@ -765,13 +765,17 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP                     = 858, // reserved for dynamic_spawning
     RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP                   = 859, // reserved for dynamic_spawning
     RBAC_PERM_COMMAND_LIST_RESPAWNS                          = 860, // reserved for dynamic_spawning
-    RBAC_PERM_COMMAND_GROUP_SET                              = 861, // reserved 
-    RBAC_PERM_COMMAND_GROUP_ASSISTANT                        = 862, // reserved 
-    RBAC_PERM_COMMAND_GROUP_MAINTANK                         = 863, // reserved 
-    RBAC_PERM_COMMAND_GROUP_MAINASSIST                       = 864, // reserved 
-    RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865, // reserved 
-    RBAC_PERM_COMMAND_LIST_SPAWNPOINTS                       = 866, // reserved 
-    RBAC_PERM_COMMAND_MODIFY_POWER                           = 867,
+    RBAC_PERM_COMMAND_GROUP_SET                              = 861, // reserved
+    RBAC_PERM_COMMAND_GROUP_ASSISTANT                        = 862, // reserved
+    RBAC_PERM_COMMAND_GROUP_MAINTANK                         = 863, // reserved
+    RBAC_PERM_COMMAND_GROUP_MAINASSIST                       = 864, // reserved
+    RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865, // reserved
+    RBAC_PERM_COMMAND_LIST_SPAWNPOINTS                       = 866, // reserved
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING_LOCALE           = 867, // reserved
+    RBAC_PERM_COMMAND_MODIFY_POWER                           = 868,
+    //
+    // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
+    //
     // custom permissions 1000+
     RBAC_PERM_MAX
 };
