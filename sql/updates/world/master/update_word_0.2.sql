@@ -96,28 +96,6 @@ UPDATE `creature_addon` SET `emote` = 461 WHERE (guid = 20546698);
 INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES ('20546786', '483');
 INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES ('20546837', '483');
 INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES ('20546823', '483');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '483');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
-INSERT IGNORE INTO `creature_addon` (`guid`, `emote`) VALUES (' ', '  ');
 
 
 -- Table `creature_template_addon` 
