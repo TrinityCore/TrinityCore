@@ -1035,8 +1035,6 @@ class TC_GAME_API Unit : public WorldObject
         bool IsInCombatWith(Unit const* who) const { return who && m_combatManager.IsInCombatWith(who); }
         void SetInCombatWith(Unit* enemy) { if (enemy) m_combatManager.SetInCombatWith(enemy); }
         void ClearInCombat() { m_combatManager.EndAllCombat(); }
-        // returns true if the combat state was changed as a result
-        bool UpdateCombatState();
         void UpdatePetCombatState();
         // Threat handling
         bool IsThreatened() const;
@@ -1764,8 +1762,6 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;
 
-        ThreatManager m_threatManager;
-
         Vehicle* m_vehicle;
         Vehicle* m_vehicleKit;
 
@@ -1779,6 +1775,9 @@ class TC_GAME_API Unit : public WorldObject
 
         void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
         virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
+
+        virtual void AtEnterCombat() { }
+        virtual void AtExitCombat();
 
     private:
 
@@ -1804,7 +1803,10 @@ class TC_GAME_API Unit : public WorldObject
 
         DiminishingReturn m_Diminishing[DIMINISHING_MAX];
         // Manage all Units that are threatened by us
+        friend class CombatManager;
         CombatManager m_combatManager;
+        friend class ThreatManager;
+        ThreatManager m_threatManager;
 
         FollowerRefManager m_FollowingRefManager;
 

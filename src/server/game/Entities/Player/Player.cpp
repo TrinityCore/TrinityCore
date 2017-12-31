@@ -683,7 +683,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     }
     // all item positions resolved
 
-    m_threatManager.Initialize();
+    GetThreatManager().Initialize();
 
     return true;
 }
@@ -24094,6 +24094,19 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidDat
     }
     else
         m_MirrorTimerFlags &= ~(UNDERWATER_INWATER | UNDERWATER_INLAVA | UNDERWATER_INSLIME | UNDERWATER_INDARKWATER);
+}
+
+void Player::AtExitCombat()
+{
+    Unit::AtExitCombat();
+    UpdatePotionCooldown();
+
+    if (getClass() == CLASS_DEATH_KNIGHT)
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
+        {
+            SetRuneTimer(i, 0xFFFFFFFF);
+            SetLastRuneGraceTimer(i, 0);
+        }
 }
 
 void Player::SetCanParry(bool value)

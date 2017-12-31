@@ -130,6 +130,7 @@ class TC_GAME_API CombatManager
         static void NotifyAICombat(Unit* me, Unit* other);
         void PutReference(ObjectGuid const& guid, CombatReference* ref);
         void PurgeReference(ObjectGuid const& guid, bool pvp);
+        bool UpdateOwnerCombatState() const;
         Unit* const _owner;
         std::unordered_map<ObjectGuid, CombatReference*> _pveRefs;
         std::unordered_map<ObjectGuid, PvPCombatReference*> _pvpRefs;

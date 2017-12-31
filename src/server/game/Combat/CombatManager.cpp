@@ -75,8 +75,8 @@ void CombatReference::EndCombat()
     second->GetCombatManager().PurgeReference(first->GetGUID(), _isPvP);
 
     // ...update the combat state, which will potentially remove IN_COMBAT...
-    bool const needFirstAI = first->UpdateCombatState();
-    bool const needSecondAI = second->UpdateCombatState();
+    bool const needFirstAI = first->GetCombatManager().UpdateOwnerCombatState();
+    bool const needSecondAI = second->GetCombatManager().UpdateOwnerCombatState();
 
     // ...and if that happened, also notify the AI of it...
     if (needFirstAI && first->IsAIEnabled)
@@ -104,12 +104,12 @@ void PvPCombatReference::Refresh()
     if (_suppressFirst)
     {
         _suppressFirst = false;
-        needFirstAI = first->UpdateCombatState();
+        needFirstAI = first->GetCombatManager().UpdateOwnerCombatState();
     }
     if (_suppressSecond)
     {
         _suppressSecond = false;
-        needSecondAI = second->UpdateCombatState();
+        needSecondAI = second->GetCombatManager().UpdateOwnerCombatState();
     }
 
     if (needFirstAI)
@@ -121,7 +121,7 @@ void PvPCombatReference::Refresh()
 void PvPCombatReference::SuppressFor(Unit* who)
 {
     Suppress(who);
-    if (who->UpdateCombatState())
+    if (who->GetCombatManager().UpdateOwnerCombatState())
         if (who->IsAIEnabled)
             who->GetAI()->JustExitedCombat();
 }
@@ -188,8 +188,8 @@ bool CombatManager::SetInCombatWith(Unit* who)
     who->GetCombatManager().PutReference(_owner->GetGUID(), ref);
 
     // now, sequencing is important - first we update the combat state, which will set both units in combat and do non-AI combat start stuff
-    bool const needSelfAI  = _owner->UpdateCombatState();
-    bool const needOtherAI = who->UpdateCombatState();
+    bool const needSelfAI  = UpdateOwnerCombatState();
+    bool const needOtherAI = who->GetCombatManager().UpdateOwnerCombatState();
 
     // then, we finally notify the AI (if necessary) and let it safely do whatever it feels like
     if (needSelfAI)
@@ -272,7 +272,7 @@ void CombatManager::SuppressPvPCombat()
 {
     for (auto const& pair : _pvpRefs)
         pair.second->Suppress(_owner);
-    if (_owner->UpdateCombatState())
+    if (UpdateOwnerCombatState())
         if (_owner->IsAIEnabled)
             _owner->GetAI()->JustExitedCombat();
 }
@@ -325,4 +325,27 @@ void CombatManager::PurgeReference(ObjectGuid const& guid, bool pvp)
         _pvpRefs.erase(guid);
     else
         _pveRefs.erase(guid);
+}
+
+bool CombatManager::UpdateOwnerCombatState() const
+{
+    bool const combatState = HasCombat();
+    if (combatState == _owner->IsInCombat())
+        return false;
+
+    if (combatState)
+    {
+        _owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+        _owner->AtEnterCombat();
+    }
+    else
+    {
+        _owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+        _owner->AtExitCombat();
+    }
+
+    if (Unit* master = _owner->GetCharmerOrOwner())
+        master->UpdatePetCombatState();
+
+    return true;
 }

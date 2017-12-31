@@ -718,7 +718,7 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
-            m_threatManager.Update(diff);
+            GetThreatManager().Update(diff);
 
             if (m_shouldReacquireTarget && !IsFocusing(nullptr, true))
             {
@@ -1098,7 +1098,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
     }
 
-    m_threatManager.Initialize();
+    GetThreatManager().Initialize();
 
     return true;
 }
@@ -1107,9 +1107,11 @@ Unit* Creature::SelectVictim()
 {
     Unit* target = nullptr;
 
-    if (m_threatManager.CanHaveThreatList())
+    ThreatManager& mgr = GetThreatManager();
+
+    if (mgr.CanHaveThreatList())
     {
-        target = m_threatManager.SelectVictim();
+        target = mgr.SelectVictim();
         while (!target)
         {
             Unit* newTarget = nullptr;
@@ -1117,9 +1119,9 @@ Unit* Creature::SelectVictim()
             for (auto const& pair : GetCombatManager().GetPvECombatRefs())
             {
                 newTarget = pair.second->GetOther(this);
-                if (!m_threatManager.IsThreatenedBy(newTarget, true))
+                if (!mgr.IsThreatenedBy(newTarget, true))
                 {
-                    m_threatManager.AddThreat(newTarget, 0.0f, nullptr, true, true);
+                    mgr.AddThreat(newTarget, 0.0f, nullptr, true, true);
                     break;
                 }
                 else
@@ -1127,7 +1129,7 @@ Unit* Creature::SelectVictim()
             }
             if (!newTarget)
                 break;
-            target = m_threatManager.SelectVictim();
+            target = mgr.SelectVictim();
         }
     }
     else if (!HasReactState(REACT_PASSIVE))
@@ -3230,6 +3232,37 @@ bool Creature::CanGiveExperience() const
         && !IsPet()
         && !IsTotem()
         && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
+}
+
+void Creature::AtEnterCombat()
+{
+    Unit::AtEnterCombat();
+
+    if (!(GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
+        Dismount();
+
+    if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
+    {
+        UpdateSpeed(MOVE_RUN);
+        UpdateSpeed(MOVE_SWIM);
+        UpdateSpeed(MOVE_FLIGHT);
+    }
+}
+
+void Creature::AtExitCombat()
+{
+    Unit::AtExitCombat();
+
+    ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
+    if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
+        SetUInt32Value(UNIT_DYNAMIC_FLAGS, GetCreatureTemplate()->dynamicflags);
+
+    if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
+    {
+        UpdateSpeed(MOVE_RUN);
+        UpdateSpeed(MOVE_SWIM);
+        UpdateSpeed(MOVE_FLIGHT);
+    }
 }
 
 bool Creature::IsEscortNPC(bool onlyIfActive)

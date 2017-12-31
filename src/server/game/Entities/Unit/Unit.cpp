@@ -278,12 +278,12 @@ bool DispelableAura::RollDispel() const
 
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_playerMovingMe(nullptr), m_lastSanctuaryTime(0),
-    IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
-    m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
-    i_AI(nullptr), i_disabledAI(nullptr), m_AutoRepeatFirstCast(false), m_procDeep(0),
-    m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_threatManager(this),
-    m_vehicle(nullptr), m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
-    m_combatManager(this), m_comboTarget(nullptr), m_comboPoints(0), m_spellHistory(new SpellHistory(this))
+    IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(), m_ControlledByPlayer(false),
+    movespline(new Movement::MoveSpline()), i_AI(nullptr), i_disabledAI(nullptr),
+    m_AutoRepeatFirstCast(false), m_procDeep(0), m_removedAurasCount(0),
+    i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr),
+    m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this),
+    m_threatManager(this), m_comboTarget(nullptr), m_comboPoints(0), m_spellHistory(new SpellHistory(this))
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -9307,63 +9307,9 @@ void Unit::setDeathState(DeathState s)
 
 //======================================================================
 
-bool Unit::UpdateCombatState()
+void Unit::AtExitCombat()
 {
-    bool combatState = m_combatManager.HasCombat();
-    if (combatState == IsInCombat())
-        return false;
-
-    if (combatState)
-    {
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-
-        Unit* who = nullptr;
-        if (IsAIEnabled)
-            GetAI()->JustEnteredCombat((who = m_combatManager.GetAnyTarget()));
-        if (Creature* creature = ToCreature())
-        {
-            if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
-                Dismount();
-            if (IsAIEnabled && !CanHaveThreatList())
-                creature->AI()->JustEngagedWith(who);
-        }
-    }
-    else
-    {
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
-        if (Player* player = ToPlayer())
-        {
-            player->UpdatePotionCooldown();
-
-            if (getClass() == CLASS_DEATH_KNIGHT)
-                for (uint8 i = 0; i < MAX_RUNES; ++i)
-                {
-                    player->SetRuneTimer(i, 0xFFFFFFFF);
-                    player->SetLastRuneGraceTimer(i, 0);
-                }
-        }
-        if (Creature* creature = ToCreature())
-        {
-            ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
-            if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
-                SetUInt32Value(UNIT_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
-        }
-        if (IsAIEnabled)
-            GetAI()->JustExitedCombat();
-    }
-
-    if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
-    {
-        UpdateSpeed(MOVE_RUN);
-        UpdateSpeed(MOVE_SWIM);
-        UpdateSpeed(MOVE_FLIGHT);
-    }
-
-    if (Unit* owner = GetCharmerOrOwner())
-        owner->UpdatePetCombatState();
-
-    return true;
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
 }
 
 void Unit::UpdatePetCombatState()
