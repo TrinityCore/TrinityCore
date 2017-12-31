@@ -600,77 +600,82 @@ WorldPacket const* WorldPackets::Quest::WorldQuestUpdate::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponse const& response)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::PlayerChoiceResponseRewardEntry const& playerChoiceResponseRewardEntry)
 {
-    data << int32(response.ResponseID);
-    data << int32(response.ChoiceArtFileID);
-
-    data.WriteBits(response.Answer.length(), 9);
-    data.WriteBits(response.Header.length(), 9);
-    data.WriteBits(response.Description.length(), 11);
-    data.WriteBits(response.Confirmation.length(), 7);
-
-    data.WriteBit(response.Reward.is_initialized());
-    data.FlushBits();
-
-    if (response.Reward.is_initialized())
-        data << (*response.Reward);
-
-    data.WriteString(response.Answer);
-    data.WriteString(response.Header);
-    data.WriteString(response.Description);
-    data.WriteString(response.Confirmation);
+    data << playerChoiceResponseRewardEntry.Item;
+    data << int32(playerChoiceResponseRewardEntry.Quantity);
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponseReward const& reward)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::PlayerChoiceResponseReward const& playerChoiceResponseReward)
 {
-    data << int32(reward.TitleID);
-    data << int32(reward.PackageID);
-    data << int32(reward.SkillLineID);
-    data << uint32(reward.SkillPointCount);
-    data << uint32(reward.ArenaPointCount);
-    data << uint32(reward.HonorPointCount);
-    data << uint64(reward.Money);
-    data << uint32(reward.Xp);
+    data << int32(playerChoiceResponseReward.TitleID);
+    data << int32(playerChoiceResponseReward.PackageID);
+    data << int32(playerChoiceResponseReward.SkillLineID);
+    data << uint32(playerChoiceResponseReward.SkillPointCount);
+    data << uint32(playerChoiceResponseReward.ArenaPointCount);
+    data << uint32(playerChoiceResponseReward.HonorPointCount);
+    data << uint64(playerChoiceResponseReward.Money);
+    data << uint32(playerChoiceResponseReward.Xp);
+    data << uint32(playerChoiceResponseReward.Items.size());
+    data << uint32(playerChoiceResponseReward.Currencies.size());
+    data << uint32(playerChoiceResponseReward.Factions.size());
+    data << uint32(playerChoiceResponseReward.ItemChoices.size());
 
-    data << uint32(0); // itemCount
-    data << uint32(0); // currencyCount
-    data << uint32(0); // factionCount
-    data << uint32(0); // itemChoiceCount
+    for (WorldPackets::Quest::PlayerChoiceResponseRewardEntry const& item : playerChoiceResponseReward.Items)
+        data << item;
 
-    /*for (var i = 0u; i < itemCount; ++i)
-    ReadPlayerChoiceResponseRewardEntry(packet, "Item", i);
+    for (WorldPackets::Quest::PlayerChoiceResponseRewardEntry const& currency : playerChoiceResponseReward.Currencies)
+        data << currency;
 
-    for (var i = 0u; i < currencyCount; ++i)
-    ReadPlayerChoiceResponseRewardEntry(packet, "Currency", i);
+    for (WorldPackets::Quest::PlayerChoiceResponseRewardEntry const& faction : playerChoiceResponseReward.Factions)
+        data << faction;
 
-    for (var i = 0u; i < factionCount; ++i)
-    ReadPlayerChoiceResponseRewardEntry(packet, "Faction", i);
+    for (WorldPackets::Quest::PlayerChoiceResponseRewardEntry const& itemChoice : playerChoiceResponseReward.ItemChoices)
+        data << itemChoice;
 
-    for (var i = 0u; i < itemChoiceCount; ++i)
-    ReadPlayerChoiceResponseRewardEntry(packet, "ItemChoice", i);*/
+    return data;
+}
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::PlayerChoiceResponse const& playerChoiceResponse)
+{
+    data << int32(playerChoiceResponse.ResponseID);
+    data << int32(playerChoiceResponse.ChoiceArtFileID);
+
+    data.WriteBits(playerChoiceResponse.Answer.length(), 9);
+    data.WriteBits(playerChoiceResponse.Header.length(), 9);
+    data.WriteBits(playerChoiceResponse.Description.length(), 11);
+    data.WriteBits(playerChoiceResponse.Confirmation.length(), 7);
+    data.WriteBit(playerChoiceResponse.Reward.is_initialized());
+    data.FlushBits();
+
+    if (playerChoiceResponse.Reward)
+        data << *playerChoiceResponse.Reward;
+
+    data.WriteString(playerChoiceResponse.Answer);
+    data.WriteString(playerChoiceResponse.Header);
+    data.WriteString(playerChoiceResponse.Description);
+    data.WriteString(playerChoiceResponse.Confirmation);
     return data;
 }
 
 WorldPacket const* WorldPackets::Quest::DisplayPlayerChoice::Write()
 {
-    _worldPacket << int32(Choice->ChoiceId);
-    _worldPacket << uint32(Choice->Responses.size());
+    _worldPacket << int32(ChoiceID);
+    _worldPacket << uint32(Responses.size());
     _worldPacket << SenderGUID;
-    _worldPacket.WriteBits(Choice->Question.length(), 8);
+    _worldPacket.WriteBits(Question.length(), 8);
     _worldPacket.WriteBit(CloseChoiceFrame);
     _worldPacket.FlushBits();
 
-    for (auto response : Choice->Responses)
-        _worldPacket << response.second;
+    for (PlayerChoiceResponse const& response : Responses)
+        _worldPacket << response;
 
-    _worldPacket.WriteString(Choice->Question);
+    _worldPacket.WriteString(Question);
     return &_worldPacket;
 }
 
-void WorldPackets::Quest::PlayerChoiceResponse::Read()
+void WorldPackets::Quest::ChoiceResponse::Read()
 {
     _worldPacket >> ChoiceID;
     _worldPacket >> ResponseID;
