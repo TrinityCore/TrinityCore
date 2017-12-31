@@ -907,8 +907,8 @@ class spell_rog_tricks_of_the_trade_aura : public AuraScript
         Unit* target = ObjectAccessor::GetUnit(*rogue, _redirectTarget);
         if (target)
         {
-            rogue->CastSpell(target, SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST, true, nullptr, aurEff);
-            rogue->CastSpell(rogue, SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC, true, nullptr, aurEff);
+            rogue->CastSpell(target, SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST, aurEff);
+            rogue->CastSpell(rogue, SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC, aurEff);
         }
         Remove(AURA_REMOVE_BY_DEFAULT);
     }

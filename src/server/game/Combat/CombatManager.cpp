@@ -18,6 +18,7 @@
 #include "CombatManager.h"
 #include "Creature.h"
 #include "Unit.h"
+#include "CreatureAI.h"
 #include "Player.h"
 
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
@@ -63,10 +64,27 @@
 
 void CombatReference::EndCombat()
 {
+    // sequencing matters here - AI might do nasty stuff, so make sure refs are in a consistent state before you hand off!
+
+    // first, get rid of any threat that still exists...
     first->GetThreatManager().ClearThreat(second);
     second->GetThreatManager().ClearThreat(first);
+
+    // ...then, remove the references from both managers...
     first->GetCombatManager().PurgeReference(second->GetGUID(), _isPvP);
     second->GetCombatManager().PurgeReference(first->GetGUID(), _isPvP);
+
+    // ...update the combat state, which will potentially remove IN_COMBAT...
+    bool const needFirstAI = first->UpdateCombatState();
+    bool const needSecondAI = second->UpdateCombatState();
+
+    // ...and if that happened, also notify the AI of it...
+    if (needFirstAI && first->IsAIEnabled)
+        first->GetAI()->JustExitedCombat();
+    if (needSecondAI && second->IsAIEnabled)
+        second->GetAI()->JustExitedCombat();
+
+    // ...and finally clean up the reference object
     delete this;
 }
 
@@ -81,22 +99,31 @@ bool PvPCombatReference::Update(uint32 tdiff)
 void PvPCombatReference::Refresh()
 {
     _combatTimer = PVP_COMBAT_TIMEOUT;
+
+    bool needFirstAI = false, needSecondAI = false;
     if (_suppressFirst)
     {
         _suppressFirst = false;
-        first->UpdateCombatState();
+        needFirstAI = first->UpdateCombatState();
     }
     if (_suppressSecond)
     {
         _suppressSecond = false;
-        second->UpdateCombatState();
+        needSecondAI = second->UpdateCombatState();
     }
+
+    if (needFirstAI)
+        CombatManager::NotifyAICombat(first, second);
+    if (needSecondAI)
+        CombatManager::NotifyAICombat(second, first);
 }
 
 void PvPCombatReference::SuppressFor(Unit* who)
 {
     Suppress(who);
-    who->UpdateCombatState();
+    if (who->UpdateCombatState())
+        if (who->IsAIEnabled)
+            who->GetAI()->JustExitedCombat();
 }
 
 void CombatManager::Update(uint32 tdiff)
@@ -155,8 +182,20 @@ bool CombatManager::SetInCombatWith(Unit* who)
         ref = new PvPCombatReference(_owner, who);
     else
         ref = new CombatReference(_owner, who);
+
+    // ...and insert it into both managers
     PutReference(who->GetGUID(), ref);
     who->GetCombatManager().PutReference(_owner->GetGUID(), ref);
+
+    // now, sequencing is important - first we update the combat state, which will set both units in combat and do non-AI combat start stuff
+    bool const needSelfAI  = _owner->UpdateCombatState();
+    bool const needOtherAI = who->UpdateCombatState();
+
+    // then, we finally notify the AI (if necessary) and let it safely do whatever it feels like
+    if (needSelfAI)
+        NotifyAICombat(_owner, who);
+    if (needOtherAI)
+        NotifyAICombat(who, _owner);
     return true;
 }
 
@@ -233,7 +272,9 @@ void CombatManager::SuppressPvPCombat()
 {
     for (auto const& pair : _pvpRefs)
         pair.second->Suppress(_owner);
-    _owner->UpdateCombatState();
+    if (_owner->UpdateCombatState())
+        if (_owner->IsAIEnabled)
+            _owner->GetAI()->JustExitedCombat();
 }
 
 void CombatManager::EndAllPvECombat()
@@ -251,6 +292,17 @@ void CombatManager::EndAllPvPCombat()
         _pvpRefs.begin()->second->EndCombat();
 }
 
+/*static*/ void CombatManager::NotifyAICombat(Unit* me, Unit* other)
+{
+    if (!me->IsAIEnabled)
+        return;
+    me->GetAI()->JustEnteredCombat(other);
+
+    if (Creature* cMe = me->ToCreature())
+        if (!cMe->CanHaveThreatList())
+            cMe->AI()->JustEngagedWith(other);
+}
+
 void CombatManager::PutReference(ObjectGuid const& guid, CombatReference* ref)
 {
     if (ref->_isPvP)
@@ -265,7 +317,6 @@ void CombatManager::PutReference(ObjectGuid const& guid, CombatReference* ref)
         ASSERT(!inMap && "Duplicate combat state detected - memory leak!");
         inMap = ref;
     }
-    _owner->UpdateCombatState();
 }
 
 void CombatManager::PurgeReference(ObjectGuid const& guid, bool pvp)
@@ -274,5 +325,4 @@ void CombatManager::PurgeReference(ObjectGuid const& guid, bool pvp)
         _pvpRefs.erase(guid);
     else
         _pveRefs.erase(guid);
-    _owner->UpdateCombatState();
 }

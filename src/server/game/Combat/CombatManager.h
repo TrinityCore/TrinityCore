@@ -56,7 +56,7 @@ struct TC_GAME_API CombatReference
     Unit* const first;
     Unit* const second;
     bool const _isPvP;
-    Unit* GetOther(Unit const* me) { return (first == me) ? second : first; }
+    Unit* GetOther(Unit const* me) const { return (first == me) ? second : first; }
 
     void EndCombat();
 
@@ -77,7 +77,7 @@ struct TC_GAME_API PvPCombatReference : public CombatReference
     // suppressed combat refs do not generate a combat state for one side of the relation
     // (used by: vanish, feign death)
     void SuppressFor(Unit* who);
-    bool IsSuppressedFor(Unit const* who) { return (who == first) ? _suppressFirst : _suppressSecond; }
+    bool IsSuppressedFor(Unit const* who) const { return (who == first) ? _suppressFirst : _suppressSecond; }
 
 private:
     PvPCombatReference(Unit* first, Unit* second) : CombatReference(first, second, true) { }
@@ -127,6 +127,7 @@ class TC_GAME_API CombatManager
         CombatManager& operator=(CombatManager const&) = delete;
 
     private:
+        static void NotifyAICombat(Unit* me, Unit* other);
         void PutReference(ObjectGuid const& guid, CombatReference* ref);
         void PurgeReference(ObjectGuid const& guid, bool pvp);
         Unit* const _owner;
@@ -135,6 +136,7 @@ class TC_GAME_API CombatManager
 
 
     friend struct CombatReference;
+    friend struct PvPCombatReference;
 };
 
 #endif

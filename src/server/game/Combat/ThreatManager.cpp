@@ -140,12 +140,12 @@ void ThreatReference::ClearThreat(bool sendRemove)
     if (who->GetTypeId() != TYPEID_UNIT)
         return false;
 
-    // totems can not have threat list
+    // pets and totems cannot have threat list
     if (who->IsPet() || who->IsTotem())
         return false;
 
-    // summons can not have a threat list, unless they are controlled by a creature
-    if (who->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN) && who->GetOwnerGUID().IsPlayer())
+    // summons cannot have a threat list, unless they are controlled by a creature
+    if (who->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN) && !who->GetOwnerGUID().IsCreature())
         return false;
 
     return true;
@@ -360,12 +360,12 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     if (!ref->IsOffline() && !_ownerEngaged)
     {
         _ownerEngaged = true;
-        if (Creature* creature = _owner->ToCreature())
-        {
-            SaveCreatureHomePositionIfNeed(creature);
-            if (_owner->IsAIEnabled)
-                creature->AI()->EnterCombat(target);
-        }
+
+        Creature* cOwner = _owner->ToCreature();
+        assert(cOwner); // if we got here the owner can have a threat list, and must be a creature!
+        SaveCreatureHomePositionIfNeed(cOwner);
+        if (cOwner->IsAIEnabled)
+            cOwner->AI()->JustEngagedWith(target);
     }
 }
 

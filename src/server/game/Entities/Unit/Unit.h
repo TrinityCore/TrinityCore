@@ -1035,7 +1035,8 @@ class TC_GAME_API Unit : public WorldObject
         bool IsInCombatWith(Unit const* who) const { return who && m_combatManager.IsInCombatWith(who); }
         void SetInCombatWith(Unit* enemy) { if (enemy) m_combatManager.SetInCombatWith(enemy); }
         void ClearInCombat() { m_combatManager.EndAllCombat(); }
-        void UpdateCombatState();
+        // returns true if the combat state was changed as a result
+        bool UpdateCombatState();
         void UpdatePetCombatState();
         // Threat handling
         bool IsThreatened() const;

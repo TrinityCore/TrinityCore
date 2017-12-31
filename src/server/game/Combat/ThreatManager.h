@@ -42,7 +42,7 @@ class SpellInfo;
  *  - There is an active combat reference between owner and victim.                                                                                     *
  *                                                                                                                                                      *
  * ThreatManager also keeps track of whether its owner is engaged (a boolean flag).                                                                     *
- *  - If a (non-offline) threat list entry is added to a not-yet-engaged ThreatManager, it calls EnterCombat on its owner's AI.                         *
+ *  - If a (non-offline) threat list entry is added to a not-yet-engaged ThreatManager, it calls JustEngagedWith on its owner's AI.                         *
  *  - The engaged state is cleared in ClearAllThreat (which is invoked on evade).                                                                       *
  *  - This flag can be accessed through the IsEngaged method. For creatures that can have a threat list, this is equal to Unit::IsEngaged.              *
  *                                                                                                                                                      *

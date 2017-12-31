@@ -9307,21 +9307,25 @@ void Unit::setDeathState(DeathState s)
 
 //======================================================================
 
-void Unit::UpdateCombatState()
+bool Unit::UpdateCombatState()
 {
     bool combatState = m_combatManager.HasCombat();
     if (combatState == IsInCombat())
-        return;
+        return false;
 
     if (combatState)
     {
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
+        Unit* who = nullptr;
+        if (IsAIEnabled)
+            GetAI()->JustEnteredCombat((who = m_combatManager.GetAnyTarget()));
         if (Creature* creature = ToCreature())
         {
             if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
                 Dismount();
             if (IsAIEnabled && !CanHaveThreatList())
-                creature->AI()->EnterCombat(m_combatManager.GetAnyTarget());
+                creature->AI()->JustEngagedWith(who);
         }
     }
     else
@@ -9345,6 +9349,8 @@ void Unit::UpdateCombatState()
             if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
                 SetUInt32Value(UNIT_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
         }
+        if (IsAIEnabled)
+            GetAI()->JustExitedCombat();
     }
 
     if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
@@ -9356,6 +9362,8 @@ void Unit::UpdateCombatState()
 
     if (Unit* owner = GetCharmerOrOwner())
         owner->UpdatePetCombatState();
+
+    return true;
 }
 
 void Unit::UpdatePetCombatState()
