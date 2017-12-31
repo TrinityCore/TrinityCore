@@ -21,21 +21,23 @@
 #define LCTScriptName "instance_lost_city_of_the_tolvir"
 #define DataHeader   "LCT"
 
-uint32 const EncounterCount = 4;
+uint32 const EncounterCount = 6;
 
 enum LCTDataTypes
 {
     // Encounter States
-    DATA_GENERAL_HUSAM          = 1,
-    DATA_LOCKMAW                = 2,
-    DATA_AUGH                   = 3,
-    DATA_HIGH_PROPHET_BARIM     = 4,
-    DATA_SIAMAT                 = 5,
+    DATA_GENERAL_HUSAM              = 0,
+    DATA_LOCKMAW_AND_AUGH           = 1,
+    DATA_HIGH_PROPHET_BARIM         = 2,
+    DATA_SIAMAT                     = 3,
+    DATA_LOCKMAW                    = 4,
+    DATA_AUGH                       = 5,
 
     // Additional Data
-    DATA_SIAMAT_PLATFORM        = 6,
-    DATA_BLAZE_OF_THE_HEAVENS   = 7,
-    DATA_HARBINGER_OF_DARKNESS  = 8,
+    DATA_SIAMAT_PLATFORM            = 6,
+    DATA_BLAZE_OF_THE_HEAVENS       = 7,
+    DATA_HARBINGER_OF_DARKNESS      = 8,
+    DATA_LOCKMAW_COMBAT_ASSISTANCE  = 9
 };
 
 enum LCTCreatureIds
@@ -56,11 +58,31 @@ enum LCTCreatureIds
     NPC_BLAZE_OF_THE_HEAVENS        = 48906,
     NPC_SOUL_FRAGMENT               = 43934,
     NPC_HARBINGER_OF_DARKNESS       = 43927,
+    NPC_DUST_FLAIL_FRONT_STALKER    = 43655,
+    NPC_ADD_STALKER                 = 45124,
+    NPC_AUGH_DART                   = 45379
 };
 
 enum LCTGameObjectIds
 {
     GO_SIAMAT_PLATFORM = 205365
+};
+
+enum LCTSpells
+{
+    SPELL_SUMMON_CROCOLISK      = 84242,
+    SPELL_SUMMON_AUGH_DART      = 84809,
+    SPELL_SUMMON_AUGH_WHIRLWIND = 84808
+};
+
+enum LCTMisc
+{
+    ZONE_ID_LOST_CITY                   = 5396,
+
+    ASSISTANCE_NONE                     = 0,
+    ASSISTANCE_SUMMON_AUGH_DART         = 1,
+    ASSISTANCE_SUMMON_AUGH_WHIRLWIND    = 2,
+    ASSISTANCE_SUMMON_CROCOLISKS        = 3
 };
 
 template<class AI>

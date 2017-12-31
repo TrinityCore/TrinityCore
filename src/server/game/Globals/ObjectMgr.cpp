@@ -847,7 +847,14 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         ok = true;
     }
 
-    if (cInfo->AIName == "TotemAI")
+    if (cInfo->mingold > cInfo->maxgold)
+    {
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has `mingold` %u which is greater than `maxgold` %u, setting `maxgold` to %u.",
+            cInfo->Entry, cInfo->mingold, cInfo->maxgold, cInfo->mingold);
+        const_cast<CreatureTemplate*>(cInfo)->maxgold = cInfo->mingold;
+    }
+
+    if (cInfo->AIName == "TotemAI" || cInfo->AIName == "PetAI")
     {
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has not-allowed `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
         const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
