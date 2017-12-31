@@ -24,7 +24,6 @@ void WorldPackets::Toy::AddToy::Read()
 
 void WorldPackets::Toy::UseToy::Read()
 {
-    _worldPacket >> ItemID;
     _worldPacket >> Cast;
 }
 

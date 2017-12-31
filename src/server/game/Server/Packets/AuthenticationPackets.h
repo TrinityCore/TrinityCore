@@ -205,6 +205,8 @@ namespace WorldPackets
             static uint8 const PiDigits[130];
 
         public:
+            static bool InitializeEncryption();
+
             enum AddressType : uint8
             {
                 IPv4 = 1,
@@ -221,7 +223,6 @@ namespace WorldPackets
                 uint8 PanamaKey[32];
             };
 
-        public:
             ConnectTo();
 
             WorldPacket const* Write() override;

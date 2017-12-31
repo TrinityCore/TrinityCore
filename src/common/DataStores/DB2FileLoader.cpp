@@ -573,7 +573,6 @@ void DB2FileLoaderRegularImpl::FillCommonValues(char** indexTable)
                     ASSERT(_loadInfo->Meta->Types[field] == FT_SHORT);
                     uint16 value = *reinterpret_cast<uint16*>(commonDataItr);
                     EndianConvert(value);
-                    commonDataItr += sizeof(uint16);
                     for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
                         *reinterpret_cast<uint16*>(&recordData[fieldOffset + sizeof(uint16) * arrayIndex]) = value;
                     break;
@@ -582,7 +581,6 @@ void DB2FileLoaderRegularImpl::FillCommonValues(char** indexTable)
                 {
                     ASSERT(_loadInfo->Meta->Types[field] == FT_BYTE);
                     uint8 value = *reinterpret_cast<uint8*>(commonDataItr);
-                    commonDataItr += sizeof(uint8);
                     for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
                         *reinterpret_cast<uint8*>(&recordData[fieldOffset + sizeof(uint8) * arrayIndex]) = value;
                     break;
@@ -592,7 +590,6 @@ void DB2FileLoaderRegularImpl::FillCommonValues(char** indexTable)
                     ASSERT(_loadInfo->Meta->Types[field] == FT_FLOAT);
                     float value = *reinterpret_cast<float*>(commonDataItr);
                     EndianConvert(value);
-                    commonDataItr += sizeof(float);
                     for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
                         *reinterpret_cast<float*>(&recordData[fieldOffset + sizeof(float) * arrayIndex]) = value;
                     break;
@@ -602,14 +599,16 @@ void DB2FileLoaderRegularImpl::FillCommonValues(char** indexTable)
                     ASSERT(_loadInfo->Meta->Types[field] == FT_INT);
                     uint32 value = *reinterpret_cast<uint32*>(commonDataItr);
                     EndianConvert(value);
-                    commonDataItr += sizeof(uint32);
                     for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
                         *reinterpret_cast<uint32*>(&recordData[fieldOffset + sizeof(uint32) * arrayIndex]) = value;
                     break;
                 }
                 default:
+                    ASSERT(false, "Unhandled common value type %d found in %s", dataType, fileName);
                     break;
             }
+
+            commonDataItr += sizeof(uint32);
         }
 
         switch (_loadInfo->Meta->Types[field])
@@ -1115,7 +1114,8 @@ char const* DB2FileLoaderSparseImpl::RecordGetString(unsigned char const* record
 uint32 DB2FileLoaderSparseImpl::RecordGetVarInt(unsigned char const* record, uint32 field, uint32 arrayIndex, bool isSigned) const
 {
     ASSERT(field < _header->FieldCount);
-    uint32 val = *reinterpret_cast<uint32 const*>(record + GetFieldOffset(field, arrayIndex));
+    uint32 val = 0;
+    memcpy(&val, record + GetFieldOffset(field, arrayIndex), GetFieldSize(field));
     EndianConvert(val);
     if (isSigned)
         return int32(val) << fields[field].UnusedBits >> fields[field].UnusedBits;

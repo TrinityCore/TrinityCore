@@ -582,4 +582,3 @@ void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet
         _player->DurabilityRepairAll(true, discountMod, packet.UseGuildBank);
     }
 }
-

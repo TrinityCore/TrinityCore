@@ -378,6 +378,7 @@ WorldPacket const* WorldPackets::LFG::LFGProposalUpdate::Write()
     _worldPacket << uint32(Slot);
     _worldPacket << int8(State);
     _worldPacket << uint32(CompletedMask);
+    _worldPacket << uint32(EncounterMask);
     _worldPacket << uint32(Players.size());
     _worldPacket << uint8(Unused);
     _worldPacket.WriteBit(ValidCompletedMask);

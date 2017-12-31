@@ -1679,7 +1679,8 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         /// @todo Fix display here
         // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
         // casting visual effect
-        creature->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
+        creature->SetChannelSpellId(SPELL_SPIRIT_HEAL_CHANNEL);
+        creature->SetChannelSpellXSpellVisualId(VISUAL_SPIRIT_HEAL_CHANNEL);
         // correct cast speed
         creature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
         creature->SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
@@ -1903,7 +1904,7 @@ void Battleground::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
             player->StartCriteriaTimer(type, entry);
 }
 
-void Battleground::SetBracket(PvpDifficultyEntry const* bracketEntry)
+void Battleground::SetBracket(PVPDifficultyEntry const* bracketEntry)
 {
     m_BracketId = bracketEntry->GetBracketId();
     SetLevelRange(bracketEntry->MinLevel, bracketEntry->MaxLevel);
