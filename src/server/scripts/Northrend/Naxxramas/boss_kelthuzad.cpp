@@ -928,7 +928,9 @@ public:
             if (int32 mana = int32(target->GetMaxPower(POWER_MANA) / 10))
             {
                 mana = target->ModifyPower(POWER_MANA, -mana);
-                target->CastCustomSpell(SPELL_MANA_DETONATION_DAMAGE, SPELLVALUE_BASE_POINT0, -mana * 10, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(-mana * 10);
+                target->CastSpell(target, SPELL_MANA_DETONATION_DAMAGE, args);
             }
         }
 
@@ -960,7 +962,11 @@ class spell_kelthuzad_frost_blast : public AuraScript
 
         // Stuns the target, dealing 26% of the target's maximum health in Frost damage every second for 4 sec.
         if (Unit* caster = GetCaster())
-            caster->CastCustomSpell(SPELL_FROST_BLAST_DMG, SPELLVALUE_BASE_POINT0, int32(GetTarget()->CountPctFromMaxHealth(26)), GetTarget(), true, nullptr, aurEff);
+        {
+            CastSpellExtraArgs args(aurEff);
+            args.SpellValueOverrides.AddBP0(GetTarget()->CountPctFromMaxHealth(26));
+            caster->CastSpell(GetTarget(), SPELL_FROST_BLAST_DMG, args);
+        }
     }
 
     void Register() override

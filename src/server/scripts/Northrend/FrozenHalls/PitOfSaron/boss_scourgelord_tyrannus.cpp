@@ -404,13 +404,21 @@ class player_overlord_brandAI : public PlayerAI
         {
             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                 if (Unit* victim = tyrannus->GetVictim())
-                    me->CastCustomSpell(SPELL_OVERLORD_BRAND_DAMAGE, SPELLVALUE_BASE_POINT0, damage, victim, true, nullptr, nullptr, tyrannus->GetGUID());
+                {
+                    CastSpellExtraArgs args(tyrannus->GetGUID());
+                    args.SpellValueOverrides.AddBP0(damage);
+                    me->CastSpell(victim, SPELL_OVERLORD_BRAND_DAMAGE, args);
+                }
         }
 
         void HealDone(Unit* /*target*/, uint32& addHealth) override
         {
             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
-                me->CastCustomSpell(SPELL_OVERLORD_BRAND_HEAL, SPELLVALUE_BASE_POINT0, int32(addHealth * 5.5f), tyrannus, true, nullptr, nullptr, tyrannus->GetGUID());
+            {
+                CastSpellExtraArgs args(tyrannus->GetGUID());
+                args.SpellValueOverrides.AddBP0(addHealth * 5.5f);
+                me->CastSpell(tyrannus, SPELL_OVERLORD_BRAND_HEAL, args);
+            }
         }
 
         void UpdateAI(uint32 /*diff*/) override { }
