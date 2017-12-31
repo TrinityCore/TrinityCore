@@ -56,7 +56,9 @@ class icecrown_citadel_teleport : public GameObjectScript
 
                 ClearGossipMenuFor(player);
                 CloseGossipMenuFor(player);
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(TeleportSpells[gossipListId]);
+
+                uint32 const teleportSpell = TeleportSpells[gossipListId];
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(teleportSpell);
                 if (!spell)
                     return false;
 
@@ -66,7 +68,7 @@ class icecrown_citadel_teleport : public GameObjectScript
                     return true;
                 }
 
-                player->CastSpell(player, spell, true);
+                player->CastSpell(player, teleportSpell, true);
                 return true;
             }
         };

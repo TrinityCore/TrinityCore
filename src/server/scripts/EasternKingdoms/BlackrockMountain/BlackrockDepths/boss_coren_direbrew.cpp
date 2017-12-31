@@ -259,9 +259,14 @@ struct boss_coren_direbrew : public BossAI
                     SummonSister(NPC_URSULA_DIREBREW);
                     break;
                 case EVENT_SUMMON_MOLE_MACHINE:
-                    me->CastCustomSpell(SPELL_MOLE_MACHINE_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1, nullptr, true);
+                {
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, 1);
+                    me->CastSpell(nullptr, SPELL_MOLE_MACHINE_TARGET_PICKER, args);
                     events.Repeat(Seconds(15));
                     break;
+                }
                 case EVENT_DIREBREW_DISARM:
                     DoCastSelf(SPELL_DIREBREW_DISARM_PRE_CAST, true);
                     events.Repeat(Seconds(20));
