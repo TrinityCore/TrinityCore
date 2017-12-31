@@ -23,9 +23,9 @@
 #include "Vehicle.h"
 #include "Player.h"
 
-#define GOSSIP_START_EVENT1     "I am ready."
-#define GOSSIP_START_EVENT2     "I am ready for the next challenge."
-#define GOSSIP_START_EVENT_SKIP "I am ready. However I'd like to skip the pageantry."
+#define GOSSIP_START_EVENT1     "I am ready." // Modify to take Gossip from DB
+#define GOSSIP_START_EVENT2     "I am ready for the next challenge." // Modify to take Gossip from DB
+#define GOSSIP_START_EVENT_SKIP "I am ready. However I'd like to skip the pageantry." // Modify to take Gossip from DB
 
 enum Texts
 {
