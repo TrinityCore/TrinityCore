@@ -474,8 +474,10 @@ public:
                     DoomfireSpiritGUID = summoned->GetGUID();
                     break;
                 case NPC_DOOMFIRE:
+                {
                     summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
-                    summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, 0, me->GetGUID());
+
+                    summoned->CastSpell(summoned, SPELL_DOOMFIRE, me->GetGUID());
 
                     if (Unit* DoomfireSpirit = ObjectAccessor::GetUnit(*me, DoomfireSpiritGUID))
                     {
@@ -483,6 +485,7 @@ public:
                         DoomfireSpiritGUID.Clear();
                     }
                     break;
+                }
                 default:
                     break;
             }
