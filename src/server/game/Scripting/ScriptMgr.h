@@ -757,7 +757,7 @@ class TC_GAME_API PlayerScript : public UnitScript
         virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
 
         // Called when a player choose a response from a PlayerChoice
-        virtual void OnPlayerChoiceResponse(Player* /*player*/, uint32 /*choiceID*/, uint32 /*responseID*/) { }
+        virtual void OnPlayerChoiceResponse(Player* /*player*/, uint32 /*choiceId*/, uint32 /*responseId*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -1146,7 +1146,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
         void OnQuestStatusChange(Player* player, uint32 questId);
         void OnMovieComplete(Player* player, uint32 movieId);
-        void OnPlayerChoiceResponse(Player* player, uint32 choiceID, uint32 responseID);
+        void OnPlayerChoiceResponse(Player* player, uint32 choiceId, uint32 responseId);
 
     public: /* AccountScript */
 

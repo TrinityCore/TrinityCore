@@ -32,6 +32,7 @@
 #include "Player.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
+#include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "UnitAI.h"
 #include "World.h"
@@ -674,7 +675,63 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
     SendPacket(response.Write());
 }
 
-void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::PlayerChoiceResponse& packet)
+void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse)
 {
-    sScriptMgr->OnPlayerChoiceResponse(GetPlayer(), packet.ChoiceID, packet.ResponseID);
+    if (_player->PlayerTalkClass->GetInteractionData().PlayerChoiceId != uint32(choiceResponse.ChoiceID))
+    {
+        TC_LOG_ERROR("entities.player.cheat", "Error in CMSG_CHOICE_RESPONSE: %s tried to respond to invalid player choice %d (allowed %u) (possible packet-hacking detected)",
+            GetPlayerInfo().c_str(), choiceResponse.ChoiceID, _player->PlayerTalkClass->GetInteractionData().PlayerChoiceId);
+        return;
+    }
+
+    PlayerChoice const* playerChoice = sObjectMgr->GetPlayerChoice(choiceResponse.ChoiceID);
+    if (!playerChoice)
+        return;
+
+    PlayerChoiceResponse const* playerChoiceResponse = playerChoice->GetResponse(choiceResponse.ResponseID);
+    if (!playerChoiceResponse)
+    {
+        TC_LOG_ERROR("entities.player.cheat", "Error in CMSG_CHOICE_RESPONSE: %s tried to select invalid player choice response %d (possible packet-hacking detected)",
+            GetPlayerInfo().c_str(), choiceResponse.ResponseID);
+        return;
+    }
+
+    sScriptMgr->OnPlayerChoiceResponse(GetPlayer(), choiceResponse.ChoiceID, choiceResponse.ResponseID);
+
+    if (playerChoiceResponse->Reward)
+    {
+        if (playerChoiceResponse->Reward->TitleId)
+            _player->SetTitle(sCharTitlesStore.AssertEntry(playerChoiceResponse->Reward->TitleId), false);
+
+        if (playerChoiceResponse->Reward->PackageId)
+            _player->RewardQuestPackage(playerChoiceResponse->Reward->PackageId);
+
+        if (playerChoiceResponse->Reward->SkillLineId && _player->HasSkill(playerChoiceResponse->Reward->SkillLineId))
+            _player->UpdateSkillPro(playerChoiceResponse->Reward->SkillLineId, 1000, playerChoiceResponse->Reward->SkillPointCount);
+
+        if (playerChoiceResponse->Reward->HonorPointCount)
+            _player->AddHonorXP(playerChoiceResponse->Reward->HonorPointCount);
+
+        if (playerChoiceResponse->Reward->Money)
+            _player->ModifyMoney(playerChoiceResponse->Reward->Money, false);
+
+        if (playerChoiceResponse->Reward->Xp)
+            _player->GiveXP(playerChoiceResponse->Reward->Xp, nullptr, 0.0f);
+
+        for (PlayerChoiceResponseRewardItem const& item : playerChoiceResponse->Reward->Items)
+        {
+            ItemPosCountVec dest;
+            if (_player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.Id, item.Quantity) == EQUIP_ERR_OK)
+            {
+                Item* newItem = _player->StoreNewItem(dest, item.Id, true, GenerateItemRandomPropertyId(item.Id), {}, 0, item.BonusListIDs);
+                _player->SendNewItem(newItem, item.Quantity, true, false);
+            }
+        }
+
+        for (PlayerChoiceResponseRewardEntry const& currency : playerChoiceResponse->Reward->Currency)
+            _player->ModifyCurrency(currency.Id, currency.Quantity);
+
+        for (PlayerChoiceResponseRewardEntry const& faction : playerChoiceResponse->Reward->Faction)
+            _player->GetReputationMgr().ModifyReputation(sFactionStore.AssertEntry(faction.Id), faction.Quantity);
+    }
 }

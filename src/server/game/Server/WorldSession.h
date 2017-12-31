@@ -596,7 +596,7 @@ namespace WorldPackets
         class QuestPushResult;
         class PushQuestToParty;
         class RequestWorldQuestUpdate;
-        class PlayerChoiceResponse;
+        class ChoiceResponse;
     }
 
     namespace RaF
@@ -1443,7 +1443,7 @@ class TC_GAME_API WorldSession
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
         void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
-        void HandlePlayerChoiceResponse(WorldPackets::Quest::PlayerChoiceResponse& packet);
+        void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);
