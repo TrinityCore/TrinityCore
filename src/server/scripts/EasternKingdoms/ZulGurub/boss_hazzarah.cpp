@@ -60,9 +60,9 @@ class boss_hazzarah : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_MANABURN, urand(4000, 10000));
                 events.ScheduleEvent(EVENT_SLEEP, urand(10000, 18000));
                 events.ScheduleEvent(EVENT_ILLUSIONS, urand(10000, 18000));

@@ -84,9 +84,9 @@ class boss_hakkar : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90000);
                 events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 25000);
                 events.ScheduleEvent(EVENT_CAUSE_INSANITY, 17000);

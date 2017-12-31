@@ -58,9 +58,9 @@ class boss_grilek : public CreatureScript // grilek
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_AVATAR, urand(15000, 25000));
                 events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(15000, 25000));
             }

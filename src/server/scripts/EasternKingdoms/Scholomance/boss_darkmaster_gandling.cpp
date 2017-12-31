@@ -76,9 +76,9 @@ class boss_darkmaster_gandling : public CreatureScript
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500);
                 events.ScheduleEvent(EVENT_SHADOWSHIELD, 12000);
                 events.ScheduleEvent(EVENT_CURSE, 2000);

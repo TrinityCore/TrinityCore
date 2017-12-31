@@ -60,9 +60,9 @@ class boss_gahzranka : public CreatureScript // gahzranka
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_FROSTBREATH, 8000);
                 events.ScheduleEvent(EVENT_MASSIVEGEYSER, 25000);
                 events.ScheduleEvent(EVENT_SLAM, 17000);

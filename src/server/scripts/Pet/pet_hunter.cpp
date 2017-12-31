@@ -72,7 +72,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
                 _isViper = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void Reset() override
             {

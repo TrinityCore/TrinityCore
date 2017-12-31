@@ -90,7 +90,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             //This is not correct. Should taunt Thrall before engage in combat
             Talk(SAY_TAUNT1);
