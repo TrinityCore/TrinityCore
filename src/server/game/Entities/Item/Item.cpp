@@ -2172,7 +2172,7 @@ uint32 Item::GetItemLevel(Player const* owner) const
     uint32 itemLevel = stats->GetBaseItemLevel();
     if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
     {
-        uint32 level = owner->getLevel();
+        uint32 level = owner ? owner->getLevel(): ssd->MinLevel;
         if (uint32 fixedLevel = GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
             level = fixedLevel;
         else
