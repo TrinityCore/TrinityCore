@@ -139,7 +139,7 @@ class boss_trollgore : public CreatureScript
                         case EVENT_SPAWN:
                             for (uint8 i = 0; i < 3; ++i)
                                 if (Creature* trigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TROLLGORE_INVADER_SUMMONER_1 + i)))
-                                    trigger->CastSpell(trigger, RAND(SPELL_SUMMON_INVADER_A, SPELL_SUMMON_INVADER_B, SPELL_SUMMON_INVADER_C), true, nullptr, nullptr, me->GetGUID());
+                                    trigger->CastSpell(trigger, RAND(SPELL_SUMMON_INVADER_A, SPELL_SUMMON_INVADER_B, SPELL_SUMMON_INVADER_C), me->GetGUID());
 
                             events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
                             break;
@@ -277,7 +277,7 @@ class spell_trollgore_corpse_explode : public SpellScriptLoader
             {
                 if (aurEff->GetTickNumber() == 2)
                     if (Unit* caster = GetCaster())
-                        caster->CastSpell(GetTarget(), SPELL_CORPSE_EXPLODE_DAMAGE, true, nullptr, aurEff);
+                        caster->CastSpell(GetTarget(), SPELL_CORPSE_EXPLODE_DAMAGE, aurEff);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
