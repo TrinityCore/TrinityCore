@@ -428,29 +428,58 @@ class spell_hun_masters_call : public SpellScriptLoader
                 return spellInfo->GetEffect(EFFECT_0) && ValidateSpellInfo({ SPELL_HUNTER_MASTERS_CALL_TRIGGERED, uint32(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
             }
 
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            SpellCastResult DoCheckCast()
+            {
+                Pet* pet = GetCaster()->ToPlayer()->GetPet();
+                ASSERT(pet); // checked in Spell::CheckCast
+
+                if (!pet->IsAlive())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
+                SpellCastResult result = SPELL_CAST_OK;
+                uint32 const unitflag = pet->GetUInt32Value(UNIT_FIELD_FLAGS);
+                if (!pet->GetCharmerGUID().IsEmpty())
+                    result = SPELL_FAILED_CHARMED;
+                else if (unitflag & UNIT_FLAG_STUNNED)
+                    result = SPELL_FAILED_STUNNED;
+                else if (unitflag & UNIT_FLAG_FLEEING)
+                    result = SPELL_FAILED_FLEEING;
+                else if (unitflag & UNIT_FLAG_CONFUSED)
+                    result = SPELL_FAILED_CONFUSED;
+
+                if (result != SPELL_CAST_OK)
+                    return result;
+
+                Unit* target = GetExplTargetUnit();
+                if (!target)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!pet->IsWithinLOSInMap(target))
+                    return SPELL_FAILED_LINE_OF_SIGHT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* ally = GetHitUnit())
-                    if (Player* caster = GetCaster()->ToPlayer())
-                        if (Pet* target = caster->GetPet())
-                        {
-                            TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
-                            target->CastSpell(ally, GetEffectValue(), castMask);
-                        }
+                GetCaster()->ToPlayer()->GetPet()->CastSpell(GetHitUnit(), GetEffectValue(), true);
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetHitUnit())
-                {
-                    // Cannot be processed while pet is dead
-                    TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
-                    target->CastSpell(target, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
-                }
+                GetHitUnit()->CastSpell((Unit*)nullptr, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, true);
             }
 
             void Register() override
             {
+                OnCheckCast += SpellCheckCastFn(spell_hun_masters_call_SpellScript::DoCheckCast);
+
                 OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
