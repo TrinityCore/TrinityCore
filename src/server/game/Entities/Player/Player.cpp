@@ -15066,6 +15066,49 @@ bool Player::CanSelectQuestPackageItem(QuestPackageItemEntry const* questPackage
     return false;
 }
 
+void Player::RewardQuestPackage(uint32 questPackageId, uint32 onlyItemId /*= 0*/)
+{
+    bool hasFilteredQuestPackageReward = false;
+    if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(questPackageId))
+    {
+        for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
+        {
+            if (onlyItemId && questPackageItem->ItemID != onlyItemId)
+                continue;
+
+            if (CanSelectQuestPackageItem(questPackageItem))
+            {
+                hasFilteredQuestPackageReward = true;
+                ItemPosCountVec dest;
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                    SendNewItem(item, questPackageItem->ItemCount, true, false);
+                }
+            }
+        }
+    }
+
+    if (!hasFilteredQuestPackageReward)
+    {
+        if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItemsFallback(questPackageId))
+        {
+            for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
+            {
+                if (onlyItemId && questPackageItem->ItemID != onlyItemId)
+                    continue;
+
+                ItemPosCountVec dest;
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                    SendNewItem(item, questPackageItem->ItemCount, true, false);
+                }
+            }
+        }
+    }
+}
+
 void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce)
 {
     //this THING should be here to protect code from quest, which cast on player far teleport as a reward
@@ -15122,47 +15165,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     // QuestPackageItem.db2
     if (rewardProto && quest->GetQuestPackageID())
-    {
-        bool hasFilteredQuestPackageReward = false;
-        if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
-        {
-            for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
-            {
-                if (questPackageItem->ItemID != reward)
-                    continue;
-
-                if (CanSelectQuestPackageItem(questPackageItem))
-                {
-                    hasFilteredQuestPackageReward = true;
-                    ItemPosCountVec dest;
-                    if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
-                    {
-                        Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID));
-                        SendNewItem(item, questPackageItem->ItemCount, true, false);
-                    }
-                }
-            }
-        }
-
-        if (!hasFilteredQuestPackageReward)
-        {
-            if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItemsFallback(quest->GetQuestPackageID()))
-            {
-                for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
-                {
-                    if (questPackageItem->ItemID != reward)
-                        continue;
-
-                    ItemPosCountVec dest;
-                    if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
-                    {
-                        Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, GenerateItemRandomPropertyId(questPackageItem->ItemID));
-                        SendNewItem(item, questPackageItem->ItemCount, true, false);
-                    }
-                }
-            }
-        }
-    }
+        RewardQuestPackage(quest->GetQuestPackageID(), reward);
 
     if (quest->GetRewItemsCount() > 0)
     {
@@ -27121,35 +27124,90 @@ void Player::SendMovementSetCollisionHeight(float height)
     SendMessageToSet(updateCollisionHeight.Write(), false);
 }
 
-void Player::SendPlayerChoice(ObjectGuid sender, uint32 choiceID)
+void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
 {
-    PlayerChoice const* playerChoice = sObjectMgr->GetPlayerChoice(choiceID);
+    PlayerChoice const* playerChoice = sObjectMgr->GetPlayerChoice(choiceId);
     if (!playerChoice)
         return;
 
-    PlayerChoice localizedPlayerChoice = *playerChoice;
-
     LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
-    if (locale != DEFAULT_LOCALE)
-    {
-        if (PlayerChoiceLocale const* playerChoiceLocale = sObjectMgr->GetPlayerChoiceLocale(localizedPlayerChoice.ChoiceId))
-            sObjectMgr->GetLocaleString(playerChoiceLocale->Question, locale, localizedPlayerChoice.Question);
+    PlayerChoiceLocale const* playerChoiceLocale = locale != DEFAULT_LOCALE ? sObjectMgr->GetPlayerChoiceLocale(choiceId) : nullptr;
 
-        for (auto& playerChoiceResponse : localizedPlayerChoice.Responses)
+    PlayerTalkClass->GetInteractionData().Reset();
+    PlayerTalkClass->GetInteractionData().SourceGuid = sender;
+    PlayerTalkClass->GetInteractionData().PlayerChoiceId = uint32(choiceId);
+
+    WorldPackets::Quest::DisplayPlayerChoice displayPlayerChoice;
+    displayPlayerChoice.SenderGUID = sender;
+    displayPlayerChoice.ChoiceID = choiceId;
+    displayPlayerChoice.Question = playerChoice->Question;
+    if (playerChoiceLocale)
+        ObjectMgr::GetLocaleString(playerChoiceLocale->Question, locale, displayPlayerChoice.Question);
+
+    displayPlayerChoice.Responses.resize(playerChoice->Responses.size());
+    displayPlayerChoice.CloseChoiceFrame = false;
+
+    for (std::size_t i = 0; i < playerChoice->Responses.size(); ++i)
+    {
+        PlayerChoiceResponse const& playerChoiceResponseTemplate = playerChoice->Responses[i];
+        WorldPackets::Quest::PlayerChoiceResponse& playerChoiceResponse = displayPlayerChoice.Responses[i];
+        playerChoiceResponse.ResponseID = playerChoiceResponseTemplate.ResponseId;
+        playerChoiceResponse.ChoiceArtFileID = playerChoiceResponseTemplate.ChoiceArtFileId;
+        playerChoiceResponse.Answer = playerChoiceResponseTemplate.Answer;
+        playerChoiceResponse.Header = playerChoiceResponseTemplate.Header;
+        playerChoiceResponse.Description = playerChoiceResponseTemplate.Description;
+        playerChoiceResponse.Confirmation = playerChoiceResponseTemplate.Confirmation;
+        if (playerChoiceLocale)
         {
-            if (PlayerChoiceResponseLocale const* playerChoiceResponseLocale = sObjectMgr->GetPlayerChoiceResponseLocale(localizedPlayerChoice.ChoiceId, playerChoiceResponse.second.ResponseID))
+            if (PlayerChoiceResponseLocale const* playerChoiceResponseLocale = Trinity::Containers::MapGetValuePtr(playerChoiceLocale->Responses, playerChoiceResponseTemplate.ResponseId))
             {
-                sObjectMgr->GetLocaleString(playerChoiceResponseLocale->Header,        locale, playerChoiceResponse.second.Header);
-                sObjectMgr->GetLocaleString(playerChoiceResponseLocale->Answer,        locale, playerChoiceResponse.second.Answer);
-                sObjectMgr->GetLocaleString(playerChoiceResponseLocale->Description,   locale, playerChoiceResponse.second.Description);
-                sObjectMgr->GetLocaleString(playerChoiceResponseLocale->Confirmation,  locale, playerChoiceResponse.second.Confirmation);
+                ObjectMgr::GetLocaleString(playerChoiceResponseLocale->Answer, locale, playerChoiceResponse.Answer);
+                ObjectMgr::GetLocaleString(playerChoiceResponseLocale->Header, locale, playerChoiceResponse.Header);
+                ObjectMgr::GetLocaleString(playerChoiceResponseLocale->Description, locale, playerChoiceResponse.Description);
+                ObjectMgr::GetLocaleString(playerChoiceResponseLocale->Confirmation, locale, playerChoiceResponse.Confirmation);
+            }
+        }
+
+        if (playerChoiceResponseTemplate.Reward)
+        {
+            playerChoiceResponse.Reward = boost::in_place();
+            playerChoiceResponse.Reward->TitleID = playerChoiceResponseTemplate.Reward->TitleId;
+            playerChoiceResponse.Reward->PackageID = playerChoiceResponseTemplate.Reward->PackageId;
+            playerChoiceResponse.Reward->SkillLineID = playerChoiceResponseTemplate.Reward->SkillLineId;
+            playerChoiceResponse.Reward->SkillPointCount = playerChoiceResponseTemplate.Reward->SkillPointCount;
+            playerChoiceResponse.Reward->ArenaPointCount = playerChoiceResponseTemplate.Reward->ArenaPointCount;
+            playerChoiceResponse.Reward->HonorPointCount = playerChoiceResponseTemplate.Reward->HonorPointCount;
+            playerChoiceResponse.Reward->Money = playerChoiceResponseTemplate.Reward->Money;
+            playerChoiceResponse.Reward->Xp = playerChoiceResponseTemplate.Reward->Xp;
+            for (PlayerChoiceResponseRewardItem const& item : playerChoiceResponseTemplate.Reward->Items)
+            {
+                playerChoiceResponse.Reward->Items.emplace_back();
+                WorldPackets::Quest::PlayerChoiceResponseRewardEntry& rewardEntry = playerChoiceResponse.Reward->Items.back();
+                rewardEntry.Item.ItemID = item.Id;
+                rewardEntry.Quantity = item.Quantity;
+                if (!item.BonusListIDs.empty())
+                {
+                    rewardEntry.Item.ItemBonus = boost::in_place();
+                    rewardEntry.Item.ItemBonus->BonusListIDs = item.BonusListIDs;
+                }
+            }
+            for (PlayerChoiceResponseRewardEntry const& currency : playerChoiceResponseTemplate.Reward->Currency)
+            {
+                playerChoiceResponse.Reward->Items.emplace_back();
+                WorldPackets::Quest::PlayerChoiceResponseRewardEntry& rewardEntry = playerChoiceResponse.Reward->Items.back();
+                rewardEntry.Item.ItemID = currency.Id;
+                rewardEntry.Quantity = currency.Quantity;
+            }
+            for (PlayerChoiceResponseRewardEntry const& faction : playerChoiceResponseTemplate.Reward->Faction)
+            {
+                playerChoiceResponse.Reward->Items.emplace_back();
+                WorldPackets::Quest::PlayerChoiceResponseRewardEntry& rewardEntry = playerChoiceResponse.Reward->Items.back();
+                rewardEntry.Item.ItemID = faction.Id;
+                rewardEntry.Quantity = faction.Quantity;
             }
         }
     }
 
-    WorldPackets::Quest::DisplayPlayerChoice displayPlayerChoice;
-    displayPlayerChoice.Choice = &localizedPlayerChoice;
-    displayPlayerChoice.SenderGUID = sender;
     SendDirectMessage(displayPlayerChoice.Write());
 }
 

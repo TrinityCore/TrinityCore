@@ -518,8 +518,8 @@ typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleC
 
 struct PlayerChoiceResponseLocale
 {
-    std::vector<std::string> Header;
     std::vector<std::string> Answer;
+    std::vector<std::string> Header;
     std::vector<std::string> Description;
     std::vector<std::string> Confirmation;
 };
@@ -527,10 +527,8 @@ struct PlayerChoiceResponseLocale
 struct PlayerChoiceLocale
 {
     std::vector<std::string> Question;
+    std::unordered_map<int32 /*ResponseId*/, PlayerChoiceResponseLocale> Responses;
 };
-
-typedef std::unordered_map<uint32, PlayerChoiceLocale> PlayerChoiceLocaleContainer;
-typedef std::unordered_map<std::pair<uint32, uint32>, PlayerChoiceResponseLocale> PlayerChoiceResponseLocaleContainer;
 
 typedef std::unordered_map<uint32, TrinityString> TrinityStringContainer;
 
@@ -768,33 +766,48 @@ struct SceneTemplate
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
+struct PlayerChoiceResponseRewardItem
+{
+    PlayerChoiceResponseRewardItem() : Id(0), Quantity(0) { }
+    PlayerChoiceResponseRewardItem(uint32 id, std::vector<int32> bonusListIDs, int32 quantity) : Id(id), BonusListIDs(std::move(bonusListIDs)), Quantity(quantity) { }
+
+    uint32 Id;
+    std::vector<int32> BonusListIDs;
+    int32 Quantity;
+};
+
+struct PlayerChoiceResponseRewardEntry
+{
+    PlayerChoiceResponseRewardEntry() : Id(0), Quantity(0) { }
+    PlayerChoiceResponseRewardEntry(uint32 id, int32 quantity) : Id(id), Quantity(quantity) { }
+
+    uint32 Id;
+    int32 Quantity;
+};
+
 struct PlayerChoiceResponseReward
 {
-    int32 TitleID;
-    int32 PackageID;
-    int32 SkillLineID;
+    int32 TitleId;
+    int32 PackageId;
+    int32 SkillLineId;
     uint32 SkillPointCount;
     uint32 ArenaPointCount;
     uint32 HonorPointCount;
     uint64 Money;
     uint32 Xp;
-
-    //std::vector<Item> Items;
-    //std::vector<Currency> Currency;
-    //std::vector<Faction> Faction;
-    //std::vector<ItemChoice> ItemChoice;
+    std::vector<PlayerChoiceResponseRewardItem> Items;
+    std::vector<PlayerChoiceResponseRewardEntry> Currency;
+    std::vector<PlayerChoiceResponseRewardEntry> Faction;
 };
 
 struct PlayerChoiceResponse
 {
-    int32 ResponseID;
-    int32 ChoiceArtFileID;
-
+    int32 ResponseId;
+    int32 ChoiceArtFileId;
     std::string Header;
     std::string Answer;
     std::string Description;
     std::string Confirmation;
-
     Optional<PlayerChoiceResponseReward> Reward;
 };
 
@@ -802,10 +815,15 @@ struct PlayerChoice
 {
     int32 ChoiceId;
     std::string Question;
-    std::unordered_map<int32 /*ResponseID*/, PlayerChoiceResponse> Responses;
-};
+    std::vector<PlayerChoiceResponse> Responses;
 
-typedef std::unordered_map<int32 /*choiceId*/, PlayerChoice> PlayerChoiceContainer;
+    PlayerChoiceResponse const* GetResponse(int32 responseId) const
+    {
+        auto itr = std::find_if(Responses.begin(), Responses.end(),
+            [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
+        return itr != Responses.end() ? &(*itr) : nullptr;
+    }
+};
 
 enum SkillRangeType
 {
@@ -1384,19 +1402,12 @@ class TC_GAME_API ObjectMgr
             if (itr == _pointOfInterestLocaleStore.end()) return nullptr;
             return &itr->second;
         }
-        PlayerChoiceLocale const* GetPlayerChoiceLocale(uint32 ChoiceID) const
+        PlayerChoiceLocale const* GetPlayerChoiceLocale(int32 ChoiceID) const
         {
-            PlayerChoiceLocaleContainer::const_iterator itr = _playerChoiceLocaleContainer.find(ChoiceID);
-            if (itr == _playerChoiceLocaleContainer.end()) return nullptr;
+            auto itr = _playerChoiceLocales.find(ChoiceID);
+            if (itr == _playerChoiceLocales.end()) return nullptr;
             return &itr->second;
         }
-        PlayerChoiceResponseLocale const* GetPlayerChoiceResponseLocale(uint32 ChoiceID, uint32 ResponseID) const
-        {
-            PlayerChoiceResponseLocaleContainer::const_iterator itr = _playerChoiceResponseLocaleContainer.find(std::make_pair(ChoiceID, ResponseID));
-            if (itr == _playerChoiceResponseLocaleContainer.end()) return nullptr;
-            return &itr->second;
-        }
-
         GameObjectData const* GetGOData(ObjectGuid::LowType guid) const
         {
             GameObjectDataContainer::const_iterator itr = _gameObjectDataStore.find(guid);
@@ -1558,12 +1569,31 @@ class TC_GAME_API ObjectMgr
         bool GetRealmName(uint32 realmId, std::string& name, std::string& normalizedName) const;
 
         std::unordered_map<uint8, uint8> const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
-        uint8 GetRaceExpansionRequirement(uint8 race) const;
+        uint8 GetRaceExpansionRequirement(uint8 race) const
+        {
+            auto itr = _raceExpansionRequirementStore.find(race);
+            if (itr != _raceExpansionRequirementStore.end())
+                return itr->second;
+            return EXPANSION_CLASSIC;
+        }
 
         std::unordered_map<uint8, uint8> const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
-        uint8 GetClassExpansionRequirement(uint8 class_) const;
+        uint8 GetClassExpansionRequirement(uint8 class_) const
+        {
+            auto itr = _classExpansionRequirementStore.find(class_);
+            if (itr != _classExpansionRequirementStore.end())
+                return itr->second;
+            return EXPANSION_CLASSIC;
+        }
 
-        SceneTemplate const* GetSceneTemplate(uint32 sceneId) const;
+        SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
+        {
+            auto itr = _sceneTemplateStore.find(sceneId);
+            if (itr != _sceneTemplateStore.end())
+                return &itr->second;
+
+            return nullptr;
+        }
 
         PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
 
@@ -1700,7 +1730,7 @@ class TC_GAME_API ObjectMgr
         GameObjectTemplateAddonContainer _gameObjectTemplateAddonStore;
         /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
         TempSummonDataContainer _tempSummonDataStore;
-        PlayerChoiceContainer _playerChoiceContainer;
+        std::unordered_map<int32 /*choiceId*/, PlayerChoice> _playerChoices;
 
         ItemTemplateContainer _itemTemplateStore;
         QuestTemplateLocaleContainer _questTemplateLocaleStore;
@@ -1711,8 +1741,7 @@ class TC_GAME_API ObjectMgr
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
 
-        PlayerChoiceLocaleContainer _playerChoiceLocaleContainer;
-        PlayerChoiceResponseLocaleContainer _playerChoiceResponseLocaleContainer;
+        std::unordered_map<int32, PlayerChoiceLocale> _playerChoiceLocales;
 
         TrinityStringContainer _trinityStringStore;
 

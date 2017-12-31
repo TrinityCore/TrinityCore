@@ -5666,7 +5666,7 @@ void Spell::EffectEnableBattlePets(SpellEffIndex /*effIndex*/)
     plr->GetSession()->GetBattlePetMgr()->UnlockSlot(0);
 }
 
-void Spell::EffectLaunchQuestChoice(SpellEffIndex effIndex)
+void Spell::EffectLaunchQuestChoice(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5674,7 +5674,7 @@ void Spell::EffectLaunchQuestChoice(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->IsPlayer())
         return;
 
-    unitTarget->ToPlayer()->SendPlayerChoice(GetCaster()->GetGUID(), GetEffect(effIndex)->MiscValue);
+    unitTarget->ToPlayer()->SendPlayerChoice(GetCaster()->GetGUID(), effectInfo->MiscValue);
 }
 
 void Spell::EffectUncageBattlePet(SpellEffIndex /*effIndex*/)
