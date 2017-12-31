@@ -262,7 +262,7 @@ class TC_GAME_API UnitAI
 
        // Called when the unit enters combat
         // (NOTE: Creature engage logic should NOT be here, but in JustEngagedWith, which happens once threat is established!)
-        virtual void JustEnteredCombat(Unit* victim) { }
+        virtual void JustEnteredCombat(Unit* /*who*/) { }
 
         // Called when the unit leaves combat
         virtual void JustExitedCombat() { }
