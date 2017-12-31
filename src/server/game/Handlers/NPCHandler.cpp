@@ -379,14 +379,18 @@ void WorldSession::SendStablePet(ObjectGuid guid)
         WorldPackets::Pet::PetStableInfo stableEntry;
 
         uint32 petSlot = p->Slot;
+        uint8 flags = PET_STABLE_ACTIVE;
 
-        stableEntry.PetSlot         = petSlot;
+        if (petSlot > PET_SLOT_LAST_ACTIVE_SLOT)
+            flags |= PET_STABLE_INACTIVE;
+
+        stableEntry.PetSlot         = petSlot;              // slot
         stableEntry.PetNumber       = p->PetId;             // petnumber
-        stableEntry.CreatureID      = p->CreatureId;             // creature entry
-        stableEntry.DisplayID       = p->DisplayId;             // creature displayid
-        stableEntry.ExperienceLevel = p->Petlevel;             // level
-        stableEntry.PetFlags        = petSlot <= PET_SLOT_LAST_ACTIVE_SLOT ? PET_STABLE_ACTIVE : PET_STABLE_INACTIVE;
-        stableEntry.PetName         = p->Name;             // Name
+        stableEntry.CreatureID      = p->CreatureId;        // creature entry
+        stableEntry.DisplayID       = p->DisplayId;         // creature displayid
+        stableEntry.ExperienceLevel = p->Petlevel;          // level
+        stableEntry.PetFlags        = flags;                // flags
+        stableEntry.PetName         = p->Name;              // Name
 
         packet.Pets.push_back(stableEntry);
     }
