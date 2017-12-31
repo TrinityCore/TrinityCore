@@ -49,27 +49,29 @@ enum BTDataTypes
     DATA_BLOOD_ELF_COUNCIL_VOICE    = 15,
 
     DATA_GO_ILLIDAN_GATE            = 16,
-    DATA_GO_ILLIDAN_DOOR_R          = 17,
-    DATA_GO_ILLIDAN_DOOR_L          = 18
 };
 
 enum BTCreatureIds
 {
+    //Bosses
     NPC_HIGH_WARLORD_NAJENTUS       = 22887,
     NPC_SUPREMUS                    = 22898,
     NPC_SHADE_OF_AKAMA              = 22841,
-    NPC_AKAMA_SHADE                 = 23191, // This is the Akama that starts the Shade of Akama encounter.
-    NPC_AKAMA                       = 23089, // This is the Akama that starts the Illidan encounter.
+    NPC_TERON_GOREFIEND             = 22871,
+    NPC_GURTOGG_BLOODBOIL           = 22948,
+    NPC_RELIQUARY_OF_SOULS          = 22856,
+    NPC_MOTHER_SHAHRAZ              = 22947,
+    NPC_ILLIDARI_COUNCIL            = 23426,
+    NPC_ILLIDAN_STORMRAGE           = 22917,
 
+    //Misc
     NPC_GATHIOS_THE_SHATTERER       = 22949,
     NPC_HIGH_NETHERMANCER_ZEREVOR   = 22950,
     NPC_LADY_MALANDE                = 22951,
     NPC_VERAS_DARKSHADOW            = 22952,
-    NPC_ILLIDARI_COUNCIL            = 23426,
     NPC_BLOOD_ELF_COUNCIL_VOICE     = 23499,
-
-    NPC_ILLIDAN_STORMRAGE           = 22917,
-
+    NPC_AKAMA                       = 23089, // This is the Akama that starts the Illidan encounter.
+    NPC_AKAMA_SHADE                 = 23191, // This is the Akama that starts the Shade of Akama encounter.
     NPC_SUPREMUS_VOLCANO            = 23085
 };
 
