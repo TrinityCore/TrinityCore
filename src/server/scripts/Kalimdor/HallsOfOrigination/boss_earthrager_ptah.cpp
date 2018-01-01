@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// To-do:
+// - Script "Sand Vortex", heroic mode ability.
+
 #include "ScriptMgr.h"
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
@@ -51,8 +54,8 @@ enum Spells
     SPELL_EARTH_SPIKE_WARN          = 94974,
 
     // Disperse
-    SPELL_PTAH_EXPLOSION            = 75519,
     SPELL_SANDSTORM                 = 75491,
+    SPELL_PTAH_EXPLOSION            = 75519,
     SPELL_SUMMON_QUICKSAND          = 75550, // Server-side spell + hidden client-side flag!
 
     // Beetle Stalker
@@ -65,6 +68,11 @@ enum Phases
 {
     PHASE_FIGHT                     = 1,
     PHASE_EARTHSTORM                = 2
+};
+
+enum Sounds
+{
+    SOUND_PTAH_EARTHQUAKE           = 18908
 };
 
 enum PtahData
@@ -87,6 +95,7 @@ public:
         void Initialize()
         {
             _hasDispersed = false;
+            _summonsMaxCount = 0;
             _summonsDeadCount = 0;
         }
 
@@ -104,9 +113,8 @@ public:
             if (action != ACTION_PTAH_ADD_DIED)
                 return;
 
-            ++_summonsDeadCount;
-
-            if (_summonsDeadCount == 10)
+            // Increase _summonsDeadCount and check if max reached.
+            if (++_summonsDeadCount == _summonsMaxCount)
                 ExitDispersePhase();
         }
 
@@ -135,7 +143,6 @@ public:
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _JustReachedHome();
-            instance->SetBossState(DATA_EARTHRAGER_PTAH, FAIL);
         }
 
         void UpdateAI(uint32 diff) override
@@ -166,6 +173,7 @@ public:
                         events.Repeat(Seconds(15));
                         break;
                     case EVENT_PTAH_EXPLODE:
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 0);
                         DoCast(me, SPELL_PTAH_EXPLOSION);
                         break;
                     case EVENT_QUICKSAND:
@@ -197,30 +205,32 @@ public:
             events.SetPhase(PHASE_EARTHSTORM);
             _hasDispersed = true;
 
+            me->SetReactState(REACT_PASSIVE);
             me->InterruptNonMeleeSpells(true);
             me->AttackStop();
-            DoCast(me, SPELL_SANDSTORM);
             me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
-            events.ScheduleEvent(EVENT_PTAH_EXPLODE, Seconds(6), 0, PHASE_EARTHSTORM);
-            events.ScheduleEvent(EVENT_QUICKSAND, Seconds(10), 0, PHASE_EARTHSTORM);
+            DoCast(me, SPELL_SANDSTORM);
 
             std::list<Creature*> stalkers;
             GetCreatureListWithEntryInGrid(stalkers, me, NPC_BEETLE_STALKER, 100.0f);
-
             for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
             {
-                if (390.f < (*itr)->GetPositionY() && (*itr)->GetPositionY() < 400.f) // 2 stalkers in the middle
+                ++_summonsMaxCount;
+                if (-400.f < (*itr)->GetPositionY() && (*itr)->GetPositionY() < -390.f) // 2 stalkers in the middle
                     (*itr)->CastSpell((*itr), SPELL_SUMMON_DUSTBONE_HORROR);
                 else
                     (*itr)->CastSpell((*itr), SPELL_BEETLE_BURROW);
-            } 
+            }
+            
+            events.ScheduleEvent(EVENT_PTAH_EXPLODE, Seconds(6), 0, PHASE_EARTHSTORM);
+            events.ScheduleEvent(EVENT_QUICKSAND, Seconds(10), 0, PHASE_EARTHSTORM);
         }
         
         void ExitDispersePhase()
         {
-            me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
             me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
-
+            me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 2);
             events.SetPhase(PHASE_FIGHT);
             ScheduleEvents();
         }
@@ -229,6 +239,17 @@ public:
         {
             std::list<Creature*> units;
 
+            GetCreatureListWithEntryInGrid(units, me, NPC_BEETLE_STALKER, 100.0f);
+            for (std::list<Creature*>::iterator itr = units.begin(); itr != units.end(); ++itr)
+            {
+                ++_summonsMaxCount;
+                if (-400.f < (*itr)->GetPositionY() && (*itr)->GetPositionY() < -390.f) // 2 stalkers in the middle
+                    (*itr)->RemoveAurasDueToSpell(SPELL_SUMMON_DUSTBONE_HORROR);
+                else
+                    (*itr)->RemoveAurasDueToSpell(SPELL_BEETLE_BURROW);
+            }
+
+            units.clear();
             GetCreatureListWithEntryInGrid(units, me, NPC_DUSTBONE_HORROR, 100.0f);
             for (std::list<Creature*>::iterator itr = units.begin(); itr != units.end(); ++itr)
                 (*itr)->DespawnOrUnsummon();
@@ -240,6 +261,7 @@ public:
         }
 
         bool _hasDispersed;
+        uint8 _summonsMaxCount;
         uint8 _summonsDeadCount;
     };
 
@@ -317,6 +339,34 @@ class spell_earthrager_ptah_flame_bolt : public SpellScriptLoader
         }
 };
 
+// 75491 Sandstorm spell_earthrager_ptah_sandstorm
+class spell_earthrager_ptah_sandstorm : public SpellScriptLoader
+{
+public:
+    spell_earthrager_ptah_sandstorm() : SpellScriptLoader("spell_earthrager_ptah_sandstorm") { }
+
+    class spell_earthrager_ptah_sandstorm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_earthrager_ptah_sandstorm_SpellScript);
+
+        void PlaySound(SpellEffIndex /*effIndex*/)
+        {
+            if (Player* player = GetHitUnit()->ToPlayer())
+                GetCaster()->PlayDirectSound(SOUND_PTAH_EARTHQUAKE, player);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_earthrager_ptah_sandstorm_SpellScript::PlaySound, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_earthrager_ptah_sandstorm_SpellScript();
+    }
+};
+
 class spell_earthrager_ptah_explosion : public SpellScriptLoader
 {
 public:
@@ -362,5 +412,6 @@ void AddSC_boss_earthrager_ptah()
     new boss_earthrager_ptah();
     new npc_ptah_beetle_stalker();
     new spell_earthrager_ptah_flame_bolt();
+    new spell_earthrager_ptah_sandstorm();
     new spell_earthrager_ptah_explosion();
 }

@@ -22,9 +22,11 @@
 // - Spatial Flux won't enter combat on second aggro from creature group (but it should).
 
 #include "ScriptMgr.h"
+#include "CreatureGroups.h"
 #include "GameObject.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
+#include "PassiveAI.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
@@ -111,6 +113,35 @@ public:
         elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, stopFrame);
         return true;
     }
+};
+
+// 40790 Aggro Stalker
+class npc_hoo_aggro_stalker : public CreatureScript
+{
+public:
+    npc_hoo_aggro_stalker() : CreatureScript("npc_hoo_aggro_stalker") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_hoo_aggro_stalkerAI(creature);
+    }
+
+    struct npc_hoo_aggro_stalkerAI : public PassiveAI
+    {
+        npc_hoo_aggro_stalkerAI(Creature* creature) : PassiveAI(creature)
+        {
+            me->SearchFormation();
+        }
+
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 30.f))
+                if (CreatureGroup* formation = me->GetFormation())
+                    formation->MemberAttackStart(me, who);
+
+            me->CombatStop();
+        }
+    };
 };
 
 // 39612 - Spatial Flux (trash)
@@ -337,6 +368,7 @@ public:
 void AddSC_halls_of_origination()
 {
     new go_hoo_the_makers_lift_controller();
+    new npc_hoo_aggro_stalker();
     new npc_hoo_spatial_flux();
     new npc_hoo_energy_flux();
     new spell_hoo_emerge();

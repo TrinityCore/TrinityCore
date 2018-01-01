@@ -46,6 +46,7 @@ enum HOOData
 
     // Anraphet
     DATA_BRANN_0,
+    DATA_BRANN_INTRO_STARTED,
     DATA_VAULT_OF_LIGHTS_DOOR,
     DATA_DEAD_ELEMENTALS,
     DATA_LASERBEAMS_EARTH_WARDEN,
@@ -62,8 +63,10 @@ enum HOOData
     DATA_ISISET_VEIL_OF_SKY_ALIVE,
 
     // Misc
-    DATA_LIFT_OF_THE_MAKERS
-//  DATA_LIFT_GLASS_STAR
+    DATA_LIFT_OF_THE_MAKERS,
+//  DATA_LIFT_GLASS_STAR,
+
+    DATA_ANHUUR_I_HATE_THAT_SONG
 };
 
 enum HOOCreatures
@@ -77,6 +80,7 @@ enum HOOCreatures
     NPC_JEWELED_SCARAB              = 40458, // Summoned by spell: 75462 Summon Jeweled Scarab
     NPC_DUSTBONE_HORROR             = 40450, // Summoned by spell: 75521 Summon Dustbone Horror
     NPC_QUICKSAND                   = 40503, // Summoned by spell: 75550 (server-side, not in dbc)
+    NPC_HOO_CAMEL                   = 39443,
 
     BOSS_ANRAPHET                   = 39788,
     NPC_FIRE_WARDEN                 = 39800,
@@ -85,6 +89,7 @@ enum HOOCreatures
     NPC_AIR_WARDEN                  = 39803,
 
     WARDEN_ENTRY_DATA_DELTA         = NPC_FIRE_WARDEN - DATA_FIRE_WARDEN,
+    WARDEN_COUNT_MAX                = 4,
 
     NPC_BRANN_BRONZEBEARD_0         = 39908,
     NPC_OMEGA_STANCE                = 41194,
@@ -138,9 +143,17 @@ enum HOOGameObjects
 
 enum Achievements
 {
+    // I Hate That Song (Criteria ID 19724)
+    CRITERIA_I_HATE_THAT_SONG          = 19724,
+    WS_I_HATE_THIS_SONG                =  5638,
+    // 24827
+
+    // Straw That Broke the Camel's Back (Criteria ID 18221)
+    CRITERIA_STRAW_BROKE_CAMELS_BACK   = 18221,
+
     // Faster Than The Speed Of Light (Criteria ID 16008)
     ACHIEV_VAULT_OF_LIGHTS_START_EVENT = 24212,
-    SPELL_VAULT_OF_LIGHTS_CREDIT       = 94067, // Achievement aura, not in DBC
+    SPELL_VAULT_OF_LIGHTS_CREDIT       = 94067  // Achievement aura, not in DBC
 };
 
 enum HOOMisc
@@ -149,8 +162,6 @@ enum HOOMisc
     SPELL_ZERO_ENERGY_NO_REGEN_AURA = 72242, // Zero Energy + Zero Regen (used by some npcs in HoO)
 //  SPELL_AURA_UNKNOWN_PURPOSE      = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
     SPELL_DUMMY_NUKE                = 68991,
-
-    
 
     // Hmm... Do elementals use these spells to spawn on a random platform?
     SPELL_TELEPORT_EARTH            = 82329,

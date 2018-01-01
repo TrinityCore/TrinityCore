@@ -171,20 +171,6 @@ Position const BrannFinalPath[BrannFinalPathSize] =
     { -35.04861f, 366.6563f, 89.77447f, 0.0f }
 };
 
-class at_hoo_brann_idle_emote : public AreaTriggerScript
-{
-public:
-    at_hoo_brann_idle_emote() : AreaTriggerScript("at_hoo_brann_idle_emote") { }
-
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
-    {
-        if (InstanceScript* instance = player->GetInstanceScript())
-            if (Creature* brann = instance->GetCreature(DATA_BRANN_0))
-                brann->AI()->DoAction(ACTION_BRANN_IDLE_EMOTE);
-        return true;
-    }
-};
-
 class boss_anraphet : public CreatureScript
 {
 public:
@@ -221,11 +207,10 @@ public:
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             Talk(ANRAPHET_SAY_DEATH);
+            _JustDied();
 
             if (Creature* brann = instance->GetCreature(DATA_BRANN_0))
                 brann->AI()->DoAction(ACTION_ANRAPHET_DIED);
-
-            _JustDied();
         }
 
         void KilledUnit(Unit* victim) override
@@ -238,7 +223,6 @@ public:
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _JustReachedHome();
-            instance->SetBossState(DATA_ANRAPHET, FAIL);
         }
 
         void DoAction(int32 action) override
@@ -335,6 +319,21 @@ public:
     }
 };
 
+// 5811 Brann's AreaTrigger
+class at_hoo_brann_idle_emote : public AreaTriggerScript
+{
+public:
+    at_hoo_brann_idle_emote() : AreaTriggerScript("at_hoo_brann_idle_emote") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (Creature* brann = instance->GetCreature(DATA_BRANN_0))
+                brann->AI()->DoAction(ACTION_BRANN_IDLE_EMOTE);
+        return true;
+    }
+};
+
 // 39908 Brann Bronzebeard
 class npc_brann_bronzebeard_anraphet : public CreatureScript
 {
@@ -350,7 +349,7 @@ public:
         // What gossip menu shall we send?
         uint32 gossipMenuId = GOSSIP_MENU_NO_TIME_TO_WASTE;
 
-        if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) == NOT_STARTED) // gossipMenuId already set, only add gossip option
+        if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE) // gossipMenuId already set, only add gossip option
             AddGossipItemFor(player, gossipMenuId, GOSSIP_OPTION_WE_ARE_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         else if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE)
             gossipMenuId = GOSSIP_MENU_DESTROY_ELEMENTAL;
@@ -369,7 +368,7 @@ public:
         {
             canSayIdleEmote = false;
 
-            if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == NOT_STARTED)
+            if (!_instance->GetData(DATA_BRANN_INTRO_STARTED))
                 canSayIdleEmote = true;
             else if (_instance->GetBossState(DATA_ANRAPHET) != DONE)
                 me->SetHomePosition(BrannBossHomePos);
@@ -381,11 +380,11 @@ public:
 
         void sGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
+            if (_instance->GetData(DATA_BRANN_INTRO_STARTED))
                 return;
 
+            _instance->SetData(DATA_BRANN_INTRO_STARTED, 1);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
             events.Reset(); // Removes EVENT_BRANN_IDLE_EMOTE.
             events.RescheduleEvent(EVENT_BRANN_START_INTRO, Seconds(1));
         }
@@ -407,7 +406,7 @@ public:
                     uint32 dead = _instance->GetData(DATA_DEAD_ELEMENTALS);
                     if (dead < 4) // Say that an elemental has died.
                         Talk(BRANN_1_ELEMENTAL_DEAD + dead - 1);
-                    else // Last one died! Wait until laser beam is activated (9-second animation of light machine behind the warden).
+                    else // Last one died! Continue script when laser beam activates (9-second animation of light machine behind the warden).
                         _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
                     events.RescheduleEvent(EVENT_BRANN_ACTIVATE_LASERBEAMS, Seconds(9));
                     break;
@@ -840,6 +839,7 @@ public:
 void AddSC_boss_anraphet()
 {
     new boss_anraphet();
+    new at_hoo_brann_idle_emote();
     new npc_brann_bronzebeard_anraphet();
     new npc_alpha_beam();
     new npc_omega_stance();

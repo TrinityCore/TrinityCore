@@ -27,12 +27,13 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "World.h"
 
 enum Texts
 {
     SAY_AGGRO                    = 0,
     SAY_SHIELD                   = 1,
-    EMOTE_SHIELD                 = 2,
+    EMOTE_SHIELD                 = 2, 
     EMOTE_UNSHIELD               = 3,
     SAY_KILL                     = 4,
     SAY_DEATH                    = 5
@@ -45,7 +46,8 @@ enum Events
     EVENT_DIVINE_RECKONING       = 3,
     EVENT_CAST_SHIELD            = 4,
     EVENT_ACTIVATE_BEACONS       = 5,
-    EVENT_CAST_BEAMS             = 6
+    EVENT_CAST_BEAMS             = 6,
+    EVENT_ACHIEVEMENT_FAILED     = 7
 };
 
 enum Spells
@@ -180,7 +182,7 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING) && !events.IsInPhase(PHASE_SHIELD))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -207,19 +209,25 @@ public:
                     case EVENT_CAST_SHIELD:
                         me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                         me->SetFacingTo(1.5708f); // Sniffs set it again
-                        DoCast(me, SPELL_SHIELD_OF_LIGHT);
+                        DoCastSelf(SPELL_SHIELD_OF_LIGHT); // Note: stun!
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_31);
                         events.ScheduleEvent(EVENT_ACTIVATE_BEACONS, Seconds(2), 0, PHASE_SHIELD);
                         break;
                     case EVENT_ACTIVATE_BEACONS:
-                        DoCast(me, SPELL_REVERBERATING_HYMN);
-                        HandleVisuals(SPELL_SHIELD_VISUAL_LEFT, SPELL_SHIELD_VISUAL_RIGHT, true);
+                        DoCastSelf(SPELL_REVERBERATING_HYMN);
                         DoCastAOE(SPELL_ACTIVATE_BEACONS);
                         Talk(EMOTE_SHIELD);
+                        HandleVisuals(SPELL_SHIELD_VISUAL_LEFT, SPELL_SHIELD_VISUAL_RIGHT, true);
                         events.ScheduleEvent(EVENT_CAST_BEAMS, Seconds(1), 0, PHASE_SHIELD);
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_ACHIEVEMENT_FAILED, Seconds(15), 0, PHASE_SHIELD);
                         break;
                     case EVENT_CAST_BEAMS:
                         HandleVisuals(SPELL_BEAM_OF_LIGHT_LEFT, SPELL_BEAM_OF_LIGHT_RIGHT, true);
+                        break;
+                    case EVENT_ACHIEVEMENT_FAILED:
+                        //instance->DoUpdateWorldState(WS_I_HATE_THIS_SONG, 0);
+                        sWorld->setWorldState(WS_I_HATE_THIS_SONG, 1);
                         break;
                     default:
                         break;
@@ -278,9 +286,8 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->InterruptNonMeleeSpells(true);
             me->AttackStop();
-            DoCast(me, SPELL_TELEPORT);
+            DoCastSelf(SPELL_TELEPORT);
             me->SetFacingTo(1.5708f, true); // Note: Wrong orientation in old sniffs - 5.144157f.
-
             Talk(SAY_SHIELD);
 
             events.ScheduleEvent(EVENT_CAST_SHIELD, Seconds(1), 0, PHASE_SHIELD);
@@ -314,7 +321,7 @@ public:
                     return;
 
                 // Left stalker X: -603.465f; right stalker X: -678.132f
-                uint32 spellId = (*itr)->GetPositionX() > -640.f ? leftSpellId : rightSpellId;
+                uint32 spellId = ((*itr)->GetPositionX() > -640.f) ? leftSpellId : rightSpellId;
                 if (apply)
                     (*itr)->CastSpell((*itr), spellId, true);
                 else
