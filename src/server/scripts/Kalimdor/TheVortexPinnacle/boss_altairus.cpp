@@ -123,7 +123,7 @@ public:
             events.ScheduleEvent(EVENT_SUMMON, urand(2000, 3000), 0, 0);
         }
 
-        void JustReachedHome()
+        void JustReachedHome() override
         {
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOWNWIND_OF_ALTAIRUS);
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UPWIND_OF_ALTAIRUS);
@@ -276,7 +276,7 @@ public:
     {
         PrepareAuraScript(spell_wind_of_alth_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return true;
         }

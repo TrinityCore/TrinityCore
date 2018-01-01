@@ -146,11 +146,12 @@ class boss_murozond : public CreatureScript
                     DoAction(ACTION_MUROZOND_START);
                 }
 
-                if (Rewardchest = GetClosestGameObjectWithEntry(me, 209547, 500.0f))
+                Rewardchest = GetClosestGameObjectWithEntry(me, 209547, 500.0f);
+                if (Rewardchest != nullptr)
                     Rewardchest->SetPhaseMask(2, true);
             }
 
-            void JustReachedHome()
+            void JustReachedHome() override
             {
                 DoAction(ACTION_MUROZOND_REMOVE_TEMPORAL_BOMB);
             }

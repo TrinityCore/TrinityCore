@@ -438,12 +438,12 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_TWILIGHT_DRAKE:
+                    case EVENT_TWILIGHT_DRAKE:
                     {
                         _drakenum++;
                         if (_drakenum <= 15)
                         {
-                            angle = urand(1.77f, 4.82f);
+                            angle = frand(1.77f, 4.82f);
                             me->SummonCreature(NPC_TWILIGHT_ASSAULTER, me->GetPositionX()+ 20*cos(angle), me->GetPositionY()+ 20*cos(angle), me->GetPositionZ()+ 13, 0, TEMPSUMMON_DEAD_DESPAWN);
                             events.ScheduleEvent(EVENT_TWILIGHT_DRAKE, 15333);
                         }
@@ -625,7 +625,7 @@ class npc_dragonsoul_dragons : public CreatureScript
 public:
     npc_dragonsoul_dragons() : CreatureScript("npc_dragonsoul_dragons") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_dragonsoul_dragonsAI (pCreature);
     }
@@ -789,7 +789,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_deathwing_preultraxionAI (pCreature);
     }

@@ -111,7 +111,7 @@ class boss_morchok : public CreatureScript
 public:
     boss_morchok() : CreatureScript("boss_morchok") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new boss_morchokAI(pCreature);
     }
@@ -219,7 +219,7 @@ public:
             }
         }
 
-        void SetGUID(ObjectGuid guid, int32 type)
+        void SetGUID(ObjectGuid guid, int32 type) override
         {
             if (type == DATA_GUID_1)
                 _stompGUID1 = guid;
@@ -227,7 +227,7 @@ public:
                 _stompGUID2 = guid;
         }
 
-        ObjectGuid GetGUID(int32 type) const
+        ObjectGuid GetGUID(int32 type) const override
         {
             if (type == DATA_GUID_1)
                 return _stompGUID1;
@@ -257,7 +257,7 @@ public:
             return bAchieve;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override 
         {
             if (type == DATA_KOHCROM_DONE)
                 return uint32(bKohcrom);
@@ -445,7 +445,7 @@ class npc_morchok_kohcrom : public CreatureScript
 public:
     npc_morchok_kohcrom() : CreatureScript("npc_morchok_kohcrom") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_morchok_kohcromAI(pCreature);
     }
@@ -489,7 +489,7 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type)
+        void SetGUID(ObjectGuid guid, int32 type) override
         {
             if (type == DATA_GUID_1)
                 _stompGUID1 = guid;
@@ -497,7 +497,7 @@ public:
                 _stompGUID2 = guid;
         }
 
-        ObjectGuid GetGUID(int32 type) const
+        ObjectGuid GetGUID(int32 type) const override
         {
             if (type == DATA_GUID_1)
                 return _stompGUID1;
@@ -618,7 +618,7 @@ class npc_morchok_resonating_crystal : public CreatureScript
 public:
     npc_morchok_resonating_crystal() : CreatureScript("npc_morchok_resonating_crystal") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_morchok_resonating_crystalAI(pCreature);
     }

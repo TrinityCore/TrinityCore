@@ -35,7 +35,7 @@ public:
     {
         instance_shadowfang_keep_InstanceMapScript(InstanceMap* map): InstanceScript(map)  { }
 
-        void Initialize()
+        void Initialize() override
         {
             SetBossNumber(MAX_ENCOUNTER);
         }
@@ -72,13 +72,13 @@ public:
             }
         }
 
-        void OnPlayerEnter(Player* player)
+        void OnPlayerEnter(Player* player) override
         {
             if (!TeamInInstance)
                 TeamInInstance = player->GetTeam();
         }
 
-        uint32 GetData(uint32 identifier) const
+        uint32 GetData(uint32 identifier) const override 
         {
             if (identifier == TEAM_IN_INSTANCE)
                 return TeamInInstance;

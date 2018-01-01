@@ -171,7 +171,7 @@ public:
                 WaterSpoutPhaseTimer = 60000;
 
                 if (IsHeroic())
-                    DoTeleportTo(192.056f, 802.527f, 807.638f, 3.13f);
+                    me->NearTeleportTo(192.056f, 802.527f, 807.638f, 3.13f);
 
                 // Stop movement
                 SetCombatMovement(false);

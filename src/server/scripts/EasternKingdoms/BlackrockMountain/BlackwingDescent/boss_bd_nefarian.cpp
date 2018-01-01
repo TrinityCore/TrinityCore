@@ -848,7 +848,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void UpdateAI(const uint32 diff) { }
+        void UpdateAI(const uint32 diff) override { }
 
         void JustDied(Unit* /*killer*/) override { }
     };

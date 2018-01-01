@@ -53,7 +53,7 @@ class instance_end_time : public InstanceMapScript
                 bossCount = 0;
             }
 
-            void OnPlayerEnter(Player* player)
+            void OnPlayerEnter(Player* player) override
             {
                 if (!TeamInInstance)
                 {
@@ -74,7 +74,7 @@ class instance_end_time : public InstanceMapScript
                     player->RemoveAura(102668);
             }
 
-            void OnUnitDeath(Unit* unit)
+            void OnUnitDeath(Unit* unit) override
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -139,7 +139,7 @@ class instance_end_time : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override 
             {
                 switch (type)
                 {
@@ -189,7 +189,7 @@ class time_deliver_device : public GameObjectScript
             go->SetGoState(GO_STATE_READY);
             if (InstanceScript* instance = go->GetInstanceScript())
             {
-                if (instance->GetData(DATA_BOSS_COUNT) >= 0)
+                if (instance->GetData(DATA_BOSS_COUNT) == 0)
                 {
                     if (instance->GetData(FIRST_BOSS) == BOSS_ECHO_OF_JAINA)
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Azure Dragonshirine", GOSSIP_SENDER_TIME_DELIVER_DEVICE, AZURE_DRAGONSHIRINE_TELEPORT);
@@ -201,7 +201,7 @@ class time_deliver_device : public GameObjectScript
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Emerald Dragonshirine", GOSSIP_SENDER_TIME_DELIVER_DEVICE, EMERALD_DRAGONSHIRINE_TELEPORT);
                 }
 
-                if (instance->GetData(DATA_BOSS_COUNT) >= 1)
+                if (instance->GetData(DATA_BOSS_COUNT) == 1)
                 {
                     if (instance->GetData(SECOND_BOSS) == BOSS_ECHO_OF_JAINA)
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Azure Dragonshirine", GOSSIP_SENDER_TIME_DELIVER_DEVICE, AZURE_DRAGONSHIRINE_TELEPORT);
@@ -213,7 +213,7 @@ class time_deliver_device : public GameObjectScript
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Emerald Dragonshirine", GOSSIP_SENDER_TIME_DELIVER_DEVICE, EMERALD_DRAGONSHIRINE_TELEPORT);
                 }
 
-                if (instance->GetData(DATA_BOSS_COUNT) > 1)
+                if (instance->GetData(DATA_BOSS_COUNT) >= 2)
                 {
                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Bronze Dragonshirine", GOSSIP_SENDER_TIME_DELIVER_DEVICE, BRONZE_DRAGONSHIRINE_TELEPORT);
                 }

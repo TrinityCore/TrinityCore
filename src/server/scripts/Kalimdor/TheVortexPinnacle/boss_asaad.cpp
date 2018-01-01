@@ -138,7 +138,7 @@ class boss_asaad : public CreatureScript
                 _JustDied();
             }
 
-            void JustReachedHome()
+            void JustReachedHome() override
             {
                 if (Creature *c = ObjectAccessor::GetCreature(*me, stormTargetGUID))
                     me->Kill(c);
@@ -203,7 +203,7 @@ class boss_asaad : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell)
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_STATIC_CLING && IsHeroic())
                     failedAchievementGUIDs.push_back(target->GetGUID());

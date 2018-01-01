@@ -767,6 +767,7 @@ class npc_sky_captain_swayze : public CreatureScript
             else
             {
                 if (InstanceScript* instance = creature->GetInstanceScript())
+                {
                     if (instance->GetBossState(DATA_BLACKHORN) == DONE)
                     {
                         if (player->GetTeam() == ALLIANCE)
@@ -780,6 +781,7 @@ class npc_sky_captain_swayze : public CreatureScript
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_SWAYZE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1, "Do you want to start the encounter?", 0, false);
                         SendGossipMenuFor(player, 18871, creature->GetGUID());
                     }
+                }
             }
 
             return true;
@@ -879,7 +881,7 @@ class npc_twilight_assault_drake : public CreatureScript
                 Start(true, true);
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell)
+            void SpellHit(Unit* , const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_HARPOON)
                 {
@@ -890,7 +892,7 @@ class npc_twilight_assault_drake : public CreatureScript
                 }
             }
 
-            void WaypointReached(uint32 waypointId)
+            void WaypointReached(uint32 waypointId) override
             {
                 switch (waypointId)
                 {
@@ -910,7 +912,6 @@ class npc_twilight_assault_drake : public CreatureScript
             }
 
             void UpdateAI(uint32 diff) override
-
             {
                 npc_escortAI::UpdateAI(diff);
 
@@ -1027,7 +1028,7 @@ public:
         }
 
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_WATER_JET)
                 if (Creature* fire = me->FindNearestCreature(NPC_FIRE_STALKER, 100.0f, true))
@@ -1279,7 +1280,7 @@ public:
             Start(true, true);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -1335,7 +1336,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() override
         {
             DoCast(me, SPELL_DETONATE);
         }
@@ -1398,7 +1399,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_HARPOON)
             {

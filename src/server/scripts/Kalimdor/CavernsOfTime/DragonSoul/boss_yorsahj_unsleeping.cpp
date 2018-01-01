@@ -183,7 +183,7 @@ class boss_yorsahj_the_unsleeping : public CreatureScript
 public:
     boss_yorsahj_the_unsleeping() : CreatureScript("boss_yorsahj_the_unsleeping") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new boss_yorsahj_the_unsleepingAI(pCreature);
     }
@@ -577,7 +577,7 @@ class npc_yorsahj_the_unsleeping_globule : public CreatureScript
 public:
     npc_yorsahj_the_unsleeping_globule() : CreatureScript("npc_yorsahj_the_unsleeping_globule") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_yorsahj_the_unsleeping_globuleAI(pCreature);
     }
@@ -692,7 +692,7 @@ class npc_yorsahj_the_unsleeping_forgotten_one : public CreatureScript
 public:
     npc_yorsahj_the_unsleeping_forgotten_one() : CreatureScript("npc_yorsahj_the_unsleeping_forgotten_one") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_yorsahj_the_unsleeping_forgotten_oneAI(pCreature);
     }
@@ -776,7 +776,7 @@ class npc_yorsahj_the_unsleeping_mana_void : public CreatureScript
 public:
     npc_yorsahj_the_unsleeping_mana_void() : CreatureScript("npc_yorsahj_the_unsleeping_mana_void") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_yorsahj_the_unsleeping_mana_voidAI(pCreature);
     }

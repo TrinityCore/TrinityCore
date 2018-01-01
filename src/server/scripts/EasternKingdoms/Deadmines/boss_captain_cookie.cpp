@@ -120,7 +120,7 @@ class boss_captain_cookie : public CreatureScript
 public:
     boss_captain_cookie() : CreatureScript("boss_captain_cookie") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new boss_captain_cookieAI(pCreature);
     }
@@ -234,9 +234,9 @@ class npc_captain_cookie_cauldron : public CreatureScript
 public:
     npc_captain_cookie_cauldron() : CreatureScript("npc_captain_cookie_cauldron") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_captain_cookie_cauldronAI(pCreature);
+        return new npc_captain_cookie_cauldronAI(creature);
     }
 
     struct npc_captain_cookie_cauldronAI : public ScriptedAI
@@ -261,7 +261,7 @@ class npc_captain_cookie_good_food : public CreatureScript
 public:
     npc_captain_cookie_good_food() : CreatureScript("npc_captain_cookie_good_food") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_captain_cookie_good_foodAI(pCreature);
     }
@@ -312,7 +312,7 @@ class npc_captain_cookie_bad_food : public CreatureScript
 public:
     npc_captain_cookie_bad_food() : CreatureScript("npc_captain_cookie_bad_food") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_captain_cookie_bad_foodAI(pCreature);
     }

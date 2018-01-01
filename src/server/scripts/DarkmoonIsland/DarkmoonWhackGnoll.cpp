@@ -68,7 +68,7 @@ class npc_whack_gnoll_bunny : public CreatureScript
     public:
         npc_whack_gnoll_bunny() : CreatureScript("npc_whack_gnoll_bunny") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_whack_gnoll_bunnyAI(pCreature);
         }
@@ -256,7 +256,7 @@ class npc_whack_gnoll_barrel : public CreatureScript
     public:
         npc_whack_gnoll_barrel() : CreatureScript("npc_whack_gnoll_barrel") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_whack_gnoll_barrelAI(pCreature);
         }

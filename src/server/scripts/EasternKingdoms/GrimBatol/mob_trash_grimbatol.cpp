@@ -64,7 +64,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_gardien_de_la_nuee_azurAI(pCreature);
     }
@@ -119,7 +119,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_gardien_de_la_nuee_cramoisieAI(pCreature);
     }
@@ -173,7 +173,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_prophete_de_la_nuee_cramoisieAI(pCreature);
     }
@@ -237,7 +237,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_prophete_de_la_nuee_azurAI(pCreature);
     }
@@ -301,7 +301,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_brise_tempete_du_crepusculeAI(pCreature);
     }
@@ -347,7 +347,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_esprit_de_leau_asserviAI(pCreature);
     }
@@ -401,7 +401,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_maitre_darmes_du_crepusculeAI(pCreature);
     }
@@ -446,7 +446,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_elementaire_de_roche_asserviAI(pCreature);
     }
@@ -509,7 +509,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_sculpte_terre_du_crepusculeAI(pCreature);
     }
@@ -557,7 +557,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_massacreur_du_crepusculeAI(pCreature);
     }
@@ -611,7 +611,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_chercheflamme_rehausseAI(pCreature);
     }
@@ -655,7 +655,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_marche_vent_rehausseAI(pCreature);
     }
@@ -718,7 +718,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_tisseur_dombre_du_crepusculeAI(pCreature);
     }
@@ -772,7 +772,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_seigneur_de_guerre_de_la_nuee_azurAI(pCreature);
     }
@@ -825,7 +825,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_seigneur_de_guerre_de_la_nuee_cramoisieAI(pCreature);
     }
@@ -886,7 +886,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_imposteur_du_crepusculeAI(pCreature);
     }
@@ -930,7 +930,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_brute_gronn_asservieAI(pCreature);
     }
@@ -975,7 +975,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_esprit_du_tonnerre_asservieAI(pCreature);
     }
@@ -1038,7 +1038,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_mande_tonnerre_du_crepusculeAI(pCreature);
     }
@@ -1102,7 +1102,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_grippe_feu_du_crepusculeAI(pCreature);
     }
@@ -1147,7 +1147,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_braise_ardente_asservieAI(pCreature);
     }
@@ -1209,7 +1209,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_flagellant_aquatique_rehausseAI(pCreature);
     }
@@ -1271,7 +1271,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_brise_roche_rehausseAI(pCreature);
     }
@@ -1315,7 +1315,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_mande_wyrm_du_crepusculeAI(pCreature);
     }
@@ -1370,7 +1370,7 @@ public:
 
 
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_drake_du_crepusculeAI(pCreature);
     }
@@ -1424,7 +1424,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_corrupteur_sans_visageAI(pCreature);
     }

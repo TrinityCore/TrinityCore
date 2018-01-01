@@ -129,7 +129,7 @@ class boss_baron_ashbury : public CreatureScript
                     BossAI::AttackStart(victim);
             }
 
-            void MoveInLineOfSight(Unit* victim)
+            void MoveInLineOfSight(Unit* victim) override
             {
                 if (me->IsWithinDist2d(victim, 14.0f))
                     BossAI::MoveInLineOfSight(victim);

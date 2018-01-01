@@ -265,7 +265,7 @@ public:
                     {
                         if (GameObject* plate1 = me->FindNearestGameObject(GO_DEATHWING_BACK_PLATE_1, 500.0f))
                         {
-                            if (!plate1->GetGoState() == GO_STATE_ACTIVE)
+                            if (plate1->GetGoState() == GO_STATE_ACTIVE)
                             {
                                 step = 3;
                                 speed = 0.2f;
@@ -558,7 +558,7 @@ public:
             DoZoneInCombat(me);
         }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_ABSORBED_BLOOD)
             {
@@ -653,7 +653,7 @@ public:
                 events.ScheduleEvent(EVENT_BLOOD_CORRUPTION, 8000);
         }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_NUCLEAR_BLAST_TENDON)
             {
@@ -665,7 +665,7 @@ public:
             }
         }
 
-        void SpellHit(Unit*, const SpellInfo* spell)
+        void SpellHit(Unit* /*unit*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_ABSORBED_BLOOD)
             {
@@ -729,8 +729,12 @@ public:
         void JustDied(Unit* killer) override
         {
             if (Aura * absorbed = me->GetAura(SPELL_ABSORBED_BLOOD))
-                if (stacks = absorbed->GetStackAmount() == 9)
+            {
+                stacks = absorbed->GetStackAmount();
+
+                if (stacks == 9)
                     DoCast(SPELL_NUCLEAR_BLAST_TENDON);
+            }
 
             if (IsHeroic())
                 DoCast(me, SPELL_DEGRADATION);
@@ -772,7 +776,7 @@ public:
             events.ScheduleEvent(EVENT_PLATE_CHECK, 500);
         }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_SEAL_ARMOR_BREACH)
             {
@@ -1009,12 +1013,11 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            if (GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_10_N ||
-                GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_10_HC)
+            if ((GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_10_N) ||
+                (GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_10_HC))
                 Trinity::Containers::RandomResize(targets, 1);
-
-            else if (GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_N ||
-                GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC)
+            else if ((GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_N) ||
+                     (GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC))
                 Trinity::Containers::RandomResize(targets, 3);
         }
 
@@ -1046,7 +1049,7 @@ public:
     {
         PrepareAuraScript(spell_absorb_blood_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_ABSORB_BLOOD_DUMMY))
                 return false;

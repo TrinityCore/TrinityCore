@@ -191,7 +191,7 @@ public:
                     Reaper->DespawnOrUnsummon();
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override 
         {
             if (type == DATA_ACHIV_PROTOTYPE_PRODIGY)
             {

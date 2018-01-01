@@ -136,7 +136,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_pyrelordAI(pCreature);
     }
@@ -210,7 +210,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_ancient_charhoundAI(pCreature);
     }
@@ -225,7 +225,7 @@ class npc_druid_of_the_flame : public CreatureScript
 public:
     npc_druid_of_the_flame() : CreatureScript("npc_druid_of_the_flame") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_druid_of_the_flameAI(pCreature);
     }
@@ -292,7 +292,7 @@ class npc_subterranean_magma_worm : public CreatureScript
 public:
     npc_subterranean_magma_worm() : CreatureScript("npc_subterranean_magma_worm") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_subterranean_magma_wormAI(pCreature);
     }
@@ -357,7 +357,7 @@ class npc_ancient_firelord : public CreatureScript
 public:
     npc_ancient_firelord() : CreatureScript("npc_ancient_firelord") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_ancient_firelordAI(pCreature);
     }
@@ -427,7 +427,7 @@ class npc_firehawk : public CreatureScript
 public:
     npc_firehawk() : CreatureScript("npc_firehawk") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_firehawkAI(pCreature);
     }
@@ -488,7 +488,7 @@ class npc_bear_cub : public CreatureScript
 public:
     npc_bear_cub() : CreatureScript("npc_bear_cub") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_bear_cubAI(pCreature);
     }
@@ -561,7 +561,7 @@ class npc_squirrel : public CreatureScript
 public:
     npc_squirrel() : CreatureScript("npc_squirrel") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_squirrelAI(pCreature);
     }
@@ -652,7 +652,7 @@ class npc_child_of_tortolla : public CreatureScript
 public:
     npc_child_of_tortolla() : CreatureScript("npc_child_of_tortolla") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_child_of_tortollaAI(pCreature);
     }
@@ -725,7 +725,7 @@ class npc_alpine_songbird : public CreatureScript
 public:
     npc_alpine_songbird() : CreatureScript("npc_alpine_songbird") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_alpine_songbirdAI(pCreature);
     }
@@ -815,7 +815,7 @@ class npc_forest_owl : public CreatureScript
 public:
     npc_forest_owl() : CreatureScript("npc_forest_owl") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_forest_owlAI(pCreature);
     }
@@ -905,7 +905,7 @@ class npc_goldwing_hawk : public CreatureScript
 public:
     npc_goldwing_hawk() : CreatureScript("npc_goldwing_hawk") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_goldwing_hawkAI(pCreature);
     }
@@ -995,7 +995,7 @@ class npc_pyrachnis : public CreatureScript
 public:
     npc_pyrachnis() : CreatureScript("npc_pyrachnis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_pyrachnisAI(pCreature);
     }
@@ -1062,7 +1062,7 @@ class npc_tooga : public CreatureScript
 public:
     npc_tooga() : CreatureScript("npc_tooga") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_toogaAI(pCreature);
     }
@@ -1135,7 +1135,7 @@ class npc_nemesis : public CreatureScript
 public:
     npc_nemesis() : CreatureScript("npc_nemesis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_nemesisAI(pCreature);
     }
@@ -1197,7 +1197,7 @@ class npc_lylagar : public CreatureScript
 public:
     npc_lylagar() : CreatureScript("npc_lylagar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_lylagarAI(pCreature);
     }
@@ -1259,7 +1259,7 @@ class npc_millagazor : public CreatureScript
 public:
     npc_millagazor() : CreatureScript("npc_millagazor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_millagazorAI(pCreature);
     }
@@ -1352,7 +1352,7 @@ class npc_galenges : public CreatureScript
 public:
     npc_galenges() : CreatureScript("npc_galenges") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_galengesAI(pCreature);
     }
@@ -1444,7 +1444,7 @@ class npc_arch_druid_hamuul_runetotem : public CreatureScript
 public:
     npc_arch_druid_hamuul_runetotem() : CreatureScript("npc_arch_druid_hamuul_runetotem") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_arch_druid_hamuul_runetotemAI(pCreature);
     }
@@ -1535,7 +1535,7 @@ class npc_leyara : public CreatureScript
 public:
     npc_leyara() : CreatureScript("npc_leyara") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_leyaraAI(pCreature);
     }
@@ -1612,7 +1612,7 @@ class npc_elderlimb : public CreatureScript
 public:
     npc_elderlimb() : CreatureScript("npc_elderlimb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_elderlimbAI(pCreature);
     }
@@ -1705,7 +1705,7 @@ class npc_thisalee_crow : public CreatureScript
 public:
     npc_thisalee_crow() : CreatureScript("npc_thisalee_crow") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_thisalee_crowAI(pCreature);
     }
@@ -1792,7 +1792,7 @@ class npc_tholo_whitehoof : public CreatureScript
 public:
     npc_tholo_whitehoof() : CreatureScript("npc_tholo_whitehoof") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_tholo_whitehoofAI(pCreature);
     }
@@ -1873,7 +1873,7 @@ class npc_melfurion_stormrage : public CreatureScript
 public:
     npc_melfurion_stormrage() : CreatureScript("npc_melfurion_stormrage") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_melfurion_stormrageAI(pCreature);
     }
@@ -1970,7 +1970,7 @@ class npc_leyara2 : public CreatureScript
 public:
     npc_leyara2() : CreatureScript("npc_leyara2") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_leyara2AI(pCreature);
     }
@@ -2045,7 +2045,7 @@ class npc_molten_behemoth : public CreatureScript
 public:
     npc_molten_behemoth() : CreatureScript("npc_molten_behemoth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_molten_behemothAI(pCreature);
     }
@@ -2127,7 +2127,7 @@ class npc_rayne_feathersong : public CreatureScript
 public:
     npc_rayne_feathersong() : CreatureScript("npc_rayne_feathersong") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_rayne_feathersongAI(pCreature);
     }
@@ -2202,7 +2202,7 @@ class npc_cinderweb_spinner2 : public CreatureScript
 public:
     npc_cinderweb_spinner2() : CreatureScript("npc_cinderweb_spinner2") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_cinderweb_spinner2AI(pCreature);
     }
@@ -2282,7 +2282,7 @@ class npc_Achievement_helper : public CreatureScript
 public:
     npc_Achievement_helper() : CreatureScript("npc_Achievement_helper") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_Achievement_helperAI(pCreature);
     }
@@ -2355,7 +2355,7 @@ class npc_fireside_chat : public CreatureScript
 public:
     npc_fireside_chat() : CreatureScript("npc_fireside_chat") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_fireside_chatAI(pCreature);
     }
@@ -2443,7 +2443,7 @@ class npc_currency_required_quest_taker : public CreatureScript
 public:
     npc_currency_required_quest_taker() : CreatureScript("npc_currency_required_quest_taker") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_currency_required_quest_takerAI(pCreature);
     }
@@ -2524,7 +2524,7 @@ class npc_flamewaker_shaman : public CreatureScript
 public:
     npc_flamewaker_shaman() : CreatureScript("npc_flamewaker_shaman") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_flamewaker_shamanAI(pCreature);
     }
@@ -2609,7 +2609,7 @@ class npc_flamewaker_shaman_helper : public CreatureScript
 public:
     npc_flamewaker_shaman_helper() : CreatureScript("npc_flamewaker_shaman_helper") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_flamewaker_shaman_helperAI(pCreature);
     }
@@ -2686,7 +2686,7 @@ class npc_flamewaker_hunter : public CreatureScript
 public:
     npc_flamewaker_hunter() : CreatureScript("npc_flamewaker_hunter") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_flamewaker_hunterAI(pCreature);
     }
@@ -2836,7 +2836,7 @@ class npc_flamewaker_hunter_helper2 : public CreatureScript
 public:
     npc_flamewaker_hunter_helper2() : CreatureScript("npc_flamewaker_hunter_helper2") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_flamewaker_hunter_helper2AI(pCreature);
     }
@@ -2904,7 +2904,7 @@ class npc_flamewaker_hunter_helper : public CreatureScript
 public:
     npc_flamewaker_hunter_helper() : CreatureScript("npc_flamewaker_hunter_helper") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_flamewaker_hunter_helperAI(pCreature);
     }
@@ -2984,7 +2984,7 @@ class npc_flamewaker_sentinel : public CreatureScript
 public:
     npc_flamewaker_sentinel() : CreatureScript("npc_flamewaker_sentinel") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_flamewaker_sentinelAI(pCreature);
     }
@@ -3062,7 +3062,7 @@ class npc_emberspit_scorpion : public CreatureScript
 public:
     npc_emberspit_scorpion() : CreatureScript("npc_emberspit_scorpion") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_emberspit_scorpionAI(pCreature);
     }
@@ -3137,7 +3137,7 @@ class npc_trained_firehawk : public CreatureScript
 public:
     npc_trained_firehawk() : CreatureScript("npc_trained_firehawk") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_trained_firehawkAI(pCreature);
     }
@@ -3207,7 +3207,7 @@ class npc_firehawk_helper : public CreatureScript
 public:
     npc_firehawk_helper() : CreatureScript("npc_firehawk_helper") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_firehawk_helperAI(pCreature);
     }
@@ -3297,7 +3297,7 @@ class death_from_above : public CreatureScript
 public:
     death_from_above() : CreatureScript("death_from_above") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new death_from_aboveAI(pCreature);
     }
@@ -3402,7 +3402,7 @@ class npc_little_lasher : public CreatureScript
 public:
     npc_little_lasher() : CreatureScript("npc_little_lasher") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_little_lasherAI(pCreature);
     }
@@ -3469,7 +3469,7 @@ class npc_hyjal_druid : public CreatureScript
 public:
     npc_hyjal_druid() : CreatureScript("npc_hyjal_druid") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_hyjal_druidAI(pCreature);
     }
@@ -3541,7 +3541,7 @@ class npc_flame_protection_rune : public CreatureScript
 public:
     npc_flame_protection_rune() : CreatureScript("npc_flame_protection_rune") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_flame_protection_runeAI(pCreature);
     }
@@ -3606,7 +3606,7 @@ class npc_flame_protection_rune1 : public CreatureScript
 public:
     npc_flame_protection_rune1() : CreatureScript("npc_flame_protection_rune1") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_flame_protection_rune1AI(pCreature);
     }
@@ -3694,7 +3694,7 @@ class npc_druid_of_the_flame_molten_front : public CreatureScript
 public:
     npc_druid_of_the_flame_molten_front() : CreatureScript("npc_druid_of_the_flame_molten_front") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_druid_of_the_flame_molten_frontAI(pCreature);
     }
@@ -3814,7 +3814,7 @@ class npc_cinderweb_cocoon : public CreatureScript
 public:
     npc_cinderweb_cocoon() : CreatureScript("npc_cinderweb_cocoon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_cinderweb_cocoonAI(pCreature);
     }
@@ -3879,7 +3879,7 @@ class npc_molten_front_vendor : public CreatureScript
 public:
     npc_molten_front_vendor() : CreatureScript("npc_molten_front_vendor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_molten_front_vendorAI(pCreature);
     }
@@ -3966,7 +3966,7 @@ class npc_fireland_teleporter : public CreatureScript
 public:
     npc_fireland_teleporter() : CreatureScript("npc_fireland_teleporter") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_fireland_teleporterAI(pCreature);
     }

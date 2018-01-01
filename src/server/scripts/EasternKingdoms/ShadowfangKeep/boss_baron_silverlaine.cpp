@@ -97,7 +97,7 @@ class boss_baron_silverlaine : public CreatureScript
             }
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim) override
         {
             Talk(RAND(SAY_KILLER_1, SAY_KILLER_2));
         }
@@ -152,7 +152,7 @@ class spell_summon_worgen_spirits : public SpellScriptLoader
         {
             PrepareSpellScript(spell_summon_worgen_spirits_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_WORGEN_SPIRIT))
                     return false;

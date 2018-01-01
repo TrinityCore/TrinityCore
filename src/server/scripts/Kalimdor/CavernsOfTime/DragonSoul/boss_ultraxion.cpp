@@ -369,7 +369,7 @@ public:
     {
         PrepareAuraScript(spell_hour_of_twilight_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_HOUR_OF_TWILIGHT))
                 return false;
@@ -633,7 +633,7 @@ class spell_fading_light_dps : public SpellScriptLoader
     {
         PrepareAuraScript(spell_fading_light_dps_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_FADING_LIGHT_DPS))
                 return false;
@@ -832,7 +832,7 @@ class spell_timeloop : public SpellScriptLoader
 
             uint32 absorbChance;
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TIMELOOP))
                     return false;

@@ -161,7 +161,7 @@ class boss_mannoroth : public CreatureScript
 public:
     boss_mannoroth() : CreatureScript("boss_mannoroth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new boss_mannorothAI(pCreature);
     }
@@ -207,7 +207,7 @@ public:
             bEndEncounter = false;
         }
 
-        void JustReachedHome()
+        void JustReachedHome() override
         {
             if (Creature* pTyrande = me->FindNearestCreature(NPC_TYRANDE, 150.0f))
                 pTyrande->AI()->DoAction(7); // ACTION_MANNOROTH_RESET
@@ -521,7 +521,7 @@ class npc_mannoroth_varothen : public CreatureScript
 public:
     npc_mannoroth_varothen() : CreatureScript("npc_mannoroth_varothen") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_mannoroth_varothenAI(pCreature);
     }
@@ -627,7 +627,7 @@ class npc_mannoroth_doomguard_debilitator : public CreatureScript
 public:
     npc_mannoroth_doomguard_debilitator() : CreatureScript("npc_mannoroth_doomguard_debilitator") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_mannoroth_doomguard_debilitatorAI(pCreature);
     }

@@ -211,7 +211,7 @@ public:
             Cleanup();
         }
 
-        void JustReachedHome()
+        void JustReachedHome() override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _JustReachedHome();

@@ -105,7 +105,7 @@ public:
         void Update(uint32 diff) { }
 
 
-        void OnPlayerEnter(Player* player)
+        void OnPlayerEnter(Player* player) override
         {
             if (GetData(DATA_ALAKIR_EVENT) == DONE)
             {
@@ -114,7 +114,7 @@ public:
             }
         }
 
-        bool IsEncounterInProgress() const
+        bool IsEncounterInProgress() const override 
         {
             for (uint8 i = 0; i < ENCOUNTERS; ++i)
             {
@@ -395,7 +395,7 @@ public:
             return true;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override 
         {
             switch (type)
             {

@@ -124,7 +124,7 @@ class boss_queen_azshara : public CreatureScript
 public:
     boss_queen_azshara() : CreatureScript("boss_queen_azshara") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new boss_queen_azsharaAI(pCreature);
     }
@@ -183,7 +183,7 @@ public:
             instance->SetBossState(DATA_AZSHARA, IN_PROGRESS);
         }
 
-        void JustReachedHome()
+        void JustReachedHome() override
         {
             Talk(SAY_WIPE);
             addsCount = 0;
@@ -313,7 +313,7 @@ class npc_queen_azshara_enchanted_magus : public CreatureScript
 public:
     npc_queen_azshara_enchanted_magus() : CreatureScript("npc_queen_azshara_enchanted_magus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_queen_azshara_enchanted_magusAI(pCreature);
     }
@@ -433,7 +433,7 @@ class npc_queen_azshara_hammer_of_divinity : public CreatureScript
 public:
     npc_queen_azshara_hammer_of_divinity() : CreatureScript("npc_queen_azshara_hammer_of_divinity") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_queen_azshara_hammer_of_divinityAI(pCreature);
     }
