@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,7 +52,7 @@ struct boss_toravon : public BossAI
 {
     boss_toravon(Creature* creature) : BossAI(creature, DATA_TORAVON) { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_FROZEN_MALLET);
 
@@ -60,7 +60,7 @@ struct boss_toravon : public BossAI
         events.ScheduleEvent(EVENT_WHITEOUT, Seconds(25));
         events.ScheduleEvent(EVENT_FREEZING_GROUND, Seconds(7));
 
-        _EnterCombat();
+        _JustEngagedWith();
     }
 
     void UpdateAI(uint32 diff) override
@@ -78,9 +78,11 @@ struct boss_toravon : public BossAI
             switch (eventId)
             {
                 case EVENT_FROZEN_ORB:
-                    me->CastCustomSpell(SPELL_FROZEN_ORB, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3), me);
+                {
+                    me->CastSpell(me, SPELL_FROZEN_ORB, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3)));
                     events.Repeat(Seconds(32));
                     break;
+                }
                 case EVENT_WHITEOUT:
                     DoCastSelf(SPELL_WHITEOUT);
                     events.Repeat(Seconds(38));
@@ -111,7 +113,7 @@ struct npc_frost_warder : public ScriptedAI
         _events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoZoneInCombat();
 

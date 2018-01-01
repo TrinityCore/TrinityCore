@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -80,7 +80,7 @@ struct npc_wrathbone_flayer : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_CLEAVE, 5000);
         _events.ScheduleEvent(EVENT_IGNORED, 7000);
@@ -201,7 +201,7 @@ struct npc_angered_soul_fragment : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->RemoveAurasDueToSpell(SPELL_GREATER_INVISIBILITY);
 
@@ -264,7 +264,7 @@ class spell_illidari_nightlord_shadow_inferno : public AuraScript
     {
         PreventDefaultAction();
         int32 bp = aurEffect->GetTickNumber() * aurEffect->GetAmount();
-        GetUnitOwner()->CastCustomSpell(SPELL_SHADOW_INFERNO_DAMAGE, SPELLVALUE_BASE_POINT0, bp, GetUnitOwner(), true);
+        GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_SHADOW_INFERNO_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(bp));
     }
 
     void Register() override

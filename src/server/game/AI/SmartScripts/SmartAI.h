@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -83,7 +83,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void JustReachedHome() override;
 
         // Called for reaction at enter to combat if not in combat yet (enemy can be nullptr)
-        void EnterCombat(Unit* enemy) override;
+        void JustEngagedWith(Unit* enemy) override;
 
         // Called for reaction at stopping attack at no attackers or targets
         void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;

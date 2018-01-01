@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -245,7 +245,7 @@ struct boss_northrend_beastsAI : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);
@@ -418,7 +418,7 @@ struct npc_snobold_vassal : public ScriptedAI
             ScriptedAI::AttackStart(victim);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_CHECK_MOUNT, 3s);
         _events.ScheduleEvent(EVENT_FIRE_BOMB, 12s, 25s);
@@ -1152,7 +1152,7 @@ class spell_jormungars_paralytic_toxin : public AuraScript
             slowEff->ChangeAmount(newAmount);
 
             if (newAmount == -100 && !GetTarget()->HasAura(SPELL_PARALYSIS))
-                GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, true, nullptr, slowEff, GetCasterGUID());
+                GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, CastSpellExtraArgs(slowEff).SetOriginalCaster(GetCasterGUID()));
         }
     }
 
@@ -1197,7 +1197,9 @@ class spell_jormungars_slime_pool : public AuraScript
         PreventDefaultAction();
 
         int32 const radius = static_cast<int32>(((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f);
-        GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff);
+        CastSpellExtraArgs args(aurEff);
+        args.SpellValueOverrides.AddMod(SPELLVALUE_RADIUS_MOD, radius);
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, args);
     }
 
     void Register() override

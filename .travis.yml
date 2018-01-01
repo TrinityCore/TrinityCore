@@ -27,6 +27,9 @@ addons:
       - zlib1g-dev
       - libbz2-dev
 
+services:
+  - mysql
+
 before_install:
   - git config user.email "rochet2@post.com" && git config user.name "Rochet2"
   - git tag -a -m "Travis build" init

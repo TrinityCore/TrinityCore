@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "Containers.h"
 #include "EventMap.h"
 #include "ObjectGuid.h"
+#include "SpellDefines.h"
 #include "ThreatManager.h"
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
@@ -274,6 +275,13 @@ class TC_GAME_API UnitAI
                 targetList.resize(num);
         }
 
+        // Called when the unit enters combat
+        // (NOTE: Creature engage logic should NOT be here, but in JustEngagedWith, which happens once threat is established!)
+        virtual void JustEnteredCombat(Unit* /*who*/) { }
+
+        // Called when the unit leaves combat
+        virtual void JustExitedCombat() { }
+
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
 
@@ -294,10 +302,10 @@ class TC_GAME_API UnitAI
         void AttackStartCaster(Unit* victim, float dist);
 
         void DoCast(uint32 spellId);
-        void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
-        void DoCastSelf(uint32 spellId, bool triggered = false) { DoCast(me, spellId, triggered); }
-        void DoCastVictim(uint32 spellId, bool triggered = false);
-        void DoCastAOE(uint32 spellId, bool triggered = false);
+        void DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args = {});
+        void DoCastSelf(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(me, spellId, args); }
+        void DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
+        void DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(nullptr, spellId, args); }
 
         float DoGetSpellMaxRange(uint32 spellId, bool positive = false);
 
