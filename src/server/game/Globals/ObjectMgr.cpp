@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -298,14 +298,14 @@ ObjectMgr::~ObjectMgr()
             delete itr2->second;
 }
 
-void ObjectMgr::AddLocaleString(std::string const& value, LocaleConstant localeConstant, std::vector<std::string>& data)
+void ObjectMgr::AddLocaleString(std::string&& value, LocaleConstant localeConstant, std::vector<std::string>& data)
 {
     if (!value.empty())
     {
         if (data.size() <= size_t(localeConstant))
             data.resize(localeConstant + 1);
 
-        data[localeConstant] = value;
+        data[localeConstant] = std::move(value);
     }
 }
 
@@ -327,20 +327,15 @@ void ObjectMgr::LoadCreatureLocales()
         uint32 id               = fields[0].GetUInt32();
         std::string localeName  = fields[1].GetString();
 
-        std::string name        = fields[2].GetString();
-        std::string nameAlt     = fields[3].GetString();
-        std::string title       = fields[4].GetString();
-        std::string titleAlt    = fields[5].GetString();
-
-        CreatureLocale& data = _creatureLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(name,       locale, data.Name);
-        AddLocaleString(nameAlt,    locale, data.NameAlt);
-        AddLocaleString(title,      locale, data.Title);
-        AddLocaleString(titleAlt,   locale, data.TitleAlt);
+        CreatureLocale& data = _creatureLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.Name);
+        AddLocaleString(fields[3].GetString(), locale, data.NameAlt);
+        AddLocaleString(fields[4].GetString(), locale, data.Title);
+        AddLocaleString(fields[5].GetString(), locale, data.TitleAlt);
 
     } while (result->NextRow());
 
@@ -367,16 +362,14 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
         uint16 menuId           = fields[0].GetUInt16();
         uint16 optionId         = fields[1].GetUInt16();
         std::string localeName  = fields[2].GetString();
-        std::string optionText  = fields[3].GetString();
-        std::string boxText     = fields[4].GetString();
 
-        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, optionId)];
         LocaleConstant locale       = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(optionText, locale, data.OptionText);
-        AddLocaleString(boxText, locale, data.BoxText);
+        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, optionId)];
+        AddLocaleString(fields[3].GetString(), locale, data.OptionText);
+        AddLocaleString(fields[4].GetString(), locale, data.BoxText);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_option locale strings in %u ms", uint32(_gossipMenuItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -399,14 +392,13 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         uint32 id               = fields[0].GetUInt32();
         std::string localeName  = fields[1].GetString();
-        std::string name        = fields[2].GetString();
 
-        PointOfInterestLocale& data = _pointOfInterestLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(name, locale, data.Name);
+        PointOfInterestLocale& data = _pointOfInterestLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.Name);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u points_of_interest locale strings in %u ms", uint32(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -4774,30 +4766,20 @@ void ObjectMgr::LoadQuestTemplateLocale()
         uint32 id                       = fields[0].GetUInt32();
         std::string localeName          = fields[1].GetString();
 
-        std::string logTitle            = fields[2].GetString();
-        std::string logDescription      = fields[3].GetString();
-        std::string questDescription    = fields[4].GetString();
-        std::string areaDescription     = fields[5].GetString();
-        std::string portraitGiverText   = fields[6].GetString();
-        std::string portraitGiverName   = fields[7].GetString();
-        std::string portraitTurnInText  = fields[8].GetString();
-        std::string portraitTurnInName  = fields[9].GetString();
-        std::string questCompletionLog  = fields[10].GetString();
-
-        QuestTemplateLocale& data = _questTemplateLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(logTitle,               locale, data.LogTitle);
-        AddLocaleString(logDescription,         locale, data.LogDescription);
-        AddLocaleString(questDescription,       locale, data.QuestDescription);
-        AddLocaleString(areaDescription,        locale, data.AreaDescription);
-        AddLocaleString(portraitGiverText,      locale, data.PortraitGiverText);
-        AddLocaleString(portraitGiverName,      locale, data.PortraitGiverName);
-        AddLocaleString(portraitTurnInText,     locale, data.PortraitTurnInText);
-        AddLocaleString(portraitTurnInName,     locale, data.PortraitTurnInName);
-        AddLocaleString(questCompletionLog,     locale, data.QuestCompletionLog);
+        QuestTemplateLocale& data = _questTemplateLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.LogTitle);
+        AddLocaleString(fields[3].GetString(), locale, data.LogDescription);
+        AddLocaleString(fields[4].GetString(), locale, data.QuestDescription);
+        AddLocaleString(fields[5].GetString(), locale, data.AreaDescription);
+        AddLocaleString(fields[6].GetString(), locale, data.PortraitGiverText);
+        AddLocaleString(fields[7].GetString(), locale, data.PortraitGiverName);
+        AddLocaleString(fields[8].GetString(), locale, data.PortraitTurnInText);
+        AddLocaleString(fields[9].GetString(), locale, data.PortraitTurnInName);
+        AddLocaleString(fields[10].GetString(), locale, data.QuestCompletionLog);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Template locale strings in %u ms", _questTemplateLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -4820,14 +4802,12 @@ void ObjectMgr::LoadQuestObjectivesLocale()
         uint32 id                           = fields[0].GetUInt32();
         std::string localeName              = fields[1].GetString();
 
-        std::string Description             = fields[2].GetString();
-
-        QuestObjectivesLocale& data = _questObjectivesLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(Description, locale, data.Description);
+        QuestObjectivesLocale& data = _questObjectivesLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.Description);
     }
     while (result->NextRow());
 
@@ -4851,14 +4831,12 @@ void ObjectMgr::LoadQuestOfferRewardLocale()
         uint32 id = fields[0].GetUInt32();
         std::string localeName = fields[1].GetString();
 
-        std::string RewardText = fields[2].GetString();
-
-        QuestOfferRewardLocale& data = _questOfferRewardLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(RewardText, locale, data.RewardText);
+        QuestOfferRewardLocale& data = _questOfferRewardLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.RewardText);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Offer Reward locale strings in %u ms", _questOfferRewardLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -4881,14 +4859,12 @@ void ObjectMgr::LoadQuestRequestItemsLocale()
         uint32 id = fields[0].GetUInt32();
         std::string localeName = fields[1].GetString();
 
-        std::string completionText = fields[2].GetString();
-
-        QuestRequestItemsLocale& data = _questRequestItemsLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(completionText, locale, data.CompletionText);
+        QuestRequestItemsLocale& data = _questRequestItemsLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.CompletionText);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Request Items locale strings in %u ms", _questRequestItemsLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -5515,14 +5491,13 @@ void ObjectMgr::LoadPageTextLocales()
 
         uint32 id                   = fields[0].GetUInt32();
         std::string localeName      = fields[1].GetString();
-        std::string text            = fields[2].GetString();
 
-        PageTextLocale& data = _pageTextLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(text, locale, data.Text);
+        PageTextLocale& data = _pageTextLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u PageText locale strings in %u ms", uint32(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -6840,18 +6815,14 @@ void ObjectMgr::LoadGameObjectLocales()
         uint32 id                   = fields[0].GetUInt32();
         std::string localeName      = fields[1].GetString();
 
-        std::string name            = fields[2].GetString();
-        std::string castBarCaption  = fields[3].GetString();
-        std::string unk1            = fields[4].GetString();
-
-        GameObjectLocale& data = _gameObjectLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(name, locale, data.Name);
-        AddLocaleString(castBarCaption, locale, data.CastBarCaption);
-        AddLocaleString(unk1, locale, data.Unk1);
+        GameObjectLocale& data = _gameObjectLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.Name);
+        AddLocaleString(fields[3].GetString(), locale, data.CastBarCaption);
+        AddLocaleString(fields[4].GetString(), locale, data.Unk1);
 
     } while (result->NextRow());
 
@@ -9917,6 +9888,11 @@ bool ObjectMgr::GetRealmName(uint32 realmId, std::string& name, std::string& nor
     return false;
 }
 
+PlayerChoice const* ObjectMgr::GetPlayerChoice(int32 choiceId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
+}
+
 void ObjectMgr::LoadGameObjectQuestItems()
 {
     uint32 oldMSTime = getMSTime();
@@ -10036,4 +10012,350 @@ void ObjectMgr::LoadSceneTemplates()
     } while (templates->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u scene templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadPlayerChoices()
+{
+    uint32 oldMSTime = getMSTime();
+    _playerChoices.clear();
+
+    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, Question FROM playerchoice");
+
+    if (!choices)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 player choices. DB table `playerchoice` is empty.");
+        return;
+    }
+
+    uint32 responseCount = 0;
+    uint32 rewardCount = 0;
+    uint32 itemRewardCount = 0;
+    uint32 currencyRewardCount = 0;
+    uint32 factionRewardCount = 0;
+
+    do
+    {
+        Field* fields = choices->Fetch();
+
+        int32 choiceId = fields[0].GetInt32();
+
+        PlayerChoice& choice = _playerChoices[choiceId];
+        choice.ChoiceId = choiceId;
+        choice.Question = fields[1].GetString();
+
+    } while (choices->NextRow());
+
+    if (QueryResult responses = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ChoiceArtFileId, Header, Answer, Description, Confirmation FROM playerchoice_response ORDER BY `Index` ASC"))
+    {
+        do
+        {
+            Field* fields = responses->Fetch();
+
+            int32 choiceId      = fields[0].GetInt32();
+            int32 responseId    = fields[1].GetInt32();
+
+            PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
+            if (!choice)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response` references non-existing ChoiceId: %d (ResponseId: %d), skipped", choiceId, responseId);
+                continue;
+            }
+
+            choice->Responses.emplace_back();
+
+            PlayerChoiceResponse& response = choice->Responses.back();
+            response.ResponseId         = responseId;
+            response.ChoiceArtFileId    = fields[2].GetInt32();
+            response.Header             = fields[3].GetString();
+            response.Answer             = fields[4].GetString();
+            response.Description        = fields[5].GetString();
+            response.Confirmation       = fields[6].GetString();
+            ++responseCount;
+
+        } while (responses->NextRow());
+    }
+
+    if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, TitleId, PackageId, SkillLineId, SkillPointCount, ArenaPointCount, HonorPointCount, Money, Xp FROM playerchoice_response_reward"))
+    {
+        do
+        {
+            Field* fields = rewards->Fetch();
+
+            int32 choiceId      = fields[0].GetInt32();
+            int32 responseId    = fields[1].GetInt32();
+
+            PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
+            if (!choice)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward` references non-existing ChoiceId: %d (ResponseId: %d), skipped", choiceId, responseId);
+                continue;
+            }
+
+            auto responseItr = std::find_if(choice->Responses.begin(), choice->Responses.end(),
+                [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
+            if (responseItr == choice->Responses.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward` references non-existing ResponseId: %d for ChoiceId %d, skipped", responseId, choiceId);
+                continue;
+            }
+
+            responseItr->Reward = boost::in_place();
+
+            PlayerChoiceResponseReward* reward = responseItr->Reward.get_ptr();
+            reward->TitleId          = fields[2].GetInt32();
+            reward->PackageId        = fields[3].GetInt32();
+            reward->SkillLineId      = fields[4].GetInt32();
+            reward->SkillPointCount  = fields[5].GetUInt32();
+            reward->ArenaPointCount  = fields[6].GetUInt32();
+            reward->HonorPointCount  = fields[7].GetUInt32();
+            reward->Money            = fields[8].GetUInt64();
+            reward->Xp               = fields[9].GetUInt32();
+            ++rewardCount;
+
+            if (reward->TitleId && !sCharTitlesStore.LookupEntry(reward->TitleId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward` references non-existing Title %d for ChoiceId %d, ResponseId: %d, set to 0",
+                    reward->TitleId, choiceId, responseId);
+                reward->TitleId = 0;
+            }
+
+            if (reward->PackageId && !sDB2Manager.GetQuestPackageItems(reward->PackageId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward` references non-existing QuestPackage %d for ChoiceId %d, ResponseId: %d, set to 0",
+                    reward->TitleId, choiceId, responseId);
+                reward->PackageId = 0;
+            }
+
+            if (reward->SkillLineId && !sSkillLineStore.LookupEntry(reward->SkillLineId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward` references non-existing SkillLine %d for ChoiceId %d, ResponseId: %d, set to 0",
+                    reward->TitleId, choiceId, responseId);
+                reward->SkillLineId = 0;
+                reward->SkillPointCount = 0;
+            }
+
+        } while (rewards->NextRow());
+    }
+
+    if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item ORDER BY `Index` ASC"))
+    {
+        do
+        {
+            Field* fields = rewards->Fetch();
+
+            int32 choiceId = fields[0].GetInt32();
+            int32 responseId = fields[1].GetInt32();
+            uint32 itemId = fields[2].GetUInt32();
+            Tokenizer bonusListIDsTok(fields[3].GetString(), ' ');
+            std::vector<int32> bonusListIds;
+            for (char const* token : bonusListIDsTok)
+                bonusListIds.push_back(int32(atol(token)));
+            int32 quantity = fields[4].GetInt32();
+
+            PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
+            if (!choice)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_item` references non-existing ChoiceId: %d (ResponseId: %d), skipped", choiceId, responseId);
+                continue;
+            }
+
+            auto responseItr = std::find_if(choice->Responses.begin(), choice->Responses.end(),
+                [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
+            if (responseItr == choice->Responses.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_item` references non-existing ResponseId: %d for ChoiceId %d, skipped", responseId, choiceId);
+                continue;
+            }
+
+            if (!responseItr->Reward)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_item` references non-existing player choice reward for ChoiceId %d, ResponseId: %d, skipped",
+                    choiceId, responseId);
+                continue;
+            }
+
+            if (!GetItemTemplate(itemId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_item` references non-existing item %u for ChoiceId %d, ResponseId: %d, skipped",
+                    itemId, choiceId, responseId);
+                continue;
+            }
+
+            responseItr->Reward->Items.emplace_back(itemId, std::move(bonusListIds), quantity);
+
+        } while (rewards->NextRow());
+    }
+
+    if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, CurrencyId, Quantity FROM playerchoice_response_reward_currency ORDER BY `Index` ASC"))
+    {
+        do
+        {
+            Field* fields = rewards->Fetch();
+
+            int32 choiceId = fields[0].GetInt32();
+            int32 responseId = fields[1].GetInt32();
+            uint32 currencyId = fields[2].GetUInt32();
+            int32 quantity = fields[3].GetInt32();
+
+            PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
+            if (!choice)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_currency` references non-existing ChoiceId: %d (ResponseId: %d), skipped", choiceId, responseId);
+                continue;
+            }
+
+            auto responseItr = std::find_if(choice->Responses.begin(), choice->Responses.end(),
+                [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
+            if (responseItr == choice->Responses.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_currency` references non-existing ResponseId: %d for ChoiceId %d, skipped", responseId, choiceId);
+                continue;
+            }
+
+            if (!responseItr->Reward)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_currency` references non-existing player choice reward for ChoiceId %d, ResponseId: %d, skipped",
+                    choiceId, responseId);
+                continue;
+            }
+
+            if (!sCurrencyTypesStore.LookupEntry(currencyId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_currency` references non-existing currency %u for ChoiceId %d, ResponseId: %d, skipped",
+                    currencyId, choiceId, responseId);
+                continue;
+            }
+
+            responseItr->Reward->Currency.emplace_back(currencyId, quantity);
+
+        } while (rewards->NextRow());
+    }
+
+    if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, FactionId, Quantity FROM playerchoice_response_reward_faction ORDER BY `Index` ASC"))
+    {
+        do
+        {
+            Field* fields = rewards->Fetch();
+
+            int32 choiceId = fields[0].GetInt32();
+            int32 responseId = fields[1].GetInt32();
+            uint32 factionId = fields[2].GetUInt32();
+            int32 quantity = fields[3].GetInt32();
+
+            PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
+            if (!choice)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_faction` references non-existing ChoiceId: %d (ResponseId: %d), skipped", choiceId, responseId);
+                continue;
+            }
+
+            auto responseItr = std::find_if(choice->Responses.begin(), choice->Responses.end(),
+                [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
+            if (responseItr == choice->Responses.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_faction` references non-existing ResponseId: %d for ChoiceId %d, skipped", responseId, choiceId);
+                continue;
+            }
+
+            if (!responseItr->Reward)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_faction` references non-existing player choice reward for ChoiceId %d, ResponseId: %d, skipped",
+                    choiceId, responseId);
+                continue;
+            }
+
+            if (!sFactionStore.LookupEntry(factionId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_faction` references non-existing faction %u for ChoiceId %d, ResponseId: %d, skipped",
+                    factionId, choiceId, responseId);
+                continue;
+            }
+
+            responseItr->Reward->Faction.emplace_back(factionId, quantity);
+
+        } while (rewards->NextRow());
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " player choices, %u responses, %u rewards, %u item rewards, %u currency rewards and %u faction rewards in %u ms.",
+        _playerChoices.size(), responseCount, rewardCount, itemRewardCount, currencyRewardCount, factionRewardCount, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadPlayerChoicesLocale()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // need for reload case
+    _playerChoiceLocales.clear();
+
+    //                                                   0         1       2
+    if (QueryResult result = WorldDatabase.Query("SELECT ChoiceId, locale, Question FROM playerchoice_locale"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 choiceId         = fields[0].GetUInt32();
+            std::string localeName  = fields[1].GetString();
+
+            if (!GetPlayerChoice(choiceId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_locale` references non-existing ChoiceId: %d for locale %s, skipped", choiceId, localeName.c_str());
+                continue;
+            }
+
+            LocaleConstant locale = GetLocaleByName(localeName);
+            if (locale == LOCALE_enUS)
+                continue;
+
+            PlayerChoiceLocale& data = _playerChoiceLocales[choiceId];
+            AddLocaleString(fields[2].GetString(), locale, data.Question);
+        } while (result->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Player Choice locale strings in %u ms", _playerChoiceLocales.size(), GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    oldMSTime = getMSTime();
+
+    //                                                   0         1           2       3       4       5            6
+    if (QueryResult result = WorldDatabase.Query("SELECT ChoiceID, ResponseID, locale, Header, Answer, Description, Confirmation FROM playerchoice_response_locale"))
+    {
+        std::size_t count = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            int32 choiceId         = fields[0].GetInt32();
+            int32 responseId       = fields[1].GetInt32();
+            std::string localeName = fields[2].GetString();
+
+            auto itr = _playerChoiceLocales.find(choiceId);
+            if (itr == _playerChoiceLocales.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_locale` references non-existing ChoiceId: %d for ResponseId %d locale %s, skipped",
+                    choiceId, responseId, localeName.c_str());
+                continue;
+            }
+
+            PlayerChoice const* playerChoice = ASSERT_NOTNULL(GetPlayerChoice(choiceId));
+            if (!playerChoice->GetResponse(responseId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_locale` references non-existing ResponseId: %d for ChoiceId %d locale %s, skipped",
+                    responseId, choiceId, localeName.c_str());
+                continue;
+            }
+
+            LocaleConstant locale = GetLocaleByName(localeName);
+            if (locale == LOCALE_enUS)
+                continue;
+
+            PlayerChoiceResponseLocale& data = itr->second.Responses[responseId];
+            AddLocaleString(fields[3].GetString(), locale, data.Header);
+            AddLocaleString(fields[4].GetString(), locale, data.Answer);
+            AddLocaleString(fields[5].GetString(), locale, data.Description);
+            AddLocaleString(fields[6].GetString(), locale, data.Confirmation);
+            ++count;
+        } while (result->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Player Choice Response locale strings in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    }
 }
