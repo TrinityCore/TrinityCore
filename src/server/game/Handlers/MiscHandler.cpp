@@ -503,30 +503,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
         return;
 
     if (player->IsAlive())
-    {
         if (std::unordered_set<uint32> const* quests = sObjectMgr->GetQuestsForAreaTrigger(packet.AreaTriggerID))
-        {
             for (uint32 questId : *quests)
-            {
-                Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
-                if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
-                {
-                    for (QuestObjective const& obj : qInfo->Objectives)
-                    {
-                        if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !player->IsQuestObjectiveComplete(obj))
-                        {
-                            player->SetQuestObjectiveData(obj, 1);
-                            player->SendQuestUpdateAddCreditSimple(obj);
-                            break;
-                        }
-                    }
-
-                    if (player->CanCompleteQuest(questId))
-                        player->CompleteQuest(questId);
-                }
-            }
-        }
-    }
+                player->AreaExploredOrEventHappens(questId);
 
     if (sObjectMgr->IsTavernAreaTrigger(packet.AreaTriggerID))
     {
