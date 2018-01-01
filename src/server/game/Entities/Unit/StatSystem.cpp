@@ -1190,6 +1190,9 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         case ENTRY_IMP:
             value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 100.f);
             SetBonusDamage(value);
+        case ENTRY_VOIDWALKER:
+            value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 120.f);
+            SetBonusDamage(value);
         default:
             break;
         }
@@ -1215,13 +1218,13 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     SetFloatValue(index_mult, attPowerMultiplier);
 
     UpdateDamagePhysical(BASE_ATTACK);
+    UpdateDamagePhysical(OFF_ATTACK);
+    if (IsHunterPet())
+        UpdateDamagePhysical(RANGED_ATTACK);
 }
 
 void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 {
-    if (attType > BASE_ATTACK)
-        return;
-
     float bonusDamage = 0.0f;
     if (m_owner->GetTypeId() == TYPEID_PLAYER)
     {
@@ -1243,37 +1246,13 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 
     UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
-    float att_speed = float(GetBaseAttackTime(BASE_ATTACK))/1000.0f;
-
-    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 3.5f * att_speed  + bonusDamage;
+    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 3.5f * 2.f  + bonusDamage;
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
 
-    float weapon_mindamage = GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
-    float weapon_maxdamage = GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
-
-    float mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
-    float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
-
-    switch (IsHunterPet() ? HUNTER_PET : SUMMON_PET)
-    {
-    case SUMMON_PET:
-    {
-        switch (GetEntry())
-        {
-        default:
-            break;
-        }
-        break;
-    }
-    case HUNTER_PET:
-        mindamage = GetTotalAttackPowerValue(attType) / 3.5f * 2.0f;
-        maxdamage = mindamage;
-        break;
-    default:
-        break;
-    }
+    float mindamage = (base_value * base_pct + total_value) * total_pct;
+    float maxdamage = (base_value * base_pct + total_value) * total_pct;
 
     AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
@@ -1285,14 +1264,21 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
         }
     }
 
-    SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
-    SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
-    if (IsHunterPet())
+    switch (attType)
     {
-        SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, mindamage);
-        SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxdamage);
+    case BASE_ATTACK:
+    default:
+        SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
+        SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
+        break;
+    case OFF_ATTACK:
         SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage / 2.0f);
         SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdamage / 2.0f);
+        break;
+    case RANGED_ATTACK:
+        SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, mindamage);
+        SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxdamage);
+        break;
     }
 }
 
