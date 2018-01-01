@@ -188,6 +188,16 @@ void Player::UpdateSpellDamageAndHealingBonus()
         UpdateAttackPowerAndDamage();
         UpdateAttackPowerAndDamage(true);
     }
+
+    Pet* pet = GetPet();
+    Guardian* guardian = GetGuardianPet();
+
+    if (pet)
+        pet->UpdateSpellPower();
+
+    if (guardian)
+        guardian->UpdateSpellPower();
+
 }
 
 bool Player::UpdateAllStats()
@@ -218,6 +228,15 @@ bool Player::UpdateAllStats()
     UpdateExpertise(OFF_ATTACK);
     RecalculateRating(CR_ARMOR_PENETRATION);
     UpdateAllResistances();
+
+    Pet* pet = GetPet();
+    Guardian* guardian = GetGuardianPet();
+
+    if (pet)
+        pet->UpdateAllStats();
+
+    if (guardian)
+        guardian->UpdateAllStats();
 
     return true;
 }
@@ -393,10 +412,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             HasAuraType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT))
             UpdateSpellDamageAndHealingBonus();
 
-        if (pet && pet->IsPetGhoul()) // At melee attack power change for DK pet
-            pet->UpdateAttackPowerAndDamage();
-
-        if (pet && pet->IsHunterPet())
+        if (pet)
             pet->UpdateAttackPowerAndDamage();
 
         if (guardian && guardian->IsSpiritWolf()) // At melee attack power change for Shaman feral spirit
