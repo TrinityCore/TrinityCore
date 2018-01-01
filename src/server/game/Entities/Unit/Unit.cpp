@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -708,12 +708,6 @@ void Unit::DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) co
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
-    if (victim->IsImmunedToDamage(spellProto))
-    {
-        SendSpellDamageImmune(victim, spellProto->Id, false);
-        return 0;
-    }
-
     if (victim->IsAIEnabled)
     {
         victim->GetAI()->DamageTaken(this, damage);
@@ -1209,7 +1203,6 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilit
         return;
 
     Unit* victim = damageInfo->target;
-
     if (!victim)
         return;
 
@@ -1494,47 +1487,48 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
         AuraEffectList vDamageShieldsCopy(victim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD));
-        for (AuraEffectList::const_iterator dmgShieldItr = vDamageShieldsCopy.begin(); dmgShieldItr != vDamageShieldsCopy.end(); ++dmgShieldItr)
+        for (AuraEffect const* aurEff : vDamageShieldsCopy)
         {
-            SpellInfo const* i_spellProto = (*dmgShieldItr)->GetSpellInfo();
+            SpellInfo const* spellInfo = aurEff->GetSpellInfo();
+
             // Damage shield can be resisted...
-            if (SpellMissInfo missInfo = victim->SpellHitResult(this, i_spellProto, false))
+            SpellMissInfo missInfo = victim->SpellHitResult(this, spellInfo, false);
+            if (missInfo != SPELL_MISS_NONE)
             {
-                victim->SendSpellMiss(this, i_spellProto->Id, missInfo);
+                victim->SendSpellMiss(this, spellInfo->Id, missInfo);
                 continue;
             }
 
             // ...or immuned
-            if (IsImmunedToDamage(i_spellProto))
+            if (IsImmunedToDamage(spellInfo))
             {
-                victim->SendSpellDamageImmune(this, i_spellProto->Id, false);
+                victim->SendSpellDamageImmune(this, spellInfo->Id, false);
                 continue;
             }
 
-            uint32 damage = (*dmgShieldItr)->GetAmount();
-
-            if (Unit* caster = (*dmgShieldItr)->GetCaster())
+            uint32 damage = aurEff->GetAmount();
+            if (Unit* caster = aurEff->GetCaster())
             {
-                damage = caster->SpellDamageBonusDone(this, i_spellProto, damage, SPELL_DIRECT_DAMAGE, (*dmgShieldItr)->GetSpellEffectInfo());
-                damage = this->SpellDamageBonusTaken(caster, i_spellProto, damage, SPELL_DIRECT_DAMAGE, (*dmgShieldItr)->GetSpellEffectInfo());
+                damage = caster->SpellDamageBonusDone(this, spellInfo, damage, SPELL_DIRECT_DAMAGE, aurEff->GetSpellEffectInfo());
+                damage = this->SpellDamageBonusTaken(caster, spellInfo, damage, SPELL_DIRECT_DAMAGE, aurEff->GetSpellEffectInfo());
             }
 
-            DamageInfo damageInfo(this, victim, damage, i_spellProto, i_spellProto->GetSchoolMask(), SPELL_DIRECT_DAMAGE, BASE_ATTACK);
+            DamageInfo damageInfo(this, victim, damage, spellInfo, spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, BASE_ATTACK);
             victim->CalcAbsorbResist(damageInfo);
             damage = damageInfo.GetDamage();
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
-            victim->DealDamageMods(this, damage, NULL);
+            victim->DealDamageMods(this, damage, nullptr);
 
             WorldPackets::CombatLog::SpellDamageShield damageShield;
             damageShield.Attacker = victim->GetGUID();
             damageShield.Defender = GetGUID();
-            damageShield.SpellID = i_spellProto->Id;
+            damageShield.SpellID = spellInfo->Id;
             damageShield.TotalDamage = damage;
             damageShield.OverKill = std::max(int32(damage) - int32(GetHealth()), 0);
-            damageShield.SchoolMask = i_spellProto->SchoolMask;
+            damageShield.SchoolMask = spellInfo->SchoolMask;
             damageShield.LogAbsorbed = damageInfo.GetAbsorb();
 
-            victim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, i_spellProto->GetSchoolMask(), i_spellProto, true);
+            victim->DealDamage(this, damage, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
 
             damageShield.LogData.Initialize(this);
             victim->SendCombatLogMessage(&damageShield);
@@ -2551,6 +2545,11 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, boo
 
     // Check for immune
     if (victim->IsImmunedToSpell(spellInfo))
+        return SPELL_MISS_IMMUNE;
+
+    // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
+    // returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
+    if (spellInfo->HasOnlyDamageEffects() && victim->IsImmunedToDamage(spellInfo))
         return SPELL_MISS_IMMUNE;
 
     // All positive spells can`t miss
@@ -8346,15 +8345,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     }
 
     return gain;
-}
-
-// returns negative amount on power reduction
-int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
-{
-    float amount = (float)GetMaxPower(power);
-    ApplyPercentModFloatVar(amount, pct, apply);
-
-    return ModifyPower(power, (int32)amount - GetMaxPower(power));
 }
 
 bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const

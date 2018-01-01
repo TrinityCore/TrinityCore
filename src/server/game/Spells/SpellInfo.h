@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -532,6 +532,7 @@ class TC_GAME_API SpellInfo
         bool HasAura(uint32 difficulty, AuraType aura) const;
         bool HasAreaAuraEffect(uint32 difficulty) const;
         bool HasAreaAuraEffect() const;
+        bool HasOnlyDamageEffects() const;
 
         bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
         bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }

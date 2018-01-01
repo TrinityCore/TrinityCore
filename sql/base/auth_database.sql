@@ -1105,6 +1105,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,840),
 (196,842),
 (196,843),
+(196,869),
 (197,232),
 (197,236),
 (197,237),
@@ -1300,7 +1301,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (198,828),
 (198,834),
 (198,852),
-(198,867),
+(198,868),
 (199,207),
 (199,209),
 (199,210),
@@ -2024,7 +2025,8 @@ INSERT INTO `rbac_permissions` VALUES
 (852,'Command: go offset'),
 (853,'Command: .reload conversation_template'),
 (854,'Command: .debug conversation'),
-(867,'Command: modify power');
+(868,'Command: modify power'),
+(869,'Command: debug send playerchoice');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1377,6 +1377,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetQuestMoneyReward(Quest const* quest) const;
         uint32 GetQuestXPReward(Quest const* quest);
         bool CanSelectQuestPackageItem(QuestPackageItemEntry const* questPackageItem) const;
+        void RewardQuestPackage(uint32 questPackageId, uint32 onlyItemId = 0);
         void RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce = true);
         void SetRewardedQuest(uint32 quest_id);
         void FailQuest(uint32 quest_id);
@@ -2417,7 +2418,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             MovieDelayedTeleports.push_back(data);
         }
 
-        void SendPlayerChoice(ObjectGuid sender, uint32 choiceID);
+        void SendPlayerChoice(ObjectGuid sender, int32 choiceId);
 
     protected:
         // Gamemaster whisper whitelist

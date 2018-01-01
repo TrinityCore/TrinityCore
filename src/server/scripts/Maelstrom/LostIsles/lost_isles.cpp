@@ -384,7 +384,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_68281SpellScript();
     }
@@ -1112,7 +1112,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_egg_gobSpellScript();
     }
@@ -1677,7 +1677,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_boot_gobSpellScript();
     }

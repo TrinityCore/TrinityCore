@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -771,7 +771,12 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GROUP_MAINASSIST                       = 864, // reserved
     RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865, // reserved
     RBAC_PERM_COMMAND_LIST_SPAWNPOINTS                       = 866, // reserved
-    RBAC_PERM_COMMAND_MODIFY_POWER                           = 867,
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING_LOCALE           = 867, // reserved
+    RBAC_PERM_COMMAND_MODIFY_POWER                           = 868,
+    RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE               = 869,
+    //
+    // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
+    //
     // custom permissions 1000+
     // ashamane permissions 2000+
     RBAC_PERM_COMMAND_DEBUG_MOVEMENT_FORCE                   = 2000,

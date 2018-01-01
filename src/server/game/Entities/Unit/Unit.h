@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1058,7 +1058,6 @@ class TC_GAME_API Unit : public WorldObject
         void SetMaxPower(Powers power, int32 val);
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val);
-        int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
 
         uint32 GetBaseAttackTime(WeaponAttackType att) const;
         void SetBaseAttackTime(WeaponAttackType att, uint32 val);
