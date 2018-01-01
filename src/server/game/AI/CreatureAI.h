@@ -197,6 +197,13 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
         virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
 
+        /// == Waypoints system =============================
+
+        virtual void WaypointPathStarted(uint32 /*pathId*/) { }
+        virtual void WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/) { }
+        virtual void WaypointReached(uint32 /*nodeId*/, uint32 /*pathId*/) { }
+        virtual void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) { }
+
         /// == Fields =======================================
 
         virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) { }
