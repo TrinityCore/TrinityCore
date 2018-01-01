@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -339,7 +339,7 @@ struct boss_essence_of_suffering : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);
@@ -413,7 +413,7 @@ struct boss_essence_of_desire : public BossAI
         _dead = false;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SPIRIT_SHOCK, Seconds(11));
         events.ScheduleEvent(EVENT_RUNE_SHIELD, Seconds(16));
@@ -525,7 +525,7 @@ struct boss_essence_of_anger : public BossAI
         DoCastSelf(SPELL_AURA_OF_ANGER);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(ANGER_SAY_FREED);
 

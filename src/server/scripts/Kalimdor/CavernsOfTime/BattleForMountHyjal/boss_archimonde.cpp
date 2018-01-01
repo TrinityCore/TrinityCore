@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -132,7 +132,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
@@ -176,7 +176,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
@@ -226,7 +226,7 @@ public:
                 TargetGUID = who->GetGUID();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
@@ -300,10 +300,10 @@ public:
             me->RemoveAllAuras();                              // Reset Soul Charge auras.
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_FEAR, 42000);
             events.ScheduleEvent(EVENT_AIR_BURST, 30000);
             events.ScheduleEvent(EVENT_GRIP_OF_THE_LEGION, urand(5000, 25000));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -274,6 +274,13 @@ class TC_GAME_API UnitAI
             else
                 targetList.resize(num);
         }
+
+        // Called when the unit enters combat
+        // (NOTE: Creature engage logic should NOT be here, but in JustEngagedWith, which happens once threat is established!)
+        virtual void JustEnteredCombat(Unit* /*who*/) { }
+
+        // Called when the unit leaves combat
+        virtual void JustExitedCombat() { }
 
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }

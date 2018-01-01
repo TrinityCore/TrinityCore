@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -143,12 +143,12 @@ struct boss_illidari_council : public BossAI
         DoCastSelf(SPELL_EMPYREAL_BALANCE, true);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         if (!_inCombat)
         {
             _inCombat = true;
-            _EnterCombat();
+            _JustEngagedWith();
             for (uint32 bossData : CouncilData)
             {
                 if (Creature* council = instance->GetCreature(bossData))
@@ -251,7 +251,7 @@ struct IllidariCouncilBossAI : public BossAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);
