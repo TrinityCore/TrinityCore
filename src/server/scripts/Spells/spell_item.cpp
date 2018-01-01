@@ -474,6 +474,22 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
         }
 };
 
+// 64415 Val'anyr Hammer of Ancient Kings - Equip Effect
+class spell_item_valanyr_hammer_of_ancient_kings : public AuraScript
+{
+    PrepareAuraScript(spell_item_valanyr_hammer_of_ancient_kings);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetEffectiveHeal() > 0;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_item_valanyr_hammer_of_ancient_kings::CheckProc);
+    }
+};
+
 enum DeadlyPrecision
 {
     SPELL_DEADLY_PRECISION = 71564
@@ -4692,6 +4708,7 @@ void AddSC_item_spell_scripts()
     new spell_item_aura_of_madness();
     new spell_item_dementia();
     new spell_item_blessing_of_ancient_kings();
+    RegisterAuraScript(spell_item_valanyr_hammer_of_ancient_kings);
     new spell_item_deadly_precision();
     new spell_item_deadly_precision_dummy();
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA, SPELL_AGILITY_OF_THE_VRYKUL, SPELL_POWER_OF_THE_TAUNKA, SPELL_AIM_OF_THE_IRON_DWARVES, SPELL_SPEED_OF_THE_VRYKUL>("spell_item_deathbringers_will_normal");
