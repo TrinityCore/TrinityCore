@@ -70,7 +70,7 @@ class npc_forest_frog : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void DoSpawnRandom() const
             {
@@ -279,7 +279,7 @@ class npc_harrison_jones : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {

@@ -80,7 +80,7 @@ struct npc_wrathbone_flayer : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_CLEAVE, 5000);
         _events.ScheduleEvent(EVENT_IGNORED, 7000);
@@ -201,7 +201,7 @@ struct npc_angered_soul_fragment : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->RemoveAurasDueToSpell(SPELL_GREATER_INVISIBILITY);
 

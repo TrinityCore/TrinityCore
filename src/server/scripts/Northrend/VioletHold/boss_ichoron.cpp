@@ -100,9 +100,9 @@ class boss_ichoron : public CreatureScript
                 DoCast(me, SPELL_THREAT_PROC, true);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 

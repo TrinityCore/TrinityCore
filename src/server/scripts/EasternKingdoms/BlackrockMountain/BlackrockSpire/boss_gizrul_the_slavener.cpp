@@ -59,9 +59,9 @@ public:
             me->GetMotionMaster()->MovePath(GIZRUL_PATH, false);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_FATAL_BITE, urand(17000,20000));
             events.ScheduleEvent(EVENT_INFECTED_BITE, urand(10000,12000));
         }

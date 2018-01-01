@@ -263,7 +263,7 @@ struct boss_twin_baseAI : public BossAI
         return instance->GetCreature(GetSisterData(SisterNpcId));
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetInCombatWithZone();
         if (Creature* pSister = GetSister())
@@ -439,12 +439,12 @@ class boss_fjola : public CreatureScript
                     boss_twin_baseAI::ExecuteEvent(eventId);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
                 events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 45 * IN_MILLISECONDS);
                 me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
-                boss_twin_baseAI::EnterCombat(who);
+                boss_twin_baseAI::JustEngagedWith(who);
             }
 
             void EnterEvadeMode(EvadeReason why) override

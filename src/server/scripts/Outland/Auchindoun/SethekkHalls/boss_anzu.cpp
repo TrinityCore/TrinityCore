@@ -85,9 +85,9 @@ class boss_anzu : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14000);
                 events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5000);
             }
