@@ -1285,7 +1285,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 void Guardian::SetBonusDamage(int32 damage)
 {
     m_bonusSpellDamage = damage;
-    if (GetOwner()->IsPlayer())
+    if (GetOwner()->IsPlayer() && damage)
         GetOwner()->SetUInt32Value(PLAYER_PET_SPELL_POWER, damage);
 }
 
