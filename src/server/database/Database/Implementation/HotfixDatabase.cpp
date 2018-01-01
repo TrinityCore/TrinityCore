@@ -379,6 +379,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // GemProperties.db2
     PrepareStatement(HOTFIX_SEL_GEM_PROPERTIES, "SELECT ID, Type, EnchantID, MinItemLevel FROM gem_properties ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // GlobalStrings.db2
+    PrepareStatement(HOTFIX_SEL_GLOBAL_STRINGS, "SELECT ID, StringName, StringValue, Unknown FROM global_strings ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GLOBAL_STRINGS, "SELECT ID, StringValue_lang FROM global_strings_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // GlyphBindableSpell.db2
     PrepareStatement(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT ID, SpellID, GlyphPropertiesID FROM glyph_bindable_spell ORDER BY ID DESC", CONNECTION_SYNCH);
 

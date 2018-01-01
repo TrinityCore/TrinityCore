@@ -1792,6 +1792,22 @@ struct GemPropertiesLoadInfo
     }
 };
 
+struct GlobalStringsLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING_NOT_LOCALIZED, "StringName" },
+            { false, FT_STRING, "StringValue" },
+            { false, FT_INT, "Unknown" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GlobalStringsMeta::Instance(), HOTFIX_SEL_GLOBAL_STRINGS);
+        return &loadInfo;
+    }
+};
+
 struct GlyphBindableSpellLoadInfo
 {
     static DB2LoadInfo const* Instance()
