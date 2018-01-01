@@ -920,7 +920,7 @@ class boss_valiona : public CreatureScript
             }
         };
 
-        CreatureAI * GetAI(Creature * creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_valionaAI(creature);
         }
@@ -971,7 +971,7 @@ class spell_dazzling_destruction : public SpellScriptLoader
             }
         };
 
-        SpellScript * GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_dazzling_destructionSpellScript();
         }
@@ -1059,7 +1059,7 @@ class spell_engulfing_magic : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_engulfing_magic_SpellScript();
         }
@@ -1093,7 +1093,7 @@ class spell_shifting_reality : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_shifting_reality_SpellScript();
         }
