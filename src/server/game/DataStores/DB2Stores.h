@@ -96,6 +96,7 @@ TC_GAME_API extern DB2Storage<GarrPlotInstanceEntry>                sGarrPlotIns
 TC_GAME_API extern DB2Storage<GarrSiteLevelEntry>                   sGarrSiteLevelStore;
 TC_GAME_API extern DB2Storage<GarrSiteLevelPlotInstEntry>           sGarrSiteLevelPlotInstStore;
 TC_GAME_API extern DB2Storage<GemPropertiesEntry>                   sGemPropertiesStore;
+TC_GAME_API extern DB2Storage<GlobalStringsEntry>                   sGlobalStringsStore;
 TC_GAME_API extern DB2Storage<GlyphPropertiesEntry>                 sGlyphPropertiesStore;
 TC_GAME_API extern DB2Storage<GuildColorBackgroundEntry>            sGuildColorBackgroundStore;
 TC_GAME_API extern DB2Storage<GuildColorBorderEntry>                sGuildColorBorderStore;

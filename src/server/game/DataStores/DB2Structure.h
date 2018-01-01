@@ -1236,6 +1236,14 @@ struct GemPropertiesEntry
     uint16 MinItemLevel;
 };
 
+struct GlobalStringsEntry
+{
+    uint32 ID;
+    char const* StringName;
+    LocalizedString* StringValue;
+    uint8 Unknown;
+};
+
 struct GlyphBindableSpellEntry
 {
     uint32 ID;
