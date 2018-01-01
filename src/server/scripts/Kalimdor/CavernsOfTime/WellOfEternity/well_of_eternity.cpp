@@ -1282,7 +1282,7 @@ public:
             uiDebilitatingCount = 0;
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/) { }
+        void EnterEvadeMode(EvadeReason /*why*/) override { }
 
         void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
         {

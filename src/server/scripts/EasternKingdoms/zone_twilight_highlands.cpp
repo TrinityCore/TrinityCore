@@ -402,7 +402,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_S_CHARGE, 10000);
             events.ScheduleEvent(EVENT_UPPERCUT, 5000);
@@ -901,7 +901,7 @@ public:
                 AttackStartNoMove(playersearch);
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_GLOOM_BALL, 2000);
         }

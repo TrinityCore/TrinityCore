@@ -281,7 +281,7 @@ class boss_theralion : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32&damage) override
+            void DamageTaken(Unit* /*who*/, uint32&damage) override
             {
                 if (!me || !me->IsAlive())
                     return;
@@ -345,7 +345,7 @@ class boss_theralion : public CreatureScript
                 breathcount = 0;
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 summons.DespawnAll();
                 /*
@@ -675,7 +675,7 @@ class boss_valiona : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 me->LowerPlayerDamageReq(me->GetMaxHealth());
 
@@ -685,7 +685,7 @@ class boss_valiona : public CreatureScript
                 instance->SetData(DATA_VALIONA_THERALION_EVENT, DONE);
             }
 
-            void DamageTaken(Unit* who, uint32&damage) override
+            void DamageTaken(Unit* /*who*/, uint32& damage) override
             {
                 if (!me || !me->IsAlive())
                     return;
@@ -943,7 +943,7 @@ class spell_dazzling_destruction : public SpellScriptLoader
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->CastSpell(GetHitUnit(),spell_trigger,false);
             }
@@ -1015,7 +1015,7 @@ class spell_devouring_flame : public SpellScriptLoader
         {
             PrepareAuraScript(spell_devouring_flame_AuraScript);
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (GetCaster())
@@ -1105,13 +1105,13 @@ class npc_twilight_portal_bot : public CreatureScript
     public:
         npc_twilight_portal_bot() : CreatureScript("npc_twilight_portal_bot") { }
 
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
+        bool OnGossipHello(Player* pPlayer, Creature* /*pCreature*/) override
         {
             pPlayer->RemoveAura(74807);
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
         {
             ClearGossipMenuFor(player);
             return true;
@@ -1167,18 +1167,9 @@ public:
 
         InstanceScript* instance;
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(DATA_FIEND_KILLS, 1);
-        }
-
-        void UpdateAI(uint32 diff) override
-
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
         }
     };
 
