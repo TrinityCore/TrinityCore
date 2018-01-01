@@ -120,9 +120,9 @@ class boss_thekal : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_MORTALCLEAVE, 4000, 0, PHASE_ONE);     // Phase 1
                 events.ScheduleEvent(EVENT_SILENCE, 9000, 0, PHASE_ONE);          // Phase 1
                 events.ScheduleEvent(EVENT_CHECK_TIMER, 10000, 0, PHASE_ONE);     // Phase 1
@@ -319,7 +319,7 @@ class npc_zealot_lorkhan : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
             }
 
@@ -475,7 +475,7 @@ class npc_zealot_zath : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
             }
 

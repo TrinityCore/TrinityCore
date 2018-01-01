@@ -156,9 +156,9 @@ class boss_mandokir : public CreatureScript
                 me->SetImmuneToAll(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_OVERPOWER, urand(7000, 9000));
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(12000, 18000));
                 events.ScheduleEvent(EVENT_WHIRLWIND, urand(24000, 30000));
@@ -334,7 +334,7 @@ class npc_ohgan : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void JustDied(Unit* /*killer*/) override
             {
@@ -396,7 +396,7 @@ class npc_vilebranch_speaker : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void JustDied(Unit* /*killer*/) override
             {

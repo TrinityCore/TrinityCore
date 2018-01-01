@@ -104,9 +104,9 @@ class boss_garfrost : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_PERMAFROST);
                 me->CallForHelp(70.0f);

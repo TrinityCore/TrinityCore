@@ -133,9 +133,9 @@ class boss_arlokk : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(7000, 9000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_GOUGE, urand(12000, 15000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_SUMMON_PROWLERS, 6000, 0, PHASE_ALL);
@@ -375,7 +375,7 @@ class npc_zulian_prowler : public CreatureScript
                 _events.ScheduleEvent(EVENT_ATTACK, 6000);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->GetMotionMaster()->Clear(false);
                 me->RemoveAura(SPELL_SNEAK_RANK_1_1);

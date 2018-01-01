@@ -63,9 +63,9 @@ struct boss_vancleef : public BossAI
             SummonBlackguards();
         }
 
-        void EnterCombat(Unit* victim) override
+        void JustEngagedWith(Unit* victim) override
         {
-            BossAI::EnterCombat(victim);
+            BossAI::JustEngagedWith(victim);
             summons.DoZoneInCombat();
 
             Talk(SAY_AGGRO);

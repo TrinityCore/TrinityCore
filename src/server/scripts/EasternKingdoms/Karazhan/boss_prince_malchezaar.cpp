@@ -122,7 +122,7 @@ public:
         InfernalPoint *point;
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
@@ -272,7 +272,7 @@ public:
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 

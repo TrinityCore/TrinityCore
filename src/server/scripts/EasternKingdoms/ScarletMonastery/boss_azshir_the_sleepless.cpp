@@ -51,9 +51,9 @@ class boss_azshir_the_sleepless : public CreatureScript
                 _siphon = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_CALL_OF_GRAVE, 30000);
                 events.ScheduleEvent(EVENT_TERRIFY, 20000);
             }

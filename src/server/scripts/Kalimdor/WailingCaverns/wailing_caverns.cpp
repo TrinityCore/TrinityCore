@@ -132,7 +132,7 @@ public:
 
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_ATTACKED, who);
         }

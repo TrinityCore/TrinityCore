@@ -58,9 +58,9 @@ class boss_wushoolay : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, urand(5000, 10000));
                 events.ScheduleEvent(EVENT_LIGHTNINGWAVE, urand(8000, 16000));
             }

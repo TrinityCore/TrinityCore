@@ -85,7 +85,7 @@ public:
                 instance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);

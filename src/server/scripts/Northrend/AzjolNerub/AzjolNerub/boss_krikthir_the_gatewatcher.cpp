@@ -176,7 +176,7 @@ class boss_krik_thir : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 _petsInCombat = false;
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -186,7 +186,7 @@ class boss_krik_thir : public CreatureScript
                 events.ScheduleEvent(EVENT_SWARM, Seconds(5));
                 events.ScheduleEvent(EVENT_MIND_FLAY, randtime(Seconds(1), Seconds(3)));
 
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -198,7 +198,7 @@ class boss_krik_thir : public CreatureScript
                 }
 
                 if (me->CanStartAttack(who, false) && me->IsWithinDistInMap(who, me->GetAttackDistance(who) + me->m_CombatDistance))
-                    EnterCombat(who);
+                    JustEngagedWith(who);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -322,8 +322,8 @@ struct npc_gatewatcher_petAI : public ScriptedAI
 {
     npc_gatewatcher_petAI(Creature* creature, bool isWatcher) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _petGroup(0), _isWatcher(isWatcher) { }
 
-    virtual void _EnterCombat() = 0;
-    void EnterCombat(Unit* who) override
+    virtual void _JustEngagedWith() = 0;
+    void JustEngagedWith(Unit* who) override
     {
         if (_isWatcher)
         {
@@ -348,8 +348,8 @@ struct npc_gatewatcher_petAI : public ScriptedAI
                 if (Creature* summoner = meSummon->GetSummonerCreatureBase())
                     summoner->AI()->DoAction(ACTION_PET_ENGAGED);
         }
-        _EnterCombat();
-        ScriptedAI::EnterCombat(who);
+        _JustEngagedWith();
+        ScriptedAI::JustEngagedWith(who);
     }
 
     void SetData(uint32 data, uint32 value) override
@@ -377,7 +377,7 @@ struct npc_gatewatcher_petAI : public ScriptedAI
         }
 
         if (me->CanStartAttack(who, false) && me->IsWithinDistInMap(who, me->GetAttackDistance(who) + me->m_CombatDistance))
-            EnterCombat(who);
+            JustEngagedWith(who);
     }
 
     void SpellHit(Unit* /*whose*/, SpellInfo const* spell) override
@@ -419,7 +419,7 @@ class npc_watcher_gashra : public CreatureScript
                 _events.Reset();
             }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_ENRAGE, randtime(Seconds(3), Seconds(5)));
                 _events.ScheduleEvent(EVENT_WEB_WRAP, randtime(Seconds(16), Seconds(19)));
@@ -497,7 +497,7 @@ class npc_watcher_narjil : public CreatureScript
                 _events.Reset();
             }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_BLINDING_WEBS, randtime(Seconds(13), Seconds(18)));
                 _events.ScheduleEvent(EVENT_WEB_WRAP, randtime(Seconds(3), Seconds(5)));
@@ -575,7 +575,7 @@ class npc_watcher_silthik : public CreatureScript
                 _events.Reset();
             }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_POISON_SPRAY, randtime(Seconds(16), Seconds(19)));
                 _events.ScheduleEvent(EVENT_WEB_WRAP, randtime(Seconds(7), Seconds(11)));
@@ -651,7 +651,7 @@ class npc_anub_ar_warrior : public CreatureScript
                 _events.Reset();
             }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_CLEAVE, randtime(Seconds(7), Seconds(9)));
                 _events.ScheduleEvent(EVENT_STRIKE, randtime(Seconds(5), Seconds(10)));
@@ -711,7 +711,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
                 _events.Reset();
             }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_ANUBAR_CHARGE, randtime(Seconds(6), Seconds(8)));
                 _events.ScheduleEvent(EVENT_BACKSTAB, randtime(Seconds(7), Seconds(9)));
@@ -779,7 +779,7 @@ class npc_anub_ar_shadowcaster : public CreatureScript
                 _events.Reset();
             }
 
-            void _EnterCombat() override
+            void _JustEngagedWith() override
             {
                 _events.ScheduleEvent(EVENT_SHADOW_BOLT, Seconds(4));
                 _events.ScheduleEvent(EVENT_SHADOW_NOVA, randtime(Seconds(10), Seconds(14)));

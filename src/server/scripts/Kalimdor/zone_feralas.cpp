@@ -108,7 +108,7 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             //For an small probability the npc says something when he get aggro
             if (urand(0, 9) > 7)

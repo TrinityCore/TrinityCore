@@ -82,9 +82,9 @@ class boss_renataki : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override

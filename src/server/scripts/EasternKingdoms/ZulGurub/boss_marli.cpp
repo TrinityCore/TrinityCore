@@ -98,9 +98,9 @@ class boss_marli : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_SPAWN_START_SPIDERS, 1000, 0, PHASE_ONE);
                 Talk(SAY_AGGRO);
             }
@@ -245,7 +245,7 @@ class npc_spawn_of_marli : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {

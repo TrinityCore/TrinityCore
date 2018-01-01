@@ -136,7 +136,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (!victimGUID)
                 return;
@@ -413,7 +413,7 @@ public:
             instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (me->HasAura(AURA_BANISH))
             return;
@@ -652,7 +652,7 @@ public:
             DoCast(me, 8149, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             StartEvent();
         }
@@ -726,7 +726,7 @@ public:
                 ENSURE_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             me->InterruptNonMeleeSpells(false);
             instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());

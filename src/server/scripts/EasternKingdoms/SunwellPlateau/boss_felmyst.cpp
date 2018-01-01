@@ -156,7 +156,7 @@ public:
             instance->SetBossState(DATA_FELMYST, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_BERSERK, 600000);
 
@@ -529,7 +529,7 @@ public:
         }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             //DoCast(me, SPELL_VAPOR_FORCE, true); core bug
@@ -565,7 +565,7 @@ public:
         }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void AttackStart(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 

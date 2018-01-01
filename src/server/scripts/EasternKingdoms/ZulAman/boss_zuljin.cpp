@@ -203,9 +203,9 @@ class boss_zuljin : public CreatureScript
                 //me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(YELL_INTRO);
                 SpawnAdds();
@@ -581,7 +581,7 @@ class npc_zuljin_vortex : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*target*/) override { }
+            void JustEngagedWith(Unit* /*target*/) override { }
 
             void SpellHit(Unit* caster, SpellInfo const* spell) override
             {

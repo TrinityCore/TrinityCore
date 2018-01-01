@@ -115,9 +115,9 @@ class boss_halazzi : public CreatureScript
                 EnterPhase(PHASE_LYNX);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 EnterPhase(PHASE_LYNX);
             }
@@ -376,7 +376,7 @@ class npc_halazzi_lynx : public CreatureScript
                     ScriptedAI::AttackStart(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override {/*DoZoneInCombat();*/ }
+            void JustEngagedWith(Unit* /*who*/) override {/*DoZoneInCombat();*/ }
 
             void UpdateAI(uint32 diff) override
             {

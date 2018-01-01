@@ -141,7 +141,7 @@ public:
             //ScriptedAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
@@ -291,7 +291,7 @@ public:
             else mWaveId = 1;
 
         }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DoSummonAtRift(uint32 creature_entry)
         {

@@ -68,7 +68,7 @@ class boss_azuregos : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_MARK_OF_FROST_AURA, true);
                 _enraged = false;
