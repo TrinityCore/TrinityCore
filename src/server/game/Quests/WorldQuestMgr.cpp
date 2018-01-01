@@ -228,7 +228,8 @@ void WorldQuestMgr::ActivateQuest(WorldQuestTemplate* quest, bool create /* = fl
             for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
                 if (Player* player = iter->second->GetPlayer())
                     if (player->HasWorldQuestEnabled())
-                        player->AddQuest(quest_template, nullptr);
+                        if (!player->HasQuest(quest_template->ID))
+                            player->AddQuest(quest_template, nullptr);
         }
 
         quest->active = true;
