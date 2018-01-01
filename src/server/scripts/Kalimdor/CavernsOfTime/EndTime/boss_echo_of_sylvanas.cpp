@@ -130,7 +130,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                 JustReachedHome();
             }
 
-            void JustReachedHome()
+            void JustReachedHome() override
             {
                 _JustReachedHome();
                 DoCast(me, SPELL_CALLING_IMMUNITY);

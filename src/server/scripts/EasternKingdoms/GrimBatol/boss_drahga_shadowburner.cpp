@@ -293,7 +293,7 @@ public:
             dragahGUID = ObjectGuid::Empty;
         }
 
-        void EnterCombat(Unit* /*pWho*/) {}
+        void EnterCombat(Unit* /*pWho*/) override { }
 
         void DamageTaken(Unit* done_by, uint32&damage) override
         {

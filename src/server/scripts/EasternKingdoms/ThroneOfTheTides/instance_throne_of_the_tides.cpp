@@ -63,7 +63,7 @@ public:
 
         bool firstTunnel;
 
-        void Initialize()
+        void Initialize() override
         {
             uiUlthokDoorCounter = 0;
             uiMindbenderDoorCounter = 0;
@@ -74,7 +74,7 @@ public:
                 uiEncounter[i] = NOT_STARTED;
         }
 
-        bool IsEncounterInProgress() const
+        bool IsEncounterInProgress() const override 
         {
             for (uint8 i=0; i < ENCOUNTERS; ++i)
             {
@@ -156,7 +156,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject * go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch(go->GetEntry())
             {
@@ -175,7 +175,7 @@ public:
             }
         }
 
-        void OnCreatureDeath(Creature * creature)
+        void OnCreatureDeath(Creature* creature) /*override*/
         {
             switch(creature->GetEntry())
             {
@@ -256,7 +256,7 @@ public:
                SaveToDB();
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override 
         {
             switch (type)
             {

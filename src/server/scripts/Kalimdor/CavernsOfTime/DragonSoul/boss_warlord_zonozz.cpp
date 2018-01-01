@@ -151,7 +151,7 @@ class boss_warlord_zonozz : public CreatureScript
 public:
     boss_warlord_zonozz() : CreatureScript("boss_warlord_zonozz") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new boss_warlord_zonozzAI(pCreature);
     }
@@ -381,7 +381,7 @@ class npc_void_of_the_unmaking : public CreatureScript
 public:
     npc_void_of_the_unmaking() : CreatureScript("npc_void_of_the_unmaking") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_void_of_the_unmakingAI(pCreature);
     }
@@ -501,7 +501,7 @@ class npc_eye_of_gorath : public CreatureScript
 public:
     npc_eye_of_gorath() : CreatureScript("npc_eye_of_gorath") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_eye_of_gorathAI(pCreature);
     }
@@ -581,7 +581,7 @@ class npc_flail_of_gorath : public CreatureScript
 public:
     npc_flail_of_gorath() : CreatureScript("npc_flail_of_gorath") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_flail_of_gorathAI(pCreature);
     }
@@ -660,7 +660,7 @@ class npc_claw_of_gorath : public CreatureScript
 public:
     npc_claw_of_gorath() : CreatureScript("npc_claw_of_gorath") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_claw_of_gorathAI(pCreature);
     }

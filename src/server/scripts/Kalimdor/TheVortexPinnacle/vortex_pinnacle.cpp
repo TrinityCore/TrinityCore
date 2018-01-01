@@ -107,7 +107,7 @@ class mob_vortex_wind_rotation_manager : public CreatureScript
 public:
     mob_vortex_wind_rotation_manager() : CreatureScript("mob_vortex_wind_rotation_manager") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_vortex_wind_rotation_managerAI(pCreature);
     }
@@ -230,7 +230,7 @@ class mob_wild_vortex : public CreatureScript
 public:
     mob_wild_vortex() : CreatureScript("mob_wild_vortex") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_wild_vortexAI(pCreature);
     }
@@ -294,7 +294,7 @@ class mob_golden_orb : public CreatureScript
 public:
     mob_golden_orb() : CreatureScript("mob_golden_orb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new mob_golden_orbAI(pCreature);
     }

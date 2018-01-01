@@ -96,7 +96,7 @@ public:
 
         }
 
-        void WaypointReached(uint32)
+        void WaypointReached(uint32) override
         {
 
         }
@@ -984,7 +984,7 @@ public:
 
         }
 
-        void WaypointReached(uint32)
+        void WaypointReached(uint32) override
         {
 
         }

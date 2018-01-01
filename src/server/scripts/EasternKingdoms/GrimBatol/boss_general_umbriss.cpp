@@ -235,7 +235,7 @@ class boss_general_umbriss : public CreatureScript
             InstanceScript* pInstance;
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new boss_general_umbrissAI(pCreature);
         }
@@ -308,7 +308,7 @@ class npc_malignant : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_malignantAI(pCreature);
         }
@@ -335,7 +335,7 @@ class npc_trogg_dweller : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_trogg_dwellerAI(pCreature);
         }
@@ -380,7 +380,7 @@ public:
     {
         PrepareSpellScript(spell_ground_siege_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return false;
         }

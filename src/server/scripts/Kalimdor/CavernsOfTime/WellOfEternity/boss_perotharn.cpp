@@ -118,7 +118,7 @@ class boss_perotharn : public CreatureScript
 public:
     boss_perotharn() : CreatureScript("boss_perotharn") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new boss_perotharnAI(pCreature);
     }
@@ -240,7 +240,7 @@ public:
                 Talk(SAY_KILL);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type)
+        void SetGUID(ObjectGuid guid, int32 type) override
         {
             targetGUID = guid;
         }
@@ -383,7 +383,7 @@ class npc_perotharn_eye_of_perotharn : public CreatureScript
 public:
     npc_perotharn_eye_of_perotharn() : CreatureScript("npc_perotharn_eye_of_perotharn") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_perotharn_eye_of_perotharnAI(pCreature);
     }

@@ -663,7 +663,7 @@ class npc_water_bubble_hoo : public CreatureScript
             checkTimer = 10000;
         }
 
-        void SetGUID(ObjectGuid guid, int32 )
+        void SetGUID(ObjectGuid guid, int32 ) override
         {
             summonerGUID = guid;
         }

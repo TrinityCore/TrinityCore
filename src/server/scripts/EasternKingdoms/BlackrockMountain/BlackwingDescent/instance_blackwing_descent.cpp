@@ -55,7 +55,7 @@ public:
         ObjectGuid gobAtramedesBossDoor;
         ObjectGuid gobOnyxiaPlatform;
 
-        void Initialize()
+        void Initialize() override
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 uiEncounter[i] = NOT_STARTED;
@@ -64,7 +64,7 @@ public:
             uidrakonidCount = 0;
         }
 
-        bool IsEncounterInProgress() const
+        bool IsEncounterInProgress() const override 
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (uiEncounter[i] == IN_PROGRESS)
@@ -273,12 +273,13 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override 
         {
             return Encounter[type];
         }
 
-        bool SetBossState(uint32 data, EncounterState state) {
+        bool SetBossState(uint32 data, EncounterState state) override
+        {
             if (!InstanceScript::SetBossState(data, state))
                 return false;
 
@@ -305,19 +306,6 @@ public:
 
             return true;
         }
-
-       // bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
-       // {
-            //if ((player->GetSession()->GetSecurity() > SEC_GAMEMASTER ))
-            //    return true;
-
-            /*switch (bossId)
-{
-
-}*/
-
-            //return true;
-       // }
 
     private:
         uint32 Encounter[MAX_ENCOUNTER];

@@ -755,7 +755,7 @@ class npc_darkened_creation : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_darkened_creationAI(pCreature);
         }
@@ -805,7 +805,7 @@ class npc_spiked_tentacle : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_spiked_tentacleAI(pCreature);
         }

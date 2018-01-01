@@ -712,7 +712,7 @@ public:
                 }
             }
 
-            if (me->HealthAbovePct(1.5f) && (me->GetMaxHealth() *0.015f) > (me->GetHealth() - damage))
+            if (me->HealthAbovePct(1) && (me->GetMaxHealth() * 0.015f) > (me->GetHealth() - damage))
             {
                 if (encounterEnd == false)
                 {
@@ -792,7 +792,7 @@ public:
             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
         }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_ASTRAL_RECALL)
             {
@@ -872,7 +872,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player *player, Creature *creature, uint32 sender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 uiAction) override
     {
         if (sender == GOSSIP_SENDER_MAIN)
         {
@@ -1433,6 +1433,7 @@ public:
             }
 
             if (Creature* tzone = me->FindNearestCreature(NPC_TIME_ZONE, 30.0f, true))
+            {
                 if (tzone->GetExactDist2d(me) <= 11.0f)
                 {
                     me->SetSpeed(MOVE_WALK, 0.4f);
@@ -1445,6 +1446,7 @@ public:
                     me->SetSpeed(MOVE_RUN, 2.85f);
                     me->SetSpeed(MOVE_FLIGHT, 2.85f);
                 }
+            }
         }
 
         void JustDied(Unit* /*kller*/) override
@@ -1906,7 +1908,7 @@ public:
             DoCast(me, SPELL_UNSTABLE_CORRUPTION);
         }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_UNSTABLE_CORRUPTION)
             {
@@ -1954,14 +1956,13 @@ public:
             DoZoneInCombat(me);
         }
 
-        void JustReachedHome()
+        void JustReachedHome() override
         {
             DoCast(me, SPELL_CONGEALING_BLOOD_HEAL);
             me->DespawnOrUnsummon();
         }
 
         void UpdateAI(uint32 diff) override
-
         {
             events.Update(diff);
 
@@ -2205,8 +2206,8 @@ public:
         {
             int32 num;
 
-            if (GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_N ||
-                GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC)
+            if ((GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_N) ||
+                (GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC))
                 num = 7;
             else
                 num = 2;

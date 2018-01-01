@@ -52,13 +52,13 @@ public:
         ObjectGuid Erudax;
         ObjectGuid TeamInInstance;
 
-        void Initialize()
+        void Initialize() override
         {
             for (uint8 i = 0 ; i<ENCOUNTERS; ++i)
                 Encounter[i] = NOT_STARTED;
         }
 
-        bool IsEncounterInProgress() const
+        bool IsEncounterInProgress() const override 
         {
             for (uint8 i = 0; i < ENCOUNTERS; ++i)
             {
@@ -125,7 +125,7 @@ public:
                SaveToDB();
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override 
         {
             switch (type)
             {

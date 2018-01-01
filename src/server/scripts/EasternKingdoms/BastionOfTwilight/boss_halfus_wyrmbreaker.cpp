@@ -346,6 +346,7 @@ class npc_halfus_dragon : public CreatureScript
             void JustDied(Unit* killer) override
             {
                 if (Creature* halfus = pInstance->GetCreature(DATA_WYRMBREAKER))
+                {
                     if (halfus->HasAura(SPELL_DRAGONS_VEGEANCE))
                     {
                         if (Aura* vengeance = halfus->GetAura(SPELL_DRAGONS_VEGEANCE))
@@ -354,8 +355,10 @@ class npc_halfus_dragon : public CreatureScript
                             stacks++;
                             halfus->SetAuraStack(SPELL_DRAGONS_VEGEANCE, halfus, stacks);
                         }
-                    }else
+                    }
+                    else
                         me->AddAura(SPELL_DRAGONS_VEGEANCE, halfus);
+                }
             }
 
             void UpdateAI(uint32 uiDiff) override

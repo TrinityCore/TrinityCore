@@ -128,7 +128,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             if (Unit * mindbender = me->GetVehicleKit()->GetPassenger(0))
                 Talk(RAND(SAY_KILL_PLAYER_1, SAY_KILL_PLAYER_2));
@@ -211,7 +211,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new boss_erunak_stonespeakerAI(pCreature);
     }
@@ -247,7 +247,7 @@ public:
             EnslaveTargetGUID = ObjectGuid::Empty;
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(RAND(SAY_KILL_PLAYER_1, SAY_KILL_PLAYER_2));
         }
@@ -448,7 +448,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new boss_mindbender_ghurshaAI(pCreature);
     }
@@ -510,7 +510,7 @@ class npc_ghursha_mind_fog : public CreatureScript
 public:
     npc_ghursha_mind_fog() : CreatureScript("npc_ghursha_mind_fog") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_ghursha_mind_fogAI(pCreature);
     }

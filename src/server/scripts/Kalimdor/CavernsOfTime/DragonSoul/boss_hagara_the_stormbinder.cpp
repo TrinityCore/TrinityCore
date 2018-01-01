@@ -860,8 +860,8 @@ class spell_ice_tomb : public SpellScriptLoader
             {
                targets.remove_if(NotVictimFilter(GetCaster()));
 
-               if (GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_N ||
-                   GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC)
+               if ((GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_N) ||
+                   (GetCaster()->GetMap() && GetCaster()->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC))
                    Trinity::Containers::RandomResize(targets, 5);
                else
                    Trinity::Containers::RandomResize(targets, 2);
@@ -896,7 +896,7 @@ class spell_ice_tomb_freeze : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ice_tomb_freeze_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sObjectMgr->GetCreatureTemplate(NPC_ICE_TOMB))
                     return false;
@@ -925,7 +925,7 @@ class spell_ice_tomb_freeze : public SpellScriptLoader
     {
         PrepareAuraScript(spell_ice_tomb_freeze_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_ICE_TOMB))
                 return false;
@@ -960,7 +960,7 @@ public:
     {
         PrepareAuraScript(spell_ds_ice_lance_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_LANCE_TARGET))
                 return false;
@@ -1087,7 +1087,7 @@ public:
     {
         PrepareAuraScript(spell_lightning_conduit_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_LIGHTNING_CONDUIT))
                 return false;

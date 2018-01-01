@@ -802,7 +802,7 @@ public:
     {
         PrepareSpellScript(spell_release_abberationsSpellScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             return true;
         }
@@ -840,7 +840,7 @@ public:
     {
         PrepareSpellScript(spell_release_all_abberationsSpellScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             return true;
         }

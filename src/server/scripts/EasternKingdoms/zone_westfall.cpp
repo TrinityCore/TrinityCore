@@ -1842,7 +1842,6 @@ public:
         void Reset() override
         {
             Phase = 0;
-            HomeGUID;
             bSummonn = false;
             bSummonn1 = false;
             bSummonn2 = false;

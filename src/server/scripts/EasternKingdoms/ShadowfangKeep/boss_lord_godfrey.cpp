@@ -105,7 +105,7 @@ class boss_lord_godfrey : public CreatureScript
             instance->HandleGameObject(instance->GetGuidData(GO_LORD_GODFREY_DOOR), true);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim) override
         {
              Talk(RAND(SAY_KILLER_1, SAY_KILLER_2));
         }
@@ -205,7 +205,7 @@ public:
     {
         PrepareAuraScript(spell_pistol_barrage_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PISTOL_BARRAGE))
                 return false;

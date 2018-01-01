@@ -1593,7 +1593,7 @@ public: npc_council_water_bomb() : CreatureScript("npc_council_water_bomb") {}
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_council_water_bombAI(pCreature);
     }
@@ -1651,7 +1651,7 @@ public: npc_council_lava_seed() : CreatureScript("npc_council_lava_seed") {}
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_council_lava_seedAI(pCreature);
     }
@@ -1710,7 +1710,7 @@ public: npc_council_inferno_rush() : CreatureScript("npc_council_inferno_rush") 
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_council_inferno_rushAI(pCreature);
     }
@@ -1760,7 +1760,7 @@ public: npc_council_flamestrike() : CreatureScript("npc_council_flamestrike") {}
     }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_council_flamestrikeAI(pCreature);
     }
@@ -1790,7 +1790,7 @@ public: npc_council_liquid_ice() : CreatureScript("npc_council_liquid_ice") {}
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_council_liquid_iceAI(pCreature);
     }
