@@ -21,6 +21,8 @@
 #include "UnitAI.h"
 #include "Common.h"
 #include "ObjectDefines.h"
+#include "Optional.h"
+#include "QuestDef.h"
 
 class AreaBoundary;
 class AreaTrigger;
@@ -30,6 +32,8 @@ class GameObject;
 class PlayerAI;
 class WorldObject;
 struct Position;
+enum class LootItemType : uint8;
+enum class QuestGiverStatus : uint32;
 
 typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
@@ -167,6 +171,27 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called when victim entered water and creature can not enter water
         //virtual bool CanReachByRangeAttack(Unit*) { return false; }
+
+        /// == Gossip system ================================
+
+        // Called when the dialog status between a player and the creature is requested.
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* player);
+
+        // Called when a player opens a gossip dialog with the creature.
+        virtual bool GossipHello(Player* /*player*/) { return false; }
+
+        // Called when a player selects a gossip item in the creature's gossip menu.
+        virtual bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
+
+        // Called when a player selects a gossip with a code in the creature's gossip menu.
+        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/) { return false; }
+
+        // Called when a player accepts a quest from the creature.
+        virtual void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
+        virtual void QuestReward(Player* player, Quest const* quest, uint32 opt);
+        virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) { }
 
         /// == Fields =======================================
 

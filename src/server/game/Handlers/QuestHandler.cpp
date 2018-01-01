@@ -19,6 +19,7 @@
 #include "Battleground.h"
 #include "Common.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
@@ -34,7 +35,6 @@
 #include "QuestPackets.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-#include "UnitAI.h"
 #include "World.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
@@ -93,7 +93,7 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHe
     creature->SetHomePosition(creature->GetPosition());
 
     _player->PlayerTalkClass->ClearMenus();
-    if (creature->GetAI()->GossipHello(_player))
+    if (creature->AI()->GossipHello(_player))
         return;
 
     _player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, true);
@@ -388,7 +388,6 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
             case TYPEID_PLAYER:
             {
                 //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
-                Unit* unitQGiver = object->ToUnit();
                 // Send next quest
                 if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
                 {
@@ -403,8 +402,8 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                 }
 
                 _player->PlayerTalkClass->ClearMenus();
-                if (UnitAI* qGiverAI = unitQGiver->GetAI())
-                    qGiverAI->QuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
+                if (Creature* creatureQGiver = object->ToCreature())
+                    creatureQGiver->AI()->QuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
                 break;
             }
             case TYPEID_GAMEOBJECT:

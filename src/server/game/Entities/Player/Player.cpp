@@ -16406,29 +16406,27 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
 
     switch (questgiver->GetTypeId())
     {
-    case TYPEID_GAMEOBJECT:
-    {
-        QuestGiverStatus questStatus = questgiver->ToGameObject()->AI()->GetDialogStatus(this);
-        if (questStatus != QuestGiverStatus::ScriptedDefault)
-            return questStatus;
-        qr = sObjectMgr->GetGOQuestRelationBounds(questgiver->GetEntry());
-        qir = sObjectMgr->GetGOQuestInvolvedRelationBounds(questgiver->GetEntry());
-        break;
-    }
-    case TYPEID_UNIT:
-    {
-        QuestGiverStatus questStatus = questgiver->ToCreature()->AI()->GetDialogStatus(this);
-        if (questStatus != QuestGiverStatus::ScriptedDefault)
-            return questStatus;
-        qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());
-        qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(questgiver->GetEntry());
-        break;
-    }
-    default:
-        // it's impossible, but check
-        TC_LOG_ERROR("entities.player.quest", "Player::GetQuestDialogStatus: Called with unexpected type (Entry: %u, Type: %u) by player '%s' (%s)",
-            questgiver->GetEntry(), questgiver->GetTypeId(), GetName().c_str(), GetGUID().ToString().c_str());
-        return QuestGiverStatus::None;
+        case TYPEID_GAMEOBJECT:
+        {
+            if (Optional<QuestGiverStatus> questStatus = questgiver->ToGameObject()->AI()->GetDialogStatus(this))
+                return *questStatus;
+            qr = sObjectMgr->GetGOQuestRelationBounds(questgiver->GetEntry());
+            qir = sObjectMgr->GetGOQuestInvolvedRelationBounds(questgiver->GetEntry());
+            break;
+        }
+        case TYPEID_UNIT:
+        {
+            if (Optional<QuestGiverStatus> questStatus = questgiver->ToCreature()->AI()->GetDialogStatus(this))
+                return *questStatus;
+            qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());
+            qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(questgiver->GetEntry());
+            break;
+        }
+        default:
+            // it's impossible, but check
+            TC_LOG_ERROR("entities.player.quest", "Player::GetQuestDialogStatus: Called with unexpected type (Entry: %u, Type: %u) by player '%s' (%s)",
+                questgiver->GetEntry(), questgiver->GetTypeId(), GetName().c_str(), GetGUID().ToString().c_str());
+            return QuestGiverStatus::None;
     }
 
     QuestGiverStatus result = QuestGiverStatus::None;

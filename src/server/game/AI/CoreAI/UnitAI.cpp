@@ -18,7 +18,6 @@
 #include "UnitAI.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
-#include "LootMgr.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
@@ -301,16 +300,6 @@ void UnitAI::FillAISpellInfo()
                 AIInfo->Effects |= 1 << (SELECT_EFFECT_AURA - 1);
         }
     });
-}
-
-void UnitAI::QuestReward(Player* player, Quest const* quest, uint32 opt)
-{
-    QuestReward(player, quest, LootItemType::Item, opt);
-}
-
-QuestGiverStatus UnitAI::GetDialogStatus(Player* /*player*/)
-{
-    return QuestGiverStatus::ScriptedDefault;
 }
 
 ThreatManager& UnitAI::GetThreatManager()

@@ -20,7 +20,7 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
-#include <list>
+#include "Optional.h"
 
 class GameObject;
 class Player;
@@ -51,6 +51,9 @@ class TC_GAME_API GameObjectAI
 
         static int32 Permissible(GameObject const* go);
 
+        // Called when the dialog status between a player and the gameobject is requested.
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* player);
+
         // Called when a player opens a gossip dialog with the gameobject.
         virtual bool GossipHello(Player* /*player*/) { return false; }
 
@@ -66,9 +69,6 @@ class TC_GAME_API GameObjectAI
         // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
         virtual void QuestReward(Player* player, Quest const* quest, uint32 opt);
         virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) { }
-
-        // Called when the dialog status between a player and the gameobject is requested.
-        virtual QuestGiverStatus GetDialogStatus(Player* player);
 
         // Called when a Player clicks a GameObject, before GossipHello
         // prevents achievement tracking if returning true

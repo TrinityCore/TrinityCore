@@ -140,8 +140,6 @@ enum class QuestGiverStatus : uint32
     CovenantCallingQuest                = 0x080000,
     CovenantCallingRewardCompleteNoPOI  = 0x100000,
     CovenantCallingRewardCompletePOI    = 0x200000,
-
-    ScriptedDefault                     = 0x80000000
 };
 
 DEFINE_ENUM_FLAG(QuestGiverStatus);

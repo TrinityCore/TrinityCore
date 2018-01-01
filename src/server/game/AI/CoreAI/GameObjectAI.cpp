@@ -31,9 +31,9 @@ void GameObjectAI::QuestReward(Player* player, Quest const* quest, uint32 opt)
     QuestReward(player, quest, LootItemType::Item, opt);
 }
 
-QuestGiverStatus GameObjectAI::GetDialogStatus(Player* /*player*/)
+Optional<QuestGiverStatus> GameObjectAI::GetDialogStatus(Player* /*player*/)
 {
-    return QuestGiverStatus::ScriptedDefault;
+    return {};
 }
 
 NullGameObjectAI::NullGameObjectAI(GameObject* g) : GameObjectAI(g) { }

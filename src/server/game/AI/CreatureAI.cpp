@@ -23,6 +23,7 @@
 #include "CreatureTextMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "LootMgr.h"
 #include "Map.h"
 #include "MapReference.h"
 #include "MotionMaster.h"
@@ -277,6 +278,16 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
         return false;
 
     return true;
+}
+
+Optional<QuestGiverStatus> CreatureAI::GetDialogStatus(Player* /*player*/)
+{
+    return {};
+}
+
+void CreatureAI::QuestReward(Player* player, Quest const* quest, uint32 opt)
+{
+    QuestReward(player, quest, LootItemType::Item, opt);
 }
 
 const uint32 BOUNDARY_VISUALIZE_CREATURE = 15425;
