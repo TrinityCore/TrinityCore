@@ -23,6 +23,42 @@
 
 struct SummonPropertiesEntry;
 
+enum PetEntries
+{
+    // Warlock Pets/Minions
+    ENTRY_IMP = 416,
+    ENTRY_VOIDWALKER = 1860,
+    ENTRY_SUCCUBUS = 1863,
+    ENTRY_FELHUNTER = 417,
+    ENTRY_FELGUARD = 17252,
+    ENTRY_DOOMGUARD = 11859,
+    ENTRY_DOOMGUARD_PET = 78158,
+    ENTRY_INFERNAL = 89,
+    ENTRY_INFERNAL_LORD_OF_FLAMES = 108452,
+    ENTRY_INFERNAL_PET = 78217,
+    ENTRY_WILD_IMP = 55659,
+    ENTRY_WILD_IMP_DREADSTALKER = 99737,
+    ENTRY_DREADSTALKER = 98035,
+    ENTRY_DARKGLARE = 103673,
+    ENTRY_CHAOS_TEAR = 108493,
+    ENTRY_UNSTABLE_TEAR = 94584,
+    ENTRY_SHADOWY_TEAR = 99887,
+    // Mage Pet/Minion
+    ENTRY_WATER_ELEMENTAL = 78116,
+    // Shaman Pet/Minion
+    ENTRY_FIRE_ELEMENTAL = 95061,
+    // Death knight Pet/Minion
+    ENTRY_GHOUL = 26125,
+    ENTRY_BLOODWORM = 99773,
+    ENTRY_RISEN_SKULKER = 99541,
+    // Monk Pet/Minion
+    ENTRY_XUEN = 63508,
+    ENTRY_NIUZAO = 73967,
+    ENTRY_CHI_JI = 100868,
+    // Druid Pet/Minion
+    ENTRY_TREANT = 1964
+};
+
 class TC_GAME_API TempSummon : public Creature
 {
     public:
@@ -62,6 +98,7 @@ class TC_GAME_API Minion : public TempSummon
         bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
         bool IsSpiritWolf() const {return GetEntry() == 29264;} // Spirit wolf from feral spirits
         bool IsGuardianPet() const;
+        bool IsWarlockMinion() const;
     protected:
         Unit* const m_owner;
         float m_followAngle;
@@ -82,6 +119,7 @@ class TC_GAME_API Guardian : public Minion
         void UpdateMaxPower(Powers power) override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
         void UpdateDamagePhysical(WeaponAttackType attType) override;
+        void UpdateSpellPower() override;
 
         int32 GetBonusDamage() const { return m_bonusSpellDamage; }
         void SetBonusDamage(int32 damage);

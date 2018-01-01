@@ -937,30 +937,6 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
 ########                         ########
 #######################################*/
 
-enum PetEntries
-{
-    ENTRY_IMP                       = 416,
-    ENTRY_VOIDWALKER                = 1860,
-    ENTRY_SUCCUBUS                  = 1863,
-    ENTRY_FELHUNTER                 = 417,
-    ENTRY_FELGUARD                  = 17252,
-    ENTRY_INFERNAL                  = 47319,
-
-    ENTRY_WATER_ELEMENTAL           = 78116,
-
-    ENTRY_FIRE_ELEMENTAL            = 95061,
-
-    ENTRY_GHOUL                     = 26125,
-    ENTRY_BLOODWORM                 = 99773,
-    ENTRY_RISEN_SKULKER             = 99541,
-
-    ENTRY_XUEN                      = 63508,
-    ENTRY_NIUZAO                    = 73967,
-    ENTRY_CHI_JI                    = 100868,
-
-    ENTRY_TREANT                    = 1964
-};
-
 bool Guardian::UpdateAllStats()
 {
     UpdateAttackPowerAndDamage();
@@ -972,6 +948,9 @@ bool Guardian::UpdateAllStats()
         UpdateMaxPower(Powers(i));
 
     UpdateAllResistances();
+
+    if (IsWarlockMinion())
+        UpdateSpellPower();
 
     return true;
 }
@@ -1189,10 +1168,8 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             break;
         case ENTRY_IMP:
             value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 100.f);
-            SetBonusDamage(value);
         case ENTRY_VOIDWALKER:
             value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 120.f);
-            SetBonusDamage(value);
         default:
             break;
         }
@@ -1282,10 +1259,18 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     }
 }
 
+void Guardian::UpdateSpellPower()
+{
+    // WL pets/minions get 100% of owners SP
+    // need some more proofs which are affected and which arent
+    if (IsWarlockMinion())
+        SetBonusDamage(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC));
+}
+
 void Guardian::SetBonusDamage(int32 damage)
 {
     m_bonusSpellDamage = damage;
-    if (GetOwner()->IsPlayer() && damage)
+    if (GetOwner()->IsPlayer())
         GetOwner()->SetUInt32Value(PLAYER_PET_SPELL_POWER, damage);
 }
 
