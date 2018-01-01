@@ -118,7 +118,7 @@ class boss_isiset : public CreatureScript
             me->SummonCreature(NPC_SPATIAL_FLUX, -482.35f, 414.21f, 343.94f, 4.27f);
         }
 
-        void SummonedCreatureDies(Creature * creature, Unit * /*killer*/)
+        void SummonedCreatureDies(Creature* creature, Unit* /*killer*/) override
         {
             if(split)
             {

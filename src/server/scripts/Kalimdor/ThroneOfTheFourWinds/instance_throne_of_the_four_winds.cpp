@@ -92,7 +92,7 @@ public:
         uint8 AlakirFlightData;
 
 
-        void Initialize()
+        void Initialize() override
         {
             for (uint8 i = 0; i < ENCOUNTERS; ++i)
                 Encounter[i] = NOT_STARTED;
@@ -102,8 +102,7 @@ public:
             AlakirFlightData = 0;
         }
 
-        void Update(uint32 diff) { }
-
+        void Update(uint32 diff) override { }
 
         void OnPlayerEnter(Player* player) override
         {
@@ -449,6 +448,8 @@ public:
                     return SPELL_WIND_CHILL_10H;
                 case DIFFICULTY_25_HC:
                     return SPELL_WIND_CHILL_25H;
+                default:
+                    break;
             }
             return 0;
         }

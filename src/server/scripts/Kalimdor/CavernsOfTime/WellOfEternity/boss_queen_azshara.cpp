@@ -211,7 +211,7 @@ public:
                 }
         }
 
-        void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+        void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
         {
             if (!me->IsInCombat())
                 return;

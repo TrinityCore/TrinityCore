@@ -119,7 +119,7 @@ class boss_anraphet : public CreatureScript
             }
         }
 
-        void SetData(uint32 data, uint32)
+        void SetData(uint32 data, uint32) override
         {
             if(data == DATA_ANRAPHET_INTRO)
                 intro = true;
@@ -497,10 +497,10 @@ class npc_flame_warden_hoo : public CreatureScript
             infernoTimer = urand(3000, 4000);
         }
 
-        void JustDied(Unit *)
+        void JustDied(Unit* /*unit*/) override
         {
-                if(instance)
-                    instance->SetData(DATA_FLAME_WARDEN, 1);
+            if(instance)
+                instance->SetData(DATA_FLAME_WARDEN, 1);
         }
 
         void UpdateAI(uint32 const diff) override
@@ -591,12 +591,12 @@ class npc_water_warden_hoo : public CreatureScript
             summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* summoned)
+        void SummonedCreatureDespawn(Creature* summoned) override
         {
             summons.Despawn(summoned);
         }
 
-        void SummonedCreatureDies(Creature* summoned, Unit * )
+        void SummonedCreatureDies(Creature* summoned, Unit* ) override
         {
             summoned->DespawnOrUnsummon();
         }

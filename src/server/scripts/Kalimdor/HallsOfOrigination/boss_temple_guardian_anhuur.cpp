@@ -167,7 +167,7 @@ class boss_anhuur : public CreatureScript
                 Talk(SAY_KILL);
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/)
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             _EnterEvadeMode();
             CleanStalkers();

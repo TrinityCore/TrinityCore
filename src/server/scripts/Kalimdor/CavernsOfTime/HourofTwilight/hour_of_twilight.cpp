@@ -677,7 +677,8 @@ public:
                     break;
                 case 6:
                     SetEscortPaused(true);
-                    if (asira = me->FindNearestCreature(BOSS_ASIRA_DAWNSLAYER, 100.0f, true))
+                    asira = me->FindNearestCreature(BOSS_ASIRA_DAWNSLAYER, 100.0f, true);
+                    if (asira != nullptr)
                     {
                         me->SetReactState(REACT_PASSIVE);
                         me->SetHomePosition(HomePoints[3]);

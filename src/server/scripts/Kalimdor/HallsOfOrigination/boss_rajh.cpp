@@ -458,7 +458,8 @@ public:
                         break;
                     case EVENT_SEARING_FLAME:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            if(IsHeroic())
+                        {
+                            if (IsHeroic())
                             {
                                 DoCast(target, 89849);
                                 events.ScheduleEvent(EVENT_SEARING_FLAME, 6000);
@@ -468,6 +469,7 @@ public:
                                 DoCast(target, 74101);
                                 events.ScheduleEvent(EVENT_SEARING_FLAME, 6000);
                             }
+                        }
                         break;
                     default:
                         break;
@@ -541,7 +543,8 @@ public:
                         break;
                     case EVENT_SEARING_FLAME:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            if(IsHeroic())
+                        {
+                            if (IsHeroic())
                             {
                                 DoCast(target, 89849);
                                 events.ScheduleEvent(EVENT_SEARING_FLAME, 6000);
@@ -551,6 +554,7 @@ public:
                                 DoCast(target, 74101);
                                 events.ScheduleEvent(EVENT_SEARING_FLAME, 6000);
                             }
+                        }
                         break;
                     default:
                         break;
