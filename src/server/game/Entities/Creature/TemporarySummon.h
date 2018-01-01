@@ -119,7 +119,7 @@ class TC_GAME_API Guardian : public Minion
         void UpdateMaxPower(Powers power) override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
         void UpdateDamagePhysical(WeaponAttackType attType) override;
-        void UpdateSpellPower() override;
+        void UpdateSpellPower();
 
         int32 GetBonusDamage() const { return m_bonusSpellDamage; }
         void SetBonusDamage(int32 damage);
