@@ -2219,7 +2219,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(ObjectGuid uiGuid, int32 /*iId*/ = 0) override
+        void SetGUID(ObjectGuid const& uiGuid, int32 /*iId*/ = 0) override
         {
             uiPlayerGUID = uiGuid;
         }
@@ -2435,7 +2435,7 @@ public:
             _playerGUID.Clear();
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*action*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             if (!_playerGUID.IsEmpty())
                 return;

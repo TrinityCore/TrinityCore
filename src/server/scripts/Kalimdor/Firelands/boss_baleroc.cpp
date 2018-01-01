@@ -285,9 +285,9 @@ class boss_baleroc : public CreatureScript
                 DoBalerocAttackIfReady();
             }
 
-            void SetGUID(ObjectGuid guid, int32 type = 0) override
+            void SetGUID(ObjectGuid const& guid, int32 id = 0) override
             {
-                switch (type)
+                switch (id)
                 {
                     case GUID_TORMENTED:
                     {

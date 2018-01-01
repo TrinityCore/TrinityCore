@@ -357,7 +357,7 @@ class npc_snobold_vassal : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 id) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
                 if (id == DATA_NEW_TARGET)
                     if (Unit* target = ObjectAccessor::GetPlayer(*me, guid))

@@ -1633,7 +1633,7 @@ public:
             });
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             _targetGUID = guid;
             if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))

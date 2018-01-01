@@ -287,9 +287,9 @@ public:
     {
         npc_coren_direbrew_sistersAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void SetGUID(ObjectGuid guid, int32 data) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (data == DATA_TARGET_GUID)
+            if (id == DATA_TARGET_GUID)
                 _targetGUID = guid;
         }
 

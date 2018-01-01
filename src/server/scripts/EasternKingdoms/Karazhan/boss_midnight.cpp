@@ -207,9 +207,9 @@ public:
             BossAI::JustDied(killer);
         }
 
-        void SetGUID(ObjectGuid guid, int32 data) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (data == NPC_MIDNIGHT)
+            if (id == NPC_MIDNIGHT)
                 _midnightGUID = guid;
         }
 

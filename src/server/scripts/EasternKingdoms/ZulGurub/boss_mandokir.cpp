@@ -213,7 +213,7 @@ class boss_mandokir : public CreatureScript
                 return 0;
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id = 0 **/) override
             {
                 _reviveGUID = guid;
             }
@@ -369,7 +369,7 @@ class npc_chained_spirit : public CreatureScript
                 _revivePlayerGUID.Clear();
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id = 0 */) override
             {
                 _revivePlayerGUID = guid;
             }
