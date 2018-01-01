@@ -60,9 +60,9 @@ class boss_arcanist_doan : public CreatureScript
                 _healthAbove50Pct = true;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_SILENCE,         15 * IN_MILLISECONDS);

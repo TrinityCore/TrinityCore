@@ -471,9 +471,9 @@ struct npc_skadi_trashAI : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        CreatureAI::EnterCombat(who);
+        CreatureAI::JustEngagedWith(who);
         ScheduleTasks();
     }
 

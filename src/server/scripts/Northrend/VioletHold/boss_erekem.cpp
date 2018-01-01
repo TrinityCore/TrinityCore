@@ -65,9 +65,9 @@ class boss_erekem : public CreatureScript
                 me->SetCanDualWield(false);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_EARTH_SHIELD);
             }
@@ -268,7 +268,7 @@ class npc_erekem_guard : public CreatureScript
                 scheduler.CancelAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }

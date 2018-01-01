@@ -65,7 +65,7 @@ class boss_toravon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_FROZEN_MALLET);
 
@@ -73,7 +73,7 @@ class boss_toravon : public CreatureScript
                 events.ScheduleEvent(EVENT_WHITEOUT, 13000);
                 events.ScheduleEvent(EVENT_FREEZING_GROUND, 15000);
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override
@@ -138,7 +138,7 @@ class npc_frost_warder : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
 
@@ -202,7 +202,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }

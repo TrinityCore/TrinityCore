@@ -104,10 +104,10 @@ class boss_nexusprince_shaffar : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_BEACON, 10000);
                 events.ScheduleEvent(EVENT_FIREBALL, 8000);
@@ -210,7 +210,7 @@ class npc_ethereal_beacon : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (Creature* shaffar = me->FindNearestCreature(NPC_SHAFFAR, 100.0f))
                     if (!shaffar->IsInCombat())
@@ -285,7 +285,7 @@ class npc_ethereal_apprentice : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FIREBOLT, 3000);
             }
@@ -345,7 +345,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_DOUBLE_BREATH, urand(6000,9000));
         }

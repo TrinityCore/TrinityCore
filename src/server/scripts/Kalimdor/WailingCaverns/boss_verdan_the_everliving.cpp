@@ -38,9 +38,9 @@ public:
     {
         boss_verdan_the_everlivingAI(Creature* creature) : BossAI(creature, DATA_VERDAN_THE_EVERLIVING) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
             events.ScheduleEvent(EVENT_GRASPING_VINES, Seconds(20),Seconds(35));
         }

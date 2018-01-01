@@ -48,9 +48,9 @@ class boss_moragg : public CreatureScript
                 BossAI::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
             }
 
             void JustReachedHome() override

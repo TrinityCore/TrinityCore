@@ -69,9 +69,9 @@ class boss_blackheart_the_inciter : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_INCITE_CHAOS, 20000);
                 events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5000);
                 events.ScheduleEvent(EVENT_WAR_STOMP, 15000);

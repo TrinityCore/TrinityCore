@@ -124,9 +124,9 @@ class boss_auriaya : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_SCREECH, urand(45000, 65000));
@@ -346,7 +346,7 @@ class npc_sanctum_sentry : public CreatureScript
                 events.ScheduleEvent(EVENT_POUNCE, urand(12000, 15000));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_STRENGHT_PACK, true);
             }

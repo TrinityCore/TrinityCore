@@ -135,9 +135,9 @@ class boss_baleroc : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(EMOTE_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_INCENDIARY_SOUL, 8.5*IN_MILLISECONDS);

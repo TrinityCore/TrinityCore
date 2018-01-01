@@ -82,7 +82,7 @@ public:
             instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
             instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, IN_PROGRESS);

@@ -116,7 +116,7 @@ public:
             bFirstTime = false;
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (!instance || (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_JEDOGA_CONTROLLER))
                 return;
@@ -221,7 +221,7 @@ public:
                     AttackStart(target);
                     instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
                     if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) != IN_PROGRESS)
-                        EnterCombat(target);
+                        JustEngagedWith(target);
                 }
                 else if (!me->IsInCombat())
                     EnterEvadeMode();
@@ -399,7 +399,7 @@ public:
                 instance->SetGuidData(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -534,7 +534,7 @@ public:
         bool bCast2;
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void AttackStart(Unit* /*victim*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 

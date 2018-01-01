@@ -142,7 +142,7 @@ public:
         }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
     };
 
 };
@@ -258,9 +258,9 @@ class boss_archmage_arugal : public CreatureScript
                     Talk(SAY_TRANSFORM);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_CURSE, Seconds(7));
                 events.ScheduleEvent(EVENT_TELEPORT, Seconds(15));

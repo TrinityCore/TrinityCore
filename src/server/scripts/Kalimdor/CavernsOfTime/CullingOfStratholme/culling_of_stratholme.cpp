@@ -340,7 +340,7 @@ public:
                 npc_escortAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_ARTHAS_AURA);
         }

@@ -114,7 +114,7 @@ public:
             instance->SetBossState(DATA_BRUTALLUS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(YELL_AGGRO);
 

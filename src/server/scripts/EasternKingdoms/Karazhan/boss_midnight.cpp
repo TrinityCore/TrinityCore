@@ -337,9 +337,9 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
 
             scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext task)
             {

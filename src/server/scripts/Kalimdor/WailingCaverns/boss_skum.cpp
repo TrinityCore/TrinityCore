@@ -38,9 +38,9 @@ public:
     {
         boss_skumAI(Creature* creature) : BossAI(creature, DATA_SKUM) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
             events.ScheduleEvent(EVENT_CHAINED_BOLT, Seconds(3), Seconds(4));
         }

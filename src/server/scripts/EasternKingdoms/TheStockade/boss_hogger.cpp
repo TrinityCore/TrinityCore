@@ -66,9 +66,9 @@ public:
     {
         boss_hoggerAI(Creature* creature) : BossAI(creature, DATA_HOGGER), _hasEnraged(false) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_PULL);
             events.ScheduleEvent(EVENT_VICIOUS_SLICE, Seconds(3), Seconds(4));
             events.ScheduleEvent(EVENT_MADDENING_CALL, Seconds(1), Seconds(2));

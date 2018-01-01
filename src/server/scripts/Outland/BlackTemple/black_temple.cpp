@@ -88,7 +88,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_CLEAVE, 5000);
             _events.ScheduleEvent(EVENT_IGNORED, 7000);
@@ -220,7 +220,7 @@ public:
             });
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             me->RemoveAurasDueToSpell(SPELL_GREATER_INVISIBILITY);
 

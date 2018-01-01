@@ -164,7 +164,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
         }

@@ -190,9 +190,9 @@ class boss_asaad : public CreatureScript
                     events.ScheduleEvent(EVENT_STATIC_CLING, 10800);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(SAY_AGGRO);
 

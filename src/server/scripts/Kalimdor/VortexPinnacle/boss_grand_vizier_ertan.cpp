@@ -130,9 +130,9 @@ class boss_grand_vizier_ertan : public CreatureScript
                     events.ScheduleEvent(EVENT_SUMMON_TEMPEST, 17000);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 SummonErtansVortexes();
                 DoCast(me, SPELL_STORMS_EDGE_AURA);

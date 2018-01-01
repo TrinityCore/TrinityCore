@@ -335,9 +335,9 @@ class boss_freya : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 DoZoneInCombat();
                 Creature* Elder[3];
                 for (uint8 n = 0; n < 3; ++n)
@@ -723,9 +723,9 @@ class boss_elder_brightleaf : public CreatureScript
                 Talk(SAY_ELDER_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
                     Talk(SAY_ELDER_AGGRO);
             }
@@ -824,9 +824,9 @@ class boss_elder_stonebark : public CreatureScript
                 Talk(SAY_ELDER_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
                     Talk(SAY_ELDER_AGGRO);
             }
@@ -931,9 +931,9 @@ class boss_elder_ironbranch : public CreatureScript
                 Talk(SAY_ELDER_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
                     Talk(SAY_ELDER_AGGRO);
             }
@@ -1281,7 +1281,7 @@ class npc_ancient_conservator : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 DoCast(who, SPELL_CONSERVATOR_GRIP, true);
             }

@@ -97,7 +97,7 @@ class boss_emalon : public CreatureScript
                     summoned->AI()->AttackStart(me->GetVictim());
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!summons.empty())
                 {
@@ -114,7 +114,7 @@ class boss_emalon : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 360000);
                 events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override
@@ -214,7 +214,7 @@ class npc_tempest_minion : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 DoZoneInCombat();
                 events.ScheduleEvent(EVENT_SHOCK, 20000);

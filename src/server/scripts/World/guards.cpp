@@ -70,7 +70,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (me->GetEntry() == NPC_CENARION_HOLD_INFANTRY)
                 Talk(SAY_GUARD_SIL_AGGRO, who);

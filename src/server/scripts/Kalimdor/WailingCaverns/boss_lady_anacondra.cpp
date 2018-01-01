@@ -64,9 +64,9 @@ public:
             DoCastSelf(SPELL_NATURE_CHANNELING);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
 
             me->RemoveAurasDueToSpell(SPELL_NATURE_CHANNELING);

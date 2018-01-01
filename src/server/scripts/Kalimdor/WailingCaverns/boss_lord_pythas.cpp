@@ -49,10 +49,10 @@ public:
     {
         boss_lord_pythasAI(Creature* creature) : BossAI(creature, DATA_LORD_PYTHAS) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
 
             events.ScheduleEvent(EVENT_LIGHTNING_BOLT, Seconds(3));
             events.ScheduleEvent(EVENT_THUNDERCLAP, Seconds(19));

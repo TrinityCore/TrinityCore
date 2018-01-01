@@ -133,9 +133,9 @@ class boss_altairus : public CreatureScript
                 events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 1000);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 me->SummonCreature(NPC_INVISIBLE_STALKER, InvisibleStalkerPos);
 

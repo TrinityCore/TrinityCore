@@ -38,9 +38,9 @@ public:
     {
         boss_gelihastAI(Creature* creature) : BossAI(creature, DATA_GELIHAST) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_THROW_NET, urand(2000, 4000));
         }
 

@@ -60,7 +60,7 @@ public:
             _events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_FROSTBOLT,  1 * IN_MILLISECONDS);
             _events.ScheduleEvent(EVENT_ICETOMB,   16 * IN_MILLISECONDS);

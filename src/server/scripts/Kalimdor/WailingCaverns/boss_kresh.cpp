@@ -38,9 +38,9 @@ public:
     {
         boss_kreshAI(Creature* creature) : BossAI(creature, DATA_KRESH) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
             events.ScheduleEvent(EVENT_CRUSHING_BITE, Seconds(6));
         }

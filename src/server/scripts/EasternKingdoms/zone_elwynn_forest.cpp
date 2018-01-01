@@ -74,7 +74,7 @@ public:
             SetCombatMovement(false);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ASK_FOR_HELP, Seconds(RAND(1, 10) * 10));
         }
@@ -162,7 +162,7 @@ public:
         {
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (who->GetEntry() != NPC_STORWIND_INFANTRY)
                 isInfantry = false;
@@ -344,7 +344,7 @@ public:
             _defeated = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_VICIOUS_SLICE, Seconds(5));
             me->GetMotionMaster()->Clear(MOTION_SLOT_IDLE);

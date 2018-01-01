@@ -43,7 +43,7 @@ class TC_GAME_API CombatAI : public CreatureAI
 
         void InitializeAI() override;
         void Reset() override;
-        void EnterCombat(Unit* who) override;
+        void JustEngagedWith(Unit* who) override;
         void JustDied(Unit* killer) override;
         void UpdateAI(uint32 diff) override;
         void SpellInterrupted(uint32 spellId, uint32 unTimeMs) override;
@@ -62,7 +62,7 @@ class TC_GAME_API CasterAI : public CombatAI
         void InitializeAI() override;
         void AttackStart(Unit* victim) override { AttackStartCaster(victim, m_attackDist); }
         void UpdateAI(uint32 diff) override;
-        void EnterCombat(Unit* /*who*/) override;
+        void JustEngagedWith(Unit* /*who*/) override;
     private:
         float m_attackDist;
 };

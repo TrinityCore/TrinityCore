@@ -50,9 +50,9 @@ class boss_lorekeeper_polkelt : public CreatureScript
         {
             boss_lorekeeperpolkeltAI(Creature* creature) : BossAI(creature, DATA_LOREKEEPERPOLKELT) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_VOLATILEINFECTION, 38000);
                 events.ScheduleEvent(EVENT_DARKPLAGUE, 8000);
                 events.ScheduleEvent(EVENT_CORROSIVEACID, 45000);

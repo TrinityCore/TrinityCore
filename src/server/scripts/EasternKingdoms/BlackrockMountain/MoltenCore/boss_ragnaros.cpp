@@ -104,9 +104,9 @@ class boss_ragnaros : public CreatureScript
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_ERUPTION, 15000);
                 events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30000);
                 events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 25000);

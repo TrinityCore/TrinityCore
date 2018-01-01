@@ -144,9 +144,9 @@ class boss_lockmaw : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_VISCOUS_POISON, Seconds(6));
                 events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, Seconds(6));
@@ -265,9 +265,9 @@ class boss_augh : public CreatureScript
         {
             boss_aughAI(Creature* creature) : BossAI(creature, DATA_AUGH) { }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
                 events.SetPhase(PHASE_COMBAT);
                 DoCastSelf(SPELL_FRENZY);

@@ -150,7 +150,7 @@ public:
                 AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*target*/) override
+        void JustEngagedWith(Unit* /*target*/) override
         {
             DoCast(me, SPELL_LURK_SEARCH);
         }
@@ -277,7 +277,7 @@ public:
             events.ScheduleEvent(EVENT_ATTACK, 6000);
         }
 
-        void EnterCombat(Unit* /*target*/) override
+        void JustEngagedWith(Unit* /*target*/) override
         {
             me->SetReactState(REACT_PASSIVE);
 
@@ -417,7 +417,7 @@ public:
             DoCast(me, SPELL_SKYFALL_VISUAL);
         }
 
-        void EnterCombat(Unit* /*target*/) override
+        void JustEngagedWith(Unit* /*target*/) override
         {
             me->SetReactState(REACT_PASSIVE);
             DoCast(me, SPELL_SKYFALL);
@@ -454,7 +454,7 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void EnterCombat(Unit* /*target*/) override
+        void JustEngagedWith(Unit* /*target*/) override
         {
             me->SetReactState(REACT_PASSIVE);
             DoCast(me, SPELL_ARCANE_BARRAGE);

@@ -140,9 +140,9 @@ class boss_slabhide : public CreatureScript
                     damage = me->GetHealth() - 1; // Let creature health fall to 1 hp but prevent it from dying during air phase.
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_HANDLE_ROCK_WALLS, 4000);
                 events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));

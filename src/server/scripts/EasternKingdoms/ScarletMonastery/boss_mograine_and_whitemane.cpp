@@ -113,7 +113,7 @@ public:
                 instance->SetBossState(DATA_MOGRAINE_AND_WHITE_EVENT, FAIL);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_MO_AGGRO);
             DoCast(me, SPELL_RETRIBUTIONAURA);
@@ -276,7 +276,7 @@ public:
             ScriptedAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_WH_INTRO);
         }

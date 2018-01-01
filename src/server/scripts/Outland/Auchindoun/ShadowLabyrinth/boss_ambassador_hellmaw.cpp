@@ -118,7 +118,7 @@ class boss_ambassador_hellmaw : public CreatureScript
                 Start(true, false, ObjectGuid::Empty, NULL, false, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, IN_PROGRESS);
                 Talk(SAY_AGGRO);

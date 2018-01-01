@@ -55,9 +55,9 @@ public:
     {
         boss_lord_cobrahnAI(Creature* creature) : BossAI(creature, DATA_LORD_COBRAHN) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_LIGHTNING_BOLT, Seconds(1), 0, PHASE_NORMAL);
