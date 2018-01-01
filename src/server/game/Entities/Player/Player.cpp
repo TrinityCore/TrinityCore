@@ -16541,20 +16541,19 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
         uint16 log_slot = FindQuestSlot(questId);
         if (log_slot < MAX_QUEST_LOG_SIZE)
         {
-            TC_LOG_ERROR("entities.player.quest", "Player::AreaExploredOrEventHappens:Deprecated function called for quest %u", questId);
-            /** @todo
-            This function was previously used for area triggers but now those are a part of quest objective system
-            Currently this function is used to complete quests with no objectives (needs verifying) so probably rename it?
-
-            QuestStatusData& q_status = m_QuestStatus[questId];
-
-            if (!q_status.Explored)
+            Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+            if (qInfo && GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
             {
-                q_status.Explored = true;
-                m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
-                SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
-                SendQuestComplete(questId);
-            }**/
+                for (QuestObjective const& obj : qInfo->Objectives)
+                {
+                    if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !IsQuestObjectiveComplete(obj))
+                    {
+                        SetQuestObjectiveData(obj, 1);
+                        SendQuestUpdateAddCreditSimple(obj);
+                        break;
+                    }
+                }
+            }
         }
         if (CanCompleteQuest(questId))
             CompleteQuest(questId);
