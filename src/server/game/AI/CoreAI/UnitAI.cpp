@@ -192,11 +192,6 @@ void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
     me->CastSpell((Unit*)nullptr, spellId, triggered);
 }
 
-uint32 UnitAI::GetDialogStatus(Player* /*player*/)
-{
-    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
-}
-
 #define UPDATE_TARGET(a) {if (AIInfo->target<a) AIInfo->target=a;}
 
 void UnitAI::FillAISpellInfo()
