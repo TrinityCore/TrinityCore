@@ -839,7 +839,7 @@ class spell_timeloop : public SpellScriptLoader
                 return true;
             }
 
-            bool Load()
+            bool Load() override
             {
                 absorbChance = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
                 return GetUnitOwner()->ToPlayer();

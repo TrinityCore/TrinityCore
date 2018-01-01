@@ -118,7 +118,7 @@ public:
                 pInstance->SetData(DATA_ERUNAK_STONESPEAKER, NOT_STARTED);
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* pSummon) override
         {
             switch (pSummon->GetEntry())
             {
@@ -317,7 +317,7 @@ public:
             SummonList.clear();
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* pSummon) override
         {
             SummonList.push_back(pSummon->GetGUID());
         }

@@ -783,7 +783,7 @@ public:
             }
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1093,7 +1093,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_nuclear_blast_SpellScript();
     }

@@ -475,7 +475,7 @@ public:
     {
         PrepareAuraScript(spell_queen_azshara_coldflame_AuraScript);
 
-        bool Load()
+        bool Load() override
         {
             count = 0;
             return true;

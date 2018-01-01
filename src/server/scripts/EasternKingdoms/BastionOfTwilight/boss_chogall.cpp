@@ -516,7 +516,7 @@ class spell_depravity : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_depravity_SpellScript();
         }
@@ -544,7 +544,7 @@ class spell_sprayed_corruption : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_sprayed_corruption_SpellScript();
         }
@@ -572,7 +572,7 @@ class spell_spilled_blood_of_the_old_god : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_spilled_blood_of_the_old_god_SpellScript();
         }
@@ -600,7 +600,7 @@ class spell_corrupting_crash : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_corrupting_crash_SpellScript();
         }
@@ -629,7 +629,7 @@ class spell_corruption_of_the_old_god : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_corruption_of_the_old_god_SpellScript();
         }
@@ -658,7 +658,7 @@ class spell_corruption_sickness : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_corruption_sickness_SpellScript();
         }

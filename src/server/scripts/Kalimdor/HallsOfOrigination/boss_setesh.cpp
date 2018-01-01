@@ -79,7 +79,7 @@ class boss_setesh : public CreatureScript
                 Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             ResetPortals();
@@ -109,7 +109,7 @@ class boss_setesh : public CreatureScript
             }
         }
 
-        void SpellHitTarget(Unit* victim, const SpellInfo* spell)
+        void SpellHitTarget(Unit* victim, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_CHAOS_BLAST_MISSILE)
             {
@@ -313,7 +313,7 @@ class npc_chaos_portal : public CreatureScript
             summons.Summon(summon);
         }
 
-        void JustDied(Unit * )
+        void JustDied(Unit* ) override
         {
         }
 

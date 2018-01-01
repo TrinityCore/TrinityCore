@@ -352,7 +352,7 @@ class spell_icy_boulder : public SpellScriptLoader
         {
             PrepareSpellScript(spell_icy_boulder_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }

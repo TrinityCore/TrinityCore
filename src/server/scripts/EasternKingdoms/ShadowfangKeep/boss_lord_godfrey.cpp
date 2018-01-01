@@ -75,7 +75,7 @@ class boss_lord_godfrey : public CreatureScript
             instance->HandleGameObject(instance->GetGuidData(GO_LORD_GODFREY_DOOR), true);
         }
 
-        void EnterCombat(Unit * who)
+        void EnterCombat(Unit* who) override
         {
             if (Player* p = me->SelectNearestPlayer(10.0f)){
 
@@ -97,7 +97,7 @@ class boss_lord_godfrey : public CreatureScript
                 EnterEvadeMode();
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(SAY_DEATH);
@@ -155,7 +155,7 @@ class boss_lord_godfrey : public CreatureScript
 public:
     boss_lord_godfrey() : CreatureScript("boss_lord_godfrey") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_lord_godfreyAI(creature);
     }

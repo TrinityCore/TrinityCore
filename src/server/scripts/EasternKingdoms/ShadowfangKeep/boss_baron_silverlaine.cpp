@@ -71,7 +71,7 @@ class boss_baron_silverlaine : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -86,7 +86,7 @@ class boss_baron_silverlaine : public CreatureScript
             _EnterCombat();
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             _JustDied();
@@ -137,7 +137,7 @@ class boss_baron_silverlaine : public CreatureScript
 public:
     boss_baron_silverlaine() : CreatureScript("boss_baron_silverlaine") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_baron_silverlaineAI(creature);
     }

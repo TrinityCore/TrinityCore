@@ -798,6 +798,7 @@ class boss_valiona : public CreatureScript
                             if (dazzlingCount == 0)
                             {
                                 if (Creature* theralion = instance->GetCreature(DATA_THERALION))
+                                {
                                     if (roll_chance_i(50))
                                     {
                                         theralion->Yell(SAY_THER_DAZ, LANG_UNIVERSAL);
@@ -808,7 +809,7 @@ class boss_valiona : public CreatureScript
                                         theralion->Yell(SAY_THER_DA2, LANG_UNIVERSAL);
                                         DoPlaySoundToSet(theralion, SOU_THER_DA2);
                                     }
-
+                                }
                             }
                             // Cast 2 flames per time, 6 total
                             for (uint8 i = 0; i < 2; i++)
@@ -936,7 +937,7 @@ class spell_dazzling_destruction : public SpellScriptLoader
             int32 spell_trigger;
             PrepareSpellScript(spell_dazzling_destructionSpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 spell_trigger = GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints;
                 return true;

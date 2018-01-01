@@ -223,7 +223,7 @@ class spell_mark_of_silence : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mark_of_silence_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }

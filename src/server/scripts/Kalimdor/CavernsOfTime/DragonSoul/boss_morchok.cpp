@@ -513,7 +513,7 @@ public:
             events.ScheduleEvent(EVENT_CONTINUE, 5000);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1055,7 +1055,7 @@ public:
 
         int32 amount;
 
-        bool Load()
+        bool Load() override
         {
             amount = 200;
             return true;

@@ -59,7 +59,7 @@ class boss_ammunae : public CreatureScript
             me->SetPower(POWER_ENERGY, 0);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             _EnterCombat();
@@ -75,7 +75,7 @@ class boss_ammunae : public CreatureScript
                 Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             _JustDied();
@@ -166,7 +166,7 @@ class boss_ammunae : public CreatureScript
 public:
     boss_ammunae() : CreatureScript("boss_ammunae") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_ammunaeAI(creature);
     }
@@ -201,7 +201,7 @@ class npc_bloodpetal_blossom : public CreatureScript
             actionTimer = urand(15000, 18000);
         }
 
-        void IsSummonedBy(Unit * summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             if(Aura* aur = summoner->GetAura(SPELL_ENERGIZE))
                 aur->ModStackAmount(1);
@@ -260,7 +260,7 @@ class npc_bloodpetal_blossom : public CreatureScript
 public:
     npc_bloodpetal_blossom() : CreatureScript("npc_bloodpetal_blossom") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_bloodpetal_blossomAI(creature);
     }
@@ -296,7 +296,7 @@ class npc_ammunae_spore : public CreatureScript
 public:
     npc_ammunae_spore() : CreatureScript("npc_ammunae_spore") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ammunae_sporeAI(creature);
     }

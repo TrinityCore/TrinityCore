@@ -147,7 +147,7 @@ public:
             uiDamage = 0;
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit*who) override
         {
             return;
         }

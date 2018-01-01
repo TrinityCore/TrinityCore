@@ -923,7 +923,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             if (!initialized)
                 return;
@@ -1204,7 +1204,7 @@ public:
         Creature* elementium;
         uint32 killtimer;
 
-        void EnterCombat(Unit * who)
+        void EnterCombat(Unit* who) override
         {
             if (Creature* monstrosity = instance->GetCreature(DATA_MONSTROSITY))
             {

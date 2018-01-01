@@ -159,7 +159,7 @@ public:
             summon->SetInCombatWithZone();
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*victim*/) override
         {
             events.Reset();
             summons.DespawnAll();

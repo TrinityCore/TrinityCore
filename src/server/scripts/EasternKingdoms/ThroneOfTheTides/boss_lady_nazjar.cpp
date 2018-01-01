@@ -143,7 +143,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature * pcreat)
+        void JustSummoned(Creature* pcreat) override
         {
             if (pcreat->GetEntry() == NPC_SUMMONED_WATERSPOUT)
             {

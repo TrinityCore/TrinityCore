@@ -904,7 +904,7 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* pSummon) override
         {
             switch (pSummon->GetEntry())
             {

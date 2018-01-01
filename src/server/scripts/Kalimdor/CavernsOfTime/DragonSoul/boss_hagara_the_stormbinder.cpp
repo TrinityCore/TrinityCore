@@ -851,7 +851,7 @@ class spell_ice_tomb : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ice_tomb_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -1179,7 +1179,7 @@ public:
     {
         PrepareAuraScript(spell_frostflake_AuraScript);
 
-        bool Load()
+        bool Load() override
         {
             _spell = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1237,7 +1237,7 @@ public:
     {
         PrepareSpellScript(spell_storm_pillars_SpellScript);
 
-        bool Load()
+        bool Load() override
         {
             _spell = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             return GetCaster()->GetTypeId() == TYPEID_UNIT;

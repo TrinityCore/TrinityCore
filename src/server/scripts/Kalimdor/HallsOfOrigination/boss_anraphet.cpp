@@ -99,7 +99,7 @@ class boss_anraphet : public CreatureScript
             _Reset();
         }
 
-        void EnterCombat(Unit * who)
+        void EnterCombat(Unit* who) override
         {
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_NEMESIS_STRIKE, urand(5000, 8000), 1);
@@ -124,7 +124,7 @@ class boss_anraphet : public CreatureScript
                 intro = true;
         }
 
-        void JustSummoned(Creature * summon)
+        void JustSummoned(Creature* summon) override
         {
             if(summon->GetEntry() == NPC_ALPHA_BEAMS)
             {
@@ -134,7 +134,7 @@ class boss_anraphet : public CreatureScript
             BossAI::JustSummoned(summon);
         }
 
-        void JustDied(Unit * killer)
+        void JustDied(Unit* killer) override
         {
             instance->DoRemoveAurasDueToSpellOnPlayers(91206);
             Talk(SAY_DEATH);
@@ -230,7 +230,7 @@ class boss_anraphet : public CreatureScript
 public:
     boss_anraphet() : CreatureScript("boss_anraphet") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_anraphetAI(creature);
     }
@@ -257,7 +257,7 @@ class npc_air_warden_hoo : public CreatureScript
             whirlingwindsTimer = urand(5000, 8000);
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if(instance)
                 instance->SetData(DATA_AIR_WARDEN, DONE);
@@ -292,7 +292,7 @@ class npc_air_warden_hoo : public CreatureScript
 public:
     npc_air_warden_hoo() : CreatureScript("npc_air_warden_hoo") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_air_warden_hooAI(creature);
     }
@@ -318,7 +318,7 @@ class npc_whirling_winds_hoo : public CreatureScript
             currentTarget = ObjectGuid::Empty;
         }
 
-        void IsSummonedBy(Unit * summoner)
+        void IsSummonedBy(Unit* summoner) override
         {
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
@@ -345,7 +345,7 @@ class npc_whirling_winds_hoo : public CreatureScript
             }
         }
 
-        void SpellHit(Unit * target, const SpellInfo * spell)
+        void SpellHit(Unit* target, const SpellInfo* spell) override
         {
             if(target->GetGUID() == currentTarget && (spell->Id == SPELL_WHIRLING_WINDS_EFF || spell->Id == SPELL_WHIRLING_WINDS_EFF_H))
             {
@@ -380,7 +380,7 @@ class npc_whirling_winds_hoo : public CreatureScript
 public:
     npc_whirling_winds_hoo() : CreatureScript("npc_whirling_winds_hoo") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_whirling_winds_hooAI(creature);
     }
@@ -408,7 +408,7 @@ class npc_earth_warden_hoo : public CreatureScript
             rockWave = false;
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if(instance)
                 instance->SetData(DATA_EARTH_WARDEN, DONE);
@@ -469,7 +469,7 @@ class npc_earth_warden_hoo : public CreatureScript
 public:
     npc_earth_warden_hoo() : CreatureScript("npc_earth_warden_hoo") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_earth_warden_hooAI(creature);
     }
@@ -538,7 +538,7 @@ class npc_flame_warden_hoo : public CreatureScript
 public:
     npc_flame_warden_hoo() : CreatureScript("npc_flame_warden_hoo") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_flame_warden_hooAI(creature);
     }
@@ -571,7 +571,7 @@ class npc_water_warden_hoo : public CreatureScript
             summons.DespawnAll();
         }
 
-        void JustDied(Unit * )
+        void JustDied(Unit* ) override
         {
             if(instance)
                 instance->SetData(DATA_WATER_WARDEN, DONE);
@@ -600,13 +600,13 @@ class npc_water_warden_hoo : public CreatureScript
             summoned->DespawnOrUnsummon();
         }
 
-        void SpellHitTarget(Unit * victim, const SpellInfo * spell)
+        void SpellHitTarget(Unit* victim, const SpellInfo* spell) override
         {
             if(spell->Id == SPELL_WATER_BUBBLE)
                 targetGUID = victim->GetGUID();
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCast(me, SPELL_AQUA_BOMB_AURA, true);
         }
@@ -635,7 +635,7 @@ class npc_water_warden_hoo : public CreatureScript
 public:
     npc_water_warden_hoo() : CreatureScript("npc_water_warden_hoo") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_water_warden_hooAI(creature);
     }
@@ -667,7 +667,7 @@ class npc_water_bubble_hoo : public CreatureScript
             summonerGUID = guid;
         }
 
-        void JustDied(Unit * )
+        void JustDied(Unit* ) override
         {
             if(Unit * summoner = ObjectAccessor::GetUnit(*me, summonerGUID))
             {
@@ -686,7 +686,7 @@ class npc_water_bubble_hoo : public CreatureScript
 public:
     npc_water_bubble_hoo() : CreatureScript("npc_water_bubble_hoo") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_water_bubble_hooAI(creature);
     }
@@ -795,7 +795,7 @@ class npc_brann_bronzebeard_hoo : public CreatureScript
 public:
     npc_brann_bronzebeard_hoo() : CreatureScript("npc_brann_bronzebeard_hoo") { }
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_brann_bronzebeard_hooAI(creature);
     }

@@ -112,7 +112,7 @@ class boss_commander_springvale : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMONS, 40000);
         }
 
-        void JustSummoned(Creature* pSummon)
+        void JustSummoned(Creature* pSummon) override
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                 pSummon->AI()->AttackStart(pTarget);
@@ -133,7 +133,7 @@ class boss_commander_springvale : public CreatureScript
             SummonList.clear();
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             RemoveSummons();
@@ -199,7 +199,7 @@ class boss_commander_springvale : public CreatureScript
 public:
     boss_commander_springvale() : CreatureScript("boss_commander_springvale") {}
 
-    CreatureAI * GetAI(Creature * creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_commander_springvaleAI(creature);
     }
