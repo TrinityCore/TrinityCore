@@ -129,7 +129,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32&damage) override
+        void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
         {
             if (me->GetHealthPct() <= 25.0f && phase == 0)
             {
@@ -721,7 +721,7 @@ class npc_darkened_creation : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* victim) override
+            void EnterCombat(Unit* /*victim*/) override
             {
                 events.ScheduleEvent(EVENT_DEBILITATING_BEAM, urand(3000, 5000));
                 DoZoneInCombat(me);
@@ -782,7 +782,7 @@ class npc_spiked_tentacle : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* victim) override
+            void EnterCombat(Unit* /*victim*/) override
             {
                 DoZoneInCombat(me);
             }
@@ -820,7 +820,7 @@ public:
     {
         PrepareAuraScript(spell_debilitating_beam_AuraScript);
 
-        void PeriodicTick(AuraEffect const* aurEff)
+        void PeriodicTick(AuraEffect const* /*aurEff*/)
         {
             if (!GetTarget())
                 return;

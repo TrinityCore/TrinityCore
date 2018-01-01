@@ -260,7 +260,7 @@ public:
 
     struct boss_elementium_monstrosityAI : public BossAI
     {
-        boss_elementium_monstrosityAI(Creature* creature) : BossAI(creature, DATA_COUNCIL_EVENT), eventActive(false), initialized(false)
+        boss_elementium_monstrosityAI(Creature* creature) : BossAI(creature, DATA_COUNCIL_EVENT), initialized(false), eventActive(false)
         {
             instance = me->GetInstanceScript();
         }
@@ -1117,7 +1117,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             me->AI()->DoAction(COUNCIL_EVENT_FINISHED);
             me->Yell(SAY_DEATH, LANG_UNIVERSAL);
@@ -1204,7 +1204,7 @@ public:
         Creature* elementium;
         uint32 killtimer;
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Creature* monstrosity = instance->GetCreature(DATA_MONSTROSITY))
             {
@@ -1399,12 +1399,13 @@ public: npc_council_frozen_orb() : CreatureScript("npc_council_frozen_orb") { }
         void InitializeAI() override
         {
             InstanceScript* instance = me->ToCreature()->GetInstanceScript();
-            Unit *monstrosity;
+            Unit* monstrosity = nullptr;
             if (instance)
                 monstrosity = instance->GetCreature(DATA_TERRASTRA);
             else
                 me->DespawnOrUnsummon();
-            if (monstrosity != NULL && monstrosity->GetVictim())
+
+            if (monstrosity != nullptr && monstrosity->GetVictim())
             {
                 me->Attack(monstrosity->GetVictim(), false);
                 DoZoneInCombat(me);
@@ -1418,7 +1419,7 @@ public: npc_council_frozen_orb() : CreatureScript("npc_council_frozen_orb") { }
             me->SetSpeed(MOVE_RUN,    speed);
             me->SetSpeed(MOVE_FLIGHT, speed);
             chase = SelectTarget(SELECT_TARGET_FARTHEST, 0);
-            if (chase != NULL)
+            if (chase != nullptr)
             {
                 me->AddAura(SPELL_FROST_BEACON, chase);
                 me->AddAura(SPELL_FROST_AURA, me);
@@ -1730,10 +1731,11 @@ public: npc_council_flamestrike() : CreatureScript("npc_council_flamestrike") {}
     {
         casted= false;
         InstanceScript* instance = me->ToCreature()->GetInstanceScript();
-        Unit *monstrosity;
+        Unit* monstrosity = nullptr;
         if (instance)
             monstrosity = instance->GetCreature(DATA_MONSTROSITY);
-        if (monstrosity == NULL || !instance)
+
+        if (monstrosity == nullptr || !instance)
         {
             me->DespawnOrUnsummon();
             return;
@@ -1776,11 +1778,13 @@ public: npc_council_liquid_ice() : CreatureScript("npc_council_liquid_ice") {}
         void InitializeAI() override
         {
             InstanceScript* instance = me->ToCreature()->GetInstanceScript();
-            Unit *monstrosity;
+            Unit* monstrosity = nullptr;
+
             if (instance)
                 monstrosity = instance->GetCreature(DATA_MONSTROSITY);
             else
                 me->DespawnOrUnsummon();
+
             me->setFaction(monstrosity->getFaction());
             me->AddAura(SPELL_LIQUID_ICE, me);
             me->SetReactState(REACT_PASSIVE);
@@ -1885,7 +1889,7 @@ class spell_council_static_overload : public SpellScriptLoader
 
                 if (!target)
                     return;
-                uint32 damage = GetHitDamage();
+
                 if (target->HasAura(SPELL_GRAVITY_CORE))
                 {
                     target->GetAura(SPELL_GRAVITY_CORE)->Remove();
@@ -1984,15 +1988,18 @@ class spell_council_rising_flames : public SpellScriptLoader
         {
             PrepareAuraScript(spell_council_burning_blood_AuraScript);
 
-            void azzera(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void azzera(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                this->GetEffect(EFFECT_0)->SetAmount(0);
+                GetEffect(EFFECT_0)->SetAmount(0);
             }
 
-            void periodic(AuraEffect const* aurEff)
+            void periodic(AuraEffect const* /*aurEff*/)
             {
-                this->GetEffect(EFFECT_0)->SetAmount(this->GetEffect(EFFECT_0)->GetAmount() + 2000);if (!GetUnitOwner() )
+                GetEffect(EFFECT_0)->SetAmount(this->GetEffect(EFFECT_0)->GetAmount() + 2000);
+
+                if (!GetUnitOwner() )
                     return;
+
                 Unit *target = GetUnitOwner();
                 target->CastSpell(target, SPELL_FIRE_IMBUED, true);
             }
@@ -2020,15 +2027,14 @@ class spell_council_rising_flames : public SpellScriptLoader
         {
             PrepareAuraScript(spell_council_heart_of_ice_AuraScript);
 
-            void azzera(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void azzera(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                this->GetEffect(EFFECT_0)->SetAmount(0);
+                GetEffect(EFFECT_0)->SetAmount(0);
             }
 
-
-            void periodic(AuraEffect const* aurEff)
+            void periodic(AuraEffect const* /*aurEff*/)
             {
-                this->GetEffect(EFFECT_0)->SetAmount(this->GetEffect(EFFECT_0)->GetAmount() + 2000);
+                GetEffect(EFFECT_0)->SetAmount(this->GetEffect(EFFECT_0)->GetAmount() + 2000);
                 if (!GetUnitOwner() )
                     return;
                 Unit *target = GetUnitOwner();

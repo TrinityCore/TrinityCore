@@ -201,7 +201,7 @@ class boss_sinestra : public CreatureScript
                 DoZoneInCombat(summon);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (instance)
                 {
@@ -210,12 +210,12 @@ class boss_sinestra : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim) override
+            void KilledUnit(Unit* /*victim*/) override
             {
                 me->Yell(urand(0, 1) == 1 ? YELL_KILL_0 : YELL_KILL_1, LANG_UNIVERSAL, 0);
             }
 
-            void DamageTaken(Unit* who, uint32& damage) override
+            void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
             {
                 if (me->GetHealthPct() <= 30.0f && phase == PHASE_ONE)
                 {
@@ -461,7 +461,7 @@ class npc_sinestra_twilight_whelp : public CreatureScript
                 events.ScheduleEvent(EVENT_SPIT, urand(10000, 35000));
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 respawned = false;
             }
@@ -476,7 +476,7 @@ class npc_sinestra_twilight_whelp : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (respawned)
                     return;
@@ -545,7 +545,7 @@ class npc_sinestra_add : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (me->GetEntry() == 55636)
                     events.ScheduleEvent(EVENT_TWILIGHT_BREATH, urand(7000, 10000));
@@ -594,7 +594,7 @@ class spell_sinestra_wreck : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_wreck_AuraScript);
 
-            void HandleShareBuff (AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void HandleShareBuff (AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTargetApplication())
                     return;
@@ -609,7 +609,7 @@ class spell_sinestra_wreck : public SpellScriptLoader
                         CustomSpellValues values;
                         values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 2);
                         values.AddSpellMod(SPELLVALUE_BASE_POINT1, GetTargetApplication()->GetBase()->GetDuration());
-                        GetTarget()->CastCustomSpell(SPELL_WRACK_JUMP, values, NULL, TRIGGERED_FULL_MASK, NULL, NULL, GetCasterGUID());
+                        target->CastCustomSpell(SPELL_WRACK_JUMP, values, nullptr, TRIGGERED_FULL_MASK, nullptr, nullptr, GetCasterGUID());
                     }
                 }
             }
@@ -770,7 +770,7 @@ class spell_sinestra_twilight_essence : public SpellScriptLoader
                 targets.remove_if(ExactDistanceCheck(GetCaster(), 5.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
             }
 
-            void Hit(SpellEffIndex effIndex)
+            void Hit(SpellEffIndex /*effIndex*/)
             {
                 if (!GetHitUnit())
                     return;

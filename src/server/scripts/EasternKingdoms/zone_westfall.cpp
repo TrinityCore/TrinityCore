@@ -1369,8 +1369,8 @@ class npc_rise_br : public CreatureScript
             if (Creature* Thief8 = me->SummonCreature(NPC_THIEF,-10514.032f, 1049.80f, 59.92f, 5.11f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000))
             if (Creature* Thief9 = me->SummonCreature(NPC_THIEF,-10509.012f, 1051.92f, 59.85f, 5.11f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000))
             if (Creature* Thief10 = me->SummonCreature(NPC_THIEF,-10504.77f, 1053.57f, 59.86f, 4.84f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000))
-            if (Creature* Glubtok4 = me->SummonCreature(42755,-10506.12f, 1053.13f, 59.10f, 4.92f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
-            if (Creature* Helix2 = me->SummonCreature(42753,-10509.368f, 1057.28f, 57.86f, 4.95f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+            if (me->SummonCreature(42755,-10506.12f, 1053.13f, 59.10f, 4.92f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+            if (me->SummonCreature(42753,-10509.368f, 1057.28f, 57.86f, 4.95f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
             {
                 Thief1GUID = Thief1->GetGUID();
                 Thief2GUID = Thief2->GetGUID();
@@ -1458,11 +1458,11 @@ class npc_rise_br : public CreatureScript
                     if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     if (Creature* Hope = me->FindNearestCreature(NPC_HOPE, 50.0f, true))
                     if (Creature* Ripsnarl = me->FindNearestCreature(NPC_RIPSNARL, 50.0f, true))
-                    if (Creature* Horatio = me->FindNearestCreature(NPC_HORATIO2, 50.0f, true))
-                    if (Creature* Danuvin = me->FindNearestCreature(NPC_DANUVIN, 50.0f, true))
-                    if (Creature* Guard = me->FindNearestCreature(NPC_GUARD, 50.0f, true))
-                    if (Creature* Investigator = me->FindNearestCreature(NPC_INVESTIGATOR, 50.0f, true))
-                    if (Creature* Investigator2 = me->FindNearestCreature(NPC_INVESTIGATOR3, 50.0f, true))
+                    if (me->FindNearestCreature(NPC_HORATIO2, 50.0f, true))
+                    if (me->FindNearestCreature(NPC_DANUVIN, 50.0f, true))
+                    if (me->FindNearestCreature(NPC_GUARD, 50.0f, true))
+                    if (me->FindNearestCreature(NPC_INVESTIGATOR, 50.0f, true))
+                    if (me->FindNearestCreature(NPC_INVESTIGATOR3, 50.0f, true))
                     {
                         switch (Phase)
                         {
@@ -1770,7 +1770,7 @@ public:
             me->CastSpell(me, 71025, true);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_TOSS_TORCH)
             {
@@ -1778,7 +1778,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(const uint32 /*diff*/) override
         {
             /*
             if (StopFireTimer <= diff)
@@ -1895,73 +1895,72 @@ public:
             {
                 if (bSummonn)
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
-                        if (Creature* Investigator04 = ObjectAccessor::GetCreature(*me, Investigator04GUID))
-                            if (Creature* Home = ObjectAccessor::GetCreature(*me, HomeGUID))
+                    if (Creature* Investigator04 = ObjectAccessor::GetCreature(*me, Investigator04GUID))
+                        if (Creature* Home = ObjectAccessor::GetCreature(*me, HomeGUID))
+                        {
+                            switch (Phase)
                             {
-                                switch (Phase)
-                                {
                                 case 0:
-                                    {
-                                        Investigator04->Say("You were standing right here! What the hell did you see?Speak up!", LANG_UNIVERSAL);
-                                        TextTimer = 4000;
-                                        Phase++;
-                                        break;
-                                    }
+                                {
+                                    Investigator04->Say("You were standing right here! What the hell did you see?Speak up!", LANG_UNIVERSAL);
+                                    TextTimer = 4000;
+                                    Phase++;
+                                    break;
+                                }
                                 case 1:
-                                    {
-                                        Home->Say("I... I didn't see nothin'! He...he died of natural causes.", LANG_UNIVERSAL);
-                                        TextTimer = 6000;
-                                        Phase++;
-                                        break;
-                                    }
+                                {
+                                    Home->Say("I... I didn't see nothin'! He...he died of natural causes.", LANG_UNIVERSAL);
+                                    TextTimer = 6000;
+                                    Phase++;
+                                    break;
+                                }
                                 case 2:
-                                    {
-                                        Investigator04->Say("Natural causes? Two bullets in the chest and his shoes are on his head. What kind of natural death would that be?", LANG_UNIVERSAL);
-                                        TextTimer = 6000;
-                                        Phase++;
-                                        break;
-                                    }
+                                {
+                                    Investigator04->Say("Natural causes? Two bullets in the chest and his shoes are on his head. What kind of natural death would that be?", LANG_UNIVERSAL);
+                                    TextTimer = 6000;
+                                    Phase++;
+                                    break;
+                                }
                                 case 3:
-                                    {
-                                        me->Say("Doesn't look good, rookie.", LANG_UNIVERSAL);
-                                        TextTimer = 6000;
-                                        Phase++;
-                                        break;
-                                    }
+                                {
+                                    me->Say("Doesn't look good, rookie.", LANG_UNIVERSAL);
+                                    TextTimer = 6000;
+                                    Phase++;
+                                    break;
+                                }
                                 case 4:
-                                    {
-                                        me->Say("This was an execution. Whoever did this was sending a message,,,", LANG_UNIVERSAL);
-                                        TextTimer = 5000;
-                                        Phase++;
-                                        break;
-                                    }
+                                {
+                                    me->Say("This was an execution. Whoever did this was sending a message,,,", LANG_UNIVERSAL);
+                                    TextTimer = 5000;
+                                    Phase++;
+                                    break;
+                                }
                                 case 5:
-                                    {
-                                        me->Say("A message for anyone that would dare snitch on these cryminals.", LANG_UNIVERSAL);
-                                        TextTimer = 4000;
-                                        Phase++;
-                                        break;
-                                    }
+                                {
+                                    me->Say("A message for anyone that would dare snitch on these cryminals.", LANG_UNIVERSAL);
+                                    TextTimer = 4000;
+                                    Phase++;
+                                    break;
+                                }
                                 case 6:
-                                    {
-                                        me->Say("It would appear that poor Lou really put this foot...", LANG_UNIVERSAL);
-                                        TextTimer = 4000;
-                                        Phase++;
-                                        break;
-                                    }
+                                {
+                                    me->Say("It would appear that poor Lou really put this foot...", LANG_UNIVERSAL);
+                                    TextTimer = 4000;
+                                    Phase++;
+                                    break;
+                                }
                                 case 7:
-                                    {
-                                        me->Say("In his mouth...", LANG_UNIVERSAL);
-                                        TextTimer = 30000;
-                                        Phase++;
-                                        break;
-                                    }
+                                {
+                                    me->Say("In his mouth...", LANG_UNIVERSAL);
+                                    TextTimer = 30000;
+                                    Phase++;
+                                    break;
+                                }
                                 case 8: Reset();break;
                                 default:
                                     break;
-                                }
                             }
+                        }
                 }
             }
             else TextTimer -=diff;
