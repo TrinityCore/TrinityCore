@@ -317,26 +317,8 @@ class TC_GAME_API UnitAI
         static AISpellInfoType* AISpellInfo;
         static void FillAISpellInfo();
 
-        // Called when a player opens a gossip dialog with the creature.
-        virtual bool GossipHello(Player* /*player*/) { return false; }
-
-        // Called when a player selects a gossip item in the creature's gossip menu.
-        virtual bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
-
-        // Called when a player selects a gossip with a code in the creature's gossip menu.
-        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/) { return false; }
-
-        // Called when a player accepts a quest from the creature.
-        virtual void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
-
-        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-        virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
-
         // Called when a game event starts or ends
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
-
-        // Called when the dialog status between a player and the creature is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/);
 
         virtual void WaypointPathStarted(uint32 /*nodeId*/, uint32 /*pathId*/) { }
         virtual void WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/) { }
