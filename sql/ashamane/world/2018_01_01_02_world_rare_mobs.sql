@@ -5,7 +5,7 @@ UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpa
 UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219627, `AIName` = 'CombatAI' WHERE (entry = 110346);
 UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 218250, `spell2` = 213738, `spell3` = 218245, `spell4` = 32011, `AIName` = 'CombatAI' WHERE (entry = 109648);
 UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219524, `AIName` = 'CombatAI' WHERE (entry = 110367);
-UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219785, `spell2` = 219799, `spell3` = 219807, `AIName` = 'CombatAI' WHERE (entry = 110361)
+UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219785, `spell2` = 219799, `spell3` = 219807, `AIName` = 'CombatAI' WHERE (entry = 110361);
 UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219057, `AIName` = 'CombatAI' WHERE (entry = 109990);
 UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219719, `spell2` = 219695, `spell3` = 219717, `AIName` = 'CombatAI' WHERE (entry = 110342);
 UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219060, `spell2` = 219102, `spell3` = 219090, `spell4` = 219087, `AIName` = 'CombatAI' WHERE (entry = 109641);
@@ -24,7 +24,6 @@ UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpa
 UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219200, `spell2` = 219256, `spell3` = 213738, `spell4` = 219237, `AIName` = 'CombatAI' WHERE (entry = 109677);
 UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 218449, `spell2` = 213738, `spell3` = 218427, `spell4` = 218435, `AIName` = 'CombatAI' WHERE (entry = 109575);
 UPDATE `creature_template` SET `minlevel` = 111, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 218871, `spell2` = 218875, `AIName` = 'CombatAI' WHERE (entry = 109620);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('109620');
 UPDATE `creature_template` SET `minlevel` = 111, `maxlevel` = 111, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 222530, `spell2` = 222692, `spell3` = 222532, `AIName` = 'CombatAI' WHERE (entry = 102064);
 UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 218404, `spell2` = 218422, `spell3` = 174302, `AIName` = 'CombatAI' WHERE (entry = 107266);
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `faction` = 14, `AIName` = 'CombatAI' WHERE (entry = 108255);
@@ -32,16 +31,11 @@ UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `RequiredExpa
 UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 221327, `AIName` = 'CombatAI' WHERE (entry = 108136);
 UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 214500, `spell2` = 222442, `AIName` = 'CombatAI' WHERE (entry = 111731);
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 181426, `AIName` = 'CombatAI' WHERE (entry = 107657);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('107657');
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 7, `AIName` = 'CombatAI' WHERE (entry = 91100);
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219586, `spell2` = 219569, `spell3` = 219593, `spell4` = 219575, `AIName` = 'CombatAI' WHERE (entry = 107327);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('107327');
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 213594, `spell2` = 213600, `AIName` = 'CombatAI' WHERE (entry = 105938);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('105938');
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 224762, `spell2` = 220437, `spell3` = 220426, `spell4` = 223971, `spell5` = 220422, `AIName` = 'CombatAI' WHERE (entry = 110824);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('110824');
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 210173, `AIName` = 'CombatAI' WHERE (entry = 107169);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('107169');
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `faction` = 14 WHERE (entry = 90164);
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 213824, `AIName` = 'CombatAI' WHERE (entry = 90901);
 UPDATE `creature_addon` SET `auras` = '123169 159474 29266' WHERE `guid` = '20507221';
@@ -51,9 +45,7 @@ UPDATE `creature` SET `unit_flags` = '2' WHERE `guid` = '20507223';
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `AIName` = 'CombatAI' WHERE (entry = 91579);
 UPDATE creature SET PhaseId = 50 WHERE id IN (104523, 110342, 109990, 110361, 109281, 109692, 103785, 109125, 109648, 110367, 110346);
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `AIName` = 'CombatAI' WHERE (entry = 90505);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('90505');
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 217462, `AIName` = 'CombatAI' WHERE (entry = 107170);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('107170');
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 181167, `AIName` = 'CombatAI' WHERE (entry = 91187);
 UPDATE `creature_template` SET `RequiredExpansion` = 6 WHERE (entry = 90244);
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 181450, `AIName` = 'CombatAI' WHERE (entry = 91113);
@@ -61,28 +53,20 @@ UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 197641, `spel
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 217091, `AIName` = 'CombatAI' WHERE (entry = 89846);
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 213846, `spell2` = 213738, `spell3` = 213851, `AIName` = 'CombatAI' WHERE (entry = 107127);
 UPDATE `creature_template` SET `minlevel` = 99, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 221744, `spell2` = 158014, `spell3` = 176065, `spell4` = 158024, `spell5` = 223971, `spell6` = 158045, `AIName` = 'CombatAI' WHERE (entry = 112636);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('112636');
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 158014, `spell2` = 176065, `spell3` = 158024, `spell4` = 223971, `spell5` = 158045, `AIName` = 'CombatAI' WHERE (entry = 112637);
-INSERT INTO `creature_addon` (`guid`, `auras`) VALUES ('20548990', '221744');
 UPDATE `creature_template` SET `minlevel` = 99, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 217470, `spell2` = 207942, `AIName` = 'CombatAI' WHERE (entry = 107136);
 UPDATE `creature_template` SET `minlevel` = 99, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 213742, `spell2` = 213743, `spell3` = 213738, `AIName` = 'CombatAI' WHERE (entry = 89816);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('89816');
 UPDATE `creature_template` SET `minlevel` = 99, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `AIName` = 'CombatAI' WHERE (entry = 107269);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('107269');
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 181425, `spell2` = 181424, `spell3` = 181445, `AIName` = 'CombatAI' WHERE (entry = 89850);
 UPDATE `creature_template` SET `minlevel` = 99, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 219366, `AIName` = 'CombatAI' WHERE (entry = 107105);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('107105');
 UPDATE `creature_template` SET `minlevel` = 99, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `AIName` = 'CombatAI' WHERE (entry = 90217);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('90217');
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 182566, `spell2` = 186410, `AIName` = 'CombatAI' WHERE (entry = 90173);
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `AIName` = 'CombatAI' WHERE (entry = 107113);
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 213537, `AIName` = 'CombatAI' WHERE (entry = 106990);
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 213738, `spell2` = 186637, `spell3` = 186636, `spell4` = 186639, `AIName` = 'CombatAI' WHERE (entry = 89865);
 UPDATE `creature_template` SET `minlevel` = 98, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 222049, `spell2` = 39425, `AIName` = 'CombatAI' WHERE (entry = 109504);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('109504');
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 185733, `spell2` = 185741, `spell3` = 223971, `AIName` = 'CombatAI' WHERE (entry = 89016);
 UPDATE `creature_template` SET `minlevel` = 98, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `AIName` = 'CombatAI' WHERE (entry = 90803);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('90803');
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 9672, `spell2` = 38663, `AIName` = 'CombatAI' WHERE (entry = 89650);
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 186346, `spell2` = 186344, `spell3` = 213738, `spell4` = 181573, `spell5` = 185870, `AIName` = 'CombatAI' WHERE (entry = 89884);
 UPDATE `creature_template` SET `minlevel` = 112, `maxlevel` = 112, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 206762, `spell2` = 206795, `spell3` = 223971, `AIName` = 'CombatAI' WHERE (entry = 104481);
@@ -94,7 +78,26 @@ UPDATE `creature_template` SET `RequiredExpansion` = 6, `spell1` = 220197, `AINa
 UPDATE creature SET PhaseId = 50 WHERE id IN (104481, 96072, 104517, 104484, 104524, 104513 );
 UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 207885, `spell2` = 207867, `spell3` = 207863, `AIName` = 'CombatAI' WHERE (entry = 95204);
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 216082, `spell2` = 216088, `spell3` = 223971, `AIName` = 'CombatAI' WHERE (entry = 97102);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('95204');
 UPDATE `creature_template` SET `RequiredExpansion` = 6, `AIName` = 'CombatAI' WHERE (entry = 98299);
 UPDATE `creature_template` SET `minlevel` = 100, `maxlevel` = 110, `RequiredExpansion` = 6, `faction` = 14, `spell1` = 189920, `spell2` = 213738, `AIName` = 'CombatAI' WHERE (entry = 94877);
-INSERT INTO `creature_template_scaling` (`Entry`) VALUES ('94877');
+
+REPLACE INTO `creature_addon` (`guid`, `auras`) VALUES ('20548990', '221744');
+
+INSERT IGNORE INTO `creature_template_scaling` (`Entry`) VALUES
+('95204'),
+('94877'),
+('107169'),
+('110824'),
+('105938'),
+('107327'),
+('107657'),
+('109620'),
+('90505'),
+('107170'),
+('112636'),
+('89816'),
+('107269'),
+('90217'),
+('109504'),
+('90803'),
+('107105');
