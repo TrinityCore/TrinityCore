@@ -156,7 +156,7 @@ class npc_trall_vs_ultraxion : public CreatureScript
                         phase = 1;
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -311,7 +311,7 @@ class npc_ysera : public CreatureScript
                             phase = 1;
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -414,7 +414,7 @@ public:
             _drakenum = 0;
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -495,7 +495,7 @@ public:
     {
         npc_nozdormuAI(Creature* creature) : ScriptedAI(creature){}
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -537,7 +537,7 @@ public:
             phase = 0;
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -704,7 +704,7 @@ public:
             events.ScheduleEvent(EVENT_PATH, 15000);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {

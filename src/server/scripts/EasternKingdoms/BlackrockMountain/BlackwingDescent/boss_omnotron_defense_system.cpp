@@ -432,7 +432,7 @@ public:
         Position homePosition;
         Creature* omnotron;
 
-        void EnterCombat(Unit * who)
+        void EnterCombat(Unit* who) override
         {
             if(isFirstTron)
             {

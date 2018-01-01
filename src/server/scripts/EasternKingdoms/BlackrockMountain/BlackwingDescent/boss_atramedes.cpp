@@ -796,10 +796,12 @@ public:
         {
             // Don't use gongs out of combat
             if (Creature* atramedes = me->FindNearestCreature(BOSS_ATRAMEDES, 200.0f))
+            {
                 if (!atramedes->IsInCombat())
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 else
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
         }
     };
 };

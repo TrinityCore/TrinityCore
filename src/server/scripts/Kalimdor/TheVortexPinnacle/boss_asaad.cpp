@@ -558,7 +558,7 @@ public:
     {
         PrepareSpellScript(script_impl);
 
-        bool Load()
+        bool Load() override
         {
             return true;
         }
@@ -593,7 +593,7 @@ public :
         Targets _targets;
         Position position[3];
 
-        bool Load()
+        bool Load() override
         {
             return true;
         }
@@ -639,7 +639,7 @@ public :
         Targets _targets;
         Position position[3];
 
-        bool Load()
+        bool Load() override
         {
             return true;
         }

@@ -409,7 +409,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -810,7 +810,7 @@ public:
             }
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -956,7 +956,7 @@ public:
             me->setActive(true);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1106,7 +1106,7 @@ public:
             me->setActive(true);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1268,7 +1268,7 @@ public:
             me->setActive(true);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1679,7 +1679,7 @@ public:
 
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1724,7 +1724,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1812,7 +1812,7 @@ public:
             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1858,7 +1858,7 @@ public:
             DoCast(SPELL_SPELLWEAVER);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1983,7 +1983,7 @@ public:
 
         uint32 spell;
 
-        bool Load()
+        bool Load() override
         {
             spell = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -2090,7 +2090,7 @@ public:
 
         int32 triggerSpell;
 
-        bool Load()
+        bool Load() override
         {
             triggerSpell = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -2156,7 +2156,7 @@ public:
 
         int32 triggerSpell;
 
-        bool Load()
+        bool Load() override
         {
             triggerSpell = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -2195,7 +2195,7 @@ public:
 
         int32 triggerSpell;
 
-        bool Load()
+        bool Load() override
         {
             triggerSpell = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -2354,7 +2354,7 @@ public:
         int32 damageAmount;
         uint32 distance;
 
-        bool Load()
+        bool Load() override
         {
             initialDamage = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             return GetCaster()->GetTypeId() == TYPEID_UNIT;

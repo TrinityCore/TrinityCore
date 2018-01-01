@@ -404,7 +404,7 @@ public:
     {
         PrepareSpellScript(script_impl);
 
-        bool Load()
+        bool Load() override
         {
             return true;
         }
@@ -449,7 +449,7 @@ public:
             return true;
         }
 
-        bool Load()
+        bool Load() override
         {
             return true;
         }

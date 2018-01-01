@@ -137,7 +137,7 @@ class boss_echo_of_tyrande : public CreatureScript
                 Summons.Summon(summon);
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {

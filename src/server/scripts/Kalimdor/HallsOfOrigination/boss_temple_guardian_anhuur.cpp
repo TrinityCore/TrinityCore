@@ -143,7 +143,7 @@ class boss_anhuur : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(SAY_AGGRO);
@@ -152,7 +152,7 @@ class boss_anhuur : public CreatureScript
             _EnterCombat();
         }
 
-        void JustDied(Unit * killer)
+        void JustDied(Unit* killer) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             Talk(SAY_DEATH);
@@ -310,7 +310,7 @@ class boss_anhuur : public CreatureScript
             SummonList.clear();
         }
 
-        void JustSummoned(Creature * summon)
+        void JustSummoned(Creature* summon) override
         {
             SummonList.push_back(summon->GetGUID());
             if(Player * player = ObjectAccessor::GetPlayer(*me, targetGUID))

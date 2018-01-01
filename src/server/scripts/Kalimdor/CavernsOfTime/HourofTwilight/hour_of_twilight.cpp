@@ -189,7 +189,7 @@ public:
             Reset();
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -627,7 +627,7 @@ public:
                     events.ScheduleEvent(EVENT_LAVA_BURST, 1000);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1295,7 +1295,7 @@ public:
             summons.Summon(summoned);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {

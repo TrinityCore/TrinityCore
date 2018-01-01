@@ -240,7 +240,7 @@ class spell_flarecore : public SpellScriptLoader
             }
         };
 
-        SpellScript * GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_flarecore_SpellScript();
         }

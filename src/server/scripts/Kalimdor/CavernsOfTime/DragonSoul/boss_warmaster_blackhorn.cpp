@@ -329,7 +329,7 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -474,7 +474,7 @@ public:
                 }
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -609,7 +609,7 @@ class npc_sky_captain_swayze : public CreatureScript
             int32 currentFire;
             uint8 waveCounter;
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -1325,7 +1325,7 @@ public:
             DoZoneInCombat(me);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1380,7 +1380,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             switch (action)
             {
@@ -1522,7 +1522,7 @@ public:
 
         int32 damageAmount;
 
-        bool Load()
+        bool Load() override
         {
             damageAmount = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1561,7 +1561,7 @@ public:
         int32 shipDamage;
         uint32 targetCount;
 
-        bool Load()
+        bool Load() override
         {
             damageAmount = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
             shipDamage = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();

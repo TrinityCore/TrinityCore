@@ -282,7 +282,7 @@ public:
             }
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             if (action == ACTION_CONTINUE && !bContinue)
             {

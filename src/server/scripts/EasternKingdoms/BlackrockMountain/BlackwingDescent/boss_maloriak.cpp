@@ -807,7 +807,7 @@ public:
             return true;
         }
 
-        bool Load()
+        bool Load() override
         {
             return true;
         }
@@ -825,7 +825,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_release_abberationsSpellScript();
     }
@@ -845,7 +845,7 @@ public:
             return true;
         }
 
-        bool Load()
+        bool Load() override
         {
             return true;
         }
@@ -863,7 +863,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_release_all_abberationsSpellScript();
     }
