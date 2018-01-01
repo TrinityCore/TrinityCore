@@ -115,6 +115,7 @@ public:
             { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
             { "criteria",      rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugCriteriaCommand,         "" },
             { "movementforce", rbac::RBAC_PERM_COMMAND_DEBUG_MOVEMENT_FORCE,false, nullptr,                             "", debugMovementForceCommandTable },
+            { "playercondition",rbac::RBAC_PERM_COMMAND_DEBUG,              false, &HandleDebugPlayerConditionCommand,  "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1659,6 +1660,26 @@ public:
         }
 
         unit->RemoveMovementForce(handler->GetSession()->GetPlayer()->GetGUID());
+        return true;
+    }
+
+    static bool HandleDebugPlayerConditionCommand(ChatHandler* handler, char const* args)
+    {
+        if (!args)
+            return false;
+
+        uint32 conditionId = atoi(args);
+        Player* player = handler->getSelectedPlayerOrSelf();
+
+        PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId);
+        if (!playerCondition)
+            return false;
+
+        if (sConditionMgr->IsPlayerMeetingCondition(player, playerCondition))
+            handler->PSendSysMessage("True");
+        else
+            handler->PSendSysMessage("False");
+
         return true;
     }
 };
