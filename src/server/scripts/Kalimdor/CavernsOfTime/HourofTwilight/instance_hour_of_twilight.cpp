@@ -62,7 +62,7 @@ public:
         uint32 totalTrash;
         char msg[500];
 
-        void Initialize()
+        void Initialize() override
         {
             totalTrash = 0;
 

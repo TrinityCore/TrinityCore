@@ -1447,12 +1447,6 @@ public:
 
         void JustReachedHome() override
         {
-
-        }
-
-        void WaypointReached(uint32) override
-        {
-
         }
 
         void UpdateAI(const uint32 diff) override

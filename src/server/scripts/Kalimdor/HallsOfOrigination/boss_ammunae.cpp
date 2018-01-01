@@ -216,7 +216,7 @@ class npc_bloodpetal_blossom : public CreatureScript
                     summoner->RemoveAuraFromStack(SPELL_ENERGIZE);
         }
 
-        void SetData(uint32 type, uint32)
+        void SetData(uint32 type, uint32) override
         {
             if(!done && type == DATA_RAMPANT_GROWTH)
                 actionTimer = 100;

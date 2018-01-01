@@ -181,7 +181,7 @@ public:
                 (*iter)->DespawnOrUnsummon();
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/)
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, FAIL);
             instance->SetData(DATA_GATHERING_STRENGTH, 0);
@@ -514,7 +514,7 @@ public:
             CastingHeal = false;
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/)
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, FAIL);
             instance->SetData(DATA_GATHERING_STRENGTH, 0);
@@ -883,7 +883,7 @@ public:
             summons.DespawnAll();
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/)
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, FAIL);
             instance->SetData(DATA_GATHERING_STRENGTH, 0);

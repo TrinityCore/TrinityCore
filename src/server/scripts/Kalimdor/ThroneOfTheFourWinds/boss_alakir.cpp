@@ -166,7 +166,7 @@ public:
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_EYE_OF_THE_STORM_TRIGGERED); // Remove just on Reset
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/)
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             _EnterEvadeMode();
             summons.DespawnAll();
@@ -178,7 +178,7 @@ public:
             Reset();
         }
 
-        void EnterCombat(Unit*)
+        void EnterCombat(Unit*) override
         {
             _EnterCombat();
             Talk(0);
@@ -581,7 +581,7 @@ public:
             }
         }
 
-        void Reset() {}
+        void Reset() override {}
     };
 };
 

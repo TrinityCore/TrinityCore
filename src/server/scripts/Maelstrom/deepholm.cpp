@@ -432,7 +432,7 @@ public:
 
     struct npc_ricket_tickerAI : public ScriptedAI
     {
-        npc_ricket_tickerAI(Creature* creature) : ScriptedAI(creature), uiExplode(NULL) { }
+        npc_ricket_tickerAI(Creature* creature) : ScriptedAI(creature), uiExplode(0) { }
 
         uint32 uiExplode;
         Player* player;

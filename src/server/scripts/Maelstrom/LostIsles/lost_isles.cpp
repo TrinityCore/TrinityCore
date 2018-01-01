@@ -96,12 +96,6 @@ public:
 
         }
 
-        void WaypointReached(uint32) override
-        {
-
-        }
-
-
         void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == 1)
@@ -983,12 +977,6 @@ public:
         {
 
         }
-
-        void WaypointReached(uint32) override
-        {
-
-        }
-
 
         void MovementInform(uint32 /*type*/, uint32 id) override
         {

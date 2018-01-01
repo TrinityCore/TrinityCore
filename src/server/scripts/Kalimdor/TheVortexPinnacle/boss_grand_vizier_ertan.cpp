@@ -166,7 +166,7 @@ public:
             DoSpellAttackIfReady(SPELL_LIGHTING_BOLT);
         }
 
-        void ExecuteEvent(uint32 const eventId)
+        void ExecuteEvent(uint32 const eventId) override
         {
             switch (eventId)
             {

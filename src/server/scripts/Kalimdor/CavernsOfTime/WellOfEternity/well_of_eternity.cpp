@@ -1028,7 +1028,7 @@ public:
             events.Reset();
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/)
+        void EnterEvadeMode(EvadeReason /*why*/) override
         { }
 
         void DamageTaken(Unit* who, uint32&damage) override
@@ -1446,7 +1446,7 @@ public:
             events.Reset();
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/)
+        void EnterEvadeMode(EvadeReason /*why*/) override
         { }
 
     private:
