@@ -3402,6 +3402,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
     });
 
+    ApplySpellFix({
+        19503, // Scatter Shot
+        34490  // Silencing Shot
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Speed = 0.f;
+    });
+
     // Safeguard
     ApplySpellFix({
         46946, // (Rank 1)
