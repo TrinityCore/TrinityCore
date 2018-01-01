@@ -669,28 +669,6 @@ namespace WorldPackets
             std::vector<ItemReward> ItemRewards;
         };
 
-        class DisplayPlayerChoice final : public ServerPacket
-        {
-        public:
-            DisplayPlayerChoice() : ServerPacket(SMSG_DISPLAY_PLAYER_CHOICE) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid SenderGUID;
-            PlayerChoice Choice;
-        };
-
-        class PlayerChoiceResponse final : public ClientPacket
-        {
-        public:
-            PlayerChoiceResponse(WorldPacket&& packet) : ClientPacket(CMSG_CHOICE_RESPONSE, std::move(packet)) { }
-
-            void Read() override;
-
-            int32 ChoiceID;
-            int32 ResponseID;
-        };
-
         struct PlayerChoiceResponseRewardEntry
         {
             WorldPackets::Item::ItemInstance Item;
@@ -750,9 +728,6 @@ namespace WorldPackets
         };
     }
 }
-
-ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponse const& response);
-ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponseReward const& reward);
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestGiverOfferReward const& offer);
