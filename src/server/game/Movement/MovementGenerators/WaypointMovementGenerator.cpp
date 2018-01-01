@@ -62,8 +62,8 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
     _nextMoveTime.Reset(1000);
 
     // inform AI
-    if (creature->AI())
-        creature->AI()->WaypointPathStarted(1, _path->id);
+    if (creature->IsAIEnabled)
+        creature->AI()->WaypointPathStarted(_path->id);
 }
 
 void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
@@ -111,7 +111,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
     }
 
     // inform AI
-    if (creature->AI())
+    if (creature->IsAIEnabled)
     {
         creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
         creature->AI()->WaypointReached(waypoint.id, _path->id);
@@ -168,7 +168,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
             creature->UpdateCurrentWaypointInfo(0, 0);
 
             // inform AI
-            if (creature->AI())
+            if (creature->IsAIEnabled)
                 creature->AI()->WaypointPathEnded(waypoint.id, _path->id);
             return true;
         }
@@ -176,7 +176,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
         _currentNode = (_currentNode + 1) % _path->nodes.size();
 
         // inform AI
-        if (creature->AI())
+        if (creature->IsAIEnabled)
             creature->AI()->WaypointStarted(waypoint.id, _path->id);
     }
 
