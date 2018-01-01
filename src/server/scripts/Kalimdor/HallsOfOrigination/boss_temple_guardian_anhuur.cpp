@@ -152,6 +152,9 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(SAY_AGGRO);
             _EnterCombat();
+
+            instance->DoUpdateWorldState(WS_I_HATE_THIS_SONG, 0);
+            sWorld->setWorldState(WS_I_HATE_THIS_SONG, 0); // To-do: make InstanceScript::DoUpdateWorldState do the World::setWorldState.
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -219,15 +222,14 @@ public:
                         Talk(EMOTE_SHIELD);
                         HandleVisuals(SPELL_SHIELD_VISUAL_LEFT, SPELL_SHIELD_VISUAL_RIGHT, true);
                         events.ScheduleEvent(EVENT_CAST_BEAMS, Seconds(1), 0, PHASE_SHIELD);
-                        if (IsHeroic())
-                            events.ScheduleEvent(EVENT_ACHIEVEMENT_FAILED, Seconds(15), 0, PHASE_SHIELD);
+                        events.ScheduleEvent(EVENT_ACHIEVEMENT_FAILED, Seconds(15), 0, PHASE_SHIELD);
                         break;
                     case EVENT_CAST_BEAMS:
                         HandleVisuals(SPELL_BEAM_OF_LIGHT_LEFT, SPELL_BEAM_OF_LIGHT_RIGHT, true);
                         break;
-                    case EVENT_ACHIEVEMENT_FAILED:
-                        //instance->DoUpdateWorldState(WS_I_HATE_THIS_SONG, 0);
-                        sWorld->setWorldState(WS_I_HATE_THIS_SONG, 1);
+                    case EVENT_ACHIEVEMENT_FAILED: // Happens on normal too, heroic check is in dbc.
+                        instance->DoUpdateWorldState(WS_I_HATE_THIS_SONG, 1);
+                        sWorld->setWorldState(WS_I_HATE_THIS_SONG, 1); // To-do: make InstanceScript::DoUpdateWorldState do the World::setWorldState.
                         break;
                     default:
                         break;

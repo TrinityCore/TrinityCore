@@ -143,15 +143,23 @@ enum HOOGameObjects
 
 enum Achievements
 {
-    // I Hate That Song (Criteria ID 19724)
-    CRITERIA_I_HATE_THAT_SONG          = 19724,
+    //    I Hate That Song
+    // Achievement.db2 ID 5293: ParentTree 19724
+    // CriteriaTree.db2 ID 19725: ParentTree 19724 - Criteria 15988
+    // Criteria.db2 ID 15988: on Anhuur kill, world state 5638 = value 0
+    CRITERIA_I_HATE_THAT_SONG          = 15988,
     WS_I_HATE_THIS_SONG                =  5638,
-    // 24827
+    
+    //    Straw That Broke the Camel's Back
+    // Achievement.db2 ID 5294: ParentTree 18221
+    // CriteriaTree.db2 ID 18222: ParentTree 18221 - Criteria 15989
+    // Criteria.db2 ID 15989: on Ptah kill, tree 2838?
+    CRITERIA_STRAW_BROKE_CAMELS_BACK   = 15989,
 
-    // Straw That Broke the Camel's Back (Criteria ID 18221)
-    CRITERIA_STRAW_BROKE_CAMELS_BACK   = 18221,
-
-    // Faster Than The Speed Of Light (Criteria ID 16008)
+    //    Faster Than The Speed Of Light (Criteria ID 16008)
+    // Achievement.db2 ID 5296: ParentTree  17685
+    // CriteriaTree.db2 ID 17686: ParentTree 17685 - Criteria 16008
+    // Criteria.db2 ID 15989: spell 94067, startEvent 24212, tree 2615?, world state 5653 = value 0, type 69
     ACHIEV_VAULT_OF_LIGHTS_START_EVENT = 24212,
     SPELL_VAULT_OF_LIGHTS_CREDIT       = 94067  // Achievement aura, not in DBC
 };
