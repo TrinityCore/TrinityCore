@@ -5896,6 +5896,15 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     return true;
 }
 
+bool Player::HasWorldQuestEnabled() const
+{
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(41005))
+        if (sConditionMgr->IsPlayerMeetingCondition(this, playerCondition))
+            return true;
+
+    return false;
+}
+
 void Player::UpdateWorldQuestPosition(float x, float y)
 {
     for (auto bonus_quest : sObjectMgr->BonusQuestsRects)
@@ -5929,7 +5938,7 @@ void Player::UpdateWorldQuestPosition(float x, float y)
             if (quest->IsWorldQuest())
             {
                 // Uniting the Isles, required for Legion world quests
-                if (HasWorldQuestEnabled())
+                if (!HasWorldQuestEnabled())
                     continue;
 
                 if (WorldQuestTemplate* temp = sWorldQuestMgr->GetQuest(quest->GetQuestId()))
