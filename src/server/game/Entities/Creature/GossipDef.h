@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -254,10 +254,12 @@ class InteractionData
         {
             SourceGuid.Clear();
             TrainerId = 0;
+            PlayerChoiceId = 0;
         }
 
         ObjectGuid SourceGuid;
         uint32 TrainerId;
+        uint32 PlayerChoiceId;
 };
 
 class TC_GAME_API PlayerMenu

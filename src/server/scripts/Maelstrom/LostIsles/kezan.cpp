@@ -605,7 +605,7 @@ public:
     };
 
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_kabummbombSpellScript();
     }
@@ -1580,7 +1580,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_klaxonSpellScript();
     }
@@ -1634,7 +1634,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_radioSpellScript();
     }
@@ -1679,7 +1679,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_bank_67495SpellScript();
     }
@@ -1725,7 +1725,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_bank_67496SpellScript();
     }
@@ -1770,7 +1770,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_bank_67497SpellScript();
     }
@@ -1814,7 +1814,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_bank_67498SpellScript();
     }
@@ -1859,7 +1859,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_bank_67499SpellScript();
     }

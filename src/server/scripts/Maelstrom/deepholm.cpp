@@ -32,7 +32,7 @@ class npc_elemental_energy_quest : public CreatureScript
         {
             npc_elemental_energy_questAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void JustDied(Unit * who)
+            void JustDied(Unit* who) override
             {
                 printf("\n ! just died ! \n ");
                 if (Creature * totem = GetClosestCreatureWithEntry(me, 45088, 25.0f))

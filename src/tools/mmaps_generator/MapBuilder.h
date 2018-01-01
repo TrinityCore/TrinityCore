@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -83,6 +83,7 @@ namespace MMAP
                 bool skipBattlegrounds   = false,
                 bool debugOutput         = false,
                 bool bigBaseUnit         = false,
+                int mapid                = -1,
                 const char* offMeshFilePath = NULL);
 
             ~MapBuilder();
@@ -140,6 +141,8 @@ namespace MMAP
 
             float m_maxWalkableAngle;
             bool m_bigBaseUnit;
+
+            int32 m_mapid;
 
             std::atomic<uint32> m_totalTiles;
             std::atomic<uint32> m_totalTilesProcessed;

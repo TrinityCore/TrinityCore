@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -528,6 +528,20 @@ struct PointOfInterestLocale
 
 typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
 
+struct PlayerChoiceResponseLocale
+{
+    std::vector<std::string> Answer;
+    std::vector<std::string> Header;
+    std::vector<std::string> Description;
+    std::vector<std::string> Confirmation;
+};
+
+struct PlayerChoiceLocale
+{
+    std::vector<std::string> Question;
+    std::unordered_map<int32 /*ResponseId*/, PlayerChoiceResponseLocale> Responses;
+};
+
 typedef std::unordered_map<uint32, TrinityString> TrinityStringContainer;
 
 typedef std::multimap<uint32, uint32> QuestRelations; // unit/go -> quest
@@ -764,36 +778,50 @@ struct SceneTemplate
 };
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
-
 typedef std::unordered_map<uint32, std::vector<uint32>> WorldQuestContainer;
+
+struct PlayerChoiceResponseRewardItem
+{
+    PlayerChoiceResponseRewardItem() : Id(0), Quantity(0) { }
+    PlayerChoiceResponseRewardItem(uint32 id, std::vector<int32> bonusListIDs, int32 quantity) : Id(id), BonusListIDs(std::move(bonusListIDs)), Quantity(quantity) { }
+
+    uint32 Id;
+    std::vector<int32> BonusListIDs;
+    int32 Quantity;
+};
+
+struct PlayerChoiceResponseRewardEntry
+{
+    PlayerChoiceResponseRewardEntry() : Id(0), Quantity(0) { }
+    PlayerChoiceResponseRewardEntry(uint32 id, int32 quantity) : Id(id), Quantity(quantity) { }
+
+    uint32 Id;
+    int32 Quantity;
+};
 
 struct PlayerChoiceResponseReward
 {
-    int32 TitleID;
-    int32 PackageID;
-    int32 SkillLineID;
+    int32 TitleId;
+    int32 PackageId;
+    int32 SkillLineId;
     uint32 SkillPointCount;
     uint32 ArenaPointCount;
     uint32 HonorPointCount;
     uint64 Money;
     uint32 Xp;
-
-    //std::vector<Item> Items;
-    //std::vector<Currency> Currency;
-    //std::vector<Faction> Faction;
-    //std::vector<ItemChoice> ItemChoice;
+    std::vector<PlayerChoiceResponseRewardItem> Items;
+    std::vector<PlayerChoiceResponseRewardEntry> Currency;
+    std::vector<PlayerChoiceResponseRewardEntry> Faction;
 };
 
 struct PlayerChoiceResponse
 {
-    int32 ResponseID;
-    int32 ChoiceArtFileID;
-
+    int32 ResponseId;
+    int32 ChoiceArtFileId;
     std::string Header;
     std::string Answer;
     std::string Description;
     std::string Confirmation;
-
     Optional<PlayerChoiceResponseReward> Reward;
 };
 
@@ -801,10 +829,15 @@ struct PlayerChoice
 {
     int32 ChoiceId;
     std::string Question;
-    std::unordered_map<int32 /*ResponseID*/, PlayerChoiceResponse> Responses;
-};
+    std::vector<PlayerChoiceResponse> Responses;
 
-typedef std::unordered_map<int32 /*choiceId*/, PlayerChoice> PlayerChoiceContainer;
+    PlayerChoiceResponse const* GetResponse(int32 responseId) const
+    {
+        auto itr = std::find_if(Responses.begin(), Responses.end(),
+            [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
+        return itr != Responses.end() ? &(*itr) : nullptr;
+    }
+};
 
 enum SkillRangeType
 {
@@ -1252,6 +1285,7 @@ class TC_GAME_API ObjectMgr
         void LoadSceneTemplates();
 
         void LoadPlayerChoices();
+        void LoadPlayerChoicesLocale();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -1404,7 +1438,12 @@ class TC_GAME_API ObjectMgr
             if (itr == _pointOfInterestLocaleStore.end()) return nullptr;
             return &itr->second;
         }
-
+        PlayerChoiceLocale const* GetPlayerChoiceLocale(int32 ChoiceID) const
+        {
+            auto itr = _playerChoiceLocales.find(ChoiceID);
+            if (itr == _playerChoiceLocales.end()) return nullptr;
+            return &itr->second;
+        }
         GameObjectData const* GetGOData(ObjectGuid::LowType guid) const
         {
             GameObjectDataContainer::const_iterator itr = _gameObjectDataStore.find(guid);
@@ -1546,7 +1585,7 @@ class TC_GAME_API ObjectMgr
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
 
-        static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, std::vector<std::string>& data);
+        static void AddLocaleString(std::string&& value, LocaleConstant localeConstant, std::vector<std::string>& data);
         static inline void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
         {
             if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())
@@ -1603,16 +1642,8 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        PlayerChoice const* GetPlayerChoice(int32 choiceId) const
-        {
-            auto itr = _playerChoiceContainer.find(choiceId);
-            if (itr != _playerChoiceContainer.end())
-                return &itr->second;
-
-            return nullptr;
-        }
-
         WorldQuestContainer const& GetWorldQuestStore() const{ return _worldQuestStore; }
+        PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
 
     private:
         // first free id for selected id type
@@ -1749,7 +1780,7 @@ class TC_GAME_API ObjectMgr
         TempSummonDataContainer _tempSummonDataStore;
         ScriptParamContainer _scriptParamContainer;
         TemplateScriptParamContainer _templateScriptParamContainer;
-        PlayerChoiceContainer _playerChoiceContainer;
+        std::unordered_map<int32 /*choiceId*/, PlayerChoice> _playerChoices;
 
         ItemTemplateContainer _itemTemplateStore;
         QuestTemplateLocaleContainer _questTemplateLocaleStore;
@@ -1759,6 +1790,8 @@ class TC_GAME_API ObjectMgr
         PageTextLocaleContainer _pageTextLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
+
+        std::unordered_map<int32, PlayerChoiceLocale> _playerChoiceLocales;
 
         TrinityStringContainer _trinityStringStore;
 
