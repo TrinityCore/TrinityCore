@@ -1937,7 +1937,7 @@ struct SkillRaceClassInfoEntry
     uint32 RaceMask;                                        // 2      m_raceMask
     uint32 ClassMask;                                       // 3      m_classMask
     uint32 Flags;                                           // 4      m_flags
-    //uint32 Unk;                                           // 5      m_unk
+    uint32 Availability;                                    // 5      m_availability
     //uint32 MinLevel;                                      // 6      m_minLevel
     uint32 SkillTier;                                       // 7      m_skillTierID
     //uint32 SkillCostType;                                 // 8      m_skillCostIndex
