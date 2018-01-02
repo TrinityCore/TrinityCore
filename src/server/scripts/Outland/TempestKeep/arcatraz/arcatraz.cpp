@@ -73,7 +73,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
         struct npc_millhouse_manastormAI : public ScriptedAI
         {
-            npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature)
+            npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature), Init(false)
             {
                 Initialize();
                 instance = creature->GetInstanceScript();
@@ -83,7 +83,6 @@ class npc_millhouse_manastorm : public CreatureScript
             {
                 EventProgress_Timer = 2000;
                 LowHp = false;
-                Init = false;
                 Phase = 1;
 
                 Pyroblast_Timer = 1000;
