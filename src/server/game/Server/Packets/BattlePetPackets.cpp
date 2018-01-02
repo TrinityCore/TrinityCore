@@ -69,10 +69,10 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
     _worldPacket.WriteBit(HasJournalLock);
     _worldPacket.FlushBits();
 
-    for (auto const& slot : Slots)
+    for (BattlePetSlot const& slot : Slots)
         _worldPacket << slot;
 
-    for (auto const& pet : Pets)
+    for (BattlePet const& pet : Pets)
         _worldPacket << pet;
 
     return &_worldPacket;
