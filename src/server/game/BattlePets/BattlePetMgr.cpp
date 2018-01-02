@@ -303,11 +303,7 @@ void BattlePetMgr::SaveToDB(SQLTransaction& trans)
 
 BattlePetMgr::BattlePet* BattlePetMgr::GetPet(ObjectGuid guid)
 {
-    auto itr = _pets.find(guid.GetCounter());
-    if (itr != _pets.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_pets, guid.GetCounter());
 }
 
 void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level /*= 1*/)
@@ -332,9 +328,9 @@ void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8
 
     _pets[pet.PacketInfo.Guid.GetCounter()] = pet;
 
-    std::vector<BattlePet> updates;
-    updates.push_back(pet);
-    SendUpdates(updates, true);
+    std::vector<std::reference_wrapper<BattlePet>> updates;
+    updates.push_back(std::ref(pet));
+    SendUpdates(std::move(updates), true);
 
     _owner->GetPlayer()->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET, species);
 }
@@ -355,12 +351,10 @@ void BattlePetMgr::RemovePet(ObjectGuid guid)
 
 uint8 BattlePetMgr::GetPetCount(uint32 species) const
 {
-    uint8 count = 0;
-    for (auto& itr : _pets)
-        if (itr.second.PacketInfo.Species == species && itr.second.SaveInfo != BATTLE_PET_REMOVED)
-            count++;
-
-    return count;
+    return uint8(std::count_if(_pets.begin(), _pets.end(), [species](std::pair<uint64 const, BattlePet> const& pet)
+    {
+        return pet.second.PacketInfo.Species == species && pet.second.SaveInfo != BATTLE_PET_REMOVED;
+    }));
 }
 
 void BattlePetMgr::UnlockSlot(uint8 slot)
@@ -377,14 +371,14 @@ void BattlePetMgr::UnlockSlot(uint8 slot)
     _owner->SendPacket(updates.Write());
 }
 
-std::vector<BattlePetMgr::BattlePet> BattlePetMgr::GetLearnedPets() const
+uint16 BattlePetMgr::GetMaxPetLevel() const
 {
-    std::vector<BattlePet> pets;
+    uint16 level = 0;
     for (auto& pet : _pets)
         if (pet.second.SaveInfo != BATTLE_PET_REMOVED)
-            pets.push_back(pet.second);
+            level = std::max(level, pet.second.PacketInfo.Level);
 
-    return pets;
+    return level;
 }
 
 void BattlePetMgr::CageBattlePet(ObjectGuid guid)
@@ -408,7 +402,7 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     item->SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, pet->PacketInfo.CreatureID);
 
     // FIXME: "You create: ." - item name missing in chat
-    _owner->GetPlayer()->SendNewItem(item, 1, true, true);
+    _owner->GetPlayer()->SendNewItem(item, 1, true, false);
 
     RemovePet(guid);
 
@@ -421,7 +415,7 @@ void BattlePetMgr::HealBattlePetsPct(uint8 pct)
 {
     // TODO: After each Pet Battle, any injured companion will automatically
     // regain 50 % of the damage that was taken during combat
-    std::vector<BattlePet> updates;
+    std::vector<std::reference_wrapper<BattlePet>> updates;
 
     for (auto& pet : _pets)
         if (pet.second.PacketInfo.Health != pet.second.PacketInfo.MaxHealth)
@@ -431,10 +425,10 @@ void BattlePetMgr::HealBattlePetsPct(uint8 pct)
             pet.second.PacketInfo.Health = std::min(pet.second.PacketInfo.Health, pet.second.PacketInfo.MaxHealth);
             if (pet.second.SaveInfo != BATTLE_PET_NEW)
                 pet.second.SaveInfo = BATTLE_PET_CHANGED;
-            updates.push_back(pet.second);
+            updates.push_back(std::ref(pet.second));
         }
 
-    SendUpdates(updates, false);
+    SendUpdates(std::move(updates), false);
 }
 
 void BattlePetMgr::SummonPet(ObjectGuid guid)
@@ -448,16 +442,42 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
         return;
 
     // TODO: set proper CreatureID for spell DEFAULT_SUMMON_BATTLE_PET_SPELL (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
+    _owner->GetPlayer()->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID, guid);
     _owner->GetPlayer()->CastSpell(_owner->GetPlayer(), speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(DEFAULT_SUMMON_BATTLE_PET_SPELL));
 
     // TODO: set pet level, quality... update fields
 }
 
-void BattlePetMgr::SendUpdates(std::vector<BattlePet> pets, bool petAdded)
+void BattlePetMgr::DismissPet()
+{
+    Player* ownerPlayer = _owner->GetPlayer();
+    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*ownerPlayer, ownerPlayer->GetCritterGUID());
+    if (pet && ownerPlayer->GetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID) == pet->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID))
+    {
+        pet->DespawnOrUnsummon();
+        ownerPlayer->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID, ObjectGuid::Empty);
+    }
+}
+
+void BattlePetMgr::SendJournal()
+{
+    WorldPackets::BattlePet::BattlePetJournal battlePetJournal;
+    battlePetJournal.Trap = _trapLevel;
+
+    for (auto& pet : _pets)
+        if (pet.second.SaveInfo != BATTLE_PET_REMOVED)
+            battlePetJournal.Pets.push_back(std::ref(pet.second.PacketInfo));
+
+    battlePetJournal.Slots.reserve(_slots.size());
+    std::transform(_slots.begin(), _slots.end(), std::back_inserter(battlePetJournal.Slots), [](WorldPackets::BattlePet::BattlePetSlot& slot) { return std::ref(slot); });
+    _owner->SendPacket(battlePetJournal.Write());
+}
+
+void BattlePetMgr::SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pets, bool petAdded)
 {
     WorldPackets::BattlePet::BattlePetUpdates updates;
-    for (auto pet : pets)
-        updates.Pets.push_back(pet.PacketInfo);
+    for (BattlePet& pet : pets)
+        updates.Pets.push_back(std::ref(pet.PacketInfo));
 
     updates.PetAdded = petAdded;
     _owner->SendPacket(updates.Write());
