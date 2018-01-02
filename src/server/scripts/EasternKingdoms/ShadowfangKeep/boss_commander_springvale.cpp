@@ -129,7 +129,7 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             events.ScheduleEvent(EVENT_MALEFIC_STRIKE, Seconds(5));
             events.ScheduleEvent(EVENT_DESECRATION, Seconds(9) + Milliseconds(500));
