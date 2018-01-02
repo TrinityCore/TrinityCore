@@ -5896,13 +5896,18 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     return true;
 }
 
-bool Player::HasWorldQuestEnabled() const
+bool Player::MeetPlayerCondition(uint32 conditionId)
 {
-    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(41005))
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId))
         if (sConditionMgr->IsPlayerMeetingCondition(this, playerCondition))
             return true;
 
     return false;
+}
+
+bool Player::HasWorldQuestEnabled() const
+{
+    return MeetPlayerCondition(41005);
 }
 
 void Player::UpdateWorldQuestPosition(float x, float y)
