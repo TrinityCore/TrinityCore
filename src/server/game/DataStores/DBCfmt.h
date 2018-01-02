@@ -32,6 +32,7 @@ char const BankBagSlotPricesEntryfmt[] = "ni";
 char const BannedAddOnsfmt[] = "nxxxxxxxxxx";
 char const BarberShopStyleEntryfmt[] = "nixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxiii";
 char const BattlemasterListEntryfmt[] = "niiiiiiiiixssssssssssssssssxiixx";
+char const CharacterFacialHairStylesfmt[] = "iiixxxxx";
 char const CharStartOutfitEntryfmt[] = "dbbbXiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const CharSectionsEntryfmt[] = "diiixxxiii";
 char const CharTitlesEntryfmt[] = "nxssssssssssssssssxssssssssssssssssxi";

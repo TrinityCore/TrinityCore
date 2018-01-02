@@ -183,11 +183,6 @@ void UnitAI::DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args)
         DoCast(victim, spellId, args);
 }
 
-uint32 UnitAI::GetDialogStatus(Player* /*player*/)
-{
-    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
-}
-
 #define UPDATE_TARGET(a) {if (AIInfo->target<a) AIInfo->target=a;}
 
 void UnitAI::FillAISpellInfo()
