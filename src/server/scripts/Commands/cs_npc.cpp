@@ -1154,7 +1154,7 @@ public:
             return false;
 
         uint32 phaseID = atoul(args);
-        if (!sPhaseStore.LookupEntry(phaseID))
+        if (phaseID != 0 && !sPhaseStore.LookupEntry(phaseID))
         {
             handler->SendSysMessage(LANG_PHASE_NOTFOUND);
             handler->SetSentErrorMessage(true);
@@ -1170,7 +1170,10 @@ public:
         }
 
         creature->ClearPhases();
-        creature->SetInPhase(phaseID, true, true);
+
+        if (phaseID != 0)
+            creature->SetInPhase(phaseID, true, true);
+
         creature->SetDBPhase(phaseID);
 
         creature->SaveToDB();
