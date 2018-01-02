@@ -1,4 +1,5 @@
 -- Halls of Origination work
+-- @CGUID MUST HAVE SAME VALUE AS IN *_00_world.sql !!!
 SET @CGUID := 1000000; -- 91 entries needed (1000000 - 1000090)
 SET @SpellEffectID := 1000000; -- 2 entries needed
 
@@ -20,6 +21,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (75764, 'spell_hoo_emerge'),
 (82382, 'spell_hoo_energy_flux_target_selector'),
 (74880, 'spell_hoo_arcane_energy_check');
+
+-- achievements
+DELETE FROM `criteria_data` WHERE `criteria_id` IN (15988);
+INSERT INTO `criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(15989, 18, 0, 0, '');
 
 -- transit device that teleports to the upper floor
 UPDATE `gameobject_template` SET `Data10` = 82900 WHERE `entry` = 204972;
@@ -46,6 +52,9 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 --   Add Stalker, Starry Sky, Ammunae's Seedling Pod, Seedling Pod, Bloodpetal Blossom, Seedling Pod
 UPDATE `creature_template` SET `InhabitType` = 12 WHERE `entry` IN (39258, 39612, 40202, 40283, 40183, 48707, 40669, 
 41264, 41144, 41194, 40790, 40459, 40503, 40668, 41055, 39266, 41041, 41479, 39681, 40592, 40716, 40622, 40550); 
+
+-- camels do not respawn if they die
+UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `map` = 644 AND `id` = 39443;
 
 -- random movement for trash at Seat of Magic
 UPDATE `creature` SET `MovementType` = 1, `spawndist` = 10 WHERE `guid` IN (317535, 313950, 313951, 313952, 320781, 320754, 313949, 313953);
@@ -826,12 +835,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@wp, 15, -344.571, 366.36,  75.9152, 0, 0, 0, 0, 100, 0),
 (@wp, 16, -336.149, 350.328, 75.9152, 0, 0, 0, 0, 100, 0),
 (@wp, 17, -316.96,  351.339, 75.9109, 0, 0, 0, 0, 100, 0),
-(@wp, 18, -302.983, 356.94,  75.8865, 0, 0, 0, 0, 100, 0);
-
--- to-do: random movement with very dist for troggs without wp
-UPDATE `creature` SET `spawndist` = 3, `MovementType` = 1 WHERE `guid` IN
-(@CGUID+21, @CGUID+22, @CGUID+23, @CGUID+24, @CGUID+25, @CGUID+26, @CGUID+27, @CGUID+28, @CGUID+29, @CGUID+30,
- @CGUID+31, @CGUID+33, @CGUID+51, @CGUID+52, @CGUID+53, @CGUID+54, @CGUID+55, @CGUID+56, @CGUID+57, @CGUID+58, 
- @CGUID+37, @CGUID+38, @CGUID+59, @CGUID+60, @CGUID+61, @CGUID+62, @CGUID+63, @CGUID+64, @CGUID+65, @CGUID+66, 
- @CGUID+34, @CGUID+35, @CGUID+76, @CGUID+77, @CGUID+78, @CGUID+82, @CGUID+86, @CGUID+88, @CGUID+89, @CGUID+90);
- 
+(@wp, 18, -302.983, 356.94,  75.8865, 0, 0, 0, 0, 100, 0); 

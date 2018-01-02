@@ -46,7 +46,6 @@ enum HOOData
 
     // Anraphet
     DATA_BRANN_0,
-    DATA_BRANN_INTRO_STARTED,
     DATA_VAULT_OF_LIGHTS_DOOR,
     DATA_DEAD_ELEMENTALS,
     DATA_LASERBEAMS_EARTH_WARDEN,
@@ -147,7 +146,7 @@ enum Achievements
     // Achievement.db2 ID 5293: ParentTree 19724
     // CriteriaTree.db2 ID 19725: ParentTree 19724 - Criteria 15988
     // Criteria.db2 ID 15988: on Anhuur kill, world state 5638 = value 0
-    CRITERIA_I_HATE_THAT_SONG          = 15988,
+    //CRITERIA_I_HATE_THAT_SONG        = 15988,
     WS_I_HATE_THIS_SONG                =  5638,
     
     //    Straw That Broke the Camel's Back

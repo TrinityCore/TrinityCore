@@ -127,6 +127,11 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
+            // About to die? One-hit cases...
+            if (int64(me->GetHealth()) - int64(damage) <= 0)
+                return;
+
+            // Earthquake phase happens at 50% health remaining.
             if (me->HealthBelowPctDamaged(50, damage) && !_hasDispersed)
                 EnterDispersePhase();
         }

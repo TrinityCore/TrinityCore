@@ -24,6 +24,7 @@
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "World.h"
 
 DoorData const doorData[] =
 {
@@ -204,9 +205,6 @@ class instance_halls_of_origination : public InstanceMapScript
             {
                 switch (data)
                 {
-                    case DATA_BRANN_INTRO_STARTED:
-                        _brannIntroStarted = value;
-                        break;
                     case DATA_ISISET_PHASE:
                         _isisetPhase = value;
                         break;
@@ -319,6 +317,7 @@ class instance_halls_of_origination : public InstanceMapScript
                         uint32 data = creature->GetEntry() - WARDEN_ENTRY_DATA_DELTA;
                         SetBossState(data, IN_PROGRESS); // Needs to be set to IN_PROGRESS or else the gameobjects state won't be updated
                         SetBossState(data, DONE);
+                        break;
                     }
                     case NPC_SPATIAL_ANOMALY:
                     case NPC_FLUX_ANIMATOR:
@@ -347,8 +346,6 @@ class instance_halls_of_origination : public InstanceMapScript
             {
                 switch (criteriaId)
                 {
-                    case CRITERIA_I_HATE_THAT_SONG:
-                        return false; //_anhuurIHateThatSong;
                     case CRITERIA_STRAW_BROKE_CAMELS_BACK:
                         return IsRidingACamel(player);
                     default:
@@ -412,7 +409,6 @@ class instance_halls_of_origination : public InstanceMapScript
                     return vehicle->GetEntry() == NPC_HOO_CAMEL;
                 return false;
             }
-
             
             GuidVector transitDeviceGUIDs;
             GuidVector hooCamelGUIDs;

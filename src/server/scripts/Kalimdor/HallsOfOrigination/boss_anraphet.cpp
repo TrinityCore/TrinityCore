@@ -349,11 +349,11 @@ public:
         // What gossip menu shall we send?
         uint32 gossipMenuId = GOSSIP_MENU_NO_TIME_TO_WASTE;
 
-        if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE) // gossipMenuId already set, only add gossip option
+        if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) == NOT_STARTED) // gossipMenuId already set, only add gossip option
             AddGossipItemFor(player, gossipMenuId, GOSSIP_OPTION_WE_ARE_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         else if (instance->GetBossState(DATA_VAULT_OF_LIGHTS) != DONE)
             gossipMenuId = GOSSIP_MENU_DESTROY_ELEMENTAL;
-        else
+        else // To-do: There might be another gossip text before and while fighting Anraphet. Check retail.
             gossipMenuId = GOSSIP_MENU_OCH_ITS_NOT_EASY;
 
         SendGossipMenuFor(player, player->GetGossipTextId(gossipMenuId, creature), creature->GetGUID());
@@ -366,24 +366,27 @@ public:
 
         void Reset() override
         {
-            canSayIdleEmote = false;
+            // DATA_VAULT_OF_LIGHTS is not a boss/creature, so we need to initialize it manually.
+            if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == TO_BE_DECIDED)
+                _instance->SetBossState(DATA_VAULT_OF_LIGHTS, NOT_STARTED);
 
-            if (!_instance->GetData(DATA_BRANN_INTRO_STARTED))
-                canSayIdleEmote = true;
-            else if (_instance->GetBossState(DATA_ANRAPHET) != DONE)
-                me->SetHomePosition(BrannBossHomePos);
-            else
+            // We are ready for idle emote only if intro not started yet. 
+            canSayIdleEmote = _instance->GetBossState(DATA_VAULT_OF_LIGHTS) == NOT_STARTED;
+
+            // Different home positions after intro is started.
+            if (_instance->GetBossState(DATA_ANRAPHET) == DONE)
                 me->SetHomePosition(BrannFinalHomePos);
+            else if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) != NOT_STARTED)
+                me->SetHomePosition(BrannBossHomePos);
 
             me->GetMotionMaster()->MoveTargetedHome();
         }
 
         void sGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            if (_instance->GetData(DATA_BRANN_INTRO_STARTED))
+            if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) != NOT_STARTED)
                 return;
 
-            _instance->SetData(DATA_BRANN_INTRO_STARTED, 1);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             events.Reset(); // Removes EVENT_BRANN_IDLE_EMOTE.
             events.RescheduleEvent(EVENT_BRANN_START_INTRO, Seconds(1));
@@ -596,8 +599,8 @@ public:
     }
 };
 
-// 82329 Teleport Earth, 82330 Teleport Air, 82331 Teleport Fire, 82332 Teleport Water:
-// Set orientation and update home position after warden has been teleported.
+// 82329 Teleport Earth, 82330 Teleport Air, 82331 Teleport Fire, 82332 Teleport Water
+// Sets orientation and updates home position after warden has been teleported.
 class spell_hoo_platform_teleport : public SpellScriptLoader
 {
 public:
@@ -609,14 +612,14 @@ public:
 
         void SetOrientationAndUpdateHomePosition()
         {
-            Creature* warden = GetCaster()->ToCreature();
-            if (warden)
+            Creature* creature = GetCaster()->ToCreature();
+            if (creature)
                 return;
 
-            // Side of the room: WEST > 366.781f > EAST
-            warden->SetOrientation(warden->GetPositionY() > 366.781f ? DegToRad(270) : DegToRad(90));
-            warden->SetHomePosition(warden->GetPosition());
-            warden->GetMotionMaster()->MoveTargetedHome();
+            // Side of the room: WEST > 366.781f (middle of the room) > EAST
+            float ori = creature->GetPositionY() > 366.781f ? DegToRad(270) : DegToRad(90);
+            creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), ori);
+            creature->GetMotionMaster()->MoveTargetedHome();
         }
 
         void Register() override
