@@ -2680,7 +2680,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         pet->SavePetToDB(PET_SAVE_NEW_PET);
-        if (uint8 slot = pet->GetSlot() <= 4)
+        if (uint8 slot = pet->GetSlot() <= PET_SLOT_LAST_ACTIVE_SLOT)
         {
             m_caster->ToPlayer()->GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), creatureTarget->GetEntry(), creatureTarget->GetDisplayId(), creatureTarget->GetLevelForTarget(m_caster), pet->GetName());
             m_caster->ToPlayer()->PetSpellInitialize();
@@ -2713,9 +2713,9 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     }
 
     // SUMMON_PET SummonPet's entries are at MiscValue, HunterPetSlot at BasePoints
-    uint32 petentry = (effectInfo->MiscValue == 0 && effectInfo->BasePoints <= 4) ? effectInfo->BasePoints : effectInfo->MiscValue;
+    uint32 petentry = (effectInfo->MiscValue == 0 && effectInfo->BasePoints <= PET_SLOT_LAST_ACTIVE_SLOT) ? effectInfo->BasePoints : effectInfo->MiscValue;
 
-    PetType petType = (effectInfo->MiscValue == 0 && effectInfo->BasePoints <= 4) ? HUNTER_PET : SUMMON_PET;
+    PetType petType = (effectInfo->MiscValue == 0 && effectInfo->BasePoints <= PET_SLOT_LAST_ACTIVE_SLOT) ? HUNTER_PET : SUMMON_PET;
 
     if (!owner)
     {
@@ -2755,7 +2755,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
         }
 
         if (owner->GetTypeId() == TYPEID_PLAYER)
-            owner->ToPlayer()->RemovePet(OldSummon, (OldSummon->getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_DISMISS), false);
+            owner->ToPlayer()->RemovePet(OldSummon, (OldSummon->IsHunterPet() ? PET_SAVE_AS_DELETED : PET_SAVE_DISMISS), false);
         else
             return;
     }
@@ -5271,7 +5271,7 @@ void Spell::EffectRenamePet(SpellEffIndex /*effIndex*/)
         return;
 
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT ||
-        !unitTarget->IsPet() || ((Pet*)unitTarget)->getPetType() != HUNTER_PET)
+        !unitTarget->IsPet() || !((Pet*)unitTarget)->IsHunterPet())
         return;
 
     unitTarget->SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED);

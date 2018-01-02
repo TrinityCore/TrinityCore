@@ -189,13 +189,10 @@ void Player::UpdateSpellDamageAndHealingBonus()
         UpdateAttackPowerAndDamage(true);
     }
 
-    Pet* pet = GetPet();
-    Guardian* guardian = GetGuardianPet();
-
-    if (pet)
+    if (Pet* pet = GetPet())
         pet->UpdateSpellPower();
 
-    if (guardian)
+    if (Guardian* guardian = GetGuardianPet())
         guardian->UpdateSpellPower();
 
 }
@@ -229,13 +226,10 @@ bool Player::UpdateAllStats()
     RecalculateRating(CR_ARMOR_PENETRATION);
     UpdateAllResistances();
 
-    Pet* pet = GetPet();
-    Guardian* guardian = GetGuardianPet();
-
-    if (pet)
+    if (Pet* pet = GetPet())
         pet->UpdateAllStats();
 
-    if (guardian)
+    if (Guardian* guardian = GetGuardianPet())
         guardian->UpdateAllStats();
 
     return true;
@@ -254,9 +248,11 @@ void Player::UpdateResistances(uint32 school)
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
         SetResistance(SpellSchools(school), int32(value));
 
-        Pet* pet = GetPet();
-        if (pet)
+        if (Pet* pet = GetPet())
             pet->UpdateResistances(school);
+
+        if (Guardian* guardian = GetGuardianPet())
+            guardian->UpdateResistances(school);
     }
     else
         UpdateArmor();
@@ -282,9 +278,11 @@ void Player::UpdateArmor()
 
     SetArmor(int32(value));
 
-    Pet* pet = GetPet();
-    if (pet)
+    if (Pet* pet = GetPet())
         pet->UpdateArmor();
+
+    if (Guardian* guardian = GetGuardianPet())
+        guardian->UpdateArmor();
 
     UpdateAttackPowerAndDamage();                           // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
 }
@@ -314,6 +312,9 @@ void Player::UpdateMaxHealth()
 
     if (Pet* pet = GetPet())
         pet->UpdateMaxHealth();
+
+    if (Guardian* guardian = GetGuardianPet())
+        guardian->UpdateMaxHealth();
 }
 
 void Player::UpdateMaxPower(Powers power)
@@ -392,7 +393,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     SetFloatValue(index_mult, attPowerMultiplier);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
 
     Pet* pet = GetPet();                                //update pet's AP
-    Guardian* guardian = GetGuardianPet();
     //automatically update weapon damage after attack power modification
     if (ranged)
     {
@@ -415,7 +415,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         if (pet)
             pet->UpdateAttackPowerAndDamage();
 
-        if (guardian && guardian->IsSpiritWolf()) // At melee attack power change for Shaman feral spirit
+        if (Guardian* guardian = GetGuardianPet())
             guardian->UpdateAttackPowerAndDamage();
     }
 }
@@ -999,36 +999,36 @@ void Guardian::UpdateArmor()
 
     switch (petType)
     {
-    case SUMMON_PET:
-        switch (GetEntry())
-        {
-            // Mage
-        case ENTRY_WATER_ELEMENTAL:
-            pctFromOwnerArmor = 300.f;
+        case SUMMON_PET:
+            switch (GetEntry())
+            {
+                // Mage
+                case ENTRY_WATER_ELEMENTAL:
+                    pctFromOwnerArmor = 300.f;
+                    break;
+                // Warlock
+                case ENTRY_FELGUARD:
+                case ENTRY_VOIDWALKER:
+                    pctFromOwnerArmor = 400.f;
+                    break;
+                case ENTRY_FELHUNTER:
+                case ENTRY_IMP:
+                case ENTRY_SUCCUBUS:
+                    pctFromOwnerArmor = 300.f;
+                    break;
+                case ENTRY_NIUZAO:
+                    pctFromOwnerArmor = 400.f;
+                case ENTRY_XUEN:
+                    pctFromOwnerArmor = 100.f;
+                default:
+                    break;
+            }
             break;
-            // Warlock
-        case ENTRY_FELGUARD:
-        case ENTRY_VOIDWALKER:
-            pctFromOwnerArmor = 400.f;
+        case HUNTER_PET:
+            pctFromOwnerArmor = 170.f;
             break;
-        case ENTRY_FELHUNTER:
-        case ENTRY_IMP:
-        case ENTRY_SUCCUBUS:
-            pctFromOwnerArmor = 300.f;
-            break;
-        case ENTRY_NIUZAO:
-            pctFromOwnerArmor = 400.f;
-        case ENTRY_XUEN:
-            pctFromOwnerArmor = 100.f;
         default:
             break;
-        }
-        break;
-    case HUNTER_PET:
-        pctFromOwnerArmor = 170.f;
-        break;
-    default:
-        break;
     }
 
     if (pctFromOwnerArmor)
@@ -1061,54 +1061,51 @@ void Guardian::UpdateMaxHealth()
 
     switch (petType)
     {
-    case SUMMON_PET:
-    {
-        switch (GetEntry())
+        case SUMMON_PET:
         {
-        case ENTRY_BLOODWORM:
-            pctFromOwnerHealth = 15.f;
+            switch (GetEntry())
+            {
+                case ENTRY_BLOODWORM:
+                    pctFromOwnerHealth = 15.f;
+                    break;
+                case ENTRY_RISEN_SKULKER:
+                    pctFromOwnerHealth = 20.f;
+                    break;
+                case ENTRY_GHOUL:
+                    pctFromOwnerHealth = 35.f;
+                    break;
+                case ENTRY_XUEN:
+                case ENTRY_NIUZAO:
+                case ENTRY_CHI_JI:
+                    pctFromOwnerHealth = 100.f;
+                    break;
+                case ENTRY_FIRE_ELEMENTAL:
+                    pctFromOwnerHealth = 75.f;
+                    break;
+                case ENTRY_FELGUARD:
+                case ENTRY_VOIDWALKER:
+                case ENTRY_INFERNAL:
+                case ENTRY_WATER_ELEMENTAL:
+                    pctFromOwnerHealth = 50.f;
+                    break;
+                case ENTRY_FELHUNTER:
+                case ENTRY_SUCCUBUS:
+                    pctFromOwnerHealth = 40.f;
+                    break;
+                case ENTRY_IMP:
+                    pctFromOwnerHealth = 30.f;
+                    break;
+                default:
+                    break;
+            }
             break;
-        case ENTRY_RISEN_SKULKER:
-            pctFromOwnerHealth = 20.f;
-            break;
-        case ENTRY_GHOUL:
-            pctFromOwnerHealth = 35.f;
-            break;
-        case ENTRY_XUEN:
-        case ENTRY_NIUZAO:
-        case ENTRY_CHI_JI:
-            pctFromOwnerHealth = 100.f;
-            break;
-        case ENTRY_FIRE_ELEMENTAL:
-            pctFromOwnerHealth = 75.f;
-            break;
-        case ENTRY_FELGUARD:
-        case ENTRY_VOIDWALKER:
-        case ENTRY_INFERNAL:
-        case ENTRY_WATER_ELEMENTAL:
-            pctFromOwnerHealth = 50.f;
-            break;
-        case ENTRY_FELHUNTER:
-        case ENTRY_SUCCUBUS:
-            pctFromOwnerHealth = 40.f;
-            break;
-        case ENTRY_IMP:
-            pctFromOwnerHealth = 30.f;
+        }
+        case HUNTER_PET:
+            pctFromOwnerHealth = 70.f;
             break;
         default:
             break;
-        }
-        break;
     }
-    case HUNTER_PET:
-        pctFromOwnerHealth = 70.f;
-        break;
-    default:
-        break;
-    }
-
-    if (m_Properties && m_Properties->ID == 3236)
-        pctFromOwnerHealth = 20.f;
 
     if (pctFromOwnerHealth)
         health = CalculatePct(m_owner->GetMaxHealth(), pctFromOwnerHealth);
@@ -1170,32 +1167,32 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 
     switch (petType)
     {
-    case SUMMON_PET:
-    {
-        switch (GetEntry())
+        case SUMMON_PET:
         {
-        case ENTRY_XUEN:
-            value = CalculatePct(m_owner->GetTotalAttackPowerValue(BASE_ATTACK), 600.f);
-            // Bluetracker says 600% (needs ingame data)
-            break;
-        case ENTRY_NIUZAO:
-            value = CalculatePct(m_owner->GetTotalAttackPowerValue(BASE_ATTACK), 100.f);
-            // Bluetracker says 100% (needs ingame data)
-            break;
-        case ENTRY_IMP:
-            value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 100.f);
-        case ENTRY_VOIDWALKER:
-            value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 120.f);
-        default:
+            switch (GetEntry())
+            {
+                case ENTRY_XUEN:
+                    value = CalculatePct(m_owner->GetTotalAttackPowerValue(BASE_ATTACK), 600.f);
+                    // Bluetracker says 600% (needs ingame data)
+                    break;
+                case ENTRY_NIUZAO:
+                    value = CalculatePct(m_owner->GetTotalAttackPowerValue(BASE_ATTACK), 100.f);
+                    // Bluetracker says 100% (needs ingame data)
+                    break;
+                case ENTRY_IMP:
+                    value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 100.f);
+                case ENTRY_VOIDWALKER:
+                    value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 120.f);
+                default:
+                    break;
+            }
             break;
         }
-        break;
-    }
-    case HUNTER_PET:
-        value = CalculatePct(m_owner->GetTotalAttackPowerValue(ranged ? RANGED_ATTACK : BASE_ATTACK), 60.f);
-        break;
-    default:
-        break;
+        case HUNTER_PET:
+            value = CalculatePct(m_owner->GetTotalAttackPowerValue(ranged ? RANGED_ATTACK : BASE_ATTACK), 60.f);
+            break;
+        default:
+            break;
     }
 
     if (!value)
@@ -1219,7 +1216,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 {
     float bonusDamage = 0.0f;
-    if (m_owner->GetTypeId() == TYPEID_PLAYER)
+    if (m_owner->IsPlayer())
     {
         //force of nature
         if (GetEntry() == ENTRY_TREANT)
@@ -1259,19 +1256,19 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 
     switch (attType)
     {
-    case BASE_ATTACK:
-    default:
-        SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
-        SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
-        break;
-    case OFF_ATTACK:
-        SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage / 2.0f);
-        SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdamage / 2.0f);
-        break;
-    case RANGED_ATTACK:
-        SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, mindamage);
-        SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxdamage);
-        break;
+        case BASE_ATTACK:
+        default:
+            SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
+            break;
+        case OFF_ATTACK:
+            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage / 2.0f);
+            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdamage / 2.0f);
+            break;
+        case RANGED_ATTACK:
+            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxdamage);
+            break;
     }
 }
 
@@ -1292,6 +1289,6 @@ void Guardian::SetBonusDamage(int32 damage)
 
 void Guardian::UpdatePlayerFieldModPetHaste()
 {
-    if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
+    if (GetOwner()->IsPlayer())
         GetOwner()->SetUInt32Value(PLAYER_FIELD_MOD_PET_HASTE, GetUInt32Value(UNIT_FIELD_MOD_RANGED_HASTE));
 }
