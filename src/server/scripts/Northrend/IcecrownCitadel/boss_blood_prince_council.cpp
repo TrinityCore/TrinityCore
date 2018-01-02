@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -253,7 +253,7 @@ class boss_blood_council_controller : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == IN_PROGRESS)
                     return;
@@ -451,7 +451,7 @@ struct BloodPrincesBossAI : public BossAI
         instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);
@@ -985,7 +985,7 @@ class npc_ball_of_flame : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
             {
                 _chaseGUID = guid;
             }
@@ -1115,7 +1115,7 @@ class npc_dark_nucleus : public CreatureScript
                 DoCastSelf(SPELL_SHADOW_RESONANCE_AURA, true);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 _scheduler.Schedule(Seconds(1), [this](TaskContext targetAuraCheck)
                 {

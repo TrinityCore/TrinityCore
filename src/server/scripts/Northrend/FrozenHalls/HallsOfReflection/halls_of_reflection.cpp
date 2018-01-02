@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1478,7 +1478,7 @@ class npc_ghostly_priest : public CreatureScript
         {
             npc_ghostly_priestAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(6000, 15000));
                 _events.ScheduleEvent(EVENT_CIRCLE_OF_DESTRUCTION, 12000);
@@ -1555,7 +1555,7 @@ class npc_phantom_mage : public CreatureScript
                     npc_gauntlet_trash::EnterEvadeMode(why);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_FIREBALL, 3000);
                 _events.ScheduleEvent(EVENT_FLAMESTRIKE, 6000);
@@ -1656,7 +1656,7 @@ class npc_shadowy_mercenary : public CreatureScript
         {
             npc_shadowy_mercenaryAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_SHADOW_STEP, 23000);
                 _events.ScheduleEvent(EVENT_DEADLY_POISON, 5000);
@@ -1717,7 +1717,7 @@ class npc_spectral_footman : public CreatureScript
         {
             npc_spectral_footmanAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, 14000);
                 _events.ScheduleEvent(EVENT_SHIELD_BASH, 10000);
@@ -1771,7 +1771,7 @@ class npc_tortured_rifleman : public CreatureScript
         {
             npc_tortured_riflemanAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_SHOOT, 1);
                 _events.ScheduleEvent(EVENT_CURSED_ARROW, 7000);
@@ -1871,7 +1871,7 @@ class npc_frostsworn_general : public CreatureScript
                 _instance->SetData(DATA_FROSTSWORN_GENERAL, DONE);
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
@@ -1957,7 +1957,7 @@ class npc_spiritual_reflection : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
                 _events.ScheduleEvent(EVENT_BALEFUL_STRIKE, 3000);
             }
@@ -2593,7 +2593,7 @@ class npc_quel_delar_sword : public CreatureScript
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
                 _events.ScheduleEvent(EVENT_QUEL_DELAR_HEROIC_STRIKE, 4000);
                 _events.ScheduleEvent(EVENT_QUEL_DELAR_BLADESTORM, 6000);
@@ -2836,6 +2836,30 @@ class spell_hor_gunship_cannon_fire : public SpellScriptLoader
         }
 };
 
+// 70698 - Quel'Delar's Will
+class spell_hor_quel_delars_will : public SpellScript
+{
+    PrepareSpellScript(spell_hor_quel_delars_will);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
+
+    void HandleReagent(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+
+        // dummy spell consumes reagent, don't ignore it
+        GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hor_quel_delars_will::HandleReagent, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+    }
+};
+
 void AddSC_halls_of_reflection()
 {
     new at_hor_intro_start();
@@ -2862,4 +2886,5 @@ void AddSC_halls_of_reflection()
     new spell_hor_start_halls_of_reflection_quest_ae();
     new spell_hor_evasion();
     new spell_hor_gunship_cannon_fire();
+    RegisterSpellScript(spell_hor_quel_delars_will);
 }

@@ -87,7 +87,7 @@ public:
             MakeInterruptable(false);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 Talk(SAY_AGGRO_ALLIANCE);

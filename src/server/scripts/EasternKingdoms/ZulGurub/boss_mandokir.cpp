@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -119,9 +119,9 @@ class boss_mandokir : public CreatureScript
                 _reviveGUID.Clear();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 DoCastAOE(SPELL_BLOODLORD_AURA);
@@ -213,7 +213,7 @@ class boss_mandokir : public CreatureScript
                 return 0;
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id = 0 **/) override
             {
                 _reviveGUID = guid;
             }
@@ -302,7 +302,7 @@ class npc_ohgan : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCastAOE(SPELL_OHGAN_ORDERS, true);
             }
@@ -369,7 +369,7 @@ class npc_chained_spirit : public CreatureScript
                 _revivePlayerGUID.Clear();
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id = 0 */) override
             {
                 _revivePlayerGUID = guid;
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -182,7 +182,7 @@ struct dummy_dragonAI : public ScriptedAI
         Initialize();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(SAY_AGGRO);
         DoZoneInCombat();
@@ -424,9 +424,9 @@ public:
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            dummy_dragonAI::EnterCombat(who);
+            dummy_dragonAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
         }
@@ -492,9 +492,9 @@ public:
             instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            dummy_dragonAI::EnterCombat(who);
+            dummy_dragonAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60000);
         }
@@ -563,9 +563,9 @@ public:
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            dummy_dragonAI::EnterCombat(who);
+            dummy_dragonAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60000);
         }

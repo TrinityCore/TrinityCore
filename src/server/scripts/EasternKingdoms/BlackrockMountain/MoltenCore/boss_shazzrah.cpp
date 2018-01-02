@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,9 +49,9 @@ class boss_shazzrah : public CreatureScript
         {
             boss_shazzrahAI(Creature* creature) : BossAI(creature, BOSS_SHAZZRAH) { }
 
-            void EnterCombat(Unit* target) override
+            void JustEngagedWith(Unit* target) override
             {
-                BossAI::EnterCombat(target);
+                BossAI::JustEngagedWith(target);
                 events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6000);
                 events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 10000);
                 events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 24000);

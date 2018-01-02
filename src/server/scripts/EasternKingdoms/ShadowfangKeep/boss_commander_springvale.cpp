@@ -126,7 +126,7 @@ public:
             */
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             _EnterCombat();
@@ -290,7 +290,7 @@ public:
     {
         npc_wailing_guardsmanAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (Creature* tormentedOfficer = me->FindNearestCreature(NPC_TORMENTED_OFFICER, 20.0f))
                 tormentedOfficer->AI()->AttackStart(who);
@@ -344,7 +344,7 @@ public:
     {
         npc_tormented_officerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (Creature* wailingGuardsman = me->FindNearestCreature(NPC_WAILING_GUARDSMAN, 20.0f))
                 wailingGuardsman->AI()->AttackStart(who);

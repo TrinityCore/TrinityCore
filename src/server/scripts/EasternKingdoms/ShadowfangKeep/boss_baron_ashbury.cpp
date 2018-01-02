@@ -90,7 +90,7 @@ public:
             MakeInterruptable(false);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);

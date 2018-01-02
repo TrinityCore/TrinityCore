@@ -67,7 +67,7 @@ public:
     {
         boss_lord_waldenAI(Creature* creature) : BossAI(creature, DATA_LORD_WALDEN) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             _EnterCombat();
