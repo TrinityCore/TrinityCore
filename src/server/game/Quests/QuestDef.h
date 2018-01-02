@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -117,9 +117,6 @@ enum QuestGiverStatus
     DIALOG_STATUS_AVAILABLE                = 8,
     DIALOG_STATUS_REWARD2                  = 9,             // no yellow dot on minimap
     DIALOG_STATUS_REWARD                   = 10,            // yellow dot on minimap
-
-    // Custom value meaning that script call did not return any valid quest status
-    DIALOG_STATUS_SCRIPTED_NO_STATUS       = 0x1000,
 };
 
 enum QuestFlags

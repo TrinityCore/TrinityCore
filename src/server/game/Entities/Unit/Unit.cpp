@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -3146,11 +3146,12 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
             if (GetTypeId() == TYPEID_PLAYER)
                 ToPlayer()->SendAutoRepeatCancel(this);
 
+        m_currentSpells[spellType] = nullptr;
+
         if (spell->getState() != SPELL_STATE_FINISHED)
             spell->cancel();
-
-        m_currentSpells[spellType] = nullptr;
-        spell->SetReferencedFromCurrent(false);
+        else
+            spell->SetReferencedFromCurrent(false);
     }
 }
 
