@@ -270,7 +270,8 @@ enum Spells
     SPELL_TELEPORT_BACK_TO_MAIN_ROOM        = 63992,
     SPELL_INSANE_VISUAL                     = 64464,
     SPELL_CONSTRICTOR_TENTACLE_SUMMON       = 64133,
-    SPELL_SQUEEZE                           = 64125,
+    SPELL_SQUEEZE_10                        = 64125,
+    SPELL_SQUEEZE_25                        = 64126,
     SPELL_FLASH_FREEZE                      = 64175,
     SPELL_LOW_SANITY_SCREEN_EFFECT          = 63752,
 
@@ -1307,7 +1308,7 @@ class npc_constrictor_tentacle : public CreatureScript
             void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
             {
                 if (!apply)
-                    passenger->RemoveAurasDueToSpell(SPELL_SQUEEZE);
+                    passenger->RemoveAurasDueToSpell(RAID_MODE(SPELL_SQUEEZE_10, SPELL_SQUEEZE_25));
             }
 
             void UpdateAI(uint32 /*diff*/) override
@@ -2397,14 +2398,18 @@ class spell_yogg_saron_lunge : public SpellScriptLoader    // 64131
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_SQUEEZE });
+                return ValidateSpellInfo({ SPELL_SQUEEZE_10, SPELL_SQUEEZE_25 });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    target->CastSpell(target, SPELL_SQUEEZE, true);
+                    if (target->GetMap()->Is25ManRaid())
+                        target->CastSpell(target, SPELL_SQUEEZE_25, true);
+                    else
+                        target->CastSpell(target, SPELL_SQUEEZE_10, true);
+
                     target->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
                 }
             }
@@ -2421,7 +2426,7 @@ class spell_yogg_saron_lunge : public SpellScriptLoader    // 64131
         }
 };
 
-class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125
+class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125, 64126
 {
     public:
         spell_yogg_saron_squeeze() : SpellScriptLoader("spell_yogg_saron_squeeze") { }
