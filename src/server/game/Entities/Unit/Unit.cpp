@@ -9583,7 +9583,7 @@ uint32 Unit::GetPowerIndex(uint32 powerType) const
     /// POWER_RAGE, so we enforce the class to hunter so that they
     /// effectively get focus power.
     uint32 classId = getClass();
-    if (ToPet() && ToPet()->getPetType() == HUNTER_PET)
+    if (ToPet() && ToPet()->IsHunterPet())
         classId = CLASS_HUNTER;
 
     return sDB2Manager.GetPowerIndexByClass(powerType, classId);

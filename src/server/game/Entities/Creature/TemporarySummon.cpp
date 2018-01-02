@@ -331,26 +331,26 @@ bool Minion::IsWarlockMinion() const
 {
     switch (GetEntry())
     {
-    case ENTRY_IMP:
-    case ENTRY_VOIDWALKER:
-    case ENTRY_SUCCUBUS:
-    case ENTRY_FELHUNTER:
-    case ENTRY_FELGUARD:
-    case ENTRY_DOOMGUARD:
-    case ENTRY_DOOMGUARD_PET:
-    case ENTRY_INFERNAL:
-    case ENTRY_INFERNAL_LORD_OF_FLAMES:
-    case ENTRY_INFERNAL_PET:
-    case ENTRY_WILD_IMP:
-    case ENTRY_WILD_IMP_DREADSTALKER:
-    case ENTRY_DREADSTALKER:
-    case ENTRY_DARKGLARE:
-    case ENTRY_CHAOS_TEAR:
-    case ENTRY_UNSTABLE_TEAR:
-    case ENTRY_SHADOWY_TEAR:
-        return true;
-    default:
-        return false;
+        case ENTRY_IMP:
+        case ENTRY_VOIDWALKER:
+        case ENTRY_SUCCUBUS:
+        case ENTRY_FELHUNTER:
+        case ENTRY_FELGUARD:
+        case ENTRY_DOOMGUARD:
+        case ENTRY_DOOMGUARD_PET:
+        case ENTRY_INFERNAL:
+        case ENTRY_INFERNAL_LORD_OF_FLAMES:
+        case ENTRY_INFERNAL_PET:
+        case ENTRY_WILD_IMP:
+        case ENTRY_WILD_IMP_DREADSTALKER:
+        case ENTRY_DREADSTALKER:
+        case ENTRY_DARKGLARE:
+        case ENTRY_CHAOS_TEAR:
+        case ENTRY_UNSTABLE_TEAR:
+        case ENTRY_SHADOWY_TEAR:
+            return true;
+        default:
+            return false;
     }
 }
 

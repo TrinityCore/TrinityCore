@@ -210,7 +210,7 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
             break;
     }
 
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped here
+    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped here
     SetCreatorGUID(owner->GetGUID());
 
     InitStatsForLevel(petlevel);
@@ -270,7 +270,7 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
     owner->SetMinion(this, true);
     map->AddToMap(this->ToCreature());
 
-    uint32 timediff = uint32(time(NULL) - playerPetData->Timediff);
+    uint32 timediff = uint32(time(nullptr) - playerPetData->Timediff);
     _LoadAuras(timediff);
 
     // load action bar, if data broken will fill later by default spells.
@@ -398,7 +398,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
         stmt->setString(12, GenerateActionBarData());
 
-        stmt->setUInt32(13, time(NULL)); // unsure about this
+        stmt->setUInt32(13, time(nullptr)); // unsure about this
         stmt->setUInt32(14, GetUInt32Value(UNIT_CREATED_BY_SPELL));
         stmt->setUInt8(15, getPetType());
         stmt->setUInt16(16, m_petSpecialization);
@@ -435,7 +435,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         playerPetData->SavedHealth = curhealth;
         playerPetData->SavedMana = curmana;
         playerPetData->Actionbar = GenerateActionBarData();
-        playerPetData->Timediff = time(NULL);
+        playerPetData->Timediff = time(nullptr);
         playerPetData->SummonSpellId = GetUInt32Value(UNIT_CREATED_BY_SPELL);
         playerPetData->Type = getPetType();
         playerPetData->SpecId = m_petSpecialization;
@@ -522,7 +522,7 @@ void Pet::Update(uint32 diff)
     {
         case CORPSE:
         {
-            if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= time(NULL))
+            if (!IsHunterPet() || m_corpseRemoveTime <= time(nullptr))
             {
                 Remove(PET_SAVE_DISMISS);               //hunters' pets never get removed because of death, NEVER!
                 return;
@@ -545,7 +545,7 @@ void Pet::Update(uint32 diff)
                 if (owner->GetPetGUID() != GetGUID())
                 {
                     TC_LOG_ERROR("entities.pet", "Pet %u is not pet of owner %s, removed", GetEntry(), GetOwner()->GetName().c_str());
-                    Remove(getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_DISMISS);
+                    Remove(IsHunterPet() ? PET_SAVE_AS_DELETED : PET_SAVE_DISMISS);
                     return;
                 }
             }
@@ -647,7 +647,7 @@ void Pet::Remove(PetSaveMode mode, bool returnreagent)
 
 void Pet::GivePetXP(uint32 xp)
 {
-    if (getPetType() != HUNTER_PET)
+    if (!IsHunterPet())
         return;
 
     if (xp < 1)
@@ -687,7 +687,7 @@ void Pet::GivePetLevel(uint8 level)
     if (!level || level == getLevel())
         return;
 
-    if (getPetType() == HUNTER_PET)
+    if (IsHunterPet())
     {
         SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
         SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(level)*PET_XP_FACTOR));

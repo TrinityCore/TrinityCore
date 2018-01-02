@@ -3536,7 +3536,7 @@ bool Player::ResetTalents(bool noCost)
     if (Pet* pet = GetPet())
     {
         if (pet->getPetType() == HUNTER_PET && !pet->GetCreatureTemplate()->IsTameable(CanTameExoticPets()))
-            RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+            RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
     }
     */
 
@@ -18903,29 +18903,29 @@ void Player::LoadPetsFromDB()
         uint8 slot = fields[7].GetUInt8();
         uint32 petId = fields[0].GetUInt32();
 
-        if (slot < 0 || slot > 54)
+        if (slot < PET_SLOT_FIRST || slot > PET_SLOT_LAST)
         {
             TC_LOG_ERROR("sql.sql", "Player::LoadPetsFromDB: bad slot %u for pet %u!", slot, petId);
             continue;
         }
 
-        playerPetData->PetId = petId;
-        playerPetData->CreatureId = fields[1].GetUInt32();
-        playerPetData->Owner = fields[2].GetUInt64();
-        playerPetData->DisplayId = fields[3].GetUInt32();
-        playerPetData->Petlevel = fields[4].GetUInt16();
-        playerPetData->PetExp = fields[5].GetUInt32();
-        playerPetData->Reactstate = ReactStates(fields[6].GetUInt8());
-        playerPetData->Slot = slot;
-        playerPetData->Name = fields[8].GetString();
-        playerPetData->Renamed = fields[9].GetBool();
-        playerPetData->SavedHealth = fields[10].GetUInt32();
-        playerPetData->SavedMana = fields[11].GetUInt32();
-        playerPetData->Actionbar = fields[12].GetString();
-        playerPetData->Timediff = fields[13].GetUInt32();
+        playerPetData->PetId         = petId;
+        playerPetData->CreatureId    = fields[1].GetUInt32();
+        playerPetData->Owner         = fields[2].GetUInt64();
+        playerPetData->DisplayId     = fields[3].GetUInt32();
+        playerPetData->Petlevel      = fields[4].GetUInt16();
+        playerPetData->PetExp        = fields[5].GetUInt32();
+        playerPetData->Reactstate    = ReactStates(fields[6].GetUInt8());
+        playerPetData->Slot          = slot;
+        playerPetData->Name          = fields[8].GetString();
+        playerPetData->Renamed       = fields[9].GetBool();
+        playerPetData->SavedHealth   = fields[10].GetUInt32();
+        playerPetData->SavedMana     = fields[11].GetUInt32();
+        playerPetData->Actionbar     = fields[12].GetString();
+        playerPetData->Timediff      = fields[13].GetUInt32();
         playerPetData->SummonSpellId = fields[14].GetUInt32();
-        playerPetData->Type = PetType(fields[15].GetUInt8());
-        playerPetData->SpecId = fields[16].GetUInt16();
+        playerPetData->Type          = PetType(fields[15].GetUInt8());
+        playerPetData->SpecId        = fields[16].GetUInt16();
 
         PlayerPetDataStore.push_back(playerPetData);
 

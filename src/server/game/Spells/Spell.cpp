@@ -5641,7 +5641,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (spec->IsPetSpecialization())
                 {
                     Pet* pet = player->GetPet();
-                    if (!pet || pet->getPetType() != HUNTER_PET || !pet->GetCharmInfo())
+                    if (!pet || !pet->IsHunterPet() || !pet->GetCharmInfo())
                         return SPELL_FAILED_NO_PET;
                 }
 

@@ -424,97 +424,12 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet)
         SendPetStableResult(STABLE_ERR_STABLE);
         return;
     }
-
-    // remove fake death 2
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    Pet* pet = _player->GetPet();
-
-    // can't place in stable dead pet
-    if (pet)
-    {
-        if (pet->GetCharmInfo()->GetPetNumber() == packet.PetNumber)
-        {
-            if (!pet->IsAlive() || pet->getPetType() != HUNTER_PET)
-            {
-                SendPetStableResult(STABLE_ERR_STABLE);
-                return;
-            }
-        }
-    }
-
     PlayerPetData* playerPetData = _player->GetPlayerPetDataById(packet.PetNumber);
+    CreatureTemplate const* creatureInfo = nullptr;
 
     if (playerPetData)
-    {
-        UpdatePetSlot(packet.PetNumber, playerPetData->Slot, packet.DestSlot);
-    }
-}
+        creatureInfo = sObjectMgr->GetCreatureTemplate(playerPetData->CreatureId);
 
-void WorldSession::HandleStableRevivePet(WorldPacket &/* recvData */)
-{
-    TC_LOG_DEBUG("network", "HandleStableRevivePet: Not implemented");
-}
-
-void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
-{
-    ObjectGuid npcGUID;
-    uint32 petId;
-
-    recvData >> npcGUID >> petId;
-
-    if (!CheckStableMaster(npcGUID))
-    {
-        SendPetStableResult(STABLE_ERR_STABLE);
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    Pet* pet = _player->GetPet();
-
-    if (!pet || pet->getPetType() != HUNTER_PET)
-    {
-        SendPetStableResult(STABLE_ERR_STABLE);
-        return;
-    }
-
-    // Find swapped pet slot in stable
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
-
-    stmt->setUInt64(0, _player->GetGUID().GetCounter());
-    stmt->setUInt32(1, petId);
-
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleStableSwapPetCallback, this, petId, std::placeholders::_1)));
-}
-
-void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult result)
-{
-    if (!GetPlayer())
-        return;
-
-    if (!result)
-    {
-        SendPetStableResult(STABLE_ERR_STABLE);
-        return;
-    }
-
-    Field* fields = result->Fetch();
-
-    uint32 slot     = fields[0].GetUInt8();
-    uint32 petEntry = fields[1].GetUInt32();
-
-    if (!petEntry)
-    {
-        SendPetStableResult(STABLE_ERR_STABLE);
-        return;
-    }
-
-    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petEntry);
     if (!creatureInfo || !creatureInfo->IsTameable(true))
     {
         SendPetStableResult(STABLE_ERR_STABLE);
@@ -527,26 +442,34 @@ void WorldSession::HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult
         return;
     }
 
+    // remove fake death 2
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
     Pet* pet = _player->GetPet();
-    // The player's pet could have been removed during the delay of the DB callback
-    if (!pet)
+
+    // can't place in stable dead pet
+    if (pet)
     {
-        SendPetStableResult(STABLE_ERR_STABLE);
-        return;
+        if (pet->GetCharmInfo()->GetPetNumber() == packet.PetNumber)
+        {
+            if (!pet->IsAlive() || !pet->IsHunterPet())
+            {
+                SendPetStableResult(STABLE_ERR_STABLE);
+                return;
+            }
+        }
     }
 
-    // move alive pet to slot or delete dead pet
-    _player->RemovePet(pet, pet->IsAlive() ? PetSaveMode(slot) : PET_SAVE_AS_DELETED);
-
-    // summon unstabled pet
-    Pet* newPet = new Pet(_player);
-    if (!newPet->LoadPetData(_player, petEntry, petId))
+    if (playerPetData)
     {
-        delete newPet;
-        SendPetStableResult(STABLE_ERR_STABLE);
+        UpdatePetSlot(packet.PetNumber, playerPetData->Slot, packet.DestSlot);
     }
-    else
-        SendPetStableResult(STABLE_SUCCESS_UNSTABLE);
+}
+
+void WorldSession::HandleStableRevivePet(WorldPacket &/* recvData */)
+{
+    TC_LOG_DEBUG("network", "HandleStableRevivePet: Not implemented");
 }
 
 void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet)
