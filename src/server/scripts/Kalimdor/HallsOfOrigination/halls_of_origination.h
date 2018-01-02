@@ -155,10 +155,10 @@ enum Achievements
     // Criteria.db2 ID 15989: on Ptah kill, tree 2838?
     CRITERIA_STRAW_BROKE_CAMELS_BACK   = 15989,
 
-    //    Faster Than The Speed Of Light (Criteria ID 16008)
+    //    Faster Than The Speed Of Light
     // Achievement.db2 ID 5296: ParentTree  17685
     // CriteriaTree.db2 ID 17686: ParentTree 17685 - Criteria 16008
-    // Criteria.db2 ID 15989: spell 94067, startEvent 24212, tree 2615?, world state 5653 = value 0, type 69
+    // Criteria.db2 ID 16008: spell 94067, startEvent 24212, tree 2615?, world state 5653 = value 0, type 69
     ACHIEV_VAULT_OF_LIGHTS_START_EVENT = 24212,
     SPELL_VAULT_OF_LIGHTS_CREDIT       = 94067  // Achievement aura, not in DBC
 };
