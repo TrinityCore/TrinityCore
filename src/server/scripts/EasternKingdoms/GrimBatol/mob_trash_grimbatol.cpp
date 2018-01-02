@@ -1256,7 +1256,7 @@ public:
 
             if (choc_de_pierre<= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true))
+                if (SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true))
                     DoCast(me, spell_choc_de_pierre);
                 choc_de_pierre = 20000;
             } else choc_de_pierre-= diff;

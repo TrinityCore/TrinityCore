@@ -530,7 +530,6 @@ public:
     private:
         uint32 rebuffTimer;
         uint32 rebuffsTimer;
-        bool work;
     };
 };
 
@@ -552,7 +551,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action) override
+    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/) override
     {
         player->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(player);
@@ -569,7 +568,7 @@ public:
     {
         PrepareSpellScript(spell_kabummbombSpellScript);
 
-        bool Validate(SpellInfo const* spellEntry) override
+        bool Validate(SpellInfo const* /*spellEntry*/) override
         {
             return true;
         }
@@ -581,7 +580,7 @@ public:
         }
 
 
-        void HandleActivateGameobject(SpellEffIndex effIndex)
+        void HandleActivateGameobject(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCastItem()->GetOwner())
             {
@@ -634,7 +633,7 @@ public:
             move = false;
         }
 
-        void MovementInform(uint32 /*type*/, uint32 id) override
+        void MovementInform(uint32 /*type*/, uint32 /*id*/) override
         {
         }
 
@@ -760,7 +759,7 @@ class gob_canon_gobelin : public GameObjectScript
 public:
     gob_canon_gobelin() : GameObjectScript("gob_canon_gobelin") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         player->GetMotionMaster()->MoveJump( -7851.79f, 1838.72f, 8.0f, 0.0f, 20.0f, 20.0f);
         return true;
@@ -860,7 +859,7 @@ class npc_galaw: public CreatureScript
 public:
     npc_galaw() : CreatureScript("npc_galaw") {}
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest *_Quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, const Quest *_Quest) override
     {
         if (_Quest->GetQuestId() == 14120)
         {
@@ -974,14 +973,14 @@ class npc_gw: public CreatureScript
 public:
     npc_gw() : CreatureScript("npc_gw") {}
 
-    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 ) override
+    bool OnQuestReward(Player* player, Creature* /*creature*/, const Quest *_Quest, uint32 ) override
     {
         if (_Quest->GetQuestId() == QUEST_BRUTALITY_NECESSARY_ROUND_2)
             player->CastSpell(player, 78607, true);
         return false;
     }
 
-    bool OnQuestComplete (Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestComplete (Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/)
     {
         return false;
     }
@@ -1064,7 +1063,7 @@ public:
             activate = true;
         }
 
-        void MovementInform(uint32 /*type*/, uint32 id) override
+        void MovementInform(uint32 /*type*/, uint32 /*id*/) override
         {
         }
 
@@ -1155,7 +1154,7 @@ public:
         }
 
     private :
-        bool start, goal;
+        bool start;
         uint32 _t;
     };
 };
@@ -1217,7 +1216,7 @@ public:
             me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
         }
 
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool /*apply*/) override
         {
         }
 
@@ -1332,8 +1331,6 @@ public:
     private :
         uint32 m_ty;
         Vehicle* vehicle;
-        uint64 _prev_aura;
-        uint64 _will_aura;
         bool st;
     };
 };
@@ -1441,7 +1438,7 @@ public:
                 Talk(sc_text, player);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/) override
         {
         }
 
@@ -1528,7 +1525,7 @@ public:
     {
         PrepareSpellScript(spell_klaxonSpellScript);
 
-        bool Validate(SpellInfo const* spellEntry) override
+        bool Validate(SpellInfo const* /*spellEntry*/) override
         {
             st = false;
             return true;
@@ -1540,7 +1537,7 @@ public:
             return true;
         }
 
-        void SummonPetAndValidQuest(uint32 spellEntry, Player *player, uint32 npcEntry, uint32 petEntry)
+        void SummonPetAndValidQuest(uint32 spellEntry, Player *player, uint32 npcEntry, uint32 /*petEntry*/)
         {
             if (Creature *c = player->FindNearestCreature(npcEntry, 10))
             {
@@ -1591,7 +1588,7 @@ public:
     {
         PrepareSpellScript(spell_radioSpellScript);
 
-        bool Validate(SpellInfo const* spellEntry) override
+        bool Validate(SpellInfo const* /*spellEntry*/) override
         {
             st = false;
             return true;
@@ -1644,7 +1641,7 @@ public:
     {
         PrepareSpellScript(spell_bank_67495SpellScript);
 
-        bool Validate(SpellInfo const* spellEntry) override
+        bool Validate(SpellInfo const* /*spellEntry*/) override
         {
             st = false;
             return true;
@@ -1689,7 +1686,7 @@ public:
     {
         PrepareSpellScript(spell_bank_67496SpellScript);
 
-        bool Validate(SpellInfo const* spellEntry) override
+        bool Validate(SpellInfo const* /*spellEntry*/) override
         {
             st = false;
             return true;
@@ -1735,7 +1732,7 @@ public:
     {
         PrepareSpellScript(spell_bank_67497SpellScript);
 
-        bool Validate(SpellInfo const* spellEntry) override
+        bool Validate(SpellInfo const* /*spellEntry*/) override
         {
             st = false;
             return true;
@@ -1779,7 +1776,7 @@ public:
     {
         PrepareSpellScript(spell_bank_67498SpellScript);
 
-        bool Validate(SpellInfo const* spellEntry) override
+        bool Validate(SpellInfo const* /*spellEntry*/) override
         {
             st = false;
             return true;
@@ -1824,7 +1821,7 @@ public:
     {
         PrepareSpellScript(spell_bank_67499SpellScript);
 
-        bool Validate(SpellInfo const* spellEntry) override
+        bool Validate(SpellInfo const* /*spellEntry*/) override
         {
             st = false;
             return true;
@@ -1902,7 +1899,7 @@ public:
             m_timerValidGoalEvent = 100;
         }
 
-        void SetData(uint32 type, uint32 value) override
+        void SetData(uint32 /*type*/, uint32 /*value*/) override
         {
             activate = true;
         }
@@ -1987,7 +1984,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(const uint32 /*diff*/) override
         {
         }
     };

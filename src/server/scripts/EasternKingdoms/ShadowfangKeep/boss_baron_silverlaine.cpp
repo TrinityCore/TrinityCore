@@ -97,7 +97,7 @@ class boss_baron_silverlaine : public CreatureScript
             }
         }
 
-        void KilledUnit(Unit* victim) override
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(RAND(SAY_KILLER_1, SAY_KILLER_2));
         }

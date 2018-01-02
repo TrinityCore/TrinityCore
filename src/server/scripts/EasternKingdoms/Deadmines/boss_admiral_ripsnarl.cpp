@@ -174,7 +174,7 @@ public:
             me->SummonCreature(NPC_CAPTAIN_COOKIE, CookieSpawn);
         }
 
-        void SetData(uint32 uiI, uint32 uiValue) override
+        void SetData(uint32 /*uiI*/, uint32 uiValue) override
         {
             if (uiValue == VAPOR_CASTED_COALESCE && numberCastCoalesce < 3)
             {

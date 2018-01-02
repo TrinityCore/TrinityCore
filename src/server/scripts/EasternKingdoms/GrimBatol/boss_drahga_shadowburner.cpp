@@ -295,7 +295,7 @@ public:
 
         void EnterCombat(Unit* /*pWho*/) override { }
 
-        void DamageTaken(Unit* done_by, uint32&damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) override
         {
             if (!HealthAbovePct(20))
             {
@@ -463,10 +463,10 @@ public:
             checkTargetTimer = 1000;
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             DoZoneInCombat();
-            if (Player *player = me->SelectNearestPlayer(100))
+            if (Player* player = me->SelectNearestPlayer(100))
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->CastSpell(player, SPELL_CONCENTRATE_FIRE_AURA, true);
@@ -497,7 +497,6 @@ public:
     private :
         ObjectGuid targetGUID;
         uint32 checkTargetTimer;
-        bool first;
     };
 };
 

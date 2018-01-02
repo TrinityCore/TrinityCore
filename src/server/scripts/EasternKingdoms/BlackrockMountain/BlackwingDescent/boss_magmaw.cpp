@@ -137,7 +137,7 @@ class boss_magmaw : public CreatureScript
             _Reset();
         }
 
-        void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
+        void PassengerBoarded(Unit* /*who*/, int8 seatId, bool apply) override
         {
             if(seatId == 2 && apply)
             {
@@ -750,7 +750,7 @@ public:
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
                 caster->CastSpell(caster, SPELL_MASSIVE_CRASH_DMG, true);

@@ -100,7 +100,7 @@ class boss_baron_ashbury : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WRACKING_PAIN);
             }
 
-            void KilledUnit(Unit* victim) override
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_KILL);
             }
@@ -215,7 +215,7 @@ public:
     {
         PrepareSpellScript(spell_ashbury_archangel_SpellScript);
 
-        void HandleScript(SpellEffIndex effIndex)
+        void HandleScript(SpellEffIndex /*effIndex*/)
         {
             if (Unit* target = GetHitUnit())
             {

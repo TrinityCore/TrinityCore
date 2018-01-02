@@ -85,7 +85,7 @@ public:
         uint32 spell_2_Timer;
         uint32 spell_1_Timer;
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             me->Respawn();
             Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
@@ -96,7 +96,7 @@ public:
                 i->GetSource()->TeleportTo(861, 1166.23f, 532.65f, 18.0f, 0.0f);
         }
 
-        void EnterCombat(Unit* pWho) override
+        void EnterCombat(Unit* /*pWho*/) override
         {
             DoCast(79938);
         }
@@ -159,7 +159,7 @@ public:
         uint32 spell_2_Timer;
         uint32 spell_3_Timer;
 
-        void EnterCombat(Unit* pWho) override
+        void EnterCombat(Unit* /*pWho*/) override
         {
             DoCast(98701);
         }
@@ -1016,7 +1016,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 7000));
             events.ScheduleEvent(EVENT_TWO, urand(9000, 10000));
@@ -1067,7 +1067,7 @@ public:
         return new npc_toogaAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
+    bool OnGossipHello(Player* pPlayer, Creature* /*pCreature*/) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         CloseGossipMenuFor(pPlayer);
@@ -1096,7 +1096,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
@@ -1156,7 +1156,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 7000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
@@ -1218,7 +1218,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
@@ -1283,7 +1283,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
@@ -1373,7 +1373,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             events.ScheduleEvent(EVENT_TWO, urand(27000, 30000));
@@ -1449,7 +1449,7 @@ public:
         return new npc_arch_druid_hamuul_runetotemAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
+    bool OnGossipHello(Player* pPlayer, Creature* /*pCreature*/) override
     {
         if (pPlayer->GetQuestStatus(29199))
         {
@@ -1566,7 +1566,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             events.ScheduleEvent(EVENT_TWO, urand(9000, 10000));
@@ -1617,7 +1617,7 @@ public:
         return new npc_elderlimbAI(pCreature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
+    bool OnGossipHello(Player* pPlayer, Creature* /*pCreature*/) override
     {
         if (pPlayer->GetQuestStatus(29283) == QUEST_STATUS_COMPLETE)
         {
@@ -2066,7 +2066,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
@@ -2139,7 +2139,7 @@ public:
         if (!summoned)
         if (pPlayer->GetQuestStatus(29143) == QUEST_STATUS_INCOMPLETE)
         {
-            Creature* wisp = pCreature->SummonCreature(53083, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000);
+            pCreature->SummonCreature(53083, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000);
             return true;
         }
         return false;
@@ -2161,7 +2161,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
@@ -2223,13 +2223,13 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(500, 1000));
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
         }
 
@@ -2403,7 +2403,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
@@ -2545,14 +2545,14 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
             events.ScheduleEvent(EVENT_TWO, urand(7000, 9000));
             events.ScheduleEvent(EVENT_THREE, urand(12000, 15000));
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
         }
 
@@ -2630,12 +2630,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, 1000);
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
         }
 
@@ -2707,14 +2707,14 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, urand(1000, 2000));
             events.ScheduleEvent(EVENT_TWO, urand(7000, 10000));
             events.ScheduleEvent(EVENT_THREE, urand(15000, 18000));
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
         }
 
@@ -2857,18 +2857,18 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             Creature* helper1 = GetClosestCreatureWithEntry(me, 531430, 50.0f);
             me->CastSpell(helper1, 98393, true);
             events.ScheduleEvent(EVENT_ONE, 2000);
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
         }
 
-        void KilledUnit(Unit* who) override
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
@@ -2925,16 +2925,16 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ONE, 2000);
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
         }
 
-        void KilledUnit(Unit* who) override
+        void KilledUnit(Unit* /*who*/) override
         {
         }
 
@@ -3005,7 +3005,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 me->CastSpell(pTarget, 32323, true);
@@ -3090,7 +3090,7 @@ public:
             events.ScheduleEvent(EVENT_ONE, urand(3000, 5000));
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             //if (killer)
             //killer->ToPlayer()->KilledMonsterCredit(53263);
@@ -3318,11 +3318,11 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
             if (!PlayerList.isEmpty())
@@ -3723,7 +3723,7 @@ public:
         }
 
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == 98628)
             {
@@ -3738,8 +3738,6 @@ public:
                     i->GetSource()->KilledMonsterCredit(53251);
                     me->DespawnOrUnsummon();
                 }
-
-
             }
         }
 
@@ -3926,7 +3924,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 

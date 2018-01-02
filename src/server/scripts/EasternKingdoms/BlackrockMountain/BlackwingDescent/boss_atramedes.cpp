@@ -792,7 +792,7 @@ public:
     {
         mob_atramedes_gongAI(Creature* creature) : ScriptedAI(creature){ }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 const /*diff*/) override
         {
             // Don't use gongs out of combat
             if (Creature* atramedes = me->FindNearestCreature(BOSS_ATRAMEDES, 200.0f))

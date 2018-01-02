@@ -68,8 +68,8 @@ class boss_lord_walden : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
-                if (Player* p = me->SelectNearestPlayer(10.0f)){
-
+                if (me->SelectNearestPlayer(10.0f))
+                {
                     _EnterCombat();
                     Talk(SAY_AGGRO);
                     events.ScheduleEvent(EVENT_CONJURE_POISONOUS_MIXTURE, 5000);
@@ -88,7 +88,7 @@ class boss_lord_walden : public CreatureScript
                 instance->HandleGameObject(instance->GetGuidData(GO_LORD_WALDEN_DOOR), true);
             }
 
-            void KilledUnit(Unit* victim) override
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(RAND(SAY_KILLER_1, SAY_KILLER_2));
             }

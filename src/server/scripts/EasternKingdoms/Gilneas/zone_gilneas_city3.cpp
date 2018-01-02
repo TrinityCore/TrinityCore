@@ -1003,7 +1003,7 @@ public:
 
         void FindLornaGuid()
         {
-            if (Creature* lorna = ObjectAccessor::GetCreature(*me, m_lornaGUID))
+            if (ObjectAccessor::GetCreature(*me, m_lornaGUID))
                 return;
 
             if (Creature* lorna = me->FindNearestCreature(NPC_LORNA_CRAWLEY_43566, 100.0f))
@@ -2043,7 +2043,7 @@ public:
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
-            if (Player* player = who->ToPlayer())
+            if (who->IsPlayer())
             {
                 if (apply)
                     m_events.ScheduleEvent(EVENT_MOVEMENT_START, 200);
@@ -2081,7 +2081,7 @@ public:
                 }
                 case EVENT_MOVE_PART1:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID)) // now we are outside the ship
+                    if (ObjectAccessor::GetPlayer(*me, m_playerGUID)) // now we are outside the ship
                         if (Vehicle* wyv = me->GetVehicleKit())
                             wyv->RemoveAllPassengers();                                 // and leave the wyvern
 

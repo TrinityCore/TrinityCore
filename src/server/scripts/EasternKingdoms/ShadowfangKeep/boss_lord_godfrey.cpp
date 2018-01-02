@@ -75,10 +75,10 @@ class boss_lord_godfrey : public CreatureScript
             instance->HandleGameObject(instance->GetGuidData(GO_LORD_GODFREY_DOOR), true);
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            if (Player* p = me->SelectNearestPlayer(10.0f)){
-
+            if (me->SelectNearestPlayer(10.0f))
+            {
                 _EnterCombat();
 
                 if (instance->GetData(TEAM_IN_INSTANCE) == TEAM_HORDE)
@@ -105,7 +105,7 @@ class boss_lord_godfrey : public CreatureScript
             instance->HandleGameObject(instance->GetGuidData(GO_LORD_GODFREY_DOOR), true);
         }
 
-        void KilledUnit(Unit* victim) override
+        void KilledUnit(Unit* /*victim*/) override
         {
              Talk(RAND(SAY_KILLER_1, SAY_KILLER_2));
         }
@@ -212,7 +212,7 @@ public:
             return true;
         }
 
-        void OnPeriodic(AuraEffect const* aurEff)
+        void OnPeriodic(AuraEffect const* /*aurEff*/)
         {
             if (Unit* caster = GetCaster())
                 caster->CastSpell((Unit*)NULL, SPELL_PISTOL_BARRAGE_DAMAGE, true);

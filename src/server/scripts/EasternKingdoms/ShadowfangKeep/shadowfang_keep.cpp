@@ -38,7 +38,7 @@ class npc_haunted_stable_hand : public CreatureScript
 public:
     npc_haunted_stable_hand() : CreatureScript("npc_haunted_stable_hand") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 Sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 

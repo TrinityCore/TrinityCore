@@ -103,12 +103,12 @@ class boss_general_umbriss : public CreatureScript
                 me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
             }
 
-            void EnterCombat(Unit* pWho) override
+            void EnterCombat(Unit* /*pWho*/) override
             {
                 Talk(0);
             }
 
-            void JustDied(Unit* pKiller) override
+            void JustDied(Unit* /*pKiller*/) override
             {
                 Talk(2);
                 if (pInstance)
@@ -210,7 +210,7 @@ class boss_general_umbriss : public CreatureScript
 
             void SummonCreatureWithRandomTarget(uint32 creatureId, float x, float y, float z, float o)
             {
-                Creature* Summoned = me->SummonCreature(creatureId, x, y, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000);
+                Creature* Summoned = me->SummonCreature(creatureId, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000);
                 if (Summoned)
                 {
                     Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
@@ -299,7 +299,7 @@ class npc_malignant : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const uiDiff) override
+            void UpdateAI(uint32 const /*uiDiff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -326,7 +326,7 @@ class npc_trogg_dweller : public CreatureScript
         {
             npc_trogg_dwellerAI(Creature *c) : ScriptedAI(c) {}
 
-            void UpdateAI(uint32 const uiDiff) override
+            void UpdateAI(uint32 const /*uiDiff*/) override
             {
                 if (!UpdateVictim())
                     return;
