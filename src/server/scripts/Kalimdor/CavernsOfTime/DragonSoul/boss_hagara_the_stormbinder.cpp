@@ -932,10 +932,9 @@ class spell_ice_tomb_freeze : public SpellScriptLoader
             return true;
         }
 
-
-        void OnPeriodic(AuraEffect const* aurEff)
+        void OnPeriodic(AuraEffect const* /*aurEff*/)
         {
-            if(Unit*tomb = GetUnitOwner()->FindNearestCreature(NPC_ICE_TOMB, 2.0f, false))
+            if (GetUnitOwner()->FindNearestCreature(NPC_ICE_TOMB, 2.0f, false))
                 GetUnitOwner()->RemoveAurasDueToSpell(SPELL_ICE_TOMB);
         }
 
@@ -1095,7 +1094,7 @@ public:
         }
 
 
-        void OnPeriodic(AuraEffect const* aurEff)
+        void OnPeriodic(AuraEffect const* /*aurEff*/)
         {
             if(Unit* owner = GetUnitOwner())
                 owner->CastSpell(owner, SPELL_LIGHTNING_CONDUIT_DUMMY, true);
@@ -1122,7 +1121,7 @@ class spell_frozen_tempest : public SpellScriptLoader
         {
             PrepareAuraScript(spell_frozen_tempest_AuraScript);
 
-            void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if(Unit* owner = GetUnitOwner())
                     if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
@@ -1187,15 +1186,15 @@ public:
 
         void OnPeriodic(AuraEffect const* aurEff)
         {
-            int32 stack;
-                if (Unit* owner = GetUnitOwner())
-                {
+            int32 stack = 0;
+            if (Unit* owner = GetUnitOwner())
+            {
                 if (Aura* fflake = owner->GetAura(SPELL_FROSTFLAKE))
                     stack = fflake->GetStackAmount();
 
                 owner->SetAuraStack(SPELL_FROSTFLAKE, owner, stack + 1);
                 aurEff->GetBase()->SetDuration(15000 - (1000* stack));
-                }
+            }
         }
 
         void Dispel(DispelInfo* dispelData)

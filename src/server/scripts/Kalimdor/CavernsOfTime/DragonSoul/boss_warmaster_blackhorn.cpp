@@ -343,7 +343,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32&damage) override
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -456,7 +456,7 @@ public:
             events.ScheduleEvent(EVENT_TWILIGHT_ONSLAUGHT, 48000);
         }
 
-        void DamageTaken(Unit* who, uint32&damage) override
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -701,9 +701,9 @@ class npc_sky_captain_swayze : public CreatureScript
 
                     case EVENT_DRAKE_CHECK:
                     {
-                        if (Creature* drake = me->FindNearestCreature(NPC_TWILIGHT_ASSAULT_DRAKE, 500.0f, true))
+                        if (me->FindNearestCreature(NPC_TWILIGHT_ASSAULT_DRAKE, 500.0f, true))
                             events.ScheduleEvent(EVENT_DRAKE_CHECK, 1000);
-                        else if (Creature* drake2 = me->FindNearestCreature(NPC_TWILIGHT_ASSAULT_DRAKE_2, 500.0f, true))
+                        else if (me->FindNearestCreature(NPC_TWILIGHT_ASSAULT_DRAKE_2, 500.0f, true))
                             events.ScheduleEvent(EVENT_DRAKE_CHECK, 1000);
                         else if (Creature* goriona = me->FindNearestCreature(NPC_GORIONA, 500.0f, true))
                         {
@@ -722,10 +722,9 @@ class npc_sky_captain_swayze : public CreatureScript
                     {
                         pos = firePos[currentFire];
                         currentFire++;
-                        if (Creature* deckfire = me->FindNearestCreature(NPC_FIRE_STALKER, 200.0f, true))
+                        if (me->FindNearestCreature(NPC_FIRE_STALKER, 200.0f, true))
                         {
                             std::list<Creature*> fire;
-
 
                             if (currentFire >= 36)
                                 currentFire = 0;
@@ -947,7 +946,7 @@ class npc_twilight_assault_drake : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* harpoon = me->FindNearestCreature(NPC_SKYFIRE_HARPOON_GUN, 50.0f, true))
                     harpoon->AI()->DoAction(ACTION_HARPOON_DEATH);
@@ -1423,7 +1422,7 @@ public:
                     break;
 
                 case EVENT_HARPOON:
-                    if (Creature* gori = me->FindNearestCreature(NPC_GORIONA, 200.0f, true))
+                    if (me->FindNearestCreature(NPC_GORIONA, 200.0f, true))
                     {
                         DoCast(me, SPELL_HARPOON);
 
@@ -1613,20 +1612,19 @@ public:
         PrepareAuraScript(spell_vengeance_AuraScript);
 
         uint32 curHealth;
-        int32 amount;
 
         void CalculateBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
         {
             canBeRecalculated = true;
 
-            if (Unit* owner = GetUnitOwner())
+            if (GetUnitOwner())
             {
                 uint32 maxHealth = 100;
                 amount = (maxHealth - curHealth);
             }
         }
 
-        void OnPeriodic(AuraEffect const* aurEff)
+        void OnPeriodic(AuraEffect const* /*aurEff*/)
         {
             if (Unit* owner = GetUnitOwner())
             {
@@ -1749,13 +1747,10 @@ public:
     {
         PrepareSpellScript(spell_broadside_SpellScript);
 
-        int32 damageAmount;
-
         void CalcDamage(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* caster = GetCaster())
-                if (Unit* target = GetHitUnit())
-                    SetHitDamage(0.2 * (target->GetHealth()));
+            if (Unit* target = GetHitUnit())
+                SetHitDamage(0.2 * (target->GetHealth()));
         }
 
 

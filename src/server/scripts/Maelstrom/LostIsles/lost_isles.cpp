@@ -1726,6 +1726,7 @@ public:
                     chipie->Say("WE BURN !!", LANG_UNIVERSAL, 0);
                     break;
                 case 17 :
+                {
                     Creature* chipie = nullptr;
                     Player* player = nullptr;
                     if (Unit *unit = me->GetVehicleKit()->GetPassenger(0))
@@ -1741,12 +1742,15 @@ public:
                     }
                     chipie->Say("Climb in the back. We're going. I know where are our old friends the orcs", LANG_UNIVERSAL, 0);
                     break;
+                }
                 case 26 :
+                {
                     me->GetVehicleKit()->RemoveAllPassengers();
                     if (Creature *chip = me->FindNearestCreature(38869, 5, true))
-                     chip->DespawnOrUnsummon();
+                        chip->DespawnOrUnsummon();
                     me->DespawnOrUnsummon();
                     break;
+                }
                 default:
                     break;
             }

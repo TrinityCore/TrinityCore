@@ -347,7 +347,7 @@ class go_aspect_gift : public GameObjectScript
 public:
     go_aspect_gift() : GameObjectScript("go_aspect_gift") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         if (player->GetSpecializationId() == TALENT_SPEC_PRIEST_HOLY         ||
             player->GetSpecializationId() == TALENT_SPEC_PRIEST_DISCIPLINE   ||
@@ -490,7 +490,7 @@ public:
         void HandleHit(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
-                if (Unit* target = GetHitUnit())
+                if (GetHitUnit())
                     caster->CastSpell(caster, SPELL_TWILIGHT_SHIFT);
         }
 
@@ -528,7 +528,7 @@ class spell_fading_light : public SpellScriptLoader
                 aurEff->GetBase()->SetDuration(urand(5000, 10000));
             }
 
-            void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* owner = GetUnitOwner())
                 {
@@ -645,7 +645,7 @@ class spell_fading_light_dps : public SpellScriptLoader
             aurEff->GetBase()->SetDuration(urand(5000, 10000));
         }
 
-        void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* owner = GetUnitOwner())
             {
@@ -681,7 +681,7 @@ class spell_heroic_will : public SpellScriptLoader
         {
             PrepareAuraScript(spell_heroic_will_AuraScript);
 
-            void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* owner = GetUnitOwner())
                     if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
@@ -717,7 +717,7 @@ public:
             Trinity::Containers::RandomResize(targets, 1);
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
             {
@@ -756,7 +756,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* target = GetHitUnit())
+                if (GetHitUnit())
                 {
                     caster->CastSpell(caster, SPELL_LAST_DEF_OF_AZEROTH_PROC);
                 }
@@ -790,19 +790,16 @@ public:
 
         void HandleHit(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* caster = GetCaster())
+            if (Unit* target = GetHitUnit())
             {
-                if (Unit* target = GetHitUnit())
-                {
-                    if (target->HasAura(SPELL_BLOOD_PRESENCE))
-                        target->CastSpell(target, SPELL_LAST_DEF_OF_AZEROTH_DK);
-                    else if (target->HasAura(SPELL_RIGHTEOUS_FURY))
-                        target->CastSpell(target, SPELL_LAST_DEF_OF_AZEROTH_PALA);
-                    else if (target->HasAura(SPELL_BEAR_FORM))
-                        target->CastSpell(target, SPELL_LAST_DEF_OF_AZEROTH_DRUID);
-                    else if (target->HasAura(SPELL_DEFENSIVE_STANCE))
-                        target->CastSpell(target, SPELL_LAST_DEF_OF_AZEROTH_WARR);
-                }
+                if (target->HasAura(SPELL_BLOOD_PRESENCE))
+                    target->CastSpell(target, SPELL_LAST_DEF_OF_AZEROTH_DK);
+                else if (target->HasAura(SPELL_RIGHTEOUS_FURY))
+                    target->CastSpell(target, SPELL_LAST_DEF_OF_AZEROTH_PALA);
+                else if (target->HasAura(SPELL_BEAR_FORM))
+                    target->CastSpell(target, SPELL_LAST_DEF_OF_AZEROTH_DRUID);
+                else if (target->HasAura(SPELL_DEFENSIVE_STANCE))
+                    target->CastSpell(target, SPELL_LAST_DEF_OF_AZEROTH_WARR);
             }
         }
 
@@ -890,7 +887,7 @@ public:
     {
         PrepareAuraScript(spell_essence_of_dreams_AuraScript);
 
-        void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
             if (Unit* owner = GetOwner()->ToPlayer())
             {

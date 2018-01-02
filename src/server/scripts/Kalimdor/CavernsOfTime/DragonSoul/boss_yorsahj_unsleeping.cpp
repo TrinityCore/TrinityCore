@@ -242,7 +242,7 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             DoCastAOE(SPELL_YORSAHJ_WHISPER_AGGRO, true);
@@ -861,7 +861,7 @@ public:
     {
         PrepareAuraScript(spell_yorsahj_the_unsleeping_deep_corruption_AuraScript);
 
-        void HandlePeriodicTick(AuraEffect const* aurEff)
+        void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
         {
             if (!GetTarget())
                 return;
@@ -987,7 +987,7 @@ class achievement_taste_the_rainbow : public AchievementCriteriaScript
 public:
     achievement_taste_the_rainbow(char const* scriptName, uint32 Id) : AchievementCriteriaScript(scriptName), _Id(Id) { }
 
-    bool OnCheck(Player* source, Unit* target) override
+    bool OnCheck(Player* /*source*/, Unit* target) override
     {
         if (!target)
             return false;
