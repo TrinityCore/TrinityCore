@@ -40,8 +40,6 @@
     // ...the two units need to be in the same phase
     if (!WorldObject::InSamePhase(a, b))
         return false;
-    if (!(a->GetPhaseMask() & b->GetPhaseMask()))
-        return false;
     if (a->HasUnitState(UNIT_STATE_EVADE) || b->HasUnitState(UNIT_STATE_EVADE))
         return false;
     if (a->HasUnitState(UNIT_STATE_IN_FLIGHT) || b->HasUnitState(UNIT_STATE_IN_FLIGHT))
