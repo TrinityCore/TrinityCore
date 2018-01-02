@@ -14060,9 +14060,9 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
     packet.Quantity = quantity;
     packet.QuantityInInventory = GetItemCount(item->GetEntry());
     //packet.DungeonEncounterID;
+    packet.BattlePetSpeciesID = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
     packet.BattlePetBreedID = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) & 0xFFFFFF;
     packet.BattlePetBreedQuality = (item->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) >> 24) & 0xFF;
-    packet.BattlePetSpeciesID = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
     packet.BattlePetLevel = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL);
 
     packet.ItemGUID = item->GetGUID();
