@@ -66,7 +66,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) override
+    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*sender*/, uint32 action) override
     {
         //player->PlayerTalkClass->ClearMenus();
         if (player->IsInCombat())
@@ -78,18 +78,18 @@ public:
 
         switch (action)
         {
-        case START_TELEPORT:
-            player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
-            CloseGossipMenuFor(player);
-            break;
-        case AZSHARA_TELEPORT:
-            player->CastSpell(player, SPELL_TELEPORT_TO_AZSHARA_PALACE, true);
-            CloseGossipMenuFor(player);
-            break;
-        case WOE_TELEPORT:
-            player->CastSpell(player, SPELL_TELEPORT_TO_WELL_OF_ETERNITY, true);
-            CloseGossipMenuFor(player);
-            break;
+            case START_TELEPORT:
+                player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
+                CloseGossipMenuFor(player);
+                break;
+            case AZSHARA_TELEPORT:
+                player->CastSpell(player, SPELL_TELEPORT_TO_AZSHARA_PALACE, true);
+                CloseGossipMenuFor(player);
+                break;
+            case WOE_TELEPORT:
+                player->CastSpell(player, SPELL_TELEPORT_TO_WELL_OF_ETERNITY, true);
+                CloseGossipMenuFor(player);
+                break;
         }
 
         return true;

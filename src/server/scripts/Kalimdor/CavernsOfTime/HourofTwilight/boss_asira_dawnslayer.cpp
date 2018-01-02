@@ -106,14 +106,14 @@ public:
             if (instance)
                 instance->SetData(DATA_ASIRA_DAWNSLAYER_EVENT, IN_PROGRESS);
 
-            if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_SECOND, 100.0f, true))
+            if (me->FindNearestCreature(NPC_THRALL_SECOND, 100.0f, true))
             {
                 events.ScheduleEvent(EVENT_MARK_OF_SILENCE, 1000);
                 events.ScheduleEvent(EVENT_CHOKING_SMOKE_BOMB, 10000);
             }
         }
 
-        void DamageTaken(Unit* who, uint32& damage) override
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if(damage > 0 && doneBarrier == false)
             {
@@ -248,7 +248,7 @@ class spell_mark_of_silence : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mark_of_silence_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
 
@@ -314,7 +314,7 @@ class spell_choking_smoke_bomb : public SpellScriptLoader
         {
             PrepareAuraScript(spell_choking_smoke_bomb_AuraScript);
 
-            void HandlePeriodicTick(AuraEffect const* aurEff)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if(Unit* caster = GetCaster())
@@ -350,14 +350,11 @@ class spell_throw_knife : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex effIndex)
             {
-                if(Unit* caster = GetCaster())
+                if(Unit* target = GetHitUnit())
                 {
-                    if(Unit* target = GetHitUnit())
+                    if(target->HasAura(SPELL_MARK_OF_SILENCE))
                     {
-                        if(target->HasAura(SPELL_MARK_OF_SILENCE))
-                        {
-                            target->CastSpell(target, GetSpellInfo()->GetEffect(effIndex)->BasePoints, true);
-                        }
+                        target->CastSpell(target, GetSpellInfo()->GetEffect(effIndex)->BasePoints, true);
                     }
                 }
             }

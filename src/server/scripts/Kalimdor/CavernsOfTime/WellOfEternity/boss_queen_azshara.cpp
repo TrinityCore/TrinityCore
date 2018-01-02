@@ -171,7 +171,7 @@ public:
             addsCount = 0;
         }
 
-        void EnterCombat(Unit* attacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -203,12 +203,11 @@ public:
 
         void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
         {
-            if (Spell* spell = me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-                if (spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
-                {
-                    me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                    Talk(SAY_INTERRUPT);
-                }
+            if (spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
+            {
+                me->InterruptSpell(CURRENT_GENERIC_SPELL);
+                Talk(SAY_INTERRUPT);
+            }
         }
 
         void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
@@ -273,28 +272,29 @@ public:
                     events.ScheduleEvent(EVENT_TOTAL_OBEDIENCE, urand(10000, 20000));
                     break;
                 case EVENT_END:
+                {
+                    me->SummonGameObject(210025, 3465.447f, -5238.09f, 230.575f, 4.54f, QuaternionData(), 200000);
+                    if (me->GetMap()->IsHeroic())
                     {
-                    GameObject* reward = me->SummonGameObject(210025, 3465.447f, -5238.09f, 230.575f, 4.54f, QuaternionData(), 200000);
-                   if (me->GetMap()->IsHeroic())
-                       {
-                          if (!me->GetMap()->GetPlayers().isEmpty())
-                          {
-                              for (Map::PlayerList::const_iterator i = me->GetMap()->GetPlayers().begin(); i != me->GetMap()->GetPlayers().end(); ++i)
-                              {
-                                   if (!i->GetSource())
-                                       continue;
+                        if (!me->GetMap()->GetPlayers().isEmpty())
+                        {
+                            for (Map::PlayerList::const_iterator i = me->GetMap()->GetPlayers().begin(); i != me->GetMap()->GetPlayers().end(); ++i)
+                            {
+                                if (!i->GetSource())
+                                    continue;
 
-                                   i->GetSource()->KilledMonsterCredit(NPC_AZSHARA);
-                                   i->GetSource()->ModifyCurrency(CURRENCY_TYPE_JUSTICE_POINTS, 7000);
-                              }
-                          }
-                       }
-                        instance->SetBossState(DATA_AZSHARA, DONE);
-                        //instance->DespawnObjects(instance->GetGuidData(DATA_ROYAL_CACHE), DAY);
-                        //player->ModifyCurrency(CURRENCY_TYPE_JUSTICE_POINTS, 7000);
-                        me->DespawnOrUnsummon();
-                        break;
+                                i->GetSource()->KilledMonsterCredit(NPC_AZSHARA);
+                                i->GetSource()->ModifyCurrency(CURRENCY_TYPE_JUSTICE_POINTS, 7000);
+                            }
+                        }
                     }
+
+                    instance->SetBossState(DATA_AZSHARA, DONE);
+                    //instance->DespawnObjects(instance->GetGuidData(DATA_ROYAL_CACHE), DAY);
+                    //player->ModifyCurrency(CURRENCY_TYPE_JUSTICE_POINTS, 7000);
+                    me->DespawnOrUnsummon();
+                    break;
+                }
                 default:
                     break;
                 }
@@ -302,7 +302,6 @@ public:
         }
     private:
         EventMap events;
-        uint8 phase;
         ObjectGuid addsGUIDs[6];
         uint8 addsCount;
     };
@@ -448,7 +447,7 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 const /*diff*/) override
         {
             if (bDespawn)
                 return;
@@ -481,7 +480,7 @@ public:
             return true;
         }
 
-        void PeriodicTick(AuraEffect const* aurEff)
+        void PeriodicTick(AuraEffect const* /*aurEff*/)
         {
             if (!GetCaster())
                 return;

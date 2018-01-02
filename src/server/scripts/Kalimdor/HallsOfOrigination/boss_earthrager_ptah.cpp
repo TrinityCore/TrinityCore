@@ -145,7 +145,7 @@ public:
             events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             if (me->HealthBelowPct(50) && !_hasDispersed)
             {

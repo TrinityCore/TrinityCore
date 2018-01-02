@@ -180,7 +180,7 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void MovementInform(uint32 type, uint32 pointId) override
+        void MovementInform(uint32 /*type*/, uint32 pointId) override
         {
             switch (pointId)
             {
@@ -354,7 +354,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void MovementInform(uint32 type, uint32 pointId) override
+        void MovementInform(uint32 /*type*/, uint32 pointId) override
         {
             switch (pointId)
             {

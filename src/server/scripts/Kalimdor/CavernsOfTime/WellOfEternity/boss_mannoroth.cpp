@@ -223,7 +223,7 @@ public:
             me->Attack(who, false);
         }
 
-        void EnterCombat(Unit* attacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             if (Creature* pVarothen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROTHEN)))
                 if (!pVarothen->IsInCombat())
@@ -503,7 +503,7 @@ public:
                        }
 
                 instance->DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, 105576, 0, me);
-                GameObject* reward = me->SummonGameObject(209541, 3356.39f, -5748.73f, 15.2165f, 2.60053f, QuaternionData(), 200000);
+                me->SummonGameObject(209541, 3356.39f, -5748.73f, 15.2165f, 2.60053f, QuaternionData(), 200000);
                 //instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_COMPLETE_ENCOUNTER, me);
                 instance->SetBossState(DATA_MANNOROTH, DONE);
             }
@@ -554,7 +554,7 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
-        void EnterCombat(Unit* attacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             Talk(SAY_VAROTHEN_AGGRO);
             events.ScheduleEvent(EVENT_MAGNISTRIKE, urand(3000, 7000));
@@ -721,7 +721,7 @@ class achievement_thats_not_cannon : public AchievementCriteriaScript
 public:
     achievement_thats_not_cannon() : AchievementCriteriaScript("achievement_thats_not_cannon") { }
 
-    bool OnCheck(Player* source, Unit* target) override
+    bool OnCheck(Player* /*source*/, Unit* target) override
     {
         if (!target)
             return false;
