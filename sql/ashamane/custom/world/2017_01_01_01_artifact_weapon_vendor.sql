@@ -1,9 +1,10 @@
-INSERT INTO `creature_template` (`entry`, `modelid1`, `name`, `subname`, `minlevel`, `maxlevel`, `faction`, `npcflag`) VALUES ('1000001', '37719', 'Klarc March', 'Weapon seller', '110', '110', '35', '7');
+DELETE FROM `creature_template` WHERE entry = 1000001;
+INSERT INTO `creature_template` (`entry`, `modelid1`, `name`, `femaleName`, `subname`, `minlevel`, `maxlevel`, `faction`, `npcflag`) VALUES ('1000001', '37719', 'Klarc March', '', 'Weapon seller', '110', '110', '35', '7');
 UPDATE `creature_template` SET `HealthScalingExpansion` = '0' , `RequiredExpansion` = '6' , `npcflag` = '128' WHERE `entry` = '1000001';
 
-
+DELETE FROM `npc_vendor` WHERE entry = 1000001;
 -- Classe WAR /vendeur d'arme Prodi (NPC AP)
-INSERT INTO `npc_vendor` (`entry`, `item`) VALUES ('1000001', '128910');
+INSERT INTO `npc_vendor` (`entry`, `slot`, `item`) VALUES ('1000001', '0', '128910');
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`) VALUES ('1000001', '1', '128908');
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`) VALUES ('1000001', '2', '128289');
 
