@@ -59,15 +59,14 @@ enum Spells
 
 enum Events
 {
-    EVENT_CHECK_SPEAKER       = 1,
-    EVENT_CHECK_START         = 2,
-    EVENT_STARTED             = 3,
-    EVENT_OVERPOWER           = 4,
-    EVENT_MORTAL_STRIKE       = 5,
-    EVENT_WHIRLWIND           = 6,
-    EVENT_CHECK_OHGAN         = 7,
-    EVENT_WATCH_PLAYER        = 8,
-    EVENT_CHARGE_PLAYER       = 9
+    EVENT_CHECK_SPEAKER,
+    EVENT_CHECK_START,
+    EVENT_STARTED,
+    EVENT_OVERPOWER,
+    EVENT_MORTAL_STRIKE,
+    EVENT_WHIRLWIND,
+    EVENT_WATCH_PLAYER,
+    EVENT_CHARGE_PLAYER
 };
 
 enum Misc
@@ -162,7 +161,6 @@ class boss_mandokir : public CreatureScript
                 events.ScheduleEvent(EVENT_OVERPOWER, urand(7000, 9000));
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(12000, 18000));
                 events.ScheduleEvent(EVENT_WHIRLWIND, urand(24000, 30000));
-                events.ScheduleEvent(EVENT_CHECK_OHGAN, 1000);
                 events.ScheduleEvent(EVENT_WATCH_PLAYER, urand(13000, 15000));
                 events.ScheduleEvent(EVENT_CHARGE_PLAYER, urand(33000, 38000));
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -192,6 +190,15 @@ class boss_mandokir : public CreatureScript
                             jindo->AI()->Talk(SAY_GRATS_JINDO);
                     DoCast(me, SPELL_LEVEL_UP, true);
                     killCount = 0;
+                }
+            }
+
+            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+            {
+                if (summon->GetEntry() == NPC_OHGAN)
+                {
+                    DoCast(me, SPELL_FRENZY);
+                    Talk(SAY_OHGAN_DEAD);
                 }
             }
 
@@ -262,15 +269,6 @@ class boss_mandokir : public CreatureScript
                             DoCast(me, SPELL_WHIRLWIND);
                             events.ScheduleEvent(EVENT_WHIRLWIND, urand(22000, 26000));
                             break;
-                        case EVENT_CHECK_OHGAN:
-                            if (instance->GetBossState(DATA_OHGAN) == DONE)
-                            {
-                                DoCast(me, SPELL_FRENZY);
-                                Talk(SAY_OHGAN_DEAD);
-                            }
-                            else
-                                events.ScheduleEvent(EVENT_CHECK_OHGAN, 1000);
-                            break;
                         case EVENT_WATCH_PLAYER:
                             if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
@@ -335,11 +333,6 @@ class npc_ohgan : public CreatureScript
             }
 
             void JustEngagedWith(Unit* /*who*/) override { }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                instance->SetBossState(DATA_OHGAN, DONE);
-            }
 
             void UpdateAI(uint32 diff) override
             {
