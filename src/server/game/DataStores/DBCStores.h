@@ -71,8 +71,9 @@ TC_GAME_API uint32 GetLiquidFlags(uint32 liquidType);
 TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
 TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
 
-TC_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
+TC_GAME_API CharacterFacialHairStylesEntry const* GetCharFacialHairEntry(uint8 race, uint8 gender, uint8 facialHairID);
 TC_GAME_API CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
+TC_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
 
 TC_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
 
@@ -98,8 +99,9 @@ TC_GAME_API extern DBCStorage <BannedAddOnsEntry>            sBannedAddOnsStore;
 TC_GAME_API extern DBCStorage <BarberShopStyleEntry>         sBarberShopStyleStore;
 TC_GAME_API extern DBCStorage <BattlemasterListEntry>        sBattlemasterListStore;
 TC_GAME_API extern DBCStorage <ChatChannelsEntry>            sChatChannelsStore;
-TC_GAME_API extern DBCStorage <CharStartOutfitEntry>         sCharStartOutfitStore;
+TC_GAME_API extern DBCStorage <CharacterFacialHairStylesEntry> sCharacterFacialHairStylesStore;
 TC_GAME_API extern DBCStorage <CharSectionsEntry>            sCharSectionsStore;
+TC_GAME_API extern DBCStorage <CharStartOutfitEntry>         sCharStartOutfitStore;
 TC_GAME_API extern DBCStorage <CharTitlesEntry>              sCharTitlesStore;
 TC_GAME_API extern DBCStorage <ChrClassesEntry>              sChrClassesStore;
 TC_GAME_API extern DBCStorage <ChrRacesEntry>                sChrRacesStore;

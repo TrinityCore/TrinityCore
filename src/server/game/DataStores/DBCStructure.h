@@ -302,18 +302,12 @@ struct BattlemasterListEntry
     //uint32 SomeLevel;                                     // 31, may be max level
 };
 
-#define MAX_OUTFIT_ITEMS 24
-
-struct CharStartOutfitEntry
+struct CharacterFacialHairStylesEntry
 {
-    //uint32 Id;                                            // 0
-    uint8 Race;                                             // 1
-    uint8 Class;                                            // 2
-    uint8 Gender;                                           // 3
-    //uint8 Unused;                                         // 4
-    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
-    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
-    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
+    uint32 Race;
+    uint32 Gender;
+    uint32 Variation;
+    // uint32 Geoset[5];
 };
 
 enum CharSectionFlags
@@ -341,6 +335,22 @@ struct CharSectionsEntry
     uint32 Flags;
     uint32 Type;
     uint32 Color;
+
+    inline bool HasFlag(CharSectionFlags flag) const { return !!(Flags & flag); }
+};
+
+#define MAX_OUTFIT_ITEMS 24
+
+struct CharStartOutfitEntry
+{
+    //uint32 Id;                                            // 0
+    uint8 Race;                                             // 1
+    uint8 Class;                                            // 2
+    uint8 Gender;                                           // 3
+    //uint8 Unused;                                         // 4
+    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
+    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
+    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
 };
 
 struct CharTitlesEntry

@@ -26526,54 +26526,48 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
 
 bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create /*=false*/)
 {
-    // Check skin color
-    // For Skin type is always 0
-    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor))
-    {   // Skin Color defined as Face color, too, we check skin & face in one pass
-        if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor))
-        {
-            // Check DeathKnight exclusive
-            if (((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) || (entry2->Flags & SECTION_FLAG_DEATH_KNIGHT)) && class_ != CLASS_DEATH_KNIGHT)
-                return false;
-            if (create && !((entry->Flags & SECTION_FLAG_PLAYER) && (entry2->Flags & SECTION_FLAG_PLAYER)))
-                return false;
-        }
-        else
+    auto validateCharSection = [class_, create](CharSectionsEntry const* entry) -> bool
+    {
+        if (!entry)
             return false;
-    }
-    else
+
+        // Check Death Knight exclusive
+        if (class_ != CLASS_DEATH_KNIGHT && entry->HasFlag(SECTION_FLAG_DEATH_KNIGHT))
+            return false;
+
+        // Character creation/customize has some limited sections (as opposed to barbershop)
+        if (create && !entry->HasFlag(SECTION_FLAG_PLAYER))
+            return false;
+
+        return true;
+    };
+
+    // For Skin type is always 0
+    CharSectionsEntry const* skinEntry = GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor);
+    if (!validateCharSection(skinEntry))
+        return false;
+
+    // Skin Color defined as Face color, too
+    CharSectionsEntry const* faceEntry = GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor);
+    if (!validateCharSection(faceEntry))
+        return false;
+
+    // Check Hair
+    CharSectionsEntry const* hairEntry = GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor);
+    if (!validateCharSection(hairEntry))
         return false;
 
     // These combinations don't have an entry of Type SECTION_TYPE_FACIAL_HAIR, exclude them from that check
-    bool excludeCheck = (race == RACE_TAUREN) || (race == RACE_DRAENEI) || (gender == GENDER_FEMALE && race != RACE_NIGHTELF && race != RACE_UNDEAD_PLAYER);
-
-    // Check Hair
-    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
+    bool const excludeCheck = (race == RACE_TAUREN) || (race == RACE_DRAENEI) || (gender == GENDER_FEMALE && race != RACE_NIGHTELF && race != RACE_UNDEAD_PLAYER);
+    if (!excludeCheck)
     {
-        if ((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
+        CharSectionsEntry const* facialHairEntry = GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHair, hairColor);
+        if (!validateCharSection(facialHairEntry))
             return false;
-        if (create && !(entry->Flags & SECTION_FLAG_PLAYER))
-            return false;
-
-        if (!excludeCheck)
-        {
-            if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHair, hairColor))
-            {
-                if ((entry2->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
-                    return false;
-                if (create && !(entry2->Flags & SECTION_FLAG_PLAYER))
-                    return false;
-            }
-            else
-                return false;
-        }
-        else
-        {
-            // @TODO: Bound checking for facialHair ID (used clientside for markings, tauren beard, etc.)
-            // Not present in DBC
-        }
     }
-    else
+
+    CharacterFacialHairStylesEntry const* entry = GetCharFacialHairEntry(race, gender, facialHair);
+    if (!entry)
         return false;
 
     return true;
