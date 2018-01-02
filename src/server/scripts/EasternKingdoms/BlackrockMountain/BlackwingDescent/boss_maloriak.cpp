@@ -812,7 +812,7 @@ public:
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if(Unit* caster = GetCaster())
                     for (uint8 i = 0; i<=2; i++)
@@ -850,7 +850,7 @@ public:
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if(Unit* caster = GetCaster())
                 for (uint8 i = 0; i < 2; i++)

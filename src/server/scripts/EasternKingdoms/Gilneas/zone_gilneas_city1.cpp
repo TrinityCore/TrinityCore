@@ -1233,7 +1233,7 @@ public:
                 {
                 case EVENT_CHECK_TALK:
                 {
-                    if (Player* player = me->SelectNearestPlayer(15.0f))
+                    if (me->SelectNearestPlayer(15.0f))
                     {
                         Talk(m_say);
                         m_say += 1;
@@ -1639,10 +1639,11 @@ public:
 
         void DamageTaken(Unit* attacker, uint32& /*damage*/) override
         {
-            if (Creature* worgen = attacker->ToCreature())
+            if (/*Creature* worgen = */attacker->ToCreature())
                 if (!me->IsInCombat())
                 {
-                } //   me->Attack(worgen, true);
+                    //me->Attack(worgen, true);
+                }
         }
 
         void UpdateAI(uint32 diff) override
@@ -3443,9 +3444,9 @@ public:
                     case EVENT_START_TALK:
                     {
                         GetTalkMember();
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
-                            if (Creature* king = ObjectAccessor::GetCreature(*me, m_kingGUID))
-                                if (Creature* prince = ObjectAccessor::GetCreature(*me, m_princeGUID))
+                        if (ObjectAccessor::GetPlayer(*me, m_playerGUID))
+                            if (ObjectAccessor::GetCreature(*me, m_kingGUID))
+                                if (ObjectAccessor::GetCreature(*me, m_princeGUID))
                                 {
                                     m_events.ScheduleEvent(EVENT_TALK_PART_00, 1000);
                                     break;
@@ -3594,7 +3595,7 @@ public:
 
         void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
         {
-            if (Player* player = passenger->ToPlayer())
+            if (passenger->IsPlayer())
             {
                 if (apply)
                     m_events.ScheduleEvent(EVENT_START_WALK, 1000);

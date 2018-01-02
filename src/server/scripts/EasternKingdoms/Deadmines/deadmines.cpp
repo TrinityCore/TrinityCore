@@ -247,7 +247,6 @@ public:
         if (!go || !player)
             return false;
 
-        InstanceScript* instance = go->GetInstanceScript();
         if (GameObject* ironCladDoor = go->FindNearestGameObject(GO_IRONCLAD_DOOR, 30.0f))
         {
             go->SetGoState(GO_STATE_ACTIVE);
@@ -370,7 +369,7 @@ public:
                 me->AddAura(57626, me);
         }
 
-        void UpdateAI(uint32 const uiDiff) override { }
+        void UpdateAI(uint32 const /*uiDiff*/) override { }
     };
 };
 
@@ -420,7 +419,7 @@ class go_deadmines_tp : public GameObjectScript
 public:
     go_deadmines_tp() : GameObjectScript("go_deadmines_tp") { }
 
-    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action) override
+    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*sender*/, uint32 action) override
     {
         if (player->HasAura(SPELL_NIGHTMARE_ELIXIR))
             return false;
@@ -480,7 +479,7 @@ public:
 
         bool damaged;
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             if (damaged)
                 return;

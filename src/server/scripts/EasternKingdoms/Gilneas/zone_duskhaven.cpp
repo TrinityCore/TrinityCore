@@ -332,7 +332,7 @@ public:
                     }
                     case EVENT_TALK_PART_04:
                     {
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
+                        if (ObjectAccessor::GetPlayer(*me, m_playerGUID))
                         {
                             //player->CastSpell(player, SPELL_LAST_STAND_COMPLETE_2);
                             AddPlayer();
@@ -613,7 +613,7 @@ public:
             }
             else
             {
-                if (Player* player = passenger->ToPlayer())
+                if (passenger->ToPlayer())
                 {
                     if (seatId == 0)
                         m_playerGUID = ObjectGuid::Empty;
@@ -644,7 +644,7 @@ public:
                 case EVENT_CHECK_PLAYER:
                 {
                     if (Creature* target = ObjectAccessor::GetCreature(*me, m_forsakenGUID))
-                        if (Player* player = me->SelectNearestPlayer(7.0f))
+                        if (me->SelectNearestPlayer(7.0f))
                         {
                             target->ExitVehicle();
                             break;
@@ -674,7 +674,7 @@ public:
                 }
                 case EVENT_PLAYER_LAUNCH:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
+                    if (ObjectAccessor::GetPlayer(*me, m_playerGUID))
                     {
                         me->CastSpell(me, 96185, true); // trigger spell 66251 (Aura Id 144 (SPELL_AURA_SAFE_FALL)
                     }
@@ -934,7 +934,7 @@ public:
                     }
                     case EVENT_SEND_MORE_MASTIFF:
                     {
-                        if (Creature* thyala = ObjectAccessor::GetCreature(*me, m_thyalaGUID))
+                        if (ObjectAccessor::GetCreature(*me, m_thyalaGUID))
                             if (m_mastiff_counter < 50)
                             {
                                 std::list<Creature*>trigger;
@@ -1140,7 +1140,7 @@ public:
                     break;
                 case EVENT_CHECK_NEAR_GREYMANE:
                     if (m_isOnPlayer)
-                        if (Creature* liam = me->FindNearestCreature(NPC_PRINCE_LIAM_GREYMANE, 15.0f))
+                        if (me->FindNearestCreature(NPC_PRINCE_LIAM_GREYMANE, 15.0f))
                             if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
                                 if (me->m_positionZ > 0.75f)
                                 {
@@ -2171,7 +2171,7 @@ public:
         {
             if (apply)
             {
-                if (Player* player = passenger->ToPlayer())
+                if (passenger->ToPlayer())
                     if (Creature* car = ObjectAccessor::GetCreature(*me, m_harnessGUID))
                         car->AI()->DoAction(EVENT_START_MOVEMENT);
             }
@@ -2207,7 +2207,7 @@ public:
                     break;
                 case EVENT_ENTER_VEHICLE:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
-                        if (Vehicle* car = me->GetVehicleKit())
+                        if (me->GetVehicleKit())
                             player->CastSpell(me, SPELL_RIDE_VEHICLE_72764, true);
                     break;
             }
@@ -3093,7 +3093,7 @@ public:
                 {
                     case EVENT_START_ANIM:
                     {
-                        if (Creature* godfrey = ObjectAccessor::GetCreature(*me, m_godfreyGUID))
+                        if (ObjectAccessor::GetCreature(*me, m_godfreyGUID))
                             m_events.ScheduleEvent(EVENT_START_ANIM+1, 100);
                         break;
                     }
@@ -3179,7 +3179,7 @@ public:
 
         void IsSummonedBy(Unit* summoner) override
         {
-            if (Player* player = summoner->ToPlayer())
+            if (summoner->IsPlayer())
             {
                 m_playerGUID = summoner->GetGUID();
                 m_events.ScheduleEvent(EVENT_START_WAYPOINTS, 1500);

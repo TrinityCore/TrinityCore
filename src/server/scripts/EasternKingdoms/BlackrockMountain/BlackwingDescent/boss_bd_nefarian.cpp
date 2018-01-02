@@ -245,7 +245,7 @@ public:
             _Reset();
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             DoZoneInCombat();
             if(Creature* Onyxia = me->FindNearestCreature(NPC_ONYXIA, 150.0f, true))
@@ -301,7 +301,7 @@ public:
             Talk(SAY_KILL-urand(0,1));
         }
 
-        void DamageTaken(Unit* who, uint32& damage) override
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if(me->HealthBelowPctDamaged(90, damage) || me->HealthBelowPctDamaged(80, damage)  || me->HealthBelowPctDamaged(70, damage) || me->HealthBelowPctDamaged(60, damage) ||
             me->HealthBelowPctDamaged(50, damage) || me->HealthBelowPctDamaged(40, damage)  || me->HealthBelowPctDamaged(30, damage) || me->HealthBelowPctDamaged(20, damage) || me->HealthBelowPctDamaged(10, damage))
@@ -758,7 +758,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) override
+        void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -848,7 +848,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void UpdateAI(const uint32 diff) override { }
+        void UpdateAI(const uint32 /*diff*/) override { }
 
         void JustDied(Unit* /*killer*/) override { }
     };
@@ -919,7 +919,7 @@ public:
         uint32 timerCheckskeleton;
         uint32 timerDespawn;
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             timerCheckskeleton = 100;
             timerDespawn = 6100;

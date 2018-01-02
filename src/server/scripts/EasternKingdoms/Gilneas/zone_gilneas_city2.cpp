@@ -820,8 +820,8 @@ public:
         bool ok = false;
         if (player->GetQuestStatus(QUEST_THE_BATTLE_FOR_GILNEAS_CITY) == QUEST_STATUS_INCOMPLETE)
             if (!creature->AI()->GetData(DATA_IS_BATTLE_STARTED))
-                if (Creature* liam = creature->FindNearestCreature(NPC_PRINCE_LIAM_GREYMANE_BATTLE, 50.0f))
-                    if (Creature* almyra = creature->FindNearestCreature(NPC_SISTER_ALMYRA, 50.0f))
+                if (creature->FindNearestCreature(NPC_PRINCE_LIAM_GREYMANE_BATTLE, 50.0f))
+                    if (creature->FindNearestCreature(NPC_SISTER_ALMYRA, 50.0f))
                         ok = true;
         if (ok)
             AddGossipItemFor(player, 11061, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -4371,7 +4371,7 @@ public:
                     }
                     case EVENT_FORSAKEN_KNOCKBACK:
                     {
-                        if (Creature* target = me->FindNearestCreature(NPC_GILNEAN_MILITIA, 4.5f))
+                        if (me->FindNearestCreature(NPC_GILNEAN_MILITIA, 4.5f))
                         {
                             me->CastSpell(me, SPELL_KNOCKBACK);
                             m_events.ScheduleEvent(EVENT_FORSAKEN_KNOCKBACK, 5000);

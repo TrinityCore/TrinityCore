@@ -259,7 +259,7 @@ public:
         {
             if (id == 0)
             {
-                if (Creature* HarvestTarget = me->FindNearestCreature(NPC_HARVEST_TARGET, 200.0f, true))
+                if (me->FindNearestCreature(NPC_HARVEST_TARGET, 200.0f, true))
                 {
                     //DoCast(HarvestTarget, IsHeroic() ? SPELL_HARVEST_SWEEP_H : SPELL_HARVEST_SWEEP);
                     me->RemoveAurasDueToSpell(SPELL_HARVEST_AURA);
@@ -477,14 +477,6 @@ public:
                 Energizing();
             }
         }
-
-        void UpdateAI(uint32 const diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
     };
 };
 
@@ -494,7 +486,7 @@ public:
     achievement_prototype_reaper() : AchievementCriteriaScript("achievement_prototype_reaper")
     {}
 
-    bool OnCheck(Player* source, Unit* target) override
+    bool OnCheck(Player* /*source*/, Unit* target) override
     {
         if (target && target->IsAIEnabled)
         {

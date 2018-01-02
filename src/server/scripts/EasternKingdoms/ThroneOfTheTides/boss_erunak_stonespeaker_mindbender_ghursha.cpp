@@ -130,11 +130,11 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (Unit * mindbender = me->GetVehicleKit()->GetPassenger(0))
+            if (me->GetVehicleKit()->GetPassenger(0))
                 Talk(RAND(SAY_KILL_PLAYER_1, SAY_KILL_PLAYER_2));
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_LAVA_BOLT
@@ -441,7 +441,7 @@ public:
             {
                 pInstance->HandleGameObject(pInstance->GetGuidData(GO_ERUNAK_STONESPEAKER_DOOR), true);
                 pInstance->SetData(DATA_ERUNAK_STONESPEAKER, DONE);
-                if (Creature * pErunak = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_ERUNAK_STONESPEAKER)))
+                if (pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_ERUNAK_STONESPEAKER)))
                     Talk(SAY_DEATH_ERUNAK);
             }
             RemoveSummons();
@@ -528,10 +528,6 @@ public:
         {
             DoCast(me, SPELL_MIND_FOG_AURA, true);
             DoCast(me, SPELL_MIND_FOG_VISUAL, true);
-        }
-
-        void UpdateAI(const uint32 diff) override
-        {
         }
     };
 };

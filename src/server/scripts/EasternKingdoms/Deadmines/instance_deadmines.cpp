@@ -180,7 +180,7 @@ public:
                 case DATA_VANNESSA_NIGHTMARE:
                     if (state == FAIL)
                     {
-                        if (Creature* Note = instance->SummonCreature(NPC_VANESSA_NOTE, NoteSpawn))
+                        if (instance->SummonCreature(NPC_VANESSA_NOTE, NoteSpawn))
                         {
                             if (GameObject* go = instance->GetGameObject(IroncladDoorGUID))
                                 go->SetGoState(GO_STATE_ACTIVE);

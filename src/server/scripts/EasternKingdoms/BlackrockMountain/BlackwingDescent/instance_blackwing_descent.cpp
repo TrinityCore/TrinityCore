@@ -255,7 +255,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetData(uint32 type, uint32 value) override
+        void SetData(uint32 type, uint32 /*value*/) override
         {
             switch(type)
             {

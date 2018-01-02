@@ -285,7 +285,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* who, uint32& damage) override
+        void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
         {
             if(me->HasReactState(REACT_PASSIVE))
             {
@@ -358,7 +358,7 @@ public:
                 SendGossipMenuFor(player, 66670, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
-                if(InstanceScript* instance = creature->GetInstanceScript())
+                if(creature->GetInstanceScript())
                 {
                     if(Creature* bilotron = creature->FindNearestCreature(NPC_BILE_O_TRON, 100.0f, true))
                     {
@@ -505,9 +505,6 @@ public:
 
         void DoAction(const int32 action) override
         {
-
-            Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
-
             switch(action)
             {
 
@@ -569,7 +566,7 @@ public:
             amount = -1;
         }
 
-        void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             if (!GetTarget())
                 return;
@@ -582,7 +579,7 @@ public:
             }
         }
 
-        void PeriodicTick(AuraEffect const* aurEff)
+        void PeriodicTick(AuraEffect const* /*aurEff*/)
         {
             if (!GetTarget())
                 return;

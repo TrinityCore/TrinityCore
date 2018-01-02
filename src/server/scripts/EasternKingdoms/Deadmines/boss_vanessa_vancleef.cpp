@@ -1798,11 +1798,6 @@ public:
             if (Creature* Vanessa = me->FindNearestCreature(NPC_VANESSA_NIGHTMARE, 500, true))
                 if (npc_vanessa_nightmare::npc_vanessa_nightmareAI* pAI = CAST_AI(npc_vanessa_nightmare::npc_vanessa_nightmareAI, Vanessa->AI()))
                     pAI->WorgenKilled();
-
-        }
-        void UpdateAI(uint32 const diff) override
-        {
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -1992,7 +1987,7 @@ public:
             achievementTimer = 300000;
         }
 
-        void SetData(uint32 uiI, uint32 uiValue) override
+        void SetData(uint32 /*uiI*/, uint32 uiValue) override
         {
             if (uiValue == START_TIMER_ACHIEVEMENT && startTimerAchievement == false)
             {

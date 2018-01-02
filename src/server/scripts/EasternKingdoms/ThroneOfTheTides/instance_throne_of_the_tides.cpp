@@ -525,7 +525,7 @@ class npc_tot_teleporter : public CreatureScript
 public:
     npc_tot_teleporter() : CreatureScript("npc_tot_teleporter") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 Sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 

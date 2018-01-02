@@ -214,7 +214,7 @@ public:
     {
         PrepareAuraScript(spell_springvale_forsaken_ability_AuraScript);
 
-        void HandleEffectPeriodic(AuraEffect const* aurEff)
+        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
         {
             if (!GetCaster() || !GetTarget())
                 return;

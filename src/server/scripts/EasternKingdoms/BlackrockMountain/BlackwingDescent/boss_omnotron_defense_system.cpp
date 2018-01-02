@@ -188,7 +188,7 @@ public:
 
     struct boss_omnotronAI : public ScriptedAI
     {
-        boss_omnotronAI(Creature* creature) : ScriptedAI(creature), eventActive(false), intialized(false)
+        boss_omnotronAI(Creature* creature) : ScriptedAI(creature), intialized(false), eventActive(false)
         {
             instance = creature->GetInstanceScript();
         }
@@ -432,7 +432,7 @@ public:
         Position homePosition;
         Creature* omnotron;
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             if(isFirstTron)
             {
@@ -469,7 +469,7 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
         }
 
-        void MovementInform(uint32 type, uint32 id) override
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id > 3)
                 return;
@@ -519,104 +519,103 @@ public:
         void DoAction(const int32 action) override
         {
             events.Reset();
-            Creature* omnotron = me->FindNearestCreature(BOSS_OMNOTRON, 100.0f, true);
 
             switch(action)
             {
-            case ACTION_TRON_ACTIVATE:
-                me->RemoveAurasDueToSpell(SPELL_INACTIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetReactState(REACT_AGGRESSIVE);
-                DoZoneInCombat(me);
-                if(instance)
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me); // Add
-                me->AddAura(SPELL_NO_REGEN, me);
-                DoCast(me, me->GetMap()->IsHeroic() ? SPELL_ACTIVATED_H : SPELL_ACTIVATED);
-                activated = true;
-                isMovingHome = false;
-
-                // Intialize Events
-                switch(me->GetEntry())
-                {
-                    case NPC_MAGMATRON:
-                        if(me->HasAura(SPELL_RED_BEAM))
-                           me->RemoveAura(SPELL_RED_BEAM);
-                        events.ScheduleEvent(EVENT_ACQUIRING_TARGET, 35000);
-                        events.ScheduleEvent(EVENT_INCINERATION_SECURITY_MEASURE, 27000);
-                        if(me->GetMap()->IsHeroic())
-                            events.ScheduleEvent(EVENT_BARRIER, 33000);
-                        else
-                            events.ScheduleEvent(EVENT_BARRIER, 49500);
-                        break;
-
-                    case NPC_TOXITRON:
-                        if(me->HasAura(SPELL_GREEN_BEAM))
-                           me->RemoveAura(SPELL_GREEN_BEAM);
-                        events.ScheduleEvent(EVENT_CHEMICAL_BOMB, 20000);
-                        events.ScheduleEvent(EVENT_POISON_PROTOCOL, 35000);
-                        if(me->GetMap()->IsHeroic())
-                            events.ScheduleEvent(EVENT_POISON_SOAKED_SHELL, 33000);
-                        else
-                            events.ScheduleEvent(EVENT_POISON_SOAKED_SHELL, 49500);
-                        break;
-
-                    case NPC_ELECTRON:
-                        if(me->HasAura(SPELL_BLUE_BEAM))
-                           me->RemoveAura(SPELL_BLUE_BEAM);
-                        events.ScheduleEvent(EVENT_LIGHTNING_CONDUCTOR, 25000);
-                        events.ScheduleEvent(EVENT_ELECTRICAL_DISCHARGE, 12000);
-                        if(me->GetMap()->IsHeroic())
-                            events.ScheduleEvent(EVENT_UNSTABLE_SHIELD, 33000);
-                        else
-                            events.ScheduleEvent(EVENT_UNSTABLE_SHIELD, 49500);
-                        break;
-
-                    case NPC_ARCANOTRON:
-                        if(me->HasAura(SPELL_PURPLE_BEAM))
-                           me->RemoveAura(SPELL_PURPLE_BEAM);
-                        events.ScheduleEvent(EVENT_POWER_GENERATOR, 30000);
-                        events.ScheduleEvent(EVENT_ARCANE_ANNIHILATOR, 6000);
-                        if(me->GetMap()->IsHeroic())
-                            events.ScheduleEvent(EVENT_POWER_CONVERSION, 11000);
-                        else
-                            events.ScheduleEvent(EVENT_POWER_CONVERSION, 29500);
-                        break;
-                }
-                break;
-
-            case ACTION_EVENT_FAILED:
-                if(!isFirstTron)
-                { // is not First Tron
-                    DoAction(ACTION_DEACTIVATE);
-                }else
-                { // is First Tron
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveAllAuras();
-                    me->DeleteThreatList();
-                    me->CombatStop(true);
-                    me->AttackStop();
-                    if(instance)
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
+                case ACTION_TRON_ACTIVATE:
+                    me->RemoveAurasDueToSpell(SPELL_INACTIVE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    me->GetMotionMaster()->MovePoint(1, wayPos[0]);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat(me);
+                    if(instance)
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me); // Add
+                    me->AddAura(SPELL_NO_REGEN, me);
+                    DoCast(me, me->GetMap()->IsHeroic() ? SPELL_ACTIVATED_H : SPELL_ACTIVATED);
                     activated = true;
                     isMovingHome = false;
-                }
-                break;
 
-            case ACTION_DEACTIVATE:
-                me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
-                me->DeleteThreatList();
-                me->CombatStop(true);
-                me->RemoveAllAuras();
-                if(instance)
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
-                me->GetMotionMaster()->MovePoint(0, homePosition);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                isMovingHome = true;
-                activated = false;
-                break;
+                    // Intialize Events
+                    switch(me->GetEntry())
+                    {
+                        case NPC_MAGMATRON:
+                            if(me->HasAura(SPELL_RED_BEAM))
+                               me->RemoveAura(SPELL_RED_BEAM);
+                            events.ScheduleEvent(EVENT_ACQUIRING_TARGET, 35000);
+                            events.ScheduleEvent(EVENT_INCINERATION_SECURITY_MEASURE, 27000);
+                            if(me->GetMap()->IsHeroic())
+                                events.ScheduleEvent(EVENT_BARRIER, 33000);
+                            else
+                                events.ScheduleEvent(EVENT_BARRIER, 49500);
+                            break;
+
+                        case NPC_TOXITRON:
+                            if(me->HasAura(SPELL_GREEN_BEAM))
+                               me->RemoveAura(SPELL_GREEN_BEAM);
+                            events.ScheduleEvent(EVENT_CHEMICAL_BOMB, 20000);
+                            events.ScheduleEvent(EVENT_POISON_PROTOCOL, 35000);
+                            if(me->GetMap()->IsHeroic())
+                                events.ScheduleEvent(EVENT_POISON_SOAKED_SHELL, 33000);
+                            else
+                                events.ScheduleEvent(EVENT_POISON_SOAKED_SHELL, 49500);
+                            break;
+
+                        case NPC_ELECTRON:
+                            if(me->HasAura(SPELL_BLUE_BEAM))
+                               me->RemoveAura(SPELL_BLUE_BEAM);
+                            events.ScheduleEvent(EVENT_LIGHTNING_CONDUCTOR, 25000);
+                            events.ScheduleEvent(EVENT_ELECTRICAL_DISCHARGE, 12000);
+                            if(me->GetMap()->IsHeroic())
+                                events.ScheduleEvent(EVENT_UNSTABLE_SHIELD, 33000);
+                            else
+                                events.ScheduleEvent(EVENT_UNSTABLE_SHIELD, 49500);
+                            break;
+
+                        case NPC_ARCANOTRON:
+                            if(me->HasAura(SPELL_PURPLE_BEAM))
+                               me->RemoveAura(SPELL_PURPLE_BEAM);
+                            events.ScheduleEvent(EVENT_POWER_GENERATOR, 30000);
+                            events.ScheduleEvent(EVENT_ARCANE_ANNIHILATOR, 6000);
+                            if(me->GetMap()->IsHeroic())
+                                events.ScheduleEvent(EVENT_POWER_CONVERSION, 11000);
+                            else
+                                events.ScheduleEvent(EVENT_POWER_CONVERSION, 29500);
+                            break;
+                    }
+                    break;
+
+                case ACTION_EVENT_FAILED:
+                    if(!isFirstTron)
+                    { // is not First Tron
+                        DoAction(ACTION_DEACTIVATE);
+                    }else
+                    { // is First Tron
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->RemoveAllAuras();
+                        me->DeleteThreatList();
+                        me->CombatStop(true);
+                        me->AttackStop();
+                        if(instance)
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->GetMotionMaster()->MovePoint(1, wayPos[0]);
+                        activated = true;
+                        isMovingHome = false;
+                    }
+                    break;
+
+                case ACTION_DEACTIVATE:
+                    me->SetReactState(REACT_PASSIVE);
+                    me->AttackStop();
+                    me->DeleteThreatList();
+                    me->CombatStop(true);
+                    me->RemoveAllAuras();
+                    if(instance)
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
+                    me->GetMotionMaster()->MovePoint(0, homePosition);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    isMovingHome = true;
+                    activated = false;
+                    break;
             }
         }
 
