@@ -87,6 +87,7 @@ enum HOOCreatures
     NPC_WATER_WARDEN                = 39802,
     NPC_AIR_WARDEN                  = 39803,
 
+    WARDEN_ENTRY_MAX_COUNT          = 4,
     WARDEN_ENTRY_DATA_DELTA         = NPC_FIRE_WARDEN - DATA_FIRE_WARDEN,
 
     NPC_BRANN_BRONZEBEARD_0         = 39908,

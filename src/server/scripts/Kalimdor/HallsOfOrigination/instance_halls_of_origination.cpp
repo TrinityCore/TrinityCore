@@ -177,7 +177,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case NPC_EARTH_WARDEN:
                     case NPC_WATER_WARDEN:
                     case NPC_AIR_WARDEN:
-                        creature->CastSpell(nullptr, GetWardenPositionSpell(creature->GetEntry()));
+                        creature->CastSpell(nullptr, _wardenPositionSpells[creature->GetEntry() - NPC_FIRE_WARDEN]);
                         // Requires implementation of far-visibility: https://github.com/TrinityCore/TrinityCore/pull/20725
                         //creature->SetFarVisible(true);
                         break;
@@ -344,47 +344,26 @@ class instance_halls_of_origination : public InstanceMapScript
 
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << _brannIntroStarted << ' ' << _deadElementals << _fireWardenPositionSpell << _earthWardenPositionSpell << _waterWardenPositionSpell << _airWardenPositionSpell;
+                data << _brannIntroStarted << ' ';
+            
+                for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
+                    data << _wardenPositionSpells[i] << ' ';
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
-                data >> _brannIntroStarted >> _deadElementals >> _fireWardenPositionSpell >> _earthWardenPositionSpell >> _waterWardenPositionSpell >> _airWardenPositionSpell;
+                data >> _brannIntroStarted;
+                    
+                for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
+                    data >> _wardenPositionSpells[i];
             }
 
         private:
             void RotateWardenPositions()
             {
-                std::vector<uint32> tmp;
-
-                tmp.push_back(SPELL_TELEPORT_EARTH);
-                tmp.push_back(SPELL_TELEPORT_AIR);
-                tmp.push_back(SPELL_TELEPORT_FIRE);
-                tmp.push_back(SPELL_TELEPORT_WATER);
-
-                Trinity::Containers::RandomShuffle(tmp);
-
-                _fireWardenPositionSpell = tmp.back();
-                tmp.pop_back();
-                _earthWardenPositionSpell = tmp.back();
-                tmp.pop_back();
-                _waterWardenPositionSpell = tmp.back();
-                tmp.pop_back();
-                _airWardenPositionSpell = tmp.back();
-                tmp.pop_back();
-            }
-
-            uint32 GetWardenPositionSpell(uint32 entry)
-            {
-                if (entry == NPC_FIRE_WARDEN)
-                    return _fireWardenPositionSpell;
-                if (entry == NPC_EARTH_WARDEN)
-                    return _earthWardenPositionSpell;
-                if (entry == NPC_WATER_WARDEN)
-                    return _waterWardenPositionSpell;
-                if (entry == NPC_AIR_WARDEN)
-                    return _airWardenPositionSpell;
-                return 0;
+                uint32 startAt = urand(0, WARDEN_ENTRY_MAX_COUNT - 1);
+                for (uint32 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
+                    _wardenPositionSpells[(i + startAt) % WARDEN_ENTRY_MAX_COUNT] = SPELL_TELEPORT_EARTH + i;
             }
 
             void UpdateTransitDevice(GameObject* transit)
@@ -401,10 +380,7 @@ class instance_halls_of_origination : public InstanceMapScript
             GuidVector hooCamelGUIDs;
             GuidVector isisetTrashGUIDs;
             uint32 _brannIntroStarted;
-            uint32 _fireWardenPositionSpell;
-            uint32 _earthWardenPositionSpell;
-            uint32 _waterWardenPositionSpell;
-            uint32 _airWardenPositionSpell;
+            uint32 _wardenPositionSpells[WARDEN_ENTRY_MAX_COUNT];
             uint32 _deadElementals;
             uint32 _isisetPhase;
             uint32 _isisetAstralRainAlive;
