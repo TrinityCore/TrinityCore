@@ -205,7 +205,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                                     augh->AI()->DoAction(ACTION_AUGH_INTRO);
                                 heroicAughSpawned = true;
                             }
-                            else if (_heroicAughSpawned)
+                            else if (heroicAughSpawned)
                                 if (Creature* augh = instance->SummonCreature(BOSS_AUGH, AughHomePos))
                                     augh->AI()->DoAction(ACTION_AUGH_ATTACKABLE);
                             break;
