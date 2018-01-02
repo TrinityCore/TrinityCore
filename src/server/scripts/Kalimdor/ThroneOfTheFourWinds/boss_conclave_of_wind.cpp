@@ -188,7 +188,7 @@ public:
             _EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, IN_PROGRESS);
@@ -367,7 +367,7 @@ public:
             summon->AI()->DoZoneInCombat();
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, DONE);
@@ -521,7 +521,7 @@ public:
             _EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, IN_PROGRESS);
@@ -572,7 +572,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, DONE);
@@ -890,7 +890,7 @@ public:
             _EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, IN_PROGRESS);
@@ -952,7 +952,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             instance->SetData(DATA_CONCLAVE_OF_WIND_EVENT, DONE);
@@ -1165,12 +1165,12 @@ public:
     {
         PrepareAuraScript(spell_nurture_aura_AuraScript);
 
-        void HandleEffectCalcPeriodic(AuraEffect const * /*aurEff*/, bool & isPeriodic, int32 & amplitude)
+        void HandleEffectCalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& /*amplitude*/)
         {
             isPeriodic = true;
         }
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             if (Unit* caster = GetCaster())
                 caster->CastSpell(caster, SPELL_NURTURE_CREEPER_SUMMON, true);

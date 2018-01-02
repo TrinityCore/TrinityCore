@@ -101,7 +101,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 /*data*/) override
             {
                 switch (type)
                 {
