@@ -15,10 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameObject.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Player.h"
-#include "ObjectMgr.h"
+
+/*
+ * Dalaran above Karazhan
+ *
+ * Legion Intro
+ */
+
+// 246854
+class go_dalaran_karazhan : public GameObjectScript
+{
+public:
+    go_dalaran_karazhan() : GameObjectScript("go_dalaran_karazhan") { }
+
+    // This is also called on object Creation. Set dalaran to active to enable far sight
+    void OnGameObjectStateChanged(GameObject* go, uint32 /*state*/) override
+    {
+        if (!go->isActiveObject())
+            go->setActive(true);
+    }
+};
+
+/*
+ * Legion Dalaran
+ */
 
 class OnLegionArrival : public PlayerScript
 {
@@ -49,5 +74,6 @@ public:
 
 void AddSC_dalaran_legion()
 {
+    new go_dalaran_karazhan();
     new OnLegionArrival();
 }
