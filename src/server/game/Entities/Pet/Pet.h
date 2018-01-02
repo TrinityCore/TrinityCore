@@ -28,7 +28,7 @@
 enum StableResultCode
 {
     STABLE_ERR_MONEY        = 0x01,                         // "you don't have enough money"
-    STABLE_ERR_INVALID_SLOT = 0x02,                         // "That slot is locked"
+    STABLE_ERR_INVALID_SLOT = 0x03,                         // "That slot is locked"
     STABLE_SUCCESS_STABLE   = 0x08,                         // stable success
     STABLE_SUCCESS_UNSTABLE = 0x09,                         // unstable/swap success
     STABLE_SUCCESS_BUY_SLOT = 0x0A,                         // buy slot success
