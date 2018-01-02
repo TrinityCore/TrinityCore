@@ -727,8 +727,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_EARTHBOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(SPELL_EARTHBOLT);
+                        if (SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(SPELL_EARTHBOLT);
                         events.ScheduleEvent(EVENT_EARTHBOLT, 1500);
                         break;
 

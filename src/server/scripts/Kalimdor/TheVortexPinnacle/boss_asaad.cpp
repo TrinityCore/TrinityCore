@@ -590,7 +590,6 @@ public :
     {
         PrepareSpellScript(spell_asaad_supremacy_entry_SpellScript);
 
-        Targets _targets;
         Position position[3];
 
         bool Load() override
@@ -636,7 +635,6 @@ public :
     {
         PrepareSpellScript(spell_asaad_supremacy_dummy_SpellScript);
 
-        Targets _targets;
         Position position[3];
 
         bool Load() override

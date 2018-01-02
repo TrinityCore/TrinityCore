@@ -34,7 +34,7 @@ class npc_slipstream : public CreatureScript
 public:
     npc_slipstream() : CreatureScript("npc_slipstream") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 Sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -54,7 +54,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        InstanceScript* instance = creature->GetInstanceScript();
+        //InstanceScript* instance = creature->GetInstanceScript();
 
         //if (instance && instance->GetData(DATA_GRAND_VIZIER_ERTAN)==DONE)
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Teleport me to the first platform", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -69,7 +69,7 @@ class npc_slipstream_two : public CreatureScript
 public:
     npc_slipstream_two() : CreatureScript("npc_slipstream_two") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 Sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -92,7 +92,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        InstanceScript* instance = creature->GetInstanceScript();
+        //InstanceScript* instance = creature->GetInstanceScript();
 
         //if (instance && instance->GetData(DATA_ALTAIRUS)==DONE)
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Teleport me to the second platform", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -142,12 +142,12 @@ public:
             Summons.DespawnAll();
         }
 
-        void DamageTaken(Unit* pDone_by, uint32& uiDamage) override
+        void DamageTaken(Unit* /*pDone_by*/, uint32& uiDamage) override
         {
             uiDamage = 0;
         }
 
-        void AttackStart(Unit*who) override
+        void AttackStart(Unit*/*who*/) override
         {
             return;
         }
@@ -320,7 +320,7 @@ public:
             updateAch = true;
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 const /*uiDiff*/) override
         {
         }
 

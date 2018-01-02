@@ -459,7 +459,7 @@ public:
         void Notify(SpellEffIndex /*index*/)
         {
             if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
-                if (InstanceScript* const script = instance->GetInstanceScript())
+                if (instance->GetInstanceScript())
                     if (door)
                         if (Creature* anhuur = door->ToCreature())
                             anhuur->AI()->DoAction(ACTION_DISABLE_BEACON);

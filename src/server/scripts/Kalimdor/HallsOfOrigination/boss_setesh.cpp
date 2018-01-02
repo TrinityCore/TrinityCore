@@ -359,7 +359,6 @@ class npc_chaos_portal : public CreatureScript
         EventMap events;
         SummonList summons;
         bool done;
-        Unit* setesh;
     };
 
 public:

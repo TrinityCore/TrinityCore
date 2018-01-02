@@ -61,24 +61,24 @@ public:
 
     struct npc_slipstream_raidAI : public ScriptedAI
     {
-        npc_slipstream_raidAI(Creature* creature) : ScriptedAI(creature), isActive(true), linkedSlipstreamObject(nullptr), linkedBoss(nullptr), isUltimate(false)
+        npc_slipstream_raidAI(Creature* creature) : ScriptedAI(creature), SlipstreamPosition(8), isUltimate(false), isActive(true), linkedSlipstreamObject(nullptr), linkedBoss(nullptr)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE);
 
-            SlipstreamPosition = 8;
-
-            for (uint8 i = 0; i<=7; i++)
+            for (uint8 i = 0; i <= 7; i++)
+            {
                 if (me->GetDistance2d(SlipstreamPositions[i].GetPositionX(), SlipstreamPositions[i].GetPositionY()) < 10)
                 {
                     SlipstreamPosition = i;
                     break;
                 }
+            }
 
-                if (SlipstreamPosition >= DIR_ERROR)
-                    return;
+            if (SlipstreamPosition >= DIR_ERROR)
+                return;
 
-                SlipstreamPosition += (SlipstreamPosition == DIR_WEST_TO_SOUTH || SlipstreamPosition == DIR_NORTH_TO_WEST ||
-                    SlipstreamPosition == DIR_EAST_TO_NORTH || SlipstreamPosition == DIR_SOUTH_TO_EAST ) ? 1 : -1;
+            SlipstreamPosition += (SlipstreamPosition == DIR_WEST_TO_SOUTH || SlipstreamPosition == DIR_NORTH_TO_WEST ||
+            SlipstreamPosition == DIR_EAST_TO_NORTH || SlipstreamPosition == DIR_SOUTH_TO_EAST ) ? 1 : -1;
 
             // Assign linked Boss and Slipstream to disabled slipstreams if the bosses casts Ultimate
         }
@@ -117,7 +117,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 const /*diff*/) override
         {
             // The Slipstreams are Deactivated before each Ultimate ability
 
@@ -206,7 +206,7 @@ class npc_slipstream_alakir : public CreatureScript
 public:
     npc_slipstream_alakir() : CreatureScript("npc_slipstream_alakir") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* /*creature*/) override
     {
         player->TeleportTo(754, -111.186859f, 815.128662f, 221.018799f, 0.02332f);
         return true;

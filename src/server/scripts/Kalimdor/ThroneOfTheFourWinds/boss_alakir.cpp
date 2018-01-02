@@ -197,7 +197,7 @@ public:
             instance->SetData(DATA_ALAKIR_EVENT, IN_PROGRESS);
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             Talk(7);
@@ -212,7 +212,7 @@ public:
             summons.Summon(summoned);
         }
 
-        void DamageTaken(Unit* /*damageDealer*/, uint32& damage) override
+        void DamageTaken(Unit* /*damageDealer*/, uint32& /*damage*/) override
         {
             if (!HealthAbovePct(80) && phase == PHASE_ICE_STORM)
             {
@@ -348,7 +348,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiI, uint32 uiValue) override
+        void SetData(uint32 /*uiI*/, uint32 uiValue) override
         {
             if (uiValue == DATA_ALAKIR_BUFF)
             {
@@ -613,7 +613,7 @@ public:
             DebuffRemoveTimer = 6000;
         }
 
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
         {
             if (!me)
                 return;
@@ -683,7 +683,7 @@ public:
             me->DespawnOrUnsummon(20000);
         }
 
-        void UpdateAI(uint32 const diff) override { }
+        void UpdateAI(uint32 const /*diff*/) override { }
     };
 };
 
@@ -854,7 +854,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 const /*diff*/) override
         {
             if (!me->GetVictim())
                 return;
@@ -1068,7 +1068,7 @@ public:
             readyDealDamageTimer = 4000;
         }
 
-        void SetData(uint32 uiI, uint32 uiValue) override
+        void SetData(uint32 /*uiI*/, uint32 uiValue) override
         {
             if (uiValue == DATA_CLOUDS_DEAL_DMG)
             {
