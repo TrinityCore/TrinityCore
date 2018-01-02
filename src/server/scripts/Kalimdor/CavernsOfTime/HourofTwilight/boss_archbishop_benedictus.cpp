@@ -214,7 +214,7 @@ public:
 
             events.ScheduleEvent(EVENT_ACTIVATE_WALL, 1000);
 
-            if (Creature* thrall = me->FindNearestCreature(NPC_THRALL_FINAL, 100.0f, true))
+            if (me->FindNearestCreature(NPC_THRALL_FINAL, 100.0f, true))
             {
                 events.ScheduleEvent(EVENT_SMITE, 4000);
                 events.ScheduleEvent(EVENT_RIGHTEOUS_SHEAR, 7000);
@@ -461,7 +461,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->SetObjectScale(0.1f);
             me->SetDisableGravity(true);
@@ -539,7 +539,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->CastSpell(me, SPELL_WAVE_OF_VIRTUE_WAVE, true);
 
@@ -643,7 +643,7 @@ public:
             events.Reset();
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->SetObjectScale(0.1f);
             me->SetDisableGravity(true);
@@ -656,7 +656,7 @@ public:
             events.ScheduleEvent(EVENT_TWILIGHT_CHARGE, 8000);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32&damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32&/*damage*/) override
         {
             /*if (damage > 0)
             {
@@ -729,12 +729,11 @@ public:
             events.Reset();
         }
 
-        void AttackStart(Unit* victim) override
+        void AttackStart(Unit* /*victim*/) override
         {
-            return;
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->CastSpell(me, SPELL_WAVE_OF_TWILIGHT_WAVE, true);
 

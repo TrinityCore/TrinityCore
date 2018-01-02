@@ -295,7 +295,7 @@ public:
         uint32 Boo;
         ObjectGuid BossGUID;
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->RemoveAllAuras();
         }
@@ -392,7 +392,7 @@ public:
             targets.remove_if(isInsideStormsEdgeLarge());
         }
 
-        void EffectScriptEffect(SpellEffIndex effIndex)
+        void EffectScriptEffect(SpellEffIndex /*effIndex*/)
         {
             GetHitUnit()->CastSpell((Unit*)NULL, SPELL_STORMS_EDGE, true);
         }
@@ -462,7 +462,7 @@ public:
             targets.remove_if(isOutsideStormsEdgeSmall());
         }
 
-        void HandleScript(SpellEffIndex effIndex)
+        void HandleScript(SpellEffIndex /*effIndex*/)
         {
             GetHitUnit()->CastSpell((Unit*)NULL, SPELL_STORMS_EDGE, true);
         }
@@ -489,7 +489,7 @@ public:
     {
         PrepareSpellScript(spell_storms_edgeSpellScript);
 
-        void HandleScript(SpellEffIndex effIndex)
+        void HandleScript(SpellEffIndex /*effIndex*/)
         {
             GetHitUnit()->CastSpell(GetCaster(), SPELL_STORMS_EDGE_DAMAGE, true);
         }

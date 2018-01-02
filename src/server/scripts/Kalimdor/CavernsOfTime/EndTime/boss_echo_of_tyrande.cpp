@@ -197,7 +197,7 @@ class boss_echo_of_tyrande : public CreatureScript
                         break;
                     }
                     case EVENT_MOONLANCE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
+                        if (SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
                         {
                             DoCastAOE(SPELL_MOONLANCE);
                             events.ScheduleEvent(EVENT_MOONLANCE, urand(4000, 8000));
@@ -277,20 +277,20 @@ class npc_moonlance_single : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                uint32 count;
+                uint32 count = 0;
                 switch (summon->GetEntry())
                 {
-                case NPC_MOONLANCE_TRIPLE_FIRST:
-                    count = 0;
-                    break;
-                case NPC_MOONLANCE_TRIPLE_SECOND:
-                    count = 1;
-                    break;
-                case NPC_MOONLANCE_TRIPLE_THIRD:
-                    count = 2;
-                    break;
-                default:
-                    break;
+                    case NPC_MOONLANCE_TRIPLE_FIRST:
+                        count = 0;
+                        break;
+                    case NPC_MOONLANCE_TRIPLE_SECOND:
+                        count = 1;
+                        break;
+                    case NPC_MOONLANCE_TRIPLE_THIRD:
+                        count = 2;
+                        break;
+                    default:
+                        break;
                 }
 
                 me->SetSpeed(MOVE_RUN, 1.5f);
@@ -304,8 +304,7 @@ class npc_moonlance_single : public CreatureScript
                 summon->GetMotionMaster()->MovePoint(0, me->GetPositionX() + 120  * cos(dir), me->GetPositionY() + 120  * sin(dir), me->GetPositionZ());
             }
 
-            void UpdateAI(uint32 diff) override
-
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (Creature* tyrande = GetClosestCreatureWithEntry(me, NPC_TYRANDE_ENTRY, 75.0f))
                 {
@@ -375,8 +374,7 @@ class npc_eye_of_the_goddess : public CreatureScript
                     aur->SetDuration(25000);
             }
 
-            void UpdateAI(uint32 diff) override
-
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (Creature* tyrande = GetClosestCreatureWithEntry(me, NPC_TYRANDE_ENTRY, 75.0f))
                 {

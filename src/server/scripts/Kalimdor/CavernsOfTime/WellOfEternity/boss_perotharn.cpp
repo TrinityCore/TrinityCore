@@ -190,7 +190,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* attacker) override
+        void EnterCombat(Unit* /*attacker*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -240,7 +240,7 @@ public:
                 Talk(SAY_KILL);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid guid, int32 /*type*/) override
         {
             targetGUID = guid;
         }
@@ -473,13 +473,13 @@ public:
     {
         PrepareAuraScript(spell_perotharn_drain_essence_AuraScript);
 
-        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (GetUnitOwner())
                 GetUnitOwner()->SetControlled(true, UNIT_STATE_STUNNED);
         }
 
-        void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (GetUnitOwner())
                 GetUnitOwner()->SetControlled(false, UNIT_STATE_STUNNED);
@@ -576,7 +576,7 @@ class achievement_lazy_eye : public AchievementCriteriaScript
 public:
     achievement_lazy_eye() : AchievementCriteriaScript("achievement_lazy_eye") { }
 
-    bool OnCheck(Player* source, Unit* target) override
+    bool OnCheck(Player* /*source*/, Unit* target) override
     {
         if (!target)
             return false;

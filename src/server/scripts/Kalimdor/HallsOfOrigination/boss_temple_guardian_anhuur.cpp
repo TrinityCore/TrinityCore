@@ -153,7 +153,7 @@ class boss_anhuur : public CreatureScript
             _EnterCombat();
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             Talk(SAY_DEATH);
@@ -204,7 +204,7 @@ class boss_anhuur : public CreatureScript
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32&damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32&/*damage*/) override
         {
             if ((me->HealthBelowPct(66) && _shieldCount == 0) ||
                 (me->HealthBelowPct(33) && _shieldCount == 1))
@@ -392,10 +392,7 @@ class boss_anhuur : public CreatureScript
             DoMeleeAttackIfReady();
         }
     private:
-        bool shielded;
-        int8 stage;
         ObjectGuid targetGUID;
-        bool beacons[2];
     };
 
 public:
@@ -420,7 +417,7 @@ public:
         {
             if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
             {
-                if (InstanceScript* const script = instance->GetInstanceScript())
+                if (instance->GetInstanceScript())
                 {
                     if (door)
                     {

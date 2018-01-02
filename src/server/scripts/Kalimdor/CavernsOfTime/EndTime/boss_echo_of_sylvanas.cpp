@@ -314,7 +314,7 @@ class mob_ghoul_summoner : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoCast(me, SPELL_GHOUL_CIRCLE);
                 events.ScheduleEvent(EVENT_SUMMON_GHOUL, 1000);
@@ -393,7 +393,7 @@ class mob_risen_ghoul : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 events.Reset();
                 me->SetSpeed(MOVE_WALK, 0.4f);
@@ -443,7 +443,6 @@ class mob_risen_ghoul : public CreatureScript
                         float nearbyGhoulX = (*iter)->GetPositionX();
                         float nearbyGhoulY = (*iter)->GetPositionY();
 
-                        float scalar = (meX - sylvanasX) * (nearbyGhoulX - sylvanasX) + (meY - sylvanasY) * (nearbyGhoulY - sylvanasY);
                         float squareAB = sqrt(pow((meX - sylvanasX), 2) + pow((meY - sylvanasY), 2));
                         float squareBC = sqrt(pow((sylvanasX - nearbyGhoulX), 2) + pow((sylvanasY - nearbyGhoulY), 2));
 
@@ -620,7 +619,7 @@ class mob_blighted_arrows : public CreatureScript
                 me->setActive(false);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoStopAttack();
                 me->setActive(false);
