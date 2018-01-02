@@ -3083,7 +3083,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 me->CastSpell(pTarget, 53148, true);

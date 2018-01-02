@@ -451,7 +451,7 @@ public:
                     break;
 
                 case EVENT_PONG:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 3.0f, true))
+                    if (SelectTarget(SELECT_TARGET_NEAREST, 0, 3.0f, true))
                     {
                         ori = me->GetOrientation();
                         me->StopMoving();
@@ -833,7 +833,7 @@ class spell_disrupting_shadows : public SpellScriptLoader
         {
             PrepareAuraScript(spell_disrupting_shadows_AuraScript);
 
-            void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if(Unit* owner = GetUnitOwner())
                     if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)

@@ -282,8 +282,7 @@ public:
 
         InstanceScript* instance;
 
-        void UpdateAI(uint32 diff) override
-
+        void UpdateAI(uint32 /*diff*/) override
         {
             std::list<Player*> targets;
             me->GetPlayerListInGrid(targets, 15.0f);
@@ -367,7 +366,7 @@ public:
             events.ScheduleEvent(PHASE_1, 1000);
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             Talk(SAY_AGGRO);
             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
@@ -841,7 +840,7 @@ public:
                 case EVENT_CAUTERIZE:
                     if (Creature* alexs = me->FindNearestCreature(NPC_ALEXSTRASZA_DRAGON, 500.0f, true))
                     {
-                        if (Creature* wing = alexs->FindNearestCreature(NPC_WING_TENTACLE, 100.0f, true))
+                        if (alexs->FindNearestCreature(NPC_WING_TENTACLE, 100.0f, true))
                         {
                             if (Creature* blistering = me->FindNearestCreature(NPC_BLISTERING_TENTACLES, 500.0f, true))
                             {
@@ -940,7 +939,7 @@ public:
             secondBlistering = false;
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
         }
@@ -970,7 +969,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32&damage) override
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -1090,7 +1089,7 @@ public:
             secondBlistering = false;
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
         }
@@ -1120,7 +1119,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32&damage) override
+        void DamageTaken(Unit* /*who*/, uint32& damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -1252,7 +1251,7 @@ public:
             secondBlistering = false;
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
         }
@@ -1281,7 +1280,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32&damage) override
+        void DamageTaken(Unit* /*who*/, uint32&damage) override
         {
             if (!me || !me->IsAlive())
                 return;
@@ -1362,7 +1361,7 @@ public:
                     alex->RemoveAura(SPELL_CAUTERIZE_PHASE_1);
                 }
 
-                if (Creature* kalec = me->FindNearestCreature(NPC_KALECGOS_DRAGON, 200.0f, true))
+                if (me->FindNearestCreature(NPC_KALECGOS_DRAGON, 200.0f, true))
                 {
                     thrall->RemoveAura(SPELL_KALECGOS_PRESENCE);
                     thrall->RemoveAura(SPELL_SPELLWEAVER);
@@ -1414,8 +1413,7 @@ public:
             reachedPos = false;
         }
 
-        void UpdateAI(uint32 diff) override
-
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (Creature* platform = me->FindNearestCreature(NPC_PLATFORM, 500.0f, true))
             {
@@ -1731,7 +1729,7 @@ public:
             switch (action)
             {
             case ACTION_TIME_ZONE:
-                if (Creature* tentacle = me->FindNearestCreature(NPC_ARM_TENTACLE_1, 500.0f, true))
+                if (me->FindNearestCreature(NPC_ARM_TENTACLE_1, 500.0f, true))
                 {
                     DoCast(SPELL_TIME_ZONE_SUMMON_TARGET);
 
@@ -1903,7 +1901,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             DoCast(me, SPELL_UNSTABLE_CORRUPTION);
         }
@@ -2022,7 +2020,7 @@ public:
     {
         PrepareSpellScript(spell_assault_aspects_SpellScript);
 
-        void FilterTarget(std::list<WorldObject*>& targets)
+        void FilterTarget(std::list<WorldObject*>& /*targets*/)
         {
             if (Unit* caster = GetCaster())
             {
@@ -2097,7 +2095,7 @@ public:
             return GetCaster()->GetTypeId() == TYPEID_UNIT;
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
             {
@@ -2163,7 +2161,7 @@ public:
             return GetCaster()->GetTypeId() == TYPEID_UNIT;
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
             {
@@ -2202,7 +2200,7 @@ public:
             return GetCaster()->GetTypeId() == TYPEID_UNIT;
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             int32 num;
 
@@ -2433,7 +2431,7 @@ public:
     {
         PrepareAuraScript(spell_corrupting_parasite_aura_AuraScript);
 
-        void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* owner = GetUnitOwner())
                 owner->SummonCreature(NPC_CORRUPTING_PARASITE, owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
@@ -2468,13 +2466,10 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (Unit* target = GetHitUnit())
-                {
-                    amount = 0.1f * (caster->GetHealth());
-                    bp0 = amount;
+                amount = 0.1f * (caster->GetHealth());
+                bp0 = amount;
 
-                    SetHitDamage(amount);
-                }
+                SetHitDamage(amount);
             }
         }
 

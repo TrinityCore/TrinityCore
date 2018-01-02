@@ -347,15 +347,15 @@ public:
     };
 };
 
-void WhisperToAllPlayerInZone(int32 TextId, Creature* sender)
+void WhisperToAllPlayerInZone(int32 /*TextId*/, Creature* /*sender*/)
 {
-    Map::PlayerList const &players = sender->GetMap()->GetPlayers();
+    /*Map::PlayerList const &players = sender->GetMap()->GetPlayers();
     for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
         if (Player* player = i->GetSource())
         {
             // TODO: Implement this
             // Talk(TextId, sender, player);
-        }
+        }*/
 }
 
 void AddSC_instance_dragon_soul()

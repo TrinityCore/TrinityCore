@@ -32,12 +32,10 @@ class npc_elemental_energy_quest : public CreatureScript
         {
             npc_elemental_energy_questAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void JustDied(Unit* who) override
+            void JustDied(Unit* /*who*/) override
             {
-                printf("\n ! just died ! \n ");
                 if (Creature * totem = GetClosestCreatureWithEntry(me, 45088, 25.0f))
                 {
-                    printf("\n ! casting spell on totem ! \n ");
                     //if(Player * plr = totem->GetCharmerOrOwnerPlayerOrPlayerItself())
                         totem->CastSpell(totem, 84170, true);
                 }
@@ -67,7 +65,7 @@ class npc_imposing_confrontation_quest : public CreatureScript
             void Reset() override
             {
                 eventStarted = false;
-                uint8 phase = 0;
+                phase = 0;
                 phaseTimer = 0;
                 initiator = ObjectGuid::Empty;
             }
@@ -183,19 +181,19 @@ class AreaTrigger_at_deepholm_flyover : public AreaTriggerScript
         NPC_GENERIC_TRIGGER             = 44839,
     };
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) override
     {
         if (player->GetQuestStatus(QUEST_FLY_OVER_A) == QUEST_STATUS_INCOMPLETE)
         {
-            if (Creature * trigger = player->FindNearestCreature(NPC_GENERIC_TRIGGER, 25.0f))
-                player->KilledMonsterCredit(NPC_GENERIC_TRIGGER);
+            if (Creature* trigger = player->FindNearestCreature(NPC_GENERIC_TRIGGER, 25.0f))
+                player->KilledMonsterCredit(NPC_GENERIC_TRIGGER, trigger->GetGUID());
         }
         return true;
 
         if (player->GetQuestStatus(QUEST_FLY_OVER_H) == QUEST_STATUS_INCOMPLETE)
         {
-            if (Creature * trigger = player->FindNearestCreature(NPC_GENERIC_TRIGGER, 25.0f))
-                player->KilledMonsterCredit(NPC_GENERIC_TRIGGER);
+            if (Creature* trigger = player->FindNearestCreature(NPC_GENERIC_TRIGGER, 25.0f))
+                player->KilledMonsterCredit(NPC_GENERIC_TRIGGER, trigger->GetGUID());
         }
         return true;
     }
@@ -579,34 +577,31 @@ public:
             {
                switch (eventId)
                {
-
-                case EVENT_TWILIGHT_BUFFET:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(SPELL_TWILIGHT_BUFFET);
+                    case EVENT_TWILIGHT_BUFFET:
+                        if (SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(SPELL_TWILIGHT_BUFFET);
                         events.ScheduleEvent(EVENT_TWILIGHT_BUFFET, 20000);
                         break;
-
-                case EVENT_TWILIGHT_FISSURE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(SPELL_TWILIGHT_FISSURE);
+                    case EVENT_TWILIGHT_FISSURE:
+                        if (SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(SPELL_TWILIGHT_FISSURE);
                         events.ScheduleEvent(EVENT_TWILIGHT_FISSURE, 23000);
                         break;
-
                     case EVENT_TWILIGHT_ZONE:
-                       if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                       DoCast(me, SPELL_TWILIGHT_ZONE);
-                       events.ScheduleEvent(EVENT_TWILIGHT_ZONE, 30000);
+                        if (SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(me, SPELL_TWILIGHT_ZONE);
+                        events.ScheduleEvent(EVENT_TWILIGHT_ZONE, 30000);
                         break;
-
-                case EVENT_UNLEASHED_MAGIC:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(SPELL_TWILIGHT_BREATH);
-                        DoCast(SPELL_UNLEASHED_MAGIC);
+                    case EVENT_UNLEASHED_MAGIC:
+                        if (SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        {
+                            DoCast(SPELL_TWILIGHT_BREATH);
+                            DoCast(SPELL_UNLEASHED_MAGIC);
+                        }
                         events.ScheduleEvent(EVENT_UNLEASHED_MAGIC, 66000);
                         break;
-
                     default:
-                       break;
+                         break;
                 }
             }
 
@@ -738,8 +733,8 @@ public:
                         break;
 
                     case EVENT_AIRBOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(SPELL_AIRBOLT);
+                        if (SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(SPELL_AIRBOLT);
                         Talk(SAY_AIR);
                         events.ScheduleEvent(EVENT_AIRBOLT, 11000);
                         break;
@@ -750,15 +745,15 @@ public:
                         break;
 
                     case EVENT_FIREBOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(SPELL_FIREBOLT);
+                        if (SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(SPELL_FIREBOLT);
                         Talk(SAY_FIRE);
                         events.ScheduleEvent(EVENT_FIREBOLT, 11000);
                         break;
 
                     case EVENT_WATERBOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(SPELL_WATERBOLT);
+                        if (SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(SPELL_WATERBOLT);
                         Talk(SAY_WATER);
                         events.ScheduleEvent(EVENT_WATERBOLT, 11000);
                         break;
