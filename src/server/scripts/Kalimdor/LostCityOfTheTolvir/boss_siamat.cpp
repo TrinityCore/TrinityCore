@@ -126,10 +126,10 @@ class boss_siamat : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_STATIC_SHOCK, 1, 0, PHASE_1);
                 events.ScheduleEvent(EVENT_DEFLECTING_WINDS, Seconds(6), 0, PHASE_1);
@@ -337,7 +337,7 @@ class npc_siamat_servant_of_siamat : public CreatureScript
             }
 
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_1);
                 _events.ScheduleEvent(EVENT_THUNDER_CRASH, Seconds(11));
@@ -440,7 +440,7 @@ class npc_siamat_minion_of_siamat : public CreatureScript
                 _events.ScheduleEvent(EVENT_REMOVE_SCALE_AURA, Seconds(1));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_1);
                 _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, Seconds(3));
