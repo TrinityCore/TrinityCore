@@ -98,10 +98,9 @@ class boss_harbinger_skyriss : public CreatureScript
 
             void Reset() override
             {
-                if (!Intro)
-                    me->SetImmuneToPC(true);
+                _Reset();
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToAll(!Intro);
                 Initialize();
             }
 
@@ -134,7 +133,7 @@ class boss_harbinger_skyriss : public CreatureScript
                         summon->AI()->AttackStart(target);
 
                 summons.Summon(summon);
-                summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                summon->SetImmuneToAll(false);
             }
 
             void KilledUnit(Unit* victim) override
@@ -186,7 +185,7 @@ class boss_harbinger_skyriss : public CreatureScript
                             Intro_Timer = 3000;
                             break;
                         case 3:
-                            me->SetImmuneToPC(false);
+                            me->SetImmuneToAll(false);
                             Intro = true;
                             break;
                         }
@@ -290,7 +289,7 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
 
             void Reset() override
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             }
 
