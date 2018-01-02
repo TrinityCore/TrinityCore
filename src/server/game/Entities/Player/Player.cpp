@@ -5812,7 +5812,7 @@ void Player::UpdateWeaponSkill(WeaponAttackType attType)
         UpdateSkill(SKILL_UNARMED, weapon_skill_gain);
         UpdateSkill(SKILL_FIST_WEAPONS, weapon_skill_gain);
     }
-    else if (tmpitem && tmpitem->GetTemplate()->SubClass != ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+    else if (tmpitem)
     {
         switch (tmpitem->GetTemplate()->SubClass)
         {
