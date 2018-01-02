@@ -856,11 +856,13 @@ public:
             {
                 bool InMeleeRange = false;
                 for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+                {
                     if (pair.second->GetOther(me)->IsWithinMeleeRange(me))
                     {
                         InMeleeRange = true;
                         break;
                     }
+                }
 
                 //if anybody is in melee range than escape by blink
                 if (InMeleeRange)
@@ -943,11 +945,13 @@ public:
             {
                 bool InMeleeRange = false;
                 for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+                {
                     if (pair.second->GetOther(me)->IsWithinMeleeRange(me))
                     {
                         InMeleeRange = true;
                         break;
                     }
+                }
 
                 //if nobody is in melee range than try to use Intercept
                 if (!InMeleeRange)

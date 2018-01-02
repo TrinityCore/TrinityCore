@@ -13662,10 +13662,12 @@ void Unit::StopAttackFaction(uint32 faction_id)
             ++itr;
     }
 
-
+    std::vector<CombatReference*> refsToEnd;
     for (auto const& pair : m_combatManager.GetPvECombatRefs())
         if (pair.second->GetOther(this)->GetFactionTemplateEntry()->faction == faction_id)
-            pair.second->EndCombat();
+            refsToEnd.push_back(pair.second);
+    for (CombatReference* ref : refsToEnd)
+        ref->EndCombat();
 
     for (Unit* minion : m_Controlled)
         minion->StopAttackFaction(faction_id);
