@@ -59,7 +59,7 @@ enum Spells
 
 enum Events
 {
-    EVENT_CHECK_SPEAKER,
+    EVENT_CHECK_SPEAKER = 1,
     EVENT_CHECK_START,
     EVENT_STARTED,
     EVENT_OVERPOWER,
@@ -193,7 +193,7 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
-            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
             {
                 if (summon->GetEntry() == NPC_OHGAN)
                 {
