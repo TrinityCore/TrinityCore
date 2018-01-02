@@ -3093,6 +3093,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->ProcChance = 0;
     });
 
+    // Improved Stormstrike
+    ApplySpellFix({ 
+        51521, // (Rank 1)
+        51522  // (Rank 2)
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->ProcFlags = PROC_FLAG_KILL | PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS;
+    });
+
     // Maelstrom Weapon
     ApplySpellFix({
         51528, // (Rank 1)
