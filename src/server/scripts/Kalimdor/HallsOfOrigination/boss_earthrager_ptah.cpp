@@ -276,6 +276,20 @@ public:
     }
 };
 
+// 15989 (criteria ID) Straw That Broke the Camel's Back
+class achievement_straw_broke_camels_back : public AchievementCriteriaScript
+{
+public:
+    achievement_straw_broke_camels_back() : AchievementCriteriaScript("achievement_straw_broke_camels_back") { }
+
+    bool OnCheck(Player* player, Unit* /*target*/) override
+    {
+        if (Unit* vehicle = player->GetVehicleBase())
+            return vehicle->GetEntry() == NPC_HOO_CAMEL;
+        return false;
+    }
+};
+
 // 40459 Beetle Stalker
 class npc_ptah_beetle_stalker : public CreatureScript
 {
@@ -415,6 +429,7 @@ public:
 void AddSC_boss_earthrager_ptah()
 {
     new boss_earthrager_ptah();
+    new achievement_straw_broke_camels_back();
     new npc_ptah_beetle_stalker();
     new spell_earthrager_ptah_flame_bolt();
     new spell_earthrager_ptah_sandstorm();

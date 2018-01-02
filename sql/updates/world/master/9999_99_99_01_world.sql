@@ -25,7 +25,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- achievements
 DELETE FROM `criteria_data` WHERE `criteria_id` IN (15988);
 INSERT INTO `criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
-(15989, 18, 0, 0, '');
+(15989, 11, 0, 0, 'achievement_straw_broke_camels_back');
 
 -- transit device that teleports to the upper floor
 UPDATE `gameobject_template` SET `Data10` = 82900 WHERE `entry` = 204972;

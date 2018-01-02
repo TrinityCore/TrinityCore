@@ -177,7 +177,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case NPC_EARTH_WARDEN:
                     case NPC_WATER_WARDEN:
                     case NPC_AIR_WARDEN:
-                        creature->CastSpell(nullptr, _wardenPositionSpells[creature->GetEntry()]);
+                        creature->CastSpell(nullptr, GetWardenPositionSpell(creature->GetEntry()));
                         // Requires implementation of far-visibility: https://github.com/TrinityCore/TrinityCore/pull/20725
                         //creature->SetFarVisible(true);
                         break;
@@ -342,33 +342,14 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* player, Unit const* /*target = NULL*/, uint32 /*miscValue1 = 0*/) override
-            {
-                switch (criteriaId)
-                {
-                    case CRITERIA_STRAW_BROKE_CAMELS_BACK:
-                        return IsRidingACamel(player);
-                    default:
-                        break;
-                }
-
-                return false;
-            }
-
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << _brannIntroStarted << ' ' << _deadElementals;
-
-                for (uint8 i = 0; i < WARDEN_COUNT_MAX; i++)
-                    data << _wardenPositionSpells[NPC_FIRE_WARDEN + i];
+                data << _brannIntroStarted << ' ' << _deadElementals << _fireWardenPositionSpell << _earthWardenPositionSpell << _waterWardenPositionSpell << _airWardenPositionSpell;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
-                data >> _brannIntroStarted >> _deadElementals;
-
-                for (uint8 i = 0; i < WARDEN_COUNT_MAX; i++)
-                    data >> _wardenPositionSpells[NPC_FIRE_WARDEN + i];
+                data >> _brannIntroStarted >> _deadElementals >> _fireWardenPositionSpell >> _earthWardenPositionSpell >> _waterWardenPositionSpell >> _airWardenPositionSpell;
             }
 
         private:
@@ -383,14 +364,27 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 Trinity::Containers::RandomShuffle(tmp);
 
-                _wardenPositionSpells[NPC_FIRE_WARDEN] = tmp.back();
+                _fireWardenPositionSpell = tmp.back();
                 tmp.pop_back();
-                _wardenPositionSpells[NPC_EARTH_WARDEN] = tmp.back();
+                _earthWardenPositionSpell = tmp.back();
                 tmp.pop_back();
-                _wardenPositionSpells[NPC_WATER_WARDEN] = tmp.back();
+                _waterWardenPositionSpell = tmp.back();
                 tmp.pop_back();
-                _wardenPositionSpells[NPC_AIR_WARDEN] = tmp.back();
+                _airWardenPositionSpell = tmp.back();
                 tmp.pop_back();
+            }
+
+            uint32 GetWardenPositionSpell(uint32 entry)
+            {
+                if (entry == NPC_FIRE_WARDEN)
+                    return _fireWardenPositionSpell;
+                if (entry == NPC_EARTH_WARDEN)
+                    return _earthWardenPositionSpell;
+                if (entry == NPC_WATER_WARDEN)
+                    return _waterWardenPositionSpell;
+                if (entry == NPC_AIR_WARDEN)
+                    return _airWardenPositionSpell;
+                return 0;
             }
 
             void UpdateTransitDevice(GameObject* transit)
@@ -402,19 +396,15 @@ class instance_halls_of_origination : public InstanceMapScript
                 else // All other transits.
                     transit->SetRespawnTime(GetBossState(DATA_ANRAPHET) == DONE ? -1 : DAY);
             }
-
-            bool IsRidingACamel(Player const* player)
-            {
-                if (Unit* vehicle = player->GetVehicleBase())
-                    return vehicle->GetEntry() == NPC_HOO_CAMEL;
-                return false;
-            }
             
             GuidVector transitDeviceGUIDs;
             GuidVector hooCamelGUIDs;
             GuidVector isisetTrashGUIDs;
             uint32 _brannIntroStarted;
-            uint32 _wardenPositionSpells[WARDEN_COUNT_MAX];
+            uint32 _fireWardenPositionSpell;
+            uint32 _earthWardenPositionSpell;
+            uint32 _waterWardenPositionSpell;
+            uint32 _airWardenPositionSpell;
             uint32 _deadElementals;
             uint32 _isisetPhase;
             uint32 _isisetAstralRainAlive;
