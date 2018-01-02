@@ -147,9 +147,8 @@ public:
             uiDamage = 0;
         }
 
-        void AttackStart(Unit*/*who*/) override
+        void AttackStart(Unit* /*who*/) override
         {
-            return;
         }
 
         void JustSummoned(Creature* summoned) override
