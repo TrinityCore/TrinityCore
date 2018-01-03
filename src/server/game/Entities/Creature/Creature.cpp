@@ -677,7 +677,7 @@ void Creature::Update(uint32 diff)
 
                 if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
                 {
-                    if (getPowerType() == POWER_ENERGY)
+                    if (GetPowerType() == POWER_ENERGY)
                         Regenerate(POWER_ENERGY);
                     else
                         RegenerateMana();
@@ -1229,10 +1229,10 @@ void Creature::UpdateLevelDependantStats()
     switch (getClass())
     {
         case CLASS_WARRIOR:
-            setPowerType(POWER_RAGE);
+            SetPowerType(POWER_RAGE);
             break;
         case CLASS_ROGUE:
-            setPowerType(POWER_ENERGY);
+            SetPowerType(POWER_ENERGY);
             break;
         default:
             SetMaxPower(POWER_MANA, mana); // MAX Mana
@@ -1504,7 +1504,7 @@ void Creature::SetSpawnHealth()
     else
     {
         curhealth = GetMaxHealth();
-        SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+        SetFullPower(POWER_MANA);
     }
 
     SetHealth((m_deathState == ALIVE || m_deathState == JUST_RESPAWNED) ? curhealth : 0);

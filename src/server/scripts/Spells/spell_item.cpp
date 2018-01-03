@@ -1145,7 +1145,7 @@ class spell_item_heartpierce : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
 
                 uint32 spellId;
-                switch (caster->getPowerType())
+                switch (caster->GetPowerType())
                 {
                     case POWER_MANA:
                         spellId = Mana;
