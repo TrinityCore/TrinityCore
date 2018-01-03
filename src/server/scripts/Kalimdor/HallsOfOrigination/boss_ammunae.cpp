@@ -114,7 +114,7 @@ class boss_ammunae : public CreatureScript
                     if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
                         uint32 spellId = 0;
-                        switch(target->getPowerType())
+                        switch(target->GetPowerType())
                         {
                         case POWER_MANA:
                             spellId = SPELL_CONSUME_MANA;

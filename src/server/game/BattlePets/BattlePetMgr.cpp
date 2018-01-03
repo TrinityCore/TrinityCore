@@ -18,6 +18,7 @@
 #include "BattlePetMgr.h"
 #include "DB2Stores.h"
 #include "Containers.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "Log.h"

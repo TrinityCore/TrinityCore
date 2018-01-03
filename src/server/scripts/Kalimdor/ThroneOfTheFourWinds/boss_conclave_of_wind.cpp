@@ -132,7 +132,7 @@ public:
         {
             //instance = creature->GetInstanceScript();
 
-            creature->setPowerType(POWER_ENERGY);
+            creature->SetPowerType(POWER_ENERGY);
             creature->SetMaxPower(POWER_ENERGY, 90);
         }
 
@@ -481,7 +481,7 @@ public:
         {
             //instance = creature->GetInstanceScript();
 
-            creature->setPowerType(POWER_ENERGY);
+            creature->SetPowerType(POWER_ENERGY);
             creature->SetMaxPower(POWER_ENERGY, 90);
         }
 
@@ -833,7 +833,7 @@ public:
     {
         boss_rohashAI(Creature* creature) : BossAI(creature, DATA_CONCLAVE_OF_WIND_EVENT)
         {
-            creature->setPowerType(POWER_ENERGY);
+            creature->SetPowerType(POWER_ENERGY);
             creature->SetMaxPower(POWER_ENERGY, 90);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             me->ApplySpellImmune(0, IMMUNITY_ID, 85483, true);

@@ -435,7 +435,7 @@ public:
                             player->RemoveAura(80354);      // Time Warp
                             player->RemoveAura(102381);     // Temporal Blast
                             player->ToPlayer()->SetFullHealth();
-                            player->ToPlayer()->SetPower(player->getPowerType(), player->GetMaxPower(player->getPowerType()));
+                            player->ToPlayer()->SetFullPower(player->GetPowerType());
                         }
                     }
                 }

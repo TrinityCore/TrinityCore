@@ -1562,7 +1562,7 @@ public:
         void InitializeAI() override
         {
             me->setRegeneratingHealth(false);
-            me->setPowerType(POWER_ENERGY);
+            me->SetPowerType(POWER_ENERGY);
             me->SetMaxPower(POWER_ENERGY, 100);
             me->SetPower(POWER_ENERGY, 0);
             EnterCombat(me);

@@ -152,7 +152,7 @@ enum TrinityStrings
     LANG_YOU_CHANGE_ENERGY              = 122,
     LANG_YOURS_ENERGY_CHANGED           = 123,
 
-    LANG_CURRENT_ENERGY                 = 124,              //log
+    LANG_CURRENT_ENERGY                 = 124,
     LANG_YOU_CHANGE_RAGE                = 125,
     LANG_YOURS_RAGE_CHANGED             = 126,
     LANG_YOU_CHANGE_LVL                 = 127,
