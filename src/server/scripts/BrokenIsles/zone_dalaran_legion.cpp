@@ -98,7 +98,7 @@ public:
         SPELL_PLAY_DALARAN_TELEPORTATION_SCENE = 227861
     };
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction) override
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 /*uiAction*/) override
     {
         player->CastSpell(player, SPELL_PLAY_DALARAN_TELEPORTATION_SCENE, true);
         return true;
