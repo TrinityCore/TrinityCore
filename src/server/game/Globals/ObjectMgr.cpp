@@ -8289,7 +8289,9 @@ void ObjectMgr::LoadCreatureOutfits()
     _creatureOutfitStore.clear();   // for reload case (test only)
 
     QueryResult result = WorldDatabase.Query("SELECT entry, race, class, gender, skin, face, hair, haircolor, facialhair, feature1, feature2, feature3, "
-        "head, shoulders, body, chest, waist, legs, feet, wrists, hands, tabard, back, guildid FROM creature_template_outfits");
+        "head, head_appearance, shoulders, shoulders_appearance, body, body_appearance, chest, chest_appearance, waist, waist_appearance, "
+        "legs, legs_appearance, feet, feet_appearance, wrists, wrists_appearance, hands, hands_appearance, tabard, tabard_appearance, back, back_appearance, "
+        "guildid FROM creature_template_outfits");
 
     if (!result)
     {
@@ -8344,20 +8346,26 @@ void ObjectMgr::LoadCreatureOutfits()
         for (uint32 j = 0; j < CreatureOutfit::max_outfit_displays; ++j)
         {
             int64 displayInfo = fields[i++].GetInt64();
+            uint32 appearancemodid = fields[i++].GetUInt32();
             if (displayInfo > 0) // entry
             {
-                uint32 item_entry = static_cast<uint32>(displayInfo & 0xFFFFFFFF);
-                uint32 appearancemodid = static_cast<uint32>(displayInfo >> 32);
+                uint32 item_entry = static_cast<uint32>(displayInfo);
                 if (uint32 display = sDB2Manager.GetItemDisplayId(item_entry, appearancemodid))
                     co.outfit[j] = display;
                 else
                 {
-                    TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has invalid (item entry, appearance) combination: %u, %u. Value in DB: %s", entry, item_entry, appearancemodid, std::to_string(displayInfo).c_str());
+                    TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has invalid (item entry, appearance) combination: %u, %u. Ignoring.", entry, item_entry, appearancemodid);
                     co.outfit[j] = 0;
                 }
             }
             else // display
+            {
+                if (appearancemodid)
+                {
+                    TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` is using displayid (negative value), but also has appearance set (displayid, appearance): %s, %u. Ignoring appearance.", entry, std::to_string(displayInfo).c_str(), appearancemodid);
+                }
                 co.outfit[j] = static_cast<uint32>(-displayInfo);
+            }
         }
         co.guild = fields[i++].GetUInt64();
 
