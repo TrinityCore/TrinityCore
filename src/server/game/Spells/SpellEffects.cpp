@@ -2387,7 +2387,7 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!unitTarget->IsPlayer())
         return;
 
     if (damage < 0)
@@ -2404,6 +2404,23 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
 
     uint16 skillval = unitTarget->ToPlayer()->GetPureSkillValue(skillid);
     unitTarget->ToPlayer()->SetSkill(skillid, effectInfo->CalcValue(), std::max<uint16>(skillval, 1), tier->Value[damage - 1]);
+
+    // learn dependent spells
+    SpellLearnSpellMapBounds spell_bounds = sSpellMgr->GetSpellLearnSpellMapBounds(GetSpellInfo()->Id);
+
+    for (SpellLearnSpellMap::const_iterator itr2 = spell_bounds.first; itr2 != spell_bounds.second; ++itr2)
+    {
+        if (!itr2->second.AutoLearned)
+        {
+            if (!unitTarget->ToPlayer()->IsInWorld() || !itr2->second.Active)       // at spells loading, no output, but allow save
+                unitTarget->ToPlayer()->AddSpell(itr2->second.Spell, itr2->second.Active, true, true, false);
+            else                                            // at normal learning
+                unitTarget->ToPlayer()->LearnSpell(itr2->second.Spell, true);
+        }
+
+        if (itr2->second.OverridesSpell && itr2->second.Active)
+            unitTarget->ToPlayer()->AddOverrideSpell(itr2->second.OverridesSpell, itr2->second.Spell);
+    }
 }
 
 void Spell::EffectPlayMovie(SpellEffIndex /*effIndex*/)
