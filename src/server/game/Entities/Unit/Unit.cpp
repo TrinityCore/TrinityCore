@@ -5907,7 +5907,11 @@ void Unit::SetMinion(Minion *minion, bool apply)
         }
 
         if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
+        {
             SetCritterGUID(minion->GetGUID());
+            if (GetTypeId() == TYPEID_PLAYER)
+                minion->SetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, GetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID));
+        }
 
         // PvP, FFAPvP
         minion->SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, GetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG));
