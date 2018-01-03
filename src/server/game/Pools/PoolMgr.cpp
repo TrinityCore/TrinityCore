@@ -346,14 +346,14 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
                 }
             }
         }
-        else if (!EqualChanced.empty())
+
+        if (!EqualChanced.empty() && rolledObjects.empty())
         {
             rolledObjects = EqualChanced;
 
             for (auto itr = rolledObjects.begin(); itr != rolledObjects.end();)
             {
-                // remove most of the active objects so there is higher chance inactive ones are spawned
-                if (spawns.IsActiveObject<T>(itr->guid) && urand(1, 4) != 1)
+                if (spawns.IsActiveObject<T>(itr->guid))
                     itr = rolledObjects.erase(itr);
                 else
                     ++itr;
