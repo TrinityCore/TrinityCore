@@ -100,9 +100,7 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction) override
     {
-        if (uiAction == 1)
-            player->CastSpell(player, SPELL_PLAY_DALARAN_TELEPORTATION_SCENE, true);
-
+        player->CastSpell(player, SPELL_PLAY_DALARAN_TELEPORTATION_SCENE, true);
         return true;
     }
 };
@@ -112,7 +110,7 @@ class scene_dalaran_kharazan_teleportion : public SceneScript
 public:
     scene_dalaran_kharazan_teleportion() : SceneScript("scene_dalaran_kharazan_teleportion") { }
 
-    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName)
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
     {
         if (triggerName == "invisibledalaran")
             player->SetInPhase(PHASE_DALARAN_KARAZHAN, true, false);
