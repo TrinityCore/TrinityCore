@@ -1,1 +1,1 @@
-DROP TABLE `pet_levelstats`;
+DROP TABLE IF EXISTS `pet_levelstats`;
