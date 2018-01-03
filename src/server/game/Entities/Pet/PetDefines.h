@@ -49,13 +49,6 @@ enum PetStableSlot
     PET_SLOT_LAST_STABLE_SLOT  = PET_SLOT_LAST
 };
 
-enum HappinessState
-{
-    UNHAPPY = 1,
-    CONTENT = 2,
-    HAPPY   = 3
-};
-
 enum PetSpellState
 {
     PETSPELL_UNCHANGED = 0,
