@@ -538,7 +538,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!IsHolidayActive(HOLIDAY_BREWFEST))
                 return;

@@ -209,7 +209,7 @@ class boss_asaad : public CreatureScript
                     failedAchievementGUIDs.push_back(target->GetGUID());
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -370,7 +370,7 @@ class npc_asaad_grounding_field_trigger : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (pointId == 4 || isMoving)
                     return;
@@ -436,7 +436,7 @@ public:
             _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3000, 10000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

@@ -130,7 +130,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             ScriptedAI::UpdateAI(uiDiff);
 
@@ -313,7 +313,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -419,7 +419,7 @@ public:
             DespawnCreatures(47476);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -502,7 +502,7 @@ public:
             DespawnCreatures(47476);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -620,7 +620,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override { }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -748,7 +748,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -836,7 +836,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -914,7 +914,7 @@ public:
             AttackStartNoMove(who);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;

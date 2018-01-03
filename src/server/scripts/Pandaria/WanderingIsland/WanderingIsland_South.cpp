@@ -159,7 +159,7 @@ class mob_mandori_escort : public CreatureScript
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (IntroTimer)
             {
@@ -302,7 +302,7 @@ public:
                 player->AddAura(68483, player); // Phase 16384
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (IntroTimer)
             {
@@ -379,7 +379,7 @@ public:
             HasBeenSaved = true;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (checkSavedTimer)
             {
@@ -454,7 +454,7 @@ class boss_vordraka : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 m_Events.Update(diff);
 
@@ -573,7 +573,7 @@ public:
             return me->GetMap()->GetCreature(jiGuid);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (IntroTimer)
             {
@@ -827,7 +827,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
 
@@ -959,7 +959,7 @@ class npc_shang_xi_choose_faction : public CreatureScript
                 l_CheckPlayerTimer = 1000;
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (l_CheckPlayerTimer)
                 {

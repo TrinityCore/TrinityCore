@@ -95,7 +95,7 @@ public:
                 return true;
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;

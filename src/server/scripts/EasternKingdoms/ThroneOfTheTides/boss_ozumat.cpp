@@ -213,7 +213,7 @@ public:
                me->SummonCreature(entry, RAND(spawns[0], spawns[1]), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!InProgress)
                 return;
@@ -424,7 +424,7 @@ public:
         }
 
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             switch (_phase)
             {
@@ -500,7 +500,7 @@ public:
                 instance->DoCompleteAchievement(SPELL_MAREE_POWER);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (mui_blight_spray_timer <= diff)
             {

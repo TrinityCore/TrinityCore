@@ -175,7 +175,7 @@ class mob_master_shang_xi : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (me->GetPositionX() != 1462.0f && me->GetPositionY() != 3465.590088f && me->GetPositionZ() != 181.597f)
                     me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
@@ -345,7 +345,7 @@ class mob_tushui_trainee : public CreatureScript
                 Reset();
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (IsInCombat)
                 {
@@ -506,7 +506,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             m_Events.Update(diff);
 
@@ -603,7 +603,7 @@ public:
                 uiDamage = 0;
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (me->GetPositionX() == 1403.440430f && me->GetPositionY() == 3566.382568f)
                 me->DespawnOrUnsummon();
@@ -695,7 +695,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             std::list<Player*> PlayerList;
             GetPlayerListInGrid(PlayerList, me, 20.0f);
@@ -791,7 +791,7 @@ public:
                 me->DespawnOrUnsummon(500);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (IntroTimer)
             {
@@ -930,7 +930,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
             while (uint32 eventId = events.ExecuteEvent())
@@ -1090,7 +1090,7 @@ public:
             events.ScheduleEvent(2, 7000);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1251,7 +1251,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -1436,7 +1436,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 15.0f);
@@ -1589,7 +1589,7 @@ class mob_huojin_trainee : public CreatureScript
                 Reset();
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (IsInCombat)
                 {
@@ -1652,7 +1652,7 @@ class npc_merchant_lorvo : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
 
                 std::list<Player*> playerList;
@@ -1708,7 +1708,7 @@ class mob_ji_firepaw : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 3.0f);
@@ -1760,7 +1760,7 @@ class mob_huojin_monk : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 10.0f);
@@ -1812,7 +1812,7 @@ class mob_chia_hui_autumnleaf : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 12.0f);
@@ -1866,7 +1866,7 @@ class mob_brewer_lin : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 4.0f);

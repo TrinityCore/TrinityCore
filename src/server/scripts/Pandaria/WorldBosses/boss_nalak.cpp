@@ -111,7 +111,7 @@ class boss_nalak : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_ARC_NOVA, 39000);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;

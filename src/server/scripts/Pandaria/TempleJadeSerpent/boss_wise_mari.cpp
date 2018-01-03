@@ -414,7 +414,7 @@ class mob_corrupt_living_water : public CreatureScript
                 me->CastSpell(me, SPELL_SHA_RESIDUE, true);
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;

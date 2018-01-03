@@ -356,7 +356,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -624,7 +624,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (mounted)
             {
@@ -683,7 +683,7 @@ public:
             me->DespawnOrUnsummon(20000);
         }
 
-        void UpdateAI(uint32 const /*diff*/) override { }
+        void UpdateAI(uint32 /*diff*/) override { }
     };
 };
 
@@ -749,7 +749,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (changeAngelRainTimer <= diff)
             {
@@ -800,7 +800,7 @@ public:
             me->CastSpell(me, SPELL_STORMLING_PRE_AURA, true);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (summonTimmer <= diff)
             {
@@ -854,7 +854,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!me->GetVictim())
                 return;
@@ -962,7 +962,7 @@ public:
                 playerGUID = summoner->GetGUID();
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (playerReturnTimer <= diff)
             {
@@ -1076,7 +1076,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (lightningVisual <= diff)
             {
@@ -1158,7 +1158,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (changeAngelTimer <= diff)
             {

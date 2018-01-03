@@ -252,7 +252,7 @@ public:
             m_DestroyTimer = 8000;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (m_DestroyTimer)
             {
@@ -328,7 +328,7 @@ public:
             m_Events.ScheduleEvent(eDatas::EventImpactSplit, 10000);
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             m_Events.Update(p_Diff);
 
@@ -399,7 +399,7 @@ public:
                 me->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, handBrawlerSpawnPositions[urand(0, 6)], TEMPSUMMON_CORPSE_DESPAWN);
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             m_Events.Update(p_Diff);
             UpdateOperations(p_Diff);
@@ -667,7 +667,7 @@ public:
             m_Events.ScheduleEvent(eDatas::EventWhipSplash, Seconds(3));
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             m_Events.Update(p_Diff);
 

@@ -389,7 +389,7 @@ class mob_restless_leng : public CreatureScript
         {
             mob_restless_lengAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 std::list<Player*> playerList;
                 playerList.clear();

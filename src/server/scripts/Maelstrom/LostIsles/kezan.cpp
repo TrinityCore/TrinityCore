@@ -126,7 +126,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (me->HasAura(SPELL_RAGE))
                 return ;
@@ -505,7 +505,7 @@ public:
             me->RemoveAura(66916);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (me->HasAura(75042) || me->HasAura(75044) || me->HasAura(75046) || me->HasAura(75048) || me->HasAura(75050))
             {
@@ -719,7 +719,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (_t <= diff)
             {
@@ -825,7 +825,7 @@ public:
 
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (_t <= diff)
             {
@@ -891,7 +891,7 @@ public:
 
         void JustReachedHome() override { }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (_t <= diff)
             {
@@ -931,7 +931,7 @@ public:
 
         void JustReachedHome() override { }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (_a <= diff)
             {
@@ -1076,7 +1076,7 @@ public:
             me->SummonCreature(37114, SharkPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (_t <= diff)
             {
@@ -1141,7 +1141,7 @@ public:
 
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (start)
                 return;
@@ -1254,7 +1254,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -1308,7 +1308,7 @@ public:
 
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (m_ty <= diff)
             {
@@ -1446,7 +1446,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!_scriptetre)
                 return;
@@ -1904,7 +1904,7 @@ public:
             activate = true;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!activate)
                 return ;
@@ -1984,7 +1984,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
         }
     };
@@ -2025,7 +2025,7 @@ public:
 
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!entervh)
                 return;

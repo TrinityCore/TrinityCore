@@ -203,7 +203,7 @@ class boss_majordomo_staghelm : public CreatureScript
                     DoZoneInCombat(summon);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;

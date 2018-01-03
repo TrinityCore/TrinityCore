@@ -115,7 +115,7 @@ class boss_lord_godfrey : public CreatureScript
             BossAI::JustSummoned(summon);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;

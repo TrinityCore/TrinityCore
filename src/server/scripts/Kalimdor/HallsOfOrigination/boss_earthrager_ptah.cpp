@@ -218,7 +218,7 @@ public:
             instance->SetBossState(DATA_EARTHRAGER_PTAH, FAIL);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;

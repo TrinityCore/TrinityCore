@@ -81,7 +81,7 @@ public:
                     damage = 0;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             DoMeleeAttackIfReady();
 
@@ -309,7 +309,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

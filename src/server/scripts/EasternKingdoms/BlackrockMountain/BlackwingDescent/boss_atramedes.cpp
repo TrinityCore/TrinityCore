@@ -372,7 +372,7 @@ public:
             Talk(RAND(SAY_KILL_1, SAY_KILL_2));
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -566,7 +566,7 @@ public:
         uint32 timerMove;
         uint32 timerDespawn;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (timerMove <= diff) // move forward
             {
@@ -607,7 +607,7 @@ public:
         uint32 timerPeriodic;
         uint32 timerDespawn;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (timerPeriodic <= diff)
             {
@@ -645,7 +645,7 @@ public:
         uint32 timerRemoveAura;
         uint32 timerCast;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (timerCast <= diff)
             {
@@ -684,7 +684,7 @@ public:
         uint32 timerSummonFlame;
         uint32 timerDespawn;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (timerSummonFlame <= diff)
             {
@@ -722,7 +722,7 @@ public:
         uint32 timerPeriodic;
         uint32 timerDespawn;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (timerPeriodic <= diff)
             {
@@ -792,7 +792,7 @@ public:
     {
         mob_atramedes_gongAI(Creature* creature) : ScriptedAI(creature){ }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             // Don't use gongs out of combat
             if (Creature* atramedes = me->FindNearestCreature(BOSS_ATRAMEDES, 200.0f))
@@ -861,7 +861,7 @@ public:
                  (*iter)->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (timer <= diff)
             {

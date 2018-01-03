@@ -348,7 +348,7 @@ public:
             pInstance->SetData(DATA_EVENT_NOZDORMU, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!bTalk)
                 return;
@@ -466,7 +466,7 @@ public:
                             pPlayer->CastSpell(me, SPELL_ARCHIVED_DEMON_1, true);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -615,7 +615,7 @@ public:
                 events.ScheduleEvent(EVENT_ILLIDAN_OUTRO_1_1, 6000);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!bTalk)
                 return;
@@ -697,7 +697,7 @@ public:
             events.ScheduleEvent(EVENT_SHIMMERING_STRIKE, urand(9000, 12000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -754,7 +754,7 @@ public:
             events.ScheduleEvent(EVENT_FEL_FLAMES, urand(2000, 10000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -816,7 +816,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -907,7 +907,7 @@ public:
                             pPlayer->CastSpell(me, SPELL_ARCHIVED_HANDMAIDEN_1, true);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1142,7 +1142,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!bTalk && !bMove)
                 return;
@@ -1384,7 +1384,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -1504,7 +1504,7 @@ public:
             me->DespawnOrUnsummon(3000);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

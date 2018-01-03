@@ -58,7 +58,7 @@ class npc_prince_anduin : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
             }
         };

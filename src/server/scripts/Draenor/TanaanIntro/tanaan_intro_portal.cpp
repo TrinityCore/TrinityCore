@@ -196,7 +196,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             events.Update(p_Diff);
 

@@ -1953,7 +1953,7 @@ class mob_discover_amberglow_bunny : public CreatureScript
         {
             mob_discover_amberglow_bunnyAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 10.0f);

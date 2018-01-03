@@ -222,7 +222,7 @@ class boss_galion : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (m_CheckVehicleTimer)
                 {
@@ -334,7 +334,7 @@ class npc_chief_salyis : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override {}
+            void UpdateAI(uint32 /*diff*/) override {}
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
@@ -373,7 +373,7 @@ class npc_salyin_warmonger : public CreatureScript
                 m_IsInCombat = true;
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!m_IsInCombat)
                     return;

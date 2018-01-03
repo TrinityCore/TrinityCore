@@ -118,7 +118,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (SummonTimer < diff)
             {
@@ -340,7 +340,7 @@ public:
                 }
             }
         }
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (TextTimer < diff)
             {
@@ -641,7 +641,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (EntryTime <= diff)
             {
@@ -946,7 +946,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (SummonTimer < diff)
             {
@@ -1141,7 +1141,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (SummonTimer < diff)
             {
@@ -1449,7 +1449,7 @@ class npc_rise_br : public CreatureScript
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (EventStarted)
             {
@@ -1721,7 +1721,7 @@ public:
             ThrowTimer = 4000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (timer_DoFire)
             {
@@ -1778,7 +1778,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             /*
             if (StopFireTimer <= diff)
@@ -1889,7 +1889,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (TextTimer < diff)
             {
@@ -2006,7 +2006,7 @@ class npc_hungry_hobo : public CreatureScript
             me->SetStandState(UNIT_STAND_STATE_SIT);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (Miam < diff)
             {

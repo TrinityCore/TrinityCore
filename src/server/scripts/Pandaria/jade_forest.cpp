@@ -1841,7 +1841,7 @@ class npc_cloud_ring : public CreatureScript
                     playerGUID = player->GetGUID();
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                 {

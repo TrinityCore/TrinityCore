@@ -156,7 +156,7 @@ public:
             me->CastSpell(me, SPELL_POOL_OF_SHADOWS, true);
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!me->HasUnitState(UNIT_STATE_CASTING))
                 me->CastSpell(me, SPELL_GRIP_OF_HATE, false);

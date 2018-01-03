@@ -102,7 +102,7 @@ public:
             ScriptedAI::EnterEvadeMode();
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -139,7 +139,7 @@ public:
             uiSummonMask = 1;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (uiSummonMask)
             {
@@ -255,7 +255,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (lPlayers.empty())
                 return;

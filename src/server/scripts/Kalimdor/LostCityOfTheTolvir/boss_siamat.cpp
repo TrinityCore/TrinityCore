@@ -189,7 +189,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -355,7 +355,7 @@ public:
                         siamat->AI()->DoAction(ACTION_SERVANT_DEATH);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -461,7 +461,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -501,7 +501,7 @@ public:
         EventMap events;
         uint8 uiTickCount;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 

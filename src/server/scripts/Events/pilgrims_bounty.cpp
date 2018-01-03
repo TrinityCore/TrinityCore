@@ -79,7 +79,7 @@ public:
             _StinkerBrokenHeartTimer = 3.5 * IN_MILLISECONDS;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (_StinkerBrokenHeartTimer <= diff)
             {

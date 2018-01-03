@@ -63,7 +63,7 @@ public:
             //me->SendMessageToSet(&data, true);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!Active)
             {
@@ -249,7 +249,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (HasAura)
             {

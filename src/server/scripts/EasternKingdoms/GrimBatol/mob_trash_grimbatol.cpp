@@ -42,7 +42,7 @@ public:
             malediction_de_la_nuee_azur = 25000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -96,7 +96,7 @@ public:
             onde_de_choc_cramoisie = 25000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -151,7 +151,7 @@ public:
             flamme_corrompue = 10000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -208,7 +208,7 @@ public:
             eclair_crepusculaire = 10000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -272,7 +272,7 @@ public:
             trait_deau = 5000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -330,7 +330,7 @@ public:
             trait_deau = 3000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -379,7 +379,7 @@ public:
             frappe_mortelle = 15000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -430,7 +430,7 @@ public:
             bouclier_rocheux_dentele = 15000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -481,7 +481,7 @@ public:
             pointe_de_terre = 25000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -540,7 +540,7 @@ public:
             broyeur_a_viande = 20000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -588,7 +588,7 @@ public:
             flammes_deconcertantes = 30000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -639,7 +639,7 @@ public:
             marche_vent = 20000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -690,7 +690,7 @@ public:
             trait_de_lombre = 4000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -750,7 +750,7 @@ public:
             invocation_dun_visage_tordu = 45000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -804,7 +804,7 @@ public:
             renforcement_du_crepuscule = 25000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -859,7 +859,7 @@ public:
             explosion_trompeuse = 13000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -915,7 +915,7 @@ public:
             broie_armure = 20000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -959,7 +959,7 @@ public:
             appel_declair = 15000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1010,7 +1010,7 @@ public:
             surcharger = 6000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1073,7 +1073,7 @@ public:
             invocation_de_braise_ardente = 55000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1131,7 +1131,7 @@ public:
             horion_de_flammes = 20000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1181,7 +1181,7 @@ public:
             nuage_declairs = 23000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1243,7 +1243,7 @@ public:
             poings_ardents = 35000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1300,7 +1300,7 @@ public:
             nourrir_le_familier = 30000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1347,7 +1347,7 @@ public:
             souffle_crepusculaire = 15000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1402,7 +1402,7 @@ public:
             siphon_dessence = 15000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

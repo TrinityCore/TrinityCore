@@ -191,7 +191,7 @@ public:
                 me->SummonCreature(NPC_VANESSA_NOTE, notePos);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -292,7 +292,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!pInstance)
                 return;
@@ -343,7 +343,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!pInstance)
                 return;

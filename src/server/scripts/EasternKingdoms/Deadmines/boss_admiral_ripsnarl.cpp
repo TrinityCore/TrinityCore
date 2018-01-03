@@ -271,7 +271,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!me || !instance)
                 return;
@@ -440,7 +440,7 @@ public:
                     pAI->VaporsKilled();
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

@@ -124,7 +124,7 @@ class boss_general_umbriss : public CreatureScript
                 Talk(RAND(SAY_KILL_1, SAY_KILL_2));
             }
 
-            void UpdateAI(uint32 const uiDiff) override
+            void UpdateAI(uint32 uiDiff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -299,7 +299,7 @@ class npc_malignant : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const /*uiDiff*/) override
+            void UpdateAI(uint32 /*uiDiff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -326,7 +326,7 @@ class npc_trogg_dweller : public CreatureScript
         {
             npc_trogg_dwellerAI(Creature *c) : ScriptedAI(c) {}
 
-            void UpdateAI(uint32 const /*uiDiff*/) override
+            void UpdateAI(uint32 /*uiDiff*/) override
             {
                 if (!UpdateVictim())
                     return;

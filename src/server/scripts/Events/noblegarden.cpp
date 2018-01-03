@@ -77,7 +77,7 @@ public:
                 owner->CastSpell(owner, SPELL_SPRING_FLING, true);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (inLove)
             {

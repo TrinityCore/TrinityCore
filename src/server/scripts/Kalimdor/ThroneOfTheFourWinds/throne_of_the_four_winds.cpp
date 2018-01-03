@@ -117,7 +117,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             // The Slipstreams are Deactivated before each Ultimate ability
 

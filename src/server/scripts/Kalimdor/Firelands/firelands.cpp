@@ -381,7 +381,7 @@ public:
             events.ScheduleEvent(EVENT_MOLTEN_BLAST, urand(7000, 9000));
             events.ScheduleEvent(EVENT_MOLTEN_BOLT, 5000);
         }
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -445,7 +445,7 @@ public:
             events.ScheduleEvent(EVENT_MOLTEN_BLAST, urand(7000, 9000));
             events.ScheduleEvent(EVENT_MOLTEN_VOLLEY, urand(10000,20000));
         }
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -513,7 +513,7 @@ public:
             events.ScheduleEvent(EVENT_IGNITE_ELEMENTAL, 5000);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -622,7 +622,7 @@ public:
             events.ScheduleEvent(EVENT_FLAME_SHIELD, urand(5000, 10000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -740,7 +740,7 @@ public:
                 magma->GetAI()->DoAction(ACTION_ANIMATOR_DEATH);
 
         }
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -847,7 +847,7 @@ public:
 
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -925,7 +925,7 @@ public:
 
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1045,7 +1045,7 @@ public:
             events.ScheduleEvent(EVENT_SHOCKWAVE, urand(15000, 18000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1234,7 +1234,7 @@ public:
 
             }
         }
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1384,7 +1384,7 @@ public:
             events.ScheduleEvent(EVENT_CONFLAGRATION, urand(8000, 20000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1464,7 +1464,7 @@ class npc_firelands_ancient_core_hound : public CreatureScript
                 events.ScheduleEvent(EVENT_FLAME_BREATH, urand(5000, 10000));
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1525,7 +1525,7 @@ class npc_firelands_ancient_lava_dweller : public CreatureScript
                 events.ScheduleEvent(EVENT_LAVA_SHOWER, urand(15000, 20000));
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1614,7 +1614,7 @@ class npc_firelands_fire_turtle_hatchling : public CreatureScript
                 events.ScheduleEvent(EVENT_SHELL_SPIN, urand(10000, 20000));
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1680,7 +1680,7 @@ class npc_firelands_flame_archon : public CreatureScript
                 events.ScheduleEvent(EVENT_FIERY_TORMENT, 20000);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1753,7 +1753,7 @@ class npc_firelands_molten_lord : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_LAVA_JETS, 10000);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1841,7 +1841,7 @@ class npc_firelands_molten_flamefather : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1911,7 +1911,7 @@ class npc_firelands_magma_conduit : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                 {
@@ -1939,7 +1939,7 @@ class npc_firelands_magmakin : public CreatureScript
                 me->SetSpeed(MOVE_RUN, 2.0f);
             }
 
-            void UpdateAI(uint32 const /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                 {
@@ -2337,7 +2337,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2484,7 +2484,7 @@ class npc_harbinger_of_flame : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(unit);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!me->IsInCombat())
                     if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
@@ -2579,7 +2579,7 @@ class npc_egg_pile : public CreatureScript
                 _events.ScheduleEvent(EVENT_SUMMON_SMOULDERING_HATCHLING, 1);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -2748,7 +2748,7 @@ class npc_firelands_volcanus : public CreatureScript
                 me->DespawnOrUnsummon(500);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;

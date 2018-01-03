@@ -53,7 +53,7 @@ class boss_ook_ook : public CreatureScript
             void MoveInLineOfSight(Unit* /*who*/) override
             {}
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {}
         };
 
@@ -122,7 +122,7 @@ class npc_barrel : public CreatureScript
                 me->CastSpell(me, SPELL_BAREL_EXPLOSION, true);
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (CheckIfAgainstWall() || CheckIfAgainstUnit())
                     DoExplode();

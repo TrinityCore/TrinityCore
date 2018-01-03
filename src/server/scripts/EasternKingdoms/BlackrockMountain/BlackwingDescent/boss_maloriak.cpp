@@ -231,7 +231,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, me->GetMap()->IsHeroic() ? 720000 : 420000);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -702,7 +702,7 @@ public:
             me->AddAura(SPELL_FLASH_FREEZE_VISUAL, me);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (timerChecktarget <= diff)
             {
@@ -750,7 +750,7 @@ public:
             events.ScheduleEvent(EVENT_ZERO_TRANSFORM, 500);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;

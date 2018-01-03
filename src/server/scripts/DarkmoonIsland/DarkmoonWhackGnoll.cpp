@@ -138,7 +138,7 @@ class npc_whack_gnoll_bunny : public CreatureScript
                 barrel->AddAura(SPELL_OK_TO_HIT, barrel);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
 

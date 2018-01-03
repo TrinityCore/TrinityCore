@@ -448,7 +448,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -599,7 +599,7 @@ public:
             me->setPowerType(POWER_ENERGY);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (SinisterTimer <= diff)
             {
@@ -659,7 +659,7 @@ public:
                 DoCast(target, SPELL_CHARGE);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (BloodBathTimer <= diff)
             {
@@ -701,7 +701,7 @@ public:
             ShieldTimer = 8000;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (HolyfireTimer <= diff)
             {
@@ -748,7 +748,7 @@ public:
             threat = true;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (MotivateTimer <= diff)
             {
@@ -789,7 +789,7 @@ public:
             UppercutTimer = 4000;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (UppercutTimer <= diff)
             {
@@ -826,7 +826,7 @@ public:
             below = true;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (AxeHeadTimer <= diff)
             {
@@ -870,7 +870,7 @@ public:
             RagezoneTimer = urand(7000, 9000);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (BloodboltTimer <= diff)
             {
@@ -929,7 +929,7 @@ public:
             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (EventStarted)
             {
@@ -1067,7 +1067,7 @@ public:
             PlayerGUID = player->GetGUID();
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (PongTimer <= diff)
             {
@@ -1255,7 +1255,7 @@ public:
              me->SummonCreature(NPC_ENRAGED_WORGEN, EnragedWorgen_2[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (Nightmare)
             {
@@ -1517,7 +1517,7 @@ public:
             HitTimer = 2500;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (HitTimer <= diff)
             {
@@ -1575,7 +1575,7 @@ public:
             _JustDied();
 
         }
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (FlagResetTimer <= diff)
             {
@@ -1677,7 +1677,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (FlagResetTimer <= diff)
             {
@@ -1755,7 +1755,7 @@ public:
                     pAI->NightmarePass();
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -1824,7 +1824,7 @@ public:
 
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!me->GetVehicleKit())
                 return;
@@ -1873,7 +1873,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (TurnTimer <= diff)
             {
@@ -1930,7 +1930,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (RunAway)
             {
@@ -2018,7 +2018,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (startTimerAchievement == true && getAchievementPlayers == true)
             {

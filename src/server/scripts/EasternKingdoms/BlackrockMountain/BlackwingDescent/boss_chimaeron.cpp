@@ -181,7 +181,7 @@ public:
             summon->AI()->DoZoneInCombat();
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -390,7 +390,7 @@ public:
         uint32 despawnTimer;
         bool canFree;
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (GameObject* cage = me->FindNearestGameObject(204929, 30.0f)) // Cage
                 if (cage && cage->GetGoState() == GO_STATE_ACTIVE)
@@ -461,7 +461,7 @@ public:
         bool isFailureActive;
         bool chimaeronWaken;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!activated)
                 return;

@@ -237,7 +237,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!instance)
                 return;
@@ -436,7 +436,7 @@ public:
             uiCheckAgroo = 5000;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -582,7 +582,7 @@ public:
             //Talk(RAND(SAY_DEATH_1, SAY_DEATH_2));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!instance)
                 return;
@@ -733,7 +733,7 @@ public:
 
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (DespawnTimer <= diff)
             {
@@ -772,7 +772,7 @@ public:
 
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (DespawnTimer <= diff)
             {
@@ -808,7 +808,7 @@ public:
             uiPathTimer = 2000;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (uiPathTimer <= diff)
             {
@@ -997,7 +997,7 @@ public:
                 me->SetTarget(temp->GetGUID());
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!instance)
                 return;

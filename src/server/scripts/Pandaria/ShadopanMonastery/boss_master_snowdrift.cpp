@@ -506,7 +506,7 @@ class npc_snowdrift_novice : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;

@@ -166,7 +166,7 @@ class boss_baleroc : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -282,7 +282,7 @@ class npc_baleroc_shard_of_torment : public CreatureScript
                 DoCast(me, SPELL_TORMENT_VISUAL, true);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!bReady)
                 {
