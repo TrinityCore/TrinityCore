@@ -184,6 +184,7 @@ struct CreatureOutfit
     uint8 facialhair;
     uint8 haircolor;
     uint8 customdisplay[max_custom_displays];
+    uint64 guild;
     uint32 displayId;
     uint32 outfit[max_outfit_displays];
 };

@@ -8289,7 +8289,7 @@ void ObjectMgr::LoadCreatureOutfits()
     _creatureOutfitStore.clear();   // for reload case (test only)
 
     QueryResult result = WorldDatabase.Query("SELECT entry, race, class, gender, skin, face, hair, haircolor, facialhair, feature1, feature2, feature3, "
-        "head, shoulders, body, chest, waist, legs, feet, wrists, hands, tabard, back FROM creature_template_outfits");
+        "head, shoulders, body, chest, waist, legs, feet, wrists, hands, tabard, back, guildid FROM creature_template_outfits");
 
     if (!result)
     {
@@ -8343,7 +8343,7 @@ void ObjectMgr::LoadCreatureOutfits()
             co.customdisplay[j] = fields[i++].GetUInt8();
         for (uint32 j = 0; j < CreatureOutfit::max_outfit_displays; ++j)
         {
-            int64 displayInfo = fields[i + j].GetInt64();
+            int64 displayInfo = fields[i++].GetInt64();
             if (displayInfo > 0) // entry
             {
                 uint32 item_entry = static_cast<uint32>(displayInfo & 0xFFFFFFFF);
@@ -8359,6 +8359,7 @@ void ObjectMgr::LoadCreatureOutfits()
             else // display
                 co.outfit[j] = static_cast<uint32>(-displayInfo);
         }
+        co.guild = fields[i++].GetUInt64();
 
         _creatureOutfitStore[entry] = co;
 
