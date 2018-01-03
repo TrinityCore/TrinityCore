@@ -828,6 +828,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES,
+    PLAYER_LOGIN_QUERY_LOAD_ALL_PETS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1339,7 +1340,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendItemDurations();
         void LoadCorpse(PreparedQueryResult result);
         void LoadPet();
-        void LoadPetsFromDB();
+        void LoadPetsFromDB(PreparedQueryResult result);
 
         bool AddItem(uint32 itemId, uint32 count);
 
