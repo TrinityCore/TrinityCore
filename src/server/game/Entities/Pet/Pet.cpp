@@ -147,7 +147,10 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
     {
         CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petEntry);
         if (!creatureInfo || !creatureInfo->IsTameable(owner->CanTameExoticPets()))
+        {
+            owner->GetSession()->SendPetStableResult(STABLE_ERR_EXOTIC);
             return false;
+        }
     }
 
     uint32 petId = playerPetData->PetId;

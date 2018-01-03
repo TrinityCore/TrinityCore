@@ -436,7 +436,7 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet)
         return;
     }
 
-    if (!creatureInfo->IsTameable(_player->CanTameExoticPets()))
+    if (!creatureInfo->IsTameable(_player->CanTameExoticPets()) && packet.DestSlot <= PET_SLOT_LAST_ACTIVE_SLOT)
     {
         SendPetStableResult(STABLE_ERR_EXOTIC);
         return;
