@@ -1876,7 +1876,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdatePosition(const Position &pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
-        bool MeetPlayerCondition(uint32 conditionId);
+        bool MeetPlayerCondition(uint32 conditionId) const;
         bool HasWorldQuestEnabled() const;
         void UpdateWorldQuestPosition(float x, float y);
 
