@@ -1090,7 +1090,7 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 
     Powers powerType = Powers(effectInfo->MiscValue);
 
-    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->getPowerType() != powerType || damage < 0)
+    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->GetPowerType() != powerType || damage < 0)
         return;
 
     // add spell damage bonus
@@ -1165,7 +1165,7 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
 
     Powers powerType = Powers(effectInfo->MiscValue);
 
-    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->getPowerType() != powerType || damage < 0)
+    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->GetPowerType() != powerType || damage < 0)
         return;
 
     int32 newDamage = -(unitTarget->ModifyPower(powerType, -damage));
@@ -1549,26 +1549,15 @@ void Spell::EffectEnergize(SpellEffIndex /*effIndex*/)
         return;
 
     // Some level depends spells
-    int level_multiplier = 0;
-    int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-        case 9512:                                          // Restore Energy
-            level_diff = m_caster->getLevel() - 40;
-            level_multiplier = 2;
-            break;
         case 24571:                                         // Blood Fury
-            level_diff = m_caster->getLevel() - 60;
-            level_multiplier = 10;
+            // Instantly increases your rage by ${(300-10*$max(0,$PL-60))/10}.
+            damage -= 10 * std::max(0, std::min(30, m_caster->getLevel() - 60));
             break;
         case 24532:                                         // Burst of Energy
-            level_diff = m_caster->getLevel() - 60;
-            level_multiplier = 4;
-            break;
-        case 31930:                                         // Judgements of the Wise
-        case 63375:                                         // Primal Wisdom
-        case 68082:                                         // Glyph of Seal of Command
-            damage = int32(CalculatePct(unitTarget->GetCreateMana(), damage));
+            // Instantly increases your energy by ${60-4*$max(0,$min(15,$PL-60))}.
+            damage -= 4 * std::max(0, std::min(15, m_caster->getLevel() - 60));
             break;
         case 67490:                                         // Runic Mana Injector (mana gain increased by 25% for engineers - 3.2.0 patch change)
         {
@@ -1580,12 +1569,6 @@ void Spell::EffectEnergize(SpellEffIndex /*effIndex*/)
         default:
             break;
     }
-
-    if (level_diff > 0)
-        damage -= level_multiplier * level_diff;
-
-    if (damage < 0 && power != POWER_LUNAR_POWER)
-        return;
 
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
 
@@ -2160,22 +2143,6 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : effectInfo->TriggerSpell;
     player->LearnSpell(spellToLearn, false);
-
-    if (m_spellInfo->Id == 55884)
-    {
-        if (BattlePetMgr* battlePetMgr = player->GetSession()->GetBattlePetMgr())
-        {
-            for (auto entry : sBattlePetSpeciesStore)
-            {
-                if (entry->SummonSpellID == spellToLearn)
-                {
-                    battlePetMgr->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
-                    player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
-                    break;
-                }
-            }
-        }
-    }
 
     TC_LOG_DEBUG("spells", "Spell: %s has learned spell %u from %s", player->GetGUID().ToString().c_str(), spellToLearn, m_caster->GetGUID().ToString().c_str());
 }
@@ -3550,12 +3517,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             m_caster->CastCustomSpell(totem, 55277, &basepoints0, NULL, NULL, true);
                         }
                     }
-                    // Glyph of Stoneclaw Totem
-                    if (AuraEffect* aur=unitTarget->GetAuraEffect(63298, 0))
-                    {
-                        basepoints0 *= aur->GetAmount();
-                        m_caster->CastCustomSpell(unitTarget, 55277, &basepoints0, NULL, NULL, true);
-                    }
                     break;
                 }
                 case 45668:                                 // Ultra-Advanced Proto-Typical Shortening Blaster
@@ -4216,7 +4177,7 @@ void Spell::EffectSelfResurrect(SpellEffIndex /*effIndex*/)
     player->SetHealth(health);
     player->SetPower(POWER_MANA, mana);
     player->SetPower(POWER_RAGE, 0);
-    player->SetPower(POWER_ENERGY, player->GetMaxPower(POWER_ENERGY));
+    player->SetFullPower(POWER_ENERGY);
     player->SetPower(POWER_FOCUS, 0);
 
     player->SpawnCorpseBones();
@@ -5717,14 +5678,9 @@ void Spell::EffectUncageBattlePet(SpellEffIndex /*effIndex*/)
     if (!battlePetMgr)
         return;
 
-    uint16 maxLearnedLevel = 0;
-
-    for (auto pet : battlePetMgr->GetLearnedPets())
-        maxLearnedLevel = std::max(pet.PacketInfo.Level, maxLearnedLevel);
-
     // TODO: This means if you put your highest lvl pet into cage, you won't be able to uncage it again which is probably wrong.
     // We will need to store maxLearnedLevel somewhere to avoid this behaviour.
-    if (maxLearnedLevel < level)
+    if (battlePetMgr->GetMaxPetLevel() < level)
     {
         battlePetMgr->SendError(BATTLEPETRESULT_TOO_HIGH_LEVEL_TO_UNCAGE, creatureId); // or speciesEntry.CreatureID
         SendCastResult(SPELL_FAILED_CANT_ADD_BATTLE_PET);
@@ -5738,10 +5694,11 @@ void Spell::EffectUncageBattlePet(SpellEffIndex /*effIndex*/)
         return;
     }
 
+    battlePetMgr->AddPet(speciesId, creatureId, breed, quality, level);
+
     if (!plr->HasSpell(speciesEntry->SummonSpellID))
         plr->LearnSpell(speciesEntry->SummonSpellID, false);
 
-    battlePetMgr->AddPet(speciesId, creatureId, breed, quality, level);
     plr->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
     m_CastItem = nullptr;
 }

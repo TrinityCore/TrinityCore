@@ -2643,7 +2643,7 @@ class spell_gen_pet_summoned : public SpellScriptLoader
                             newPet->setDeathState(ALIVE);
 
                         newPet->SetFullHealth();
-                        newPet->SetPower(newPet->getPowerType(), newPet->GetMaxPower(newPet->getPowerType()));
+                        newPet->SetFullPower(newPet->GetPowerType());
 
                         switch (newPet->GetEntry())
                         {
@@ -2806,7 +2806,7 @@ public:
     bool operator()(WorldObject* obj) const
     {
         if (Unit* target = obj->ToUnit())
-            return target->getPowerType() != POWER_MANA;
+            return target->GetPowerType() != POWER_MANA;
 
         return true;
     }
@@ -2862,7 +2862,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetUnitOwner()->getPowerType() == POWER_MANA;
+                return GetUnitOwner()->GetPowerType() == POWER_MANA;
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
@@ -4455,7 +4455,7 @@ class MarkTargetHellfireFilter
         bool operator()(WorldObject* target) const
         {
             if (Unit* unit = target->ToUnit())
-                return unit->getPowerType() != POWER_MANA;
+                return unit->GetPowerType() != POWER_MANA;
             return false;
         }
 };
