@@ -38,7 +38,7 @@ CREATE TABLE `account` (
   `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
   `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) NOT NULL DEFAULT '00',
-  `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `last_login` timestamp NULL,
   `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `expansion` tinyint(3) unsigned NOT NULL DEFAULT '6',
   `mutetime` bigint(20) NOT NULL DEFAULT '0',
@@ -365,7 +365,7 @@ CREATE TABLE `battlenet_accounts` (
   `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
   `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) NOT NULL DEFAULT '00',
-  `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `last_login` timestamp NULL,
   `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `os` varchar(4) NOT NULL DEFAULT '',
@@ -2228,7 +2228,8 @@ INSERT INTO `updates` VALUES
 ('2017_11_11_01_auth.sql','0D6EDB6B2FC8B9FBDF11ECD79B4B8E943328B6A9','RELEASED','2017-11-11 18:49:45',0),
 ('2017_12_30_00_auth.sql','F360E9555AC68E28834E3FF807E4E37A090EF363','RELEASED','2017-12-30 00:23:32',0),
 ('2017_12_30_01_auth.sql','1E11C78BA6D1D8E8CED7423DF92D1D197D6061EE','RELEASED','2017-12-30 23:00:00',0),
-('2017_12_31_00_auth.sql','1721ACBD35EB95FAE33B9E95F8C4E4B1FB70A5E4','RELEASED','2017-12-31 20:15:23',0);
+('2017_12_31_00_auth.sql','1721ACBD35EB95FAE33B9E95F8C4E4B1FB70A5E4','RELEASED','2017-12-31 20:15:23',0),
+('2018_01_02_00_auth.sql','CD9B826B9D95697DC412DEF780E814FA3991D6CD','RELEASED','2018-01-02 20:40:37',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
