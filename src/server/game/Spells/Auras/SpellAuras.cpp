@@ -1317,13 +1317,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                 }
                 break;
-            case SPELLFAMILY_ROGUE:
-                // Sprint (skip non player cast spells by category)
-                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x40 && GetSpellInfo()->GetCategory() == 44)
-                    // in official maybe there is only one icon?
-                    if (target->HasAura(58039)) // Glyph of Blurred Speed
-                        target->CastSpell(target, 61922, true); // Sprint (waterwalk)
-                break;
         }
     }
     // mods at aura remove
@@ -1381,14 +1374,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 // Remove Vanish on stealth remove
                 if (GetId() == 1784)
                     target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, flag128(0x0000800, 0, 0, 0), target->GetGUID());
-                break;
-            case SPELLFAMILY_DEATHKNIGHT:
-                break;
-            case SPELLFAMILY_HUNTER:
-                // Glyph of Freezing Trap
-                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000008)
-                    if (caster && caster->HasAura(56845))
-                        target->CastSpell(target, 61394, true);
                 break;
         }
     }
