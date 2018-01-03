@@ -196,7 +196,7 @@ public:
                             {
                                 ++i;
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); // not aggro leader
-                                if (target && target->getPowerType() == POWER_MANA)
+                                if (target && target->GetPowerType() == POWER_MANA)
                                     i = 3;
                             }
                             if (target)                                     // cast on self (see below)

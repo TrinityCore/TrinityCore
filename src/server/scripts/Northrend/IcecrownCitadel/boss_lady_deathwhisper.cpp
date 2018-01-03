@@ -220,7 +220,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 Initialize();
                 _phase = PHASE_ONE;
                 DoCastSelf(SPELL_SHADOW_CHANNELING);
-                me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
+                me->SetFullPower(POWER_MANA);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }
