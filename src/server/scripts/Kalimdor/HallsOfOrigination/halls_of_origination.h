@@ -48,10 +48,15 @@ enum HOOData
     DATA_BRANN_0,
     DATA_VAULT_OF_LIGHTS_DOOR,
     DATA_DEAD_ELEMENTALS,
-    DATA_LASERBEAMS_EARTH_WARDEN,
-    DATA_LASERBEAMS_FIRE_WARDEN,
-    DATA_LASERBEAMS_AIR_WARDEN,
-    DATA_LASERBEAMS_WATER_WARDEN,
+    DATA_LIGHTMACHINE_EARTH,
+    DATA_LIGHTMACHINE_AIR,
+    DATA_LIGHTMACHINE_FIRE,
+    DATA_LIGHTMACHINE_WATER,
+    DATA_LASERBEAMS_EARTH,
+    DATA_LASERBEAMS_AIR,
+    DATA_LASERBEAMS_FIRE,
+    DATA_LASERBEAMS_WATER,
+    DATA_UPDATE_LASERBEAMS,
     DATA_ANRAPHET_SUN_MIRROR,
     DATA_ANRAPHET_DOOR,
 
@@ -96,13 +101,11 @@ enum HOOCreatures
     NPC_STONE_TROGG_BRUTE           = 40251,
     NPC_STONE_TROGG_ROCK_FLINGER    = 40252,
 
-    // Isiset trash
-    NPC_SPATIAL_FLUX                = 39612,
+    BOSS_ISISET                     = 39587,
+    NPC_SPATIAL_FLUX                = 39612, // Isiset trash
     NPC_SPATIAL_ANOMALY             = 40170,
     NPC_FLUX_ANIMATOR               = 40033,
-    NPC_STAR_SHARD                  = 40106,
-
-    BOSS_ISISET                     = 39587,
+    NPC_STAR_SHARD                  = 40106
 };
 
 enum HOOGameObjects
@@ -116,15 +119,15 @@ enum HOOGameObjects
     GO_SUN_MIRROR                   = 207726,
     GO_ANRAPHET_DOOR                = 202314,
 
-    GO_DOODAD_ULDUM_LIGHTMACHINE_01 = 207375,
-    GO_DOODAD_ULDUM_LIGHTMACHINE_02 = 207374,
-    GO_DOODAD_ULDUM_LIGHTMACHINE_03 = 207377,
-    GO_DOODAD_ULDUM_LIGHTMACHINE_04 = 207376,
+    GO_DOODAD_ULDUM_LIGHTMACHINE_02 = 207374, // South-West
+    GO_DOODAD_ULDUM_LIGHTMACHINE_01 = 207375, // South-East
+    GO_DOODAD_ULDUM_LIGHTMACHINE_04 = 207376, // North-West
+    GO_DOODAD_ULDUM_LIGHTMACHINE_03 = 207377, // North-East
 
-    GO_DOODAD_ULDUM_LASERBEAMS01    = 207662, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_02
-    GO_DOODAD_ULDUM_LASERBEAMS_01   = 207663, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_01
-    GO_DOODAD_ULDUM_LASERBEAMS_02   = 207664, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_04
-    GO_DOODAD_ULDUM_LASERBEAMS_03   = 207665, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_03
+    GO_DOODAD_ULDUM_LASERBEAMS01    = 207662, // South-West
+    GO_DOODAD_ULDUM_LASERBEAMS_01   = 207663, // South-East
+    GO_DOODAD_ULDUM_LASERBEAMS_02   = 207664, // North-West
+    GO_DOODAD_ULDUM_LASERBEAMS_03   = 207665, // North-East
 
     GO_ULDUM_TEMPLE                 = 207802,
     GO_REORIGINATION_MECHANISM_1    = 207445,
@@ -137,7 +140,7 @@ enum HOOGameObjects
     GO_HOO_TRANSIT_DEVICE_2         = 204972, // Spell ID: 82900 - Teleports the caster to the upper floor of Halls of Origination. (dbc desc is wrong)
     GO_LIFT_OF_THE_MAKERS           = 207547,
     GO_LIFT_GLASS_STAR              = 207673,
-    GO_LIFT_GLASS_STAR_2            = 207674,
+    GO_LIFT_GLASS_STAR_2            = 207674
 };
 
 enum Achievements
@@ -171,10 +174,11 @@ enum HOOMisc
     SPELL_DUMMY_NUKE                = 68991,
 
     // Hmm... Do elementals use these spells to spawn on a random platform?
-    SPELL_TELEPORT_EARTH            = 82329,
-    SPELL_TELEPORT_AIR              = 82330,
-    SPELL_TELEPORT_FIRE             = 82331,
-    SPELL_TELEPORT_WATER            = 82332
+    // Probably also 81796, 81798, 81799, 81800 (all hidden client-side).
+    SPELL_TELEPORT_EARTH            = 82329, // South-West
+    SPELL_TELEPORT_AIR              = 82330, // South-East
+    SPELL_TELEPORT_FIRE             = 82331, // North-West
+    SPELL_TELEPORT_WATER            = 82332  // North-East
 };
 
 enum HOOGlobalActions
@@ -183,7 +187,7 @@ enum HOOGlobalActions
     ACTION_ANRAPHET_INTRO,
     ACTION_ELEMENTAL_DIED,
     ACTION_ANRAPHET_DIED,
-    ACTION_OMEGA_TRIGGER,
+    ACTION_OMEGA_TRIGGER
 };
 
 template<typename AI>

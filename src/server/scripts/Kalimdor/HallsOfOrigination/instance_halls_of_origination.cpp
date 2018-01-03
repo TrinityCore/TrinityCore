@@ -32,10 +32,6 @@ DoorData const doorData[] =
     { GO_DOODAD_ULDUM_DOOR_15,         DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE },
     { GO_ANHUURS_BRIDGE,               DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE },
     { GO_DOODAD_ULDUM_ELEVATOR_COL01,  DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE },
-    { GO_DOODAD_ULDUM_LIGHTMACHINE_02, DATA_EARTH_WARDEN,           DOOR_TYPE_PASSAGE },
-    { GO_DOODAD_ULDUM_LIGHTMACHINE_01, DATA_FIRE_WARDEN,            DOOR_TYPE_PASSAGE },
-    { GO_DOODAD_ULDUM_LIGHTMACHINE_03, DATA_WATER_WARDEN,           DOOR_TYPE_PASSAGE },
-    { GO_DOODAD_ULDUM_LIGHTMACHINE_04, DATA_AIR_WARDEN,             DOOR_TYPE_PASSAGE },
     { GO_LIFT_GLASS_STAR,              DATA_ANRAPHET,               DOOR_TYPE_PASSAGE },
     { GO_LIFT_GLASS_STAR_2,            DATA_ANRAPHET,               DOOR_TYPE_PASSAGE },
     { 0,                               0,                           DOOR_TYPE_ROOM    }
@@ -66,10 +62,14 @@ ObjectData const gameObjectData[] =
 {
     { GO_DOODAD_ULDUM_DOOR_15,          DATA_ANHUUR_DOOR                },
     { GO_VAULT_OF_LIGHTS_DOOR,          DATA_VAULT_OF_LIGHTS_DOOR       },
-    { GO_DOODAD_ULDUM_LASERBEAMS01,     DATA_LASERBEAMS_EARTH_WARDEN    },
-    { GO_DOODAD_ULDUM_LASERBEAMS_01,    DATA_LASERBEAMS_FIRE_WARDEN     },
-    { GO_DOODAD_ULDUM_LASERBEAMS_02,    DATA_LASERBEAMS_AIR_WARDEN      },
-    { GO_DOODAD_ULDUM_LASERBEAMS_03,    DATA_LASERBEAMS_WATER_WARDEN    },
+    { GO_DOODAD_ULDUM_LIGHTMACHINE_02,  DATA_LIGHTMACHINE_EARTH         },
+    { GO_DOODAD_ULDUM_LIGHTMACHINE_01,  DATA_LIGHTMACHINE_AIR           },
+    { GO_DOODAD_ULDUM_LIGHTMACHINE_04,  DATA_LIGHTMACHINE_FIRE          },
+    { GO_DOODAD_ULDUM_LIGHTMACHINE_03,  DATA_LIGHTMACHINE_WATER         },
+    { GO_DOODAD_ULDUM_LASERBEAMS01,     DATA_LASERBEAMS_EARTH           },
+    { GO_DOODAD_ULDUM_LASERBEAMS_01,    DATA_LASERBEAMS_AIR             },
+    { GO_DOODAD_ULDUM_LASERBEAMS_03,    DATA_LASERBEAMS_FIRE            },
+    { GO_DOODAD_ULDUM_LASERBEAMS_02,    DATA_LASERBEAMS_WATER           },
     { GO_SUN_MIRROR,                    DATA_ANRAPHET_SUN_MIRROR        },
     { GO_ANRAPHET_DOOR,                 DATA_ANRAPHET_DOOR              },
     { GO_LIFT_OF_THE_MAKERS,            DATA_LIFT_OF_THE_MAKERS         },
@@ -205,6 +205,9 @@ class instance_halls_of_origination : public InstanceMapScript
             {
                 switch (data)
                 {
+                    case DATA_UPDATE_LASERBEAMS:
+                        UpdateAllLaserBeams();
+                        break;
                     case DATA_ISISET_PHASE:
                         _isisetPhase = value;
                         break;
@@ -270,6 +273,8 @@ class instance_halls_of_origination : public InstanceMapScript
                     case DATA_AIR_WARDEN:
                         if (state == DONE)
                         {
+                            UpdateAllLightMachines();
+                            ++_deadElementals;
                             if (Creature* brann = GetCreature(DATA_BRANN_0))
                                 brann->AI()->DoAction(ACTION_ELEMENTAL_DIED);
                         }
@@ -344,7 +349,7 @@ class instance_halls_of_origination : public InstanceMapScript
 
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << _brannIntroStarted << ' ';
+                data << _brannIntroStarted << ' ' << _deadElementals << ' ';
             
                 for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
                     data << _wardenPositionSpells[i] << ' ';
@@ -352,7 +357,7 @@ class instance_halls_of_origination : public InstanceMapScript
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
-                data >> _brannIntroStarted;
+                data >> _brannIntroStarted >> _deadElementals;
                     
                 for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
                     data >> _wardenPositionSpells[i];
@@ -364,6 +369,20 @@ class instance_halls_of_origination : public InstanceMapScript
                 uint32 startAt = urand(0, WARDEN_ENTRY_MAX_COUNT - 1);
                 for (uint32 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
                     _wardenPositionSpells[(i + startAt) % WARDEN_ENTRY_MAX_COUNT] = SPELL_TELEPORT_EARTH + i;
+            }
+            
+            // Activated when warden dies (on SetBossState DONE).
+            void UpdateAllLightMachines()
+            {
+                for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
+                    HandleGameObject(ObjectGuid::Empty, GetBossState(DATA_FIRE_WARDEN + i) == DONE, GetGameObject(DATA_LIGHTMACHINE_EARTH + i));
+            }
+
+            // Activated 9 seconds after warden dies (on SetData DATA_UPDATE_LASERBEAMS, called by Brann).
+            void UpdateAllLaserBeams()
+            {
+                for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
+                    HandleGameObject(ObjectGuid::Empty, GetBossState(DATA_FIRE_WARDEN + i) == DONE, GetGameObject(DATA_LASERBEAMS_EARTH + i));
             }
 
             void UpdateTransitDevice(GameObject* transit)

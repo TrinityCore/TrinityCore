@@ -108,7 +108,7 @@ enum Spells
 
 enum Actions
 {
-    ACTION_BRANN_IDLE_EMOTE,
+    ACTION_BRANN_IDLE_EMOTE
 };
 
 enum Phases
@@ -472,15 +472,8 @@ public:
                         break;
                     case EVENT_BRANN_ACTIVATE_LASERBEAMS:
                     {
-                        // Activate laserbeams
-                        if (_instance->GetBossState(DATA_EARTH_WARDEN) == DONE)
-                            _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_EARTH_WARDEN));
-                        if (_instance->GetBossState(DATA_WATER_WARDEN) == DONE)
-                            _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_WATER_WARDEN));
-                        if (_instance->GetBossState(DATA_AIR_WARDEN) == DONE)
-                            _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_AIR_WARDEN));
-                        if (_instance->GetBossState(DATA_FIRE_WARDEN) == DONE)
-                            _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_LASERBEAMS_FIRE_WARDEN));
+                        // Update laserbeams
+                        _instance->SetData(DATA_UPDATE_LASERBEAMS, 0);
 
                         if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE) {
                             // Note: In some old sniff file Sun Mirror gets activated every time an elemental dies (for 10 seconds).
@@ -610,21 +603,24 @@ public:
     {
         PrepareSpellScript(spell_hoo_platform_teleport_SpellScript);
 
-        void SetOrientationAndUpdateHomePosition()
+        void SetDest(SpellDestination& dest)
         {
             Creature* creature = GetCaster()->ToCreature();
             if (creature)
                 return;
-
+            
             // Side of the room: WEST > 366.781f (middle of the room) > EAST
             float ori = creature->GetPositionY() > 366.781f ? DegToRad(270) : DegToRad(90);
-            creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), ori);
-            creature->GetMotionMaster()->MoveTargetedHome();
+
+            // DB dest has no orientation field (always 0.0f).
+            dest.RelocateOffset({ 0.0f, 0.0f, 0.0f, ori });
+
+            creature->SetHomePosition(dest._position.GetPosition());
         }
 
         void Register() override
         {
-            AfterHit += SpellHitFn(spell_hoo_platform_teleport_SpellScript::SetOrientationAndUpdateHomePosition);
+            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_hoo_platform_teleport_SpellScript::SetDest, EFFECT_0, TARGET_DEST_DB);
         }
     };
 

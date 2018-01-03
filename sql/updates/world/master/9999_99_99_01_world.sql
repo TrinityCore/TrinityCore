@@ -22,13 +22,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (82382, 'spell_hoo_energy_flux_target_selector'),
 (74880, 'spell_hoo_arcane_energy_check');
 
--- achievement dbc fix
-DELETE FROM `achievement_dbc` WHERE `ID` IN (15988);
-INSERT INTO `achievement_dbc` (`ID`, `requiredFaction`, `mapID`, `points`, `flags`, `count`, `refAchievement`) VALUES
-(5594, -1, 644, 0, 2, 1, 0);
-
 -- criteria script
-DELETE FROM `criteria_data` WHERE `criteria_id` IN (15988);
+DELETE FROM `criteria_data` WHERE `criteria_id` IN (15989);
 INSERT INTO `criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 (15989, 11, 0, 0, 'achievement_straw_broke_camels_back');
 
@@ -113,10 +108,10 @@ UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `map` = 644 AND `id` in (398
 -- spell positions for wardens
 DELETE FROM `spell_target_position` WHERE `ID` IN (82329, 82330, 82331, 82332);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
-(82329, 0, 644, -329.727, 481.142, 89.2101, -1),
-(82330, 0, 644, -223.26,  488.222, 89.2102, -1),
-(82331, 0, 644, -329.962, 246.302, 89.2101, -1),
-(82332, 0, 644, -223.049, 243.161, 89.2102, -1);
+(82329, 0, 644, -329.962, 246.302, 89.2101, -1),
+(82330, 0, 644, -329.727, 481.142, 89.2102, -1),
+(82331, 0, 644, -223.26,  488.222, 89.2101, -1), 
+(82332, 0, 644, -223.049, 243.161, 89.2102, -1); 
 
 -- Water Warden gets Aqua Bomb aura on aggro.
 DELETE FROM `creature_template_addon` WHERE `entry` = 39802;

@@ -501,6 +501,8 @@ public:
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     me->DespawnOrUnsummon();
                     break;
+                default:
+                    break;
             }
         }
 
