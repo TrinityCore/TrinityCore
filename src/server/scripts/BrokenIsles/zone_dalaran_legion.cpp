@@ -102,6 +102,8 @@ public:
     {
         if (uiAction == 1)
             player->CastSpell(player, SPELL_PLAY_DALARAN_TELEPORTATION_SCENE, true);
+
+        return true;
     }
 };
 
