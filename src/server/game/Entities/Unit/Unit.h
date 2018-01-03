@@ -292,9 +292,9 @@ enum UnitMods
     UNIT_MOD_RUNES,
     UNIT_MOD_RUNIC_POWER,
     UNIT_MOD_SOUL_SHARDS,
-    UNIT_MOD_ECLIPSE,
+    UNIT_MOD_LUNAR_POWER,
     UNIT_MOD_HOLY_POWER,
-    UNIT_MOD_ALTERNATIVE,
+    UNIT_MOD_ALTERNATE,
     UNIT_MOD_MAELSTROM,
     UNIT_MOD_CHI,
     UNIT_MOD_INSANITY,
@@ -1043,8 +1043,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual float GetDamageMultiplierForTarget(WorldObject const* /*target*/) const { return 1.0f; }
         virtual float GetArmorMultiplierForTarget(WorldObject const* /*target*/) const { return 1.0f; }
 
-        Powers getPowerType() const { return Powers(GetUInt32Value(UNIT_FIELD_DISPLAY_POWER)); }
-        void setPowerType(Powers power);
+        Powers GetPowerType() const { return Powers(GetUInt32Value(UNIT_FIELD_DISPLAY_POWER)); }
+        void SetPowerType(Powers power);
         void UpdateDisplayPower();
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_LUNAR_POWER ? -100 : 0; }
@@ -1053,6 +1053,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
         void SetPower(Powers power, int32 val);
         void SetMaxPower(Powers power, int32 val);
+        inline void SetFullPower(Powers power) { SetPower(power, GetMaxPower(power)); }
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val);
 
@@ -2027,15 +2028,15 @@ namespace Trinity
             {
                 Unit const* a = objA->ToUnit();
                 Unit const* b = objB->ToUnit();
-                float rA = (a && a->GetMaxPower(_power)) ? float(a->GetPower(_power)) / float(a->GetMaxPower(_power)) : 0.0f;
-                float rB = (b && b->GetMaxPower(_power)) ? float(b->GetPower(_power)) / float(b->GetMaxPower(_power)) : 0.0f;
+                float rA = a ? a->GetPowerPct(_power) : 0.0f;
+                float rB = b ? b->GetPowerPct(_power) : 0.0f;
                 return _ascending ? rA < rB : rA > rB;
             }
 
             bool operator()(Unit const* a, Unit const* b) const
             {
-                float rA = a->GetMaxPower(_power) ? float(a->GetPower(_power)) / float(a->GetMaxPower(_power)) : 0.0f;
-                float rB = b->GetMaxPower(_power) ? float(b->GetPower(_power)) / float(b->GetMaxPower(_power)) : 0.0f;
+                float rA = a->GetPowerPct(_power);
+                float rB = b->GetPowerPct(_power);
                 return _ascending ? rA < rB : rA > rB;
             }
 
