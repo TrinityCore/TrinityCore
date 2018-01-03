@@ -5896,7 +5896,7 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     return true;
 }
 
-bool Player::MeetPlayerCondition(uint32 conditionId)
+bool Player::MeetPlayerCondition(uint32 conditionId) const
 {
     if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId))
         if (sConditionMgr->IsPlayerMeetingCondition(this, playerCondition))
