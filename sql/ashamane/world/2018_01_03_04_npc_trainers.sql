@@ -1,3 +1,4 @@
+DELETE FROM npc_trainer;
 insert into `npc_trainer` values(514,2018,10,0,0,0,0);
 insert into `npc_trainer` values(514,2661,100,164,35,0,0);
 insert into `npc_trainer` values(514,2662,50,164,1,0,0);

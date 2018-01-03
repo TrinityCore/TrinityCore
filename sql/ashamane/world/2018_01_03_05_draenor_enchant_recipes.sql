@@ -1,3 +1,4 @@
+DELETE FROM spell_learn_spell  WHERE entry = 161788;
 INSERT INTO spell_learn_spell VALUES
 (161788, 159236, 1),
 (161788, 158907, 1),
