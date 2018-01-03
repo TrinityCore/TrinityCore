@@ -3419,6 +3419,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->Effect = 0;
     });
 
+    // Play Teleport Dalaran Scene
+    ApplySpellFix({ 227861 }, [](SpellInfo* spellInfo)
+    {
+        // Area 7881 should be applied to player by Dalaran Gob, but NYI
+        spellInfo->RequiredAreasID = 0;
+    });
+
     SpellInfo* spellInfo = NULL;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Conversation.h"
 #include "GameObject.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -31,12 +32,49 @@
 enum
 {
     PHASE_DALARAN_KARAZHAN  = 5829,
-
-    // True if one of two "In the Blink of an Eye" quests is rewarded
-    PLAYERCONDITION_QUEST   = 45040
+    QUEST_BLINK_OF_AN_EYE   = 44663,
 };
 
-// 228330 - Téléportation
+// TODO : All this script is temp fix,
+// remove it when legion start quests are properly fixed
+class OnLegionArrival : public PlayerScript
+{
+public:
+    OnLegionArrival() : PlayerScript("OnLegionArrival") { }
+
+    enum
+    {
+        SPELL_MAGE_LEARN_GUARDIAN_HALL_TP   = 204287,
+        SPELL_WAR_LEARN_JUMP_TO_SKYHOLD     = 192084,
+        SPELL_CREATE_CLASS_HALL_ALLIANCE    = 185506,
+        SPELL_CREATE_CLASS_HALL_HORDE       = 192191,
+
+        CONVERSATION_KHADGAR_BLINK_OF_EYE   = 3827,
+    };
+
+    void OnLevelChanged(Player* player, uint8 oldLevel) override
+    {
+        if (oldLevel < 100 && player->getLevel() >= 100)
+        {
+            if (player->getClass() == CLASS_MAGE)
+                player->CastSpell(player, SPELL_MAGE_LEARN_GUARDIAN_HALL_TP, true);
+            else if (player->getClass() == CLASS_WARRIOR)
+                player->CastSpell(player, SPELL_WAR_LEARN_JUMP_TO_SKYHOLD, true);
+
+            player->CastSpell(player, player->IsInAlliance() ? SPELL_CREATE_CLASS_HALL_ALLIANCE : SPELL_CREATE_CLASS_HALL_HORDE, true);
+
+            if (player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_NONE)
+            {
+                Conversation::CreateConversation(CONVERSATION_KHADGAR_BLINK_OF_EYE, player, player->GetPosition(), { player->GetGUID() });
+
+                if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_BLINK_OF_AN_EYE))
+                    player->AddQuest(quest, nullptr);
+            }
+        }
+    }
+};
+
+// 228329 & 228330 - Téléportation
 class spell_dalaran_teleportation : public SpellScriptLoader
 {
 public:
@@ -49,21 +87,22 @@ public:
         void EffectTeleportDalaranKarazhan(SpellEffIndex effIndex)
         {
             if (Player* player = GetCaster()->ToPlayer())
-                if (player->getLevel() < 100 || player->MeetPlayerCondition(PLAYERCONDITION_QUEST))
+                if (player->getLevel() < 100 || player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) != QUEST_STATUS_INCOMPLETE)
                     PreventHitEffect(effIndex);
         }
 
         void EffectTeleportDalaranLegion(SpellEffIndex effIndex)
         {
             if (Player* player = GetCaster()->ToPlayer())
-                if (player->getLevel() < 100 || !player->MeetPlayerCondition(PLAYERCONDITION_QUEST))
+                if (player->getLevel() < 100 || (player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) != QUEST_STATUS_COMPLETE &&
+                                                 player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) != QUEST_STATUS_REWARDED))
                     PreventHitEffect(effIndex);
         }
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_dalaran_teleportation_SpellScript::EffectTeleportDalaranKarazhan, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
-            OnEffectHitTarget += SpellEffectFn(spell_dalaran_teleportation_SpellScript::EffectTeleportDalaranLegion, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+            OnEffectLaunch += SpellEffectFn(spell_dalaran_teleportation_SpellScript::EffectTeleportDalaranKarazhan, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+            OnEffectLaunch += SpellEffectFn(spell_dalaran_teleportation_SpellScript::EffectTeleportDalaranLegion, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
         }
     };
 
@@ -137,38 +176,11 @@ public:
  * Legion Dalaran
  */
 
-class OnLegionArrival : public PlayerScript
-{
-public:
-    OnLegionArrival() : PlayerScript("OnLegionArrival") { }
-
-    enum
-    {
-        SPELL_MAGE_LEARN_GUARDIAN_HALL_TP   = 204287,
-        SPELL_WAR_LEARN_JUMP_TO_SKYHOLD     = 192084,
-        SPELL_CREATE_CLASS_HALL_ALLIANCE    = 185506,
-        SPELL_CREATE_CLASS_HALL_HORDE       = 192191,
-    };
-
-    void OnLevelChanged(Player* player, uint8 /*oldLevel*/) override
-    {
-        if (player->getLevel() == 100)
-        {
-            if (player->getClass() == CLASS_MAGE)
-                player->CastSpell(player, SPELL_MAGE_LEARN_GUARDIAN_HALL_TP, true);
-            else if (player->getClass() == CLASS_WARRIOR)
-                player->CastSpell(player, SPELL_WAR_LEARN_JUMP_TO_SKYHOLD, true);
-
-            player->CastSpell(player, player->IsInAlliance() ? SPELL_CREATE_CLASS_HALL_ALLIANCE : SPELL_CREATE_CLASS_HALL_HORDE, true);
-        }
-    }
-};
-
 void AddSC_dalaran_legion()
 {
+    new OnLegionArrival();
     new spell_dalaran_teleportation();
     new go_dalaran_karazhan();
     new npc_dalaran_karazhan_khadgar();
     new scene_dalaran_kharazan_teleportion();
-    new OnLegionArrival();
 }
