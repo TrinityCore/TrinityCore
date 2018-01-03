@@ -285,7 +285,7 @@ class boss_magmaw : public CreatureScript
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -445,7 +445,7 @@ class npc_spike_stalker : public CreatureScript
             }
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
         }
     };
@@ -472,7 +472,7 @@ class npc_pillar_of_flame : public CreatureScript
             actionTimer = 3000;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!done)
             {
@@ -582,7 +582,7 @@ class npc_drakonid_drudge : public CreatureScript
             DoStartMovement(who);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -697,7 +697,7 @@ class npc_blazing_bone_construct : public CreatureScript
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;

@@ -288,7 +288,7 @@ public:
                 me->SetFullHealth();
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!m_Summoned)
                 return;
@@ -380,7 +380,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -486,7 +486,7 @@ public:
             m_Events.ScheduleEvent(eDatas::EventBurningBody, 10000);
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             m_Events.Update(p_Diff);
 

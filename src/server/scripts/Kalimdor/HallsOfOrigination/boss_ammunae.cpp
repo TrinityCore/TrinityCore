@@ -81,7 +81,7 @@ class boss_ammunae : public CreatureScript
             _JustDied();
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -222,7 +222,7 @@ class npc_bloodpetal_blossom : public CreatureScript
                 actionTimer = 100;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!done)
             {
@@ -335,7 +335,7 @@ public:
             me->DespawnOrUnsummon(100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -389,7 +389,7 @@ public:
             events.ScheduleEvent(EVENT_SPORE_CLOUD, 2000);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;

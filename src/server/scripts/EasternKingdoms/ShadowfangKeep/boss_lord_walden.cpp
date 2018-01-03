@@ -122,7 +122,7 @@ class boss_lord_walden : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if(!UpdateVictim())
                     return;

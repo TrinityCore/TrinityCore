@@ -147,7 +147,7 @@ class npc_battered_red_drake: public CreatureScript
                 me->GetMotionMaster()->MovePoint(uiPoint, RedDrakeLandInstance[uiPoint]);
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             // if player jumps off while flying there is no need to continue
             if (boarded && !FlyDisabled && !me->GetVehicleKit()->IsVehicleInUse())
@@ -245,7 +245,7 @@ class npc_net_red_dragon: public CreatureScript
             }
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
         }
 

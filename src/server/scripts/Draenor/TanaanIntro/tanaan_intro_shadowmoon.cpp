@@ -102,7 +102,7 @@ public:
             playerGuid = p_Guid;
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             if (m_SceneTimer)
             {
@@ -311,7 +311,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             m_Events.Update(p_Diff);
             FollowerAI::UpdateAI(p_Diff);
@@ -448,7 +448,7 @@ public:
             m_events.ScheduleEvent(EVENT_VOID_SHELL,        urand(10000, 20000));
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             if (!UpdateVictim())
                 return;

@@ -455,7 +455,7 @@ class mob_zhi_the_harmonious : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
             }
         };
@@ -499,7 +499,7 @@ class mob_andruin_wrynn : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
             }
         };
@@ -543,7 +543,7 @@ class mob_taran_zhu_white_tiger : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
             }
         };

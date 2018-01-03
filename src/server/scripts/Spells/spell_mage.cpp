@@ -2422,7 +2422,7 @@ class npc_mirror_image : public CreatureScript
                 return target && !target->HasAuraType(SPELL_AURA_MOD_CONFUSE);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
 

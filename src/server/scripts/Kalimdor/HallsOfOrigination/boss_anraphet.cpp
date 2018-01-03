@@ -142,7 +142,7 @@ class boss_anraphet : public CreatureScript
             BossAI::JustDied(killer);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(intro)
             {
@@ -264,7 +264,7 @@ class npc_air_warden_hoo : public CreatureScript
                 instance->SetData(DATA_AIR_WARDEN, DONE);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -415,7 +415,7 @@ class npc_earth_warden_hoo : public CreatureScript
                 instance->SetData(DATA_EARTH_WARDEN, DONE);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!rockWave && !UpdateVictim())
                 return;
@@ -503,7 +503,7 @@ class npc_flame_warden_hoo : public CreatureScript
                 instance->SetData(DATA_FLAME_WARDEN, 1);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -612,7 +612,7 @@ class npc_water_warden_hoo : public CreatureScript
             DoCast(me, SPELL_AQUA_BOMB_AURA, true);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!UpdateVictim())
                 return;
@@ -741,7 +741,7 @@ class npc_brann_bronzebeard_hoo : public CreatureScript
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!EventInProgress)
                 return;

@@ -3640,7 +3640,7 @@ public:
             me->CastSpell(me, SEF_STATS, true);
         }
 
-        void UpdateAI(const uint32 /*uiDiff*/) override
+        void UpdateAI(uint32 /*uiDiff*/) override
         {
             //Check caster and cast the same shit somehow
         }
@@ -3674,7 +3674,7 @@ public:
             me->CastSpell(me, SEF_STATS, true);
         }
 
-        void UpdateAI(const uint32 /*uiDiff*/) override
+        void UpdateAI(uint32 /*uiDiff*/) override
         {
             //Check caster and cast the same shit somehow
         }

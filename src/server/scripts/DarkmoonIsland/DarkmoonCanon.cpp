@@ -92,7 +92,7 @@ class npc_darkmoon_canon_target : public CreatureScript
             {
             }
 
-            void UpdateAI(uint32 const /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 std::list<Player*> playerList;
                 me->GetPlayerListInGrid(playerList, 30.0f);

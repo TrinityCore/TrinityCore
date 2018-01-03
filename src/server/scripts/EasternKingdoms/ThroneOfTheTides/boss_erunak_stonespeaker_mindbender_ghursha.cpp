@@ -154,7 +154,7 @@ public:
                 pInstance->SetBossState(DATA_MINDBENDER_GHURSHA, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -322,7 +322,7 @@ public:
             SummonList.push_back(pSummon->GetGUID());
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

@@ -135,7 +135,7 @@ class boss_baron_ashbury : public CreatureScript
                     BossAI::MoveInLineOfSight(victim);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if(!UpdateVictim())
                     return;

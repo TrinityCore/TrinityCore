@@ -231,7 +231,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -356,7 +356,7 @@ public:
         DoCast(pPlayer, SPELL_BLADES_OF_ICE_DMG, true);
         }*/
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -447,7 +447,7 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (bDespawn)
                 return;

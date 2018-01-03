@@ -73,7 +73,7 @@ class boss_jinbak : public CreatureScript
                 summons.Summon(summoned);
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 DoMeleeAttackIfReady();
             }
@@ -113,7 +113,7 @@ class npc_sap_puddle : public CreatureScript
                 _events.ScheduleEvent(EVENT_GROW, 1000);
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 switch(_events.ExecuteEvent())
                 {

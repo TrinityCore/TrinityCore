@@ -250,7 +250,7 @@ public:
             return bAchieve;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -414,7 +414,7 @@ public:
                     events.ScheduleEvent(EVENT_NEXT_MOVE, 500);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

@@ -198,7 +198,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -379,7 +379,7 @@ class npc_throw_bomb_bunny : public CreatureScript
                 StartRespawnTimer = true;
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (StartRespawnTimer)
                 {

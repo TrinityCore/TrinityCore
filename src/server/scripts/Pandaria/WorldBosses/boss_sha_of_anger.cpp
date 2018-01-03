@@ -345,7 +345,7 @@ class mob_sha_of_anger_bunny : public CreatureScript
                     who->RemoveAura(SPELL_OVERCOME_BY_ANGER);
             }
 
-            void UpdateAI(uint32 const /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (me->AI() && !me->AI()->CanSeeEvenInPassiveMode())
                     me->AI()->SetCanSeeEvenInPassiveMode(true);

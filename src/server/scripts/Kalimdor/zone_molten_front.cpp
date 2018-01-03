@@ -107,7 +107,7 @@ public:
             spell_2_Timer = 6000;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -171,7 +171,7 @@ public:
             spell_3_Timer = 14000;
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -250,7 +250,7 @@ public:
             events.ScheduleEvent(EVENT_SCORCH, 6000);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -317,7 +317,7 @@ public:
             events.ScheduleEvent(EVENT_BURNING_HUNGER, urand(9000, 17000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -382,7 +382,7 @@ public:
             events.ScheduleEvent(EVENT_THREE, 9000);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -453,7 +453,7 @@ public:
             events.ScheduleEvent(EVENT_ONE, 4000);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -526,7 +526,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -618,7 +618,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -690,7 +690,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -780,7 +780,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -870,7 +870,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -960,7 +960,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1022,7 +1022,7 @@ public:
             events.ScheduleEvent(EVENT_TWO, urand(9000, 10000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1100,7 +1100,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1162,7 +1162,7 @@ public:
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1224,7 +1224,7 @@ public:
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1289,7 +1289,7 @@ public:
             //events.ScheduleEvent(EVENT_TWO, urand(9000,10000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1379,7 +1379,7 @@ public:
             events.ScheduleEvent(EVENT_TWO, urand(27000, 30000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1500,7 +1500,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1572,7 +1572,7 @@ public:
             events.ScheduleEvent(EVENT_TWO, urand(9000, 10000));
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1670,7 +1670,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1757,7 +1757,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1838,7 +1838,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1935,7 +1935,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2010,7 +2010,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2087,7 +2087,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2165,7 +2165,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2237,7 +2237,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2320,7 +2320,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2407,7 +2407,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2489,7 +2489,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2560,7 +2560,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2652,7 +2652,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2722,7 +2722,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2872,7 +2872,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -2938,7 +2938,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3023,7 +3023,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3102,7 +3102,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3182,7 +3182,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -3263,7 +3263,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3349,7 +3349,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3444,7 +3444,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -3515,7 +3515,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -3581,7 +3581,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -3651,7 +3651,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -3741,7 +3741,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -3852,7 +3852,7 @@ public:
             //events.ScheduleEvent(EVENT_ONE, 100);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -3928,7 +3928,7 @@ public:
         {
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

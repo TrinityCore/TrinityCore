@@ -112,7 +112,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (l_CheckTimer)
             {
@@ -179,7 +179,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (IntroTimer)
             {
@@ -271,7 +271,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (IntroTimer)
             {
@@ -322,7 +322,7 @@ public:
             tornadeTimer = 8 * IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (tornadeTimer <= diff)
             {
@@ -499,7 +499,7 @@ public:
                         player->KilledMonsterCredit(me->GetEntry());
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (checkPlayers())
             {
@@ -589,7 +589,7 @@ public:
             return;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (cooldown)
             {
@@ -674,7 +674,7 @@ public:
                 SetEscortPaused(false);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (IntroTimer)
             {
@@ -834,7 +834,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (IntroTimer)
             {
@@ -932,7 +932,7 @@ public:
             me->GetMotionMaster()->MoveFollow(summoner, 1.0f, 1.0f, MOTION_SLOT_ACTIVE);
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             Player* summoner = ObjectAccessor::GetPlayer(*me, playerGuid);
             if (!summoner)

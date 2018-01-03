@@ -102,7 +102,7 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!isEventInProgress)
             {
@@ -438,7 +438,7 @@ public:
                 me->CastSpell(me, 8858, true);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!isActive)
                 return;
@@ -533,7 +533,7 @@ public:
                 c->ToCreature()->AI()->Talk(irand(0, 7));
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
         }
     };
@@ -624,7 +624,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -716,7 +716,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -785,7 +785,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -905,7 +905,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -979,7 +979,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (mui_talk <= diff)
             {
@@ -1043,7 +1043,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
         }
     };
@@ -1146,7 +1146,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             DoMeleeAttackIfReady();
         }
@@ -1234,7 +1234,7 @@ public:
             me->GetMotionMaster()->MoveRandom(5);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (ui_findPlayer <= diff)
             {
@@ -1394,7 +1394,7 @@ public:
             event_p = 0;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!start)
             {
@@ -1524,7 +1524,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -1764,7 +1764,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -1799,7 +1799,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (mui_soufle <= diff)
             {
@@ -1847,7 +1847,7 @@ public:
 
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (_a <= diff)
             {
@@ -1898,7 +1898,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (mui_soufle <= diff)
             {
@@ -2020,7 +2020,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -2156,7 +2156,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!isEventInProgress)
                 return;

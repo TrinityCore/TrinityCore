@@ -183,7 +183,7 @@ public:
                 start = true;
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!start)
                 return;
@@ -248,7 +248,7 @@ public:
             m_timer2 = 4000;
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -319,7 +319,7 @@ public:
             updateAch = true;
         }
 
-        void UpdateAI(uint32 const /*uiDiff*/) override
+        void UpdateAI(uint32 /*uiDiff*/) override
         {
         }
 

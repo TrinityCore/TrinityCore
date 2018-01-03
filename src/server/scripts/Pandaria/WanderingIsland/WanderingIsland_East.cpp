@@ -279,7 +279,7 @@ public:
             return me->GetMap()->GetCreature(waterSpoutGUID);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
 
@@ -512,7 +512,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (IntroTimer)
             {
@@ -626,7 +626,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (eventTimer)
             {
@@ -737,7 +737,7 @@ public:
                 }
         }
 
-        void UpdateAI(const uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 15.0f);
@@ -778,7 +778,7 @@ class npc_ji_firepaw_killcredit : public CreatureScript
                 m_CheckTimer = 2000;
             }
 
-            void UpdateAI(const uint32 p_Diff) override
+            void UpdateAI(uint32 p_Diff) override
             {
                 if (m_CheckTimer)
                 {

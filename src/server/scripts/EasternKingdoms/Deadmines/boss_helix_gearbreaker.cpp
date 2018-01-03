@@ -201,7 +201,7 @@ public:
                 events.ScheduleEvent(EVENT_CHEST_BOMB, 5000);
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -344,7 +344,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -432,7 +432,7 @@ public:
             DoCast(me, SPELL_CHEST_BOMB);
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!me)
                 return;
@@ -505,7 +505,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (ThrowBombTimer <= diff)
             {

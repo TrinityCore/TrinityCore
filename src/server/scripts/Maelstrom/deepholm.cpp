@@ -83,7 +83,7 @@ class npc_imposing_confrontation_quest : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if(eventStarted)
                 {
@@ -266,7 +266,7 @@ class npc_slaincrewmember : public CreatureScript
                 }
             }
         }
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(!QuestInProgress)
                 return;
@@ -364,7 +364,7 @@ public:
             SpeakPlayer = Caster;
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(DialogNumber == 0)
                 return;
@@ -446,7 +446,7 @@ public:
             player = summoner->ToPlayer();
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (uiExplode == 0)
                 return;
@@ -565,7 +565,7 @@ public:
             events.ScheduleEvent(EVENT_UNLEASHED_MAGIC, 66000);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
 
             if (!UpdateVictim())
@@ -683,7 +683,7 @@ public:
 
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
 
         //Out of combat

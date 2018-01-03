@@ -136,7 +136,7 @@ public:
                     (*itr)->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

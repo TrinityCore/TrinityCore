@@ -326,7 +326,7 @@ public:
             me->SetDisplayId(DISPLAYID_ELEMENTARY);
         }
 
-        void UpdateAI(const uint32 p_Diff) override
+        void UpdateAI(uint32 p_Diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -842,7 +842,7 @@ public:
                 events.ScheduleEvent(EVENT_GARA_02, 0);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -984,7 +984,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1092,7 +1092,7 @@ public:
             events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (me->GetPhaseMask() == 1)
                 return;

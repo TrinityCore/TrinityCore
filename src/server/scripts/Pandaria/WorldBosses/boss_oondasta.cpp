@@ -99,7 +99,7 @@ class boss_oondasta : public CreatureScript
                     me->AddAura(SPELL_ALPHA_MALE, me);
             }
 
-            void UpdateAI(uint32 const diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;

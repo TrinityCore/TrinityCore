@@ -202,7 +202,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -323,7 +323,7 @@ public:
                 }
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -379,7 +379,7 @@ public:
                 Talk(AUGH_SAY_INTRO_1);
         }
 
-        void UpdateAI(uint32 const /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -434,7 +434,7 @@ public:
         uint32 uiEventTimer;
         uint8 uiPhase;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -501,7 +501,7 @@ public:
         uint32 uiEventTimer;
         uint8 uiPhase;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -577,7 +577,7 @@ public:
         uint32 uiEventTimer;
         uint8 uiPhase;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -714,7 +714,7 @@ public:
             events.ScheduleEvent(EVENT_SAY_AAA, urand(15000, 35000));
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (Intro)
             {

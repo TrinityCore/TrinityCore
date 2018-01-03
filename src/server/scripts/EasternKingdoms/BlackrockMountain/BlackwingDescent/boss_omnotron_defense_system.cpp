@@ -203,7 +203,7 @@ public:
         uint8 activateTron;
         bool eventActive;
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if(me->HasAura(SPELL_INACTIVE))
                 me->RemoveAura(SPELL_INACTIVE);
@@ -619,7 +619,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (isFirstTron)
                 if (Creature* omnotron = me->FindNearestCreature(BOSS_OMNOTRON, 100.0f, true))
@@ -857,7 +857,7 @@ public:
             HasTarget = false;
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if (HasTarget)
                 me->GetMotionMaster()->MoveChase(myTarget);
@@ -940,7 +940,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if(uiDespawn <= uiDiff)
             {
@@ -980,7 +980,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void UpdateAI(uint32 const uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
             if(uiDespawn <= uiDiff)
             {

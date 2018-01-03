@@ -278,7 +278,7 @@ class boss_bethtilac : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -513,7 +513,7 @@ class npc_bethtilac_spiderweb_filament : public CreatureScript
                     }
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (pInstance->GetBossState(DATA_BETHTILAC) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -594,7 +594,7 @@ class npc_bethtilac_cinderweb_spinner : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (pInstance->GetBossState(DATA_BETHTILAC) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -683,7 +683,7 @@ class npc_bethtilac_cinderweb_drone : public CreatureScript
                     DoCast(me, SPELL_CREATE_CHITINOUS_FRAGMENT, true);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -770,7 +770,7 @@ class npc_bethtilac_cinderweb_spiderling : public CreatureScript
                 events.ScheduleEvent(EVENT_CHECK_DRONE, 2000);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -846,7 +846,7 @@ class npc_bethtilac_engorged_broodling : public CreatureScript
                 bBurst = false;
             }
 
-            void UpdateAI(const uint32 /*diff*/) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!bBurst && me->SelectNearestPlayer(3.0f))
                 {
