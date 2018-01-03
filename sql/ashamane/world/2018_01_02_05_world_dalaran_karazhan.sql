@@ -3605,7 +3605,9 @@ UPDATE `creature_template` SET scriptname = "npc_dalaran_karazhan_khadgar" WHERE
 UPDATE `scene_template` SET scriptname = "scene_dalaran_kharazan_teleportion" WHERE SceneId = 1449;
 
 DELETE FROM spell_script_names WHERE ScriptName = "spell_dalaran_teleportation";
-INSERT INTO spell_script_names VALUES (228330, "spell_dalaran_teleportation");
+INSERT INTO spell_script_names VALUES
+(228329, "spell_dalaran_teleportation"),
+(228330, "spell_dalaran_teleportation");
 
 DELETE FROM `npc_text` WHERE `ID`=30756;
 INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextId0`, `BroadcastTextId1`, `BroadcastTextId2`, `BroadcastTextId3`, `BroadcastTextId4`, `BroadcastTextId5`, `BroadcastTextId6`, `BroadcastTextId7`, `VerifiedBuild`) VALUES
