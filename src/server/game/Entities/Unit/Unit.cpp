@@ -780,7 +780,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     // Rage from Damage made (only from direct weapon damage)
-    if (cleanDamage && (cleanDamage->attackType == BASE_ATTACK || cleanDamage->attackType == OFF_ATTACK) && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE)
+    if (cleanDamage && (cleanDamage->attackType == BASE_ATTACK || cleanDamage->attackType == OFF_ATTACK) && damagetype == DIRECT_DAMAGE && this != victim && GetPowerType() == POWER_RAGE)
     {
         uint32 rage = uint32(GetBaseAttackTime(cleanDamage->attackType) / 1000.f * 1.75f);
         if (cleanDamage->attackType == OFF_ATTACK)
@@ -5159,9 +5159,9 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
     SendAttackStateUpdate(&dmgInfo);
 }
 
-void Unit::setPowerType(Powers new_powertype)
+void Unit::SetPowerType(Powers new_powertype)
 {
-    if (getPowerType() == new_powertype)
+    if (GetPowerType() == new_powertype)
         return;
 
     SetUInt32Value(UNIT_FIELD_DISPLAY_POWER, new_powertype);
@@ -5235,7 +5235,7 @@ void Unit::UpdateDisplayPower()
         }
     }
 
-    setPowerType(displayPower);
+    SetPowerType(displayPower);
 }
 
 FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
@@ -5923,7 +5923,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
 
         // Ghoul pets have energy instead of mana (is anywhere better place for this code?)
         if (minion->IsPetGhoul())
-            minion->setPowerType(POWER_ENERGY);
+            minion->SetPowerType(POWER_ENERGY);
 
         // Send infinity cooldown - client does that automatically but after relog cooldown needs to be set again
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(minion->GetUInt32Value(UNIT_CREATED_BY_SPELL));
@@ -8540,7 +8540,7 @@ void Unit::setDeathState(DeathState s)
         // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         // do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
-        SetPower(getPowerType(), 0);
+        SetPower(GetPowerType(), 0);
         SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
 
         // players in instance don't have ZoneScript, but they have InstanceScript
@@ -9265,9 +9265,9 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_RUNES:
         case UNIT_MOD_RUNIC_POWER:
         case UNIT_MOD_SOUL_SHARDS:
-        case UNIT_MOD_ECLIPSE:
+        case UNIT_MOD_LUNAR_POWER:
         case UNIT_MOD_HOLY_POWER:
-        case UNIT_MOD_ALTERNATIVE:
+        case UNIT_MOD_ALTERNATE:
         case UNIT_MOD_MAELSTROM:
         case UNIT_MOD_CHI:
         case UNIT_MOD_INSANITY:
@@ -9508,7 +9508,7 @@ void Unit::SetPower(Powers power, int32 val)
     if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
-    int32 maxPower = int32(GetMaxPower(power));
+    int32 maxPower = GetMaxPower(power);
     if (maxPower < val)
         val = maxPower;
 

@@ -166,7 +166,6 @@ public:
             NotifyModification(handler, target, LANG_YOU_CHANGE_ENERGY, LANG_YOURS_ENERGY_CHANGED, energy / energyMultiplier, energymax / energyMultiplier);
             target->SetMaxPower(POWER_ENERGY, energymax);
             target->SetPower(POWER_ENERGY, energy);
-            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
             return true;
         }
         return false;

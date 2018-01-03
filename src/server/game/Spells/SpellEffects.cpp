@@ -1090,7 +1090,7 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 
     Powers powerType = Powers(effectInfo->MiscValue);
 
-    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->getPowerType() != powerType || damage < 0)
+    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->GetPowerType() != powerType || damage < 0)
         return;
 
     // add spell damage bonus
@@ -1165,7 +1165,7 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
 
     Powers powerType = Powers(effectInfo->MiscValue);
 
-    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->getPowerType() != powerType || damage < 0)
+    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->GetPowerType() != powerType || damage < 0)
         return;
 
     int32 newDamage = -(unitTarget->ModifyPower(powerType, -damage));
@@ -4188,7 +4188,7 @@ void Spell::EffectSelfResurrect(SpellEffIndex /*effIndex*/)
     player->SetHealth(health);
     player->SetPower(POWER_MANA, mana);
     player->SetPower(POWER_RAGE, 0);
-    player->SetPower(POWER_ENERGY, player->GetMaxPower(POWER_ENERGY));
+    player->SetFullPower(POWER_ENERGY);
     player->SetPower(POWER_FOCUS, 0);
 
     player->SpawnCorpseBones();
