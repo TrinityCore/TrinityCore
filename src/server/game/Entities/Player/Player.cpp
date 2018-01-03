@@ -18887,13 +18887,8 @@ void Player::LoadPet()
     }
 }
 
-void Player::LoadPetsFromDB()
+void Player::LoadPetsFromDB(PreparedQueryResult result)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ALL_PETS_DETAIL);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
     if (!result)
         return;
 

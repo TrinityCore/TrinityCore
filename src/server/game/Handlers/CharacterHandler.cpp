@@ -281,6 +281,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ALL_PETS_DETAIL);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ALL_PETS, stmt);
+
     return res;
 }
 
@@ -1046,7 +1050,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         CharacterDatabase.Execute(stmtSpec);
     }
 
-    pCurrChar->LoadPetsFromDB();
+    pCurrChar->LoadPetsFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ALL_PETS));
 
     if (pCurrChar->getClass() == CLASS_HUNTER)
         pCurrChar->GetSession()->SendStablePet(ObjectGuid::Empty);
