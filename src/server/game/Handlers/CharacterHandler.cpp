@@ -364,8 +364,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
     else
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM);
 
-    stmt->setUInt8(0, 0); // PLACEHOLDER
-    stmt->setUInt32(1, GetAccountId());
+    stmt->setUInt32(0, GetAccountId());
 
     _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharEnum, this, std::placeholders::_1)));
 }
@@ -406,8 +405,7 @@ void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCha
     else
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_UNDELETE_ENUM);
 
-    stmt->setUInt8(0, 0); // PLACEHOLDER
-    stmt->setUInt32(1, GetAccountId());
+    stmt->setUInt32(0, GetAccountId());
 
     _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharUndeleteEnum, this, std::placeholders::_1)));
 }
