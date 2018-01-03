@@ -925,6 +925,7 @@ struct PlayerPetData
     uint8 Slot;
     std::string Name;
     bool Renamed;
+    bool Active;
     uint32 SavedHealth;
     uint32 SavedMana;
     std::string Actionbar;
@@ -2367,6 +2368,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PlayerPetData* GetPlayerPetDataById(uint32 petId);
         PlayerPetData* GetPlayerPetDataBySlot(uint8 slot);
         PlayerPetData* GetPlayerPetDataByCreatureId(uint32 creatureId);
+        PlayerPetData* GetPlayerPetDataCurrent();
         Optional<uint8> GetFirstUnusedActivePetSlot();
         Optional<uint8> GetFirstUnusedPetSlot();
         void DeleteFromPlayerPetDataStore(uint32 petNumber);

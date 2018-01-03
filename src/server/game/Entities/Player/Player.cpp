@@ -18879,7 +18879,9 @@ void Player::LoadPet()
     if (IsInWorld())
     {
         Pet* pet = new Pet(this);
-        if (!pet->LoadPetData(this, 0, 0, true))
+        if (pet->LoadPetData(this, 0, 0, true))
+            pet->UpdateAllStats();
+        else
             delete pet;
     }
 }
@@ -18919,13 +18921,14 @@ void Player::LoadPetsFromDB()
         playerPetData->Slot          = slot;
         playerPetData->Name          = fields[8].GetString();
         playerPetData->Renamed       = fields[9].GetBool();
-        playerPetData->SavedHealth   = fields[10].GetUInt32();
-        playerPetData->SavedMana     = fields[11].GetUInt32();
-        playerPetData->Actionbar     = fields[12].GetString();
-        playerPetData->Timediff      = fields[13].GetUInt32();
-        playerPetData->SummonSpellId = fields[14].GetUInt32();
-        playerPetData->Type          = PetType(fields[15].GetUInt8());
-        playerPetData->SpecId        = fields[16].GetUInt16();
+        playerPetData->Active        = fields[10].GetBool();
+        playerPetData->SavedHealth   = fields[11].GetUInt32();
+        playerPetData->SavedMana     = fields[12].GetUInt32();
+        playerPetData->Actionbar     = fields[13].GetString();
+        playerPetData->Timediff      = fields[14].GetUInt32();
+        playerPetData->SummonSpellId = fields[15].GetUInt32();
+        playerPetData->Type          = PetType(fields[16].GetUInt8());
+        playerPetData->SpecId        = fields[17].GetUInt16();
 
         PlayerPetDataStore.push_back(playerPetData);
 
@@ -18954,6 +18957,15 @@ PlayerPetData* Player::GetPlayerPetDataByCreatureId(uint32 creatureId)
 {
     for (PlayerPetData* p : PlayerPetDataStore)
         if (p->CreatureId == creatureId)
+            return p;
+
+    return nullptr;
+}
+
+PlayerPetData* Player::GetPlayerPetDataCurrent()
+{
+    for (PlayerPetData* p : PlayerPetDataStore)
+        if (p->Active == true)
             return p;
 
     return nullptr;
@@ -26246,7 +26258,9 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
         return;
 
     Pet* NewPet = new Pet(this);
-    if (!NewPet->LoadPetData(this, 0, m_temporaryUnsummonedPetNumber, true))
+    if (NewPet->LoadPetData(this, 0, m_temporaryUnsummonedPetNumber, false))
+        NewPet->UpdateAllStats();
+    else
         delete NewPet;
 
     m_temporaryUnsummonedPetNumber = 0;

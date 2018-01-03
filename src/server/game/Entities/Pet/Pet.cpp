@@ -117,6 +117,10 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
     {
         playerPetData = owner->GetPlayerPetDataBySlot(petEntry);
     }
+    else if (current)
+    {
+        playerPetData = owner->GetPlayerPetDataCurrent();
+    }
     else
         return false;
 
@@ -330,6 +334,8 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
 
     m_loading = false;
 
+    SetActive(true);
+
     return true;
 }
 
@@ -368,7 +374,15 @@ void Pet::SavePetToDB(PetSaveMode mode)
     }
 
     if (mode == PET_SAVE_DISMISS)
+    {
         RemoveAllAuras();
+        SetActive(false);
+    }
+
+    if (mode == PET_SAVE_LOGOUT)
+    {
+        RemoveAllAuras();
+    }
 
     // whole pet is saved to DB
     if (mode >= PET_SAVE_CURRENT_STATE)
@@ -393,15 +407,16 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setInt16(7, m_petSlot);
         stmt->setString(8, m_name);
         stmt->setUInt8(9, HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ? 0 : 1);
-        stmt->setUInt32(10, curhealth);
-        stmt->setUInt32(11, curmana);
+        stmt->setUInt8(10, IsActive() ? 1 : 0);
+        stmt->setUInt32(11, curhealth);
+        stmt->setUInt32(12, curmana);
 
-        stmt->setString(12, GenerateActionBarData());
+        stmt->setString(13, GenerateActionBarData());
 
-        stmt->setUInt32(13, time(nullptr)); // unsure about this
-        stmt->setUInt32(14, GetUInt32Value(UNIT_CREATED_BY_SPELL));
-        stmt->setUInt8(15, getPetType());
-        stmt->setUInt16(16, m_petSpecialization);
+        stmt->setUInt32(14, time(nullptr)); // unsure about this
+        stmt->setUInt32(15, GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        stmt->setUInt8(16, getPetType());
+        stmt->setUInt16(17, m_petSpecialization);
         trans->Append(stmt);
 
         CharacterDatabase.CommitTransaction(trans);
@@ -432,6 +447,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         playerPetData->Slot = m_petSlot;
         playerPetData->Name = m_name;
         playerPetData->Renamed = HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ? 0 : 1;
+        playerPetData->Active = IsActive() ? 1 : 0;
         playerPetData->SavedHealth = curhealth;
         playerPetData->SavedMana = curmana;
         playerPetData->Actionbar = GenerateActionBarData();

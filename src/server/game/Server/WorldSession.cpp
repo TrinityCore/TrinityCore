@@ -557,7 +557,7 @@ void WorldSession::LogoutPlayer(bool save)
             guild->HandleMemberLogout(this);
 
         ///- Remove pet
-        _player->RemovePet(nullptr, PET_SAVE_DISMISS, true);
+        _player->RemovePet(nullptr, PET_SAVE_LOGOUT, true);
 
         ///- Clear whisper whitelist
         _player->ClearWhisperWhiteList();
