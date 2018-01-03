@@ -105,7 +105,10 @@ class npc_millhouse_manastorm : public CreatureScript
                 Initialize();
 
                 if (instance->GetData(DATA_WARDEN_2) == DONE)
+                {
                     Init = true;
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                }
 
                 if (instance->GetBossState(DATA_HARBINGER_SKYRISS) == DONE)
                     Talk(SAY_COMPLETE);
@@ -177,6 +180,7 @@ class npc_millhouse_manastorm : public CreatureScript
                             case 7:
                                 instance->SetData(DATA_WARDEN_2, DONE);
                                 Init = true;
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                                 break;
                             }
                             ++Phase;
