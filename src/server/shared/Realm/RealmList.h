@@ -40,7 +40,7 @@ namespace boost
 
     namespace asio
     {
-        class io_service;
+        class io_context;
     }
 
     namespace system
@@ -82,7 +82,7 @@ public:
 
     ~RealmList();
 
-    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
+    void Initialize(boost::asio::io_context& ioContext, uint32 updateInterval);
     void Close();
 
     Realm const* GetRealm(Battlenet::RealmHandle const& id) const;

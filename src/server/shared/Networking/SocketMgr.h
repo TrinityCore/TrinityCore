@@ -35,14 +35,14 @@ public:
         ASSERT(!_threads && !_acceptor && !_threadCount, "StopNetwork must be called prior to SocketMgr destruction");
     }
 
-    virtual bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
+    virtual bool StartNetwork(boost::asio::io_context& context, std::string const& bindIp, uint16 port, int threadCount)
     {
         ASSERT(threadCount > 0);
 
         AsyncAcceptor* acceptor = nullptr;
         try
         {
-            acceptor = new AsyncAcceptor(service, bindIp, port);
+            acceptor = new AsyncAcceptor(context, bindIp, port);
         }
         catch (boost::system::system_error const& err)
         {

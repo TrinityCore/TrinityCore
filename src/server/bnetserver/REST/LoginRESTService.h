@@ -21,7 +21,7 @@
 #include "Define.h"
 #include "Login.pb.h"
 #include "Session.h"
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <atomic>
@@ -40,11 +40,11 @@ enum class BanMode
 class LoginRESTService
 {
 public:
-    LoginRESTService() : _ioService(nullptr), _stopped(false), _port(0), _loginTicketDuration(0) { }
+    LoginRESTService() : _ioContext(nullptr), _stopped(false), _port(0), _loginTicketDuration(0) { }
 
     static LoginRESTService& Instance();
 
-    bool Start(boost::asio::io_service* ioService);
+    bool Start(boost::asio::io_context* ioContext);
     void Stop();
 
     boost::asio::ip::tcp::endpoint const& GetAddressForClient(boost::asio::ip::address const& address) const;
@@ -96,7 +96,7 @@ private:
         char const* ContentType;
     };
 
-    boost::asio::io_service* _ioService;
+    boost::asio::io_context* _ioContext;
     std::thread _thread;
     std::atomic<bool> _stopped;
     Battlenet::JSON::Login::FormInputs _formInputs;

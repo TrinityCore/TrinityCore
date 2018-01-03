@@ -41,10 +41,10 @@ namespace boost
             template <typename InternetProtocol>
             class resolver_service;
 
-            template <typename InternetProtocol, typename ResolverService>
+            template <typename InternetProtocol>
             class basic_resolver;
 
-            typedef basic_resolver<tcp, resolver_service<tcp>> tcp_resolver;
+            typedef basic_resolver<tcp> tcp_resolver;
         }
 
         template <typename Time>
@@ -53,10 +53,10 @@ namespace boost
         template <typename TimeType, typename TimeTraits>
         class deadline_timer_service;
 
-        template <typename Time, typename TimeTraits, typename TimerService>
+        template <typename Time, typename TimeTraits>
         class basic_deadline_timer;
 
-        typedef basic_deadline_timer<posix_time::ptime, time_traits<posix_time::ptime>, deadline_timer_service<posix_time::ptime, time_traits<posix_time::ptime>>> deadline_timer;
+        typedef basic_deadline_timer<posix_time::ptime, time_traits<posix_time::ptime>> deadline_timer;
     }
 }
 

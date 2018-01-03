@@ -25,12 +25,12 @@
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-void Metric::Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
+void Metric::Initialize(std::string const& realmName, boost::asio::io_context& ioContext, std::function<void()> overallStatusLogger)
 {
     _dataStream = Trinity::make_unique<boost::asio::ip::tcp::iostream>();
     _realmName = FormatInfluxDBTagValue(realmName);
-    _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
-    _overallStatusTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
+    _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioContext);
+    _overallStatusTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioContext);
     _overallStatusLogger = overallStatusLogger;
     LoadFromConfigs();
 }
@@ -216,7 +216,7 @@ void Metric::ScheduleSend()
 void Metric::ForceSend()
 {
     // Send what's queued only if io_service is stopped (so only on shutdown)
-    if (_enabled && _batchTimer->get_io_service().stopped())
+    if (_enabled && _batchTimer->get_io_context().stopped())
         SendBatch();
 }
 
