@@ -3624,6 +3624,10 @@ DELETE FROM `phase_area` WHERE `AreaId` = 41 AND PhaseId = 5829;
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (41, 5829, "Dalaran above Karazhan - Legion start quests");
 
+UPDATE creature_template SET minlevel = 100, maxlevel = 100, npcflag = 2 WHERE entry = 111109;
+insert into `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) values
+('20555653','111109','1220','0','0','1','0','0','0','0','-833.379','4404.54','737.391','5.36481','300','0','0','80','0','0','0','0','0','0','0','','0');
+
 DELETE FROM conditions WHERE SourceTypeOrReferenceId = 26 AND SourceGroup = 5829 AND SourceEntry = 41;
 INSERT INTO conditions VALUES
 (26, 5829, 41, 0, 1, 47, 0, 44663, 10, 0, 0, 0, 0, "", "In the Blink of an Eye Quest - Dalaran above Karazhan phase");
