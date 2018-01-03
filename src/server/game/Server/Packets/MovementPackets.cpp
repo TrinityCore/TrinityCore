@@ -497,6 +497,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdate::Write()
 WorldPacket const* WorldPackets::Movement::TransferPending::Write()
 {
     _worldPacket << int32(MapID);
+    _worldPacket << OldMapPosition;
     _worldPacket.WriteBit(Ship.is_initialized());
     _worldPacket.WriteBit(TransferSpellID.is_initialized());
     if (Ship)
