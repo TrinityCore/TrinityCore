@@ -171,8 +171,10 @@ typedef std::unordered_map<uint32, GameTele > GameTeleContainer;
 
 struct CreatureOutfit
 {
+    // Remember to change DB query too!
     static constexpr uint32 max_outfit_displays = 11;
     static constexpr uint32 max_custom_displays = 3;
+
     uint8 race;
     uint8 Class;
     uint8 gender;
@@ -181,7 +183,7 @@ struct CreatureOutfit
     uint8 hair;
     uint8 facialhair;
     uint8 haircolor;
-    uint8 customdisplay[3];
+    uint8 customdisplay[max_custom_displays];
     uint32 displayId;
     uint32 outfit[max_outfit_displays];
 };

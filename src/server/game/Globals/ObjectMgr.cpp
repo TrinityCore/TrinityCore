@@ -8352,7 +8352,7 @@ void ObjectMgr::LoadCreatureOutfits()
                     co.outfit[j] = display;
                 else
                 {
-                    TC_LOG_ERROR("server.loading", ">> Creature entry %u in `creature_template_outfits` has invalid (item entry, appearance) combination: %u, %u. Value in DB: %s", entry, item_entry, appearancemodid, std::to_string(displayInfo).c_str());
+                    TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has invalid (item entry, appearance) combination: %u, %u. Value in DB: %s", entry, item_entry, appearancemodid, std::to_string(displayInfo).c_str());
                     co.outfit[j] = 0;
                 }
             }
