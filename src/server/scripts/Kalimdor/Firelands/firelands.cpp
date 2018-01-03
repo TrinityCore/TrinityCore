@@ -806,7 +806,7 @@ public:
         {
             animatorDeadCount = 0;
             events.Reset();
-            me->setPowerType(POWER_ENERGY);
+            me->SetPowerType(POWER_ENERGY);
             me->SetMaxPower(POWER_MANA, 100);
             me->SetPower(POWER_MANA, 0);
             me->CastSpell(me, SPELL_SUPER_HEATED,true);

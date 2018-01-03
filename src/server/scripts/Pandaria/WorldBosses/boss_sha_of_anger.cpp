@@ -93,7 +93,7 @@ class boss_sha_of_anger : public CreatureScript
 
             void Reset() override
             {
-                me->setPowerType(POWER_RAGE);
+                me->SetPowerType(POWER_RAGE);
                 me->SetPower(POWER_RAGE, 0);
 
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 5.0f);

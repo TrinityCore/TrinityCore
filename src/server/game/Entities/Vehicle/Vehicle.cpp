@@ -78,9 +78,9 @@ void Vehicle::Install()
     if (_me->GetTypeId() == TYPEID_UNIT)
     {
         if (PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(_vehicleInfo->PowerDisplayID[0]))
-            _me->setPowerType(Powers(powerDisplay->PowerType));
+            _me->SetPowerType(Powers(powerDisplay->PowerType));
         else if (_me->getClass() == CLASS_ROGUE)
-            _me->setPowerType(POWER_ENERGY);
+            _me->SetPowerType(POWER_ENERGY);
     }
 
     _status = STATUS_INSTALLED;

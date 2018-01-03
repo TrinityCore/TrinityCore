@@ -968,7 +968,7 @@ public:
 
             bool operator()(WorldObject* unit)
             {
-                return (!unit->ToUnit() || unit->ToUnit()->getPowerType() != POWER_MANA);
+                return (!unit->ToUnit() || unit->ToUnit()->GetPowerType() != POWER_MANA);
             }
         };
 

@@ -86,7 +86,7 @@ public:
             getsamCount = 0;
             me->SetFullHealth();
             me->GetMotionMaster()->MoveTargetedHome();
-            me->setPowerType(POWER_MANA);
+            me->SetPowerType(POWER_MANA);
             me->SetMaxPower(POWER_MANA, 100);
             me->SetPower(POWER_MANA, 0);
             me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);

@@ -596,7 +596,7 @@ public:
             Below = false;
             me->SetPower(POWER_ENERGY, 100);
             me->SetMaxPower(POWER_ENERGY, 100);
-            me->setPowerType(POWER_ENERGY);
+            me->SetPowerType(POWER_ENERGY);
         }
 
         void UpdateAI(uint32 diff) override

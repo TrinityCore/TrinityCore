@@ -132,7 +132,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->SetPower(POWER_ENERGY, 100);
             me->SetMaxPower(POWER_ENERGY, 100);
-            me->setPowerType(POWER_ENERGY);
+            me->SetPowerType(POWER_ENERGY);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             Step = 0;
             Below = false;
@@ -430,7 +430,7 @@ public:
 
             me->SetPower(POWER_ENERGY, 100);
             me->SetMaxPower(POWER_ENERGY, 100);
-            me->setPowerType(POWER_ENERGY);
+            me->SetPowerType(POWER_ENERGY);
             if (Status == true)
             {
                 if (!me->HasAura(SPELL_ON_FIRE))
