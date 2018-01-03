@@ -49,14 +49,14 @@ public:
         void EffectTeleportDalaranKarazhan(SpellEffIndex effIndex)
         {
             if (Player* player = GetCaster()->ToPlayer())
-                if (player->MeetPlayerCondition(PLAYERCONDITION_QUEST))
+                if (player->getLevel() < 100 || player->MeetPlayerCondition(PLAYERCONDITION_QUEST))
                     PreventHitEffect(effIndex);
         }
 
         void EffectTeleportDalaranLegion(SpellEffIndex effIndex)
         {
             if (Player* player = GetCaster()->ToPlayer())
-                if (!player->MeetPlayerCondition(PLAYERCONDITION_QUEST))
+                if (player->getLevel() < 100 || !player->MeetPlayerCondition(PLAYERCONDITION_QUEST))
                     PreventHitEffect(effIndex);
         }
 
