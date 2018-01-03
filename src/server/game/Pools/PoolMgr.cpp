@@ -353,7 +353,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
 
             for (auto itr = rolledObjects.begin(); itr != rolledObjects.end();)
             {
-                if (spawns.IsActiveObject<T>(itr->guid))
+                if (itr->guid != triggerFrom && spawns.IsActiveObject<T>(itr->guid))
                     itr = rolledObjects.erase(itr);
                 else
                     ++itr;
@@ -365,9 +365,6 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
         // try to spawn rolled objects
         for (PoolObject& obj : rolledObjects)
         {
-            if (spawns.IsActiveObject<T>(obj.guid))
-                continue;
-
             if (obj.guid == triggerFrom)
             {
                 ReSpawn1Object(&obj);
