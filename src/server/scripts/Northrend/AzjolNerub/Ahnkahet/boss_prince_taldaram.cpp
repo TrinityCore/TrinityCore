@@ -41,6 +41,7 @@ enum Spells
     SPELL_FLAME_SPHERE_DEATH_EFFECT         = 55947,
     SPELL_EMBRACE_OF_THE_VAMPYR             = 55959,
     SPELL_VANISH                            = 55964,
+    SPELL_SHADOWSTEP                        = 55966,
 
     NPC_FLAME_SPHERE_1                      = 30106,
     NPC_FLAME_SPHERE_2                      = 31686,
@@ -77,9 +78,8 @@ enum Events
     EVENT_CONJURE_FLAME_SPHERES             = 1,
     EVENT_BLOODTHIRST,
     EVENT_VANISH,
-    EVENT_JUST_VANISHED,
-    EVENT_VANISHED,
-    EVENT_FEEDING,
+    EVENT_START_FEEDING,
+    EVENT_DONE_FEEDING,
 
     // Flame Sphere
     EVENT_START_MOVE,
@@ -97,6 +97,7 @@ class boss_prince_taldaram : public CreatureScript
             {
                 me->SetDisableGravity(true);
                 _embraceTakenDamage = 0;
+                _initialCheckTimer = 3000;
             }
 
             void Reset() override
@@ -140,8 +141,30 @@ class boss_prince_taldaram : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim())
-                    return;
+                if (_initialCheckTimer)
+                {
+                    if (_initialCheckTimer <= diff)
+                    {
+                        CheckSpheres();
+                        _initialCheckTimer = 0;
+                    }
+                    else
+                        _initialCheckTimer -= diff;
+                }
+
+                if (me->HasAura(SPELL_VANISH))
+                {
+                    if (me->GetThreatManager().IsThreatListEmpty(true))
+                    {
+                        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                        return;
+                    }
+                }
+                else
+                {
+                    if (!UpdateVictim())
+                        return;
+                }
 
                 events.Update(diff);
 
@@ -167,47 +190,29 @@ class boss_prince_taldaram : public CreatureScript
                             break;
                         case EVENT_VANISH:
                         {
-                            Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                            uint32 targets = 0;
-                            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+                            if (me->GetThreatManager().GetThreatListSize() > 1)
                             {
-                                Player* player = i->GetSource();
-                                if (player && player->IsAlive())
-                                    ++targets;
-                            }
-
-                            if (targets > 2)
-                            {
-                                Talk(SAY_VANISH);
-                                DoCast(me, SPELL_VANISH);
-                                me->SetInCombatState(true); // Prevents the boss from resetting
-                                events.DelayEvents(500);
-                                events.ScheduleEvent(EVENT_JUST_VANISHED, 500);
                                 if (Unit* embraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                     _embraceTargetGUID = embraceTarget->GetGUID();
+                                Talk(SAY_VANISH);
+                                DoCast(me, SPELL_VANISH);
+                                events.DelayEvents(500);
+                                events.ScheduleEvent(EVENT_START_FEEDING, 2000);
                             }
                             events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
                             break;
                         }
-                        case EVENT_JUST_VANISHED:
+                        case EVENT_START_FEEDING:
+                            me->RemoveAurasDueToSpell(SPELL_VANISH);
                             if (Unit* embraceTarget = GetEmbraceTarget())
                             {
-                                me->GetMotionMaster()->Clear();
-                                me->SetSpeedRate(MOVE_WALK, 2.0f);
-                                me->GetMotionMaster()->MoveChase(embraceTarget);
-                            }
-                            events.ScheduleEvent(EVENT_VANISHED, 1300);
-                            break;
-                        case EVENT_VANISHED:
-                            if (Unit* embraceTarget = GetEmbraceTarget())
+                                DoCast(embraceTarget, SPELL_SHADOWSTEP);
                                 DoCast(embraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
-                            Talk(SAY_FEED);
-                            me->GetMotionMaster()->Clear();
-                            me->SetSpeedRate(MOVE_WALK, 1.0f);
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
-                            events.ScheduleEvent(EVENT_FEEDING, 20000);
+                                Talk(SAY_FEED);
+                                events.ScheduleEvent(EVENT_DONE_FEEDING, 20000);
+                            }
                             break;
-                        case EVENT_FEEDING:
+                        case EVENT_DONE_FEEDING:
                             _embraceTargetGUID.Clear();
                             break;
                         default:
@@ -289,6 +294,7 @@ class boss_prince_taldaram : public CreatureScript
             ObjectGuid _flameSphereTargetGUID;
             ObjectGuid _embraceTargetGUID;
             uint32 _embraceTakenDamage;
+            uint32 _initialCheckTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

@@ -504,11 +504,12 @@ void BossAI::TeleportCheaters()
     float x, y, z;
     me->GetPosition(x, y, z);
 
-    ThreatContainer::StorageType threatList = me->GetThreatManager().getThreatList();
-    for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
-        if (Unit* target = (*itr)->getTarget())
-            if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
-                target->NearTeleportTo(x, y, z, 0);
+    for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+    {
+        Unit* target = pair.second->GetOther(me);
+        if (target->IsControlledByPlayer() && !CheckBoundary(target))
+            target->NearTeleportTo(x, y, z, 0);
+    }
 }
 
 void BossAI::JustSummoned(Creature* summon)

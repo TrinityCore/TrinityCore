@@ -19,6 +19,7 @@
 #define TRINITY_UNITAI_H
 
 #include "Containers.h"
+#include "Errors.h"
 #include "EventMap.h"
 #include "ObjectGuid.h"
 #include "SpellDefines.h"

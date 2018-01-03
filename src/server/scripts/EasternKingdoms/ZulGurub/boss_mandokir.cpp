@@ -555,7 +555,7 @@ class DevastatingSlamTargetSelector : public std::unary_function<Unit *, bool>
 
         bool operator() (WorldObject* target)
         {
-            if (target == _victim && _me->GetThreatManager().getThreatList().size() > 1)
+            if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
                 return true;
 
             if (target->GetTypeId() != TYPEID_PLAYER)
@@ -684,7 +684,7 @@ class spell_mandokir_ohgan_orders_trigger : public SpellScriptLoader
                     caster->GetMotionMaster()->Clear();
                     caster->GetThreatManager().ClearAllThreat();
                     caster->GetThreatManager().AddThreat(target, 50000000.0f);
-                    caster->TauntApply(target);
+                    // TODO: Fixate mechanic
                 }
             }
 

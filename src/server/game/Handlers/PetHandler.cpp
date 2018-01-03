@@ -134,7 +134,6 @@ void WorldSession::HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet)
         return;
 
     pet->AttackStop();
-    pet->ClearInPetCombat();
 }
 
 void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, Position const& pos)
@@ -168,7 +167,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 case COMMAND_FOLLOW:                        //spellid=1792  //FOLLOW
                     pet->AttackStop();
                     pet->InterruptNonMeleeSpells(false);
-                    pet->ClearInPetCombat();
                     pet->GetMotionMaster()->MoveFollow(_player, PET_FOLLOW_DIST, pet->GetFollowAngle());
                     charmInfo->SetCommandState(COMMAND_FOLLOW);
 
@@ -282,7 +280,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             {
                 case REACT_PASSIVE:                         //passive
                     pet->AttackStop();
-                    pet->ClearInPetCombat();
                     /* fallthrough */
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete

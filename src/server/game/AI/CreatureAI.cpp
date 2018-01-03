@@ -67,61 +67,49 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRange
     if (!creature)
         creature = me;
 
-    if (!creature->CanHaveThreatList())
-        return;
-
     Map* map = creature->GetMap();
-    if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
+    if (creature->CanHaveThreatList())
     {
-        TC_LOG_ERROR("misc", "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
-        return;
-    }
-
-    if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
-    {
-        if (Unit* nearTarget = creature->SelectNearestTarget(maxRangeToNearestTarget))
-            creature->AI()->AttackStart(nearTarget);
-        else if (creature->IsSummon())
+        if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
         {
-            if (Unit* summoner = creature->ToTempSummon()->GetSummoner())
+            TC_LOG_ERROR("misc", "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
+            return;
+        }
+
+        if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
+        {
+            if (Unit* nearTarget = creature->SelectNearestTarget(maxRangeToNearestTarget))
+                creature->AI()->AttackStart(nearTarget);
+            else if (creature->IsSummon())
             {
-                Unit* target = summoner->getAttackerForHelper();
-                if (!target && summoner->CanHaveThreatList() && !summoner->GetThreatManager().IsThreatListEmpty())
-                    target = summoner->GetThreatManager().GetAnyTarget();
-                if (target && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(target)))
-                    creature->AI()->AttackStart(target);
+                if (Unit* summoner = creature->ToTempSummon()->GetSummoner())
+                {
+                    Unit* target = summoner->getAttackerForHelper();
+                    if (!target && !summoner->GetThreatManager().IsThreatListEmpty())
+                        target = summoner->GetThreatManager().GetAnyTarget();
+                    if (target && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(target)))
+                        creature->AI()->AttackStart(target);
+                }
             }
+        }
+
+        // Intended duplicated check, the code above this should select a victim
+        // If it can't find a suitable attack target then we should error out.
+        if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
+        {
+            TC_LOG_ERROR("misc.dozoneincombat", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
+            return;
         }
     }
 
-    // Intended duplicated check, the code above this should select a victim
-    // If it can't find a suitable attack target then we should error out.
-    if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
-    {
-        TC_LOG_ERROR("misc.dozoneincombat", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
-        return;
-    }
-
     Map::PlayerList const& playerList = map->GetPlayers();
-
     if (playerList.isEmpty())
         return;
 
     for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-    {
         if (Player* player = itr->GetSource())
-        {
-            if (player->IsGameMaster())
-                continue;
-
             if (player->IsAlive())
-            {
                 creature->SetInCombatWith(player);
-                player->SetInCombatWith(creature);
-                creature->GetThreatManager().AddThreat(player, 0.0f, nullptr, true, true);
-            }
-        }
-    }
 }
 
 // scripts does not take care about MoveInLineOfSight loops
@@ -249,11 +237,13 @@ bool CreatureAI::UpdateVictim()
 
         return me->GetVictim() != nullptr;
     }
-    else if (me->GetThreatManager().IsThreatListEmpty())
+    else if (me->GetThreatManager().IsThreatListEmpty(true))
     {
         EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
         return false;
     }
+    else
+        me->AttackStop();
 
     return true;
 }

@@ -163,13 +163,9 @@ public:
 
         bool IsInCombatWithPlayer() const
         {
-            std::list<HostileReference*> const& refs = me->GetThreatManager().getThreatList();
-            for (HostileReference const* hostileRef : refs)
-            {
-                if (Unit const* target = hostileRef->getTarget())
-                    if (target->IsControlledByPlayer())
-                        return true;
-            }
+            for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+                if (pair.second->GetOther(me)->IsControlledByPlayer())
+                    return true;
             return false;
         }
 

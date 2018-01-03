@@ -428,6 +428,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         {
             return GetPhaseShift().CanSee(obj->GetPhaseShift());
         }
+        static bool InSamePhase(WorldObject const* a, WorldObject const* b)
+        {
+            return a && b && a->IsInPhase(b);
+        }
 
         PhaseShift& GetPhaseShift() { return _phaseShift; }
         PhaseShift const& GetPhaseShift() const { return _phaseShift; }

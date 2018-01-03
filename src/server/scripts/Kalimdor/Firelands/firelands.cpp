@@ -233,7 +233,7 @@ struct npc_firelands_magmakin : public ScriptedAI
             return;
 
         AddThreat(target, 50000000.0f);
-        me->TauntApply(target);
+        // TODO: Fixate mechanic
     }
 
     void UpdateAI(uint32 /*diff*/) override

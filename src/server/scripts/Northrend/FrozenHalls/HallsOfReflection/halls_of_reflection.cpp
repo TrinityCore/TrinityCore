@@ -1342,7 +1342,7 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                             AttackStart(victim);
                     return me->GetVictim() != nullptr;
                 }
-                else if (me->GetThreatManager().GetThreatListSize() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))
+                else if (me->GetCombatManager().GetPvECombatRefs().size() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))
                 {
                     EnterEvadeMode(EVADE_REASON_OTHER);
                     return false;

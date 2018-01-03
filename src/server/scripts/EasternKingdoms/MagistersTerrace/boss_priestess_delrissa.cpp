@@ -850,17 +850,12 @@ public:
             if (Blink_Timer <= diff)
             {
                 bool InMeleeRange = false;
-                ThreatContainer::StorageType const& t_list = me->GetThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
                 {
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (pair.second->GetOther(me)->IsWithinMeleeRange(me))
                     {
-                        //if in melee range
-                        if (target->IsWithinDistInMap(me, 5))
-                        {
-                            InMeleeRange = true;
-                            break;
-                        }
+                        InMeleeRange = true;
+                        break;
                     }
                 }
 
@@ -944,17 +939,12 @@ public:
             if (Intercept_Stun_Timer <= diff)
             {
                 bool InMeleeRange = false;
-                ThreatContainer::StorageType const& t_list = me->GetThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
                 {
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (pair.second->GetOther(me)->IsWithinMeleeRange(me))
                     {
-                        //if in melee range
-                        if (target->IsWithinDistInMap(me, ATTACK_DISTANCE))
-                        {
-                            InMeleeRange = true;
-                            break;
-                        }
+                        InMeleeRange = true;
+                        break;
                     }
                 }
 

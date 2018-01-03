@@ -672,14 +672,10 @@ struct boss_faction_championsAI : public BossAI
 
     Unit* SelectEnemyCaster(bool /*casting*/)
     {
-        std::list<HostileReference*> const& tList = me->GetThreatManager().getThreatList();
-        std::list<HostileReference*>::const_iterator iter;
-        for (iter = tList.begin(); iter!=tList.end(); ++iter)
-        {
-            Unit* target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
-            if (target && target->GetPowerType() == POWER_MANA)
-                return target;
-        }
+        for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+            if (Player* player = pair.second->GetOther(me)->ToPlayer())
+                if (player->GetPowerType() == POWER_MANA)
+                    return player;
         return nullptr;
     }
 

@@ -115,7 +115,6 @@ struct boss_randolph_moloch : public BossAI
                 me->RemoveAllAuras();
                 DoCastSelf(SPELL_VANISH);
                 me->SetReactState(REACT_PASSIVE);
-                me->SetInCombatState(true); // Prevents the boss from resetting
                 events.ScheduleEvent(EVENT_JUST_VANISHED, 2s);
                 break;
             case EVENT_JUST_VANISHED:

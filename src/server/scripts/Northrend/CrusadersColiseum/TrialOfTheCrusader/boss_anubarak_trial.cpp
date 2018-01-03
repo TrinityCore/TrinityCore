@@ -820,7 +820,7 @@ class npc_anubarak_spike : public CreatureScript
                 DoCast(who, SPELL_MARK);
                 me->SetSpeedRate(MOVE_RUN, 0.5f);
                 // make sure the Spine will really follow the one he should
-                ResetThreatList();
+                me->GetThreatManager().ResetAllThreat();
                 me->SetInCombatWithZone();
                 AddThreat(who, 1000000.0f);
                 me->GetMotionMaster()->Clear(true);

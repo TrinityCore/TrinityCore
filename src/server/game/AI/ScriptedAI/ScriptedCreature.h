@@ -184,7 +184,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     void Reset() override { }
 
     //Called at creature aggro either by MoveInLOS or Attack Start
-    void JustEngagedWith(Unit* /*victim*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
 
     // Called before JustEngagedWith even before the creature is in combat.
     void AttackStart(Unit* /*target*/) override;

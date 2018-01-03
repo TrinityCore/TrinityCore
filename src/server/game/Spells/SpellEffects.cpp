@@ -1090,7 +1090,7 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 
         int32 gain = int32(newDamage* gainMultiplier);
 
-        m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, powerType);
+        m_caster->EnergizeBySpell(m_caster, m_spellInfo, gain, powerType);
     }
     ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, gainMultiplier);
 }
@@ -1522,7 +1522,7 @@ void Spell::EffectEnergize(SpellEffIndex /*effIndex*/)
             break;
     }
 
-    m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
+    m_caster->EnergizeBySpell(unitTarget, m_spellInfo, damage, power);
 }
 
 void Spell::EffectEnergizePct(SpellEffIndex /*effIndex*/)
@@ -1544,7 +1544,7 @@ void Spell::EffectEnergizePct(SpellEffIndex /*effIndex*/)
         return;
 
     uint32 gain = CalculatePct(maxPower, damage);
-    m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, gain, power);
+    m_caster->EnergizeBySpell(unitTarget, m_spellInfo, gain, power);
 }
 
 void Spell::SendLoot(ObjectGuid guid, LootType loottype)
@@ -2700,27 +2700,22 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
 
     // this effect use before aura Taunt apply for prevent taunt already attacking target
     // for spell as marked "non effective at already attacking target"
-    if (!unitTarget || !unitTarget->CanHaveThreatList() || unitTarget->GetVictim() == m_caster)
+    if (!unitTarget || !unitTarget->CanHaveThreatList())
     {
         SendCastResult(SPELL_FAILED_DONT_REPORT);
         return;
     }
 
-    if (!unitTarget->GetThreatManager().getOnlineContainer().empty())
+    ThreatManager& mgr = unitTarget->GetThreatManager();
+    if (mgr.GetCurrentVictim() == m_caster)
     {
-        // Also use this effect to set the taunter's threat to the taunted creature's highest value
-        float myThreat = unitTarget->GetThreatManager().getThreat(m_caster);
-        float topThreat = unitTarget->GetThreatManager().getOnlineContainer().getMostHated()->getThreat();
-        if (topThreat > myThreat)
-            unitTarget->GetThreatManager().doAddThreat(m_caster, topThreat - myThreat);
-
-        //Set aggro victim to caster
-        if (HostileReference* forcedVictim = unitTarget->GetThreatManager().getOnlineContainer().getReferenceByTarget(m_caster))
-            unitTarget->GetThreatManager().setCurrentVictim(forcedVictim);
+        SendCastResult(SPELL_FAILED_DONT_REPORT);
+        return;
     }
 
-    if (unitTarget->ToCreature()->IsAIEnabled && !unitTarget->ToCreature()->HasReactState(REACT_PASSIVE))
-        unitTarget->ToCreature()->AI()->AttackStart(m_caster);
+    if (!mgr.IsThreatListEmpty())
+        // Set threat equal to highest threat currently on target
+        mgr.MatchUnitThreatToHighestThreat(m_caster);
 }
 
 void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
@@ -2920,13 +2915,13 @@ void Spell::EffectThreat(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || !unitTarget->IsAlive() || !m_caster->IsAlive())
+    if (!unitTarget || !m_caster->IsAlive())
         return;
 
     if (!unitTarget->CanHaveThreatList())
         return;
 
-    unitTarget->GetThreatManager().AddThreat(m_caster, float(damage));
+    unitTarget->GetThreatManager().AddThreat(m_caster, float(damage), m_spellInfo, true);
 }
 
 void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
@@ -3456,20 +3451,19 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
     if (!unitTarget)
         return;
 
-    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-        unitTarget->ToPlayer()->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
-
-    unitTarget->getHostileRefManager().UpdateVisibility();
-
-    Unit::AttackerSet const& attackers = unitTarget->getAttackers();
-    for (Unit::AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
+    if (unitTarget->GetTypeId() == TYPEID_PLAYER && !unitTarget->GetMap()->IsDungeon())
     {
-        if (!(*itr)->CanSeeOrDetect(unitTarget))
-            (*(itr++))->AttackStop();
-        else
-            ++itr;
+        // stop all pve combat for players outside dungeons, suppress pvp combat
+        unitTarget->CombatStop(false, false);
+    }
+    else
+    {
+        // in dungeons (or for nonplayers), reset this unit on all enemies' threat lists
+        for (auto const& pair : unitTarget->GetThreatManager().GetThreatenedByMeList())
+            pair.second->SetThreat(0.0f);
     }
 
+    // makes spells cast before this time fizzle
     unitTarget->m_lastSanctuaryTime = GameTime::GetGameTimeMS();
 }
 
@@ -5015,7 +5009,7 @@ void Spell::EffectRedirectThreat(SpellEffIndex /*effIndex*/)
         return;
 
     if (unitTarget)
-        m_caster->SetRedirectThreat(unitTarget->GetGUID(), uint32(damage));
+        m_caster->GetThreatManager().RegisterRedirectThreat(m_spellInfo->Id, unitTarget->GetGUID(), uint32(damage));
 }
 
 void Spell::EffectGameObjectDamage(SpellEffIndex /*effIndex*/)

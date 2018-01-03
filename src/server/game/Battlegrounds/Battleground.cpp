@@ -768,11 +768,8 @@ void Battleground::EndBattleground(uint32 winner)
             player->SpawnCorpseBones();
         }
         else
-        {
             //needed cause else in av some creatures will kill the players at the end
             player->CombatStop();
-            player->getHostileRefManager().deleteReferences();
-        }
 
         // remove temporary currency bonus auras before rewarding player
         player->RemoveAura(SPELL_HONORABLE_DEFENDER_25Y);

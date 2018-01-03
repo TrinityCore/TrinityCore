@@ -148,14 +148,11 @@ class boss_drakkari_colossus : public CreatureScript
                         if (me->GetReactState() == REACT_AGGRESSIVE)
                             return;
 
-                        me->SetReactState(REACT_AGGRESSIVE);
                         me->SetImmuneToPC(false);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveAura(SPELL_FREEZE_ANIM);
 
                         me->SetInCombatWithZone();
-
-                        if (me->GetVictim())
-                            me->GetMotionMaster()->MoveChase(me->GetVictim(), 0, 0);
 
                         break;
                 }

@@ -2254,6 +2254,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_ADD_THREAT:
         {
+            if (!me->CanHaveThreatList())
+                break;
             for (WorldObject* const target : targets)
                 if (IsUnit(target))
                     me->GetThreatManager().AddThreat(target->ToUnit(), float(e.action.threatPCT.threatINC) - float(e.action.threatPCT.threatDEC), nullptr, true, true);

@@ -875,21 +875,10 @@ void Map::Update(uint32 t_diff)
         // Handle updates for creatures in combat with player and are more than 60 yards away
         if (player->IsInCombat())
         {
-            std::vector<Creature*> updateList;
-            HostileReference* ref = player->getHostileRefManager().getFirst();
-
-            while (ref)
-            {
-                if (Unit* unit = ref->GetSource()->GetOwner())
-                    if (unit->ToCreature() && unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
-                        updateList.push_back(unit->ToCreature());
-
-                ref = ref->next();
-            }
-
-            // Process deferred update list for player
-            for (Creature* c : updateList)
-                VisitNearbyCellsOf(c, grid_object_update, world_object_update);
+            for (auto const& pair : player->GetCombatManager().GetPvECombatRefs())
+                if (Creature* unit = pair.second->GetOther(player)->ToCreature())
+                    if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
+                        VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
         }
     }
 
@@ -1040,7 +1029,7 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     player->UpdateZone(MAP_INVALID_ZONE, 0);
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
-    player->getHostileRefManager().deleteReferences(); // multithreading crashfix
+    player->CombatStop();
 
     bool const inWorld = player->IsInWorld();
     player->RemoveFromWorld();

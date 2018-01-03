@@ -2106,8 +2106,8 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     // creature/player specific target checks
     if (unitTarget)
     {
-        // spells cannot be cast if player is in fake combat also
-        if (HasAttribute(SPELL_ATTR1_CANT_TARGET_IN_COMBAT) && (unitTarget->IsInCombat() || unitTarget->IsPetInCombat()))
+        // spells cannot be cast if target has a pet in combat either
+        if (HasAttribute(SPELL_ATTR1_CANT_TARGET_IN_COMBAT) && (unitTarget->IsInCombat() || unitTarget->HasUnitFlag(UNIT_FLAG_PET_IN_COMBAT)))
             return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
 
         // only spells with SPELL_ATTR3_ONLY_TARGET_GHOSTS can target ghosts

@@ -1806,21 +1806,28 @@ public:
                 {
                     case EVENT_TD_CHECK_COMBAT:
                     {
-                        time_t now = GameTime::GetGameTime();
-                        for (std::unordered_map<ObjectGuid, time_t>::iterator itr = _damageTimes.begin(); itr != _damageTimes.end();)
+                        time_t const now = GameTime::GetGameTime();
+                        auto const& pveRefs = me->GetCombatManager().GetPvECombatRefs();
+                        for (auto itr = _damageTimes.begin(); itr != _damageTimes.end();)
                         {
                             // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
                             if (itr->second < now - 5)
                             {
-                                if (Unit* unit = ObjectAccessor::GetUnit(*me, itr->first))
-                                    unit->getHostileRefManager().deleteReference(me);
+                                auto it = pveRefs.find(itr->first);
+                                if (it != pveRefs.end())
+                                    it->second->EndCombat();
 
                                 itr = _damageTimes.erase(itr);
                             }
                             else
                                 ++itr;
                         }
-                        _events.ScheduleEvent(EVENT_TD_CHECK_COMBAT, 1000);
+
+                        for (auto const& pair : pveRefs)
+                            if (_damageTimes.find(pair.first) == _damageTimes.end())
+                                _damageTimes[pair.first] = now;
+
+                        _events.Repeat(1s);
                         break;
                     }
                     case EVENT_TD_DESPAWN:
