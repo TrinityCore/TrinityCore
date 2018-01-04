@@ -198,6 +198,10 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
+            // Prevents spam during intro (massive trogg kill)
+            if (events.IsInPhase(PHASE_INTRO))
+                return;
+
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(ANRAPHET_SAY_AGGRO);
             _EnterCombat();
@@ -739,6 +743,34 @@ public:
     }
 };
 
+// 77437 - Destruction Protocol
+class spell_anraphet_destruction_protocol : public SpellScriptLoader
+{
+public:
+    spell_anraphet_destruction_protocol() : SpellScriptLoader("spell_anraphet_destruction_protocol") { }
+
+    class spell_anraphet_destruction_protocol_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_anraphet_destruction_protocol_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Creature* trogg = GetHitUnit()->ToCreature())
+                trogg->SetRespawnTime(DAY);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_anraphet_destruction_protocol_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_anraphet_destruction_protocol_SpellScript();
+    }
+};
+
 class spell_anraphet_alpha_beams : public SpellScriptLoader
 {
 public:
@@ -845,6 +877,7 @@ void AddSC_boss_anraphet()
     new spell_hoo_platform_teleport();
     new spell_flame_warden_lava_eruption();
     new spell_whirling_winds_movement();
+    new spell_anraphet_destruction_protocol();
     new spell_anraphet_alpha_beams();
     new spell_anraphet_omega_stance_summon();
     new spell_anraphet_omega_stance_spider_effect();

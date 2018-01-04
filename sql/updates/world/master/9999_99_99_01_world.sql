@@ -108,23 +108,24 @@ UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `map` = 644 AND `id` in (398
 -- spell positions for wardens
 DELETE FROM `spell_target_position` WHERE `ID` IN (82329, 82330, 82331, 82332);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
-(82329, 0, 644, -329.962, 246.302, 89.2101, -1),
-(82330, 0, 644, -329.727, 481.142, 89.2102, -1),
-(82331, 0, 644, -223.26,  488.222, 89.2101, -1), 
-(82332, 0, 644, -223.049, 243.161, 89.2102, -1); 
+(82329, 0, 644, -329.727, 481.142, 89.2101, -1), -- SW 
+(82330, 0, 644, -329.962, 246.302, 89.2102, -1), -- SE
+(82331, 0, 644, -223.26,  488.222, 89.2101, -1), -- NW
+(82332, 0, 644, -223.049, 243.161, 89.2102, -1); -- NE
 
 -- Water Warden gets Aqua Bomb aura on aggro.
 DELETE FROM `creature_template_addon` WHERE `entry` = 39802;
 
 -- Flame Warden spell script for Lava Eruption dummy
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_hoo_platform_teleport', 'spell_flame_warden_lava_eruption', 'spell_whirling_winds_movement');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_hoo_platform_teleport', 'spell_flame_warden_lava_eruption', 'spell_whirling_winds_movement', 'spell_anraphet_destruction_protocol');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (82329, 'spell_hoo_platform_teleport'),
 (82330, 'spell_hoo_platform_teleport'),
 (82331, 'spell_hoo_platform_teleport'),
 (82332, 'spell_hoo_platform_teleport'),
 (77273, 'spell_flame_warden_lava_eruption'),
-(77333, 'spell_whirling_winds_movement');
+(77333, 'spell_whirling_winds_movement'),
+(77437, 'spell_anraphet_destruction_protocol');
 
 -- Vault of Lights achievement check spell not in dbc
 DELETE FROM `spell_dbc` WHERE `Id` = 94067;
