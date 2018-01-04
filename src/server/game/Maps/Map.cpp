@@ -875,10 +875,13 @@ void Map::Update(uint32 t_diff)
         // Handle updates for creatures in combat with player and are more than 60 yards away
         if (player->IsInCombat())
         {
+            std::vector<Unit*> toVisit;
             for (auto const& pair : player->GetCombatManager().GetPvECombatRefs())
                 if (Creature* unit = pair.second->GetOther(player)->ToCreature())
                     if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
-                        VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
+                        toVisit.push_back(unit);
+            for (Unit* unit : toVisit)
+                VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
         }
     }
 
