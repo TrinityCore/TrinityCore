@@ -39,6 +39,7 @@ struct AccessRequirement;
 struct AchievementEntry;
 struct AreaTableEntry;
 struct AreaTriggerEntry;
+struct AreaTriggerTeleportStruct;
 struct ArtifactPowerRankEntry;
 struct BarberShopStyleEntry;
 struct CharTitlesEntry;
@@ -1065,6 +1066,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
         bool TeleportTo(uint32 mapid, Position const &pos, uint32 options = 0);
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
+        bool TeleportTo(AreaTriggerTeleportStruct const* at);
         bool SeamlessTeleportToMap(uint32 mapid, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
