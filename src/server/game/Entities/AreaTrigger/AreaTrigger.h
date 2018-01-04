@@ -75,6 +75,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AreaTriggerMiscTemplate const* GetMiscTemplate() const { return _areaTriggerMiscTemplate; }
         AreaTriggerTemplate const* GetTemplate() const;
+        ObjectGuid::LowType GetSpawnId() const { return _spawnId; }
         uint32 GetScriptId() const;
 
         ObjectGuid const& GetCasterGuid() const { return GetGuidValue(AREATRIGGER_CASTER); }
@@ -135,6 +136,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;
 
+        ObjectGuid::LowType _spawnId;
         uint32 _guidScriptId;
         std::unique_ptr<AreaTriggerAI> _ai;
 };
