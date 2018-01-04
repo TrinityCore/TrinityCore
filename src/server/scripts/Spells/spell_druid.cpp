@@ -1033,7 +1033,7 @@ public:
             else // Stag form (riding skill already checked in CheckCast)
                 triggeredSpellId = DRUID_STAG_FORM;
 
-            player->CastSpell((Unit*)nullptr, triggeredSpellId, true);
+            player->AddAura(triggeredSpellId, player);
         }
 
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1123,7 +1123,7 @@ public:
             Player* player = GetTarget()->ToPlayer();
 
             if (triggeredSpellId) // Apply new form
-                player->CastSpell((Unit*)nullptr, triggeredSpellId, true);
+                player->AddAura(triggeredSpellId, player);
             else // If not set, simply remove Travel Form dummy
                 player->RemoveAura(SPELL_DRUID_TRAVEL_FORM);                
         }
