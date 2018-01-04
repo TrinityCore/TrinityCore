@@ -244,6 +244,34 @@ void Creature::RemoveFromWorld()
     }
 }
 
+void Creature::SendMirrorSound(Player* target, uint8 type)
+{
+    int32 outfitId = GetOutfit();
+    if (outfitId < 0)
+    {
+        const CreatureOutfitContainer& outfits = sObjectMgr->GetCreatureOutfitMap();
+        auto it = outfits.find(-outfitId);
+        if (it != outfits.end() && it->second.npcsoundsid)
+        {
+            if (auto const* npcsounds = sNPCSoundsStore.LookupEntry(it->second.npcsoundsid))
+            {
+                switch (type)
+                {
+                case 0:
+                    PlayDistanceSound(npcsounds->hello, target);
+                    break;
+                case 1:
+                    PlayDistanceSound(npcsounds->goodbye, target);
+                    break;
+                case 2:
+                    PlayDistanceSound(npcsounds->pissed, target);
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void Creature::DisappearAndDie()
 {
     DestroyForNearbyPlayers();

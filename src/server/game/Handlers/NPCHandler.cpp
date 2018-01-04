@@ -152,6 +152,11 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 
 void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 {
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (packet.Unit.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(packet.Unit))
+            creature->SendMirrorSound(_player, 0);
+#endif
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_GOSSIP);
     if (!unit)
     {

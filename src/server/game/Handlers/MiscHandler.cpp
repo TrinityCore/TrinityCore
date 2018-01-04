@@ -401,6 +401,11 @@ void WorldSession::HandleRequestCemeteryList(WorldPackets::Misc::RequestCemetery
 
 void WorldSession::HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet)
 {
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (packet.Selection.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(packet.Selection))
+            creature->SendMirrorSound(_player, 0);
+#endif
     _player->SetSelection(packet.Selection);
 }
 
@@ -1171,6 +1176,11 @@ void WorldSession::HandlePvpPrestigeRankUp(WorldPackets::Misc::PvpPrestigeRankUp
 
 void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction)
 {
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (closeInteraction.SourceGuid.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(closeInteraction.SourceGuid))
+            creature->SendMirrorSound(_player, 1);
+#endif
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
         _player->PlayerTalkClass->GetInteractionData().Reset();
 }

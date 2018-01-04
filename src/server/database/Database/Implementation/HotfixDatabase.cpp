@@ -652,6 +652,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // NamesReservedLocale.db2
     PrepareStatement(HOTFIX_SEL_NAMES_RESERVED_LOCALE, "SELECT ID, Name, LocaleMask FROM names_reserved_locale ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // NPCSounds.db2
+    PrepareStatement(HOTFIX_SEL_NPC_SOUNDS, "SELECT ID, hello, goodbye, pissed, ack FROM npc_sounds ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // OverrideSpellData.db2
     PrepareStatement(HOTFIX_SEL_OVERRIDE_SPELL_DATA, "SELECT ID, SpellID1, SpellID2, SpellID3, SpellID4, SpellID5, SpellID6, SpellID7, SpellID8, "
         "SpellID9, SpellID10, PlayerActionbarFileDataID, Flags FROM override_spell_data ORDER BY ID DESC", CONNECTION_SYNCH);

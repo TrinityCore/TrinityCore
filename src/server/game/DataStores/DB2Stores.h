@@ -139,6 +139,7 @@ TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTre
 TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
 TC_GAME_API extern DB2Storage<MountEntry>                           sMountStore;
 TC_GAME_API extern DB2Storage<MovieEntry>                           sMovieStore;
+TC_GAME_API extern DB2Storage<NPCSoundsEntry>                       sNPCSoundsStore;
 TC_GAME_API extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
 TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
 TC_GAME_API extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;

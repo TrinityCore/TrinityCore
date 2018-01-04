@@ -75,6 +75,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetOutfit(int32 outfit) { outfitId = outfit; };
         int32 GetOutfit() const { return outfitId; };
         bool IsMirrorImage() const { return outfitId < 0; };
+        void SendMirrorSound(Player* target, uint8 type);
 
         void DisappearAndDie();
 

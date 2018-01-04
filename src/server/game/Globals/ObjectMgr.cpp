@@ -8288,7 +8288,7 @@ void ObjectMgr::LoadCreatureOutfits()
 
     _creatureOutfitStore.clear();   // for reload case (test only)
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, race, class, gender, skin, face, hair, haircolor, facialhair, feature1, feature2, feature3, "
+    QueryResult result = WorldDatabase.Query("SELECT entry, npcsoundsid, race, class, gender, skin, face, hair, haircolor, facialhair, feature1, feature2, feature3, "
         "head, head_appearance, shoulders, shoulders_appearance, body, body_appearance, chest, chest_appearance, waist, waist_appearance, "
         "legs, legs_appearance, feet, feet_appearance, wrists, wrists_appearance, hands, hands_appearance, tabard, tabard_appearance, back, back_appearance, "
         "guildid FROM creature_template_outfits");
@@ -8310,6 +8310,12 @@ void ObjectMgr::LoadCreatureOutfits()
 
         CreatureOutfit co;
 
+        co.npcsoundsid = fields[i++].GetUInt32();
+        if (co.npcsoundsid && !sNPCSoundsStore.HasRecord(co.npcsoundsid))
+        {
+            TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has incorrect npcsoundsid (%u). Using 0.", entry, co.npcsoundsid);
+            co.npcsoundsid = 0;
+        }
         co.race         = fields[i++].GetUInt8();
         const ChrRacesEntry* rEntry = sChrRacesStore.LookupEntry(co.race);
         if (!rEntry)

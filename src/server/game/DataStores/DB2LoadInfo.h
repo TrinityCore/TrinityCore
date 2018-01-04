@@ -3232,6 +3232,23 @@ struct NamesReservedLocaleLoadInfo
     }
 };
 
+struct NPCSoundsLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "hello" },
+            { false, FT_INT, "goodbye" },
+            { false, FT_INT, "pissed" },
+            { false, FT_INT, "ack" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NPCSoundsMeta::Instance(), HOTFIX_SEL_NPC_SOUNDS);
+        return &loadInfo;
+    }
+};
+
 struct OverrideSpellDataLoadInfo
 {
     static DB2LoadInfo const* Instance()
