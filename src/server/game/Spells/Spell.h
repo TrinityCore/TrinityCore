@@ -476,6 +476,7 @@ class TC_GAME_API Spell
         void EffectApplyEnchantIllusion(SpellEffIndex effIndex);
         void EffectUpdatePlayerPhase(SpellEffIndex effIndex);
         void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
+        void EffectSummonObjectPersonnal(SpellEffIndex effIndex);
         void EffectGiveExperience(SpellEffIndex effIndex);
         void EffectIncreaseSkill(SpellEffIndex effIndex);
         void EffectGiveArtifactPower(SpellEffIndex effIndex);
