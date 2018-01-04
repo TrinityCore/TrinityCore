@@ -439,7 +439,7 @@ struct TC_GAME_API SpellClickInfo
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoContainer;
 typedef std::pair<SpellClickInfoContainer::const_iterator, SpellClickInfoContainer::const_iterator> SpellClickInfoMapBounds;
 
-struct AreaTriggerStruct
+struct AreaTriggerTeleportStruct
 {
     uint32 target_mapId;
     float  target_X;
@@ -936,7 +936,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, Quest*> QuestMap;
         typedef std::unordered_map<uint32 /*questObjectiveId*/, QuestObjective const*> QuestObjectivesByIdContainer;
 
-        typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
+        typedef std::unordered_map<int64, AreaTriggerTeleportStruct> AreaTriggerTeleportContainer;
 
         typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 
@@ -1072,10 +1072,10 @@ class TC_GAME_API ObjectMgr
         void LoadGraveyardZones();
         GraveYardData const* FindGraveYardData(uint32 id, uint32 zone) const;
 
-        AreaTriggerStruct const* GetAreaTrigger(uint32 trigger) const;
+        AreaTriggerTeleportStruct const* GetAreaTrigger(int64 trigger) const;
         AccessRequirement const* GetAccessRequirement(uint32 mapid, Difficulty difficulty) const;
-        AreaTriggerStruct const* GetGoBackTrigger(uint32 Map) const;
-        AreaTriggerStruct const* GetMapEntranceTrigger(uint32 Map) const;
+        AreaTriggerTeleportStruct const* GetGoBackTrigger(uint32 Map) const;
+        AreaTriggerTeleportStruct const* GetMapEntranceTrigger(uint32 Map) const;
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id) const;
         SpellScriptsBounds GetSpellScriptsBounds(uint32 spellId);
@@ -1682,7 +1682,7 @@ class TC_GAME_API ObjectMgr
         GameObjectForQuestContainer _gameObjectForQuestStore;
         NpcTextContainer _npcTextStore;
         QuestGreetingContainer _questGreetingStore;
-        AreaTriggerContainer _areaTriggerStore;
+        AreaTriggerTeleportContainer _areaTriggerTeleportStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;
         DungeonEncounterContainer _dungeonEncounterStore;

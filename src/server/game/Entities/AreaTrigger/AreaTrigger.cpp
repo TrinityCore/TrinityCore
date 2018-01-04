@@ -42,7 +42,7 @@
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
-    _areaTriggerTemplate(nullptr), _areaTriggerMiscTemplate(nullptr), _guidScriptId(0), _ai()
+    _areaTriggerTemplate(nullptr), _areaTriggerMiscTemplate(nullptr), _spawnId(0), _guidScriptId(0), _ai()
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -200,6 +200,7 @@ bool AreaTrigger::CreateStaticAreaTrigger(uint32 entry, ObjectGuid::LowType guid
 
     _targetGuid = ObjectGuid::Empty;
     _aurEff = nullptr;
+    _spawnId = guidLow;
     _guidScriptId = scriptId;
 
     SetMap(map);
@@ -422,8 +423,14 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
     for (Unit* unit : enteringUnits)
     {
         if (Player* player = unit->ToPlayer())
+        {
             if (player->isDebugAreaTriggers)
                 ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTERED, GetTemplate()->Id);
+
+            if (ObjectGuid::LowType spawnId = GetSpawnId())
+                if (AreaTriggerTeleportStruct const* at = sObjectMgr->GetAreaTrigger(-int64(spawnId)))
+                    player->TeleportTo(at);
+        }
 
         DoActions(unit);
 
