@@ -225,6 +225,9 @@ bool WodGarrison::IsAllowedArea(AreaTableEntry const* area) const
             break;
     }
 
+    if (area->Flags[1] & AREA_FLAG_GARRISON && area->MapID == MAP_DRAENOR)
+        return true;
+
     return false;
 }
 
