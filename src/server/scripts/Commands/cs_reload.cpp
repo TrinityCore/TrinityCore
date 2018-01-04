@@ -466,6 +466,14 @@ public:
     {
         TC_LOG_INFO("misc", "Loading Creature Outfits... (`creature_template_outfits`)");
         sObjectMgr->LoadCreatureOutfits();
+        sMapMgr->DoForAllMaps([](Map* map)
+        {
+            for (auto e : map->GetCreatureBySpawnIdStore())
+            {
+                if (e.second->IsMirrorImage())
+                    new MirrorImageUpdate(e.second);
+            }
+        });
         handler->SendGlobalGMSysMessage("DB table `creature_template_outfits` reloaded.");
         return true;
     }

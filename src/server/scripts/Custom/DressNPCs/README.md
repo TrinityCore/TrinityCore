@@ -49,7 +49,7 @@ Create an NPC. Set the `creature_template_outfits` entry to the modelID column i
 
 Clear wow cache folder, restart server and spawn the NPC. Remember to check startup errors.
 
-The patch also adds `.reload creature_template_outfit` command. You can use it to reload the creature outfit table for testing. Relog to update the visual look of creatures with the reloaded data.
+The patch also adds `.reload creature_template_outfit` command. You can use it to reload the creature outfit table for testing.
 
 #### Bugs and Contact
 Report issues and similar to http://rochet2.github.io/
