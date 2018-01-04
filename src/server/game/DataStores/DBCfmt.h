@@ -93,6 +93,7 @@ char const MapDifficultyEntryfmt[] = "diisxxxxxxxxxxxxxxxxiix";
 char const MovieEntryfmt[] = "nxx";
 char const NamesProfanityEntryfmt[] = "dsi";
 char const NamesReservedEntryfmt[] = "dsi";
+char const NPCSoundsEntryfmt[] = "niiii";
 char const OverrideSpellDatafmt[] = "niiiiiiiiiix";
 char const QuestFactionRewardfmt[] = "niiiiiiiiii";
 char const QuestSortEntryfmt[] = "nxxxxxxxxxxxxxxxxx";

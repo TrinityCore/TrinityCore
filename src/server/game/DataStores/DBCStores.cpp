@@ -139,6 +139,8 @@ typedef std::array<std::vector<Trinity::wregex>, TOTAL_LOCALES> NameValidationRe
 NameValidationRegexContainer NamesProfaneValidators;
 NameValidationRegexContainer NamesReservedValidators;
 
+DBCStorage<NPCSoundsEntry> sNPCSoundsStore(NPCSoundsEntryfmt);
+
 DBCStorage <OverrideSpellDataEntry> sOverrideSpellDataStore(OverrideSpellDatafmt);
 
 DBCStorage <PowerDisplayEntry> sPowerDisplayStore(PowerDisplayfmt);
@@ -346,6 +348,7 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sMovieStore,                         "Movie.dbc");
     LOAD_DBC(sNamesProfanityStore,                "NamesProfanity.dbc");
     LOAD_DBC(sNamesReservedStore,                 "NamesReserved.dbc");
+    LOAD_DBC(sNPCSoundsStore,                     "NPCSounds.dbc");
     LOAD_DBC(sOverrideSpellDataStore,             "OverrideSpellData.dbc");
     LOAD_DBC(sPowerDisplayStore,                  "PowerDisplay.dbc");
     LOAD_DBC(sPvPDifficultyStore,                 "PvpDifficulty.dbc");

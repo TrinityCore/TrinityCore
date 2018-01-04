@@ -366,14 +366,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             Creature* crea = target->ToCreature();
                             ASSERT(crea);
                             crea->SetOutfit(ObjectMgr::ChooseDisplayId(ci));
-                            uint32 displayId = sObjectMgr->GetCreatureDisplay(crea->GetOutfit());
-                            if (crea->GetOutfit() < 0 && displayId)
-                                target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+                            if (crea->IsMirrorImage())
+                            {
+                                new MirrorImageUpdate(crea);
+                            }
                             else
+                            {
                                 target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
-                            target->ToCreature()->SetDisplayId(displayId);
-                            TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry %u, GuidLow %u set displayid to %u",
-                                target->GetEntry(), target->GetGUID().GetCounter(), displayId);
+
+                                uint32 displayId = sObjectMgr->GetCreatureDisplay(crea->GetOutfit());
+                                target->ToCreature()->SetDisplayId(displayId);
+                                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry %u, %s set displayid to %u",
+                                    target->GetEntry(), target->GetGUID().ToString().c_str(), displayId);
+                            }
                         }
                     }
                     //if no param1, then use value from param2 (modelId)

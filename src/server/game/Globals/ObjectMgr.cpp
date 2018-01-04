@@ -8388,8 +8388,10 @@ void ObjectMgr::LoadCreatureOutfits()
 
     _creatureOutfitStore.clear();   // for reload case (test only)
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, race, class, gender, skin, face, hair, haircolor, facialhair, "
-        "head, shoulders, body, chest, waist, legs, feet, wrists, hands, back, tabard FROM creature_template_outfits");
+    QueryResult result = WorldDatabase.Query("SELECT entry, npcsoundsid, race, class, gender, skin, face, hair, haircolor, facialhair, "
+        "head, shoulders, body, chest, waist, "
+        "legs, feet, wrists, hands, back, tabard, "
+        "guildid FROM creature_template_outfits");
 
     if (!result)
     {
@@ -8408,6 +8410,12 @@ void ObjectMgr::LoadCreatureOutfits()
 
         CreatureOutfit co;
 
+        co.npcsoundsid = fields[i++].GetUInt32();
+        if (co.npcsoundsid && !sNPCSoundsStore.LookupEntry(co.npcsoundsid))
+        {
+            TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has incorrect npcsoundsid (%u). Using 0.", entry, co.npcsoundsid);
+            co.npcsoundsid = 0;
+        }
         co.race         = fields[i++].GetUInt8();
         const ChrRacesEntry* rEntry = sChrRacesStore.LookupEntry(co.race);
         if (!rEntry)
@@ -8439,23 +8447,26 @@ void ObjectMgr::LoadCreatureOutfits()
         co.hair         = fields[i++].GetUInt8();
         co.haircolor    = fields[i++].GetUInt8();
         co.facialhair   = fields[i++].GetUInt8();
-        for (uint32 j = 0; j < MAX_CREATURE_OUTFIT_DISPLAYS; ++j)
+        for (uint32 j = 0; j < CreatureOutfit::max_outfit_displays; ++j)
         {
-            int32 displayInfo = fields[i + j].GetInt32();
+            int32 displayInfo = fields[i++].GetInt32();
             if (displayInfo > 0) // entry
             {
-                ItemTemplate const* proto = sObjectMgr->GetItemTemplate(uint32(displayInfo));
-                if (proto)
+                uint32 item_entry = static_cast<uint32>(displayInfo);
+                if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item_entry))
                     co.outfit[j] = proto->DisplayInfoID;
                 else
                 {
-                    TC_LOG_ERROR("server.loading", ">> Creature entry %u in `creature_template_outfits` has invalid item entry %u", entry, uint32(displayInfo));
+                    TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has invalid item entry: %u. Ignoring.", entry, item_entry);
                     co.outfit[j] = 0;
                 }
             }
             else // display
-                co.outfit[j] = uint32(-displayInfo);
+            {
+                co.outfit[j] = static_cast<uint32>(-displayInfo);
+            }
         }
+        co.guild = fields[i++].GetUInt32();
 
         _creatureOutfitStore[entry] = co;
 
@@ -9701,12 +9712,12 @@ uint32 ObjectMgr::GetCreatureDisplay(int32 modelid) const
     if (modelid >= 0)
         return modelid;
 
-    const CreatureOutfitContainer* outfits = GetCreatureOutfitMap();
-    CreatureOutfitContainer::const_iterator it = outfits->find(-modelid);
-    if (it == outfits->end())
-        return 0;
+    const CreatureOutfitContainer& outfits = GetCreatureOutfitMap();
+    CreatureOutfitContainer::const_iterator it = outfits.find(-modelid);
+    if (it != outfits.end())
+        return 11686; // invisible for mirror image
 
-    return it->second.displayId;
+    return 0;
 }
 
 void ObjectMgr::LoadGameObjectQuestItems()

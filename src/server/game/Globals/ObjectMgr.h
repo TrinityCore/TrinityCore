@@ -171,9 +171,11 @@ struct GameTele
 
 typedef std::unordered_map<uint32, GameTele > GameTeleContainer;
 
-#define MAX_CREATURE_OUTFIT_DISPLAYS 11
 struct CreatureOutfit
 {
+    // Remember to change DB query too!
+    static constexpr uint32 max_outfit_displays = 11;
+
     uint8 race;
     uint8 Class;
     uint8 gender;
@@ -182,8 +184,11 @@ struct CreatureOutfit
     uint8 hair;
     uint8 facialhair;
     uint8 haircolor;
+    uint64 guild;
+    uint32 npcsoundsid;
+
     uint32 displayId;
-    uint32 outfit[MAX_CREATURE_OUTFIT_DISPLAYS];
+    uint32 outfit[max_outfit_displays];
 };
 
 typedef std::unordered_map<uint32, CreatureOutfit> CreatureOutfitContainer;
@@ -1465,7 +1470,7 @@ class TC_GAME_API ObjectMgr
         bool AddGameTele(GameTele& data);
         bool DeleteGameTele(std::string const& name);
 
-        const CreatureOutfitContainer* GetCreatureOutfitMap() const { return &_creatureOutfitStore; }
+        const CreatureOutfitContainer& GetCreatureOutfitMap() const { return _creatureOutfitStore; }
 
         TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
         {

@@ -240,7 +240,7 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_grou
     m_corpseRemoveTime(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
     m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
     m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
-    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f), outfitId(0), _lastDamagedTime(0),
+    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f), _lastDamagedTime(0),
     _regenerateHealth(true), _regenerateHealthLock(false)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
@@ -306,6 +306,34 @@ void Creature::RemoveFromWorld()
 
         TC_LOG_DEBUG("entities.unit", "Removing creature %u with entry %u and DBGUID %u to world in map %u", GetGUID().GetCounter(), GetEntry(), m_spawnId, GetMap()->GetId());
         GetMap()->GetObjectsStore().Remove<Creature>(GetGUID());
+    }
+}
+
+void Creature::SendMirrorSound(Player* target, uint8 type)
+{
+    int32 outfitId = GetOutfit();
+    if (outfitId < 0)
+    {
+        const CreatureOutfitContainer& outfits = sObjectMgr->GetCreatureOutfitMap();
+        auto it = outfits.find(-outfitId);
+        if (it != outfits.end() && it->second.npcsoundsid)
+        {
+            if (auto const* npcsounds = sNPCSoundsStore.LookupEntry(it->second.npcsoundsid))
+            {
+                switch (type)
+                {
+                case 0:
+                    PlayDistanceSound(npcsounds->hello, target);
+                    break;
+                case 1:
+                    PlayDistanceSound(npcsounds->goodbye, target);
+                    break;
+                case 2:
+                    PlayDistanceSound(npcsounds->pissed, target);
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -484,10 +512,9 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetOutfit(ObjectMgr::ChooseDisplayId(GetCreatureTemplate(), data));
     uint32 displayID = sObjectMgr->GetCreatureDisplay(GetOutfit());
-    if (GetOutfit() < 0 && displayID)
-        SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
-    else
-        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+    if (IsMirrorImage())
+        displayID = 11686; // invisible in beginning if a mirror image
+    RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
 
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (!minfo)                                             // Cancel load if no model defined
@@ -564,10 +591,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         unit_flags |= UNIT_FLAG_IN_COMBAT;
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
-    if (GetOutfit() < 0 && GetDisplayId())
-        SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2 | UNIT_FLAG2_MIRROR_IMAGE);
-    else
-        SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
+    SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
+    if (IsMirrorImage())
+        new MirrorImageUpdate(this);
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
 
@@ -1241,6 +1267,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     CreatureData& data = sObjectMgr->NewOrExistCreatureData(m_spawnId);
 
     uint32 displayId = GetNativeDisplayId();
+    if (IsMirrorImage())
+        displayId = 0; // For mirror images dont save displayid, it comes from outfit
     uint32 npcflag = GetUInt32Value(UNIT_NPC_FLAGS);
     uint32 unit_flags = GetUInt32Value(UNIT_FIELD_FLAGS);
     uint32 dynamicflags = GetUInt32Value(UNIT_DYNAMIC_FLAGS);
@@ -1956,6 +1984,8 @@ void Creature::Respawn(bool force)
             {
                 SetDisplayId(displayID);
                 SetNativeDisplayId(displayID);
+                if (IsMirrorImage())
+                    new MirrorImageUpdate(this);
             }
 
             GetMotionMaster()->InitDefault();
@@ -3130,6 +3160,34 @@ void Creature::ClearTextRepeatGroup(uint8 textGroup)
     CreatureTextRepeatGroup::iterator groupItr = m_textRepeat.find(textGroup);
     if (groupItr != m_textRepeat.end())
         groupItr->second.clear();
+}
+
+MirrorImageUpdate::MirrorImageUpdate(Creature* creature) : BasicEvent(), creature(creature)
+{
+    static uint32 delay = 1;
+    creature->m_Events.AddEvent(this, creature->m_Events.CalculateTime(delay));
+    creature->SetDisplayId(11686); // invisible in beginning if a mirror image
+    creature->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+}
+
+bool MirrorImageUpdate::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
+{
+    // From AuraEffect::HandleAuraCloneCaster
+    int32 outfitId = creature->GetOutfit();
+    if (outfitId < 0)
+    {
+        const CreatureOutfitContainer& outfits = sObjectMgr->GetCreatureOutfitMap();
+        auto it = outfits.find(-outfitId);
+        if (it != outfits.end())
+        {
+            creature->SetDisplayId(it->second.displayId);
+            creature->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+            return true;
+        }
+    }
+    creature->SetDisplayId(creature->GetNativeDisplayId());
+    creature->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+    return true;
 }
 
 bool Creature::CanGiveExperience() const

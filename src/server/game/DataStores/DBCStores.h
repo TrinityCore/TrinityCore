@@ -157,6 +157,7 @@ TC_GAME_API extern DBCStorage <MapEntry>                     sMapStore;
 //TC_GAME_API extern DBCStorage <MapDifficultyEntry>           sMapDifficultyStore; -- use GetMapDifficultyData insteed
 TC_GAME_API extern MapDifficultyMap                          sMapDifficultyMap;
 TC_GAME_API extern DBCStorage <MovieEntry>                   sMovieStore;
+TC_GAME_API extern DBCStorage <NPCSoundsEntry>               sNPCSoundsStore;
 TC_GAME_API extern DBCStorage <OverrideSpellDataEntry>       sOverrideSpellDataStore;
 TC_GAME_API extern DBCStorage <PowerDisplayEntry>            sPowerDisplayStore;
 TC_GAME_API extern DBCStorage <QuestSortEntry>               sQuestSortStore;

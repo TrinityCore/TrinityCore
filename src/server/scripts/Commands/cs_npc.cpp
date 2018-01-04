@@ -971,6 +971,8 @@ public:
 
         creature->SetDisplayId(displayId);
         creature->SetNativeDisplayId(displayId);
+        creature->SetOutfit(displayId);
+        creature->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
 
         creature->SaveToDB();
 

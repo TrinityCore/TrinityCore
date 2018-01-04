@@ -2028,7 +2028,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                     uint32 model_id = 0;
 
                     // choose a model, based on trigger flag
-                    if (uint32 modelid = sObjectMgr->GetCreatureDisplay(ObjectMgr::ChooseDisplayId(ci)))
+                    if (uint32 modelid = sObjectMgr->GetCreatureDisplay(sObjectMgr->ChooseDisplayId(ci)))
                         model_id = modelid;
 
                     // Polymorph (sheep)
@@ -4600,7 +4600,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
 
                         if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry))
                         {
-                            uint32 displayID = sObjectMgr->GetCreatureDisplay(ObjectMgr::ChooseDisplayId(creatureInfo));
+                            uint32 displayID = sObjectMgr->GetCreatureDisplay(sObjectMgr->ChooseDisplayId(creatureInfo));
                             sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                             target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, displayID);
