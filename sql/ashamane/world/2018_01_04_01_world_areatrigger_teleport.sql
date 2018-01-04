@@ -1,0 +1,1 @@
+ALTER TABLE `areatrigger_teleport` CHANGE `ID` `ID` BIGINT(20) DEFAULT 0 NOT NULL; 
