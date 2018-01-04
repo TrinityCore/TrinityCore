@@ -94,8 +94,7 @@ public:
         void EffectTeleportDalaranLegion(SpellEffIndex effIndex)
         {
             if (Player* player = GetCaster()->ToPlayer())
-                if (player->getLevel() < 100 || (player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) != QUEST_STATUS_COMPLETE &&
-                                                 player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) != QUEST_STATUS_REWARDED))
+                if (player->getLevel() < 100 || player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_INCOMPLETE)
                     PreventHitEffect(effIndex);
         }
 
