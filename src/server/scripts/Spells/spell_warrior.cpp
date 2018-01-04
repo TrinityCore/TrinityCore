@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -110,8 +110,9 @@ class spell_warr_bloodthirst : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetEffectValue();
-                GetCaster()->CastCustomSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST, &damage, nullptr, nullptr, true, nullptr);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(GetEffectValue());
+                GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST, args);
             }
 
             void Register() override
@@ -172,9 +173,10 @@ class spell_warr_charge : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 chargeBasePoints0 = GetEffectValue();
                 Unit* caster = GetCaster();
-                caster->CastCustomSpell(caster, SPELL_WARRIOR_CHARGE, &chargeBasePoints0, nullptr, nullptr, true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(GetEffectValue());
+                caster->CastSpell(caster, SPELL_WARRIOR_CHARGE, args);
 
                 // Juggernaut crit bonus
                 if (caster->HasAura(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT))
@@ -241,7 +243,9 @@ class spell_warr_damage_shield : public SpellScriptLoader
 
                 // % of amount blocked
                 int32 damage = CalculatePct(int32(GetTarget()->GetShieldBlockValue()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_WARRIOR_DAMAGE_SHIELD_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(damage);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARRIOR_DAMAGE_SHIELD_DAMAGE, args);
             }
 
             void Register() override
@@ -292,7 +296,10 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
                     // Add remaining ticks to damage done
                     damage += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, SPELL_AURA_PERIODIC_DAMAGE);
-                    caster->CastCustomSpell(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC,  SPELLVALUE_BASE_POINT0, damage, target, true);
+
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.SpellValueOverrides.AddBP0(damage);
+                    caster->CastSpell(target, SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, args);
                 }
             }
 
@@ -344,7 +351,9 @@ class spell_warr_deep_wounds_aura : public SpellScriptLoader
                 else
                     damage = (actor->GetFloatValue(UNIT_FIELD_MINDAMAGE) + actor->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2.f;
 
-                actor->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, SPELLVALUE_BASE_POINT0, int32(damage), eventInfo.GetProcTarget(), true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(damage);
+                actor->CastSpell(eventInfo.GetProcTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, args);
             }
 
             void Register() override
@@ -398,7 +407,9 @@ class spell_warr_execute : public SpellScriptLoader
 
 
                     int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
-                    caster->CastCustomSpell(target, SPELL_WARRIOR_EXECUTE, &bp, nullptr, nullptr, true, nullptr, nullptr, GetOriginalCaster()->GetGUID());
+                    CastSpellExtraArgs args(GetOriginalCaster()->GetGUID());
+                    args.SpellValueOverrides.AddBP0(bp);
+                    caster->CastSpell(target, SPELL_WARRIOR_EXECUTE, args);
                 }
             }
 
@@ -446,13 +457,13 @@ class spell_warr_extra_proc : public SpellScriptLoader
                 if (!roll_chance_i(bonusAurEff->GetAmount()))
                     return;
 
-                target->CastSpell(nullptr, SPELL_WARRIOR_EXTRA_CHARGE, true, nullptr, aurEff);
+                target->CastSpell(nullptr, SPELL_WARRIOR_EXTRA_CHARGE, aurEff);
 
                 SpellInfo const* auraInfo = aurEff->GetSpellInfo();
                 if (auraInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_BLOODSURGE_R1)))
-                    target->CastSpell(nullptr, SPELL_WARRIOR_SLAM_GCD_REDUCED, true, nullptr, aurEff);
+                    target->CastSpell(nullptr, SPELL_WARRIOR_SLAM_GCD_REDUCED, aurEff);
                 else if (auraInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_SUDDEN_DEATH_R1)))
-                    target->CastSpell(nullptr, SPELL_WARRIOR_EXECUTE_GCD_REDUCED, true, nullptr, aurEff);
+                    target->CastSpell(nullptr, SPELL_WARRIOR_EXECUTE_GCD_REDUCED, aurEff);
             }
 
             void Register() override
@@ -486,7 +497,7 @@ class spell_warr_glyph_of_blocking : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(caster, SPELL_WARRIOR_GLYPH_OF_BLOCKING, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_WARRIOR_GLYPH_OF_BLOCKING, aurEff);
             }
 
             void Register() override
@@ -556,7 +567,9 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                caster->CastCustomSpell(SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER, SPELLVALUE_MAX_TARGETS, aurEff->GetAmount(), caster, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, aurEff->GetAmount());
+                caster->CastSpell(caster, SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER, args);
             }
 
             void Register() override
@@ -620,7 +633,9 @@ class spell_warr_item_t10_prot_4p_bonus : public SpellScriptLoader
 
                 Unit* target = eventInfo.GetActionTarget();
                 int32 bp0 = CalculatePct(target->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_1].CalcValue());
-                target->CastCustomSpell(SPELL_WARRIOR_STOICISM, SPELLVALUE_BASE_POINT0, bp0, (Unit*)nullptr, true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(bp0);
+                target->CastSpell(nullptr, SPELL_WARRIOR_STOICISM, args);
             }
 
             void Register() override
@@ -653,8 +668,9 @@ class spell_warr_last_stand : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
-                caster->CastCustomSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, nullptr, nullptr, true, nullptr);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(caster->CountPctFromMaxHealth(GetEffectValue()));
+                caster->CastSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, args);
             }
 
             void Register() override
@@ -777,7 +793,7 @@ class spell_warr_retaliation : public SpellScriptLoader
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARRIOR_RETALIATION_DAMAGE, true, nullptr, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARRIOR_RETALIATION_DAMAGE, aurEff);
             }
 
             void Register() override
@@ -828,7 +844,7 @@ class spell_warr_second_wind : public SpellScriptLoader
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
                 uint32 spellId = triggeredSpells[GetSpellInfo()->GetRank() - 1];
-                caster->CastSpell(caster, spellId, true, nullptr, aurEff);
+                caster->CastSpell(caster, spellId, aurEff);
             }
 
             void Register() override
@@ -892,8 +908,11 @@ class spell_warr_slam : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitUnit())
-                    GetCaster()->CastCustomSpell(SPELL_WARRIOR_SLAM, SPELLVALUE_BASE_POINT0, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
+                if (!GetHitUnit())
+                    return;
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(GetEffectValue());
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_SLAM, args);
             }
 
             void Register() override
@@ -938,12 +957,13 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
                     if (spellInfo && (spellInfo->Id == SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo->Id == SPELL_WARRIOR_EXECUTE && !_procTarget->HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))))
                     {
                         // If triggered by Execute (while target is not under 20% hp) or Bladestorm deals normalized weapon damage
-                        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, true, nullptr, aurEff);
+                        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, aurEff);
                     }
                     else
                     {
-                        int32 damage = damageInfo->GetDamage();
-                        GetTarget()->CastCustomSpell(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, nullptr, aurEff);
+                        CastSpellExtraArgs args(aurEff);
+                        args.SpellValueOverrides.AddBP0(damageInfo->GetDamage());
+                        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, args);
                     }
                 }
             }
@@ -1071,7 +1091,7 @@ class spell_warr_vigilance : public SpellScriptLoader
                     target->RemoveAurasDueToSpell(SPELL_GEN_DAMAGE_REDUCTION_AURA);
                 }
 
-                target->ResetRedirectThreat();
+                target->GetThreatManager().UnregisterRedirectThreat(SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT, GetCasterGUID());
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -1083,7 +1103,7 @@ class spell_warr_vigilance : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, true, nullptr, aurEff);
+                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, aurEff);
             }
 
             void Register() override

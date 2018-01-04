@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,6 +54,8 @@ struct PositionFullTerrainStatus;
 struct QuaternionData;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
+
+float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
 
 class TC_GAME_API Object
 {
@@ -287,8 +289,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         uint32 GetPhaseMask() const { return m_phaseMask; }
-        bool InSamePhase(WorldObject const* obj) const;
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
+        bool InSamePhase(WorldObject const* obj) const { return obj && InSamePhase(obj->GetPhaseMask()); }
+        static bool InSamePhase(WorldObject const* a, WorldObject const* b) { return a && a->InSamePhase(b); }
 
         uint32 GetZoneId() const { return m_zoneId; }
         uint32 GetAreaId() const { return m_areaId; }
@@ -445,7 +448,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         float GetFloorZ() const;
         virtual float GetCollisionHeight() const { return 0.0f; }
-        float GetMidsectionHeight() const { return GetCollisionHeight() / 2.0f; }
+
+        float GetMapWaterOrGroundLevel(float x, float y, float z, float* ground = nullptr) const;
+        float GetMapHeight(float x, float y, float z, bool vmap = true, float distanceToSearch = 50.0f) const; // DEFAULT_HEIGHT_SEARCH in map.h
 
     protected:
         std::string m_name;

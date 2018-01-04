@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -337,9 +337,9 @@ class boss_freya : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 DoZoneInCombat();
                 Creature* Elder[3];
                 for (uint8 n = 0; n < 3; ++n)
@@ -379,7 +379,9 @@ class boss_freya : public CreatureScript
                 else
                     Talk(SAY_AGGRO_WITH_ELDER);
 
-                me->CastCustomSpell(SPELL_ATTUNED_TO_NATURE, SPELLVALUE_AURA_STACK, 150, me, true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, 150);
+                me->CastSpell(me, SPELL_ATTUNED_TO_NATURE, args);
 
                 events.ScheduleEvent(EVENT_WAVE, 10000);
                 events.ScheduleEvent(EVENT_EONAR_GIFT, 25000);
@@ -724,9 +726,9 @@ class boss_elder_brightleaf : public CreatureScript
                 Talk(SAY_ELDER_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
                     Talk(SAY_ELDER_AGGRO);
             }
@@ -754,7 +756,9 @@ class boss_elder_brightleaf : public CreatureScript
                             uint8 stackAmount = 0;
                             if (Aura* aura = me->GetAura(SPELL_FLUX_AURA))
                                 stackAmount = aura->GetStackAmount();
-                            me->CastCustomSpell(SPELL_SOLAR_FLARE, SPELLVALUE_MAX_TARGETS, stackAmount, me, false);
+                            CastSpellExtraArgs args;
+                            args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, stackAmount);
+                            me->CastSpell(me, SPELL_SOLAR_FLARE, args);
                             events.ScheduleEvent(EVENT_SOLAR_FLARE, urand(5000, 10000));
                             break;
                         }
@@ -825,9 +829,9 @@ class boss_elder_stonebark : public CreatureScript
                 Talk(SAY_ELDER_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
                     Talk(SAY_ELDER_AGGRO);
             }
@@ -839,8 +843,9 @@ class boss_elder_stonebark : public CreatureScript
 
                 if (me->HasAura(SPELL_PETRIFIED_BARK))
                 {
-                    int32 reflect = damage;
-                    who->CastCustomSpell(who, SPELL_PETRIFIED_BARK_DMG, &reflect, nullptr, nullptr, true);
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.SpellValueOverrides.AddBP0(damage);
+                    who->CastSpell(who, SPELL_PETRIFIED_BARK_DMG, args);
                     damage = 0;
                 }
             }
@@ -932,9 +937,9 @@ class boss_elder_ironbranch : public CreatureScript
                 Talk(SAY_ELDER_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
                     Talk(SAY_ELDER_AGGRO);
             }
@@ -1282,7 +1287,7 @@ class npc_ancient_conservator : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 DoCast(who, SPELL_CONSERVATOR_GRIP, true);
             }

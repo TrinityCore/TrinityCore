@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -115,8 +115,7 @@ void FleeingMovementGenerator<T>::SetTargetLocation(T* owner)
     GetPoint(owner, destination);
 
     // Add LOS check for target point
-    Position currentPosition = owner->GetPosition();
-    if (!VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(owner->GetMapId(), currentPosition.m_positionX, currentPosition.m_positionY, currentPosition.m_positionZ + 1.0f, destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ() + 1.0f, VMAP::ModelIgnoreFlags::Nothing))
+    if (!owner->IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
     {
         _timer.Reset(200);
         return;

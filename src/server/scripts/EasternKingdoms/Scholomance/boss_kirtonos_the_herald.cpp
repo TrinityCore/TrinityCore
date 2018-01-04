@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -87,7 +87,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SWOOP, urand(8000, 8000));
                 events.ScheduleEvent(EVENT_WING_FLAP, urand(15000, 15000));
@@ -97,7 +97,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, urand(53000, 53000));
                 events.ScheduleEvent(EVENT_DOMINATE_MIND, urand(34000, 48000));
                 events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(20000, 20000));
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void JustDied(Unit* /*killer*/) override

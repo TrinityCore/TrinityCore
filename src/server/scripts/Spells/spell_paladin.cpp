@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -184,12 +184,13 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 
                     float defenseSkillValue = victim->GetDefenseSkillValue();
                     // Max heal when defense skill denies critical hits from raid bosses
-                    // Formula: max defense at level + 140 (raiting from gear)
+                    // Formula: max defense at level + 140 (rating from gear)
                     float reqDefForMaxHeal = victim->GetMaxSkillValueForLevel() + 140.0f;
                     float defenseFactor = std::min(1.0f, defenseSkillValue / reqDefForMaxHeal);
 
-                    int32 healAmount = int32(victim->CountPctFromMaxHealth(static_cast<uint32>(lroundf(_healPct * defenseFactor))));
-                    victim->CastCustomSpell(PAL_SPELL_ARDENT_DEFENDER_HEAL, SPELLVALUE_BASE_POINT0, healAmount, victim, true, nullptr, aurEff);
+                    CastSpellExtraArgs args(aurEff);
+                    args.SpellValueOverrides.AddBP0(victim->CountPctFromMaxHealth(lroundf(_healPct * defenseFactor)));
+                    victim->CastSpell(victim, PAL_SPELL_ARDENT_DEFENDER_HEAL, args);
                     victim->GetSpellHistory()->AddCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, std::chrono::minutes(2));
                 }
                 else if (remainingHealth < int32(allowedHealth))
@@ -309,8 +310,9 @@ class spell_pal_avenging_wrath : public SpellScriptLoader
                 Unit* target = GetTarget();
                 if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1, EFFECT_2))
                 {
-                    int32 basepoints = aurEff->GetAmount();
-                    target->CastCustomSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, &basepoints, &basepoints, nullptr, true, nullptr, aurEff);
+                    CastSpellExtraArgs args(aurEff);
+                    args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+                    target->CastSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, args);
                 }
             }
 
@@ -347,7 +349,7 @@ class spell_pal_beacon_of_light : public AuraScript
         PreventDefaultAction();
 
         // area aura owner casts the spell
-        GetAura()->GetUnitOwner()->CastSpell(GetTarget(), GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, nullptr, aurEff, GetAura()->GetUnitOwner()->GetGUID());
+        GetAura()->GetUnitOwner()->CastSpell(GetTarget(), GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, { aurEff, GetAura()->GetUnitOwner()->GetGUID() });
     }
 
     void Register() override
@@ -457,7 +459,7 @@ class spell_pal_blessing_of_sanctuary : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_BLESSING_OF_SANCTUARY_ENERGIZE, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_BLESSING_OF_SANCTUARY_ENERGIZE, aurEff);
             }
 
             void Register() override
@@ -584,7 +586,9 @@ class spell_pal_divine_storm : public SpellScriptLoader
             void TriggerHeal()
             {
                 Unit* caster = GetCaster();
-                caster->CastCustomSpell(SPELL_PALADIN_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, (GetHitDamage() * _healPct) / 100, caster, true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(CalculatePct(GetHitDamage(), _healPct));
+                caster->CastSpell(caster, SPELL_PALADIN_DIVINE_STORM_DUMMY, args);
             }
 
             void Register() override
@@ -625,8 +629,9 @@ class spell_pal_divine_storm_dummy : public SpellScriptLoader
                 if (!_targetCount || ! GetHitUnit())
                     return;
 
-                int32 heal = GetEffectValue() / _targetCount;
-                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_PALADIN_DIVINE_STORM_HEAL, &heal, nullptr, nullptr, true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(GetEffectValue() / _targetCount);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_DIVINE_STORM_HEAL, args);
             }
 
             uint32 _targetCount = 0;
@@ -704,7 +709,9 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
 
                 // return damage % to attacker but < 50% own total health
                 int32 damage = std::min(CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount()), static_cast<int32>(GetTarget()->GetMaxHealth()) / 2);
-                GetTarget()->CastCustomSpell(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(damage);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, args);
             }
 
             void Register() override
@@ -745,8 +752,9 @@ class spell_pal_glyph_of_divinity : public SpellScriptLoader
                 if (caster == eventInfo.GetProcTarget())
                     return;
 
-                int32 mana = spellInfo->Effects[EFFECT_1].CalcValue() * 2;
-                caster->CastCustomSpell(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC, SPELLVALUE_BASE_POINT1, mana, (Unit*)nullptr, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT1, spellInfo->Effects[EFFECT_1].CalcValue() * 2);
+                caster->CastSpell(nullptr, SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC, args);
             }
 
             void Register() override
@@ -816,11 +824,9 @@ class spell_pal_glyph_of_holy_light_dummy : public SpellScriptLoader
                 if (!healInfo || !healInfo->GetHeal())
                     return;
 
-                Unit* caster = eventInfo.GetActor();
-                Unit* target = eventInfo.GetProcTarget();
-                int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
-
-                caster->CastCustomSpell(SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(CalculatePct(healInfo->GetHeal(), aurEff->GetAmount()));
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL, args);
             }
 
             void Register() override
@@ -956,7 +962,7 @@ class spell_pal_heart_of_the_crusader : public SpellScriptLoader
                 PreventDefaultAction();
 
                 uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HEART_OF_THE_CRUSADER_EFF_R1, GetSpellInfo()->GetRank());
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, aurEff);
             }
 
             void Register() override
@@ -1082,7 +1088,9 @@ public:
                 {
                     Unit* target = eventInfo.GetActor(); // Paladin is the target of the energize
                     uint32 bp = CalculatePct(originalSpell->CalcPowerCost(target, originalSpell->GetSchoolMask()), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());
-                    target->CastCustomSpell(SPELL_PALADIN_ILLUMINATION_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+                    CastSpellExtraArgs args(aurEff);
+                    args.SpellValueOverrides.AddBP0(bp);
+                    target->CastSpell(target, SPELL_PALADIN_ILLUMINATION_ENERGIZE, args);
                 }
             }
         }
@@ -1225,7 +1233,7 @@ class spell_pal_improved_lay_of_hands : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActionTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff, GetTarget()->GetGUID());
+                eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActionTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, { aurEff, GetTarget()->GetGUID() });
             }
 
             void Register() override
@@ -1287,7 +1295,9 @@ class spell_pal_infusion_of_light : public SpellScriptLoader
                             if (AuraEffect const* bonus = target->GetAuraEffect(SPELL_PALADIN_T9_HOLY_4P_BONUS, 0))
                                 AddPct(bp0, bonus->GetAmount());
 
-                            target->CastCustomSpell(SPELL_PALADIN_FLASH_OF_LIGHT_PROC, SPELLVALUE_BASE_POINT0, bp0, procTarget, true, nullptr, aurEff);
+                            CastSpellExtraArgs args(aurEff);
+                            args.SpellValueOverrides.AddBP0(bp0);
+                            target->CastSpell(procTarget, SPELL_PALADIN_FLASH_OF_LIGHT_PROC, args);
                         }
                     }
                     // but should not proc on non-critical Holy Shocks
@@ -1326,7 +1336,7 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, aurEff);
             }
 
             void Register() override
@@ -1386,7 +1396,7 @@ class spell_pal_item_t6_trinket : public SpellScriptLoader
                     return;
 
                 if (roll_chance_i(chance))
-                    eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true, nullptr, aurEff);
+                    eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, aurEff);
             }
 
             void Register() override
@@ -1478,8 +1488,7 @@ class spell_pal_judgement_of_command : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* unitTarget = GetHitUnit())
-                    if (SpellInfo const* spell_proto = sSpellMgr->GetSpellInfo(GetEffectValue()))
-                        GetCaster()->CastSpell(unitTarget, spell_proto, true, nullptr);
+                    GetCaster()->CastSpell(unitTarget, GetEffectValue(), true);
             }
 
             void Register() override
@@ -1514,9 +1523,11 @@ class spell_pal_judgement_of_light_heal : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* caster = eventInfo.GetProcTarget();
-                int32 amount = static_cast<int32>(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
 
-                caster->CastCustomSpell(SPELL_PALADIN_JUDGEMENT_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff, GetCasterGUID());
+                CastSpellExtraArgs args(aurEff);
+                args.OriginalCaster = GetCasterGUID();
+                args.SpellValueOverrides.AddBP0(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
+                caster->CastSpell(nullptr, SPELL_PALADIN_JUDGEMENT_OF_LIGHT_HEAL, args);
             }
 
             void Register() override
@@ -1559,7 +1570,10 @@ class spell_pal_judgement_of_wisdom_mana : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetProcTarget();
                 int32 const amount = CalculatePct(static_cast<int32>(caster->GetCreateMana()), spellInfo->Effects[EFFECT_0].CalcValue());
-                caster->CastCustomSpell(spellInfo->Id, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff, GetCasterGUID());
+                CastSpellExtraArgs args(aurEff);
+                args.OriginalCaster = GetCasterGUID();
+                args.SpellValueOverrides.AddBP0(amount);
+                caster->CastSpell(nullptr, spellInfo->Id, args);
             }
 
             void Register() override
@@ -1593,7 +1607,7 @@ class spell_pal_judgements_of_the_just : public SpellScriptLoader
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC, true, nullptr, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC, aurEff);
             }
 
             void Register() override
@@ -1632,8 +1646,8 @@ class spell_pal_judgements_of_the_wise : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(nullptr, SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_MANA, true, nullptr, aurEff);
-                caster->CastSpell(nullptr, SPELL_REPLENISHMENT, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_MANA, aurEff);
+                caster->CastSpell(nullptr, SPELL_REPLENISHMENT, aurEff);
             }
 
             void Register() override
@@ -1754,7 +1768,9 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
                 /// @todo: caster must be the healed unit to perform distance checks correctly
                 ///        but that will break animation on clientside
                 ///        caster in spell packets must be the healing unit
-                eventInfo.GetActor()->CastCustomSpell(healSpellId, SPELLVALUE_BASE_POINT0, heal, beaconTarget, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(heal);
+                eventInfo.GetActor()->CastSpell(beaconTarget, healSpellId, args);
             }
 
             void Register() override
@@ -1866,7 +1882,9 @@ class spell_pal_righteous_vengeance : public SpellScriptLoader
                 // Add remaining ticks to damage done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE, SPELL_AURA_PERIODIC_DAMAGE);
 
-                caster->CastCustomSpell(SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(amount);
+                caster->CastSpell(target, SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE, args);
             }
 
             void Register() override
@@ -1961,7 +1979,7 @@ class spell_pal_sacred_shield_dummy : public SpellScriptLoader
                     cooldown = Seconds(bonus->GetAmount());
 
                 _cooldownEnd = now + cooldown;
-                caster->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_SACRED_SHIELD_TRIGGER, true, nullptr, aurEff);
+                caster->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_SACRED_SHIELD_TRIGGER, aurEff);
             }
 
             void Register() override
@@ -2007,7 +2025,9 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
                 int32 holy = GetTarget()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
                 holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
                 int32 bp = int32((ap * 0.022f + 0.044f * holy) * GetTarget()->GetAttackTime(BASE_ATTACK) / 1000);
-                GetTarget()->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(bp);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, args);
             }
 
             void Register() override
@@ -2075,7 +2095,7 @@ class spell_pal_seal_of_vengeance : public SpellScriptLoader
                 }
 
                 // don't cast triggered, spell already has SPELL_ATTR4_CAN_CAST_WHILE_CASTING attr
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), DoTSpell, TRIGGERED_DONT_RESET_PERIODIC_TIMER, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), DoTSpell, CastSpellExtraArgs(TRIGGERED_DONT_RESET_PERIODIC_TIMER).SetTriggeringAura(aurEff));
             }
 
             void HandleSeal(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -2101,7 +2121,9 @@ class spell_pal_seal_of_vengeance : public SpellScriptLoader
                 amount *= stacks;
                 amount /= maxStacks;
 
-                caster->CastCustomSpell(DamageSpell, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(amount);
+                caster->CastSpell(target, DamageSpell, args);
             }
 
             void Register() override
@@ -2183,7 +2205,9 @@ class spell_pal_spiritual_attunement : public SpellScriptLoader
                 HealInfo* healInfo = eventInfo.GetHealInfo();
                 int32 amount = CalculatePct(static_cast<int32>(healInfo->GetEffectiveHeal()), aurEff->GetAmount());
 
-                eventInfo.GetActionTarget()->CastCustomSpell(SPELL_PALADIN_SPIRITUAL_ATTUNEMENT_MANA, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(amount);
+                eventInfo.GetActionTarget()->CastSpell(nullptr, SPELL_PALADIN_SPIRITUAL_ATTUNEMENT_MANA, args);
             }
 
             void Register() override
@@ -2233,7 +2257,9 @@ class spell_pal_sheath_of_light : public SpellScriptLoader
                 // Add remaining ticks to healing done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, SPELL_AURA_PERIODIC_HEAL);
 
-                caster->CastCustomSpell(SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(amount);
+                caster->CastSpell(target, SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, args);
             }
 
             void Register() override
@@ -2300,7 +2326,7 @@ class spell_pal_t3_6p_bonus : public SpellScriptLoader
                         return;
                 }
 
-                caster->CastSpell(target, spellId, true, nullptr, aurEff);
+                caster->CastSpell(target, spellId, aurEff);
             }
 
             void Register() override
@@ -2349,7 +2375,9 @@ class spell_pal_t8_2p_bonus : public SpellScriptLoader
                 // Add remaining ticks to healing done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_HOLY_MENDING, SPELL_AURA_PERIODIC_HEAL);
 
-                caster->CastCustomSpell(SPELL_PALADIN_HOLY_MENDING, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(amount);
+                caster->CastSpell(target, SPELL_PALADIN_HOLY_MENDING, args);
             }
 
             void Register() override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -601,7 +601,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 kelThuzad->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             _movementTimer = 0; // once it's zero, it'll never get checked again
             if (!me->HasReactState(REACT_PASSIVE))
@@ -623,7 +623,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 }
             me->SetReactState(REACT_AGGRESSIVE);
             AttackStart(who);
-            ScriptedAI::EnterCombat(who);
+            ScriptedAI::JustEngagedWith(who);
         }
 
         void AttackStart(Unit* who) override
@@ -640,7 +640,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
             }
 
             if (me->CanStartAttack(who, false) && me->GetDistance2d(who) <= MINION_AGGRO_DISTANCE)
-                EnterCombat(who);
+                JustEngagedWith(who);
         }
 
         void SetData(uint32 data, uint32 value) override
@@ -928,7 +928,9 @@ public:
             if (int32 mana = int32(target->GetMaxPower(POWER_MANA) / 10))
             {
                 mana = target->ModifyPower(POWER_MANA, -mana);
-                target->CastCustomSpell(SPELL_MANA_DETONATION_DAMAGE, SPELLVALUE_BASE_POINT0, -mana * 10, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(-mana * 10);
+                target->CastSpell(target, SPELL_MANA_DETONATION_DAMAGE, args);
             }
         }
 
@@ -960,7 +962,11 @@ class spell_kelthuzad_frost_blast : public AuraScript
 
         // Stuns the target, dealing 26% of the target's maximum health in Frost damage every second for 4 sec.
         if (Unit* caster = GetCaster())
-            caster->CastCustomSpell(SPELL_FROST_BLAST_DMG, SPELLVALUE_BASE_POINT0, int32(GetTarget()->CountPctFromMaxHealth(26)), GetTarget(), true, nullptr, aurEff);
+        {
+            CastSpellExtraArgs args(aurEff);
+            args.SpellValueOverrides.AddBP0(GetTarget()->CountPctFromMaxHealth(26));
+            caster->CastSpell(GetTarget(), SPELL_FROST_BLAST_DMG, args);
+        }
     }
 
     void Register() override

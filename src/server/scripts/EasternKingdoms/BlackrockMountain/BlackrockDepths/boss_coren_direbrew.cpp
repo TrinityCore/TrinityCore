@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -259,9 +259,14 @@ struct boss_coren_direbrew : public BossAI
                     SummonSister(NPC_URSULA_DIREBREW);
                     break;
                 case EVENT_SUMMON_MOLE_MACHINE:
-                    me->CastCustomSpell(SPELL_MOLE_MACHINE_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1, nullptr, true);
+                {
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, 1);
+                    me->CastSpell(nullptr, SPELL_MOLE_MACHINE_TARGET_PICKER, args);
                     events.Repeat(Seconds(15));
                     break;
+                }
                 case EVENT_DIREBREW_DISARM:
                     DoCastSelf(SPELL_DIREBREW_DISARM_PRE_CAST, true);
                     events.Repeat(Seconds(20));
@@ -282,9 +287,9 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
 {
     npc_coren_direbrew_sisters(Creature* creature) : ScriptedAI(creature) { }
 
-    void SetGUID(ObjectGuid guid, int32 data) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
-        if (data == DATA_TARGET_GUID)
+        if (id == DATA_TARGET_GUID)
             _targetGUID = guid;
     }
 
@@ -296,7 +301,7 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
         return ObjectGuid::Empty;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_PORT_TO_COREN);
 
@@ -375,10 +380,10 @@ struct npc_direbrew_antagonist : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         Talk(SAY_ANTAGONIST_COMBAT, who);
-        ScriptedAI::EnterCombat(who);
+        ScriptedAI::JustEngagedWith(who);
     }
 };
 

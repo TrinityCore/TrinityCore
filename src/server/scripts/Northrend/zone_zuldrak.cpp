@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -746,7 +746,7 @@ class spell_random_ingredient : public SpellScriptLoader
 
                     if (Creature* finklestein = GetClosestCreatureWithEntry(player, NPC_FINKLESTEIN, 25.0f))
                     {
-                        finklestein->CastSpell(player, FetchIngredients[ingredient][0], true, nullptr);
+                        finklestein->CastSpell(player, FetchIngredients[ingredient][0], true);
                         finklestein->AI()->Talk(FetchIngredients[ingredient][3], player);
                     }
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,9 +49,9 @@ class boss_moragg : public CreatureScript
                 BossAI::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
             }
 
             void JustReachedHome() override
@@ -122,7 +122,7 @@ class spell_moragg_ray : public SpellScriptLoader
                 if (Unit* target = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                 {
                     uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                    GetTarget()->CastSpell(target, triggerSpell, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    GetTarget()->CastSpell(target, triggerSpell, aurEff);
                 }
             }
 
@@ -152,12 +152,12 @@ public:
             if (Unit* caster = GetCaster())
             {
                 if (aurEff->GetTickNumber() >= 8)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, aurEff);
 
                 if (aurEff->GetTickNumber() >= 4)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, aurEff);
 
-                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, aurEff);
             }
         }
 

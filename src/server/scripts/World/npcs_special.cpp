@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -286,7 +286,7 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -410,7 +410,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void ReceiveEmote(Player* player, uint32 emote) override
         {
@@ -473,10 +473,10 @@ public:
         {
             _scheduler.Schedule(Seconds(2), [this](TaskContext context)
             {
-                me->CastCustomSpell(SPELL_TORCH_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1);
+                me->CastSpell(nullptr, SPELL_TORCH_TARGET_PICKER);
                 _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
                 {
-                    me->CastCustomSpell(SPELL_TORCH_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1);
+                    me->CastSpell(nullptr, SPELL_TORCH_TARGET_PICKER);
                 });
                 context.Repeat(Seconds(5));
             });
@@ -798,7 +798,7 @@ public:
 
         void UpdateAI(uint32 diff) override;
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void QuestAccept(Player* player, Quest const* quest) override
         {
@@ -870,7 +870,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
@@ -1076,7 +1076,7 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(70));
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
@@ -1178,7 +1178,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -1391,7 +1391,7 @@ public:
         npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void OnPossess(bool apply)
         {
@@ -1444,7 +1444,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void AttackStart(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -1791,7 +1791,7 @@ public:
         void DamageTaken(Unit* doneBy, uint32& damage) override
         {
             AddThreat(doneBy, float(damage));    // just to create threat reference
-            _damageTimes[doneBy->GetGUID()] = time(nullptr);
+            _damageTimes[doneBy->GetGUID()] = GameTime::GetGameTime();
             damage = 0;
         }
 
@@ -1811,21 +1811,28 @@ public:
                 {
                     case EVENT_TD_CHECK_COMBAT:
                     {
-                        time_t now = time(nullptr);
-                        for (std::unordered_map<ObjectGuid, time_t>::iterator itr = _damageTimes.begin(); itr != _damageTimes.end();)
+                        time_t const now = GameTime::GetGameTime();
+                        auto const& pveRefs = me->GetCombatManager().GetPvECombatRefs();
+                        for (auto itr = _damageTimes.begin(); itr != _damageTimes.end();)
                         {
                             // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
                             if (itr->second < now - 5)
                             {
-                                if (Unit* unit = ObjectAccessor::GetUnit(*me, itr->first))
-                                    unit->getHostileRefManager().deleteReference(me);
+                                auto it = pveRefs.find(itr->first);
+                                if (it != pveRefs.end())
+                                    it->second->EndCombat();
 
                                 itr = _damageTimes.erase(itr);
                             }
                             else
                                 ++itr;
                         }
-                        _events.ScheduleEvent(EVENT_TD_CHECK_COMBAT, 1000);
+
+                        for (auto const& pair : pveRefs)
+                            if (_damageTimes.find(pair.first) == _damageTimes.end())
+                                _damageTimes[pair.first] = now;
+
+                        _events.Repeat(1s);
                         break;
                     }
                     case EVENT_TD_DESPAWN:
@@ -2325,7 +2332,7 @@ public:
             }
             else
                 //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
-                me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), GetFireworkSpell(me->GetEntry()), true);
+                me->CastSpell(me->GetPosition(), GetFireworkSpell(me->GetEntry()), true);
         }
     };
 
@@ -2388,7 +2395,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DoAction(int32 /*param*/) override
         {
