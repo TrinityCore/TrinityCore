@@ -120,6 +120,17 @@ namespace WorldPackets
             uint32 CustomAnim = 0;
             bool PlayAsDespawn = false;
         };
+
+        class GameObjectUIAction final : public ServerPacket
+        {
+        public:
+            GameObjectUIAction() : ServerPacket(SMSG_GAME_OBJECT_UI_ACTION, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            int32 UILink = 0;
+        };
     }
 }
 #endif // GOPackets_h__
