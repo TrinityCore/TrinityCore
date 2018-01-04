@@ -118,13 +118,10 @@ class boss_azuregos : public CreatureScript
                         case EVENT_TELEPORT:
                         {
                             Talk(SAY_TELEPORT);
-                            ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
-                            for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
-                            {
-                                if (Player* player = ObjectAccessor::GetPlayer(*me, (*i)->getUnitGuid()))
+                            for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+                                if (Player* player = pair.second->GetOther(me)->ToPlayer())
                                     DoTeleportPlayer(player, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, player->GetOrientation());
-                            }
-
+                         
                             ResetThreatList();
                             events.ScheduleEvent(EVENT_TELEPORT, 30000);
                             break;
