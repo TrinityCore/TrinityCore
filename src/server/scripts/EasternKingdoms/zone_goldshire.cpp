@@ -180,7 +180,7 @@ struct npc_cameron : public ScriptedAI
         localtime_r(&time, &localTm);
 
         // Start event at 7 am
-        if ((localTm.tm_hour == 7 && localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started)
+        if ((localTm.tm_hour == 7 && localTm.tm_min == 0 && localTm.tm_sec > 0) && !_started)
         {
             // Begin pathing
             _events.ScheduleEvent(EVENT_BEGIN_EVENT, 2s);
