@@ -84,11 +84,12 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRange
             {
                 if (Unit* summoner = creature->ToTempSummon()->GetSummoner())
                 {
-                    Unit* target = summoner->getAttackerForHelper();
-                    if (!target && !summoner->GetThreatManager().IsThreatListEmpty())
-                        target = summoner->GetThreatManager().GetAnyTarget();
-                    if (target && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(target)))
-                        creature->AI()->AttackStart(target);
+                    if (creature->IsFriendlyTo(summoner))
+                    {
+                        Unit* target = summoner->getAttackerForHelper();
+                        if (target && creature->IsHostileTo(target))
+                            creature->AI()->AttackStart(target);
+                    }
                 }
             }
         }
@@ -109,7 +110,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRange
     for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
         if (Player* player = itr->GetSource())
             if (player->IsAlive())
-                creature->SetInCombatWith(player);
+                creature->EngageWithTarget(player);
 }
 
 // scripts does not take care about MoveInLineOfSight loops
@@ -237,12 +238,12 @@ bool CreatureAI::UpdateVictim()
 
         return me->GetVictim() != nullptr;
     }
-    else if (me->GetThreatManager().IsThreatListEmpty(true))
+    else if (!me->IsInCombat())
     {
         EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
         return false;
     }
-    else
+    else if (me->GetVictim())
         me->AttackStop();
 
     return true;

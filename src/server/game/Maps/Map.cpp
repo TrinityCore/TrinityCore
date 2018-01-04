@@ -3396,7 +3396,7 @@ void Map::ApplyDynamicModeRespawnScaling(WorldObject const* obj, ObjectGuid::Low
 SpawnGroupTemplateData const* Map::GetSpawnGroupData(uint32 groupId) const
 {
     SpawnGroupTemplateData const* data = sObjectMgr->GetSpawnGroupData(groupId);
-    if (data && data->mapId == GetId())
+    if (data && (data->flags & SPAWNGROUP_FLAG_SYSTEM || data->mapId == GetId()))
         return data;
     return nullptr;
 }
@@ -3527,11 +3527,12 @@ bool Map::IsSpawnGroupActive(uint32 groupId) const
     SpawnGroupTemplateData const* const data = GetSpawnGroupData(groupId);
     if (!data)
     {
-        TC_LOG_WARN("maps", "Tried to query state of non-existing spawn group %u on map %u.", groupId, GetId());
+        TC_LOG_ERROR("maps", "Tried to query state of non-existing spawn group %u on map %u.", groupId, GetId());
         return false;
     }
     if (data->flags & SPAWNGROUP_FLAG_SYSTEM)
         return true;
+    // either manual spawn group and toggled, or not manual spawn group and not toggled...
     return (_toggledSpawnGroupIds.find(groupId) != _toggledSpawnGroupIds.end()) != !(data->flags & SPAWNGROUP_FLAG_MANUAL_SPAWN);
 }
 

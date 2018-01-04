@@ -678,7 +678,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
 void Creature::Update(uint32 diff)
 {
-    if (IsAIEnabled && m_triggerJustAppeared && m_deathState == ALIVE)
+    if (IsAIEnabled && m_triggerJustAppeared && m_deathState != DEAD)
     {
         if (m_respawnCompatibilityMode && m_vehicleKit)
             m_vehicleKit->Reset();

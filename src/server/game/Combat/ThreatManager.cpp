@@ -94,6 +94,8 @@ ThreatReference::OnlineState ThreatReference::SelectOnlineState()
         return ONLINE_STATE_OFFLINE;
     if (!FlagsAllowFighting(_owner, _victim) || !FlagsAllowFighting(_victim, _owner))
         return ONLINE_STATE_OFFLINE;
+    if (_owner->IsAIEnabled && !_owner->GetAI()->CanAIAttack(_victim))
+        return ONLINE_STATE_OFFLINE;
     // next, check suppression (immunity to chosen melee attack school)
     if (_victim->IsImmunedToDamage(_owner->GetMeleeDamageSchoolMask()))
         return ONLINE_STATE_SUPPRESSED;
@@ -135,16 +137,17 @@ void ThreatReference::ClearThreat(bool sendRemove)
 
 /*static*/ bool ThreatManager::CanHaveThreatList(Unit const* who)
 {
+    Creature const* cWho = who->ToCreature();
     // only creatures can have threat list
-    if (who->GetTypeId() != TYPEID_UNIT)
+    if (!cWho)
         return false;
 
-    // pets and totems cannot have threat list
-    if (who->IsPet() || who->IsTotem())
+    // pets, totems and triggers cannot have threat list
+    if (cWho->IsPet() || cWho->IsTotem() || cWho->IsTrigger())
         return false;
 
     // summons cannot have a threat list, unless they are controlled by a creature
-    if (who->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN) && !who->GetOwnerGUID().IsCreature())
+    if (cWho->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN) && !cWho->GetOwnerGUID().IsCreature())
         return false;
 
     return true;
