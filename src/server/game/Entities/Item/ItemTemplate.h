@@ -713,6 +713,10 @@ struct ItemTemplate
     bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAG_CONJURED); }
 
+    bool IsWeaponOfSubClass(ItemSubclassWeapon subClass) const;
+    bool IsWeaponOfSubClass(std::initializer_list<ItemSubclassWeapon> subClasses) const;
+    bool CanBeDualWieldedWithTitansGrip() const;
+
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc) const;
 
