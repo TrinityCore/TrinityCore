@@ -200,7 +200,7 @@ struct ManaUserTargetSelector : public std::unary_function<Unit*, bool>
 {
     bool operator()(Unit const* target) const
     {
-        return target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA;
+        return target->GetTypeId() == TYPEID_PLAYER && target->GetPowerType() == POWER_MANA;
     }
 };
 
