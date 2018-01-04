@@ -385,7 +385,10 @@ class instance_halls_of_origination : public InstanceMapScript
             void UpdateAllLaserBeams()
             {
                 for (uint8 i = 0; i < WARDEN_ENTRY_MAX_COUNT; i++)
-                    HandleGameObject(ObjectGuid::Empty, GetBossState(DATA_FIRE_WARDEN + i) == DONE, GetGameObject(DATA_LASERBEAMS_EARTH + i));
+                {
+                    uint32 positionIndex = _wardenPositionSpells[i] - SPELL_TELEPORT_EARTH;
+                    HandleGameObject(ObjectGuid::Empty, GetBossState(DATA_FIRE_WARDEN + i) == DONE, GetGameObject(DATA_LIGHTMACHINE_EARTH + positionIndex));
+                } 
             }
 
             void UpdateTransitDevice(GameObject* transit)
