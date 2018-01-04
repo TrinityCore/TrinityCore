@@ -188,7 +188,7 @@ struct npc_cameron : public ScriptedAI
         }
 
         // Reset event at 8 am
-        if ((localTm.tm_hour == 8 && localTm.tm_min == 0 && localTm.tm_sec == 0) && _started)
+        if ((localTm.tm_hour == 8 && localTm.tm_min == 0 && localTm.tm_sec > 0) && _started)
             _started = false;
 
         while (uint32 eventId = _events.ExecuteEvent())
