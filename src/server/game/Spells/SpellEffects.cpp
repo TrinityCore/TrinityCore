@@ -5597,7 +5597,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!unitTarget || !unitTarget->IsPlayer())
         return;
 
     unitTarget->ToPlayer()->CreateGarrison(GetEffect(effIndex)->MiscValue);

@@ -2385,6 +2385,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PlayerGarrisonMap& GetGarrisons() { return _garrisons; }
         Garrison* GetGarrison(GarrisonType type) const { auto garItr = _garrisons.find(type); return (garItr != _garrisons.end()) ? garItr->second.get() : nullptr; }
 
+        GarrisonType GetCurrentGarrison() const;
+        void SetCurrentGarrison(GarrisonType type);
+        bool IsInGarrison() const;
+
         void AddGarrisonFollower(uint32 garrFollowerId);
         void AddGarrisonMission(uint32 garrMissionId);
 
@@ -2758,6 +2762,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 _activeCheats;
 
         PlayerGarrisonMap _garrisons;
+        GarrisonType _insideGarrisonType;
 
         bool _advancedCombatLoggingEnabled;
 

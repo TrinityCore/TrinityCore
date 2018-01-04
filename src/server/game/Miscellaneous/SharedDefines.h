@@ -6231,4 +6231,17 @@ enum class GameError : uint32
     ERR_CHALLENGE_MODE_ALREADY_COMPLETE                     = 986,
 };
 
+enum Maps : uint32
+{
+    MAP_EASTERN_KINGDOMS        = 0,
+    MAP_KALIMDOR                = 1,
+    MAP_OUTLAND                 = 530,
+    MAP_NORTHREND               = 571,
+    MAP_PANDARIA                = 870,
+    MAP_DRAENOR                 = 1116,
+    MAP_WOD_BLASTED_LANDS_PHASE = 1190,
+    MAP_BROKEN_ISLANDS          = 1220,
+    MAP_WOD_TANAAN_JUNGLE_INTRO = 1265,
+};
+
 #endif

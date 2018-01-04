@@ -228,16 +228,12 @@ void Garrison::SaveToDB(SQLTransaction trans)
 
 void Garrison::Enter() const
 {
-    if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
-        if (int32(_owner->GetMapId()) == map->ParentMapID)
-            _owner->SeamlessTeleportToMap(_siteLevel->MapID);
+    _owner->SetCurrentGarrison(_garrisonType);
 }
 
 void Garrison::Leave() const
 {
-    if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
-        if (_owner->GetMapId() == _siteLevel->MapID)
-            _owner->SeamlessTeleportToMap(map->ParentMapID);
+    _owner->SetCurrentGarrison(GARRISON_TYPE_NONE);
 }
 
 GarrisonFactionIndex Garrison::GetFaction() const

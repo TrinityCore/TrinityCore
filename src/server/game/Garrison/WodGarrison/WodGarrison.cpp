@@ -196,28 +196,36 @@ void WodGarrison::Upgrade()
 
 void WodGarrison::Enter() const
 {
+    Garrison::Enter();
+
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
-    {
         if (int32(_owner->GetMapId()) == map->ParentMapID)
-        {
-            WorldLocation loc(_siteLevel->MapID);
-            loc.Relocate(_owner);
-            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
-        }
-    }
+            _owner->SeamlessTeleportToMap(_siteLevel->MapID);
 }
 
 void WodGarrison::Leave() const
 {
+    Garrison::Leave();
+
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
-    {
         if (_owner->GetMapId() == _siteLevel->MapID)
-        {
-            WorldLocation loc(map->ParentMapID);
-            loc.Relocate(_owner);
-            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
-        }
+            _owner->SeamlessTeleportToMap(map->ParentMapID);
+}
+
+bool WodGarrison::IsAllowedArea(AreaTableEntry const* area) const
+{
+    switch (area->ID)
+    {
+        case 7004: // Horde Garrison
+        case 7765: // Horde Shipyard
+        case 7078: // Alliance Garrison
+        case 7760: // Alliance Shipyard
+            return true;
+        default:
+            break;
     }
+
+    return false;
 }
 
 std::vector<WodGarrison::Plot*> WodGarrison::GetPlots()

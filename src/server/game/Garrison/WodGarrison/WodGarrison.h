@@ -68,6 +68,8 @@ public:
     void Enter() const override;
     void Leave() const override;
 
+    bool IsAllowedArea(AreaTableEntry const* area) const override;
+
     // Plots
     std::vector<Plot*> GetPlots();
     Plot* GetPlot(uint32 garrPlotInstanceId);
