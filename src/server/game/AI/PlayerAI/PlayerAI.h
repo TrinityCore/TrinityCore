@@ -20,6 +20,8 @@
 
 #include "UnitAI.h"
 
+class Creature;
+class Unit;
 class Spell;
 
 class TC_GAME_API PlayerAI : public UnitAI
