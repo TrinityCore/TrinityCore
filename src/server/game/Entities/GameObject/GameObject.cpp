@@ -1905,6 +1905,18 @@ void GameObject::Use(Unit* user)
             player->SendDirectMessage(artifactForgeOpened.Write());
             return;
         }
+        case GAMEOBJECT_TYPE_UI_LINK:
+        {
+            Player* player = user->ToPlayer();
+            if (!player)
+                return;
+
+            WorldPackets::GameObject::GameObjectUIAction gameObjectUIAction;
+            gameObjectUIAction.ObjectGUID = GetGUID();
+            gameObjectUIAction.UILink = GetGOInfo()->UILink.UILinkType;
+            player->SendDirectMessage(gameObjectUIAction.Write());
+            return;
+        }
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
                 TC_LOG_ERROR("misc", "GameObject::Use(): unit (type: %u, %s, name: %s) tries to use object (%s, name: %s) of unknown type (%u)",
