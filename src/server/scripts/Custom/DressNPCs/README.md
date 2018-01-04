@@ -1,13 +1,15 @@
 # DressNPCs [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=dressnpcs_7.x)](https://travis-ci.org/Rochet2/TrinityCore)
 
 #### About
-You can make an NPC, set the displays or items you want him to have and his race and gender (defines displayID) as well as facial features and skin color.
-All this is done in the database. No client edits needed. Completely server side.
+This patch allows you to dress up armor on NPCs as well as choose their facial features.
+Create unique looking NPCs by defining their gender, race, facial features, clothing and much more.
+All this is done in the database. No client edits required.
+
 Source: http://rochet2.github.io/Dress-NPCs.html
 
 Known bugs:
-- Portraits of the NPCs may not work properly at times - a client side visual bug.
-- NPCs have no sound replies when you talk to them. This is because of the models used and there is no fix without editing client.
+- Portraits of the NPCs may not work properly at times - a client side visual bug (blizzard's fault).
+- Normally NPCs have no sound replies when you talk to them. This is a client side limitation and can be fixed with a client patch. Additionally a **workaround has been included** which sends interaction sounds from the core unless disabled in CMake.
 
 #### Installation
 
@@ -35,14 +37,19 @@ After compiling:
 - If you do not use the auto updater then run files named `*_dressnpcs.sql` from `\sql\custom` to your databases.
 
 #### Usage
-Create a row to `creature_template_outfits` table with your desired race, class, gender and equipped items.  
-***Note*** The items can use positive value as item entry and negative for displayid.  
-***Note*** After wotlk the display system has changed slightly. If you want special appearance on items, find the correct displayid and use it or use an entry which has the appearance id added to it in the following way `((AppearanceModID << 32) | item_entry)`. Appearances are usually between 0 and 10.  
-Create an NPC. Set the `creature_template_outfits` entry to the modelID column in `creature_template`, but __make it negative__.  
-Clear wow cache folder, restart server and spawn the NPC.  
-The patch also adds `.reload creature_template_outfit` command. You can use it to reload the creature outfit table again for testing.  
-You should be able to reload the table with new entries of ingame creatures. Relog to update the visual look of creatures with the reloaded data.  
-__Using reload is not recommended.__ (not outfit nor template) Use them only for testing and debugging purposes. Not for live servers.
+Before compiling the core you can choose in CMake to disable sound workaround if you have a client patch for the NPC sounds.
+
+To make an outfit create a row to `creature_template_outfits` table with your desired race, class, gender and equipped items. You can freely choose the entry number.
+- The items can use positive value as item entry and negative for displayid.
+- Appearances are usually between 0 and 10 and they define the look of the item. Different appearances are usually used by mythic and heroic versions of an item. An appearance only works when using an item entry (a positive value) for the equipped item definition.
+- `guildid` refers to an actual guild from characters table and it is used to define the tabard looks of the creature if one is equipped.
+- `npcsoundsid` refers to `NPCSounds.dbc/db2`. You can define what gossip replies to use for the NPC with the core side workaround for missing sounds for gossip. To create completely new sound combinations you can use hotfixes database or edit the DBC file.
+
+Create an NPC. Set the `creature_template_outfits` entry to the modelID column in `creature_template`, but __make it negative__.
+
+Clear wow cache folder, restart server and spawn the NPC. Remember to check startup errors.
+
+The patch also adds `.reload creature_template_outfit` command. You can use it to reload the creature outfit table for testing. Relog to update the visual look of creatures with the reloaded data.
 
 #### Bugs and Contact
 Report issues and similar to http://rochet2.github.io/
