@@ -38,8 +38,7 @@ public:
     bool Create(uint32 garrSiteId) override;
     void Delete() override;
 
-    void Enter() const override;
-    void Leave() const override;
+    bool IsAllowedArea(AreaTableEntry const* area) const override;
 };
 
 #endif // ClassHall_h__

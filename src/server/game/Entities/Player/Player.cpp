@@ -357,6 +357,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     _restMgr = Trinity::make_unique<RestMgr>(this);
 
     m_areaQuestTimer = 0;
+
+    _insideGarrisonType = GARRISON_TYPE_NONE;
 }
 
 Player::~Player()
@@ -7108,6 +7110,19 @@ void Player::UpdateArea(uint32 newArea)
     if (oldArea != newArea)
     {
         sScriptMgr->OnPlayerUpdateArea(this, newArea, oldArea);
+
+        if (IsInGarrison())
+        {
+            if (Garrison* garrison = GetGarrison(GetCurrentGarrison()))
+                if (!garrison->IsAllowedArea(area))
+                    garrison->Leave();
+        }
+        else
+        {
+            for (auto& garrison : GetGarrisons())
+                if (garrison.second->IsAllowedArea(area))
+                    garrison.second->Enter();
+        }
     }
 }
 
@@ -27620,6 +27635,21 @@ void Player::DeleteGarrison(GarrisonType type)
         garItr->second.reset();
         _garrisons.erase(garItr);
     }
+}
+
+GarrisonType Player::GetCurrentGarrison() const
+{
+    return _insideGarrisonType;
+}
+
+void Player::SetCurrentGarrison(GarrisonType type)
+{
+    _insideGarrisonType = type;
+}
+
+bool Player::IsInGarrison() const
+{
+    return GetCurrentGarrison() != GARRISON_TYPE_NONE;
 }
 
 void Player::AddGarrisonFollower(uint32 garrFollowerId)

@@ -22,13 +22,14 @@
 enum GarrisonSite
 {
     GARRISON_SITE_WOD_ALLIANCE          = 2,
-    GARRISON_SITE_WOD_HORDE             = 3,
+    GARRISON_SITE_WOD_HORDE             = 71,
     GARRISON_SITE_CLASS_HALL_ALLIANCE   = 161,
     GARRISON_SITE_CLASS_HALL_HORDE      = 163,
 };
 
 enum GarrisonType
 {
+    GARRISON_TYPE_NONE          = 0,
     GARRISON_TYPE_GARRISON      = 2,
     GARRISON_TYPE_CLASS_HALL    = 3,
 
