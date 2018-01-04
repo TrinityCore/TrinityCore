@@ -1280,9 +1280,9 @@ char const* DB2Manager::GetClassName(uint8 class_, LocaleConstant locale /*= DEF
     return classEntry->Name->Str[DEFAULT_LOCALE];
 }
 
-uint32 DB2Manager::GetPowerIndexByClass(uint32 powerType, uint32 classId) const
+uint32 DB2Manager::GetPowerIndexByClass(Powers power, uint32 classId) const
 {
-    return _powersByClass[classId][powerType];
+    return _powersByClass[classId][power];
 }
 
 char const* DB2Manager::GetChrRaceName(uint8 race, LocaleConstant locale /*= DEFAULT_LOCALE*/)
