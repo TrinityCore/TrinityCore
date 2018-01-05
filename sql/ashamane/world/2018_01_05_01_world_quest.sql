@@ -1,5 +1,6 @@
 
 -- Add Shango Spawn for the quest
+DELETE FROM creature WHERE guid = 20555656;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES ('20555656', '28297', '571', '0', '0', '1', '0', '0', '0', '0', '6370.99', '5438.1', '-39.441', '2.48491', '300', '0', '0', '5239', '0', '0', '0', '0', '0', '0', '0', '', '0');
 
 /* QUEST [Ecouter aux portes des trolls] (ID = 24489)
