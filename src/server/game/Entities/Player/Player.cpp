@@ -6050,16 +6050,8 @@ void Player::UpdateWorldQuestPosition(float x, float y)
                 if (!HasWorldQuestEnabled())
                     continue;
 
-                if (WorldQuestTemplate* temp = sWorldQuestMgr->GetQuest(quest->GetQuestId()))
-                {
-                    if (!temp->active)
-                        continue;
-                }
-                else
-                {
-                    // no data in world_quest table. skip
+                if (!sWorldQuestMgr->IsQuestActive(quest->GetQuestId()))
                     continue;
-                }
             }
 
             AddQuest(quest, this);
@@ -18561,7 +18553,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     m_achievementMgr->CheckAllAchievementCriteria(this);
 
     // Add active emissary quests on player at login
-    sWorldQuestMgr->AddEmissaryQuestOnPlayerIfNeeded(this);
+    sWorldQuestMgr->AddEmissaryQuestsOnPlayerIfNeeded(this);
 
     UpdateAverageItemLevel();
 
