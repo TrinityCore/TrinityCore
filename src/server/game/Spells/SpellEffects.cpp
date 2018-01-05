@@ -5799,7 +5799,7 @@ void Spell::EffectUpdateZoneAurasAndPhases(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->UpdateAreaDependentAuras(unitTarget->GetAreaId());
 }
 
-void Spell::EffectSummonObjectPersonnal(SpellEffIndex /*effIndex*/)
+void Spell::EffectSummonObjectPersonnal(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;

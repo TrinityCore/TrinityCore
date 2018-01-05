@@ -64,7 +64,7 @@ public:
     virtual void Enter() const;
     virtual void Leave() const;
 
-    virtual bool IsAllowedArea(AreaTableEntry const* area) const { return false; }
+    virtual bool IsAllowedArea(AreaTableEntry const* /*area*/) const { return false; }
 
     GarrisonFactionIndex GetFaction() const;
     GarrisonType GetType() const { return _garrisonType; }
