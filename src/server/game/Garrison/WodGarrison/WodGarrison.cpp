@@ -217,9 +217,9 @@ bool WodGarrison::IsAllowedArea(AreaTableEntry const* area) const
     switch (area->ID)
     {
         case 7004: // Horde Garrison
-        case 7765: // Horde Shipyard
+        //case 7765: // Horde Shipyard
         case 7078: // Alliance Garrison
-        case 7760: // Alliance Shipyard
+        //case 7760: // Alliance Shipyard
             return true;
         default:
             break;
