@@ -671,7 +671,7 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
         return;
 
     WorldPackets::Quest::WorldQuestUpdate response;
-    sWorldQuestMgr->BuildPacket(response);
+    sWorldQuestMgr->BuildPacket(GetPlayer(), response);
     SendPacket(response.Write());
 }
 
