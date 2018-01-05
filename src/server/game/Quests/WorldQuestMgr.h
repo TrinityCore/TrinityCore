@@ -32,21 +32,11 @@
 #include <unordered_map>
 #include <vector>
 
-struct WorldQuestTemplate
-{
-    WorldQuestTemplate(Quest* _quest, uint32 _duration, uint32 _variableID, uint8 _value, int32 _remaining = 0) :
-        quest(_quest), duration(_duration), remaining(_remaining), starttimer(0), variableID(_variableID), value(_value), active(false) { }
+struct WorldQuestTemplate;
+struct ActiveWorldQuest;
 
-    Quest* quest;
-    uint32 duration;
-    int32 remaining;
-    int32 starttimer;
-    uint32 variableID;
-    uint8 value;
-    bool active;
-};
-
-typedef std::unordered_map<uint32, WorldQuestTemplate*> WorldQuestMap;
+typedef std::unordered_map<uint32, WorldQuestTemplate*> WorldQuestTemplateMap;
+typedef std::unordered_map<uint32, ActiveWorldQuest*> ActiveWorldQuestMap;
 
 class TC_GAME_API WorldQuestMgr
 {
@@ -56,28 +46,77 @@ public:
 
     static WorldQuestMgr* instance();
 
-    void LoadWorldQuests();
-    void AddQuest(Field* fields);
-    void LoadQuestsStatus();
-    void Update(uint32 diff);
-    void DisableQuest(WorldQuestTemplate* quest);
-    void ActivateQuest(WorldQuestTemplate* quest, bool create = false);
-    WorldQuestTemplate* GetQuest(uint32 quest_id);
+    void LoadWorldQuestTemplates();
+    void LoadActiveWorldQuests();
+    void Update();
+
+    void ActivateQuest(WorldQuestTemplate* worldQuestTemplate);
+    void DisableQuest(ActiveWorldQuest* activeWorldQuest, bool deleteFromMap = true);
+    bool IsQuestActive(uint32 questId);
+
+    WorldQuestTemplate* GetWorldQuestTemplate(uint32 questId);
+
     uint8 GetActiveEmissaryQuestsCount();
     uint32 GetActiveQuestsCount();
-    void BuildPacket(WorldPackets::Quest::WorldQuestUpdate& packet);
+
+    void BuildPacket(Player* player, WorldPackets::Quest::WorldQuestUpdate& packet);
     void FillInitWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
+
     std::vector<CriteriaEntry const*> GetCriteriasForQuest(uint32 quest_id);
+
     void RefreshEmissaryQuests();
-    void AddEmissaryQuestOnPlayerIfNeeded(Player* player);
-    uint32 GetTimerForQuest(uint32 quest_id);
+    void AddEmissaryQuestsOnPlayerIfNeeded(Player* player);
+
+    uint32 GetTimerForQuest(uint32 questId);
 
 private:
-    WorldQuestMap _worldQuestTemplates;
-    WorldQuestMap _emissaryQuests;
-    std::vector<Quest*> _activeEmissaryQuests;
+    WorldQuestTemplateMap _worldQuestTemplates;
+    WorldQuestTemplateMap _emissaryWorldQuestTemplates;
+
+    ActiveWorldQuestMap _activeWorldQuests;
 };
 
 #define sWorldQuestMgr WorldQuestMgr::instance()
+
+struct WorldQuestTemplate
+{
+    WorldQuestTemplate(uint32 questId, uint32 duration, uint32 variableId, uint8 value) :
+        QuestId(questId), Duration(duration), VariableId(variableId), Value(value) { }
+
+    uint32 QuestId;
+    uint32 Duration;
+    uint32 VariableId;
+    uint8 Value;
+
+    Quest const* GetQuest() const { return sObjectMgr->GetQuestTemplate(QuestId); }
+};
+
+struct ActiveWorldQuest
+{
+    ActiveWorldQuest(uint32 questId, int32 startTime) :
+        QuestId(questId), StartTime(startTime) { }
+
+    uint32 QuestId;
+    int32 StartTime;
+
+    WorldQuestTemplate const* GetTemplate() const { return sWorldQuestMgr->GetWorldQuestTemplate(QuestId); }
+
+    int32 GetRemainingTime() const
+    {
+        if (WorldQuestTemplate const* worldQuestTemplate = GetTemplate())
+            return (StartTime + worldQuestTemplate->Duration) - time(nullptr);
+
+        return 0;
+    }
+
+    bool IsEmissaryQuest() const
+    {
+        if (WorldQuestTemplate const* worldQuestTemplate = GetTemplate())
+            if (Quest const* quest = worldQuestTemplate->GetQuest())
+                return quest->IsEmissaryQuest();
+
+        return false;
+    }
+};
 
 #endif

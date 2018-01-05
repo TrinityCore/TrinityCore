@@ -752,10 +752,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA_FOR_INSTANCE, "DELETE FROM instance_scenario_progress WHERE id = ?", CONNECTION_ASYNC);
 
     // World Quests
-    PrepareStatement(CHAR_SEL_WORLD_QUEST, "SELECT id, starttime, remaining FROM world_quest", CONNECTION_SYNCH);
-    PrepareStatement(CHAR_UPD_WORLD_QUEST, "UPDATE world_quest SET remaining = ? WHERE id = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_WORLD_QUEST, "SELECT id, starttime FROM world_quest", CONNECTION_SYNCH);
     PrepareStatement(CHAR_DEL_WORLD_QUEST, "DELETE FROM world_quest WHERE id = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_REP_WORLD_QUEST, "REPLACE INTO world_quest (id, starttime, remaining) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_REP_WORLD_QUEST, "REPLACE INTO world_quest (id, starttime) VALUES (?, ?)", CONNECTION_ASYNC);
 
     // Custom
     PrepareStatement(CHAR_UPD_XP_RATE, "UPDATE characters SET xpRate = ? WHERE guid = ?", CONNECTION_ASYNC);
