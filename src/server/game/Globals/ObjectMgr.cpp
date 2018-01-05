@@ -4803,7 +4803,7 @@ void ObjectMgr::LoadQuests()
         }
     }
 
-    sWorldQuestMgr->LoadWorldQuests();
+    sWorldQuestMgr->LoadWorldQuestTemplates();
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " quests definitions in %u ms", _questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
