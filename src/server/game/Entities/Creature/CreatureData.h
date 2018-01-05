@@ -312,6 +312,7 @@ struct TC_GAME_API CreatureTemplate
     std::string  Name;
     std::string FemaleName;
     std::string  SubName;
+    std::string  TitleAlt;
     std::string  IconName;
     uint32  GossipMenuId;
     int16   minlevel;
