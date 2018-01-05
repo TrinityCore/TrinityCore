@@ -59,7 +59,7 @@ public:
     uint8 GetActiveEmissaryQuestsCount();
     uint32 GetActiveQuestsCount();
 
-    void BuildPacket(WorldPackets::Quest::WorldQuestUpdate& packet);
+    void BuildPacket(Player* player, WorldPackets::Quest::WorldQuestUpdate& packet);
     void FillInitWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     std::vector<CriteriaEntry const*> GetCriteriasForQuest(uint32 quest_id);
