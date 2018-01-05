@@ -2408,11 +2408,6 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
         UpdateObjectVisibility();
 }
 
-bool WorldObject::InSamePhase(WorldObject const* obj) const
-{
-    return InSamePhase(obj->GetPhaseMask());
-}
-
 void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= nullptr*/)
 {
     WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 4+8);
