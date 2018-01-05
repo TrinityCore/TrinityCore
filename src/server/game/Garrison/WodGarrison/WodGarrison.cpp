@@ -214,6 +214,9 @@ void WodGarrison::Leave() const
 
 bool WodGarrison::IsAllowedArea(AreaTableEntry const* area) const
 {
+    if (!area)
+        return false;
+
     switch (area->ID)
     {
         case 7004: // Horde Garrison
