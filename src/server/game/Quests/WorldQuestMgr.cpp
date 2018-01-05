@@ -247,12 +247,15 @@ uint32 WorldQuestMgr::GetActiveQuestsCount()
     return _activeWorldQuests.size();
 }
 
-void WorldQuestMgr::BuildPacket(WorldPackets::Quest::WorldQuestUpdate& packet)
+void WorldQuestMgr::BuildPacket(Player* player, WorldPackets::Quest::WorldQuestUpdate& packet)
 {
     WorldPackets::Quest::WorldQuestUpdateInfo quest;
     for (auto itr : _activeWorldQuests)
     {
         ActiveWorldQuest* activeWorldQuest = itr.second;
+        if (player->IsQuestRewarded(itr.first))
+            continue;
+
         if (WorldQuestTemplate const* worldQuestTemplate = activeWorldQuest->GetTemplate())
         {
             quest.QuestID       = activeWorldQuest->QuestId;
