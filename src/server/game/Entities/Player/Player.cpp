@@ -27408,26 +27408,9 @@ Guild const* Player::GetGuild() const
     return guildId ? sGuildMgr->GetGuildById(guildId) : nullptr;
 }
 
-Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
+Pet *Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
 {
-    Pet* pet = new Pet(this, petType);
-
-    if (petType == HUNTER_PET && pet->LoadPetData(this, entry))
-        return nullptr;
-
-    if (petType == SUMMON_PET && pet->LoadPetData(this, entry))
-    {
-        if (duration > 0)
-            pet->SetDuration(duration);
-
-        return nullptr;
-    }
-
-    if ((petType == SUMMON_PET && !entry) || petType == HUNTER_PET)
-    {
-        delete pet;
-        return nullptr;
-    }
+    Pet *pet = new Pet(this, petType);
 
     pet->Relocate(x, y, z, ang);
     if (!pet->IsPositionValid())
@@ -27437,54 +27420,71 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return nullptr;
     }
 
-    Map* map = GetMap();
-    uint32 pet_number = sObjectMgr->GeneratePetNumber();
-    if (!pet->Create(map->GenerateLowGuid<HighGuid::Pet>(), map, entry))
+    bool hasPetData = pet->LoadPetData(this, entry);
+
+    if (!hasPetData && petType == HUNTER_PET)
     {
-        TC_LOG_ERROR("misc", "Player::SummonPet: No such creature entry %u", entry);
         delete pet;
         return nullptr;
     }
 
-    pet->CopyPhaseFrom(this);
-
-    pet->SetCreatorGUID(GetGUID());
-    pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
-
-    pet->SetPowerType(POWER_MANA);
-    pet->SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-    pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-    pet->InitStatsForLevel(getLevel());
-
-    SetMinion(pet, true);
-
-    switch (petType)
+    if (!hasPetData)
     {
-        case SUMMON_PET:
-            pet->GetCharmInfo()->SetPetNumber(pet_number, true);
-            pet->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_MAGE);
-            pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-            pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
-            pet->SetFullHealth();
-            pet->SetFullPower(POWER_MANA);
-            pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped in this case
-            break;
-        default:
-            break;
-    }
+        Map* map = GetMap();
+        if (!pet->Create(map->GenerateLowGuid<HighGuid::Pet>(), map, entry))
+        {
+            TC_LOG_ERROR("misc", "Player::SummonPet: No such creature entry %u", entry);
+            delete pet;
+            return nullptr;
+        }
 
-    map->AddToMap(pet->ToCreature());
+        uint32 pet_number = sObjectMgr->GeneratePetNumber();
 
-    switch (petType)
-    {
-        case SUMMON_PET:
-            pet->InitPetCreateSpells();
-            pet->SavePetToDB(PET_SAVE_NEW_PET);
-            PetSpellInitialize();
-            GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), pet->GetEntry(), pet->GetDisplayId(), pet->getLevel(), pet->GetName());
-            break;
-        default:
-            break;
+        // generate new name for summon pet
+        std::string new_name = sObjectMgr->GeneratePetName(entry);
+        if (!new_name.empty())
+            pet->SetName(new_name);
+
+        pet->CopyPhaseFrom(this);
+
+        pet->SetCreatorGUID(GetGUID());
+        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
+
+        pet->SetPowerType(POWER_MANA);
+        pet->SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+        pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+        pet->InitStatsForLevel(getLevel());
+
+        SetMinion(pet, true);
+
+        switch (petType)
+        {
+            case SUMMON_PET:
+                pet->GetCharmInfo()->SetPetNumber(pet_number, true);
+                pet->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_MAGE);
+                pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
+                pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
+                pet->SetFullHealth();
+                pet->SetFullPower(POWER_MANA);
+                pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped in this case
+                break;
+            default:
+                break;
+        }
+
+        map->AddToMap(pet->ToCreature());
+
+        switch (petType)
+        {
+            case SUMMON_PET:
+                pet->InitPetCreateSpells();
+                pet->SavePetToDB(PET_SAVE_NEW_PET);
+                PetSpellInitialize();
+                GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), pet->GetEntry(), pet->GetDisplayId(), pet->getLevel(), pet->GetName());
+                break;
+            default:
+                break;
+        }
     }
 
     if (duration > 0)

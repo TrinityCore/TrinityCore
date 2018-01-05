@@ -2671,7 +2671,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    Player* owner = NULL;
+    Player* owner = nullptr;
     if (m_originalCaster)
     {
         owner = m_originalCaster->ToPlayer();
@@ -2729,7 +2729,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
 
     float x, y, z;
     owner->GetClosePoint(x, y, z, owner->GetObjectSize());
-    Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), petType, 0);
+    Pet *pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), petType, 0);
     if (!pet)
         return;
 
@@ -2742,11 +2742,6 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     }
 
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-
-    // generate new name for summon pet
-    std::string new_name=sObjectMgr->GeneratePetName(petentry);
-    if (!new_name.empty())
-        pet->SetName(new_name);
 
     ExecuteLogEffectSummonObject(effIndex, pet);
 }
