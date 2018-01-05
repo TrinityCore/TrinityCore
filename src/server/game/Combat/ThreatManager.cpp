@@ -691,7 +691,7 @@ void ThreatManager::SendNewVictimToClients(ThreatReference const* victimRef) con
 void ThreatManager::PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref)
 {
     auto& inMap = _myThreatListEntries[guid];
-    ASSERT(!inMap && "Duplicate threat list entry being inserted - memory leak!");
+    ASSERT(!inMap, "Duplicate threat reference at %p being inserted on %s for %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
     inMap = ref;
     ref->_handle = _sortedThreatList.push(ref);
 }
@@ -715,7 +715,7 @@ void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid, bool sendRemove)
 void ThreatManager::PutThreatenedByMeRef(ObjectGuid const& guid, ThreatReference* ref)
 {
     auto& inMap = _threatenedByMe[guid];
-    ASSERT(!inMap && "Duplicate entry being inserted into threatened by me list - potential memory leak!");
+    ASSERT(!inMap, "Duplicate threatened-by-me reference at %p being inserted on %s for %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
     inMap = ref;
 }
 

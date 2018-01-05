@@ -307,13 +307,13 @@ void CombatManager::PutReference(ObjectGuid const& guid, CombatReference* ref)
     if (ref->_isPvP)
     {
         auto& inMap = _pvpRefs[guid];
-        ASSERT(!inMap && "Duplicate combat state detected - memory leak!");
+        ASSERT(!inMap, "Duplicate combat state at %p being inserted for %s vs %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
         inMap = static_cast<PvPCombatReference*>(ref);
     }
     else
     {
         auto& inMap = _pveRefs[guid];
-        ASSERT(!inMap && "Duplicate combat state detected - memory leak!");
+        ASSERT(!inMap, "Duplicate combat state at %p being inserted for %s vs %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
         inMap = ref;
     }
 }
