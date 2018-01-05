@@ -76,6 +76,9 @@ void ClassHall::Delete()
 
 bool ClassHall::IsAllowedArea(AreaTableEntry const* area) const
 {
+    if (!area)
+        return false;
+
     // TODO : Find a better way to handle this
     return area->Flags[1] & AREA_FLAG_GARRISON && (area->ID >= 7638 && area->ID <= 8023);
 }
