@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,12 +31,17 @@ npc_spectral_ghostly_citizen
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "stratholme.h"
-#include "Group.h"
-#include "Player.h"
-#include "SpellInfo.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "stratholme.h"
 
 /*######
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)
@@ -142,7 +147,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
@@ -233,7 +238,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
@@ -297,9 +302,43 @@ public:
 
 };
 
+class spell_ysida_saved_credit : public SpellScript
+{
+    PrepareSpellScript(spell_ysida_saved_credit);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_YSIDA_SAVED });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* obj)
+        {
+            return obj->GetTypeId() != TYPEID_PLAYER;
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetHitUnit()->ToPlayer())
+        {
+            player->AreaExploredOrEventHappens(QUEST_DEAD_MAN_PLEA);
+            player->KilledMonsterCredit(NPC_YSIDA);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ysida_saved_credit::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_ysida_saved_credit::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();
     new npc_restless_soul();
     new npc_spectral_ghostly_citizen();
+    RegisterSpellScript(spell_ysida_saved_credit);
 }

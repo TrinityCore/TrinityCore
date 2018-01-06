@@ -25,6 +25,9 @@ addons:
       - libbz2-dev
       - libzmq3-dev
 
+services:
+  - mysql
+
 before_install:
   - git config user.email "travis@build.bot" && git config user.name "Travis CI"
   - git tag -a -m "Travis build" init

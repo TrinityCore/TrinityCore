@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -144,9 +144,9 @@ class boss_lockmaw : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_VISCOUS_POISON, Seconds(6));
                 events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, Seconds(6));
@@ -265,9 +265,9 @@ class boss_augh : public CreatureScript
         {
             boss_aughAI(Creature* creature) : BossAI(creature, DATA_AUGH) { }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
                 events.SetPhase(PHASE_COMBAT);
                 DoCastSelf(SPELL_FRENZY);
@@ -390,7 +390,7 @@ class npc_lockmaw_frenzied_crocolisk : public CreatureScript
                 me->DespawnOrUnsummon(Seconds(5));
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 if (Creature* lockmaw = _instance->GetCreature(DATA_LOCKMAW))
                     lockmaw->AI()->JustSummoned(me);

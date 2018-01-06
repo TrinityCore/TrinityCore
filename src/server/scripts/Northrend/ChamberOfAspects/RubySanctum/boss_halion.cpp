@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -233,14 +233,14 @@ class boss_halion : public CreatureScript
                         controller->AI()->EnterEvadeMode(why);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
                 events.Reset();
                 events.SetPhase(PHASE_ONE);
 
-                _EnterCombat();
+                _JustEngagedWith();
                 me->AddAura(SPELL_TWILIGHT_PRECISION, me);
                 events.ScheduleEvent(EVENT_ACTIVATE_FIREWALL, Seconds(5));
                 events.ScheduleEvent(EVENT_BREATH, randtime(Seconds(5), Seconds(15)));
@@ -410,11 +410,11 @@ class boss_twilight_halion : public CreatureScript
                 events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, Seconds(15));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.SetPhase(PHASE_TWO);
 
-                _EnterCombat();
+                _JustEngagedWith();
                 me->AddAura(SPELL_TWILIGHT_PRECISION, me);
                 events.ScheduleEvent(EVENT_CLEAVE, Seconds(3));
                 events.ScheduleEvent(EVENT_BREATH, Seconds(12));
@@ -455,9 +455,9 @@ class boss_twilight_halion : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                //Needed because we already have UNIT_FLAG_IN_COMBAT, otherwise EnterCombat won't ever be called
+                //Needed because we already have UNIT_FLAG_IN_COMBAT, otherwise JustEngagedWith won't ever be called
                 if (!events.IsInPhase(PHASE_TWO) && !events.IsInPhase(PHASE_THREE))
-                    EnterCombat(attacker);
+                    JustEngagedWith(attacker);
 
                 if (me->HealthBelowPctDamaged(50, damage) && events.IsInPhase(PHASE_TWO))
                 {
@@ -592,7 +592,7 @@ class npc_halion_controller : public CreatureScript
                 DoCastSelf(SPELL_CLEAR_DEBUFFS);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _twilightDamageTaken = 0;
                 _materialDamageTaken = 0;
@@ -1141,7 +1141,7 @@ class npc_meteor_strike_flame : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*id = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
             {
                 _rootOwnerGuid = guid;
                 _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, Milliseconds(800));

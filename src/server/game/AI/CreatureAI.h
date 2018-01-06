@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -110,7 +110,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         // Called for reaction at enter to combat if not in combat yet (enemy can be nullptr)
-        virtual void EnterCombat(Unit* /*victim*/) { }
+        virtual void JustEngagedWith(Unit* /*who*/) { }
 
         // Called when the creature is killed
         virtual void JustDied(Unit* /*killer*/) { }

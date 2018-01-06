@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -899,16 +899,30 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         ok = true;
     }
 
-    if (cInfo->AIName == "TotemAI")
+    if (cInfo->mingold > cInfo->maxgold)
     {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has not-allowed `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
-        const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has `mingold` %u which is greater than `maxgold` %u, setting `maxgold` to %u.",
+            cInfo->Entry, cInfo->mingold, cInfo->maxgold, cInfo->mingold);
+        const_cast<CreatureTemplate*>(cInfo)->maxgold = cInfo->mingold;
     }
 
-    if (!cInfo->AIName.empty() && !sCreatureAIRegistry->HasItem(cInfo->AIName))
+    if (!cInfo->AIName.empty())
     {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-registered `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
-        const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+        auto registryItem = sCreatureAIRegistry->GetRegistryItem(cInfo->AIName);
+        if (!registryItem)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-registered `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
+            const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+        }
+        else
+        {
+            DBPermit const* permit = dynamic_cast<DBPermit const*>(registryItem);
+            if (!ASSERT_NOTNULL(permit)->IsScriptNameAllowedInDB())
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has not-allowed `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
+                const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+            }
+        }
     }
 
     FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);

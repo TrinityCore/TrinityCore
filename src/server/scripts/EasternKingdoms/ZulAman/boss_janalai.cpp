@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -182,7 +182,7 @@ class boss_janalai : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 instance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
 
@@ -451,7 +451,7 @@ class npc_janalai_firebomb : public CreatureScript
                     DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void AttackStart(Unit* /*who*/) override { }
 
@@ -533,7 +533,7 @@ class npc_janalai_hatcher : public CreatureScript
                 return num == 0;   // if num == 0, no more templist
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void AttackStart(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -634,7 +634,7 @@ class npc_janalai_hatchling : public CreatureScript
                 me->SetDisableGravity(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override {/*DoZoneInCombat();*/ }
+            void JustEngagedWith(Unit* /*who*/) override {/*DoZoneInCombat();*/ }
 
             void UpdateAI(uint32 diff) override
             {

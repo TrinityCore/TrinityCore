@@ -87,14 +87,14 @@ public:
             MakeInterruptable(false);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 Talk(SAY_AGGRO_ALLIANCE);
             else
                 Talk(SAY_AGGRO_HORDE);
 
-            _EnterCombat();
+            _JustEngagedWith();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             events.ScheduleEvent(EVENT_CURSED_BULLETS, Seconds(10) + Milliseconds(800));
             events.ScheduleEvent(EVENT_MORTAL_WOUND, Seconds(3) + Milliseconds(500));

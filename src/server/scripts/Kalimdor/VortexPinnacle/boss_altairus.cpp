@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -133,9 +133,9 @@ class boss_altairus : public CreatureScript
                 events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 1000);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 me->SummonCreature(NPC_INVISIBLE_STALKER, InvisibleStalkerPos);
 

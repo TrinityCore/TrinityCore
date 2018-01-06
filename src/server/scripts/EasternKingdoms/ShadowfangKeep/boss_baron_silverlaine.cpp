@@ -103,10 +103,10 @@ public:
             _worgenCounter = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             if (IsHeroic())
                 events.ScheduleEvent(EVENT_CURSED_VEIL, Seconds(6));

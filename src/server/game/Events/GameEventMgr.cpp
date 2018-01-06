@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1719,7 +1719,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     if (!event.holidayStage) // Ignore holiday
         return;
 
-    const HolidaysEntry* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
+    HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
 
     if (!holiday->Date[0] || !holiday->Duration[0]) // Invalid definitions
     {

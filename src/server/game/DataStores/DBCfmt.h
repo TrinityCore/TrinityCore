@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -134,7 +134,7 @@ char const ScalingStatDistributionfmt[] = "niiiiiiiiiiiiiiiiiiiixi";
 char const ScalingStatValuesfmt[] = "iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const SkillLinefmt[] = "nisxixi";
 char const SkillLineAbilityfmt[] = "niiiixxiiiiiii";
-char const SkillRaceClassInfofmt[] = "diiiixxix";
+char const SkillRaceClassInfofmt[] = "diiiiixix";
 char const SkillTiersfmt[] = "nxxxxxxxxxxxxxxxxiiiiiiiiiiiiiiii";
 char const SoundEntriesfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const SpellCastTimefmt[] = "nixx";

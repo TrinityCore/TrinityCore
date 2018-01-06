@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -753,7 +753,7 @@ public:
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void AttackStart(Unit* who) override
         {
@@ -843,7 +843,7 @@ public:
             me->DespawnOrUnsummon(Seconds(5));
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_HEROIC_STRIKE, Seconds(5));
             _events.ScheduleEvent(EVENT_SHIELD_BASH, Seconds(10), Seconds(16));
@@ -921,7 +921,7 @@ public:
             me->DespawnOrUnsummon(Seconds(5));
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_DEBILITATING_POISON, Milliseconds(500), Seconds(2));
             _events.ScheduleEvent(EVENT_EVISCERATE, Seconds(2), Seconds(5));
@@ -990,7 +990,7 @@ public:
             me->DespawnOrUnsummon(Seconds(5));
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_RAIN_OF_FIRE, Seconds(18));
             _events.ScheduleEvent(EVENT_LIGHTNING_BOLT, Seconds(6));
@@ -1068,7 +1068,7 @@ public:
             me->DespawnOrUnsummon(Seconds(5));
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_SPIRIT_HEAL, Seconds(5), Seconds(6));
         }

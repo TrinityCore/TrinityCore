@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -100,9 +100,9 @@ class boss_prince_taldaram : public CreatureScript
                 _embraceTakenDamage = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
                 events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
@@ -304,12 +304,12 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
                 _events.ScheduleEvent(EVENT_DESPAWN, 13 * IN_MILLISECONDS);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*id = 0*/) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
             {
                 _flameSphereTargetGUID = guid;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override

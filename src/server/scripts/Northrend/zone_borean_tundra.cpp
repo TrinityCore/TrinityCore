@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -100,7 +100,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -360,7 +360,7 @@ public:
         npc_nerubar_victimAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
@@ -457,7 +457,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
@@ -1450,7 +1450,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (me->IsValidAttackTarget(who))
                 AttackStart(who);
@@ -1562,7 +1562,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -2062,7 +2062,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
 
@@ -2219,7 +2219,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(ObjectGuid uiGuid, int32 /*iId*/ = 0) override
+        void SetGUID(ObjectGuid const& uiGuid, int32 /*iId*/ = 0) override
         {
             uiPlayerGUID = uiGuid;
         }
@@ -2369,7 +2369,7 @@ public:
         {
             if (GetTarget()->isDead())
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(NULL, SPELL_WINDSOUL_CREDT);
+                    caster->CastSpell(nullptr, SPELL_WINDSOUL_CREDT);
         }
 
         void Register() override
@@ -2435,7 +2435,7 @@ public:
             _playerGUID.Clear();
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*action*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             if (!_playerGUID.IsEmpty())
                 return;

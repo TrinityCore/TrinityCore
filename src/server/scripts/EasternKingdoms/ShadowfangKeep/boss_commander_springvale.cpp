@@ -126,10 +126,10 @@ public:
             */
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             events.ScheduleEvent(EVENT_MALEFIC_STRIKE, Seconds(5));
             events.ScheduleEvent(EVENT_DESECRATION, Seconds(9) + Milliseconds(500));
@@ -290,7 +290,7 @@ public:
     {
         npc_wailing_guardsmanAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (Creature* tormentedOfficer = me->FindNearestCreature(NPC_TORMENTED_OFFICER, 20.0f))
                 tormentedOfficer->AI()->AttackStart(who);
@@ -344,7 +344,7 @@ public:
     {
         npc_tormented_officerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (Creature* wailingGuardsman = me->FindNearestCreature(NPC_WAILING_GUARDSMAN, 20.0f))
                 wailingGuardsman->AI()->AttackStart(who);

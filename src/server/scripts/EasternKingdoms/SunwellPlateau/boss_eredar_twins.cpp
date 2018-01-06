@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -130,7 +130,7 @@ public:
             instance->SetBossState(DATA_EREDAR_TWINS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             DoZoneInCombat();
 
@@ -382,7 +382,7 @@ public:
             instance->SetBossState(DATA_EREDAR_TWINS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             DoZoneInCombat();
 
@@ -671,7 +671,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell) override
         {

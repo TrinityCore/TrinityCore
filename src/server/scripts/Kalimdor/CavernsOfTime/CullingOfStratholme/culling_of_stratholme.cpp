@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -340,7 +340,7 @@ public:
                 npc_escortAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_ARTHAS_AURA);
         }
@@ -1195,7 +1195,7 @@ public:
                     {
                         QuestStatus status = player->GetQuestStatus(13149);
                         if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
-                            return false;
+                            return true;
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                         SendGossipMenuFor(player, 907, me->GetGUID());
                         break;

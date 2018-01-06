@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -130,9 +130,9 @@ class boss_grand_vizier_ertan : public CreatureScript
                     events.ScheduleEvent(EVENT_SUMMON_TEMPEST, 17000);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 SummonErtansVortexes();
                 DoCast(me, SPELL_STORMS_EDGE_AURA);

@@ -67,10 +67,10 @@ public:
     {
         boss_lord_waldenAI(Creature* creature) : BossAI(creature, DATA_LORD_WALDEN) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
 
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             events.ScheduleEvent(EVENT_ICE_SHARDS, Seconds(23));
