@@ -27454,6 +27454,7 @@ Pet *Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         pet->SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
         pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
         pet->InitStatsForLevel(getLevel());
+        pet->SetReactState(REACT_ASSIST);
 
         SetMinion(pet, true);
 
