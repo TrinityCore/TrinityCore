@@ -31,9 +31,9 @@ class AsyncAcceptor
 public:
     typedef void(*AcceptCallback)(tcp::socket&& newSocket, uint32 threadIndex);
 
-    AsyncAcceptor(boost::asio::io_service& ioService, std::string const& bindIp, uint16 port) :
-        _acceptor(ioService), _endpoint(boost::asio::ip::address::from_string(bindIp), port),
-        _socket(ioService), _closed(false), _socketFactory(std::bind(&AsyncAcceptor::DefeaultSocketFactory, this))
+    AsyncAcceptor(boost::asio::io_context& ioContext, std::string const& bindIp, uint16 port) :
+        _acceptor(ioContext), _endpoint(boost::asio::ip::address::from_string(bindIp), port),
+        _socket(ioContext), _closed(false), _socketFactory(std::bind(&AsyncAcceptor::DefeaultSocketFactory, this))
     {
     }
 

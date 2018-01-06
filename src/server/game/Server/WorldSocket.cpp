@@ -133,7 +133,7 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
     initializer.Write(ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
     initializer.Write("\n", 1);
 
-    // - io_service.run thread, safe.
+    // - io_context.run thread, safe.
     QueuePacket(std::move(initializer));
 }
 

@@ -69,9 +69,9 @@ int32 handle_post_plugin(soap* soapClient)
     return sLoginService.HandleHttpRequest(soapClient, "POST", sLoginService._postHandlers);
 }
 
-bool LoginRESTService::Start(boost::asio::io_service* ioService)
+bool LoginRESTService::Start(boost::asio::io_context* ioContext)
 {
-    _ioService = ioService;
+    _ioContext = ioContext;
     _bindIP = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
     _port = sConfigMgr->GetIntDefault("LoginREST.Port", 8081);
     if (_port < 0 || _port > 0xFFFF)
@@ -81,7 +81,7 @@ bool LoginRESTService::Start(boost::asio::io_service* ioService)
     }
 
     boost::system::error_code ec;
-    boost::asio::ip::tcp::resolver resolver(*ioService);
+    boost::asio::ip::tcp::resolver resolver(*ioContext);
     boost::asio::ip::tcp::resolver::iterator end;
 
     std::string configuredAddress = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress", "127.0.0.1");
@@ -205,7 +205,7 @@ void LoginRESTService::Run()
 
         TC_LOG_DEBUG("server.rest", "Accepted connection from IP=%s", boost::asio::ip::address_v4(soapClient->GetClient()->ip).to_string().c_str());
 
-        _ioService->post([soapClient]()
+        _ioContext->post([soapClient]()
         {
             soapClient->GetClient()->user = (void*)&soapClient; // this allows us to make a copy of pointer inside GET/POST handlers to increment reference count
             soap_begin(soapClient->GetClient());
@@ -295,7 +295,7 @@ int32 LoginRESTService::HandleGetGameAccounts(std::shared_ptr<AsyncRequest> requ
         SendResponse(request->GetClient(), response);
     })));
 
-    _ioService->post([this, request]() { HandleAsyncRequest(request); });
+    _ioContext->post([this, request]() { HandleAsyncRequest(request); });
 
     return SOAP_OK;
 }
@@ -436,7 +436,7 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
         sLoginService.SendResponse(request->GetClient(), loginResult);
     })));
 
-    _ioService->post([this, request]() { HandleAsyncRequest(request); });
+    _ioContext->post([this, request]() { HandleAsyncRequest(request); });
 
     return SOAP_OK;
 }
@@ -476,7 +476,7 @@ int32 LoginRESTService::HandlePostRefreshLoginTicket(std::shared_ptr<AsyncReques
         SendResponse(request->GetClient(), loginRefreshResult);
     })));
 
-    _ioService->post([this, request]() { HandleAsyncRequest(request); });
+    _ioContext->post([this, request]() { HandleAsyncRequest(request); });
 
     return SOAP_OK;
 }
@@ -494,7 +494,7 @@ void LoginRESTService::HandleAsyncRequest(std::shared_ptr<AsyncRequest> request)
 {
     if (!request->InvokeIfReady())
     {
-        _ioService->post([this, request]() { HandleAsyncRequest(request); });
+        _ioContext->post([this, request]() { HandleAsyncRequest(request); });
     }
     else if (request->GetResponseStatus())
     {

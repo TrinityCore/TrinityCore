@@ -58,7 +58,7 @@ WorldSocketMgr& WorldSocketMgr::Instance()
     return instance;
 }
 
-bool WorldSocketMgr::StartWorldNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, uint16 instancePort, int threadCount)
+bool WorldSocketMgr::StartWorldNetwork(boost::asio::io_context& context, std::string const& bindIp, uint16 port, uint16 instancePort, int threadCount)
 {
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
@@ -76,13 +76,13 @@ bool WorldSocketMgr::StartWorldNetwork(boost::asio::io_service& service, std::st
         return false;
     }
 
-    if (!BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount))
+    if (!BaseSocketMgr::StartNetwork(context, bindIp, port, threadCount))
         return false;
 
     AsyncAcceptor* instanceAcceptor = nullptr;
     try
     {
-        instanceAcceptor = new AsyncAcceptor(service, bindIp, instancePort);
+        instanceAcceptor = new AsyncAcceptor(context, bindIp, instancePort);
     }
     catch (boost::system::system_error const& err)
     {

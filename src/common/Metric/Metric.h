@@ -31,7 +31,7 @@ namespace boost
 {
     namespace asio
     {
-        class io_service;
+        class io_context;
     }
 }
 
@@ -95,7 +95,7 @@ public:
     ~Metric();
     static Metric* instance();
 
-    void Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger);
+    void Initialize(std::string const& realmName, boost::asio::io_context& ioContext, std::function<void()> overallStatusLogger);
     void LoadFromConfigs();
     void Update();
 

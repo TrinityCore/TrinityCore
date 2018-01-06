@@ -51,16 +51,16 @@ namespace Connection_Patcher
             using namespace boost::asio;
             using boost::asio::ip::tcp;
 
-            io_service io_service;
+            io_context io_context;
 
             // Get a list of endpoints corresponding to the server name.
-            tcp::resolver resolver(io_service);
+            tcp::resolver resolver(io_context);
             tcp::resolver::query query(serverName, std::to_string(port));
             tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
             tcp::resolver::iterator end;
 
             // Try each endpoint until we successfully establish a connection.
-            tcp::socket socket(io_service);
+            tcp::socket socket(io_context);
             boost::system::error_code error = boost::asio::error::host_not_found;
             while (error && endpoint_iterator != end)
             {

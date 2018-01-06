@@ -35,7 +35,7 @@ namespace boost
 {
     namespace asio
     {
-        class io_service;
+        class io_context;
     }
 }
 
@@ -62,7 +62,7 @@ class TC_COMMON_API Log
     public:
         static Log* instance();
 
-        void Initialize(boost::asio::io_service* ioService);
+        void Initialize(boost::asio::io_context* ioContext);
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
@@ -122,7 +122,7 @@ class TC_COMMON_API Log
         std::string m_logsDir;
         std::string m_logsTimestamp;
 
-        boost::asio::io_service* _ioService;
+        boost::asio::io_context* _ioContext;
         Trinity::AsioStrand* _strand;
 };
 

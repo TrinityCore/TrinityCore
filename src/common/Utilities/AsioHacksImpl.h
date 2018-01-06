@@ -18,14 +18,14 @@
 #ifndef AsioHacksImpl_h__
 #define AsioHacksImpl_h__
 
-#include <boost/asio/strand.hpp>
+#include <boost/asio/io_context_strand.hpp>
 
 namespace Trinity
 {
-    class AsioStrand : public boost::asio::io_service::strand
+    class AsioStrand : public boost::asio::io_context::strand
     {
     public:
-        AsioStrand(boost::asio::io_service& io_service) : boost::asio::io_service::strand(io_service) { }
+        AsioStrand(boost::asio::io_context& io_context) : boost::asio::io_context::strand(io_context) { }
     };
 }
 
