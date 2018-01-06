@@ -32,9 +32,9 @@ public:
         return instance;
     }
 
-    bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount = 1) override
+    bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount = 1) override
     {
-        if (!BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount))
+        if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
             return false;
 
         _acceptor->AsyncAcceptWithCallback<&AuthSocketMgr::OnSocketAccept>();

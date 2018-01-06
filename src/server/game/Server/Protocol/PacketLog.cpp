@@ -17,8 +17,9 @@
 
 #include "PacketLog.h"
 #include "Config.h"
-#include "WorldPacket.h"
+#include "IpAddress.h"
 #include "Timer.h"
+#include "WorldPacket.h"
 
 #pragma pack(push, 1)
 
