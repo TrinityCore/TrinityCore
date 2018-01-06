@@ -10844,6 +10844,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     pet->InitPetCreateSpells();
     //pet->InitLevelupSpellsForLevel();
     pet->SetFullHealth();
+    pet->SetReactState(REACT_ASSIST);
     return true;
 }
 
