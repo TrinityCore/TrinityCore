@@ -84,18 +84,21 @@ class TC_GAME_API ThreatManager
 {
 public:
     typedef boost::heap::fibonacci_heap<ThreatReference const*, boost::heap::compare<CompareThreatLessThan>> threat_list_heap;
-    static const uint32 CLIENT_THREAT_UPDATE_INTERVAL = 1000u;
 
-    static bool CanHaveThreatList(Unit const* who);
+        static bool CanHaveThreatList(Unit const* who);
 
-    ThreatManager(Unit* owner);
-    // called from ::Create methods just after construction (once all fields on owner have been populated)
-    // should not be called from anywhere else
-    void Initialize();
-    // called from Creature::Update (only creatures can have their own threat list)
-    // should not be called from anywhere else
-    void Update(uint32 tdiff);
+        ThreatManager(Unit* owner);
+        ~ThreatManager();
+        // called from ::Create methods just after construction (once all fields on owner have been populated)
+        // should not be called from anywhere else
+        void Initialize();
+        // called from Creature::Update (only creatures can have their own threat list)
+        // should not be called from anywhere else
+        void Update(uint32 tdiff);
 
+        // never nullptr
+        Unit* GetOwner() const { return _owner; }
+        // can our owner have a threat list?
     // never nullptr
     Unit* GetOwner() const { return _owner; }
     // can our owner have a threat list?

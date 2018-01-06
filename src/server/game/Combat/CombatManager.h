@@ -96,12 +96,14 @@ private:
 // please check Game/Combat/CombatManager.h for documentation on how this class works!
 class TC_GAME_API CombatManager
 {
-public:
-    static bool CanBeginCombat(Unit const* a, Unit const* b);
+    public:
+        static bool CanBeginCombat(Unit const* a, Unit const* b);
 
-    CombatManager(Unit* owner) : _owner(owner) { }
-    void Update(uint32 tdiff); // called from Unit::Update
+        CombatManager(Unit* owner) : _owner(owner) { }
+        ~CombatManager();
+        void Update(uint32 tdiff); // called from Unit::Update
 
+        Unit* GetOwner() const { return _owner; }
     Unit* GetOwner() const { return _owner; }
     bool HasCombat() const { return HasPvECombat() || HasPvPCombat(); }
     bool HasPvECombat() const { return !_pveRefs.empty(); }
