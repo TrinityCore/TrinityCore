@@ -1336,10 +1336,4 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `itemID1`, `itemID2`, `item
 (3348, 0, 3698, 0), -- 3348
 (3350, 1906, 12745, 0); -- 3350
 
--- In addition to cleaning up the above code style, I have inserted the table column names below, since it was missing in the OP's SQL.
--- Notice that the values don't match the table columns (or is the documentation page http://collab.kpsn.org/display/tc/World only for the 3.3.5 DB?)
-INSERT INTO `areatrigger_teleport` VALUES
-(7999, 4139, 'Ring of Valor - Entrance Target'),
-(8001, 4140, 'Ring of Valor - Exit Target');
-
 UPDATE `creature_template` SET `npcflag`=128 WHERE `entry` IN (68794,49889,68364);
