@@ -19,11 +19,11 @@
 #define LoginRESTService_h__
 
 #include "Define.h"
+#include "IoContext.h"
+#include "IpAddress.h"
 #include "Login.pb.h"
 #include "Session.h"
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/ip/address.hpp>
 #include <atomic>
 #include <thread>
 
@@ -40,11 +40,11 @@ enum class BanMode
 class LoginRESTService
 {
 public:
-    LoginRESTService() : _ioService(nullptr), _stopped(false), _port(0), _loginTicketDuration(0) { }
+    LoginRESTService() : _ioContext(nullptr), _stopped(false), _port(0), _loginTicketDuration(0) { }
 
     static LoginRESTService& Instance();
 
-    bool Start(boost::asio::io_service* ioService);
+    bool Start(Trinity::Asio::IoContext* ioContext);
     void Stop();
 
     boost::asio::ip::tcp::endpoint const& GetAddressForClient(boost::asio::ip::address const& address) const;
@@ -96,7 +96,7 @@ private:
         char const* ContentType;
     };
 
-    boost::asio::io_service* _ioService;
+    Trinity::Asio::IoContext* _ioContext;
     std::thread _thread;
     std::atomic<bool> _stopped;
     Battlenet::JSON::Login::FormInputs _formInputs;
@@ -104,6 +104,7 @@ private:
     int32 _port;
     boost::asio::ip::tcp::endpoint _externalAddress;
     boost::asio::ip::tcp::endpoint _localAddress;
+    boost::asio::ip::address_v4 _localNetmask;
     uint32 _loginTicketDuration;
 
     HttpMethodHandlerMap _getHandlers;

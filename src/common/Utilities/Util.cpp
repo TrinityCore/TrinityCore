@@ -18,7 +18,7 @@
 
 #include "Util.h"
 #include "Common.h"
-#include <boost/asio/ip/address.hpp>
+#include "IpAddress.h"
 #include <utf8.h>
 #include <algorithm>
 #include <sstream>
@@ -216,7 +216,7 @@ bool IsIPAddress(char const* ipaddress)
         return false;
 
     boost::system::error_code error;
-    boost::asio::ip::address::from_string(ipaddress, error);
+    Trinity::Net::make_address(ipaddress, error);
     return !error;
 }
 
