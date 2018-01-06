@@ -313,7 +313,7 @@ public:
             return false;
         }
 
-        if (me->IsInCombat() && !handler->GetSession()->HasPermission(rbac::RBAC_PERM_COMMAND_TELE_NAME))
+        if (me->IsInCombat() && !me->CanBeGameMaster())
         {
             handler->SendSysMessage(LANG_YOU_IN_COMBAT);
             handler->SetSentErrorMessage(true);
