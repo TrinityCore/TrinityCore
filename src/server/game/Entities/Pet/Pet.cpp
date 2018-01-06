@@ -130,7 +130,6 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
         return false;
     }
 
-    // update for case of current pet "slot = 0"
     petEntry = playerPetData->CreatureId;
     if (!petEntry)
         return false;
@@ -142,6 +141,7 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
     if (current && isTemporarySummon)
         return false;
 
+    // Prevent Summoning Exotic if not GM or Beast Master
     PetType petType = playerPetData->Type;
     if (petType == HUNTER_PET)
     {
@@ -295,8 +295,6 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
         CastPetAuras(current);
     }
 
-    TC_LOG_DEBUG("entities.pet", "New Pet has %s", GetGUID().ToString().c_str());
-
     uint16 specId = playerPetData->SpecId;
     if (ChrSpecializationEntry const* petSpec = sChrSpecializationStore.LookupEntry(specId))
         specId = sDB2Manager.GetChrSpecializationByIndex(owner->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0, petSpec->OrderIndex)->ID;
@@ -332,7 +330,7 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
     }
 
     //set last used pet number (for use in BG's)
-    if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
+    if (owner->IsPlayer() && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(petId);
 
     m_loading = false;
@@ -1309,7 +1307,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     if (active == ACT_DECIDE)                               // active was not used before, so we save it's autocast/passive state here
     {
         if (spellInfo->IsAutocastable())
-            newspell.active = ACT_DISABLED;
+            newspell.active = ACT_ENABLED;
         else
             newspell.active = ACT_PASSIVE;
     }
