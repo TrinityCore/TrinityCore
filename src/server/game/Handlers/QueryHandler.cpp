@@ -109,7 +109,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.VignetteID = creatureInfo->VignetteID;
 
         stats.Title = creatureInfo->SubName;
-        //stats.TitleAlt = ;
+        stats.TitleAlt = creatureInfo->TitleAlt;
         stats.CursorName = creatureInfo->IconName;
 
         if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
