@@ -1060,6 +1060,7 @@ struct npc_watch_commander_leonus : public ScriptedAI
 
     void Reset() override
     {
+        _events.Reset();
         _events.ScheduleEvent(EVENT_LEONUS_TALK, 2min, 10min);
         _events.ScheduleEvent(EVENT_INFERNAL_RAIN_ATTACK, 2min, 10min);
         _events.ScheduleEvent(EVENT_FEAR_CONTROLLER_CAST, 2min, 10min);
@@ -1177,8 +1178,9 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
                     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, infernalrainList, checker);
                     Cell::VisitAllObjects(me, searcher, 200.0f);
 
-                    if (Creature* random = Trinity::Containers::SelectRandomContainerElement(infernalrainList))
+                    if (!infernalrainList.empty())
                     {
+                        Creature* random = Trinity::Containers::SelectRandomContainerElement(infernalrainList);
                         if (random->isMoving() && random->GetPositionZ() < 118.0f)
                         {
                             CastSpellExtraArgs args;
