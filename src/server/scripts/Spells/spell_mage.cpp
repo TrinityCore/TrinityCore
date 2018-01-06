@@ -110,6 +110,7 @@ enum MageSpells
     SPELL_MAGE_COMET_STORM                       = 153595,
     SPELL_MAGE_COMET_STORM_DAMAGE                = 153596,
     SPELL_MAGE_COMET_STORM_VISUAL                = 242210,
+    SPELL_BLAZING_BARRIER_TRIGGER                = 235314
 };
 
 enum TemporalDisplacementSpells
@@ -1986,6 +1987,51 @@ public:
     }
 };
 
+// 7.3.2 Blazing Barrier - 235313
+class spell_mage_blazing_barrier : public SpellScriptLoader
+{
+public:
+    spell_mage_blazing_barrier() : SpellScriptLoader("spell_mage_blazing_barrier") { }
+
+    class spell_mage_blazing_barrier_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_blazing_barrier_AuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            return ValidateSpellInfo({ SPELL_BLAZING_BARRIER_TRIGGER });
+        }
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+        {
+            canBeRecalculated = false;
+            if (Unit* caster = GetCaster())
+                amount += int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f);
+        }
+
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            Unit* caster = eventInfo.GetDamageInfo()->GetVictim();
+            Unit* target = eventInfo.GetDamageInfo()->GetAttacker();
+
+            if (caster && target)
+                caster->CastSpell(target, SPELL_BLAZING_BARRIER_TRIGGER, true);
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_blazing_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            OnEffectProc += AuraEffectProcFn(spell_mage_blazing_barrier_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_blazing_barrier_AuraScript();
+    }
+};
+
 // Meteor - 177345
 // AreaTriggerID - 3467
 class at_mage_meteor_timer : public AreaTriggerEntityScript
@@ -2522,6 +2568,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_chilled();
     new spell_mage_ice_floes();
     new spell_mage_comet_storm();
+    new spell_mage_blazing_barrier();
 
     // Spell Pet scripts
     new spell_mage_pet_freeze();
