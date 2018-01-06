@@ -89,6 +89,7 @@ class TC_GAME_API ThreatManager
         static bool CanHaveThreatList(Unit const* who);
 
         ThreatManager(Unit* owner);
+        ~ThreatManager();
         // called from ::Create methods just after construction (once all fields on owner have been populated)
         // should not be called from anywhere else
         void Initialize();

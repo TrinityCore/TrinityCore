@@ -9968,7 +9968,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
-    GetThreatManager().ClearAllThreat();
 }
 
 void Unit::CleanupsBeforeDelete(bool finalCleanup)

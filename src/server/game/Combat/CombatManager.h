@@ -100,6 +100,7 @@ class TC_GAME_API CombatManager
         static bool CanBeginCombat(Unit const* a, Unit const* b);
 
         CombatManager(Unit* owner) : _owner(owner) { }
+        ~CombatManager();
         void Update(uint32 tdiff); // called from Unit::Update
 
         Unit* GetOwner() const { return _owner; }
