@@ -2260,7 +2260,8 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_SPAWNMASK:
         {
-            if (cond->ConditionValue1 >= (UI64LIT(1) << MAX_DIFFICULTY))
+            /// @todo: ConditionValue need to be extended to uint64
+            if (uint64(cond->ConditionValue1) >= (UI64LIT(1) << MAX_DIFFICULTY))
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing SpawnMask in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
