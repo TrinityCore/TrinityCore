@@ -149,7 +149,8 @@ enum WarriorSpells
     SPELL_WARRIOR_INTERCEPT_STUN                    = 105771,
     SPELL_WARRIOR_TRAUMA_DOT                        = 215537,
     SPELL_WARRIOR_SLAM_ARMS                         = 1464,
-    SPELL_WARRIOR_WHIRLWIND_ARMS                    = 1680
+    SPELL_WARRIOR_WHIRLWIND_ARMS                    = 1680,
+    SPELL_WARRIOR_OVERPOWER_PROC                    = 60503,
 };
 
 enum WarriorSpellIcons
@@ -2647,6 +2648,50 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_warr_trauma_AuraScript();
+    }
+};
+
+// Overpower Proc Enabler - 60503
+class spell_warrior_overpower_proc : public SpellScriptLoader
+{
+public:
+    spell_warrior_overpower_proc() : SpellScriptLoader("spell_warrior_overpower_proc") {}
+
+    class spell_warrior_overpower_proc_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warrior_overpower_proc_AuraScript);
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            //"Your other melee abilities have a chance to activate Overpower."
+            //According to sources it should only proc on Whirlwind, Colossus Smash, Mortal Strike and Slam with a 5% chance.
+            uint32 _spellId = eventInfo.GetSpellInfo()->Id;
+            std::vector<uint32> spellList = { 1680, 167105, 12294, 1464 };
+            for (auto id : spellList)
+                if (_spellId == id)
+                    return true;
+
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            Unit* caster = GetCaster();
+
+            if (!caster->HasAura(SPELL_WARRIOR_OVERPOWER_PROC))
+                caster->CastSpell(caster, SPELL_WARRIOR_OVERPOWER_PROC, true);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warrior_overpower_proc_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            DoCheckProc += AuraCheckProcFn(spell_warrior_overpower_proc_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_warrior_overpower_proc_AuraScript();
     }
 };
 
