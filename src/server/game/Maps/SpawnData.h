@@ -73,7 +73,7 @@ struct SpawnData
     SpawnData(SpawnObjectType t) : type(t) {}
 };
 
-enum CreatureLinkedRespawnType
+enum LinkedRespawnType
 {
     LINKED_RESPAWN_CREATURE_TO_CREATURE  = 0,
     LINKED_RESPAWN_CREATURE_TO_GO        = 1, // Creature is dependant on GO
