@@ -3634,6 +3634,45 @@ struct PvpRewardLoadInfo
     }
 };
 
+struct PvpTalentLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "SpellID" },
+            { false, FT_INT, "OverridesSpellID" },
+            { false, FT_STRING, "Description" },
+            { false, FT_INT, "ExtraSpellID" },
+            { false, FT_INT, "TierID" },
+            { false, FT_INT, "ColumnIndex" },
+            { false, FT_INT, "Flags" },
+            { false, FT_INT, "ClassID" },
+            { false, FT_INT, "SpecID" },
+            { false, FT_INT, "Role" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpTalentMeta::Instance(), HOTFIX_SEL_PVP_TALENT);
+        return &loadInfo;
+    }
+};
+
+struct PvpTalentUnlockLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TierID" },
+            { false, FT_INT, "ColumnIndex" },
+            { false, FT_INT, "HonorLevel" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpTalentUnlockMeta::Instance(), HOTFIX_SEL_PVP_TALENT_UNLOCK);
+        return &loadInfo;
+    }
+};
+
 struct QuestFactionRewardLoadInfo
 {
     static DB2LoadInfo const* Instance()
