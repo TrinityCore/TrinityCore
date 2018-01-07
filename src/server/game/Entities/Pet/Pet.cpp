@@ -369,7 +369,10 @@ void Pet::SavePetToDB(PetSaveMode mode)
         Optional<uint8> slot = IsHunterPet() ? GetOwner()->GetFirstUnusedActivePetSlot() : GetOwner()->GetFirstUnusedPetSlot();
 
         if (slot)
+        {
             SetSlot(*slot);
+            SetActive(true);
+        }
         else
             mode = PET_SAVE_AS_DELETED;
     }
