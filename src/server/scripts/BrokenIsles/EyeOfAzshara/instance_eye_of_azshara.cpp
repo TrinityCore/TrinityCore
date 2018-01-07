@@ -17,22 +17,92 @@
 */
 
 #include "ScriptMgr.h"
+#include "Player.h"
 #include "InstanceScript.h"
 #include "eye_of_azshara.h"
 
 class instance_eye_of_azshara : public InstanceMapScript
 {
     public:
-        instance_eye_of_azshara() : InstanceMapScript("instance_eye_of_azshara", 1456) { }
+        instance_eye_of_azshara() : InstanceMapScript(EoAScriptName, 1456) { }
 
         struct instance_eye_of_azshara_InstanceMapScript : public InstanceScript
         {
-            instance_eye_of_azshara_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-            void Initialize() override
+            instance_eye_of_azshara_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                SetBossNumber(DATA_MAX_ENCOUNTERS);
+                SetHeaders(DataHeader);
+                SetBossNumber(EncounterCount);
+                _teamInInstance = 0;
             }
+
+            void OnPlayerEnter(Player* player) override
+            {
+                if(!_teamInInstance)
+                {
+                    _teamInInstance = player->GetTeam();
+                }
+            }
+            
+            void OnCreatureCreate(Creature* creature) override
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_SERPENTRIX:
+                        SerpentrixGUID = creature->GetGUID();
+                        break;
+                    case NPC_WARLORD_PARJESH:
+                        WarlordParjeshGUID = creature->GetGUID();
+                        break;
+                    case NPC_LADY_HATECOIL:
+                        LadyHatecoilGUID = creature->GetGUID();
+                        break;
+                    case NPC_KING_DEEPBEARD:
+                        KingDeepbeardGUID = creature->GetGUID();
+                        break;
+                    case NPC_WRATH_OF_AZSHARA:
+                        WrathOfAzsharaGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            ObjectGuid GetGuidData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_SERPENTRIX:
+                        return SerpentrixGUID;
+                    case DATA_WARLORD_PARJESH:
+                        return WarlordParjeshGUID;
+                    case DATA_LADY_HATECOIL:
+                        return LadyHatecoilGUID;
+                    case DATA_KING_DEEPBEARD:
+                        return KingDeepbeardGUID;
+                    case DATA_WRATH_OF_AZSHARA:
+                        return WrathOfAzsharaGUID;
+                    default:
+                        break;
+                }
+
+                return ObjectGuid::Empty;
+            }
+
+            bool SetBossState(uint32 type, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+                return true;
+            }
+
+        private:
+            uint32 _teamInInstance;
+
+            ObjectGuid SerpentrixGUID;
+            ObjectGuid WarlordParjeshGUID;
+            ObjectGuid LadyHatecoilGUID;
+            ObjectGuid KingDeepbeardGUID;
+            ObjectGuid WrathOfAzsharaGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

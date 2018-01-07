@@ -77,7 +77,7 @@ void AddSC_boss_dresaron();
 void AddSC_boss_shade_of_xavius();
 
 // Eye of Azshara
-//void AddSC_instance_eye_of_azshara();
+void AddSC_instance_eye_of_azshara();
 //void AddSC_eye_of_azshara();
 //void AddSC_boss_warlord_parjesh();
 //void AddSC_boss_lady_hatecoil();
@@ -203,7 +203,7 @@ void AddBrokenIslesScripts()
     AddSC_boss_shade_of_xavius();
 
     // Eye of Azshara
-    //AddSC_instance_eye_of_azshara();
+    AddSC_instance_eye_of_azshara();
     //AddSC_eye_of_azshara();
     //AddSC_boss_warlord_parjesh();
     //AddSC_boss_lady_hatecoil();
