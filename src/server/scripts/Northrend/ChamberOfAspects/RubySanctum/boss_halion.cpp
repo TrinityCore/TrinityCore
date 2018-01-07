@@ -280,7 +280,7 @@ class boss_halion : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                if (damage > me->GetHealth() && !events.IsInPhase(PHASE_THREE))
+                if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_THREE))
                     damage = me->GetHealth() - 1;
 
                 if (me->HealthBelowPctDamaged(75, damage) && events.IsInPhase(PHASE_ONE))
@@ -463,6 +463,8 @@ class boss_twilight_halion : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
+                if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_THREE))
+                    damage = me->GetHealth() - 1;
                 //Needed because we already have UNIT_FLAG_IN_COMBAT, otherwise JustEngagedWith won't ever be called
                 if (!events.IsInPhase(PHASE_TWO) && !events.IsInPhase(PHASE_THREE))
                     JustEngagedWith(attacker);
