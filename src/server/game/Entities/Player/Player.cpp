@@ -11604,7 +11604,12 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         for (int32 bonusListID : bonusListIDs)
             item->AddBonuses(bonusListID);
 
-        item = StoreItem(pos, item, update);
+        // Since 4.x bags are getting equipped automaticly when they have no bind on equip boundary
+        // This includes looted bags, bags from quest rewards and purchased bags from vendors
+        if (item->IsBag() && item->GetTemplate()->GetBonding() != BIND_ON_EQUIP)
+            item = StoreItem(pos, item, update, true);
+        else
+            item = StoreItem(pos, item, update, false);
 
         if (allowedLooters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
         {
@@ -11647,12 +11652,22 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
     return item;
 }
 
-Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
+Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update, bool lootedBag /*= false*/)
 {
     if (!pItem)
         return nullptr;
 
     Item* lastItem = pItem;
+    if (lootedBag && pItem->GetTemplate()->GetClass() == ITEM_CLASS_CONTAINER && pItem->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_CONTAINER)
+        for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+        {
+            if (!m_items[i])
+            {
+                EquipNewItem(i, pItem->GetEntry(), true);
+                return lastItem;
+            }
+        }
+
     for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end();)
     {
         uint16 pos = itr->pos;
