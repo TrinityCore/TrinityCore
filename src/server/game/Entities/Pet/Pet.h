@@ -160,7 +160,7 @@ class TC_GAME_API Pet : public Guardian
         uint16 m_petSpecialization;
 
     private:
-        void SaveToDB(uint32, uint32, uint32) override               // override of Creature::SaveToDB     - must not be called
+        void SaveToDB(uint32, uint64) override              // override of Creature::SaveToDB     - must not be called
         {
             ABORT();
         }
