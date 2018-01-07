@@ -614,6 +614,9 @@ class npc_halion_controller : public CreatureScript
 
             void JustExitedCombat() override
             {
+                if (_instance->GetBossState(DATA_HALION) == DONE)
+                    return;
+
                 if (Creature* twilightHalion = _instance->GetCreature(DATA_TWILIGHT_HALION))
                 {
                     twilightHalion->DespawnOrUnsummon();
