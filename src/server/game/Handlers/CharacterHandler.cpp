@@ -1052,9 +1052,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     pCurrChar->LoadPetsFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ALL_PETS));
 
-    if (pCurrChar->getClass() == CLASS_HUNTER)
-        pCurrChar->GetSession()->SendStablePet(ObjectGuid::Empty);
-
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
 
@@ -1089,6 +1086,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         for (uint32 spellId : info->castSpells)
             pCurrChar->CastSpell(pCurrChar, spellId, true);
     }
+
+    if (pCurrChar->getClass() == CLASS_HUNTER)
+        pCurrChar->GetSession()->SendStablePet(ObjectGuid::Empty);
 
     // show time before shutdown if shutdown planned.
     if (sWorld->IsShuttingDown())

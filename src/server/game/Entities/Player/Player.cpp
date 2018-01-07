@@ -27479,6 +27479,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
         map->AddToMap(pet->ToCreature());
 
+        // it's active if it got added to pet
+        pet->SetActive(true);
+
         switch (petType)
         {
             case SUMMON_PET:
