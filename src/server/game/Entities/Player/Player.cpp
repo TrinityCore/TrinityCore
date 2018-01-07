@@ -21225,10 +21225,10 @@ bool Player::CanControlPet(uint32 spellId) const
     {
         switch (spellId)
         {
-        case 93321: // Control Pet
-            return getClass() == CLASS_HUNTER;
-        case 93375: // Control Demon
-            return getClass() == CLASS_WARLOCK;
+            case 93321: // Control Pet
+                return getClass() == CLASS_HUNTER;
+            case 93375: // Control Demon
+                return getClass() == CLASS_WARLOCK;
         }
     }
     else
