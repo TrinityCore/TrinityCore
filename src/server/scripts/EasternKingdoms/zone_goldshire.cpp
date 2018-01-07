@@ -182,7 +182,7 @@ struct npc_cameron : public ScriptedAI
         {
             // Start event at 7 am
             // Begin pathing
-            _events.ScheduleEvent(EVENT_BEGIN_EVENT, 1s);
+            _events.ScheduleEvent(EVENT_BEGIN_EVENT, 2s);
             _started = true;
         }
         else if (!start && eventId == GAME_EVENT_CHILDEREN_OF_GOLDSHIRE)
