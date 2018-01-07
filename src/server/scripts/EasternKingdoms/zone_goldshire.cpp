@@ -70,6 +70,11 @@ enum COG_Events
     EVENT_BEGIN_EVENT           = 6
 };
 
+enum COG_GameEvent
+{
+    GAME_EVENT_CHILDEREN_OF_GOLDSHIRE = 76
+};
+
 struct npc_cameron : public ScriptedAI
 {
     npc_cameron(Creature* creature) : ScriptedAI(creature)
@@ -171,28 +176,27 @@ struct npc_cameron : public ScriptedAI
         }
     }
 
-    void UpdateAI(uint32 diff) override
+    void OnGameEvent(bool start, uint16 eventId) override
     {
-        _events.Update(diff);
-
-        time_t time = GameTime::GetGameTime();
-        tm localTm;
-        localtime_r(&time, &localTm);
-
-        // Start event at 7 am
-        if ((localTm.tm_hour == 7 && localTm.tm_min == 0 && localTm.tm_sec > 0) && !_started)
+        if (eventId == GAME_EVENT_CHILDEREN_OF_GOLDSHIRE && start && !_started)
         {
+            // Start event at 7 am
             // Begin pathing
-            _events.ScheduleEvent(EVENT_BEGIN_EVENT, 2s);
+            _events.ScheduleEvent(EVENT_BEGIN_EVENT, 1s);
             _started = true;
         }
 
-        // Reset event at 8 am
-        if ((localTm.tm_hour == 8 && localTm.tm_min == 0 && localTm.tm_sec > 0) && _started)
+        if (eventId == GAME_EVENT_CHILDEREN_OF_GOLDSHIRE && !start && _started)
         {
+            // Reset event at 8 am
             _started = false;
             _events.Reset();
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
