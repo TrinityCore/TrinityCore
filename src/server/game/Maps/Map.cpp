@@ -3206,7 +3206,7 @@ void Map::Respawn(RespawnInfo* info, bool force, CharacterDatabaseTransaction db
     DoRespawn(type, spawnId, gridId);
 }
 
-void Map::Respawn(RespawnVector& respawnData, bool force, CharacterDatabaseTransaction dbTrans)
+void Map::Respawn(std::vector<RespawnInfo*>& respawnData, bool force, CharacterDatabaseTransaction dbTrans)
 {
     CharacterDatabaseTransaction trans = dbTrans ? dbTrans : CharacterDatabase.BeginTransaction();
     for (RespawnInfo* info : respawnData)
@@ -3242,13 +3242,13 @@ void Map::AddRespawnInfo(RespawnInfo& info, bool replace)
     ASSERT(success, "Insertion of respawn info with id (%u," UI64FMTD ") into spawn id map failed - state desync.", uint32(ri->type), ri->spawnId);
 }
 
-static void PushRespawnInfoFrom(RespawnVector& data, RespawnInfoMap const& map, uint32 zoneId)
+static void PushRespawnInfoFrom(std::vector<RespawnInfo*>& data, RespawnInfoMap const& map, uint32 zoneId)
 {
     for (auto const& pair : map)
         if (!zoneId || pair.second->zoneId == zoneId)
             data.push_back(pair.second);
 }
-void Map::GetRespawnInfo(RespawnVector& respawnData, SpawnObjectTypeMask types, uint32 zoneId) const
+void Map::GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types, uint32 zoneId) const
 {
     if (types & SPAWN_TYPEMASK_CREATURE)
         PushRespawnInfoFrom(respawnData, _creatureRespawnTimesBySpawnId, zoneId);
@@ -3316,7 +3316,7 @@ void Map::RemoveRespawnTime(RespawnInfo* info, bool doRespawn, CharacterDatabase
         DeleteRespawnInfo(info);
 }
 
-void Map::RemoveRespawnTime(RespawnVector& respawnData, bool doRespawn, CharacterDatabaseTransaction dbTrans)
+void Map::RemoveRespawnTime(std::vector<RespawnInfo*>& respawnData, bool doRespawn, CharacterDatabaseTransaction dbTrans)
 {
     CharacterDatabaseTransaction trans = dbTrans ? dbTrans : CharacterDatabase.BeginTransaction();
     for (RespawnInfo* info : respawnData)

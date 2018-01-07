@@ -478,7 +478,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void JustEngagedWith(Unit* target) override
+            void JustEnteredCombat(Unit* target) override
             {
                 if (!instance->CheckRequiredBosses(DATA_VALITHRIA_DREAMWALKER, target->ToPlayer()))
                 {
@@ -505,9 +505,9 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 return target->GetTypeId() == TYPEID_PLAYER;
             }
 
-            void JustReachedHome() override
+            void JustExitedCombat() override
             {
-                _JustReachedHome();
+                me->setActive(false);
                 DoAction(ACTION_DEATH);
             }
 
@@ -516,7 +516,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 if (action == ACTION_DEATH)
                 {
                     instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, NOT_STARTED);
-                    me->m_Events.AddEvent(new ValithriaDespawner(me), me->m_Events.CalculateTime(5000));
+                    me->m_Events.AddEventAtOffset(new ValithriaDespawner(me), 5s);
                 }
             }
 
