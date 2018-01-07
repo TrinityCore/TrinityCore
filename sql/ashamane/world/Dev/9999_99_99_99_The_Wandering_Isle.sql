@@ -1,4 +1,72 @@
-SET @CGUID=450014;
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='vehicle_balance_pole';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_tushui_monk';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_shu_water_spirit';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_nourished_yak';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_water_spirit_dailo';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_delivery_cart_tender';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_ji_firepaw_killcredit';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_master_shang_xi';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_training_target';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_tushui_trainee';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_huojin_trainee';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='boss_jaomin_ro';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_attacker_dimwind';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_min_dimwind';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_aysa_lake_escort';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_aysa';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_trainee_nim';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_instructors';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_aspiring_trainee';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_ji_firepaw';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_merchant_lorvo';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_huojin_monk';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='boss_living_air';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_li_fei';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='boss_li_fei_fight';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_chia_hui_autumnleaf';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_brewer_lin';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_mandori_escort';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_korga';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_ji_forest_escort';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_hurted_soldier';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='boss_vordraka';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_aysa_gunship_crash';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_aysa_gunship_crash_escort';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_ji_end_event';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_shen_healer';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_shang_xi_choose_faction';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_guardian_of_the_elders';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_master_shang_xi_temple';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_wind_vehicle';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_aysa_wind_temple_escort';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_frightened_wind';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_aysa_in_wind_temple';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='boss_zhao_ren';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_rocket_launcher';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_master_shang_xi_after_zhao';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_master_shang_xi_after_zhao_escort';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_master_shang_xi_thousand_staff';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_master_shang_xi_thousand_staff_escort';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_shang_xi_air_balloon';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_ji_firepaw';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='npc_ji_firepaw_escort';
+UPDATE `creature_template` SET `ScriptName`='' AND AIName='' WHERE `ScriptName`='mob_shang_xi_second_air_balloon';
+
+UPDATE `gameobject_template` SET `ScriptName`='' AND `AIName`='' WHERE `ScriptName`='gob_defaced_scroll_of_wisdom';
+UPDATE `gameobject_template` SET `ScriptName`='' AND `AIName`='' WHERE `ScriptName`='go_wandering_weapon_rack';
+
+DELETE FROM `areatrigger_scripts` WHERE `ScriptName`='AreaTrigger_at_bassin_curse';
+DELETE FROM `areatrigger_scripts` WHERE `ScriptName`='AreaTrigger_at_temple_entrance';
+DELETE FROM `areatrigger_scripts` WHERE `ScriptName`='AreaTrigger_at_mandori';
+DELETE FROM `areatrigger_scripts` WHERE `ScriptName`='AreaTrigger_at_rescue_soldiers';
+DELETE FROM `areatrigger_scripts` WHERE `ScriptName`='AreaTrigger_at_wind_temple_entrance';
+
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rock_jump';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_shu_benediction';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_grab_carriage';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_huo_benediction';
+
+SET @CGUID=21000000;
 
 DELETE cta.* FROM creature c JOIN creature_template_addon cta ON (cta.entry=c.id) WHERE c.map=860 AND c.id!=6491;
 DELETE ga.* FROM gameobject g JOIN gameobject_addon ga ON (ga.guid=g.guid) WHERE g.map=860;
@@ -7,7 +75,7 @@ DELETE ss.* FROM creature c JOIN smart_scripts ss ON (ss.entryorguid/100=c.id) W
 DELETE ss.* FROM gameobject g JOIN smart_scripts ss ON (ss.entryorguid=g.id) WHERE g.map=860;
 
 DELETE FROM `gameobject` WHERE `map`=860;
-SET @OGUID=(SELECT IFNULL((SELECT MAX(`guid`)+1 FROM `gameobject`), 1));
+SET @OGUID=21000000;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 210986, 860, 0, 0, 1, 1328, 0, 1421.908, 3377.979, 192.9827, 5.979019, 0, 0, -0.1514978, 0.9884576, 5, 255, 1, 20886), -- 210986 (Area: 5834)
 (@OGUID+1, 210005, 860, 0, 0, 1, 598, 0, 1430.425, 3429.183, 171.14, 0.4014249, 0, 0, 0.1993675, 0.9799248, 0, 255, 1, 20886), -- 210005 (Area: 5834)
