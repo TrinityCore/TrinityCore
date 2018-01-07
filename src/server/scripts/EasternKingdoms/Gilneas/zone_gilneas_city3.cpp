@@ -1447,7 +1447,6 @@ public:
                         {
                             GameObjectData& data = sObjectMgr->NewGOData(guid);
                             data.id = 204458;
-                            data.phaseMask = 1;
                             data.posX = 53.6417f;
                             data.posY = -0.00663333f;
                             data.posZ = 10.4467f;
@@ -1460,7 +1459,6 @@ public:
                         {
                             GameObjectData& data = sObjectMgr->NewGOData(guid);
                             data.id = 204458;
-                            data.phaseMask = 1;
                             data.posX = 53.6808f;
                             data.posY = -2.18513f;
                             data.posZ = 10.4467f;
@@ -1474,7 +1472,6 @@ public:
                         {
                             GameObjectData& data = sObjectMgr->NewGOData(guid);
                             data.id = 204458;
-                            data.phaseMask = 1;
                             data.posX = 53.1084f;
                             data.posY = 2.12947f;
                             data.posZ = 10.4467f;
@@ -1497,7 +1494,6 @@ public:
                         {
                             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
                             data.id = 43567;
-                            data.phaseMask = 1;
                             data.posX = -47.758198f;
                             data.posY = -11.800224f;
                             data.posZ = 13.089049f;
@@ -1582,7 +1578,6 @@ public:
                             {
                                 CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
                                 data.id = 43713;
-                                data.phaseMask = 1;
                                 data.posX = player->GetTransOffset().GetPositionX();
                                 data.posY = player->GetTransOffset().GetPositionY();
                                 data.posZ = player->GetTransOffset().GetPositionZ();
