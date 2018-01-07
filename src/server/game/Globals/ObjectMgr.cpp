@@ -1886,10 +1886,10 @@ void ObjectMgr::LoadCreatures()
     }
 
     // Build single time for check spawnmask
-    std::map<uint32, uint32> spawnMasks;
+    std::map<uint32, uint64> spawnMasks;
     for (auto& mapDifficultyPair : sDB2Manager.GetMapDifficulties())
         for (auto& difficultyPair : mapDifficultyPair.second)
-            spawnMasks[mapDifficultyPair.first] |= (1 << difficultyPair.first);
+            spawnMasks[mapDifficultyPair.first] |= UI64LIT(1) << difficultyPair.first;
 
 
     _creatureDataStore.rehash(result->GetRowCount());
@@ -1923,7 +1923,7 @@ void ObjectMgr::LoadCreatures()
         data.curhealth      = fields[12].GetUInt32();
         data.curmana        = fields[13].GetUInt32();
         data.movementType   = fields[14].GetUInt8();
-        data.spawnMask      = fields[15].GetUInt32();
+        data.spawnMask      = fields[15].GetUInt64();
         int16 gameEvent     = fields[16].GetInt8();
         uint32 PoolId       = fields[17].GetUInt32();
         data.npcflag        = fields[18].GetUInt64();
@@ -1931,7 +1931,7 @@ void ObjectMgr::LoadCreatures()
         data.unit_flags2    = fields[20].GetUInt32();
         data.unit_flags3    = fields[21].GetUInt32();
         data.dynamicflags   = fields[22].GetUInt32();
-        data.phaseid        = fields[23].GetUInt32();
+        data.phaseId        = fields[23].GetUInt32();
         data.phaseGroup     = fields[24].GetUInt32();
         data.ScriptId       = GetScriptId(fields[25].GetString());
         if (!data.ScriptId)
@@ -1962,7 +1962,7 @@ void ObjectMgr::LoadCreatures()
 
         // Skip spawnMask check for transport maps
         if (!IsTransportMap(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
-            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD ") that have wrong spawn mask %u including unsupported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.mapid);
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD ") that have wrong spawn mask " UI64FMTD " including unsupported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.mapid);
 
         bool ok = true;
         for (uint32 diff = 0; diff < MAX_CREATURE_DIFFICULTIES && ok; ++diff)
@@ -2021,20 +2021,18 @@ void ObjectMgr::LoadCreatures()
             data.orientation = Position::NormalizeOrientation(data.orientation);
         }
 
-        data.phaseMask = 1;
-
-        if (data.phaseGroup && data.phaseid)
+        if (data.phaseGroup && data.phaseId)
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.id);
             data.phaseGroup = 0;
         }
 
-        if (data.phaseid)
+        if (data.phaseId)
         {
-            if (!sPhaseStore.LookupEntry(data.phaseid))
+            if (!sPhaseStore.LookupEntry(data.phaseId))
             {
-                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseid);
-                data.phaseid = 0;
+                TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseId);
+                data.phaseId = 0;
             }
         }
 
@@ -2073,7 +2071,7 @@ void ObjectMgr::LoadCreatures()
 
 void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* data)
 {
-    uint32 mask = data->spawnMask;
+    uint64 mask = data->spawnMask;
     for (uint8 i = 0; mask != 0; i++, mask >>= 1)
     {
         if (mask & 1)
@@ -2087,7 +2085,7 @@ void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* 
 
 void ObjectMgr::RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data)
 {
-    uint32 mask = data->spawnMask;
+    uint64 mask = data->spawnMask;
     for (uint8 i = 0; mask != 0; i++, mask >>= 1)
     {
         if (mask & 1)
@@ -2123,9 +2121,8 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
     data.rotation.w     = rotation3;
     data.spawntimesecs  = spawntimedelay;
     data.animprogress   = 100;
-    data.spawnMask      = 1;
+    data.spawnMask      = SPAWNMASK_CONTINENT;
     data.go_state       = GO_STATE_READY;
-    data.phaseMask      = PHASEMASK_NORMAL;
     data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CONTROL_ZONE ? 21 : 0;
     data.dbData = false;
 
@@ -2177,8 +2174,7 @@ ObjectGuid::LowType ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float
     data.curhealth = stats->GenerateHealth(cInfo);
     data.curmana = stats->GenerateMana(cInfo);
     data.movementType = cInfo->MovementType;
-    data.spawnMask = 1;
-    data.phaseMask = PHASEMASK_NORMAL;
+    data.spawnMask = SPAWNMASK_CONTINENT;
     data.dbData = false;
     data.npcflag = cInfo->npcflag;
     data.unit_flags = cInfo->unit_flags;
@@ -2221,10 +2217,10 @@ void ObjectMgr::LoadGameobjects()
     }
 
     // build single time for check spawnmask
-    std::map<uint32, uint32> spawnMasks;
+    std::map<uint32, uint64> spawnMasks;
     for (auto& mapDifficultyPair : sDB2Manager.GetMapDifficulties())
         for (auto& difficultyPair : mapDifficultyPair.second)
-            spawnMasks[mapDifficultyPair.first] |= (1 << difficultyPair.first);
+            spawnMasks[mapDifficultyPair.first] |= UI64LIT(1) << difficultyPair.first;
 
     _gameObjectDataStore.rehash(result->GetRowCount());
 
@@ -2317,28 +2313,28 @@ void ObjectMgr::LoadGameobjects()
         }
         data.go_state       = GOState(go_state);
 
-        data.spawnMask      = fields[14].GetUInt32();
+        data.spawnMask      = fields[14].GetUInt64();
 
         if (!IsTransportMap(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
-            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) that has wrong spawn mask %u including unsupported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
+            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) that has wrong spawn mask " UI64FMTD " including unsupported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
         int16 gameEvent     = fields[15].GetInt8();
         uint32 PoolId       = fields[16].GetUInt32();
-        data.phaseid        = fields[17].GetUInt32();
+        data.phaseId        = fields[17].GetUInt32();
         data.phaseGroup     = fields[18].GetUInt32();
 
-        if (data.phaseGroup && data.phaseid)
+        if (data.phaseGroup && data.phaseId)
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.id);
             data.phaseGroup = 0;
         }
 
-        if (data.phaseid)
+        if (data.phaseId)
         {
-            if (!sPhaseStore.LookupEntry(data.phaseid))
+            if (!sPhaseStore.LookupEntry(data.phaseId))
             {
-                TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseid);
-                data.phaseid = 0;
+                TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, data.id, data.phaseId);
+                data.phaseId = 0;
             }
         }
 
@@ -2391,8 +2387,6 @@ void ObjectMgr::LoadGameobjects()
             continue;
         }
 
-        data.phaseMask = 1;
-
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA))
         {
             uint32 zoneId = 0;
@@ -2418,7 +2412,7 @@ void ObjectMgr::LoadGameobjects()
 
 void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data)
 {
-    uint32 mask = data->spawnMask;
+    uint64 mask = data->spawnMask;
     for (uint8 i = 0; mask != 0; i++, mask >>= 1)
     {
         if (mask & 1)
@@ -2432,7 +2426,7 @@ void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData con
 
 void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data)
 {
-    uint32 mask = data->spawnMask;
+    uint64 mask = data->spawnMask;
     for (uint8 i = 0; mask != 0; i++, mask >>= 1)
     {
         if (mask & 1)

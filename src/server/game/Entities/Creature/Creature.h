@@ -179,7 +179,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
         void SaveToDB();
                                                             // overriden in Pet
-        virtual void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
+        virtual void SaveToDB(uint32 mapid, uint64 spawnMask);
         virtual void DeleteFromDB();                        // overriden in Pet
 
         Loot loot;

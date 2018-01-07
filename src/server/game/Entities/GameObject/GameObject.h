@@ -114,7 +114,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
 
         void SaveToDB();
-        void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
+        void SaveToDB(uint32 mapid, uint64 spawnMask);
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadGameObjectFromDB(spawnId, map, false); }
         bool LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
         void DeleteFromDB();
