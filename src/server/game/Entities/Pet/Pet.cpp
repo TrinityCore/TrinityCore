@@ -628,8 +628,22 @@ void Creature::Regenerate(Powers power)
         }
         case POWER_ENERGY:
         {
-            // For deathknight's ghoul.
-            addvalue = 20;
+            // For Death Knight Ghouls
+            if (GetEntry() == 26125)
+            {
+                if (Unit* owner = GetOwner())
+                {
+                    if (owner->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        float haste = (1.0f / owner->ToPlayer()->GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN) - 1.0f) * 100.0f;
+                        addvalue += 20.0f + CalculatePct(20.0f, haste);
+                    }
+                    else
+                        addvalue += 20;
+                }
+            }
+            else
+                addvalue += 20;
             break;
         }
         default:
@@ -790,21 +804,23 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     PetType petType = MAX_PET_TYPE;
     if (IsPet() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetOwner()->getClass() == CLASS_WARLOCK
-            || GetOwner()->getClass() == CLASS_SHAMAN        // Fire Elemental
-            || GetOwner()->getClass() == CLASS_DEATH_KNIGHT) // Risen Ghoul
+        switch (m_owner->getClass())
         {
-            petType = SUMMON_PET;
-        }
-        else if (GetOwner()->getClass() == CLASS_HUNTER)
-        {
-            petType = HUNTER_PET;
-            m_unitTypeMask |= UNIT_MASK_HUNTER_PET;
-        }
-        else
-        {
-            TC_LOG_ERROR("entities.pet", "Unknown type pet %u is summoned by player class %u",
-                           GetEntry(), GetOwner()->getClass());
+            case CLASS_WARLOCK:
+            case CLASS_SHAMAN:
+            case CLASS_DEATH_KNIGHT:
+            case CLASS_MAGE:
+            case CLASS_PRIEST:
+                petType = SUMMON_PET;
+                break;
+            case CLASS_HUNTER:
+                petType = HUNTER_PET;
+                m_unitTypeMask |= UNIT_MASK_HUNTER_PET;
+                break;
+            default:
+                TC_LOG_ERROR("entities.pet", "Unknown type pet %u is summoned by player class %u",
+                    GetEntry(), GetOwner()->getClass());
+                break;
         }
     }
 
@@ -967,13 +983,20 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 case 29264: // Feral Spirit
                 {
                     if (!pInfo)
-                        SetCreateHealth(30*petlevel);
+                        SetCreateHealth(30 * petlevel);
+
+                    int32 ownerAP = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.30f;
+
 
                     // wolf attack speed is 1.5s
                     SetAttackTime(BASE_ATTACK, cinfo->BaseAttackTime);
 
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel * 4 - petlevel)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel * 4 + petlevel)));
+
+                    // Feral Spirits should take 30% of AP from owner
+                    if (m_owner)
+                        SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, ownerAP);
 
                     SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(GetOwner()->GetArmor()) * 0.35f);  // Bonus Armor (35% of player armor)
                     SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(GetOwner()->GetStat(STAT_STAMINA)) * 0.3f);  // Bonus Stamina (30% of player stamina)
@@ -1043,16 +1066,16 @@ bool Pet::HaveInDiet(ItemTemplate const* item) const
 
 uint32 Pet::GetCurrentFoodBenefitLevel(uint32 itemlevel) const
 {
-    // -5 or greater food level
-    if (getLevel() <= itemlevel + 5)                         //possible to feed level 60 pet with level 55 level food for full effect
-        return 35000;
-    // -10..-6
-    else if (getLevel() <= itemlevel + 10)                   //pure guess, but sounds good
-        return 17000;
-    // -14..-11
-    else if (getLevel() <= itemlevel + 14)                   //level 55 food gets green on 70, makes sense to me
-        return 8000;
-    // -15 or less
+    // -10 or greater food level
+    if (getLevel() <= itemlevel + 10)                         // possible to feed level 85 pet with ilevel 75 level food for full effect
+        return 50;
+    // -10 to -20
+    else if (getLevel() <= itemlevel + 20)
+        return 25;
+    // -20 to -30
+    else if (getLevel() <= itemlevel + 30)
+        return 13;
+    // -30 or more difference
     else
         return 0;                                           //food too low level
 }
