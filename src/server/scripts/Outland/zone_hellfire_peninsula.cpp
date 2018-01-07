@@ -1097,9 +1097,6 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcherInfernal(me, infernalrainList, checkerInfernalrain);
                     Cell::VisitAllObjects(me, searcherInfernal, 200.0f);
 
-                    if (infernalrainList.empty())
-                        break;
-
                     for (Creature* infernal : infernalrainList)
                         if (!infernal->isMoving() && infernal->GetPositionZ() > 118.0f)
                             infernal->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
@@ -1112,9 +1109,6 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     Trinity::AllCreaturesOfEntryInRange checkerFear(me, NPC_FEAR_CONTROLLER, 200.0f);
                     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcherFear(me, fearcontrollerList, checkerFear);
                     Cell::VisitAllObjects(me, searcherFear, 200.0f);
-
-                    if (fearcontrollerList.empty())
-                        break;
 
                     for (Creature* fearController : fearcontrollerList)
                         fearController->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
