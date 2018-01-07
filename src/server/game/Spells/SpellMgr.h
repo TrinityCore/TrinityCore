@@ -526,8 +526,8 @@ typedef std::pair<SkillLineAbilityMap::const_iterator, SkillLineAbilityMap::cons
 typedef std::set<uint32> PetFamilySpellsSet;
 typedef std::map<uint32, PetFamilySpellsSet> PetFamilySpellsStore;
 
-typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
-typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
+typedef std::vector<uint32> PetLevelupSpellStore;
+typedef std::map<uint32, PetLevelupSpellStore> PetLevelupSpellMap;
 
 typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
@@ -654,7 +654,7 @@ class TC_GAME_API SpellMgr
 
         const std::vector<int32> *GetSpellLinked(int32 spell_id) const;
 
-        PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const;
+        PetLevelupSpellStore const* GetPetLevelupSpellList(uint32 petFamily) const;
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const;
 
         // Spell area

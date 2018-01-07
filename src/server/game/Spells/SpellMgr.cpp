@@ -568,7 +568,7 @@ const std::vector<int32>* SpellMgr::GetSpellLinked(int32 spell_id) const
     return itr != mSpellLinkedMap.end() ? &(itr->second) : NULL;
 }
 
-PetLevelupSpellSet const* SpellMgr::GetPetLevelupSpellList(uint32 petFamily) const
+PetLevelupSpellStore const* SpellMgr::GetPetLevelupSpellList(uint32 petFamily) const
 {
     PetLevelupSpellMap::const_iterator itr = mPetLevelupSpellMap.find(petFamily);
     if (itr != mPetLevelupSpellMap.end())
@@ -1889,11 +1889,11 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (!spell->SpellLevel)
                     continue;
 
-                PetLevelupSpellSet& spellSet = mPetLevelupSpellMap[i];
+                PetLevelupSpellStore& spellSet = mPetLevelupSpellMap[i];
                 if (spellSet.empty())
                     ++family_count;
 
-                spellSet.insert(PetLevelupSpellSet::value_type(spell->SpellLevel, spell->Id));
+                spellSet.push_back(spell->Id);
                 ++count;
             }
         }
@@ -1918,16 +1918,16 @@ bool LoadPetDefaultSpells_helper(CreatureTemplate const* cInfo, PetDefaultSpells
         return false;
 
     // remove duplicates with levelupSpells if any
-    if (PetLevelupSpellSet const* levelupSpells = cInfo->family ? sSpellMgr->GetPetLevelupSpellList(cInfo->family) : NULL)
+    if (PetLevelupSpellStore const* levelupSpells = cInfo->family ? sSpellMgr->GetPetLevelupSpellList(cInfo->family) : NULL)
     {
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
         {
             if (!petDefSpells.spellid[j])
                 continue;
 
-            for (PetLevelupSpellSet::const_iterator itr = levelupSpells->begin(); itr != levelupSpells->end(); ++itr)
+            for (PetLevelupSpellStore::const_iterator itr = levelupSpells->begin(); itr != levelupSpells->end(); ++itr)
             {
-                if (itr->second == petDefSpells.spellid[j])
+                if (*itr == petDefSpells.spellid[j])
                 {
                     petDefSpells.spellid[j] = 0;
                     break;

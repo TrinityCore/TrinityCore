@@ -111,34 +111,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
         }
 };
 
-class npc_pet_dk_guardian : public CreatureScript
-{
-    public:
-        npc_pet_dk_guardian() : CreatureScript("npc_pet_dk_guardian") { }
-
-        struct npc_pet_dk_guardianAI : public AggressorAI
-        {
-            npc_pet_dk_guardianAI(Creature* creature) : AggressorAI(creature) { }
-
-            bool CanAIAttack(Unit const* target) const override
-            {
-                if (!target)
-                    return false;
-                Unit* owner = me->GetOwner();
-                if (owner && !target->IsInCombatWith(owner))
-                    return false;
-                return AggressorAI::CanAIAttack(target);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_pet_dk_guardianAI(creature);
-        }
-};
-
 void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
-    new npc_pet_dk_guardian();
 }

@@ -1396,17 +1396,19 @@ void Pet::InitLevelupSpellsForLevel()
 {
     uint8 level = getLevel();
 
-    if (PetLevelupSpellSet const* levelupSpells = GetCreatureTemplate()->family ? sSpellMgr->GetPetLevelupSpellList(GetCreatureTemplate()->family) : NULL)
+    if (PetLevelupSpellStore const* levelupSpells = GetCreatureTemplate()->family ? sSpellMgr->GetPetLevelupSpellList(GetCreatureTemplate()->family) : NULL)
     {
-        // PetLevelupSpellSet ordered by levels, process in reversed order
-        for (PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
+        for (PetLevelupSpellStore::const_iterator itr = levelupSpells->begin(); itr != levelupSpells->end(); ++itr)
         {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(*itr);
+            if (!spellInfo)
+                continue;
             // will called first if level down
-            if (itr->first > level)
-                unlearnSpell(itr->second, true);                 // will learn prev rank if any
+            if (spellInfo->SpellLevel > level)
+                unlearnSpell(spellInfo->Id, true);                 // will learn prev rank if any
             // will called if level up
             else
-                learnSpell(itr->second);                        // will unlearn prev rank if any
+                learnSpell(spellInfo->Id);                        // will unlearn prev rank if any
         }
     }
 
