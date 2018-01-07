@@ -366,7 +366,10 @@ void Pet::SavePetToDB(PetSaveMode mode)
         Optional<uint8> slot = IsHunterPet() ? GetOwner()->GetFirstUnusedActivePetSlot() : GetOwner()->GetFirstUnusedPetSlot();
 
         if (slot)
+        {
+            SetActive(true);
             SetSlot(*slot);
+        }
         else
             mode = PET_SAVE_AS_DELETED;
     }
@@ -1313,10 +1316,6 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
         return false;
     }
 
-    // SPELL_ATTR4_UNK15 = DO NOT ADD SPELL TO SPELLBOOK OR ACTIONBAR
-    if (spellInfo->AttributesEx4 & SPELL_ATTR4_UNK15)
-        return false;
-
     PetSpellMap::iterator itr = m_spells.find(spellId);
     if (itr != m_spells.end())
     {
@@ -1405,6 +1404,10 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     }
 
     m_spells[spellId] = newspell;
+
+    // Do not go further if this Attribute exists
+    if (spellInfo->HasAttribute(SPELL_ATTR4_UNK15))
+         return true;
 
     if (spellInfo->IsPassive() && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState))))
         CastSpell(this, spellId, true);
