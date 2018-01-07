@@ -38,7 +38,7 @@ public:
     static WorldSocketMgr& Instance();
 
     /// Start network, listen at address:port .
-    bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int networkThreads) override;
+    bool StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int networkThreads);
 
     /// Stops all network threads, It will wait for all running threads .
     void StopNetwork() override;

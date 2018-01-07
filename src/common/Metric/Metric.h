@@ -27,11 +27,11 @@
 #include <memory>
 #include <string>
 
-namespace boost
+namespace Trinity
 {
-    namespace asio
+    namespace Asio
     {
-        class io_service;
+        class IoContext;
     }
 }
 
@@ -95,7 +95,7 @@ public:
     ~Metric();
     static Metric* instance();
 
-    void Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger);
+    void Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
     void LoadFromConfigs();
     void Update();
 
