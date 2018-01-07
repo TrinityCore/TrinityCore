@@ -121,6 +121,12 @@ struct AreaTableEntry
             return true;
         return (Flags[0] & AREA_FLAG_SANCTUARY) != 0;
     }
+
+    // Checks if zone activates pvp talents.
+    bool ActivatesPvpTalents() const
+    {
+        return (!IsSanctuary() && (Flags[0] & (AREA_FLAG_ARENA | AREA_FLAG_WINTERGRASP)) != 0) || ID == 5095 /*Tol Barad*/;
+    }
 };
 
 struct AreaTriggerEntry
@@ -2175,6 +2181,29 @@ struct PvpRewardEntry
     uint32 HonorLevel;
     uint32 Prestige;
     uint32 RewardPackID;
+};
+
+struct PvpTalentEntry
+{
+    uint32 ID;
+    uint32 SpellID;
+    uint32 OverridesSpellID;
+    LocalizedString* Description;
+    uint32 ExtraSpellID;
+    uint32 TierID;
+    uint32 ColumnIndex;
+    uint32 Flags;
+    uint32 ClassID;
+    uint32 SpecID;
+    uint32 Role;
+};
+
+struct PvpTalentUnlockEntry
+{
+    uint32 ID;
+    uint32 TierID;
+    uint32 ColumnIndex;
+    uint32 HonorLevel;
 };
 
 struct QuestFactionRewardEntry
