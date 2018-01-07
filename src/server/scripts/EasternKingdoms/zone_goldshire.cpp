@@ -195,6 +195,9 @@ struct npc_cameron : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        if (!_started)
+            return;
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
