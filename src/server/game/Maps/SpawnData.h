@@ -76,9 +76,9 @@ struct SpawnData
 enum LinkedRespawnType
 {
     LINKED_RESPAWN_CREATURE_TO_CREATURE  = 0,
-    LINKED_RESPAWN_CREATURE_TO_GO        = 1, // Creature is dependant on GO
+    LINKED_RESPAWN_CREATURE_TO_GO        = 1, // Creature is dependant on GameObject
     LINKED_RESPAWN_GO_TO_GO              = 2,
-    LINKED_RESPAWN_GO_TO_CREATURE        = 3,  // GO is dependant on creature
+    LINKED_RESPAWN_GO_TO_CREATURE        = 3, // GameObject is dependant on Creature
 };
 
 #endif
