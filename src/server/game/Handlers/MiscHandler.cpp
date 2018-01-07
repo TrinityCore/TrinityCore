@@ -503,9 +503,31 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
         return;
 
     if (player->IsAlive())
+    {
         if (std::unordered_set<uint32> const* quests = sObjectMgr->GetQuestsForAreaTrigger(packet.AreaTriggerID))
+        {
             for (uint32 questId : *quests)
                 player->AreaExploredOrEventHappens(questId);
+            {
+                Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+                if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                {
+                    for (QuestObjective const& obj : qInfo->Objectives)
+                    {
+                        if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !player->IsQuestObjectiveComplete(obj))
+                        {
+                            player->SetQuestObjectiveData(obj, 1);
+                            player->SendQuestUpdateAddCreditSimple(obj);
+                            break;
+                        }
+                    }
+
+                    if (player->CanCompleteQuest(questId))
+                        player->CompleteQuest(questId);
+                }
+            }
+        }
+    }
 
     if (sObjectMgr->IsTavernAreaTrigger(packet.AreaTriggerID))
     {
@@ -1126,4 +1148,29 @@ void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::Adventur
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
         if (!_player->hasQuest(packet.QuestID))
             _player->AddQuest(quest, nullptr);
+}
+
+void WorldSession::HandleSelectFactionOpcode(WorldPackets::Misc::FactionSelect& selectFaction)
+{
+    if (_player->getRace() != RACE_PANDAREN_NEUTRAL)
+        return;
+
+    if (selectFaction.FactionChoice == JOIN_ALLIANCE)
+    {
+        _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLIANCE);
+        _player->setFactionForRace(RACE_PANDAREN_ALLIANCE);
+        _player->SaveToDB();
+        _player->LearnSpell(668, false);            // Language Common
+        _player->LearnSpell(108130, false);         // Language Pandaren Alliance
+        _player->CastSpell(_player, 113244, true);  // Faction Choice Trigger Spell: Alliance
+    }
+    else if (selectFaction.FactionChoice == JOIN_HORDE)
+    {
+        _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_HORDE);
+        _player->setFactionForRace(RACE_PANDAREN_HORDE);
+        _player->SaveToDB();
+        _player->LearnSpell(669, false);            // Language Orcish
+        _player->LearnSpell(108131, false);         // Language Pandaren Horde
+        _player->CastSpell(_player, 113245, true);  // Faction Choice Trigger Spell: Horde
+    }
 }

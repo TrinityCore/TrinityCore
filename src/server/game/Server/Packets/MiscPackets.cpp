@@ -385,7 +385,7 @@ WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
 WorldPacket const* WorldPackets::Misc::PhaseShift::Write()
 {
     _worldPacket << ClientGUID;                                 // CLientGUID
-    _worldPacket << uint32(PhaseShifts.size() ? 0 : 8);         // PhaseShiftFlags
+    _worldPacket << uint32(PhaseShifts.size() ? 24 : 8);        // PhaseShiftFlags // hackfix to be removed
     _worldPacket << uint32(PhaseShifts.size());                 // PhaseShiftCount
     _worldPacket << PersonalGUID;                               // PersonalGUID
     for (uint32 phase : PhaseShifts)
@@ -672,6 +672,11 @@ void WorldPackets::Misc::MountSetFavorite::Read()
 void WorldPackets::Misc::CloseInteraction::Read()
 {
     _worldPacket >> SourceGuid;
+}
+
+void WorldPackets::Misc::FactionSelect::Read()
+{
+    _worldPacket >> FactionChoice;
 }
 
 void WorldPackets::Misc::AdventureJournalOpenQuest::Read()
