@@ -21225,21 +21225,26 @@ bool Player::CanControlPet(uint32 spellId) const
     {
         switch (spellId)
         {
-            case 93321: // Control Pet
-                return getClass() == CLASS_HUNTER;
-            case 93375: // Control Demon
-                return getClass() == CLASS_WARLOCK;
+        case 93321: // Control Pet
+            return getClass() == CLASS_HUNTER;
+        case 93375: // Control Demon
+            return getClass() == CLASS_WARLOCK;
         }
     }
     else
-        return (HasAura(93321) && getClass() == CLASS_HUNTER || HasAura(93375) && getClass() == CLASS_WARLOCK);
+    {
+        if (getClass() == CLASS_HUNTER && !HasAura(93321))
+            return false;
+        if (getClass() == CLASS_WARLOCK && !HasAura(93375))
+            return false;
+    }
 
-    return false;
+    return true;
 }
 
 void Player::PetSpellInitialize()
 {
-    // Do not send the pet action bar when Hunters or Warlocks cannot control their pets
+    // Do not send the pet action bar when Hunters or Warlocks cannot control their pet
     if (!CanControlPet())
         return;
 

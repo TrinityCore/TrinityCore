@@ -1381,7 +1381,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
 
     if (spellInfo->IsPassive() && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState))))
         CastSpell(this, spellId, true);
-    else
+    else if (!(spellInfo->AttributesEx4 & SPELL_ATTR4_UNK15)) // This attribute seems to be responsible to block transform related spells
         m_charmInfo->AddSpellToActionBar(spellInfo);
 
     if (newspell.active == ACT_ENABLED)
