@@ -1201,7 +1201,7 @@ void Map::MoveAllCreaturesInMoveList()
                 /// @todo pets will disappear if this is outside CreatureRespawnRelocation
                 //need to check why pet is frequently relocated to an unloaded cell
                 if (c->IsPet())
-                    ((Pet*)c)->Remove(PET_SAVE_NOT_IN_SLOT, true);
+                    ((Pet*)c)->Remove(PET_SAVE_DISMISS, true);
                 else
                     AddObjectToRemoveList(c);
             }

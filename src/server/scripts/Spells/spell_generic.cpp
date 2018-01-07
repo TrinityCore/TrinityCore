@@ -2580,7 +2580,7 @@ class spell_gen_pet_summoned : public SpellScriptLoader
                 {
                     PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
                     Pet* newPet = new Pet(player, newPetType);
-                    if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
+                    if (newPet->LoadPetData(player, 0, player->GetLastPetNumber(), true))
                     {
                         // revive the pet if it is dead
                         if (newPet->getDeathState() == DEAD)
@@ -3105,7 +3105,7 @@ class spell_gen_summon_elemental : public SpellScriptLoader
                 if (GetCaster())
                     if (Unit* owner = GetCaster()->GetOwner())
                         if (owner->GetTypeId() == TYPEID_PLAYER) /// @todo this check is maybe wrong
-                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+                            owner->ToPlayer()->RemovePet(nullptr, PET_SAVE_DISMISS, true);
             }
 
             void Register() override
@@ -3693,10 +3693,10 @@ class spell_gen_gm_freeze : public SpellScriptLoader
                     {
                         if (Pet* pet = player->GetPet())
                         {
-                            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                            pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
                             // not let dismiss dead pet
                             if (pet->IsAlive())
-                                player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+                                player->RemovePet(pet, PET_SAVE_DISMISS);
                         }
                     }
                 }

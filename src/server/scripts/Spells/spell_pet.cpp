@@ -51,11 +51,6 @@ enum WarlockPetCalculate
      SPELL_WARLOCK_PET_SCALING_03       = 34957,
      SPELL_WARLOCK_PET_SCALING_04       = 34958,
      SPELL_WARLOCK_PET_SCALING_05       = 61013,
-     ENTRY_FELGUARD                     = 17252,
-     ENTRY_VOIDWALKER                   = 1860,
-     ENTRY_FELHUNTER                    = 417,
-     ENTRY_SUCCUBUS                     = 1863,
-     ENTRY_IMP                          = 416,
      SPELL_WARLOCK_GLYPH_OF_VOIDWALKER  = 56247,
 };
 

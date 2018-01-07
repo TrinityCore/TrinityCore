@@ -1452,7 +1452,7 @@ public:
         // caster have pet now
         player->SetMinion(pet, true);
 
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        pet->SavePetToDB(PET_SAVE_NEW_PET);
         player->PetSpellInitialize();
 
         return true;

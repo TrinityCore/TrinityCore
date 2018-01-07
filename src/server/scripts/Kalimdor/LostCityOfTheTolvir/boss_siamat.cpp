@@ -555,6 +555,11 @@ class spell_siamat_wailing_winds : public SpellScriptLoader
         {
             PrepareAuraScript(spell_siamat_wailing_winds_AuraScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_WAILING_WINDS_DAMAGE });
+            }
+
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())

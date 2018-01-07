@@ -2565,6 +2565,8 @@ class npc_stable_master : public CreatureScript
 
             bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
+                player->GetSession()->SendStablePet(me->GetGUID());
+
                 SmartAI::GossipSelect(player, menuId, gossipListId);
                 if (menuId != STABLE_MASTER_GOSSIP_SUB_MENU)
                     return true;

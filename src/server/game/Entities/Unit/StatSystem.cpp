@@ -960,17 +960,6 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
 ########                         ########
 #######################################*/
 
-#define ENTRY_IMP               416
-#define ENTRY_VOIDWALKER        1860
-#define ENTRY_SUCCUBUS          1863
-#define ENTRY_FELHUNTER         417
-#define ENTRY_FELGUARD          17252
-#define ENTRY_WATER_ELEMENTAL   510
-#define ENTRY_TREANT            1964
-#define ENTRY_FIRE_ELEMENTAL    15438
-#define ENTRY_GHOUL             26125
-#define ENTRY_BLOODWORM         28017
-
 bool Guardian::UpdateStats(Stats stat)
 {
     if (stat >= MAX_STATS)
@@ -1102,19 +1091,49 @@ void Guardian::UpdateMaxHealth()
     float multiplicator;
     switch (GetEntry())
     {
-        case ENTRY_IMP:         multiplicator = 8.4f;   break;
-        case ENTRY_VOIDWALKER:  multiplicator = 11.0f;  break;
-        case ENTRY_SUCCUBUS:    multiplicator = 9.1f;   break;
-        case ENTRY_FELHUNTER:   multiplicator = 9.5f;   break;
-        case ENTRY_FELGUARD:    multiplicator = 11.0f;  break;
-        case ENTRY_BLOODWORM:   multiplicator = 1.0f;   break;
-        default:                multiplicator = 10.0f;  break;
+        case ENTRY_BLOODWORM:
+            multiplicator = 1.0f;
+            break;
+        default:
+            multiplicator = 14.0f;
+            break;
     }
 
     float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
+
+    if (Unit* owner = GetOwner())
+    {
+        switch (GetEntry())
+        {
+            case ENTRY_IMP:
+                value = (7.7 * getLevel() / 80) * GetOwner()->GetStat(STAT_STAMINA) + GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+                break;
+            case ENTRY_VOIDWALKER:
+                value = (15.0 * getLevel() / 80) * GetOwner()->GetStat(STAT_STAMINA) + GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+                break;
+            case ENTRY_FELHUNTER:
+            case ENTRY_FELGUARD:
+            case ENTRY_SUCCUBUS:
+                value = (9.1 * getLevel() / 80) * GetOwner()->GetStat(STAT_STAMINA) + GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+                break;
+            case ENTRY_WATER_ELEMENTAL:
+                value = (7.0 * getLevel() / 80) * GetOwner()->GetStat(STAT_STAMINA) + GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+                break;
+            case ENTRY_SPIRIT_WOLF:
+            case ENTRY_GARGOYLE:
+            case ENTRY_SHADOWFIEND:
+                value = (4.2 * getLevel() / 80) * GetOwner()->GetStat(STAT_STAMINA) + GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+                break;
+            case ENTRY_TREANT:
+                value = (1.9 * getLevel() / 80) * GetOwner()->GetStat(STAT_STAMINA) + GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+                break;
+            default:
+                break;
+        }
+    }
 
     SetMaxHealth((uint32)value);
 }

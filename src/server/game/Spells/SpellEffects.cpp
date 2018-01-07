@@ -2676,19 +2676,13 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     if (!pet)                                               // in very specific state like near world end/etc.
         return;
 
-    // "kill" original creature
-    creatureTarget->DespawnOrUnsummon();
-
-    uint8 level = (creatureTarget->getLevel() < (m_caster->getLevel() - 5)) ? (m_caster->getLevel() - 5) : creatureTarget->getLevel();
+    uint8 level = m_caster->getLevel();
 
     // prepare visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
 
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
-
-    // visual effect for levelup
-    pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
 
     // caster have pet now
     m_caster->SetMinion(pet, true);
@@ -2697,9 +2691,23 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-        m_caster->ToPlayer()->PetSpellInitialize();
+        pet->SavePetToDB(PET_SAVE_NEW_PET);
+        if (uint8 slot = pet->GetSlot() <= PET_SLOT_LAST_ACTIVE_SLOT)
+        {
+            m_caster->ToPlayer()->GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), creatureTarget->GetEntry(), creatureTarget->GetDisplayId(), creatureTarget->getLevel(), pet->GetName());
+            m_caster->ToPlayer()->PetSpellInitialize();
+        }
+        else
+        {
+            pet->Remove(PET_SAVE_AS_DELETED);
+            return;
+        }
     }
+     // "kill" original creature if everything worked
+    creatureTarget->DespawnOrUnsummon();
+
+    // visual effect for levelup
+    pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
 }
 
 void Spell::EffectSummonPet(SpellEffIndex effIndex)
@@ -2707,15 +2715,18 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    Player* owner = NULL;
+    Player* owner = nullptr;
     if (m_originalCaster)
     {
         owner = m_originalCaster->ToPlayer();
         if (!owner && m_originalCaster->IsTotem())
             owner = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
     }
+    // SUMMON_PET SummonPet's entries are at MiscValue, HunterPetSlot at BasePoints
+    uint32 petentry = (m_spellInfo->Effects[effIndex].MiscValue == 0 && m_spellInfo->Effects[effIndex].BasePoints <= PET_SLOT_LAST_ACTIVE_SLOT) ? m_spellInfo->Effects[effIndex].BasePoints : m_spellInfo->Effects[effIndex].MiscValue;
 
-    uint32 petentry = m_spellInfo->Effects[effIndex].MiscValue;
+    PetType petType = (m_spellInfo->Effects[effIndex].MiscValue == 0 && m_spellInfo->Effects[effIndex].BasePoints <= PET_SLOT_LAST_ACTIVE_SLOT) ? HUNTER_PET : SUMMON_PET;
+
 
     if (!owner)
     {
@@ -2761,14 +2772,14 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
         }
 
         if (owner->GetTypeId() == TYPEID_PLAYER)
-            owner->ToPlayer()->RemovePet(OldSummon, (OldSummon->getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT), false);
+            owner->ToPlayer()->RemovePet(OldSummon, (OldSummon->getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_DISMISS), false);
         else
             return;
     }
 
     float x, y, z;
     owner->GetClosePoint(x, y, z, owner->GetObjectSize());
-    Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0);
+    Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), petType, 0);
     if (!pet)
         return;
 
@@ -2781,11 +2792,6 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     }
 
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-
-    // generate new name for summon pet
-    std::string new_name=sObjectMgr->GeneratePetName(petentry);
-    if (!new_name.empty())
-        pet->SetName(new_name);
 
     ExecuteLogEffectSummonObject(effIndex, pet);
 }
@@ -2812,7 +2818,7 @@ void Spell::EffectLearnPetSpell(SpellEffIndex effIndex)
         return;
 
     pet->learnSpell(learn_spellproto->Id);
-    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
     pet->GetOwner()->PetSpellInitialize();
 }
 
@@ -4097,7 +4103,7 @@ void Spell::EffectDismissPet(SpellEffIndex effIndex)
     Pet* pet = unitTarget->ToPet();
 
     ExecuteLogEffectUnsummonObject(effIndex, pet);
-    pet->GetOwner()->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+    pet->GetOwner()->RemovePet(pet, PET_SAVE_DISMISS);
 }
 
 void Spell::EffectSummonObject(SpellEffIndex effIndex)
@@ -4661,7 +4667,7 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
     if (!player->GetPet())
     {
         // Position passed to SummonPet is irrelevant with current implementation,
-        // pet will be relocated without using these coords in Pet::LoadPetFromDB
+        // pet will be relocated without using these coords in Pet::LoadPetData
         player->SummonPet(0, 0.0f, 0.0f, 0.0f, 0.0f, SUMMON_PET, 0);
         hadPet = false;
     }
@@ -4702,7 +4708,7 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
         ci->SetIsReturning(false);
     }
 
-    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
 }
 
 void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
@@ -5284,7 +5290,7 @@ void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
 
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
     {
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        pet->SavePetToDB(PET_SAVE_NEW_PET);
         unitTarget->ToPlayer()->PetSpellInitialize();
     }
 }

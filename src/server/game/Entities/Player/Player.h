@@ -943,6 +943,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CURRENCY                = 34,
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 35,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION         = 36,
+    PLAYER_LOGIN_QUERY_LOAD_ALL_PETS                = 37,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1093,6 +1094,27 @@ class TC_GAME_API PlayerTaxi
 };
 
 std::ostringstream& operator << (std::ostringstream& ss, PlayerTaxi const& taxi);
+
+struct PlayerPetData
+{
+    uint32 PetId;
+    uint32 CreatureId;
+    uint64 Owner;
+    uint32 DisplayId;
+    uint32 Petlevel;
+    uint32 PetExp;
+    ReactStates Reactstate;
+    uint8 Slot;
+    std::string Name;
+    bool Renamed;
+    bool Active;
+    uint32 SavedHealth;
+    uint32 SavedMana;
+    std::string Actionbar;
+    uint32 Timediff;
+    uint32 SummonSpellId;
+    PetType Type;
+};
 
 class Player;
 
@@ -1519,6 +1541,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendItemDurations();
         void LoadCorpse(PreparedQueryResult result);
         void LoadPet();
+        void LoadPetsFromDB(PreparedQueryResult result);
 
         bool AddItem(uint32 itemId, uint32 count);
 
@@ -1768,6 +1791,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool RemoveMItem(uint32 id);
 
         void SendOnCancelExpectedVehicleRideAura() const;
+        bool CanControlPet(uint32 spellId = 0) const;
         void PetSpellInitialize();
         void CharmSpellInitialize();
         void PossessSpellInitialize();
@@ -2551,8 +2575,19 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
 
+        // LFG Call to Arms
         void SetTempCallToArmsRoles(uint8 roles) { _tmpLfgRolesCheck = roles; }
         uint8 GetCallToArmsTempRoles() { return _tmpLfgRolesCheck; }
+
+        // Pets
+        PlayerPetData* GetPlayerPetDataById(uint32 petId);
+        PlayerPetData* GetPlayerPetDataBySlot(uint8 slot);
+        PlayerPetData* GetPlayerPetDataByCreatureId(uint32 creatureId);
+        PlayerPetData* GetPlayerPetDataCurrent();
+        Optional<uint8> GetFirstUnusedActivePetSlot();
+        Optional<uint8> GetFirstUnusedPetSlot();
+        void DeleteFromPlayerPetDataStore(uint32 petNumber);
+        void AddToPlayerPetDataStore(PlayerPetData* playerPetData);
 
     protected:
         // Gamemaster whisper whitelist
@@ -2915,6 +2950,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Archaeology _archaeology;
 
         uint8 _tmpLfgRolesCheck;
+
+        std::vector<PlayerPetData*> PlayerPetDataStore;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
