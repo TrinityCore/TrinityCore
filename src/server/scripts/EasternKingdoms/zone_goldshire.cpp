@@ -178,15 +178,14 @@ struct npc_cameron : public ScriptedAI
 
     void OnGameEvent(bool start, uint16 eventId) override
     {
-        if (eventId == GAME_EVENT_CHILDEREN_OF_GOLDSHIRE && start && !_started)
+        if (start && eventId == GAME_EVENT_CHILDEREN_OF_GOLDSHIRE)
         {
             // Start event at 7 am
             // Begin pathing
             _events.ScheduleEvent(EVENT_BEGIN_EVENT, 1s);
             _started = true;
         }
-
-        if (eventId == GAME_EVENT_CHILDEREN_OF_GOLDSHIRE && !start && _started)
+        else if (!start && eventId == GAME_EVENT_CHILDEREN_OF_GOLDSHIRE)
         {
             // Reset event at 8 am
             _started = false;
