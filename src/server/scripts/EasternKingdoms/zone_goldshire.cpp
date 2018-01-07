@@ -250,7 +250,6 @@ struct npc_cameron : public ScriptedAI
 
                     // Start movement
                     me->GetMotionMaster()->MovePath(STORMWIND_PATH, false);
-                    _started = true;
 
                     break;
                 }
