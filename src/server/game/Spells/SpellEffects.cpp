@@ -2641,9 +2641,6 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
 
-    // it's active if it got added to world
-    pet->SetActive(true);
-
     // caster have pet now
     m_caster->SetMinion(pet, true);
 
