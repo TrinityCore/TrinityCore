@@ -2729,7 +2729,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
 
     float x, y, z;
     owner->GetClosePoint(x, y, z, owner->GetObjectSize());
-    Pet *pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), petType, 0);
+    Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), petType, 0);
     if (!pet)
         return;
 

@@ -27408,9 +27408,9 @@ Guild const* Player::GetGuild() const
     return guildId ? sGuildMgr->GetGuildById(guildId) : nullptr;
 }
 
-Pet *Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
+Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
 {
-    Pet *pet = new Pet(this, petType);
+    Pet* pet = new Pet(this, petType);
 
     pet->Relocate(x, y, z, ang);
     if (!pet->IsPositionValid())
