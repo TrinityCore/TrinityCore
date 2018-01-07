@@ -507,8 +507,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
         if (std::unordered_set<uint32> const* quests = sObjectMgr->GetQuestsForAreaTrigger(packet.AreaTriggerID))
         {
             for (uint32 questId : *quests)
-                player->AreaExploredOrEventHappens(questId);
             {
+                player->AreaExploredOrEventHappens(questId);
+
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
                 if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                 {

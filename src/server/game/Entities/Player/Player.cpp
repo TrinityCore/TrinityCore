@@ -25385,12 +25385,6 @@ void Player::SetMover(Unit* target)
     SendDirectMessage(packet.Write());
 }
 
-void Player::ShowNeutralPlayerFactionSelectUI()
-{
-    WorldPacket data(SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI);
-    GetSession()->SendPacket(&data);
-}
-
 void Player::SetPersonnalXpRate(float p_PersonnalXPRate)
 {
     _PersonnalXpRate = p_PersonnalXPRate;
