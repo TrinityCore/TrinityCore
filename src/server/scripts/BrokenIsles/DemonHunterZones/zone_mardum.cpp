@@ -91,7 +91,7 @@ public:
 
     void OnLogin(Player* player, bool firstLogin) override
     {
-        if (player->GetZoneId() == 7705 && firstLogin)
+        if (player->getClass() == CLASS_DEMON_HUNTER && player->GetZoneId() == 7705 && firstLogin)
         {
             player->RemoveAurasDueToSpell(SPELL_PHASE_MARDUM_WELCOME);
         }
@@ -101,7 +101,7 @@ public:
     {
         if (checkTimer <= diff)
         {
-            if (player->GetZoneId() == 7705 && player->GetQuestStatus(QUEST_INVASION_BEGIN) == QUEST_STATUS_NONE &&
+            if (player->getClass() == CLASS_DEMON_HUNTER && player->GetZoneId() == 7705 && player->GetQuestStatus(QUEST_INVASION_BEGIN) == QUEST_STATUS_NONE &&
                 player->GetPositionY() < 3280 && !player->HasAura(SPELL_SCENE_MARDUM_WELCOME) &&
                 !player->HasAura(SPELL_PHASE_MARDUM_WELCOME))
             {
