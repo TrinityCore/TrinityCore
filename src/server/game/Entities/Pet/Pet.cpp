@@ -1313,6 +1313,10 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
         return false;
     }
 
+    // SPELL_ATTR4_UNK15 = DO NOT ADD SPELL TO SPELLBOOK OR ACTIONBAR
+    if (spellInfo->AttributesEx4 & SPELL_ATTR4_UNK15)
+        return false;
+
     PetSpellMap::iterator itr = m_spells.find(spellId);
     if (itr != m_spells.end())
     {
@@ -1404,7 +1408,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
 
     if (spellInfo->IsPassive() && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState))))
         CastSpell(this, spellId, true);
-    else if (!(spellInfo->AttributesEx4 & SPELL_ATTR4_UNK15)) // This attribute seems to be responsible to block transform related spells
+    else
         m_charmInfo->AddSpellToActionBar(spellInfo);
 
     if (newspell.active == ACT_ENABLED)
@@ -1428,7 +1432,7 @@ bool Pet::learnSpell(uint32 spell_id)
     if (!addSpell(spell_id))
         return false;
 
-    if (!m_loading)
+    if (!m_loading && getPetType() != SUMMON_PET)
     {
         WorldPacket data(SMSG_PET_LEARNED_SPELL, 4);
         data << uint32(spell_id);
@@ -1444,8 +1448,8 @@ void Pet::InitLevelupSpellsForLevel()
 
     if (PetLevelupSpellSet const* levelupSpells = GetCreatureTemplate()->family ? sSpellMgr->GetPetLevelupSpellList(GetCreatureTemplate()->family) : NULL)
     {
-        // PetLevelupSpellSet ordered by levels, process in reversed order
-        for (PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
+        // PetLevelupSpellSet ordered by levels
+        for (PetLevelupSpellSet::const_iterator itr = levelupSpells->begin(); itr != levelupSpells->end(); ++itr)
         {
             // will called first if level down
             if (itr->first > level)
@@ -1481,7 +1485,7 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
 {
     if (removeSpell(spell_id, learn_prev, clear_ab))
     {
-        if (!m_loading)
+        if (!m_loading && getPetType() != SUMMON_PET)
         {
             WorldPacket data(SMSG_PET_REMOVED_SPELL, 4);
             data << uint32(spell_id);

@@ -2551,6 +2551,9 @@ enum StableMasters
     SPELL_CHIKEN                    = 54677,
     SPELL_WOLPERTINGER              = 54688,
 
+    NPC_TEXT_STABLE_MASTER_HUNTER   = 13557,
+    NPC_TEXT_STABLE_MASTER_OTHER    = 13584,
+    GOSSIP_MENU_STABLE_MASTER       = 9821,
     STABLE_MASTER_GOSSIP_SUB_MENU   = 9820
 };
 
@@ -2559,46 +2562,49 @@ class npc_stable_master : public CreatureScript
     public:
         npc_stable_master() : CreatureScript("npc_stable_master") { }
 
-        struct npc_stable_masterAI : public SmartAI
+        struct npc_stable_masterAI : public ScriptedAI
         {
-            npc_stable_masterAI(Creature* creature) : SmartAI(creature) { }
+            npc_stable_masterAI(Creature* creature) : ScriptedAI(creature) { }
 
             bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
-                player->GetSession()->SendStablePet(me->GetGUID());
-
-                SmartAI::GossipSelect(player, menuId, gossipListId);
-                if (menuId != STABLE_MASTER_GOSSIP_SUB_MENU)
-                    return true;
-
-                switch (gossipListId)
+                if (menuId == STABLE_MASTER_GOSSIP_SUB_MENU)
                 {
-                    case 0:
-                        player->CastSpell(player, SPELL_MINIWING, false);
-                        break;
-                    case 1:
-                        player->CastSpell(player, SPELL_JUBLING, false);
-                        break;
-                    case 2:
-                        player->CastSpell(player, SPELL_DARTER, false);
-                        break;
-                    case 3:
-                        player->CastSpell(player, SPELL_WORG, false);
-                        break;
-                    case 4:
-                        player->CastSpell(player, SPELL_SMOLDERWEB, false);
-                        break;
-                    case 5:
-                        player->CastSpell(player, SPELL_CHIKEN, false);
-                        break;
-                    case 6:
-                        player->CastSpell(player, SPELL_WOLPERTINGER, false);
-                        break;
-                    default:
-                        return false;
+                    switch (gossipListId)
+                    {
+                        case 0:
+                            player->CastSpell(player, SPELL_MINIWING, false);
+                            break;
+                        case 1:
+                            player->CastSpell(player, SPELL_JUBLING, false);
+                            break;
+                        case 2:
+                            player->CastSpell(player, SPELL_DARTER, false);
+                            break;
+                        case 3:
+                            player->CastSpell(player, SPELL_WORG, false);
+                            break;
+                        case 4:
+                            player->CastSpell(player, SPELL_SMOLDERWEB, false);
+                            break;
+                        case 5:
+                            player->CastSpell(player, SPELL_CHIKEN, false);
+                            break;
+                        case 6:
+                            player->CastSpell(player, SPELL_WOLPERTINGER, false);
+                            break;
+                        default:
+                            return false;
+                    }
                 }
-
-                player->PlayerTalkClass->SendCloseGossip();
+                else
+                {
+                    if (gossipListId == 0)
+                    {
+                        player->GetSession()->SendStablePet(me->GetGUID());
+                        player->PlayerTalkClass->SendCloseGossip();
+                    }
+                }
                 return false;
             }
         };
