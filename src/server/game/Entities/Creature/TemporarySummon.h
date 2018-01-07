@@ -35,7 +35,7 @@ class TC_GAME_API TempSummon : public Creature
         virtual void UnSummon(uint32 msTime = 0);
         void RemoveFromWorld() override;
         void SetTempSummonType(TempSummonType type);
-        void SaveToDB(uint32 /*mapid*/, uint32 /*spawnMask*/, uint32 /*phaseMask*/) override { }
+        void SaveToDB(uint32 /*mapid*/, uint64 /*spawnMask*/) override { }
         Unit* GetSummoner() const;
         Creature* GetSummonerCreatureBase() const;
         ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }

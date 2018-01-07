@@ -296,15 +296,15 @@ public:
             ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Creature>();
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.id = id;
-            data.phaseMask = chr->GetPhaseMask();
             data.posX = chr->GetTransOffsetX();
             data.posY = chr->GetTransOffsetY();
             data.posZ = chr->GetTransOffsetZ();
             data.orientation = chr->GetTransOffsetO();
+            /// @todo: add phases
 
             Creature* creature = trans->CreateNPCPassenger(guid, &data);
 
-            creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, 1 << map->GetSpawnMode(), chr->GetPhaseMask());
+            creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, UI64LIT(1) << map->GetSpawnMode());
 
             sObjectMgr->AddCreatureToGrid(guid, &data);
             return true;
@@ -317,7 +317,8 @@ public:
             return false;
         }
 
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
+        creature->CopyPhaseFrom(chr);
+        creature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
 
@@ -769,7 +770,7 @@ public:
 
         if (CreatureData const* data = sObjectMgr->GetCreatureData(target->GetSpawnId()))
         {
-            handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseid, data->phaseGroup);
+            handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseId, data->phaseGroup);
             if (data->phaseGroup)
             {
                 std::set<uint32> _phases = target->GetPhases();
