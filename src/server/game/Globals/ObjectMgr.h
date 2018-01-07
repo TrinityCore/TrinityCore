@@ -1678,10 +1678,10 @@ class TC_GAME_API ObjectMgr
 
         enum CreatureLinkedRespawnType
         {
-            CREATURE_TO_CREATURE,
-            CREATURE_TO_GO,         // Creature is dependant on GO
-            GO_TO_GO,
-            GO_TO_CREATURE          // GO is dependant on creature
+            CREATURE_TO_CREATURE  = 0,
+            CREATURE_TO_GO        = 1, // Creature is dependant on GO
+            GO_TO_GO              = 2,
+            GO_TO_CREATURE        = 3,  // GO is dependant on creature
         };
 
         std::set<uint32> _transportMaps; // Helper container storing map ids that are for transports only, loaded from gameobject_template

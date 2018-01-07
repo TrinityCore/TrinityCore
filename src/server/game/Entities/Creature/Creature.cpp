@@ -1688,7 +1688,11 @@ void Creature::DeleteFromDB()
     stmt->setUInt32(0, m_spawnId);
     trans->Append(stmt);
 
-    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CRELINKED_RESPAWN);
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_LINKED_RESPAWN);
+    stmt->setUInt32(0, m_spawnId);
+    trans->Append(stmt);
+    
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_LINKED_RESPAWN_MASTER);
     stmt->setUInt32(0, m_spawnId);
     trans->Append(stmt);
 
