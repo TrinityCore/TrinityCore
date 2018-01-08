@@ -10300,7 +10300,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     CombatStop();
     ClearComboPoints();
     ClearComboPointHolders();
-    GetThreatManager().ClearAllThreat();
 }
 
 void Unit::CleanupsBeforeDelete(bool finalCleanup)
