@@ -123,7 +123,7 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     //fix to get the right rotation after spawn visualized
     object->SetWorldRotationAngles(o, 0.0f, 0.0f);
     // fill the gameobject data and save to the db
-    object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), p);
+    object->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
     ObjectGuid::LowType guidLow = object->GetSpawnId();
 
     // delete the old object and do a clean load from DB with a fresh new GameObject instance.
