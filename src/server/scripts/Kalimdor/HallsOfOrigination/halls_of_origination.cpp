@@ -375,15 +375,17 @@ public:
     {
         PrepareSpellScript(spell_hoo_fixate_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        bool Validate(SpellInfo const* spellInfo) override
         {
-            uint32 spellId = GetSpellValue()->EffectBasePoints[EFFECT_0];
-            return ValidateSpellInfo({ spellId });
+            if (!spellInfo->GetEffect(EFFECT_0))
+                return false;
+            SpellEffectInfo const* spellEffectInfo = spellInfo->GetEffect(EFFECT_0);
+            return spellEffectInfo && ValidateSpellInfo({ uint32(spellEffectInfo->BasePoints) });
         }
 
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        void HandleScriptEffect(SpellEffIndex effIndex)
         {
-            uint32 spellId = GetSpellValue()->EffectBasePoints[EFFECT_0];
+            uint32 spellId = GetSpellInfo()->GetEffect(effIndex)->BasePoints;
             GetHitUnit()->CastSpell(GetCaster(), spellId);
         }
 
