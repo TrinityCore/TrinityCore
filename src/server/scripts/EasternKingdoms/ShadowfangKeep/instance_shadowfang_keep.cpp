@@ -332,6 +332,8 @@ public:
             {
                 case DATA_TEAM_IN_INSTANCE:
                     return _teamInInstance;
+                case DATA_GODFREY_INTRO:
+                    return _arugalDoorState;
                 default:
                     break;
             }
@@ -407,8 +409,9 @@ public:
                             }
                         }
                     }
-                    if (GameObject* door = GetGameObject(DATA_ARUGAL_DOOR))
-                        door->SetGoState(data == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                    if (data == DONE)
+                        if (GameObject* door = GetGameObject(DATA_ARUGAL_DOOR))
+                            InstanceScript::OnGameObjectCreate(door);
                     SaveToDB();
                     break;
                 default:
