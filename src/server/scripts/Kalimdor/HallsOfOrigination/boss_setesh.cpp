@@ -55,11 +55,11 @@ enum Spells
 
 enum Events
 {
-    EVENT_CHAOS_SEED = 1,
-    EVENT_CHAOS_PORTAL,
+    // Ammunae
+    EVENT_CHAOS_PORTAL = 1,
     EVENT_CONTINUE_FIGHT,
-    EVENT_SEED_OF_CHAOS,
     EVENT_CHAOS_BLAST,
+    EVENT_SEED_OF_CHAOS,
     EVENT_REIGN_OF_CHAOS,    
 
     // Chaos Portal
@@ -125,8 +125,9 @@ class boss_setesh : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 
                 events.ScheduleEvent(EVENT_CHAOS_PORTAL, Seconds(5));
-                events.ScheduleEvent(EVENT_SEED_OF_CHAOS, Seconds(15));
-                events.ScheduleEvent(EVENT_CHAOS_BLAST, Seconds(20));
+                events.ScheduleEvent(EVENT_CHAOS_BLAST, Seconds(15));
+                events.ScheduleEvent(EVENT_SEED_OF_CHAOS, Seconds(20));
+                events.ScheduleEvent(EVENT_REIGN_OF_CHAOS, Seconds(30));
             }
 
             void KilledUnit(Unit* victim) override
@@ -173,7 +174,7 @@ class boss_setesh : public CreatureScript
                     case POINT_CHANNEL_CHAOS_PORTAL:
                         if (Unit* npcChaosPortal = SelectTarget(SELECT_TARGET_NEAREST, 0, 0.0f, false, SPELL_DUMMY_AURA))
                             DoCast(npcChaosPortal, SPELL_CHANNEL_CHAOS_PORTAL);
-                        events.ScheduleEvent(EVENT_CONTINUE_FIGHT, Seconds(1));
+                        events.ScheduleEvent(EVENT_CONTINUE_FIGHT, Seconds(5));
                         break;
                     default:
                         break;
@@ -196,17 +197,17 @@ class boss_setesh : public CreatureScript
                     {
                         case EVENT_CHAOS_PORTAL:
                             StartChaosPortalPhase();
+                            events.Repeat(Seconds(45));
                             break;
                         case EVENT_CONTINUE_FIGHT:
                             me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(PHASE_FIGHT);
-                            events.ScheduleEvent(EVENT_CHAOS_PORTAL, Seconds(30));
                             break;
                         case EVENT_CHAOS_BLAST:
                             DoCast(SPELL_CHAOS_BLAST);
                             events.Repeat(Seconds(20));
                             break;
-                        case EVENT_CHAOS_SEED:
+                        case EVENT_SEED_OF_CHAOS:
                             DoCast(SPELL_SEED_OF_CHAOS);
                             events.Repeat(Seconds(40));
                             break;

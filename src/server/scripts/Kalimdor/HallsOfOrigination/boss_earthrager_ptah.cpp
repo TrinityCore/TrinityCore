@@ -39,13 +39,15 @@ enum Texts
 
 enum Events
 {
-    EVENT_RAGING_SMASH              = 1,
-    EVENT_FLAME_BOLT                = 2,
-    EVENT_EARTH_SPIKE               = 3,
-    EVENT_PTAH_EXPLODE              = 4,
-    EVENT_QUICKSAND                 = 5,
+    // Earthrager Ptah
+    EVENT_RAGING_SMASH = 1,
+    EVENT_FLAME_BOLT,
+    EVENT_EARTH_SPIKE,
+    EVENT_PTAH_EXPLODE,
+    EVENT_QUICKSAND,
 
-    EVENT_SUMMON_JEWELED_SCARAB     = 6
+    // Beetle Stalker
+    EVENT_SUMMON_JEWELED_SCARAB
 };
 
 enum Spells
