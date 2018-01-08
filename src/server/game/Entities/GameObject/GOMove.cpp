@@ -86,7 +86,7 @@ void GOMove::DeleteGameObject(GameObject * object)
     object->DeleteFromDB();
 }
 
-GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, float o, uint32 p, uint32 entry)
+GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, float o, uint32 /*p*/, uint32 entry)
 {
     if (!player || !entry)
         return nullptr;
