@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "halls_of_origination.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
 #include "GameObject.h"
-#include "halls_of_origination.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "World.h"
@@ -52,9 +52,9 @@ ObjectData const creatureData[] =
     { NPC_AIR_WARDEN,                   DATA_AIR_WARDEN             },
     { BOSS_ANRAPHET,                    DATA_ANRAPHET               },
     { BOSS_ISISET,                      DATA_ISISET                 },
-//  { BOSS_AMMUNAE,                     DATA_AMMUNAE                },
-//  { BOSS_SETESH,                      DATA_SETESH                 },
-//  { BOSS_RAJH,                        DATA_RAJH                   },
+    { BOSS_AMMUNAE,                     DATA_AMMUNAE                },
+    { BOSS_SETESH,                      DATA_SETESH                 },
+    { BOSS_RAJH,                        DATA_RAJH                   },
     { 0,                                0 } // END
 };
 

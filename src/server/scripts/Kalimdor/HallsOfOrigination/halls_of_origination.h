@@ -66,11 +66,13 @@ enum HOOData
     DATA_ISISET_CELESTIAL_CALL_ALIVE,
     DATA_ISISET_VEIL_OF_SKY_ALIVE,
 
-    // Misc
-    DATA_LIFT_OF_THE_MAKERS,
-//  DATA_LIFT_GLASS_STAR,
+    // Ammunae
 
-    DATA_ANHUUR_I_HATE_THAT_SONG
+    // Setesh
+    DATA_SETESH_ADD_STALKER,
+
+    // Misc
+    DATA_LIFT_OF_THE_MAKERS
 };
 
 enum HOOCreatures
@@ -105,7 +107,16 @@ enum HOOCreatures
     NPC_SPATIAL_FLUX                = 39612, // Isiset trash
     NPC_SPATIAL_ANOMALY             = 40170,
     NPC_FLUX_ANIMATOR               = 40033,
-    NPC_STAR_SHARD                  = 40106
+    NPC_STAR_SHARD                  = 40106,
+
+    BOSS_AMMUNAE                    = 39731,
+
+    BOSS_SETESH                     = 39732,
+    NPC_SETESH_CHAOS_SEED           = 41126,
+    NPC_SETESH_CHAOS_BLAST          = 41041,
+    NPC_SETESH_CHAOS_PORTAL         = 41055,
+    NPC_SETESH_ADD_STALKER          = 41479,
+    NPC_SETESH_VOID_RIFT            = 39266, // Setesh trash
 };
 
 enum HOOGameObjects
@@ -178,7 +189,10 @@ enum HOOMisc
     SPELL_TELEPORT_EARTH            = 82329, // South-West
     SPELL_TELEPORT_AIR              = 82330, // South-East
     SPELL_TELEPORT_FIRE             = 82331, // North-West
-    SPELL_TELEPORT_WATER            = 82332  // North-East
+    SPELL_TELEPORT_WATER            = 82332, // North-East
+
+    // Seedling Pod
+    SPELL_SUMMON_SEEDLING_POD_DUMMY = 75688  // summons 40592 (dummy)
 };
 
 enum HOOGlobalActions

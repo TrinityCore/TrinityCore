@@ -18,9 +18,9 @@
 /* To-do: */
 // - AreaTrigger: unknown purpose (id: 1843; pos: front-right stairs) - dust animation, aggro snakes? 
 
+#include "halls_of_origination.h"
 #include "ScriptMgr.h"
 #include "GridNotifiers.h"
-#include "halls_of_origination.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "Player.h"

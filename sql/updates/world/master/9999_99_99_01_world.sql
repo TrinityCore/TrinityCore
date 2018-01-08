@@ -1,14 +1,36 @@
 -- Halls of Origination work
 -- @CGUID MUST HAVE SAME VALUE AS IN *_00_world.sql !!!
 SET @CGUID := 1000000; -- 91 entries needed (1000000 - 1000090)
-SET @SpellEffectID := 1000000; -- 2 entries needed
+SET @SpellEffectID := 1000000; -- 12 entries needed (1000000 - 1000011)
 
--- General: Elevator, trash mobs --
+-- Spawns, Spells, Spell Effects --
 -- spawn missing Temple Fireshaper (not in old sniffs)
 DELETE FROM `creature` WHERE `guid` = @CGUID+0;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
 (@CGUID+0, 48143, 644, 0, 0, 6, 0, 0, 0, 0, -640.624, 396.364, 83.8651, 1.54741, 7200, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', -1);
 
+-- server-side spell Summon Quicksand
+DELETE FROM `spell_dbc` WHERE `Id` = 75550;
+INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `AttributesEx8`, `AttributesEx9`, `AttributesEx10`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `SchoolMask`, `SpellAuraOptionsId`, `SpellCastingRequirementsId`, `SpellCategoriesId`, `SpellClassOptionsId`, `SpellEquippedItemsId`, `SpellLevelsId`, `SpellTargetRestrictionsId`, `SpellInterruptsId`, `Comment`) VALUES
+(75550, 128, 0, 4, 262144, 128, 8, 0, 0, 0, 0, 0, 1, 18, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Summon Quicksand');
+
+-- TO-DO: Recheck types!
+DELETE FROM `spelleffect_dbc` WHERE `Id` BETWEEN @SpellEffectID+0 AND @SpellEffectID+11;
+INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectItemType`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
+(@SpellEffectID+0,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40503, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75550, 0), -- Summon Quicksand
+(@SpellEffectID+1,  77, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,     0,  0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 75621, 0), -- Script Effect: Summon Seedling Pod 40550 (normal) or 51329 (heroic)
+(@SpellEffectID+2,  77, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40592, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75688, 0), -- Summon Seedling Pod 
+(@SpellEffectID+3,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40585, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75695, 0), -- Summon Spore
+(@SpellEffectID+4,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40622, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75769, 0), -- Summon Bloodpetal Blossom Visual
+(@SpellEffectID+5,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40620, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75771, 0), -- Bloodpetal Blossom
+(@SpellEffectID+6,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40630, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75791, 0), -- Summon Bloodpetal Sprout
+(@SpellEffectID+7,   3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,     0,  0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 76737, 0), -- Chaos Blast Me (dummy)
+(@SpellEffectID+8,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 41212, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 77272, 0), -- Summon Void Wyrm 1
+(@SpellEffectID+9,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 41212, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 79439, 0), -- Summon Void Wyrm 2
+(@SpellEffectID+10, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 41148, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 77271, 0), -- Summon Void Seeker
+(@SpellEffectID+11, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 41208, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 77242, 0); -- Summon Void Sentinel
+
+-- General: Elevator, trash mobs --
 -- script names, sniff corrections
 UPDATE `gameobject_template` SET `ScriptName` = 'go_hoo_the_makers_lift_controller' WHERE `entry` = 207669;
 
@@ -16,11 +38,12 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_aggro_stalker' WHERE `ent
 UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `unit_flags` = 33554496 WHERE `entry` = 39612;
 UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_energy_flux', `unit_flags` = 33554496, `speed_walk` = 5.5/2.5, `speed_run` = 5.5/2.5 WHERE `entry` = 44015;
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_hoo_emerge', 'spell_hoo_energy_flux_target_selector', 'spell_hoo_arcane_energy_check');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_hoo_emerge', 'spell_hoo_energy_flux_target_selector', 'spell_hoo_arcane_energy_check', 'spell_hoo_fixate');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (75764, 'spell_hoo_emerge'),
 (82382, 'spell_hoo_energy_flux_target_selector'),
-(74880, 'spell_hoo_arcane_energy_check');
+(74880, 'spell_hoo_arcane_energy_check'),
+(73686, 'spell_hoo_fixate');
 
 -- criteria script
 DELETE FROM `criteria_data` WHERE `criteria_id` IN (15989);
@@ -83,15 +106,6 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_ptah_beetle_stalker' WHERE `e
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_earthrager_ptah_sandstorm');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (75491, 'spell_earthrager_ptah_sandstorm');
-
--- server-side spell Summon Quicksand
-DELETE FROM `spell_dbc` WHERE `Id` = 75550;
-INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `AttributesEx8`, `AttributesEx9`, `AttributesEx10`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `SchoolMask`, `SpellAuraOptionsId`, `SpellCastingRequirementsId`, `SpellCategoriesId`, `SpellClassOptionsId`, `SpellEquippedItemsId`, `SpellLevelsId`, `SpellTargetRestrictionsId`, `SpellInterruptsId`, `Comment`) VALUES
-(75550, 128, 0, 4, 262144, 128, 8, 0, 0, 0, 0, 0, 1, 18, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Summon Quicksand');
-
-DELETE FROM `spelleffect_dbc` WHERE `Id` = @SpellEffectID+0;
-INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectItemType`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
-(@SpellEffectID+0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40503, 64, 0, 0, 0, 0, 0, 0, 0, 25, 0, 75550, 0);
 
 -- delete third and forth event for both adds - merge 4th action into 3rd event (set data not needed anymore)
 /* SAI rewritten below
@@ -249,6 +263,67 @@ INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `
 (48710, 56414, 0, 0, 0, 1, 1, 1, 1, NULL),
 (48710, 56415, 0, 0, 0, 1, 1, 1, 1, NULL),
 (48710, 56416, 0, 0, 0, 1, 1, 1, 1, NULL);
+
+-- Boss: Ammunae --
+-- script names
+UPDATE `creature_template` SET `ScriptName` = 'boss_ammunae', `difficulty_entry_1` = 48715 WHERE `entry` = 39731;
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_ammunae_consume_life_energy');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(75725, 'spell_ammunae_consume_life_energy');
+
+-- text
+DELETE FROM `creature_text` WHERE `CreatureID` = 39731;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(39731, 0, 0, 'The cycle continues...',                             14, 0, 100, 0, 0, 18569, 44770, 0, 'Ammunae - SAY_DEATH'),
+(39731, 1, 0, 'This chamber will flourish with your life energy!',  14, 0, 100, 0, 0, 18671, 44767, 0, 'Ammunae - SAY_AGGRO'),
+(39731, 2, 0, 'Your life, UNLEASHED!',                              14, 0, 100, 0, 0, 18572, 44771, 0, 'Ammunae - SAY_SPECIAL'),
+(39731, 3, 0, 'Wither away!',                                       14, 0, 100, 0, 0, 18573, 44768, 0, 'Ammunae - SAY_PLAYER_KILL'),
+(39731, 3, 1, 'Waste of energy.',                                   14, 0, 100, 0, 0, 18574, 44769, 0, 'Ammunae - SAY_PLAYER_KILL');
+
+-- spell condition
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` IN (75702, 89124);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 2, 75702, 0, 0, 31, 0, 3, 40620, 0, 0, 0, 0, '', 'Noxious Spores (EFFECT_1) targets Bloodpetal Blossom'),
+(13, 2, 75702, 0, 0, 31, 0, 3, 40630, 0, 0, 0, 0, '', 'Noxious Spores (EFFECT_1) targets Bloodpetal Sprout'),
+(13, 2, 75702, 0, 0, 31, 0, 3, 40550, 0, 0, 0, 0, '', 'Noxious Spores (EFFECT_1) targets Seedling Pod (n)'),
+(13, 2, 75702, 0, 0, 31, 0, 3, 51329, 0, 0, 0, 0, '', 'Noxious Spores (EFFECT_1) targets Seedling Pod (h)'),
+(13, 1, 89124, 0, 0, 31, 0, 3, 39731, 0, 0, 0, 0, '', 'Energizing Growth (EFFECT_0) targets Ammunae');
+
+-- Boss: Setesh <Construct of Destruction> --
+-- script names
+UPDATE `creature_template` SET `ScriptName` = 'boss_setesh', `difficulty_entry_1` = 48776 WHERE `entry` = 39732;
+UPDATE `creature_template` SET `ScriptName` = 'npc_setesh_chaos_blast' WHERE `entry` = 41041;
+UPDATE `creature_template` SET `ScriptName` = 'npc_setesh_chaos_seed' WHERE `entry` = 41126;
+UPDATE `creature_template` SET `ScriptName` = 'npc_setesh_chaos_portal' WHERE `entry` = 41055;
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_setesh_chaos_blast');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(74372, 'spell_setesh_chaos_blast');
+
+-- text
+DELETE FROM `creature_text` WHERE `CreatureID` = 39732;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(39732, 0, 0, 'Yes! Harness... your... hatred.',                                        14, 0, 100, 0, 0, 18552, 44765, 0, 'Setesh - SAY_DEATH'),
+(39732, 1, 0, 'You fear that which you cannot control. But can you control your fear?', 14, 0, 100, 0, 0, 18553, 44762, 0, 'Setesh - SAY_AGGRO'),
+(39732, 2, 0, 'Behold as infinite darkness befalls your world!',                        14, 0, 100, 0, 0, 18554, 44766, 0, 'Setesh - SAY_SPECIAL'),
+(39732, 3, 0, 'Embrace the end!',                                                       14, 0, 100, 0, 0, 18555, 44763, 0, 'Setesh - SAY_PLAYER_KILL'),
+(39732, 3, 1, 'Do you understand now?',                                                 14, 0, 100, 0, 0, 18556, 44764, 0, 'Setesh - SAY_PLAYER_KILL');
+
+-- Boss: Rajh --
+-- script names
+UPDATE `creature_template` SET `ScriptName` = 'boss_rajh', `difficulty_entry_1` = 48815 WHERE `entry` = 39732;
+
+-- text
+DELETE FROM `creature_text` WHERE `CreatureID` = 39378;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(39378, 0, 0, 'Blazing rays of light, take me!',                    14, 0, 100, 0, 0, 18910, 44760, 0, 'Rajh - SAY_DEATH'),
+(39378, 1, 0, 'Defilers! Wretches! Fiends! Begone from here!',      14, 0, 100, 0, 0, 18911, 44757, 0, 'Rajh - SAY_AGGRO'),
+(39378, 2, 0, 'Can you feel it? The blessed warmth of the sun?',    14, 0, 100, 0, 0, 18912, 44761, 0, 'Rajh - SAY_SPECIAL'),
+(39378, 3, 0, 'I send you to your deity.',                          14, 0, 100, 0, 0, 18913, 44758, 0, 'Rajh - SAY_PLAYER_KILL'),
+(39378, 3, 1, 'I take this life as an offering!',                   14, 0, 100, 0, 0, 18914, 44759, 0, 'Rajh - SAY_PLAYER_KILL');
+
+-- To-do: Whole Rajh script ...
 
 -- SmartAI, HC entries --
 -- Temple Fireshaper SAI
@@ -474,6 +549,132 @@ UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 4929
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 40106 AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (40106, 0, 0, 0, 0, 0, 100, 0, 0, 0, 1200, 1200, '', 11, 74791, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Star Shard - In Combat - Cast \'Star Shock\'');
+
+-- Ammunae's Bloodpetal Blossom 
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48716 WHERE `entry` = 40620;
+DELETE FROM `smart_scripts` WHERE (`entryorguid` = 40620 AND `source_type` = 0) OR (`entryorguid` = 4062000 AND `source_type` = 9);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40620, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '',  90, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - On Reset - Add byte for submerged'),
+(40620, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 76486, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Linked - Cast \'Submerge\' on self'),
+(40620, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, '', 18, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Linked - Set not-selectable flag'),
+(40620, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 80, 4062000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Linked - Call Actionlist'),
+(4062000, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, '', 11, 75795, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Linked - Cast \'Summon Bloodpetal Sprout\' on self'),
+(4062000, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, '', 11, 75769, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Linked - Cast \'Summon Bloodpetal Blossom Visual\' on self'),
+(4062000, 9, 2, 0, 0, 0, 100, 0, 3600, 3600, 0, 0, '', 91, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Actionlist - Remove byte for submerged'),
+(4062000, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, '', 11, 76485, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Actionlist - Cast \'Emerge\' on self'),
+(4062000, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, '', 19, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Actionlist - Remove not-selectable flag'),
+(40620, 0, 4, 0, 0, 0, 100, 0, 5000, 5000, 6000, 6000, '', 11, 76044, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - In Combat - Cast \'Thorn Slash\'');
+
+-- Spore (trash) SAI 
+-- Budding Spore SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` IN (40585, 40669);
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (40585, 40669) AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40585, 0, 0, 1, 6, 0, 100, 0, 0, 0, 0, 0, '', 11, 75701, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Spore - On Death - Cast \'Spore Cloud\''),
+(40585, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 41, 11000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Spore - Linked - Despawn in 11 s'),
+(40669, 0, 0, 1, 6, 0, 100, 0, 0, 0, 0, 0, '', 11, 75701, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Budding Spore - On Death - Cast \'Spore Cloud\''),
+(40669, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 41, 11000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Linked - Despawn in 11 s');
+
+-- Ammunae's Seedling Pod (normal, heroic)
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` IN (40550, 51329);
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (40550, 51329) AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40550, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 75657, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Reset - Cast \'Energize\' on self'),
+(40550, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75624, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - Linked - Cast \'Energizing Growth\' on self'),
+(51329, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 75657, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Reset - Cast \'Energize\' on self'),
+(51329, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75624, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - Linked - Cast \'Energizing Growth\' on self');
+
+-- Seedling Pod (trash) SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40716;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40716 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40716, 0, 0, 0, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 96278, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Reset - Cast \'Seedling Pod\' on self'),
+(40716, 0, 1, 0, 6, 0, 100, 0, 0, 0, 0, 0, '', 11, 75994, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Death - Cast \'Flourish\'');
+
+75791
+
+-- Seedling Pod dummy
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40592;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40592 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40592, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 75687, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - On Reset - Cast \'Seedling Pod Visual\' on self'),
+(40592, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 41, 2400, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Linked - Despawn in 2400 ms');
+
+-- Bloodpetal Blossom dummy
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40622;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40622 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40622, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 75770, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - On Reset - Cast \'Bloodpetal Bloom State\' on self'),
+(40622, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 41, 2400, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - Linked - Despawn in 2400 ms');
+
+-- Living Vine SAI, riding aura, vehicle accessory
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 49299 WHERE `entry` = 40668;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40668 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40668, 0, 0, 0, 0, 0, 100, 0, 3000, 3000, 7000, 7000, '', 11, 75153, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Living Vine - In Combat - Cast \'Spore Blast\'');
+
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(40668, 75867, 1, 0);
+
+DELETE FROM `vehicle_template_accessory` WHERE `entry` = 40668;
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
+(40668, 40669, 0, 1, 'Living Vine: Budding Spore', 8, 0);
+
+-- Lifewarden Nymph SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 49300 WHERE `entry` = 40715;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 40715 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40715, 0, 0, 0, 0, 0, 100, 0, 0, 0, 1500, 1500, '', 11, 75958, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Lifewarden Nymph - In Combat - Cast \'Shoot\''),
+(40715, 0, 1, 0, 0, 0, 100, 0, 10000, 10000, 38000, 38000, '', 11, 75940, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Lifewarden Nymph - In Combat - Cast \'Tranquility\''),
+(40715, 0, 2, 0, 0, 0, 100, 0, 15000, 15000, 30000, 30000, '', 11, 75961, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 'Lifewarden Nymph - In Combat - Cast \'Entangling Shot\'');
+
+-- Bloodpetal Sprout SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48717 WHERE `entry` = 40630;
+DELETE FROM `smart_scripts` WHERE (`entryorguid` = 40630 AND `source_type` = 0) OR (`entryorguid` = 4063000 AND `source_type` = 9);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(40630, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '',  90, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - On Reset - Add byte for submerged'),
+(40630, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 76486, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - Linked - Cast \'Submerge\' on self'),
+(40630, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, '', 18, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - Linked - Set not-selectable flag'),
+(40630, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 80, 4063000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - Linked - Call Actionlist'),
+(4063000, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, '', 11, 75768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - Linked - Cast \'Summon Bloodpetal Blossom\' on self'),
+(4063000, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, '', 11, 75769, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - Linked - Cast \'Summon Bloodpetal Blossom Visual\' on self'),
+(4063000, 9, 2, 0, 0, 0, 100, 0, 3600, 3600, 0, 0, '', 91, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - Actionlist - Remove byte for submerged'),
+(4063000, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, '', 11, 76485, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - Actionlist - Cast \'Emerge\' on self'),
+(4063000, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, '', 19, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - Actionlist - Remove not-selectable flag'),
+(40630, 0, 4, 0, 0, 0, 100, 0, 5000, 5000, 4000, 4000, '', 11, 73686, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Sprout - In Combat - Cast \'Fixate\'');
+ 
+-- Setesh's Void Sentinel SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48888 WHERE `entry` = 41208;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 41208 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(41208, 0, 0, 0, 4, 0, 100, 0, 0, 0, 0, 0, '', 11, 76959, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Sentinel - On Aggro - Cast \'Void Barrier\' on self'),
+(41208, 0, 1, 0, 0, 0, 100, 0, 4000, 4000, 30000, 30000, '', 11, 77238, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Sentinel - In Combat - Cast \'Charged Fists\'');
+
+-- Setesh's Void Seeker SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48889 WHERE `entry` = 41148;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 41148 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(41148, 0, 0, 0, 0, 0, 100, 0, 0, 0, 10000, 10000, '', 11, 76146, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Shadow Bolt Volley\''),
+(41148, 0, 1, 0, 0, 0, 100, 0, 5000, 5000, 20000, 20000, '', 11, 76903, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Anti-Magic Prison\'');
+
+-- Setesh's Void Wyrm heroic entry
+UPDATE `creature_template` SET `difficulty_entry_1` = 48890 WHERE `entry` = 41212;
+
+-- Void Seeker SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 49304 WHERE `entry` = 41371;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 41371 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(41371, 0, 0, 0, 0, 0, 100, 0, 3000, 3000, 10000, 10000, '', 11, 76146, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Shadow Bolt Volley\''),
+(41371, 0, 1, 0, 0, 0, 100, 0, 10000, 10000, 30000, 30000, '', 11, 73698, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Void Rift\'');
+
+-- Void Rift dummy SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 39266;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 39266 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(39266, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 73699, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Rift - On Reset - Cast \'Void Rift\'');
+
+-- Void Wyrm heroic entry
+UPDATE `creature_template` SET `difficulty_entry_1` = 49305 WHERE `entry` = 41374;
 
 -- Creature Formations --
 -- Isiset trash right-side formation

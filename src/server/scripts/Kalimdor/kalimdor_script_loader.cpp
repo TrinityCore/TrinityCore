@@ -92,6 +92,9 @@ void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
 void AddSC_boss_anraphet();
 void AddSC_boss_isiset();
+void AddSC_boss_ammunae();
+void AddSC_boss_setesh();
+void AddSC_boss_rajh();
 void AddSC_instance_firelands();
 void AddSC_firelands();
 void AddSC_boss_alysrazor();
@@ -216,13 +219,16 @@ void AddKalimdorScripts()
     AddSC_ungoro_crater();
     AddSC_winterspring();
 
-    AddSC_instance_halls_of_origination();
+    AddSC_instance_halls_of_origination();	//Halls of Origination
     AddSC_halls_of_origination();
     AddSC_boss_temple_guardian_anhuur();
     AddSC_boss_earthrager_ptah();
     AddSC_boss_anraphet();
     AddSC_boss_isiset();
-
+    AddSC_boss_ammunae();
+    AddSC_boss_setesh();
+    AddSC_boss_rajh();
+	
     AddSC_instance_firelands();
     AddSC_firelands();
     AddSC_boss_alysrazor();

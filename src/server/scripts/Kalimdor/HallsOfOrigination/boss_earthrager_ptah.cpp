@@ -18,8 +18,8 @@
 // To-do:
 // - Script "Sand Vortex", heroic mode ability.
 
-#include "ScriptMgr.h"
 #include "halls_of_origination.h"
+#include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "Player.h"
@@ -55,6 +55,7 @@ enum Spells
 
     // Disperse
     SPELL_SANDSTORM                 = 75491,
+//  SPELL_TUMULTUOUS_EARTHSTORM     = 75517, // Server-side spell
     SPELL_PTAH_EXPLOSION            = 75519,
     SPELL_SUMMON_QUICKSAND          = 75550, // Server-side spell + hidden client-side flag!
 

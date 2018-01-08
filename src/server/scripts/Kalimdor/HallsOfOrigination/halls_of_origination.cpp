@@ -365,6 +365,40 @@ public:
     }
 };
 
+// 73686 Fixate
+class spell_hoo_fixate : public SpellScriptLoader
+{
+public:
+    spell_hoo_fixate() : SpellScriptLoader("spell_hoo_fixate") { }
+
+    class spell_hoo_fixate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hoo_fixate_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            uint32 spellId = GetSpellValue()->EffectBasePoints[EFFECT_0];
+            return ValidateSpellInfo({ spellId });
+        }
+
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
+            uint32 spellId = GetSpellValue()->EffectBasePoints[EFFECT_0];
+            GetHitUnit()->CastSpell(GetCaster(), spellId);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hoo_fixate_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hoo_fixate_SpellScript();
+    }
+};
+
 void AddSC_halls_of_origination()
 {
     new go_hoo_the_makers_lift_controller();
@@ -374,4 +408,5 @@ void AddSC_halls_of_origination()
     new spell_hoo_emerge();
     new spell_hoo_energy_flux_target_selector();
     new spell_hoo_arcane_energy_check();
+    new spell_hoo_fixate();
 }
