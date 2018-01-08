@@ -4824,10 +4824,10 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         return;
     }
 
-    float fx, fy, fz;
+    float fx, fy, fz, fo;
 
     if (m_targets.HasDst())
-        destTarget->GetPosition(fx, fy, fz);
+        destTarget->GetPosition(fx, fy, fz, fo);
     //FIXME: this can be better check for most objects but still hack
     else if (m_spellInfo->Effects[effIndex].HasRadius() && m_spellInfo->Speed == 0)
     {
@@ -4851,7 +4851,9 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     GameObject* pGameObj = new GameObject;
 
-    if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, 0, Position(fx, fy, fz, m_caster->GetOrientation()), G3D::Quat(), 255, GO_STATE_READY))
+    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(fo, 0.f, 0.f);
+
+    if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, 0, Position(fx, fy, fz, fo), rot, 255, GO_STATE_READY))
     {
         delete pGameObj;
         return;
