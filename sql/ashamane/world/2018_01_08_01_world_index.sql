@@ -1,0 +1,3 @@
+ALTER TABLE `npc_trainer`
+ADD INDEX `INX_ID` (`ID`),
+ADD INDEX `INX_SPELLID` (`SpellID`);
