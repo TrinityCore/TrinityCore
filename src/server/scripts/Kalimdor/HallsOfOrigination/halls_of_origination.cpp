@@ -336,7 +336,7 @@ public:
     {
         PrepareAuraScript(spell_hoo_arcane_energy_check_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_ARCANE_BURST, SPELL_ARCANE_ENERGY });
         }

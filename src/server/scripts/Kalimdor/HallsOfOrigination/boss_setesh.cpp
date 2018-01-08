@@ -342,7 +342,7 @@ public:
             me->setFaction(FACTION_ENEMY_14);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCast(SPELL_SEED_OF_CHAOS_EXPLOSION);
 

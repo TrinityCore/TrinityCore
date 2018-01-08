@@ -203,7 +203,7 @@ public:
     {
         PrepareSpellScript(spell_ammunae_consume_life_energy_SpellScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_CONSUME_LIFE_ENERGY_LEECH, SPELL_CONSUME_LIFE_ENERGY_ENERGIZE });
         }
