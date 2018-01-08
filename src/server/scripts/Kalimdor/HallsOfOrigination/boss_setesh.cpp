@@ -64,12 +64,16 @@ enum Events
 
     // Chaos Portal
     EVENT_CAST_VISUAL,
-    EVENT_SUMMON_VOID_SENTINEL,
-    EVENT_SUMMON_VOID_SEEKER,
-    EVENT_SUMMON_VOID_WYRMS,
-    EVENT_SUMMON_RANDOM
+    EVENT_SUMMON_WAVE_1,
+    EVENT_SUMMON_WAVE_2,
+    EVENT_SUMMON_WAVE_3,
+    EVENT_SUMMON_WAVE_RANDOM
 };
 
+enum Actions
+{
+    ACTION_SETESH_ATTACK
+};
 enum Faction
 {
     FACTION_ENEMY_14        = 14,
@@ -179,6 +183,18 @@ class boss_setesh : public CreatureScript
                     default:
                         break;
                 }
+
+                
+            }
+
+            void DoAction(int32 action) override
+            {
+                if (action != ACTION_SETESH_ATTACK)
+                    return;
+
+                // Start attacking
+                me->SetReactState(REACT_AGGRESSIVE);
+                events.SetPhase(PHASE_FIGHT);
             }
 
             void UpdateAI(uint32 diff) override
@@ -198,10 +214,6 @@ class boss_setesh : public CreatureScript
                         case EVENT_CHAOS_PORTAL:
                             StartChaosPortalPhase();
                             events.Repeat(Seconds(45));
-                            break;
-                        case EVENT_CONTINUE_FIGHT:
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            events.SetPhase(PHASE_FIGHT);
                             break;
                         case EVENT_CHAOS_BLAST:
                             DoCast(SPELL_CHAOS_BLAST);
@@ -359,7 +371,9 @@ public:
     }
 };
 
-// 41055 Chaos Portal
+// 41055 Chaos Portal - add waves:
+//  - Normal: 1) 2x Void Wyrm  2) Void Seeker  3) Void Sentinel
+//  - Heroic: 1) Void Sentinel 2) 2x Void Wyrm 3) Void Seeker   4+) Void Seeker or 2x Void Wyrm
 class npc_setesh_chaos_portal : public CreatureScript
 {
 public:
@@ -384,20 +398,6 @@ public:
             caster->InterruptNonMeleeSpells(true, SPELL_CHANNEL_CHAOS_PORTAL);
             me->RemoveAurasDueToSpell(SPELL_DUMMY_AURA);
             events.ScheduleEvent(EVENT_CAST_VISUAL, Seconds(1));
-
-            // Add waves
-            // Normal: 1) 2x Void Wyrm  2) Void Seeker  3) Void Sentinel
-            // Heroic: 1) Void Sentinel 2) 2x Void Wyrm 3) Void Seeker   4+) Void Seeker or 2x Void Wyrm
-            events.ScheduleEvent(EVENT_SUMMON_VOID_WYRMS, !IsHeroic() ? Seconds(5) : Seconds(11));
-            events.ScheduleEvent(EVENT_SUMMON_VOID_SEEKER, !IsHeroic() ? Seconds(17) : Seconds(21));
-            events.ScheduleEvent(EVENT_SUMMON_VOID_SENTINEL, !IsHeroic() ? Seconds(32) : Seconds(5));
-
-            // Normal: automatically closes after 3 waves of adds.
-            // Heroic: must be destroyed, summons more adds every 15 seconds after 3 waves.
-            if (!IsHeroic()) 
-                me->DespawnOrUnsummon(Seconds(37), Seconds(0));
-            else 
-                events.ScheduleEvent(EVENT_SUMMON_RANDOM, Seconds(36));
         }
 
         void JustDied(Unit* /*who*/) override
@@ -424,30 +424,43 @@ public:
                         DoCast(SPELL_NIGHTMARE_PORTAL_VISUAL);
                         if (IsHeroic())
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        events.ScheduleEvent(EVENT_SUMMON_WAVE_1, Seconds(4));
                         break;
-                    case EVENT_SUMMON_VOID_WYRMS:
-                        SummonVisualAndDamage();
-                        DoCast(SPELL_SUMMON_VOID_WYRM_1);
-                        DoCast(SPELL_SUMMON_VOID_WYRM_2);
+                    case EVENT_SUMMON_WAVE_1: // Also make Setesh attack.
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            if (Creature* setesh = instance->GetCreature(DATA_SETESH))
+                                setesh->GetAI()->DoAction(ACTION_SETESH_ATTACK);
+                         if (!IsHeroic()) // Normal
+                            SummonVoidWyrms();
+                        else // Heroic
+                            SummonVoidSentinel();
+                        events.ScheduleEvent(EVENT_SUMMON_WAVE_2, !IsHeroic() ? Seconds(12) : Seconds(6));
                         break;
-                    case EVENT_SUMMON_VOID_SEEKER:
-                        SummonVisualAndDamage();
-                        DoCast(SPELL_SUMMON_VOID_SEEKER);
+                    case EVENT_SUMMON_WAVE_2:
+                        if (!IsHeroic()) // Normal
+                            SummonVoidSeeker();
+                        else // Heroic
+                            SummonVoidWyrms();
+                        events.ScheduleEvent(EVENT_SUMMON_WAVE_3, !IsHeroic() ? Seconds(15) : Seconds(10));
                         break;
-                    case EVENT_SUMMON_VOID_SENTINEL:
-                        SummonVisualAndDamage();
-                        DoCast(SPELL_SUMMON_VOID_SENTINEL);
-                        break;
-                    case EVENT_SUMMON_RANDOM: // Heroic only.
-                        SummonVisualAndDamage();
-                        if (urand(0,1)) // 50% chance
-                            DoCast(SPELL_SUMMON_VOID_SEEKER);
+                    case EVENT_SUMMON_WAVE_3:
+                        if (!IsHeroic()) // Normal
+                            SummonVoidSentinel();
+                        else // Heroic
+                            SummonVoidSeeker();
+                        // Normal: automatically closes after 3 waves of adds.
+                        // Heroic: must be destroyed, summons more adds every 15 seconds after 3 waves.
+                        if (!IsHeroic())
+                            me->DespawnOrUnsummon(Seconds(5), Seconds(1));
                         else
-                        {
-                            DoCast(SPELL_SUMMON_VOID_WYRM_1);
-                            DoCast(SPELL_SUMMON_VOID_WYRM_2);
-                        }
-                        events.ScheduleEvent(EVENT_SUMMON_RANDOM, Seconds(15));
+                            events.ScheduleEvent(EVENT_SUMMON_WAVE_RANDOM, Seconds(15));
+                        break;
+                    case EVENT_SUMMON_WAVE_RANDOM: // Heroic only.
+                        if (urand(0,1)) // 50% chance
+                            SummonVoidSeeker();
+                        else
+                            SummonVoidWyrms();
+                        events.Repeat(Seconds(15));
                         break;
                     default:
                         break;
@@ -456,12 +469,17 @@ public:
         }
 
     private:
-        void SummonVisualAndDamage()
+        void SummonAreaDamage()
         {
             if (Unit* npcSeteshAddStalker = SelectTarget(SELECT_TARGET_RANDOM, 200.0f, NPCEntryPred(NPC_SETESH_ADD_STALKER)))
                 npcSeteshAddStalker->CastSpell(me, SPELL_CHANNEL_SUMMON_ADDS);
         }
-        
+
+        // Adds
+        void SummonVoidWyrms() { SummonAreaDamage(); DoCast(SPELL_SUMMON_VOID_WYRM_1); DoCast(SPELL_SUMMON_VOID_WYRM_2); }
+        void SummonVoidSeeker() { SummonAreaDamage(); DoCast(SPELL_SUMMON_VOID_SEEKER); }
+        void SummonVoidSentinel() { SummonAreaDamage(); DoCast(SPELL_SUMMON_VOID_SENTINEL); }
+
         EventMap events;
     };
 

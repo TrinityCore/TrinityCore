@@ -256,6 +256,22 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (type)
                 {
+                    case DATA_EARTHRAGER_PTAH:
+                        if (state == IN_PROGRESS)
+                        {
+                            // Camels cannot be mounted during the boss fight.
+                            for (ObjectGuid guid : hooCamelGUIDs)
+                                if (Creature* camel = instance->GetCreature(guid))
+                                    camel->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        }
+                        else
+                        {
+                            // Make camels mountable again.
+                            for (ObjectGuid guid : hooCamelGUIDs)
+                                if (Creature* camel = instance->GetCreature(guid))
+                                    camel->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        }
+                        break;
                     case DATA_VAULT_OF_LIGHTS:
                         if (state == IN_PROGRESS)
                         {
@@ -277,21 +293,6 @@ class instance_halls_of_origination : public InstanceMapScript
                             ++_deadElementals;
                             if (Creature* brann = GetCreature(DATA_BRANN_0))
                                 brann->AI()->DoAction(ACTION_ELEMENTAL_DIED);
-                        }
-                        break;
-                    case DATA_EARTHRAGER_PTAH:
-                        if (state == IN_PROGRESS)
-                        {
-                            // Camels cannot be mounted during the boss fight.
-                            for (ObjectGuid guid : hooCamelGUIDs)
-                                if (Creature* camel = instance->GetCreature(guid))
-                                    camel->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        }
-                        else // Make camels mountable again.
-                        {
-                            for (ObjectGuid guid : hooCamelGUIDs)
-                                if (Creature* camel = instance->GetCreature(guid))
-                                    camel->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         }
                         break;
                     default:
