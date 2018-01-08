@@ -3090,9 +3090,13 @@ void WorldObject::UpdateAreaAndZonePhase()
     PhaseInfo const& allAreasPhases = sObjectMgr->GetAreaAndZonePhases();
 
     // currentAreaPhases will contain all phases infos for current Area + Zone
-    std::vector<PhaseInfoStruct> currentAreaOrZonePhases = *sObjectMgr->GetPhasesForArea(GetAreaId());
-    std::vector<PhaseInfoStruct> const* currentZonePhases = sObjectMgr->GetPhasesForArea(GetZoneId());
-    currentAreaOrZonePhases.insert(currentAreaOrZonePhases.end(), currentZonePhases->begin(), currentZonePhases->end());
+    std::vector<PhaseInfoStruct> currentAreaOrZonePhases;
+
+    if (std::vector<PhaseInfoStruct> const* currentAreaPhases = sObjectMgr->GetPhasesForArea(GetAreaId()))
+        currentAreaOrZonePhases.insert(currentAreaOrZonePhases.end(), currentAreaPhases->begin(), currentAreaPhases->end());
+
+    if (std::vector<PhaseInfoStruct> const* currentZonePhases = sObjectMgr->GetPhasesForArea(GetZoneId()))
+        currentAreaOrZonePhases.insert(currentAreaOrZonePhases.end(), currentZonePhases->begin(), currentZonePhases->end());
 
     // We first remove all phases from other areas & zones
     for (PhaseInfo::const_iterator itr = allAreasPhases.begin(); itr != allAreasPhases.end(); ++itr)
