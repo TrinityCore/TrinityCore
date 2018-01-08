@@ -10898,7 +10898,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     // search free slot
     uint8 searchSlotStart = INVENTORY_SLOT_ITEM_START;
     // new bags can be directly equipped
-    if (!pItem && pProto->Bonding == ITEM_CLASS_CONTAINER && pProto->SubClass == ITEM_SUBCLASS_CONTAINER &&
+    if (!pItem && pProto->Class == ITEM_CLASS_CONTAINER && pProto->SubClass == ITEM_SUBCLASS_CONTAINER &&
         (pProto->Bonding == NO_BIND || pProto->Bonding == BIND_WHEN_PICKED_UP))
         searchSlotStart = INVENTORY_SLOT_BAG_START;
 
