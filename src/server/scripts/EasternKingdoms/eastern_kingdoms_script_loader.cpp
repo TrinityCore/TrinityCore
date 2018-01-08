@@ -229,6 +229,7 @@ void AddSC_dun_morogh();
 void AddSC_dun_morogh_area_coldridge_valley();
 void AddSC_duskwood();
 void AddSC_elwyn_forest();
+void AddSC_zone_gnomeregan();
 void AddSC_ghostlands();
 void AddSC_hinterlands();
 void AddSC_isle_of_queldanas();
@@ -461,6 +462,7 @@ void AddEasternKingdomsScripts()
     AddSC_dun_morogh_area_coldridge_valley();
     AddSC_duskwood();
     AddSC_elwyn_forest();
+    AddSC_zone_gnomeregan();
     AddSC_ghostlands();
     AddSC_hinterlands();
     AddSC_isle_of_queldanas();
