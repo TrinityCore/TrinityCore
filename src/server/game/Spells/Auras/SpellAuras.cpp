@@ -1651,7 +1651,7 @@ void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInf
     ASSERT(procEntry);
 
     // take one charge, aura expiration will be handled in Aura::TriggerProcOnEvent (if needed)
-    if (!(procEntry->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES) && IsUsingCharges())
+    if (!(procEntry->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES) && IsUsingCharges() && (!eventInfo.GetSpellInfo() || !eventInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR6_DO_NOT_CONSUME_RESOURCES)))
     {
         --m_procCharges;
         SetNeedClientUpdateForTargets();

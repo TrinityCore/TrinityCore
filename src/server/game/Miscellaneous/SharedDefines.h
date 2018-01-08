@@ -519,7 +519,7 @@ enum SpellAttr4
 {
     SPELL_ATTR4_IGNORE_RESISTANCES               = 0x00000001, //  0 spells with this attribute will completely ignore the target's resistance (these spells can't be resisted)
     SPELL_ATTR4_PROC_ONLY_ON_CASTER              = 0x00000002, //  1 proc only on effects with TARGET_UNIT_CASTER?
-    SPELL_ATTR4_UNK2                             = 0x00000004, //  2
+    SPELL_ATTR4_AURA_EXPIRES_OFFLINE             = 0x00000004, //  2 duration is removed from aura while player is logged out
     SPELL_ATTR4_UNK3                             = 0x00000008, //  3
     SPELL_ATTR4_UNK4                             = 0x00000010, //  4 This will no longer cause guards to attack on use??
     SPELL_ATTR4_UNK5                             = 0x00000020, //  5
@@ -540,7 +540,7 @@ enum SpellAttr4
     SPELL_ATTR4_NOT_CHECK_SELFCAST_POWER         = 0x00100000, // 20 supersedes message "More powerful spell applied" for self casts.
     SPELL_ATTR4_DONT_REMOVE_IN_ARENA             = 0x00200000, // 21 Pally aura, dk presence, dudu form, warrior stance, shadowform, hunter track
     SPELL_ATTR4_UNK22                            = 0x00400000, // 22 Seal of Command (42058, 57770) and Gymer's Smash 55426
-    SPELL_ATTR4_UNK23                            = 0x00800000, // 23
+    SPELL_ATTR4_SUPPRESS_WEAPON_PROCS            = 0x00800000, // 23 spells with this flag should not trigger item spells / enchants (mostly in conjunction with SPELL_ATTR0_STOP_ATTACK_TARGET)
     SPELL_ATTR4_UNK24                            = 0x01000000, // 24 some shoot spell
     SPELL_ATTR4_IS_PET_SCALING                   = 0x02000000, // 25 pet scaling auras
     SPELL_ATTR4_CAST_ONLY_IN_OUTLAND             = 0x04000000, // 26 Can only be used in Outland.
@@ -555,7 +555,7 @@ enum SpellAttr5
 {
     SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING          = 0x00000001, //  0 available casting channel spell when moving
     SPELL_ATTR5_NO_REAGENT_WHILE_PREP            = 0x00000002, //  1 not need reagents if UNIT_FLAG_PREPARATION
-    SPELL_ATTR5_UNK2                             = 0x00000004, //  2
+    SPELL_ATTR5_REMOVE_ENTERING_ARENA            = 0x00000004, //  2 remove this aura on arena enter
     SPELL_ATTR5_USABLE_WHILE_STUNNED             = 0x00000008, //  3 usable while stunned
     SPELL_ATTR5_UNK4                             = 0x00000010, //  4
     SPELL_ATTR5_SINGLE_TARGET_SPELL              = 0x00000020, //  5 Only one target can be apply at a time
@@ -579,7 +579,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK23                            = 0x00800000, // 23
     SPELL_ATTR5_UNK24                            = 0x01000000, // 24
     SPELL_ATTR5_UNK25                            = 0x02000000, // 25
-    SPELL_ATTR5_UNK26                            = 0x04000000, // 26 aoe related - Boulder, Cannon, Corpse Explosion, Fire Nova, Flames, Frost Bomb, Living Bomb, Seed of Corruption, Starfall, Thunder Clap, Volley
+    SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT         = 0x04000000, // 26 aoe related - Boulder, Cannon, Corpse Explosion, Fire Nova, Flames, Frost Bomb, Living Bomb, Seed of Corruption, Starfall, Thunder Clap, Volley
     SPELL_ATTR5_DONT_SHOW_AURA_IF_SELF_CAST      = 0x08000000, // 27 Auras with this attribute are not visible on units that are the caster
     SPELL_ATTR5_DONT_SHOW_AURA_IF_NOT_SELF_CAST  = 0x10000000, // 28 Auras with this attribute are not visible on units that are not the caster
     SPELL_ATTR5_UNK29                            = 0x20000000, // 29
@@ -594,7 +594,7 @@ enum SpellAttr6
     SPELL_ATTR6_IGNORE_CASTER_AURAS              = 0x00000004, //  2
     SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG        = 0x00000008, //  3 skips checking UNIT_FLAG_IMMUNE_TO_PC and UNIT_FLAG_IMMUNE_TO_NPC flags on assist
     SPELL_ATTR6_UNK4                             = 0x00000010, //  4
-    SPELL_ATTR6_UNK5                             = 0x00000020, //  5
+    SPELL_ATTR6_DO_NOT_CONSUME_RESOURCES         = 0x00000020, //  5 dont consume proc charges
     SPELL_ATTR6_USE_SPELL_CAST_EVENT             = 0x00000040, //  6 Auras with this attribute trigger SPELL_CAST combat log event instead of SPELL_AURA_START (clientside attribute)
     SPELL_ATTR6_UNK7                             = 0x00000080, //  7
     SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED     = 0x00000100, //  8
@@ -616,9 +616,9 @@ enum SpellAttr6
     SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24
     SPELL_ATTR6_NOT_RESET_SWING_IF_INSTANT       = 0x02000000, // 25 Exorcism, Flash of Light
     SPELL_ATTR6_UNK26                            = 0x04000000, // 26 related to player castable positive buff
-    SPELL_ATTR6_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR6_IGNORE_HEALING_MODIFIERS         = 0x08000000, // 27 some custom rules - complicated
     SPELL_ATTR6_UNK28                            = 0x10000000, // 28 Death Grip
-    SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS          = 0x20000000, // 29 ignores done percent damage mods?
+    SPELL_ATTR6_IGNORE_CASTER_DAMAGE_MODIFIERS   = 0x20000000, // 29 ignores done percent damage mods? some custom rules - complicated
     SPELL_ATTR6_UNK30                            = 0x40000000, // 30
     SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS    = 0x80000000  // 31 Spells with this attribute skip applying modifiers to category cooldowns
 };
