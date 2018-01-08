@@ -10896,14 +10896,19 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
         return EQUIP_ERR_BAG_IN_BAG;
 
     // search free slot
-    res = CanStoreItem_InInventorySlots(INVENTORY_SLOT_ITEM_START, INVENTORY_SLOT_ITEM_END, dest, pProto, count, false, pItem, bag, slot);
+    uint8 searchSlotStart = INVENTORY_SLOT_ITEM_START;
+    // new bags can be directly equipped
+    if (!pItem && pProto->Bonding == ITEM_CLASS_CONTAINER && pProto->SubClass == ITEM_SUBCLASS_CONTAINER &&
+        (pProto->Bonding == NO_BIND || pProto->Bonding == BIND_WHEN_PICKED_UP))
+        searchSlotStart = INVENTORY_SLOT_BAG_START;
+
+    res = CanStoreItem_InInventorySlots(searchSlotStart, INVENTORY_SLOT_ITEM_END, dest, pProto, count, false, pItem, bag, slot);
     if (res != EQUIP_ERR_OK)
     {
         if (no_space_count)
             *no_space_count = count + no_similar_count;
         return res;
     }
-
     if (count == 0)
     {
         if (no_similar_count == 0)
