@@ -107,13 +107,13 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_earthrager_ptah_s
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (75491, 'spell_earthrager_ptah_sandstorm');
 
--- delete third and forth event for both adds - merge 4th action into 3rd event (set data not needed anymore)
-/* SAI rewritten below
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (40450, 40458) AND `source_type` = 0 AND `id` IN (3, 4);
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(40450, 0, 3, 0, 6, 0, 100, 512, 0, 0, 0, 0, '',  90, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dustbone Horror - On Death - Add byte for submerged'),
-(40458, 0, 3, 0, 6, 0, 100, 512, 0, 0, 0, 0, '',  90, 9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jeweled Scarab - On Death - Add byte for submerged');
-*/
+-- text
+DELETE FROM `creature_text` WHERE `CreatureID` = 39428;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(39428, 0, 0, 'Ptah... is... no more...',       14, 0, 100, 0, 0, 18905, 44780, 0, 'Earthrager Ptah - SAY_DEATH'),
+(39428, 1, 0, 'More carrion for the swarm...',  14, 0, 100, 0, 0, 18906, 44778, 0, 'Earthrager Ptah - SAY_AGGRO'),
+(39428, 2, 0, 'Dust to dust.',                  14, 0, 100, 0, 0, 18907, 44779, 0, 'Earthrager Ptah - SAY_PLAYER_KILL'),
+(39428, 3, 0, 'The earth TREMBLES!',            14, 0, 100, 0, 0, 18908, 44781, 0, 'Earthrager Ptah - SAY_SPECIAL');
 
 -- Boss: Anraphet --
 -- respawn time of wardens set to one day

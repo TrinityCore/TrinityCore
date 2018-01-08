@@ -118,12 +118,7 @@ class boss_setesh : public CreatureScript
         {
             boss_seteshAI(Creature* creature) : BossAI(creature, DATA_SETESH) { }
 
-            void Reset()
-            {
-                _Reset();
-            }
-
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -134,12 +129,7 @@ class boss_setesh : public CreatureScript
                 events.ScheduleEvent(EVENT_CHAOS_BLAST, Seconds(20));
             }
 
-            void JustReachedHome()
-            {
-                _JustReachedHome();
-            }
-
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_PLAYER_KILL);
@@ -152,7 +142,7 @@ class boss_setesh : public CreatureScript
                 CleanUp();
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*who*/) override
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _JustDied();
@@ -190,7 +180,7 @@ class boss_setesh : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;

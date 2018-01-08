@@ -31,8 +31,10 @@
 
 enum Texts
 {
-    SAY_AGGRO                       = 0,
-    SAY_DEATH                       = 1
+    SAY_DEATH                       = 0,
+    SAY_AGGRO                       = 1,
+    SAY_PLAYER_KILL                 = 2,
+    SAY_SPECIAL                     = 3
 };
 
 enum Events
@@ -76,11 +78,7 @@ enum Sounds
     SOUND_PTAH_EARTHQUAKE           = 18908
 };
 
-enum PtahData
-{
-    DATA_SUMMON_DEATHS              = 0
-};
-
+// 39428 Earthrager Ptah
 class boss_earthrager_ptah : public CreatureScript
 {
 public:
@@ -137,6 +135,12 @@ public:
                 EnterDispersePhase();
         }
 
+        void KilledUnit(Unit* victim) override
+        {
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_PLAYER_KILL);
+        }
+
         void JustDied(Unit* /*killer*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -180,6 +184,7 @@ public:
                         break;
                     case EVENT_PTAH_EXPLODE:
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 0);
+                        Talk(SAY_SPECIAL);
                         DoCast(me, SPELL_PTAH_EXPLOSION);
                         break;
                     case EVENT_QUICKSAND:

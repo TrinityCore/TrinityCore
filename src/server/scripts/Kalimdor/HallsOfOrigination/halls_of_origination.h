@@ -192,9 +192,6 @@ enum HOOMisc
     SPELL_TELEPORT_AIR                  = 82330, // South-East
     SPELL_TELEPORT_FIRE                 = 82331, // North-West
     SPELL_TELEPORT_WATER                = 82332, // North-East
-
-    // Seedling Pod
-    SPELL_SUMMON_SEEDLING_POD_DUMMY     = 75688  // summons 40592 (dummy)
 };
 
 enum HOOGlobalActions

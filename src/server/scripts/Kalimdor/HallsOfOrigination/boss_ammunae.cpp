@@ -26,20 +26,19 @@ enum Spells
     //  Ammunae
     SPELL_ZERO_ENERGY                   = 72242,
     SPELL_WITHER                        = 76043,
+    SPELL_CONSUME_LIFE_ENERGY           = 75725,
     SPELL_RAMPANT_GROWTH                = 75790,
     SPELL_SUMMON_SEEDLING_POD           = 75621, // summons 40550 (normal) or 51329 (heroic)
     SPELL_SUMMON_SPORE                  = 75695, // summons 40585
-
-    // Other (to-do: check and sort)
-    SPELL_CONSUME_LIFE_ENERGY           = 75725,
+    
+    // Consume Life Energy spell
     SPELL_CONSUME_LIFE_ENERGY_LEECH     = 79768,
     SPELL_CONSUME_LIFE_ENERGY_ENERGIZE  = 75665,
 
-    // Seedling Pod
+    // Seedling Pod npc
     SPELL_SEEDLING_POD_ENERGIZE         = 75708,
     SPELL_FORCECAST_SUMMON_BLOSSOM      = 75774, // forces Seedling Pods to cast 75771
     SPELL_SUMMON_BLOODPETAL_BLOSSOM     = 75771  // summons 40620
-//  SPELL_BLOODPETAL_BLOSSOM            = 75791, // summons 40630 (trash) <-- unused, 75994 Flourish already summons it...
 };
 
 enum Texts
@@ -47,7 +46,7 @@ enum Texts
     SAY_DEATH               = 0,
     SAY_AGGRO               = 1,
     SAY_SPECIAL             = 2,
-    SAY_PLAYER_KILL         = 3,
+    SAY_PLAYER_KILL         = 3
 };
 
 
@@ -77,14 +76,14 @@ class boss_ammunae : public CreatureScript
         {
             boss_ammunaeAI(Creature* creature) : BossAI(creature, DATA_AMMUNAE) { }
 
-            void Reset()
+            void Reset() override
             {
                 _Reset();
                 MakeInterruptable(false);
                 me->AddAura(SPELL_ZERO_ENERGY, me);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -93,10 +92,10 @@ class boss_ammunae : public CreatureScript
                 events.ScheduleEvent(EVENT_WITHER, Seconds(7));
                 events.ScheduleEvent(EVENT_SEEDLING_POD, Seconds(7));
                 events.ScheduleEvent(EVENT_CONSUME_LIFE_ENERGY, Seconds(20));
-                events.ScheduleEvent(EVENT_SUMMON_SPORE, 48000);
+                events.ScheduleEvent(EVENT_SUMMON_SPORE, Seconds(48));
             }
 
-            void JustReachedHome()
+            void JustReachedHome() override
             {
                 me->AddAura(SPELL_ZERO_ENERGY, me);
                 me->SetPower(POWER_ENERGY, 0);
@@ -104,7 +103,7 @@ class boss_ammunae : public CreatureScript
                 _JustReachedHome();
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_PLAYER_KILL);
@@ -119,14 +118,14 @@ class boss_ammunae : public CreatureScript
                 _EnterEvadeMode();
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*who*/) override
             {
                 Talk(SAY_DEATH);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _JustDied();
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -156,7 +155,7 @@ class boss_ammunae : public CreatureScript
                             break;
                         case EVENT_SEEDLING_POD:
                             // If 100 energy, cast Rampant Growth
-                            if (me->GetPower(POWER_ENERGY) < 100)
+                            if (me->GetPower(POWER_ENERGY) >= 100)
                             {
                                 Talk(SAY_SPECIAL);
                                 me->SetPower(POWER_ENERGY, 0);
