@@ -89,10 +89,10 @@ class boss_ammunae : public CreatureScript
                 Talk(SAY_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                events.ScheduleEvent(EVENT_WITHER, Seconds(7));
+                events.ScheduleEvent(EVENT_WITHER, !IsHeroic() ? Seconds(7) : Seconds(5));
                 events.ScheduleEvent(EVENT_SEEDLING_POD, Seconds(7));
                 events.ScheduleEvent(EVENT_CONSUME_LIFE_ENERGY, Seconds(20));
-                events.ScheduleEvent(EVENT_SUMMON_SPORE, Seconds(48));
+                events.ScheduleEvent(EVENT_SUMMON_SPORE, Seconds(47));
             }
 
             void JustReachedHome() override
@@ -144,14 +144,10 @@ class boss_ammunae : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_WITHER);                            
                             events.ScheduleEvent(EVENT_APPLY_IMMUNITY, 1500);
-                            events.Repeat(Seconds(19), Seconds(20));
+                            events.Repeat(Seconds(20));
                             break;
                         case EVENT_APPLY_IMMUNITY:
                             MakeInterruptable(false);
-                            break;
-                        case EVENT_CONSUME_LIFE_ENERGY:
-                            DoCast(SPELL_CONSUME_LIFE_ENERGY);
-                            events.Repeat(Seconds(10));
                             break;
                         case EVENT_SEEDLING_POD:
                             // If 100 energy, cast Rampant Growth
@@ -163,6 +159,10 @@ class boss_ammunae : public CreatureScript
                             }
                             DoCast(SPELL_SUMMON_SEEDLING_POD);
                             events.Repeat(Seconds(7));
+                            break;
+                        case EVENT_CONSUME_LIFE_ENERGY:
+                            DoCast(SPELL_CONSUME_LIFE_ENERGY);
+                            events.Repeat(Seconds(15));
                             break;
                         case EVENT_SUMMON_SPORE:
                             DoCast(SPELL_SUMMON_SPORE);
