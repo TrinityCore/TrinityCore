@@ -3087,30 +3087,20 @@ bool WorldObject::HasInPhaseList(uint32 phase)
 void WorldObject::UpdateAreaAndZonePhase()
 {
     bool updateNeeded = false;
-    PhaseInfo const& phases = sObjectMgr->GetAreaAndZonePhases();
-    for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+    PhaseInfo const& allAreasPhases = sObjectMgr->GetAreaAndZonePhases();
+
+    // currentAreaPhases will contain all phases infos for current Area + Zone
+    std::vector<PhaseInfoStruct> currentAreaOrZonePhases = *sObjectMgr->GetPhasesForArea(GetAreaId());
+    std::vector<PhaseInfoStruct> const* currentZonePhases = sObjectMgr->GetPhasesForArea(GetZoneId());
+    currentAreaOrZonePhases.insert(currentAreaOrZonePhases.end(), currentZonePhases->begin(), currentZonePhases->end());
+
+    // We first remove all phases from other areas & zones
+    for (PhaseInfo::const_iterator itr = allAreasPhases.begin(); itr != allAreasPhases.end(); ++itr)
     {
         uint32 areaOrZoneId = itr->first;
         for (PhaseInfoStruct const& phase : itr->second)
         {
-            if (areaOrZoneId == GetAreaId() || areaOrZoneId == GetZoneId())
-            {
-                if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
-                {
-                    // add new phase if condition passed, true if it wasnt added before
-                    bool up = SetInPhase(phase.Id, false, true);
-                    if (!updateNeeded && up)
-                        updateNeeded = true;
-                }
-                else
-                {
-                    // condition failed, remove phase, true if there was something removed
-                    bool up = SetInPhase(phase.Id, false, false);
-                    if (!updateNeeded && up)
-                        updateNeeded = true;
-                }
-            }
-            else
+            if (areaOrZoneId != GetAreaId() && areaOrZoneId != GetZoneId())
             {
                 // not in area, remove phase, true if there was something removed
                 bool up = SetInPhase(phase.Id, false, false);
@@ -3118,6 +3108,17 @@ void WorldObject::UpdateAreaAndZonePhase()
                     updateNeeded = true;
             }
         }
+    }
+
+    // Then we add the phases from this area and zone if conditions are met
+    for (PhaseInfoStruct phaseInfoStruct : currentAreaOrZonePhases)
+    {
+        bool apply = sConditionMgr->IsObjectMeetToConditions(this, phaseInfoStruct.Conditions);
+
+        // add or remove phase depending of condition
+        bool up = SetInPhase(phaseInfoStruct.Id, false, apply);
+        if (!updateNeeded && up)
+            updateNeeded = true;
     }
 
     // do not remove a phase if it would be removed by an area but we have the same phase from an aura
