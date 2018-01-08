@@ -211,7 +211,7 @@ class npc_greymanes_horse : public CreatureScript
             {
                 if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
                 {
-                    passenger->ToPlayer()->SetMover(me);
+                    me->SetControlled(false, UNIT_STATE_ROOT);
                     _events.ScheduleEvent(EVENT_START_PATH_1, Seconds(1));
                 }
                 else if (apply && passenger->GetEntry() == NPC_RESCUED_KRENNAN)
