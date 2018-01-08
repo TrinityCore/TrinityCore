@@ -400,7 +400,7 @@ public:
                 events.ScheduleEvent(EVENT_SUMMON_RANDOM, Seconds(36));
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*who*/) override
         {
             events.Reset();
             me->SetRespawnTime(0);
