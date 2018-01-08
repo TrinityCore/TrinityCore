@@ -97,6 +97,17 @@ enum Texts
     SAY_PLAYER_KILL         = 3
 };
 
+class NPCEntryPred : public std::unary_function<Unit*, bool>
+{
+public:
+    NPCEntryPred(uint32 entry) : _entry(entry) { }
+
+    bool operator()(Unit* unit) const { return unit->GetEntry() == _entry; }
+
+private:
+    uint32 _entry;
+};
+
 // 39732 Setesh <Construct of Destruction>
 class boss_setesh : public CreatureScript
 {
@@ -134,7 +145,7 @@ class boss_setesh : public CreatureScript
                     Talk(SAY_PLAYER_KILL);
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 _EnterEvadeMode();
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -232,8 +243,7 @@ class boss_setesh : public CreatureScript
         private:
             void StartChaosPortalPhase()
             {
-                const EntryCheckPredicate pred(NPC_SETESH_CHAOS_PORTAL);
-                Unit* npcChaosPortal = SelectTarget(SELECT_TARGET_FARTHEST, 0, pred);
+                Unit* npcChaosPortal = SelectTarget(SELECT_TARGET_FARTHEST, 0, NPCEntryPred(NPC_SETESH_CHAOS_PORTAL));
                 if (!npcChaosPortal)
                     return;
 
@@ -370,6 +380,7 @@ public:
 
         void Reset() override
         {
+            events.Reset();
             me->setFaction(FACTION_ENEMY_14);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
@@ -400,6 +411,7 @@ public:
 
         void JustDied(Unit* /*who*/)
         {
+            events.Reset();
             me->SetRespawnTime(0);
         }
 
@@ -455,13 +467,11 @@ public:
     private:
         void SummonVisualAndDamage()
         {
-            const EntryCheckPredicate pred(NPC_SETESH_ADD_STALKER);
-            if (Unit* npcSeteshAddStalker = SelectTarget(SELECT_TARGET_RANDOM, 200.0f, pred))
+            if (Unit* npcSeteshAddStalker = SelectTarget(SELECT_TARGET_RANDOM, 200.0f, NPCEntryPred(NPC_SETESH_ADD_STALKER)))
                 npcSeteshAddStalker->CastSpell(me, SPELL_CHANNEL_SUMMON_ADDS);
         }
         
         EventMap events;
-
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -486,7 +496,7 @@ public:
                 return;
 
             Unit* caster = GetCaster();
-            unitList.remove_if([caster](WorldObject* object) { return object->IsWithinDist(caster, 15.0f); });
+            unitList.remove_if([caster](WorldObject* player) { return caster->IsWithinDist(player, 15.0f); });
             Trinity::Containers::RandomResize(unitList, 1);
         }
 

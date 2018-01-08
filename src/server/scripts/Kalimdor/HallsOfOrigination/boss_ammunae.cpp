@@ -110,13 +110,11 @@ class boss_ammunae : public CreatureScript
                     Talk(SAY_PLAYER_KILL);
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 instance->SetBossState(DATA_AMMUNAE, FAIL);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                me->GetMotionMaster()->MoveTargetedHome();
                 MakeInterruptable(false);
-                summons.DespawnAll();
                 events.Reset();
                 _EnterEvadeMode();
             }
@@ -125,7 +123,6 @@ class boss_ammunae : public CreatureScript
             {
                 Talk(SAY_DEATH);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                summons.DespawnAll();
                 _JustDied();
             }
 
@@ -184,10 +181,10 @@ class boss_ammunae : public CreatureScript
             }
 
         private:
-            void MakeInterruptable(bool interuptable)
+            void MakeInterruptable(bool interruptable)
             {
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !interuptable);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !interuptable);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !interruptable);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !interruptable);
             }
         };
 

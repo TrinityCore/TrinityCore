@@ -117,6 +117,8 @@ enum HOOCreatures
     NPC_SETESH_CHAOS_PORTAL         = 41055,
     NPC_SETESH_ADD_STALKER          = 41479,
     NPC_SETESH_VOID_RIFT            = 39266, // Setesh trash
+
+    BOSS_RAJH                       = 39378,
 };
 
 enum HOOGameObjects
