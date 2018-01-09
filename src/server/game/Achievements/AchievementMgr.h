@@ -156,6 +156,7 @@ public:
     bool IsRealmCompleted(AchievementEntry const* achievement) const;
     void SetRealmCompleted(AchievementEntry const* achievement);
 
+    void LoadAchievementCorrections();
     void LoadAchievementReferenceList();
     void LoadCompletedAchievements();
     void LoadRewards();
