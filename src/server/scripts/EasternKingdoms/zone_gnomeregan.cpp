@@ -57,6 +57,11 @@ enum Quests
     QUEST_DECONTAMINATION = 27635
 };
 
+enum Gossips
+{
+    GOSSIP_TORBEN      = 12104
+};
+
 class npc_sanitron_5000 : public CreatureScript
 {
 public:
@@ -67,7 +72,7 @@ public:
         if (player->GetQuestStatus(QUEST_DECONTAMINATION) == QUEST_STATUS_INCOMPLETE)
         {
             player->HandleEmoteCommand(0);
-            Vehicle* vehicle = creature->GetVehicleKit();
+            creature->GetVehicleKit();
             player->EnterVehicle(creature->ToUnit(), 0);
             creature->AI()->Talk(0);
         }
@@ -76,9 +81,9 @@ public:
 
     struct npc_sanitron_5000AI : public ScriptedAI
     {
-        npc_sanitron_5000AI(Creature* creature) : ScriptedAI(creature), vehicle(creature->GetVehicleKit())
+        npc_sanitron_5000AI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
         {
-            assert(vehicle);
+            ASSERT(_vehicle); // we dont actually use it, just check if exists
         }
 
         void Reset() override
@@ -136,10 +141,10 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!vehicle->HasEmptySeat(0))
+            if (!_vehicle->HasEmptySeat(0))
                 if (uiTimer <= diff)
                 {
-                    if (Player* player = vehicle->GetPassenger(0)->ToPlayer())
+                    if (Player* player = _vehicle->GetPassenger(0)->ToPlayer())
                     {
                         switch (uiPhase)
                         {
@@ -214,7 +219,7 @@ public:
                             uiTimer = 1000;
                             break;
                         case 10:
-                            vehicle->RemoveAllPassengers();
+                            _vehicle->RemoveAllPassengers();
                             me->setDeathState(JUST_DIED);
                             ++uiPhase;
                             uiTimer = 0;
@@ -227,7 +232,7 @@ public:
         }
     
     private:
-        Vehicle* vehicle;
+        Vehicle* _vehicle;
         Creature* Technician;
 
         Creature::Unit* Bunny[4];
@@ -246,8 +251,34 @@ public:
 
 };
 
+class npc_gnomeregan_torben : public CreatureScript
+{
+public:
+    npc_gnomeregan_torben() : CreatureScript("npc_gnomeregan_torben") { }
+
+    bool OnGossipHello(Player* player, Creature* creature) override
+    {
+        AddGossipItemFor(player, GOSSIP_TORBEN, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    {
+        ClearGossipMenuFor(player);
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            player->TeleportTo(0, -5201.58f, 477.98f, 388.47f, 5.13f);
+            CloseGossipMenuFor(player);
+        }
+        return true;
+    }
+};
+
 void AddSC_zone_gnomeregan()
 {
     new npc_sanitron_5000();
+    new npc_gnomeregan_torben();
 }
 
