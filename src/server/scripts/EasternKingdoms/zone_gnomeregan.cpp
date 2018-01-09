@@ -217,6 +217,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             if (!_vehicle->HasEmptySeat(0))
+            {
                 if (uiTimer <= diff)
                 {
                     if (Player* player = _vehicle->GetPassenger(0)->ToPlayer())
@@ -304,6 +305,7 @@ public:
 
                 }
                 else uiTimer -= diff;
+            }
         }
     
     private:
