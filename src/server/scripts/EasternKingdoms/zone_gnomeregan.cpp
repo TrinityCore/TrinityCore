@@ -17,8 +17,8 @@
 
 /* ScriptData
 SDName: Gnomeregan
-SD%Complete: 0
-SDComment: Quest Support:
+SD%Complete: Intro
+SDComment: Quest Support: 27635, 28169
 SDCategory: Gnomeregan
 EndScriptData */
 
@@ -32,6 +32,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellMgr.h"
 #include "Vehicle.h"
 #include "MovementGenerator.h"
 #include "TargetedMovementGenerator.h"
@@ -41,7 +42,8 @@ enum GnomeCreatureIds
     NPC_DECONTAMINATION_BUNNY = 46165,
     NPC_CLEAN_CANNON          = 46208,
     NPC_SAFE_TECHNICAN        = 46230,
-    NPC_NEVIN_TWISTWRENCH     = 46293
+    NPC_NEVIN_TWISTWRENCH     = 46293,
+    NPC_IMUN_AGENT            = 47836
 };
 
 enum GnomeSpells
@@ -55,12 +57,82 @@ enum GnomeSpells
 
 enum GnomeQuests
 {
-    QUEST_DECONTAMINATION = 27635
+    QUEST_DECONTAMINATION              = 27635,
+    QUEST_WITHDRAW_TO_THE_LOADING_ROOM = 28169
 };
 
 enum GnomeGossips
 {
     GOSSIP_TORBEN      = 12104
+};
+
+enum GnomeMoves
+{
+    MOVE_IMUN_AGENT = 4783600
+};
+
+class npc_nevin_twistwrench : public CreatureScript
+{
+public:
+    npc_nevin_twistwrench() : CreatureScript("npc_nevin_twistwrench") { }
+
+    struct npc_nevin_twistwrenchAI : public ScriptedAI
+    {
+        npc_nevin_twistwrenchAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            uiTimer = 0;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (uiTimer <= diff)
+            {
+                std::list<Player*> playerList = me->SelectNearestPlayers(10.0f, true);
+                for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                    if (((*itr)->GetQuestStatus(QUEST_DECONTAMINATION) == QUEST_STATUS_NONE) && (!(*itr)->HasAura(SPELL_IRRADIATE)))
+                        (*itr)->CastSpell((*itr), SPELL_IRRADIATE, true);
+
+                uiTimer = 100;
+            }
+            else uiTimer -= diff;
+        }
+
+    private:
+        uint32 uiTimer;
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_nevin_twistwrenchAI(creature);
+    }
+
+};
+
+class npc_carvo_blastbolt : public CreatureScript
+{
+public:
+    npc_carvo_blastbolt() : CreatureScript("npc_carvo_blastbolt") { }
+
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_WITHDRAW_TO_THE_LOADING_ROOM)
+        {
+            player->SummonCreature(NPC_IMUN_AGENT, -4981.25f, 780.992f, 288.485f, 3.316f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+            if (Creature* agent = creature->FindNearestCreature(NPC_IMUN_AGENT, 5.0f))
+            {
+                agent->SetSpeed(MOVE_RUN, 1.0f);
+                agent->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE);
+                agent->SetReactState(REACT_PASSIVE);
+                agent->AI()->Talk(0, player);
+                agent->GetMotionMaster()->MovePath(MOVE_IMUN_AGENT, false);
+            }
+        }
+
+        return true;
+    }
 };
 
 class npc_sanitron_5000 : public CreatureScript
@@ -282,6 +354,8 @@ public:
 
 void AddSC_zone_gnomeregan()
 {
+    new npc_nevin_twistwrench();
+    new npc_carvo_blastbolt();
     new npc_sanitron_5000();
     new npc_gnomeregan_torben();
 }
