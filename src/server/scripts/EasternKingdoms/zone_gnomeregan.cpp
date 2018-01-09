@@ -36,14 +36,15 @@ EndScriptData */
 #include "MovementGenerator.h"
 #include "TargetedMovementGenerator.h"
 
-enum CreatureIds
+enum GnomeCreatureIds
 {
     NPC_DECONTAMINATION_BUNNY = 46165,
     NPC_CLEAN_CANNON          = 46208,
-    NPC_SAFE_TECHNICAN        = 46230
+    NPC_SAFE_TECHNICAN        = 46230,
+    NPC_NEVIN_TWISTWRENCH     = 46293
 };
 
-enum Spells
+enum GnomeSpells
 {
     SPELL_CANNON_BURST          = 86080,
     SPELL_DECONTAMINATE_STAGE_1 = 86075,
@@ -52,12 +53,12 @@ enum Spells
     SPELL_EXPLOSION             = 30934
 };
 
-enum Quests
+enum GnomeQuests
 {
     QUEST_DECONTAMINATION = 27635
 };
 
-enum Gossips
+enum GnomeGossips
 {
     GOSSIP_TORBEN      = 12104
 };
@@ -269,6 +270,7 @@ public:
         ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
+            player->KilledMonsterCredit(NPC_NEVIN_TWISTWRENCH);
             player->TeleportTo(0, -5201.58f, 477.98f, 388.47f, 5.13f);
             CloseGossipMenuFor(player);
         }
