@@ -71,6 +71,11 @@ enum GnomeMoves
     MOVE_IMUN_AGENT = 4783600
 };
 
+Position const SpawnPosition[] =
+{
+    {-4981.25f, 780.992f, 288.485f, 3.316f} //spawnpos
+};
+
 class npc_nevin_twistwrench : public CreatureScript
 {
 public:
@@ -120,7 +125,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_WITHDRAW_TO_THE_LOADING_ROOM)
         {
-            player->SummonCreature(NPC_IMUN_AGENT, -4981.25f, 780.992f, 288.485f, 3.316f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+            player->SummonCreature(NPC_IMUN_AGENT, SpawnPosition[0], TEMPSUMMON_TIMED_DESPAWN, 60000, 0, true);
             if (Creature* agent = creature->FindNearestCreature(NPC_IMUN_AGENT, 5.0f))
             {
                 agent->SetSpeed(MOVE_RUN, 1.0f);
