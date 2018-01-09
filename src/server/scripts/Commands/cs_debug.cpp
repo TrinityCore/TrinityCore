@@ -34,6 +34,7 @@ EndScriptData */
 #include "Log.h"
 #include "MapManager.h"
 #include "M2Stores.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "PoolMgr.h"

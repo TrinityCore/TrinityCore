@@ -19,8 +19,8 @@
 #include "IteratorPair.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include <array>
 #include <boost/heap/fibonacci_heap.hpp>
+#include <array>
 #include <unordered_map>
 #include <vector>
 
