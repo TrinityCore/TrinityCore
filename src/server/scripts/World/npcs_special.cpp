@@ -1741,10 +1741,7 @@ class npc_brewfest_reveler : public CreatureScript
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
-    NPC_TARGET_DUMMY                           = 2673,
-
-    EVENT_TD_CHECK_COMBAT                      = 1,
-    EVENT_TD_DESPAWN                           = 2
+    NPC_TARGET_DUMMY                           = 2673
 };
 
 class npc_training_dummy : public CreatureScript
@@ -1752,27 +1749,21 @@ class npc_training_dummy : public CreatureScript
 public:
     npc_training_dummy() : CreatureScript("npc_training_dummy") { }
 
-    struct npc_training_dummyAI : ScriptedAI
+    struct npc_training_dummyAI : PassiveAI
     {
-        npc_training_dummyAI(Creature* creature) : ScriptedAI(creature)
+        npc_training_dummyAI(Creature* creature) : PassiveAI(creature), _combatCheckTimer(500)
         {
-            SetCombatMovement(false);
+            uint32 const entry = me->GetEntry();
+            if (entry == NPC_TARGET_DUMMY || entry == NPC_ADVANCED_TARGET_DUMMY)
+            {
+                _combatCheckTimer = 0;
+                me->DespawnOrUnsummon(16s);
+            }
         }
-
-        EventMap _events;
-        std::unordered_map<ObjectGuid, time_t> _damageTimes;
 
         void Reset() override
         {
-            // TODO: solve this in a different way! setting them as stunned prevents dummies from parrying
-            me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
-
-            _events.Reset();
             _damageTimes.clear();
-            if (me->GetEntry() != NPC_ADVANCED_TARGET_DUMMY && me->GetEntry() != NPC_TARGET_DUMMY)
-                _events.ScheduleEvent(EVENT_TD_CHECK_COMBAT, 1000);
-            else
-                _events.ScheduleEvent(EVENT_TD_DESPAWN, 15000);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -1785,61 +1776,47 @@ public:
 
         void DamageTaken(Unit* doneBy, uint32& damage) override
         {
-            AddThreat(doneBy, float(damage));    // just to create threat reference
             _damageTimes[doneBy->GetGUID()] = GameTime::GetGameTime();
             damage = 0;
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (!me->IsInCombat())
+            if (!_combatCheckTimer || !me->IsInCombat())
                 return;
 
-            if (!me->HasUnitState(UNIT_STATE_STUNNED))
-                me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
-
-            _events.Update(diff);
-
-            if (uint32 eventId = _events.ExecuteEvent())
+            if (diff < _combatCheckTimer)
             {
-                switch (eventId)
-                {
-                    case EVENT_TD_CHECK_COMBAT:
-                    {
-                        time_t const now = GameTime::GetGameTime();
-                        auto const& pveRefs = me->GetCombatManager().GetPvECombatRefs();
-                        for (auto itr = _damageTimes.begin(); itr != _damageTimes.end();)
-                        {
-                            // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
-                            if (itr->second < now - 5)
-                            {
-                                auto it = pveRefs.find(itr->first);
-                                if (it != pveRefs.end())
-                                    it->second->EndCombat();
-
-                                itr = _damageTimes.erase(itr);
-                            }
-                            else
-                                ++itr;
-                        }
-
-                        for (auto const& pair : pveRefs)
-                            if (_damageTimes.find(pair.first) == _damageTimes.end())
-                                _damageTimes[pair.first] = now;
-
-                        _events.Repeat(1s);
-                        break;
-                    }
-                    case EVENT_TD_DESPAWN:
-                        me->DespawnOrUnsummon(1);
-                        break;
-                    default:
-                        break;
-                }
+                _combatCheckTimer -= diff;
+                return;
             }
+
+            _combatCheckTimer = 500;
+
+            time_t const now = GameTime::GetGameTime();
+            auto const& pveRefs = me->GetCombatManager().GetPvECombatRefs();
+            for (auto itr = _damageTimes.begin(); itr != _damageTimes.end();)
+            {
+                // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
+                if (itr->second < now - 5)
+                {
+                    auto it = pveRefs.find(itr->first);
+                    if (it != pveRefs.end())
+                        it->second->EndCombat();
+
+                    itr = _damageTimes.erase(itr);
+                }
+                else
+                    ++itr;
+            }
+
+            for (auto const& pair : pveRefs)
+                if (_damageTimes.find(pair.first) == _damageTimes.end())
+                    _damageTimes[pair.first] = now;
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) override { }
+        std::unordered_map<ObjectGuid, time_t> _damageTimes;
+        uint32 _combatCheckTimer;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
