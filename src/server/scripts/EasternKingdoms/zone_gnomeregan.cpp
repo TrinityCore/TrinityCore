@@ -99,6 +99,8 @@ public:
             if (Unit* unit = me->FindNearestCreature(entry, float(range), alive))
                 if (Unit* unit2 = ObjectAccessor::GetCreature(*me, unit->GetGUID()))
                     return unit2;
+
+            return nullptr;
         }
 
         void GetTargets()
