@@ -962,9 +962,8 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,843),
 (196,866),
 (196,867),
-(196,872),
-(196,873),
-(197,232),
+(196,870),(196,872),
+(196,873),(197,232),
 (197,236),
 (197,237),
 (197,273),
@@ -1847,6 +1846,7 @@ INSERT INTO `rbac_permissions` VALUES
 (865,'Command: npc showloot'),
 (866,'Command: list spawnpoints'),
 (867,'Command: reload quest_greeting_locale'),
+(870,'Command: debug threatinfo');
 (872,'Command: server debug'),
 (873,'Command: reload creature_movement_override');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
