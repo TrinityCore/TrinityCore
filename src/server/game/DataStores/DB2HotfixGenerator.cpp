@@ -19,23 +19,12 @@
 #include "DB2Stores.h"
 #include "Log.h"
 
-template<class T>
-void DB2HotfixGenerator<T>::ApplyHotfix(uint32 const* begin, uint32 const* end, void(*fixer)(T*), bool notifyClient)
+void DB2HotfixGeneratorBase::LogMissingRecord(std::string const& storageName, uint32 recordId)
 {
-    while (begin != end)
-    {
-        uint32 id = *begin++;
-        T const* entry = _storage.LookupEntry(id);
-        if (!entry)
-        {
-            TC_LOG_ERROR("db2.hotfix", "Hotfix specified for %s row which does not exist", _storage.GetFileName().c_str(), id);
-            continue;
-        }
+    TC_LOG_ERROR("db2.hotfix", "Hotfix specified for %s row id %u which does not exist", storageName.c_str(), recordId);
+}
 
-        fixer(const_cast<T*>(entry));
-        ++_count;
-
-        if (notifyClient)
-            sDB2Manager.InsertNewHotfix(_storage.GetTableHash(), id);
-    }
+void DB2HotfixGeneratorBase::AddClientHotfix(uint32 tableHash, uint32 recordId)
+{
+    sDB2Manager.InsertNewHotfix(tableHash, recordId);
 }

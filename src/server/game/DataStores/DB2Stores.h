@@ -32,8 +32,7 @@
 #undef GetClassName
 #endif
 
-template<typename T>
-class DB2HotfixGenerator;
+class DB2HotfixGeneratorBase;
 
 TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
 TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStore;
@@ -331,8 +330,7 @@ public:
     static void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId = nullptr, DBCPosition2D* newPos = nullptr);
 
 private:
-    template<typename T>
-    friend class DB2HotfixGenerator;
+    friend class DB2HotfixGeneratorBase;
     void InsertNewHotfix(uint32 tableHash, uint32 recordId);
     uint32 _maxHotfixId = 0;
 };
