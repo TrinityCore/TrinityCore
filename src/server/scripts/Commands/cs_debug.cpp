@@ -983,6 +983,8 @@ public:
                 }
             }
         }
+
+        return true;
     }
 
     static bool HandleDebugCombatListCommand(ChatHandler* handler, char const* /*args*/)
