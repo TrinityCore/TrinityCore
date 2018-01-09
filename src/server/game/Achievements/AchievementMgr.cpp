@@ -1030,6 +1030,51 @@ void AchievementGlobalMgr::SetRealmCompleted(AchievementEntry const* achievement
 }
 
 //==========================================================
+inline void ApplyAchievementFix(std::initializer_list<uint32> achievementIds, void(*fix)(AchievementEntry*))
+{
+    for (uint32 achievementId : achievementIds)
+    {
+        AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId);
+
+        if (!achievement)
+        {
+            TC_LOG_ERROR("server.loading", "Achievement correction specified for non-existing achievement %u", achievementId);
+            continue;
+        }
+
+        fix(const_cast<AchievementEntry*>(achievement));
+    }
+}
+
+void AchievementGlobalMgr::LoadAchievementCorrections()
+{
+    uint32 oldMSTime = getMSTime();
+    
+    //
+    // ICECROWN CITADEL ACHIEVEMENTS
+    //
+    // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
+    ApplyAchievementFix({ 4539 }, [](AchievementEntry* achievement)
+    {
+        // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
+        const_cast<AchievementEntry*>(achievement)->MapID = 631;
+    });
+    // ENDOF ISLE OF ICECROWN CITADEL ACHIEVEMENTS
+
+    //
+    // HALLS OF ORIGINATION ACHIEVEMENTS
+    //
+    // Straw That Broke the Camel's Back - Halls of Origination
+    ApplyAchievementFix({ 5294 }, [](AchievementEntry* achievement)
+    {
+        // Correct map requirement (currently has Lost City of the Tol'vir)
+        const_cast<AchievementEntry*>(achievement)->MapID = 644;
+    });
+    // ENDOF ISLE OF HALLS OF ORIGINATION ACHIEVEMENTS
+
+    TC_LOG_INFO("server.loading", ">> Loaded Achievement corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
 void AchievementGlobalMgr::LoadAchievementReferenceList()
 {
     uint32 oldMSTime = getMSTime();
@@ -1051,10 +1096,6 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         _achievementListByReferencedId[achievement->SharesCriteria].push_back(achievement);
         ++count;
     }
-
-    // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
-    if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(4539))
-        const_cast<AchievementEntry*>(achievement)->MapID = 631;    // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
