@@ -18,6 +18,7 @@
 #include "Realm.h"
 #include "IpAddress.h"
 #include "IpNetwork.h"
+#include <boost/asio/ip/tcp.hpp>
 
 boost::asio::ip::tcp_endpoint Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
 {
