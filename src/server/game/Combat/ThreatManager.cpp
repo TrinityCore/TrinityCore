@@ -342,7 +342,9 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         if (!redirInfo.empty())
         {
             float const origAmount = amount;
-            for (auto const& pair : redirInfo) // (victim,pct)
+            // intentional copy - there's a nested AddThreat call further down that might cause AI calls which cast spells
+            auto const redirects = redirInfo;
+            for (auto const& pair : redirects) // (victim,pct)
             {
                 Unit* redirTarget = nullptr;
                 auto it = _myThreatListEntries.find(pair.first); // try to look it up in our threat list first (faster)
