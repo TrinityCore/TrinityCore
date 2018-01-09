@@ -332,7 +332,6 @@ public:
                     (*itr)->RemoveAurasDueToSpell(spellId);
                 }
             }
-
         }
 
         uint8 _countShield;
