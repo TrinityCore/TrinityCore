@@ -893,6 +893,7 @@ typedef std::unordered_map<uint64, DungeonEncounterList> DungeonEncounterContain
 struct PhaseInfoStruct
 {
     uint32 Id;
+    uint32 AreaOrZone;
     ConditionContainer Conditions;
 };
 
@@ -1520,20 +1521,19 @@ class TC_GAME_API ObjectMgr
             auto itr = _terrainWorldMapStore.find(terrainId);
             return itr != _terrainWorldMapStore.end() ? &itr->second : nullptr;
         }
-        std::vector<PhaseInfoStruct> const* GetPhasesForArea(uint32 area) const
+        std::vector<PhaseInfoStruct> const* GetAreaAndZonePhasesById(uint32 id) const
         {
-            auto itr = _phases.find(area);
+            auto itr = _phases.find(id);
             return itr != _phases.end() ? &itr->second : nullptr;
         }
         TerrainPhaseInfo const& GetDefaultTerrainSwapStore() const { return _terrainMapDefaultStore; }
         PhaseInfo const& GetAreaAndZonePhases() const { return _phases; }
         // condition loading helpers
-        std::vector<PhaseInfoStruct>* GetPhasesForAreaOrZoneForLoading(uint32 areaOrZone)
+        std::vector<PhaseInfoStruct>* GetAreaAndZonePhasesForLoading(uint32 id)
         {
-            auto itr = _phases.find(areaOrZone);
+            auto itr = _phases.find(id);
             return itr != _phases.end() ? &itr->second : nullptr;
         }
-        PhaseInfo& GetAreaAndZonePhasesForLoading() { return _phases; }
 
         // for wintergrasp only
         GraveYardContainer GraveYardStore;

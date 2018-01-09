@@ -1462,36 +1462,21 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
 
 bool ConditionMgr::addToPhases(Condition* cond) const
 {
-    if (!cond->SourceEntry)
-    {
-        bool found = false;
-        PhaseInfo& p = sObjectMgr->GetAreaAndZonePhasesForLoading();
-        for (auto phaseItr = p.begin(); phaseItr != p.end(); ++phaseItr)
-        {
-            for (PhaseInfoStruct& phase : phaseItr->second)
-            {
-                if (phase.Id == cond->SourceGroup)
-                {
-                    phase.Conditions.push_back(cond);
-                    found = true;
-                }
-            }
-        }
-
-        if (found)
-            return true;
-    }
-    else if (std::vector<PhaseInfoStruct>* phases = sObjectMgr->GetPhasesForAreaOrZoneForLoading(cond->SourceEntry))
+    bool found = false;
+    if (std::vector<PhaseInfoStruct>* phases = sObjectMgr->GetAreaAndZonePhasesForLoading(cond->SourceGroup))
     {
         for (PhaseInfoStruct& phase : *phases)
         {
-            if (phase.Id == cond->SourceGroup)
+            if (!cond->SourceEntry || cond->SourceEntry == int32(phase.AreaOrZone))
             {
                 phase.Conditions.push_back(cond);
-                return true;
+                found = true;
             }
         }
     }
+
+    if (found)
+        return true;
 
     TC_LOG_ERROR("sql.sql", "%s Area %u does not have phase %u.", cond->ToString().c_str(), cond->SourceGroup, cond->SourceEntry);
     return false;

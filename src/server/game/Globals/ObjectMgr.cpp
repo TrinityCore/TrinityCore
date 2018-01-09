@@ -9572,9 +9572,9 @@ void ObjectMgr::LoadAreaPhases()
         Field* fields = result->Fetch();
 
         PhaseInfoStruct phase;
-        uint32 area = fields[0].GetUInt32();
+        phase.AreaOrZone = fields[0].GetUInt32();
         phase.Id = fields[1].GetUInt32();
-        _phases[area].push_back(phase);
+        _phases[phase.Id].push_back(phase);
 
         ++count;
     } while (result->NextRow());
