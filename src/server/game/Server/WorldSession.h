@@ -474,6 +474,7 @@ namespace WorldPackets
         class PvpPrestigeRankUp;
         class CloseInteraction;
         class AdventureJournalOpenQuest;
+        class FactionSelect;
         class AdventureJournalStartQuest;
     }
 
@@ -1671,6 +1672,7 @@ class TC_GAME_API WorldSession
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
         void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
         void HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& packet);
+        void HandleSelectFactionOpcode(WorldPackets::Misc::FactionSelect& selectFaction);
         void HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& packet);
 
         // Toys
