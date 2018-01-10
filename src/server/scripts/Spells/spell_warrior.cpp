@@ -51,6 +51,7 @@ enum WarriorSpells
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_RETALIATION_DAMAGE                = 22858,
     SPELL_WARRIOR_SLAM                              = 50783,
+    SPELL_WARRIOR_SLAM_AURA                         = 46916,
     SPELL_WARRIOR_SLAM_GCD_REDUCED                  = 71072,
     SPELL_WARRIOR_SUDDEN_DEATH_R1                   = 29723,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
@@ -910,6 +911,7 @@ class spell_warr_slam : public SpellScriptLoader
             {
                 if (!GetHitUnit())
                     return;
+                GetCaster()->RemoveAurasDueToSpell(SPELL_WARRIOR_SLAM_AURA);
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 args.SpellValueOverrides.AddBP0(GetEffectValue());
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_SLAM, args);
