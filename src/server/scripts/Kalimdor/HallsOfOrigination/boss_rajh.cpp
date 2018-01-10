@@ -33,7 +33,7 @@ enum Spells
 
     // Orb of the Sun
     SPELL_SUMMON_METEOR         = 76375,
-    SPELL_RIDE_VEHICLE          = 43671,
+    SPELL_RIDE_VEHICLE          = 43671
 };
 
 enum Texts
@@ -41,7 +41,7 @@ enum Texts
     SAY_DEATH           = 0,
     SAY_AGGRO           = 1,
     SAY_SPECIAL         = 2,
-    SAY_PLAYER_KILL     = 3,
+    SAY_PLAYER_KILL     = 3
 };
 
 Position const RajhMiddlePos = { -318.5936f, 192.8621f, 343.9443f };

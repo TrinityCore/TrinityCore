@@ -35,7 +35,7 @@ INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectA
 UPDATE `gameobject_template` SET `ScriptName` = 'go_hoo_the_makers_lift_controller' WHERE `entry` = 207669;
 
 UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_aggro_stalker' WHERE `entry` = 40790;
-UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `unit_flags` = 33554496 WHERE `entry` IN (39612, 48707;
+UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `unit_flags` = 33554496 WHERE `entry` IN (39612, 48707);
 UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_energy_flux', `unit_flags` = 33554496, `speed_walk` = 5.5/2.5, `speed_run` = 5.5/2.5 WHERE `entry` IN (44015, 48709);
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_hoo_emerge', 'spell_hoo_energy_flux_target_selector', 'spell_hoo_arcane_energy_check', 'spell_hoo_fixate');
@@ -567,9 +567,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 39681;
 DELETE FROM `smart_scripts` WHERE (`entryorguid` = 39681 AND `source_type` = 0) OR (`entryorguid` = 3968100 AND `source_type` = 9);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(39681, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 41, 3600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Starry Sky dummy - On Reset - Despawn in 2400 ms'),
-(39681, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 80, 3968100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Starry Sky dummy - Linked - Call Actionlist'),
-(3968100, 9, 0, 0, 0, 0, 100, 0, 800, 800, 0, 0, '', 11, 74149, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Starry Sky dummy - Linked - Cast \'Starry Sky Add Visual\' on self');
+(39681,   0, 0, 1, 25, 0, 100, 0,   0,   0, 0, 0, '', 41,    3600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Starry Sky dummy - On Reset - Despawn in 2400 ms'),
+(39681,   0, 1, 0, 61, 0, 100, 0,   0,   0, 0, 0, '', 80, 3968100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Starry Sky dummy - Linked - Call Actionlist'),
+(3968100, 9, 0, 0,  0, 0, 100, 0, 800, 800, 0, 0, '', 11,   74149, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Starry Sky dummy - Actionlist - Cast \'Starry Sky Add Visual\' on self');
 
 -- Astral Shift Explosion Visual (dummy)
 UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 39787;
@@ -642,6 +642,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (40668, 0, 0, 0, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 75864, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Bloodpetal Blossom - On Reset - Cast \'Vile Nature Zone\' on self'),
 (40668, 0, 1, 0, 0, 0, 100, 0, 3000, 3000, 7000, 7000, '', 11, 75153, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Living Vine - In Combat - Cast \'Spore Blast\'');
 
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 40668;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (40668, 75867, 1, 0);
 
