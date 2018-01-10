@@ -267,7 +267,6 @@ public:
     {
         // Get ALL the variables!
         Player* playerTarget;
-        uint32 phase = 0;
         ObjectGuid guidTarget;
         std::string nameTarget;
         std::string zoneName;
