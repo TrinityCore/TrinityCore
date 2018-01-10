@@ -4535,6 +4535,56 @@ public:
     }
 };
 
+enum Vengeance
+{
+    SPELL_VENGEANCE_TRIGGERED = 76691
+};
+
+// 93098 - 93099 - 84839 - Vengeance
+class spell_gen_vengeance : public SpellScriptLoader
+{
+    public:
+        spell_gen_vengeance() : SpellScriptLoader("spell_gen_vengeance") { }
+
+        class spell_gen_vengeance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_vengeance_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_VENGEANCE_TRIGGERED });
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                PreventDefaultAction();
+                uint32 damage = eventInfo.GetDamageInfo()->GetDamage();
+                uint32 casterHealth = CalculatePct(caster->GetHealth(), 10);
+                if (damage > casterHealth)
+                    damage = casterHealth;
+
+                int32 bp = CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                if (bp) // make sure that we wont cast Vengeance when the damage bonus is 0
+                    caster->CastCustomSpell(caster, SPELL_VENGEANCE_TRIGGERED, &bp, &bp, NULL, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_vengeance_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_vengeance_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4639,4 +4689,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_blink();
     new spell_gen_toxic_blow_dart();
     new spell_gen_projectile_goods();
+    new spell_gen_vengeance();
 }
