@@ -104,7 +104,8 @@ enum HOOCreatures
     NPC_STONE_TROGG_ROCK_FLINGER    = 40252,
 
     BOSS_ISISET                     = 39587,
-    NPC_SPATIAL_FLUX                = 39612, // Isiset trash
+    NPC_TRASH_SPATIAL_FLUX          = 39612, // Isiset trash
+    NPC_TRASH_ENERGY_FLUX           = 44015,
     NPC_SPATIAL_ANOMALY             = 40170,
     NPC_FLUX_ANIMATOR               = 40033,
     NPC_STAR_SHARD                  = 40106,
@@ -183,15 +184,14 @@ enum HOOMisc
 {
     AREA_TOMB_OF_THE_EARTHRAGER         = 4945,
     SPELL_ZERO_ENERGY_NO_REGEN_AURA     = 72242, // Zero Energy + Zero Regen (used by some npcs in HoO)
-//  SPELL_AURA_UNKNOWN_PURPOSE          = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
-    SPELL_DUMMY_NUKE                    = 68991,
+//  SPELL_SHRINK                        = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
 
     // Hmm... Do elementals use these spells to spawn on a random platform?
     // Probably also 81796, 81798, 81799, 81800 (all hidden client-side).
     SPELL_TELEPORT_EARTH                = 82329, // South-West
     SPELL_TELEPORT_AIR                  = 82330, // South-East
     SPELL_TELEPORT_FIRE                 = 82331, // North-West
-    SPELL_TELEPORT_WATER                = 82332, // North-East
+    SPELL_TELEPORT_WATER                = 82332  // North-East
 };
 
 enum HOOGlobalActions

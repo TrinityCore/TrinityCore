@@ -217,9 +217,9 @@ public:
                         events.ScheduleEvent(EVENT_ACTIVATE_BEACONS, Seconds(2), 0, PHASE_SHIELD);
                         break;
                     case EVENT_ACTIVATE_BEACONS:
+                        Talk(EMOTE_SHIELD);
                         DoCastSelf(SPELL_REVERBERATING_HYMN);
                         DoCastAOE(SPELL_ACTIVATE_BEACONS);
-                        Talk(EMOTE_SHIELD);
                         HandleVisuals(SPELL_SHIELD_VISUAL_LEFT, SPELL_SHIELD_VISUAL_RIGHT, true);
                         events.ScheduleEvent(EVENT_CAST_BEAMS, Seconds(1), 0, PHASE_SHIELD);
                         events.ScheduleEvent(EVENT_ACHIEVEMENT_FAILED, Seconds(15), 0, PHASE_SHIELD);

@@ -35,8 +35,8 @@ INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectA
 UPDATE `gameobject_template` SET `ScriptName` = 'go_hoo_the_makers_lift_controller' WHERE `entry` = 207669;
 
 UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_aggro_stalker' WHERE `entry` = 40790;
-UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `unit_flags` = 33554496 WHERE `entry` = 39612;
-UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_energy_flux', `unit_flags` = 33554496, `speed_walk` = 5.5/2.5, `speed_run` = 5.5/2.5 WHERE `entry` = 44015;
+UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_spatial_flux', `unit_flags` = 33554496 WHERE `entry` IN (39612, 48707;
+UPDATE `creature_template` SET `ScriptName` = 'npc_hoo_energy_flux', `unit_flags` = 33554496, `speed_walk` = 5.5/2.5, `speed_run` = 5.5/2.5 WHERE `entry` IN (44015, 48709);
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_hoo_emerge', 'spell_hoo_energy_flux_target_selector', 'spell_hoo_arcane_energy_check', 'spell_hoo_fixate');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -216,11 +216,9 @@ INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 -- script names, sniff corrections
 UPDATE `creature_template` SET `ScriptName` = 'boss_isiset', `difficulty_entry_1` = 48710 WHERE `entry` = 39587;
 UPDATE `creature_template` SET `ScriptName` = 'npc_celestial_familiar' WHERE `entry` = 39795;
-UPDATE `creature_template` SET `ScriptName` = 'npc_astral_shift_explosion_visual', `unit_flags` = 33554752 WHERE `entry` = 39787;
-UPDATE `creature_template` SET `ScriptName` = 'npc_starry_sky' WHERE `entry` = 39681;
+UPDATE `creature_template` SET `ScriptName` = '', `unit_flags` = 33554752 WHERE `entry` = 39787;
+UPDATE `creature_template` SET `ScriptName` = '', `unit_flags` = 33554752 WHERE `entry` = 39681;
 UPDATE `creature_template` SET `ScriptName` = 'npc_isiset_mirror_image' WHERE `entry` IN (39720, 39721, 39722);
-UPDATE `creature_template` SET `ScriptName` = 'npc_isiset_spatial_flux', `unit_flags` = 33554496 WHERE `entry` = 48707;
-UPDATE `creature_template` SET `ScriptName` = 'npc_isiset_energy_flux', `unit_flags` = 33554496, `speed_walk` = 5.5/2.5, `speed_run` = 5.5/2.5 WHERE `entry` = 48709;
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_isiset_veil_of_sky', 'spell_isiset_supernova_filter', 'spell_isiset_mirror_image_starry_sky_spawner', 'spell_isiset_mirror_image_spawner', 'spell_isiset_image_explosion', 'spell_isiset_astral_rain_controller', 'spell_isiset_mana_shield_controller', 'spell_isiset_astral_familiar_controller', 'spell_isiset_call_of_sky', 'spell_isiset_energy_flux_target_selector');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -235,7 +233,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (74381, 'spell_isiset_astral_rain_controller'),
 (74382, 'spell_isiset_mana_shield_controller'),
 (74383, 'spell_isiset_astral_familiar_controller'),
-(90750, 'spell_isiset_call_of_sky'),
+(90755, 'spell_isiset_call_of_sky'),
 (90735, 'spell_isiset_energy_flux_target_selector');
 
 -- spell target position for Call of Sky (90750)
@@ -564,6 +562,21 @@ UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 4929
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 40106 AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (40106, 0, 0, 0, 0, 0, 100, 0, 0, 0, 1200, 1200, '', 11, 74791, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Star Shard - In Combat - Cast \'Star Shock\'');
+
+-- Starry Sky (dummy)
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 39681;
+DELETE FROM `smart_scripts` WHERE (`entryorguid` = 39681 AND `source_type` = 0) OR (`entryorguid` = 3968100 AND `source_type` = 9);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(39681, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 41, 3600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Starry Sky dummy - On Reset - Despawn in 2400 ms'),
+(39681, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 80, 3968100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Starry Sky dummy - Linked - Call Actionlist'),
+(3968100, 9, 0, 0, 0, 0, 100, 0, 800, 800, 0, 0, '', 11, 74149, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Starry Sky dummy - Linked - Cast \'Starry Sky Add Visual\' on self');
+
+-- Astral Shift Explosion Visual (dummy)
+UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 39787;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 39787 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(39787, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 74331, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Astral Shift Explosion Visual dummy - On Reset - Cast \'Seedling Pod Visual\' on self'),
+(39787, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 41, 21000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Astral Shift Explosion Visual dummy - Linked - Despawn in 21 s');
 
 -- Ammunae's Bloodpetal Blossom 
 UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48716 WHERE `entry` = 40620;

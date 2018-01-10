@@ -40,16 +40,20 @@ enum Spells
     // Isiset trash and adds
     SPELL_ARCANE_ENERGY                 = 74881,
     SPELL_ARCANE_BURST                  = 74888, // On retail not working! Should probably be cast at full energy.
-    SPELL_SPAWN_ENERGY_FLUX_TRASH       = 82382, // Makes random player cast Summon Energy Flux
-    SPELL_ENERGY_FLUX_BEAM_TRASH        = 82377, // Makes nearby Spatial Flux cast visual beam
+    SPELL_SPAWN_ENERGY_FLUX_TRASH       = 82382, // Makes random player cast Summon Energy Flux (82385)
+    SPELL_SPAWN_ENERGY_FLUX_ISISET      = 90735, // Makes random player cast Summon Energy Flux (90739)
     SPELL_ENERGY_FLUX_PERIODIC          = 74044,
+    SPELL_ENERGY_FLUX_BEAM_TRASH        = 82377, // Makes nearby Spatial Flux cast visual beam
+    SPELL_ENERGY_FLUX_BEAM_ISISET       = 90741, // Makes nearby Spatial Flux cast visual beam
+
+    SPELL_DUMMY_NUKE                    = 68991
 };
 
 enum Events
 {
     // Spatial Flux
+    EVENT_SPAWN_ENERGY_FLUX = 1,
     EVENT_DUMMY_NUKE,
-    EVENT_SPAWN_ENERGY_FLUX,
 
     // Energy Flux
     EVENT_FOLLOW_SUMMONER,
@@ -145,6 +149,7 @@ public:
 };
 
 // 39612 - Spatial Flux (trash)
+// 48707 - Spatial Flux (Isiset)
 class npc_hoo_spatial_flux : public CreatureScript
 {
 public:
@@ -161,6 +166,12 @@ public:
             events.ScheduleEvent(EVENT_SPAWN_ENERGY_FLUX, Seconds(3));
         }
 
+        void IsSummonedBy(Unit* summoner) override
+        {
+            if (summoner->GetEntry() == BOSS_ISISET)
+                me->SetInCombatWithZone();
+        }
+
         void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
@@ -175,14 +186,15 @@ public:
             {
                 switch (eventId)
                 {
+                    
+                    case EVENT_SPAWN_ENERGY_FLUX:
+                        DoCastSelf(me->GetEntry() == NPC_TRASH_SPATIAL_FLUX ? SPELL_SPAWN_ENERGY_FLUX_TRASH : SPELL_SPAWN_ENERGY_FLUX_ISISET);
+                        events.Repeat(Seconds(12));
+                        break;
                     case EVENT_DUMMY_NUKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                             DoCast(target, SPELL_DUMMY_NUKE);
                         events.Repeat(Seconds(1));
-                        break;
-                    case EVENT_SPAWN_ENERGY_FLUX:
-                        DoCastSelf(SPELL_SPAWN_ENERGY_FLUX_TRASH);
-                        events.Repeat(Seconds(12));
                         break;
                     default:
                         break;
@@ -201,6 +213,7 @@ public:
 };
 
 // 44015 - Energy flux (trash)
+// 48709 - Energy flux (Isiset)
 class npc_hoo_energy_flux : public CreatureScript
 {
 public:
@@ -211,26 +224,20 @@ public:
         npc_hoo_energy_fluxAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetReactState(REACT_PASSIVE);
-            target = nullptr;
+            DoCastSelf(SPELL_ENERGY_FLUX_PERIODIC);
+            DoCastSelf(me->GetEntry() == NPC_TRASH_ENERGY_FLUX ? SPELL_ENERGY_FLUX_BEAM_TRASH : SPELL_ENERGY_FLUX_BEAM_ISISET);
         }
 
-        void Reset() override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
-            DoCastSelf(SPELL_ENERGY_FLUX_BEAM_TRASH);
-            DoCastSelf(SPELL_ENERGY_FLUX_PERIODIC);
             me->SetWalk(true);
             events.ScheduleEvent(EVENT_FOLLOW_SUMMONER, Seconds(1));
             me->DespawnOrUnsummon(Seconds(6));
         }
 
-        void IsSummonedBy(Unit* summoner) override
-        {
-            target = summoner;
-        }
-
         void UpdateAI(uint32 diff) override
         {
-            if (!target)
+            if (events.Empty())
                 return;
 
             events.Update(diff);
@@ -240,7 +247,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_FOLLOW_SUMMONER:
-                        me->GetMotionMaster()->MovePoint(0, target->GetPosition(), true);
+                        if (Unit* target = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                            me->GetMotionMaster()->MovePoint(0, target->GetPosition(), true);
                         events.Repeat(Seconds(1));
                         break;
                     default:
@@ -251,7 +259,6 @@ public:
         
     private:
         EventMap events;
-        Unit* target;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -287,7 +294,8 @@ public:
     }
 };
 
-// 82382 - Energy Flux (trash mob Spatial Flux)
+// 82382 - Energy Flux (cast by trash Spatial Flux)
+// 90735 - Energy Flux (cast by Isiset's Spatial Flux)
 class spell_hoo_energy_flux_target_selector : public SpellScriptLoader
 {
 public:
@@ -384,9 +392,8 @@ public:
         }
 
         void HandleScriptEffect(SpellEffIndex effIndex)
-        {
-            uint32 spellId = GetSpellInfo()->GetEffect(effIndex)->BasePoints;
-            GetHitUnit()->CastSpell(GetCaster(), spellId);
+        { 
+            GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()));
         }
 
         void Register() override

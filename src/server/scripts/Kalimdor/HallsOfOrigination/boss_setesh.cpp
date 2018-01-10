@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "halls_of_origination.h"
 #include "Map.h"
@@ -42,7 +42,7 @@ enum Spells
     SPELL_VOID_RIFT                     = 73699,
 
     // Chaos Portal
-    SPELL_DUMMY_AURA                    = 94562, // Using random dummy aura without effect - for Setesh to target the correct portal. 
+    SPELL_DUMMY_AURA                    = 94562, // Using random dummy aura without effect - for Setesh to target the correct portal.
     SPELL_NIGHTMARE_PORTAL_VISUAL       = 76714,
     SPELL_SUMMON_VOID_SENTINEL          = 77242, // summons 41208
     SPELL_SUMMON_VOID_SEEKER            = 77271, // summons 41148
