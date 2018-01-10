@@ -720,7 +720,7 @@ public:
     }
 };
 
-// Barrage - 120360
+// Barrage - 120361
 class spell_hun_barrage : public SpellScriptLoader
 {
 public:
