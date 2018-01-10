@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include <boost/heap/fibonacci_heap.hpp>
+#include <array>
 #include <unordered_map>
 #include <vector>
 
@@ -204,7 +205,7 @@ class TC_GAME_API ThreatManager
         void PutThreatenedByMeRef(ObjectGuid const& guid, ThreatReference* ref);
         void PurgeThreatenedByMeRef(ObjectGuid const& guid);
         std::unordered_map<ObjectGuid, ThreatReference*> _threatenedByMe; // these refs are entries for myself on other units' threat lists
-        float _singleSchoolModifiers[MAX_SPELL_SCHOOL]; // most spells are single school - we pre-calculate these and store them
+        std::array<float, MAX_SPELL_SCHOOL> _singleSchoolModifiers; // most spells are single school - we pre-calculate these and store them
         mutable std::unordered_map<std::underlying_type<SpellSchoolMask>::type, float> _multiSchoolModifiers; // these are calculated on demand
 
         // redirect system (is kind of dumb, but that's because none of the redirection spells actually have any aura effect associated with them, so spellscript needs to deal with it)
@@ -218,6 +219,7 @@ class TC_GAME_API ThreatManager
 
     friend class ThreatReference;
     friend struct CompareThreatLessThan;
+    friend class debug_commandscript;
 };
 
 // Please check Game/Combat/ThreatManager.h for documentation on how this class works!
