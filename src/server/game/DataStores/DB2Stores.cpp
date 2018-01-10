@@ -1139,6 +1139,7 @@ void DB2Manager::LoadHotfixData()
             continue;
         }
 
+        _maxHotfixId = std::max(_maxHotfixId, id);
         _hotfixData[MAKE_PAIR64(id, tableHash)] = recordId;
         deletedRecords[std::make_pair(tableHash, recordId)] = deleted;
         ++count;
@@ -1155,6 +1156,11 @@ void DB2Manager::LoadHotfixData()
 std::map<uint64, int32> const& DB2Manager::GetHotfixData() const
 {
     return _hotfixData;
+}
+
+void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
+{
+    _hotfixData[MAKE_PAIR64(tableHash, ++_maxHotfixId)] = recordId;
 }
 
 std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const
