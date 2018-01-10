@@ -205,11 +205,21 @@ void WodGarrison::Enter() const
 
 void WodGarrison::Leave() const
 {
-    Garrison::Leave();
-
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
+    {
         if (_owner->GetMapId() == _siteLevel->MapID)
+        {
+            uint32 futureAreaId = sMapMgr->GetAreaId(map->ParentMapID, _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+
+            // This check prevent infinite teleport if new map don't exactly overlap current map area
+            if (AreaTableEntry const* futureArea = sAreaTableStore.LookupEntry(futureAreaId))
+                if (IsAllowedArea(futureArea))
+                    return;
+
+            Garrison::Leave();
             _owner->SeamlessTeleportToMap(map->ParentMapID);
+        }
+    }
 }
 
 bool WodGarrison::IsAllowedArea(AreaTableEntry const* area) const

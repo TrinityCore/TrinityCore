@@ -202,6 +202,14 @@ namespace Ashamane
                 return T();
             }
             template<typename T>
+            T GetValue(std::string const& key, T defaultValue) const
+            {
+                auto itr = variables.find(key);
+                if (itr != variables.end())
+                    return boost::any_cast<T>(itr->second);
+                return defaultValue;
+            }
+            template<typename T>
             Variables * Set(std::string const& key, T&& value)
             {
                 _ensureVariable(key);
@@ -317,6 +325,7 @@ namespace Ashamane
             template<typename T> T * Get(std::string const& key) const { __LOCK; return Variables::Get<T>(key); }
             template<typename T> T * GetOrCreate(std::string const& key) { static_assert(std::is_fundamental<T>::value, "GetOrCreate() must be used only for fundamental types, use GetAuto() instead"); __LOCK; return Variables::GetOrCreate<T>(key); }
             template<typename T> T GetValue(std::string const& key) const { __LOCK; return Variables::GetValue<T>(key); }
+            template<typename T> T GetValue(std::string const& key, T defaultValue) const { __LOCK; return Variables::GetValue<T>(key, defaultValue); }
             template<typename T> VariablesSafe * Set(std::string const& key, T&& value) { __LOCK; return dynamic_cast<VariablesSafe*>(Variables::Set<T>(key, (T&&)value)); }
             template<typename T> T SetAndReturnValue(std::string const& key, T&& value) { __LOCK; return Variables::SetAndReturnValue<T>(key, (T&&)value); }
             template<typename T> VariablesSafe * Reset(std::string const& key) { __LOCK; return dynamic_cast<VariablesSafe*>(Variables::Reset<T>(key)); }
