@@ -2260,8 +2260,9 @@ public:
                 return;
 
             Position pos = caster->GetPosition();
-            caster->MovePositionToFirstCollision(pos, 40.0f, caster->GetOrientation());
-            at->SetDestination(pos, 5000);
+
+            at->MovePositionToFirstCollision(pos, 40.0f, 0.0f);
+            at->SetDestination(pos, 4000);     
         }
 
         void OnCreate() override
@@ -2290,6 +2291,9 @@ public:
                                     caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_VISUAL_UI, true);
 
                                 caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_AURA, true);
+
+                                at->UpdateTimeToTarget(8000);
+                                
                                 procDone = true;
                             }
 
@@ -2317,12 +2321,9 @@ public:
 
     struct at_mage_arcane_orbAI : AreaTriggerAI
     {
-        at_mage_arcane_orbAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
-        {
-            damageInterval = 500;
-        }
+        at_mage_arcane_orbAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-        uint32 damageInterval;
+        uint32 damageInterval = 500;
 
         void OnInitialize() override
         {
@@ -2331,8 +2332,8 @@ public:
                 return;
 
             Position pos = caster->GetPosition();
-            caster->MovePositionToFirstCollision(pos, 40.0f, caster->GetOrientation());
-            at->SetDestination(pos, 5000);
+            at->MovePositionToFirstCollision(pos, 40.0f, 0.0f);
+            at->SetDestination(pos, 4000);
         }
 
         void OnUpdate(uint32 diff) override
