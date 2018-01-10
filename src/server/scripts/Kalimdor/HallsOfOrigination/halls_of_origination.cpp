@@ -385,13 +385,12 @@ public:
 
         bool Validate(SpellInfo const* spellInfo) override
         {
-            if (!spellInfo->GetEffect(EFFECT_0))
-                return false;
-            SpellEffectInfo const* spellEffectInfo = spellInfo->GetEffect(EFFECT_0);
-            return spellEffectInfo && ValidateSpellInfo({ uint32(spellEffectInfo->BasePoints) });
+            if (SpellEffectInfo const* spellEffectInfo = spellInfo->GetEffect(EFFECT_0))
+                return ValidateSpellInfo({ uint32(spellEffectInfo->BasePoints) });
+            return false;
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         { 
             GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()));
         }
