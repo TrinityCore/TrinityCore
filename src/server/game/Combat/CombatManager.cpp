@@ -126,6 +126,12 @@ void PvPCombatReference::SuppressFor(Unit* who)
             who->GetAI()->JustExitedCombat();
 }
 
+CombatManager::~CombatManager()
+{
+    ASSERT(_pveRefs.empty(), "CombatManager::~CombatManager - %s: we still have %zu PvE combat references, one of them is with %s", _owner->GetGUID().ToString().c_str(), _pveRefs.size(), _pveRefs.begin()->first.ToString().c_str());
+    ASSERT(_pvpRefs.empty(), "CombatManager::~CombatManager - %s: we still have %zu PvP combat references, one of them is with %s", _owner->GetGUID().ToString().c_str(), _pvpRefs.size(), _pvpRefs.begin()->first.ToString().c_str());
+}
+
 void CombatManager::Update(uint32 tdiff)
 {
     auto it = _pvpRefs.begin(), end = _pvpRefs.end();
@@ -308,13 +314,13 @@ void CombatManager::PutReference(ObjectGuid const& guid, CombatReference* ref)
     if (ref->_isPvP)
     {
         auto& inMap = _pvpRefs[guid];
-        ASSERT(!inMap && "Duplicate combat state detected - memory leak!");
+        ASSERT(!inMap, "Duplicate combat state at %p being inserted for %s vs %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
         inMap = static_cast<PvPCombatReference*>(ref);
     }
     else
     {
         auto& inMap = _pveRefs[guid];
-        ASSERT(!inMap && "Duplicate combat state detected - memory leak!");
+        ASSERT(!inMap, "Duplicate combat state at %p being inserted for %s vs %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
         inMap = ref;
     }
 }

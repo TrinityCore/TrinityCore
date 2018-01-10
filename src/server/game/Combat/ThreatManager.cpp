@@ -160,6 +160,13 @@ ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatLi
         _singleSchoolModifiers[i] = 1.0f;
 }
 
+ThreatManager::~ThreatManager()
+{
+    ASSERT(_myThreatListEntries.empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _myThreatListEntries.size(), _myThreatListEntries.begin()->first.ToString().c_str());
+    ASSERT(_sortedThreatList.empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _sortedThreatList.size(), (*_sortedThreatList.begin())->GetVictim()->GetGUID().ToString().c_str());
+    ASSERT(_threatenedByMe.empty(), "ThreatManager::~ThreatManager - %s: we are still threatening %zu things, one of them is %s.", _owner->GetGUID().ToString().c_str(), _threatenedByMe.size(), _threatenedByMe.begin()->first.ToString().c_str());
+}
+
 void ThreatManager::Initialize()
 {
     _ownerCanHaveThreatList = ThreatManager::CanHaveThreatList(_owner);
@@ -167,6 +174,8 @@ void ThreatManager::Initialize()
 
 void ThreatManager::Update(uint32 tdiff)
 {
+    if (!CanHaveThreatList() || !IsEngaged())
+        return;
     if (_updateClientTimer <= tdiff)
     {
         _updateClientTimer = CLIENT_THREAT_UPDATE_INTERVAL;
@@ -324,8 +333,10 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         if (!redirInfo.empty())
         {
             float const origAmount = amount;
-            for (auto const& pair : redirInfo) // (victim,pct)
+            // intentional iteration by index - there's a nested AddThreat call further down that might cause AI calls which might modify redirect info through spells
+            for (size_t i=0; i<redirInfo.size(); ++i)
             {
+                auto const pair = redirInfo[i]; // (victim,pct)
                 Unit* redirTarget = nullptr;
                 auto it = _myThreatListEntries.find(pair.first); // try to look it up in our threat list first (faster)
                 if (it != _myThreatListEntries.end())
@@ -684,7 +695,7 @@ void ThreatManager::SendNewVictimToClients(ThreatReference const* victimRef) con
 void ThreatManager::PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref)
 {
     auto& inMap = _myThreatListEntries[guid];
-    ASSERT(!inMap && "Duplicate threat list entry being inserted - memory leak!");
+    ASSERT(!inMap, "Duplicate threat reference at %p being inserted on %s for %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
     inMap = ref;
     ref->_handle = _sortedThreatList.push(ref);
 }
@@ -708,7 +719,7 @@ void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid, bool sendRemove)
 void ThreatManager::PutThreatenedByMeRef(ObjectGuid const& guid, ThreatReference* ref)
 {
     auto& inMap = _threatenedByMe[guid];
-    ASSERT(!inMap && "Duplicate entry being inserted into threatened by me list - potential memory leak!");
+    ASSERT(!inMap, "Duplicate threatened-by-me reference at %p being inserted on %s for %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
     inMap = ref;
 }
 
