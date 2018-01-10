@@ -347,9 +347,9 @@ namespace WorldPackets
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
             int32 DungeonEncounterID       = 0;
+            int32 BattlePetSpeciesID        = 0;
             int32 BattlePetBreedID          = 0;
             uint32 BattlePetBreedQuality    = 0;
-            int32 BattlePetSpeciesID        = 0;
             int32 BattlePetLevel            = 0;
             ObjectGuid ItemGUID;
             bool Pushed                     = false;

@@ -274,7 +274,7 @@ public:
             else FrostCooldown = 0;
             }
 
-            if (!Drinking && me->GetMaxPower(POWER_MANA) && (me->GetPower(POWER_MANA)*100 / me->GetMaxPower(POWER_MANA)) < 20)
+            if (!Drinking && me->GetMaxPower(POWER_MANA) && me->GetPowerPct(POWER_MANA) < 20.f)
             {
                 Drinking = true;
                 me->InterruptNonMeleeSpells(false);

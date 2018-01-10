@@ -329,8 +329,8 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
         return NULL;
     }
 
-    if (data->phaseid)
-        creature->SetInPhase(data->phaseid, false, true);
+    if (data->phaseId)
+        creature->SetInPhase(data->phaseId, false, true);
     else if (data->phaseGroup)
         for (auto phase : sDB2Manager.GetPhasesForGroup(data->phaseGroup))
             creature->SetInPhase(phase, false, true);
