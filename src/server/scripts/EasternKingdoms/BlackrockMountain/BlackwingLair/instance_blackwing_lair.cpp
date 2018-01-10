@@ -102,7 +102,7 @@ public:
             }
         }
 
-        uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry)
+        uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) override
         {
             if (entry == GO_BLACK_DRAGON_EGG && GetBossState(DATA_FIREMAW) == DONE)
                 return 0;
