@@ -2888,35 +2888,27 @@ bool WorldObject::HasInPhaseList(uint32 phase)
 void WorldObject::UpdateAreaAndZonePhase()
 {
     bool updateNeeded = false;
-    PhaseInfo const& phases = sObjectMgr->GetAreaAndZonePhases();
-    for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-    {
-        uint32 areaOrZoneId = itr->first;
+    PhaseInfo const& allAreasPhases = sObjectMgr->GetAreaAndZonePhases();
+    uint32 zoneAndArea[] = { GetZoneId(), GetAreaId() };
+
+    // We first remove all phases from other areas & zones
+    for (auto itr = allAreasPhases.begin(); itr != allAreasPhases.end(); ++itr)
         for (PhaseInfoStruct const& phase : itr->second)
+            if (!DB2Manager::IsInArea(GetAreaId(), itr->first))
+                updateNeeded = SetInPhase(phase.Id, false, false) || updateNeeded; // not in area, remove phase, true if there was something removed
+
+    // Then we add the phases from this area and zone if conditions are met
+    // Zone is done before Area, so if Area does not meet condition, the phase will be removed
+    for (uint32 area : zoneAndArea)
+    {
+        if (std::vector<PhaseInfoStruct> const* currentPhases = sObjectMgr->GetPhasesForArea(area))
         {
-            if (areaOrZoneId == GetAreaId() || areaOrZoneId == GetZoneId())
+            for (PhaseInfoStruct const& phaseInfoStruct : *currentPhases)
             {
-                if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
-                {
-                    // add new phase if condition passed, true if it wasnt added before
-                    bool up = SetInPhase(phase.Id, false, true);
-                    if (!updateNeeded && up)
-                        updateNeeded = true;
-                }
-                else
-                {
-                    // condition failed, remove phase, true if there was something removed
-                    bool up = SetInPhase(phase.Id, false, false);
-                    if (!updateNeeded && up)
-                        updateNeeded = true;
-                }
-            }
-            else
-            {
-                // not in area, remove phase, true if there was something removed
-                bool up = SetInPhase(phase.Id, false, false);
-                if (!updateNeeded && up)
-                    updateNeeded = true;
+                bool apply = sConditionMgr->IsObjectMeetToConditions(this, phaseInfoStruct.Conditions);
+
+                // add or remove phase depending of condition
+                updateNeeded = SetInPhase(phaseInfoStruct.Id, false, apply) || updateNeeded;
             }
         }
     }

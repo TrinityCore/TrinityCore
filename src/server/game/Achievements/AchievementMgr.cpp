@@ -18,6 +18,7 @@
 
 #include "AchievementMgr.h"
 #include "AchievementPackets.h"
+#include "DB2HotfixGenerator.h"
 #include "DB2Stores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
@@ -1052,9 +1053,14 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         ++count;
     }
 
+    DB2HotfixGenerator<AchievementEntry> hotfixes(sAchievementStore);
+
     // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
-    if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(4539))
-        const_cast<AchievementEntry*>(achievement)->MapID = 631;    // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
+    // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
+    hotfixes.ApplyHotfix(4539, [](AchievementEntry* achievement)
+    {
+        achievement->MapID = 631;
+    });
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
