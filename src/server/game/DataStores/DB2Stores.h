@@ -32,6 +32,8 @@
 #undef GetClassName
 #endif
 
+class DB2HotfixGeneratorBase;
+
 TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
 TC_GAME_API extern DB2Storage<AdventureJournalEntry>                sAdventureJournalStore;
 TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStore;
@@ -335,6 +337,11 @@ public:
     void Zone2MapCoordinates(uint32 areaId, float& x, float& y) const;
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
     static void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId = nullptr, DBCPosition2D* newPos = nullptr);
+
+private:
+    friend class DB2HotfixGeneratorBase;
+    void InsertNewHotfix(uint32 tableHash, uint32 recordId);
+    uint32 _maxHotfixId = 0;
 };
 
 #define sDB2Manager DB2Manager::Instance()
