@@ -1,7 +1,7 @@
 -- Halls of Origination work
--- @CGUID MUST HAVE SAME VALUE AS IN *_01_world.sql !!!
 SET @CGUID := 1000000; -- 91 entries needed (1000000 - 1000090)
 
+-- Spawns --
 -- spawn missing Temple Fireshaper (not in old sniffs)
 DELETE FROM `creature` WHERE `guid` = @CGUID+0;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
@@ -102,3 +102,444 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+89, 39804, 644, 0, 0, 6, 0, 0, 0, 0, -219.99,  361.734, 75.9968, 0.942478, 75, 3, 0, 1, 0, 1, 0, 0, 0, 0, 0, '', 0),
 (@CGUID+90, 39804, 644, 0, 0, 6, 0, 0, 0, 0, -216.406, 365.87,  75.9968, 5.54348,  75, 3, 0, 1, 0, 1, 0, 0, 0, 0, 0, '', 0);
 
+-- Creature Formations --
+-- First group, on the beginning
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (322519, 322579, 322520, 322578);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(322519,322519,0,0,3,0,0),
+(322519,322579,0,0,3,0,0),
+(322519,322520,0,0,3,0,0),
+(322519,322578,0,0,3,0,0);
+
+-- Second right-side group
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (322466, 322211, 322053, 322465);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(322466,322466,0,0,3,0,0),
+(322466,322211,13,330,515,5,10),
+(322466,322053,13,30,515,5,10),
+(322466,322465,7,0,515,5,10);
+
+-- Second left-side group
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (322210, 321936, 321868, 321867);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(322210,322210,0,0,3,0,0),
+(322210,321936,13,330,515,5,10),
+(322210,321868,13,30,515,5,10),
+(322210,321867,7,0,515,5,10);
+
+-- Third group
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (@CGUID+0, 320942, 321479);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(@CGUID+0,@CGUID+0,0,0,3,0,0),
+(@CGUID+0,320942,0,0,3,0,0),
+(@CGUID+0,321479,0,0,3,0,0);
+
+-- Group before elevator
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (317604, 317603, 317601, 317570);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(317604,317604,0,0,3,0,0),
+(317604,317603,9,320,515,0,0),
+(317604,317601,9,40,515,0,0),
+(317604,317570,11,270,515,0,0);
+
+-- Group west from elevator
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (317458, 320150, 317381, 317382);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(317458,317458,0,0,3,0,0),
+(317458,320150,8,330,515,2,5),
+(317458,317381,8,30,515,2,5),
+(317458,317382,8,90,515,2,5);
+
+-- First group east from elevator
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (307307, 307310, 307320, 307308);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(307307,307307,0,0,3,0,0),
+(307307,307310,0,0,3,0,0),
+(307307,307320,0,0,3,0,0),
+(307307,307308,0,0,3,0,0);
+
+-- Second group east from elevator
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (307365, 307452, 307418, 307453, 307333, 307360);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(307365,307365,0,0,3,0,0),
+(307365,307452,0,0,3,0,0),
+(307365,307418,0,0,3,0,0),
+(307365,307453,0,0,3,0,0),
+(307365,307333,0,0,3,0,0),
+(307365,307360,0,0,3,0,0);
+
+-- Third group east from elevator
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (308039, 307679, 307678, 307680, 307454);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(308039,308039,0,0,3,0,0),
+(308039,307679,0,0,3,0,0),
+(308039,307678,0,0,3,0,0),
+(308039,307680,0,0,3,0,0),
+(308039,307454,0,0,3,0,0);
+
+-- Vault of Light troggs
+DELETE FROM `creature_formations` WHERE `memberGUID` BETWEEN @CGUID+1 AND @CGUID+90; -- safe! troggs only in this range
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+-- First left-side group
+(@CGUID+1,@CGUID+1,0,0,3,0,0),
+(@CGUID+1,@CGUID+2,4,180,515,0,0),
+(@CGUID+1,@CGUID+3,4,220,515,0,0),
+(@CGUID+1,@CGUID+4,4,260,515,0,0),
+(@CGUID+1,@CGUID+5,4,300,515,0,0),
+(@CGUID+1,@CGUID+6,4,340,515,0,0),
+(@CGUID+1,@CGUID+7,4,20,515,0,0),
+(@CGUID+1,@CGUID+8,4,60,515,0,0),
+(@CGUID+1,@CGUID+9,4,100,515,0,0),
+(@CGUID+1,@CGUID+10,4,140,515,0,0),
+-- First right-side group
+(@CGUID+11,@CGUID+11,0,0,3,0,0),
+(@CGUID+11,@CGUID+12,4,180,515,0,0),
+(@CGUID+11,@CGUID+13,4,220,515,0,0),
+(@CGUID+11,@CGUID+14,4,260,515,0,0),
+(@CGUID+11,@CGUID+15,4,300,515,0,0),
+(@CGUID+11,@CGUID+16,4,340,515,0,0),
+(@CGUID+11,@CGUID+17,4,20,515,0,0),
+(@CGUID+11,@CGUID+18,4,60,515,0,0),
+(@CGUID+11,@CGUID+19,4,100,515,0,0),
+(@CGUID+11,@CGUID+20,4,140,515,0,0),
+-- First middle group
+(@CGUID+21,@CGUID+21,0,0,3,0,0),
+(@CGUID+21,@CGUID+22,0,0,3,0,0),
+(@CGUID+21,@CGUID+23,0,0,3,0,0),
+(@CGUID+21,@CGUID+24,0,0,3,0,0),
+(@CGUID+21,@CGUID+25,0,0,3,0,0),
+(@CGUID+21,@CGUID+26,0,0,3,0,0),
+(@CGUID+21,@CGUID+27,0,0,3,0,0),
+(@CGUID+21,@CGUID+28,0,0,3,0,0),
+(@CGUID+21,@CGUID+29,0,0,3,0,0),
+(@CGUID+21,@CGUID+30,0,0,3,0,0),
+-- Second middle group
+(@CGUID+31,@CGUID+31,0,0,3,0,0),
+(@CGUID+31,@CGUID+33,0,0,3,0,0),
+(@CGUID+31,@CGUID+51,0,0,3,0,0),
+(@CGUID+31,@CGUID+52,0,0,3,0,0),
+(@CGUID+31,@CGUID+53,0,0,3,0,0),
+(@CGUID+31,@CGUID+54,0,0,3,0,0),
+(@CGUID+31,@CGUID+55,0,0,3,0,0),
+(@CGUID+31,@CGUID+56,0,0,3,0,0),
+(@CGUID+31,@CGUID+57,0,0,3,0,0),
+(@CGUID+31,@CGUID+58,0,0,3,0,0),
+-- Third middle group
+(@CGUID+37,@CGUID+37,0,0,3,0,0),
+(@CGUID+37,@CGUID+38,0,0,3,0,0),
+(@CGUID+37,@CGUID+59,0,0,3,0,0),
+(@CGUID+37,@CGUID+60,0,0,3,0,0),
+(@CGUID+37,@CGUID+61,0,0,3,0,0),
+(@CGUID+37,@CGUID+62,0,0,3,0,0),
+(@CGUID+37,@CGUID+63,0,0,3,0,0),
+(@CGUID+37,@CGUID+64,0,0,3,0,0),
+(@CGUID+37,@CGUID+65,0,0,3,0,0),
+(@CGUID+37,@CGUID+66,0,0,3,0,0),
+-- Forth middle group
+(@CGUID+34,@CGUID+34,0,0,3,0,0),
+(@CGUID+34,@CGUID+35,0,0,3,0,0),
+(@CGUID+34,@CGUID+76,0,0,3,0,0),
+(@CGUID+34,@CGUID+77,0,0,3,0,0),
+(@CGUID+34,@CGUID+78,0,0,3,0,0),
+(@CGUID+34,@CGUID+82,0,0,3,0,0),
+(@CGUID+34,@CGUID+86,0,0,3,0,0),
+(@CGUID+34,@CGUID+88,0,0,3,0,0),
+(@CGUID+34,@CGUID+89,0,0,3,0,0),
+(@CGUID+34,@CGUID+90,0,0,3,0,0),
+-- Second left-side group
+(@CGUID+39,@CGUID+39,0,0,3,0,0),
+(@CGUID+39,@CGUID+42,4,180,515,0,0),
+(@CGUID+39,@CGUID+72,4,220,515,0,0),
+(@CGUID+39,@CGUID+74,4,260,515,0,0),
+(@CGUID+39,@CGUID+75,4,300,515,0,0),
+(@CGUID+39,@CGUID+80,4,340,515,0,0),
+(@CGUID+39,@CGUID+81,4,20,515,0,0),
+(@CGUID+39,@CGUID+84,4,60,515,0,0),
+(@CGUID+39,@CGUID+85,4,100,515,0,0),
+(@CGUID+39,@CGUID+87,4,140,515,0,0),
+-- Second right-side group
+(@CGUID+40,@CGUID+40,0,0,3,0,0),
+(@CGUID+40,@CGUID+41,4,180,515,0,0),
+(@CGUID+40,@CGUID+67,4,220,515,0,0),
+(@CGUID+40,@CGUID+68,4,260,515,0,0),
+(@CGUID+40,@CGUID+69,4,300,515,0,0),
+(@CGUID+40,@CGUID+70,4,340,515,0,0),
+(@CGUID+40,@CGUID+71,4,20,515,0,0),
+(@CGUID+40,@CGUID+73,4,60,515,0,0),
+(@CGUID+40,@CGUID+79,4,100,515,0,0),
+(@CGUID+40,@CGUID+83,4,140,515,0,0),
+-- Moving middle group
+(@CGUID+36,@CGUID+36,0,0,3,0,0),
+(@CGUID+36,@CGUID+32,4,180,515,0,0),
+(@CGUID+36,@CGUID+50,4,220,515,0,0),
+(@CGUID+36,@CGUID+49,4,260,515,0,0),
+(@CGUID+36,@CGUID+47,4,300,515,0,0),
+(@CGUID+36,@CGUID+45,4,340,515,0,0),
+(@CGUID+36,@CGUID+43,4,20,515,0,0),
+(@CGUID+36,@CGUID+44,4,60,515,0,0),
+(@CGUID+36,@CGUID+46,4,100,515,0,0),
+(@CGUID+36,@CGUID+48,4,140,515,0,0);
+
+-- Isiset trash right-side formation
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (313971, 317535, 313950, 313951, 313952);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(313971,313971,0,0,3,0,0),
+(313971,317535,0,0,3,0,0),
+(313971,313950,0,0,3,0,0),
+(313971,313951,0,0,3,0,0),
+(313971,313952,0,0,3,0,0);
+
+-- Isiset trash left-side formation
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (313972, 320781, 320754, 313949, 313953);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(313972,313972,0,0,3,0,0),
+(313972,320781,0,0,3,0,0),
+(313972,320754,0,0,3,0,0),
+(313972,313949,0,0,3,0,0),
+(313972,313953,0,0,3,0,0);
+
+-- Ammunae trash
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (317605, 313947);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(317605,317605,0,0,3,0,0),
+(317605,313947,0,0,3,0,0);
+
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (317606, 313948);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(317606,317606,0,0,3,0,0),
+(317606,313948,0,0,3,0,0);
+
+-- Setesh trash
+-- Void Worms left-side formation
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (313958, 313959);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(313958,313958,0,0,3,5,10),
+(313958,313959,90,2,515,5,10);
+
+-- Void Worms right-side formation
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (313961, 313960);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(313961,313961,0,0,3,4,8),
+(313961,313960,270,2,515,4,8);
+
+-- Void Lord and 2x Void Seeker formation
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (313962, 313967, 313968);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(313962,313962,0,0,3,0,0),
+(313962,313967,0,0,3,0,0),
+(313962,313968,0,0,3,0,0);
+
+-- Rajh trash
+DELETE FROM `creature_formations` WHERE `memberGUID` IN (314159, 314158, 313086);
+INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
+(314159,314159,0,0,3,0,0),
+(314159,314158,0,0,3,0,0),
+(314159,313086,0,0,3,0,0);
+
+-- Random Movement --
+-- Pit Viper snakes, Camels, most of Isiset trash, both Lifewarden Nymphs
+UPDATE `creature` SET `MovementType` = 1, `spawndist` = 5 WHERE `map` = 644 AND `id` = 39444;
+UPDATE `creature` SET `MovementType` = 1, `spawndist` = 5 WHERE `map` = 644 AND `id` = 39443;
+UPDATE `creature` SET `MovementType` = 1, `spawndist` = 5 WHERE `guid` IN (317535, 313950, 313951, 313952, 320781, 320754, 313949, 313953);
+UPDATE `creature` SET `MovementType` = 1, `spawndist` = 5 WHERE `guid` IN (313947, 313948);
+
+-- Waypoints --
+-- trash paths
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (322466);
+DELETE FROM `creature_addon` WHERE `guid` IN (322466);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(322466, 3224660, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (3224660);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(3224660,  1, -749.123,  472.962,  67.20775, 0, 0, 0, 0, 100, 0),
+(3224660,  2, -748.2323, 464.9793, 67.19108, 0, 0, 0, 0, 100, 0),
+(3224660,  3, -734.168,  459.564,  67.17745, 0, 0, 0, 0, 100, 0),
+(3224660,  4, -717.325,  459.96,   67.18442, 0, 0, 0, 0, 100, 0),
+(3224660,  5, -697.075,  460.267,  73.2090,  0, 0, 0, 0, 100, 0),
+(3224660,  6, -678.781,  460.182,  79.06738, 0, 0, 0, 0, 100, 0), -- turns back
+(3224660,  7, -697.075,  460.267,  73.2090,  0, 0, 0, 0, 100, 0),
+(3224660,  8, -717.325,  459.96,   67.18442, 0, 0, 0, 0, 100, 0),
+(3224660,  9, -734.168,  459.564,  67.17745, 0, 0, 0, 0, 100, 0),
+(3224660, 10, -748.2323, 464.9793, 67.19108, 0, 0, 0, 0, 100, 0);
+
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (322210);
+DELETE FROM `creature_addon` WHERE `guid` IN (322210);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(322210, 3222100, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (3222100);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(3222100,  1, -749.771, 499.585, 67.21061, 0, 0, 0, 0, 100, 0),
+(3222100,  2, -746.602, 515.061, 67.2137,  0, 0, 0, 0, 100, 0),
+(3222100,  3, -722.425, 516.491, 67.18806, 0, 0, 0, 0, 100, 0),
+(3222100,  4, -697.958, 516.549, 72.92428, 0, 0, 0, 0, 100, 0),
+(3222100,  5, -678.974, 516.177, 78.99928, 0, 0, 0, 0, 100, 0),
+(3222100,  6, -664.887, 515.224, 83.51125, 0, 0, 0, 0, 100, 0), -- turns back
+(3222100,  7, -678.974, 516.177, 78.99928, 0, 0, 0, 0, 100, 0), 
+(3222100,  8, -697.958, 516.549, 72.92428, 0, 0, 0, 0, 100, 0),
+(3222100,  9, -722.425, 516.491, 67.18806, 0, 0, 0, 0, 100, 0),
+(3222100, 10, -746.602, 515.061, 67.2137,  0, 0, 0, 0, 100, 0);
+
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (317458);
+DELETE FROM `creature_addon` WHERE `guid` IN (317458);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(317458, 3174580, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (3174580);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(3174580, 1, -507.01,   338.422,  95.64893, 0, 0, 0, 0, 100, 0),
+(3174580, 2, -506.941,  330.323,  95.65701, 0, 0, 0, 0, 100, 0), 
+(3174580, 3, -507.142,  319.997,  95.65394, 0, 0, 0, 0, 100, 0), -- turns back
+(3174580, 4, -506.941,  330.323,  95.65701, 0, 0, 0, 0, 100, 0), 
+(3174580, 5, -507.01,   338.422,  95.64893, 0, 0, 0, 0, 100, 0),
+(3174580, 6, -507.0659, 347.3517, 95.64893, 0, 0, 0, 0, 100, 0);
+
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (317604);
+DELETE FROM `creature_addon` WHERE `guid` IN (317604);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(317604, 3176040, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (3176040);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(3176040,  1, -622.665,  193.2998, 81.75228, 0, 0, 0, 0, 100, 0),
+(3176040,  2, -634.005,  193.528,  81.82398, 0, 0, 0, 0, 100, 0),
+(3176040,  3, -640.3165, 193.7006, 81.9477,  0, 0, 0, 0, 100, 0),
+(3176040,  4, -640.856,  204.708,  81.80561, 0, 0, 0, 0, 100, 0),
+(3176040,  5, -640.726,  212.753,  81.82135, 0, 0, 0, 0, 100, 0),
+(3176040,  6, -640.714,  224.997,  81.84181, 0, 0, 0, 0, 100, 0), -- turns back
+(3176040,  7, -640.726,  212.753,  81.82135, 0, 0, 0, 0, 100, 0),
+(3176040,  8, -640.856,  204.708,  81.80561, 0, 0, 0, 0, 100, 0),
+(3176040,  9, -640.3165, 193.7006, 81.9477,  0, 0, 0, 0, 100, 0),
+(3176040, 10, -634.005,  193.528,  81.82398, 0, 0, 0, 0, 100, 0);
+
+SET @wp := @CGUID+1+"0";
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (@CGUID+1);
+DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+1);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(@CGUID+1, @wp, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (@wp);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(@wp,  1, -340.8974, 457.3196, 89.13029, 0, 0, 0, 0, 100, 0),
+(@wp,  2, -338.6441, 441.092,  89.15115, 0, 0, 0, 0, 100, 0),
+(@wp,  3, -336.803,  421.161,  83.844,   0, 0, 0, 0, 100, 0),
+(@wp,  4, -336.425,  402.235,  78.255,   0, 0, 0, 0, 100, 0),
+(@wp,  5, -340.507,  389.498,  75.913,   0, 0, 0, 0, 100, 0),
+(@wp,  6, -327.793,  380.275,  75.914,   0, 0, 0, 0, 100, 0),
+(@wp,  7, -320.367,  404.156,  78.804,   0, 0, 0, 0, 100, 0),
+(@wp,  8, -320.326,  387.264,  75.914,   0, 0, 0, 0, 100, 0),
+(@wp,  9, -322.123,  418.502,  83.045,   0, 0, 0, 0, 100, 0),
+(@wp, 10, -320.925,  445.385,  89.147,   0, 0, 0, 0, 100, 0),
+(@wp, 11, -314.721,  466.031,  89.134,   0, 0, 0, 0, 100, 0),
+(@wp, 12, -344.675,  464.471,  89.125,   0, 0, 0, 0, 100, 0);
+
+SET @wp := @CGUID+11+"0";
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (@CGUID+11);
+DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+11);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(@CGUID+11, @wp, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (@wp);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(@wp,  1, -320.240, 348.689, 75.915, 0, 0, 0, 0, 100, 0),
+(@wp,  2, -322.295, 328.576, 79.189, 0, 0, 0, 0, 100, 0),
+(@wp,  3, -321.970, 303.343, 86.694, 0, 0, 0, 0, 100, 0),
+(@wp,  4, -320.053, 276.121, 89.126, 0, 0, 0, 0, 100, 0),
+(@wp,  5, -313.603, 268.022, 89.126, 0, 0, 0, 0, 100, 0),
+(@wp,  6, -344.487, 266.569, 89.126, 0, 0, 0, 0, 100, 0),
+(@wp,  7, -338.947, 281.011, 89.126, 0, 0, 0, 0, 100, 0),
+(@wp,  8, -338.379, 295.442, 89.009, 0, 0, 0, 0, 100, 0),
+(@wp,  9, -337.555, 312.697, 83.940, 0, 0, 0, 0, 100, 0),
+(@wp, 10, -337.478, 336.837, 76.707, 0, 0, 0, 0, 100, 0),
+(@wp, 11, -334.222, 347.829, 75.916, 0, 0, 0, 0, 100, 0);
+
+SET @wp := @CGUID+39+"0";
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (@CGUID+39);
+DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+39);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(@CGUID+39, @wp, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (@wp);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(@wp,  1, -229.809, 425.084, 85.0233, 0, 0, 0, 0, 100, 0),
+(@wp,  2, -231.281, 454.782, 89.1416, 0, 0, 0, 0, 100, 0),
+(@wp,  3, -238.517, 466.93,  89.1382, 0, 0, 0, 0, 100, 0),
+(@wp,  4, -207.506, 467.781, 89.1251, 0, 0, 0, 0, 100, 0),
+(@wp,  5, -214.589, 455.196, 89.1241, 0, 0, 0, 0, 100, 0),
+(@wp,  6, -214.108, 428.046, 85.9165, 0, 0, 0, 0, 100, 0),
+(@wp,  7, -213.996, 399.453, 77.4527, 0, 0, 0, 0, 100, 0),
+(@wp,  8, -215.003, 383.376, 75.9213, 0, 0, 0, 0, 100, 0),
+(@wp,  9, -230.138, 382.637, 75.9021, 0, 0, 0, 0, 100, 0),
+(@wp, 10, -231.266, 407.546, 79.7728, 0, 0, 0, 0, 100, 0);
+
+SET @wp := @CGUID+40+"0";
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (@CGUID+40);
+DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+40);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(@CGUID+40, @wp, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (@wp);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(@wp,  1, -223.72,  350.826, 75.912,  0, 0, 0, 0, 100, 0),
+(@wp,  2, -214.202, 339.769, 75.8889, 0, 0, 0, 0, 100, 0),
+(@wp,  3, -214.631, 315.951, 82.9647, 0, 0, 0, 0, 100, 0),
+(@wp,  4, -214.432, 279.69,  89.1245, 0, 0, 0, 0, 100, 0),
+(@wp,  5, -207.678, 267.186, 89.1249, 0, 0, 0, 0, 100, 0),
+(@wp,  6, -238.754, 265.643, 89.1254, 0, 0, 0, 0, 100, 0),
+(@wp,  7, -231.774, 279.155, 89.1254, 0, 0, 0, 0, 100, 0),
+(@wp,  8, -232.392, 305.642, 86.0238, 0, 0, 0, 0, 100, 0),
+(@wp,  9, -233.215, 323.859, 80.5908, 0, 0, 0, 0, 100, 0),
+(@wp, 10, -233.501, 343.237, 75.9087, 0, 0, 0, 0, 100, 0);
+
+SET @wp := @CGUID+36+"0";
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (@CGUID+36);
+DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+36);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(@CGUID+36, @wp, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (@wp);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(@wp,  1, -286.595, 362.899, 75.8408, 0, 0, 0, 0, 100, 0),
+(@wp,  2, -264.119, 373.367, 75.7968, 0, 0, 0, 0, 100, 0),
+(@wp,  3, -241.036, 378.026, 75.9096, 0, 0, 0, 0, 100, 0),
+(@wp,  4, -222.212, 381.237, 75.9118, 0, 0, 0, 0, 100, 0),
+(@wp,  5, -208.335, 375.96,  75.9188, 0, 0, 0, 0, 100, 0),
+(@wp,  6, -205.636, 357.433, 75.9146, 0, 0, 0, 0, 100, 0),
+(@wp,  7, -208.335, 375.96,  75.9188, 0, 0, 0, 0, 100, 0),
+(@wp,  8, -222.212, 381.237, 75.9118, 0, 0, 0, 0, 100, 0),
+(@wp,  9, -241.036, 378.026, 75.9096, 0, 0, 0, 0, 100, 0),
+(@wp, 10, -264.119, 373.367, 75.7968, 0, 0, 0, 0, 100, 0),
+(@wp, 11, -286.595, 362.899, 75.8408, 0, 0, 0, 0, 100, 0),
+(@wp, 12, -302.983, 356.94,  75.8865, 0, 0, 0, 0, 100, 0),
+(@wp, 13, -316.96,  351.339, 75.9109, 0, 0, 0, 0, 100, 0),
+(@wp, 14, -336.149, 350.328, 75.9152, 0, 0, 0, 0, 100, 0),
+(@wp, 15, -344.571, 366.36,  75.9152, 0, 0, 0, 0, 100, 0),
+(@wp, 16, -336.149, 350.328, 75.9152, 0, 0, 0, 0, 100, 0),
+(@wp, 17, -316.96,  351.339, 75.9109, 0, 0, 0, 0, 100, 0),
+(@wp, 18, -302.983, 356.94,  75.8865, 0, 0, 0, 0, 100, 0);
+
+-- Void Wyrm left-side path
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (313958);
+DELETE FROM `creature_addon` WHERE `guid` IN (313958);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(313958, 3139580, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (3139580);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(3139580,  1,  -486.3099, -3.628408, 343.9285, 0, 0, 0, 0, 100, 0),
+(3139580,  2,  -478.6337,  2.699653, 343.9205, 0, 0, 0, 0, 100, 0),
+(3139580,  3,  -479.5243, 11.73611,  343.924,  0, 0, 0, 0, 100, 0),
+(3139580,  4,  -483.2934, 21.49826,  343.9048, 0, 0, 0, 0, 100, 0),
+(3139580,  5,  -491.0434, 28.45313,  343.942,  0, 0, 0, 0, 100, 0),
+(3139580,  6,  -479.6943, 29.81992,  343.9431, 0, 0, 0, 0, 100, 0), -- turn back
+(3139580,  7,  -491.0434, 28.45313,  343.942,  0, 0, 0, 0, 100, 0),
+(3139580,  8,  -483.2934, 21.49826,  343.9048, 0, 0, 0, 0, 100, 0),
+(3139580,  9,  -479.5243, 11.73611,  343.924,  0, 0, 0, 0, 100, 0),
+(3139580, 10,  -478.6337,  2.699653, 343.9205, 0, 0, 0, 0, 100, 0);
+
+-- Void Wyrm right-side path
+UPDATE `creature` SET `MovementType` = 2 WHERE `guid` IN (313961);
+DELETE FROM `creature_addon` WHERE `guid` IN (313961);
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(313961, 3139610, 0, 0, 0, 0, 0, 0, 0, NULL);
+DELETE FROM `waypoint_data` WHERE `id` IN (3139610);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
+(3139610,  1, -519.3091,  8.16338, 343.9321, 0, 0, 0, 0, 100, 0),
+(3139610,  2, -522.6979, 13.5,     343.923,  0, 0, 0, 0, 100, 0),
+(3139610,  3, -521.3993, 20.92361, 343.9171, 0, 0, 0, 0, 100, 0),
+(3139610,  4, -519.0362, 24.70054, 343.9201, 0, 0, 0, 0, 100, 0),
+(3139610,  5, -512.7574, 26.00804, 343.9253, 0, 0, 0, 0, 100, 0), -- turn back
+(3139610,  6, -519.0362, 24.70054, 343.9201, 0, 0, 0, 0, 100, 0),
+(3139610,  7, -521.3993, 20.92361, 343.9171, 0, 0, 0, 0, 100, 0),
+(3139610,  8, -522.6979, 13.5,     343.923,  0, 0, 0, 0, 100, 0);
