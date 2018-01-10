@@ -216,6 +216,26 @@ public:
     }
 };
 
+enum QuestOnlyTheWorthyShallPassSpells
+{
+    SPELL_CANCEL_FIRE_CRASH_PHASE   = 108153
+};
+
+class q_only_the_worthy_shall_pass : public QuestScript
+{
+public:
+    q_only_the_worthy_shall_pass() : QuestScript("q_only_the_worthy_shall_pass") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->CastSpell(player, SPELL_CANCEL_FIRE_CRASH_PHASE, true);
+            player->UpdateAreaAndZonePhase();
+        }
+    }
+};
+
 enum FanTheFlamesSpells
 {
     SPELL_THROW_WOOD        = 109090,
@@ -2542,6 +2562,7 @@ void AddSC_the_wandering_isle()
     new spell_meditation_timer_bar();
     new spell_cave_of_scrolls_comp_timer_aura();
     new spell_summon_living_air();
+    new q_only_the_worthy_shall_pass();
     new spell_fan_the_flames();
     new q_passion_of_shenzin_su();
     new at_singing_pools_transform();
