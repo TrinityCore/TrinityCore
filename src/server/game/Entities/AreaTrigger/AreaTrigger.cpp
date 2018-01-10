@@ -702,6 +702,26 @@ bool AreaTrigger::HasSplines() const
     return bool(_spline);
 }
 
+void AreaTrigger::UpdateTimeToTarget(uint32 timeToTarget)
+{
+    if (!HasSplines())
+        return;
+
+    float currentTimePercent = GetCurrentTimePercent();
+    int lastPositionIndex = 0;
+    float percentFromLastPoint = 0;
+    _spline->computeIndex(currentTimePercent, lastPositionIndex, percentFromLastPoint);
+
+    std::vector<G3D::Vector3> newPoints;
+    newPoints.push_back(G3D::Vector3(GetPositionX(), GetPositionY(), GetPositionZ()));
+    newPoints.push_back(newPoints[0]);
+
+    for (int i = lastPositionIndex + 1; i < _spline->getPointCount(); ++i)
+        newPoints.push_back(_spline->getPoint(i));
+
+    InitSplines(newPoints, timeToTarget);
+}
+
 bool AreaTrigger::SetDestination(Position const& pos, uint32 timeToTarget)
 {
     PathGenerator path(GetCaster());
@@ -740,22 +760,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
         return;
     }
 
-    float currentTimePercent = float(_movementTime) / float(GetTimeToTarget());
-
-    if (currentTimePercent <= 0.f)
-        return;
-
-    if (GetMiscTemplate()->MoveCurveId)
-    {
-        float progress = sDB2Manager.GetCurveValueAt(GetMiscTemplate()->MoveCurveId, currentTimePercent);
-        if (progress < 0.f || progress > 1.f)
-        {
-            TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (Id: %u, SpellMiscId: %u) has wrong progress (%f) caused by curve calculation (MoveCurveId: %u)",
-                GetTemplate()->Id, GetMiscTemplate()->MiscId, progress, GetMiscTemplate()->MorphCurveId);
-        }
-        else
-            currentTimePercent = progress;
-    }
+    float currentTimePercent = GetCurrentTimePercent();
 
     int lastPositionIndex = 0;
     float percentFromLastPoint = 0;
@@ -781,6 +786,28 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
         _lastSplineIndex = lastPositionIndex;
         _ai->OnSplineIndexReached(_lastSplineIndex);
     }
+}
+
+float AreaTrigger::GetCurrentTimePercent()
+{
+    float currentTimePercent = float(_movementTime) / float(GetTimeToTarget());
+
+    if (currentTimePercent <= 0.f)
+        return 0.0f;
+
+    if (GetMiscTemplate()->MoveCurveId)
+    {
+        float progress = sDB2Manager.GetCurveValueAt(GetMiscTemplate()->MoveCurveId, currentTimePercent);
+        if (progress < 0.f || progress > 1.f)
+        {
+            TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (Id: %u, SpellMiscId: %u) has wrong progress (%f) caused by curve calculation (MoveCurveId: %u)",
+                GetTemplate()->Id, GetMiscTemplate()->MiscId, progress, GetMiscTemplate()->MorphCurveId);
+        }
+        else
+            currentTimePercent = progress;
+    }
+
+    return currentTimePercent;
 }
 
 void AreaTrigger::DebugVisualizePosition()

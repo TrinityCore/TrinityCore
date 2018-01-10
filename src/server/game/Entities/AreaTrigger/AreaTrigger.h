@@ -66,6 +66,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
         uint32 GetTimeToTarget() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET); }
         uint32 GetTimeToTargetScale() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE); }
+        void UpdateTimeToTarget(uint32 timeToTarget);
         int32 GetDuration() const { return _duration; }
         int32 GetTotalDuration() const { return _totalDuration; }
         void SetDuration(int32 newDuration);
@@ -104,6 +105,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void SearchUnitInCylinder(std::list<Unit*>& targetList);
         bool CheckIsInPolygon2D(Position const* pos) const;
         void HandleUnitEnterExit(std::list<Unit*> const& targetList);
+
+        float GetCurrentTimePercent();
 
         void DoActions(Unit* unit);
         void UndoActions(Unit* unit);
