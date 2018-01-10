@@ -137,7 +137,7 @@ enum ToastType
     TOAST_GOLD           = 2,
 };
 
-enum ToastDisplayMethod
+enum ToastDisplayMethod : uint8
 {
     TOAST_METHOD_NONE                   = 0,
     TOAST_METHOD_POPUP                  = 1,

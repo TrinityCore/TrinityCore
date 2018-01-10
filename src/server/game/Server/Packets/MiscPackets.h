@@ -893,24 +893,6 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class DisplayToast final : public ServerPacket
-        {
-        public:
-            DisplayToast() : ServerPacket(SMSG_DISPLAY_TOAST) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 EntityId = 0;
-            uint32 ToastType = 0;
-            uint64 Quantity = 1;
-            int32 RandomPropertiesID = 0;
-            uint32 QuestID = 0;
-            uint8 ToastMethod = 1; // TOAST_METHOD_POPUP
-            bool IsBonusRoll = false;
-            bool Mailed = false;
-            std::vector<int32> bonusListIDs;
-        };
-
         class CloseInteraction final : public ClientPacket
         {
         public:
