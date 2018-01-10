@@ -3088,23 +3088,13 @@ void WorldObject::UpdateAreaAndZonePhase()
 {
     bool updateNeeded = false;
     PhaseInfo const& allAreasPhases = sObjectMgr->GetAreaAndZonePhases();
-    std::vector<uint32> zoneAndArea = { GetZoneId(), GetAreaId() };
+    uint32 zoneAndArea[] = { GetZoneId(), GetAreaId() };
 
     // We first remove all phases from other areas & zones
-    for (PhaseInfo::const_iterator itr = allAreasPhases.begin(); itr != allAreasPhases.end(); ++itr)
-    {
-        uint32 areaOrZoneId = itr->first;
+    for (auto itr = allAreasPhases.begin(); itr != allAreasPhases.end(); ++itr)
         for (PhaseInfoStruct const& phase : itr->second)
-        {
-            if (!DB2Manager::IsInArea(GetAreaId(), areaOrZoneId))
-            {
-                // not in area, remove phase, true if there was something removed
-                bool up = SetInPhase(phase.Id, false, false);
-                if (!updateNeeded && up)
-                    updateNeeded = true;
-            }
-        }
-    }
+            if (!DB2Manager::IsInArea(GetAreaId(), itr->first))
+                updateNeeded = SetInPhase(phase.Id, false, false) || updateNeeded; // not in area, remove phase, true if there was something removed
 
     // Then we add the phases from this area and zone if conditions are met
     // Zone is done before Area, so if Area does not meet condition, the phase will be removed
@@ -3112,14 +3102,12 @@ void WorldObject::UpdateAreaAndZonePhase()
     {
         if (std::vector<PhaseInfoStruct> const* currentPhases = sObjectMgr->GetPhasesForArea(area))
         {
-            for (PhaseInfoStruct phaseInfoStruct : *currentPhases)
+            for (PhaseInfoStruct const& phaseInfoStruct : *currentPhases)
             {
                 bool apply = sConditionMgr->IsObjectMeetToConditions(this, phaseInfoStruct.Conditions);
 
                 // add or remove phase depending of condition
-                bool up = SetInPhase(phaseInfoStruct.Id, false, apply);
-                if (!updateNeeded && up)
-                    updateNeeded = true;
+                updateNeeded = SetInPhase(phaseInfoStruct.Id, false, apply) || updateNeeded;
             }
         }
     }
