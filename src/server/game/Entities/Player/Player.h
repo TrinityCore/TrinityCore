@@ -2249,6 +2249,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendMovieStart(uint32 movieId);
 
         uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
+        void ShowNeutralPlayerFactionSelectUI();
 
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
@@ -2390,7 +2391,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 GetLastTargetedGO() { return _lastTargetedGO; }
         void SetLastTargetedGO(uint32 lastTargetedGO) { _lastTargetedGO = lastTargetedGO; }
-        void ShowNeutralPlayerFactionSelectUI();
 
         float GetPersonnalXpRate() { return _PersonnalXpRate; }
         void SetPersonnalXpRate(float PersonnalXpRate);
