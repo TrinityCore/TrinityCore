@@ -188,7 +188,7 @@ public:
                 {
                     
                     case EVENT_SPAWN_ENERGY_FLUX:
-                        DoCastSelf(me->GetEntry() == NPC_TRASH_SPATIAL_FLUX ? SPELL_SPAWN_ENERGY_FLUX_TRASH : SPELL_SPAWN_ENERGY_FLUX_ISISET);
+                        DoCastSelf(me->GetEntry() == NPC_SPATIAL_FLUX_TRASH ? SPELL_SPAWN_ENERGY_FLUX_TRASH : SPELL_SPAWN_ENERGY_FLUX_ISISET);
                         events.Repeat(Seconds(12));
                         break;
                     case EVENT_DUMMY_NUKE:
@@ -225,7 +225,7 @@ public:
         {
             me->SetReactState(REACT_PASSIVE);
             DoCastSelf(SPELL_ENERGY_FLUX_PERIODIC);
-            DoCastSelf(me->GetEntry() == NPC_TRASH_ENERGY_FLUX ? SPELL_ENERGY_FLUX_BEAM_TRASH : SPELL_ENERGY_FLUX_BEAM_ISISET);
+            DoCastSelf(me->GetEntry() == NPC_ENERGY_FLUX_TRASH ? SPELL_ENERGY_FLUX_BEAM_TRASH : SPELL_ENERGY_FLUX_BEAM_ISISET);
         }
 
         void IsSummonedBy(Unit* /*summoner*/) override

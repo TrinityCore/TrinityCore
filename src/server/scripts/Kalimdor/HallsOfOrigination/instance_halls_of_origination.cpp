@@ -188,7 +188,7 @@ class instance_halls_of_origination : public InstanceMapScript
                             creature->DespawnOrUnsummon(0, Seconds(DAY));
                         //creature->SetFarVisible(true);
                         break;
-                    case NPC_SPATIAL_FLUX:
+                    case NPC_SPATIAL_FLUX_TRASH:
                     case NPC_SPATIAL_ANOMALY:
                     case NPC_FLUX_ANIMATOR:
                     case NPC_STAR_SHARD:
@@ -334,7 +334,7 @@ class instance_halls_of_origination : public InstanceMapScript
                         // Check if whole formation is dead, then despawn its leader
                         for (ObjectGuid guid : isisetTrashGUIDs)
                             if (Creature* member = instance->GetCreature(guid))
-                                if (member->GetEntry() != NPC_SPATIAL_FLUX && member->GetFormation()->GetId() == group->GetId() && member->IsAlive())
+                                if (member->GetEntry() != NPC_SPATIAL_FLUX_TRASH && member->GetFormation()->GetId() == group->GetId() && member->IsAlive())
                                     return;
 
                         // Despawn leader (Spatial Flux)

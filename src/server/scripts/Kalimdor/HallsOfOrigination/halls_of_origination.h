@@ -104,8 +104,8 @@ enum HOOCreatures
     NPC_STONE_TROGG_ROCK_FLINGER    = 40252,
 
     BOSS_ISISET                     = 39587,
-    NPC_TRASH_SPATIAL_FLUX          = 39612, // Isiset trash
-    NPC_TRASH_ENERGY_FLUX           = 44015,
+    NPC_SPATIAL_FLUX_TRASH          = 39612, // Isiset trash
+    NPC_ENERGY_FLUX_TRASH           = 44015,
     NPC_SPATIAL_ANOMALY             = 40170,
     NPC_FLUX_ANIMATOR               = 40033,
     NPC_STAR_SHARD                  = 40106,
