@@ -1542,7 +1542,7 @@ void MovementInfo::OutDebug()
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
 m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
-m_phaseMask(PHASEMASK_NORMAL), _dbPhase(0), m_notifyflags(0), m_executed_notifies(0)
+_dbPhase(0), m_notifyflags(0), m_executed_notifies(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
@@ -2421,7 +2421,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(GenerateLowGuid<HighGuid::Creature>(), this, 0, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
+    if (!summon->Create(GenerateLowGuid<HighGuid::Creature>(), this, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
     {
         delete summon;
         return NULL;
@@ -2530,7 +2530,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
 
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
+    if (!go->Create(entry, map, pos, rot, 255, GO_STATE_READY))
     {
         delete go;
         return nullptr;
@@ -2870,14 +2870,6 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     pos.SetOrientation(GetOrientation());
 }
 
-void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
-{
-    m_phaseMask = newPhaseMask;
-
-    if (update && IsInWorld())
-        UpdateObjectVisibility();
-}
-
 bool WorldObject::HasInPhaseList(uint32 phase)
 {
     return _phases.find(phase) != _phases.end();
@@ -2920,20 +2912,15 @@ void WorldObject::UpdateAreaAndZonePhase()
         for (Unit::AuraEffectList::const_iterator itr = auraPhaseList.begin(); itr != auraPhaseList.end(); ++itr)
         {
             uint32 phase = uint32((*itr)->GetMiscValueB());
-            bool up = SetInPhase(phase, false, true);
-            if (!updateNeeded && up)
-                updateNeeded = true;
+            updateNeeded = SetInPhase(phase, false, true) || updateNeeded;
         }
         Unit::AuraEffectList const& auraPhaseGroupList = unit->GetAuraEffectsByType(SPELL_AURA_PHASE_GROUP);
         for (Unit::AuraEffectList::const_iterator itr = auraPhaseGroupList.begin(); itr != auraPhaseGroupList.end(); ++itr)
         {
-            bool up = false;
             uint32 phaseGroup = uint32((*itr)->GetMiscValueB());
-            std::set<uint32> const& phaseIDs = sDB2Manager.GetPhasesForGroup(phaseGroup);
+            std::set<uint32> phaseIDs = sDB2Manager.GetPhasesForGroup(phaseGroup);
             for (uint32 phase : phaseIDs)
-                up = SetInPhase(phase, false, true);
-            if (!updateNeeded && up)
-                updateNeeded = true;
+                updateNeeded = SetInPhase(phase, false, true) || updateNeeded;
         }
     }
 
@@ -2952,13 +2939,16 @@ bool WorldObject::SetInPhase(uint32 id, bool update, bool apply)
     {
         if (apply)
         {
-            if (HasInPhaseList(id)) // do not run the updates if we are already in this phase
+            // do not run the updates if we are already in this phase
+            if (!_phases.insert(id).second)
                 return false;
-
-            _phases.insert(id);
         }
         else
         {
+            auto phaseItr = _phases.find(id);
+            if (phaseItr == _phases.end())
+                return false;
+
             // if area phase passes the condition we should not remove it (ie: if remove called from aura remove)
             // this however breaks the .mod phase command, you wont be able to remove any area based phases with it
             if (std::vector<PhaseInfoStruct> const* phases = sObjectMgr->GetPhasesForArea(GetAreaId()))
@@ -2967,10 +2957,7 @@ bool WorldObject::SetInPhase(uint32 id, bool update, bool apply)
                         if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
                             return false;
 
-            if (!HasInPhaseList(id)) // do not run the updates if we are not in this phase
-                return false;
-
-            _phases.erase(id);
+            _phases.erase(phaseItr);
         }
     }
 
