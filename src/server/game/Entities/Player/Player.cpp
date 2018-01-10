@@ -26076,7 +26076,7 @@ void Player::InitRunes()
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, 0.0f);
 }
 
-void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast, bool specOnly/* = false*/)
+void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast, bool specOnly/* = false*/, ToastDisplayMethod toastMethod/* = TOAST_METHOD_NONE*/)
 {
     Loot loot;
     loot.FillLoot(loot_id, store, this, true, false, LOOT_MODE_DEFAULT, specOnly);
@@ -26100,6 +26100,18 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
 
         Item* pItem = StoreNewItem(dest, lootItem->itemid, true, lootItem->randomPropertyId, GuidSet(), lootItem->context, lootItem->BonusListIDs);
         SendNewItem(pItem, lootItem->count, false, false, broadcast);
+
+        if (toastMethod != TOAST_METHOD_NONE)
+        {
+            WorldPackets::Loot::DisplayToast displayToast;
+            displayToast.EntityId = lootItem->itemid;
+            displayToast.ToastType = TOAST_ITEM;
+            displayToast.Quantity = lootItem->count;
+            displayToast.RandomPropertiesID = pItem->GetItemRandomPropertyId();
+            displayToast.ToastMethod = toastMethod;
+            displayToast.bonusListIDs = pItem->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+            SendDirectMessage(displayToast.Write());
+        }
     }
 }
 
