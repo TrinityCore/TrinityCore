@@ -851,11 +851,14 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (!victim->IsControlledByPlayer() || victim->IsVehicle())
     {
-        if (!victim->ToCreature()->hasLootRecipient())
-            victim->ToCreature()->SetLootRecipient(this);
+        if (Creature* victimCreature = victim->ToCreature())
+        {
+            if (!victimCreature->hasLootRecipient())
+                victimCreature->SetLootRecipient(this);
 
-        if (IsControlledByPlayer())
-            victim->ToCreature()->LowerPlayerDamageReq(health < damage ?  health : damage);
+            if (IsControlledByPlayer())
+                victimCreature->LowerPlayerDamageReq(health < damage ? health : damage);
+        }
     }
 
     if (health <= damage)
