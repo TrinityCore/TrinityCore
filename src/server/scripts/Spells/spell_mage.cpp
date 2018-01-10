@@ -2321,12 +2321,9 @@ public:
 
     struct at_mage_arcane_orbAI : AreaTriggerAI
     {
-        at_mage_arcane_orbAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
-        {
-            damageInterval = 500;
-        }
+        at_mage_arcane_orbAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-        uint32 damageInterval;
+        uint32 damageInterval = 500;
 
         void OnInitialize() override
         {
@@ -2345,22 +2342,12 @@ public:
             if (!caster || !caster->IsPlayer())
                 return;
 
-            bool isFirstHit = true;
-
             if (damageInterval <= diff)
             {
                 for (ObjectGuid guid : at->GetInsideUnits())
                     if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
                         if (caster->IsValidAttackTarget(unit))
-                        {
-                            if (isFirstHit)
-                            {
-                                at->UpdateTimeToTarget(10000);
-                                isFirstHit = false;
-                            }
-
                             caster->CastSpell(unit, SPELL_MAGE_ARCANE_ORB_DAMAGE, true);
-                        }
 
                 damageInterval = 500;
             }

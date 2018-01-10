@@ -27,6 +27,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "Object.h"
+#include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "Player.h"
