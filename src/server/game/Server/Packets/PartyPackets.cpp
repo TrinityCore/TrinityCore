@@ -579,10 +579,10 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
     MemberStats.MaxHealth = player->GetMaxHealth();
 
     // Power
-    MemberStats.PowerType = player->getPowerType();
+    MemberStats.PowerType = player->GetPowerType();
     MemberStats.PowerDisplayID = 0;
-    MemberStats.CurrentPower = player->GetPower(player->getPowerType());
-    MemberStats.MaxPower = player->GetMaxPower(player->getPowerType());
+    MemberStats.CurrentPower = player->GetPower(player->GetPowerType());
+    MemberStats.MaxPower = player->GetMaxPower(player->GetPowerType());
 
     // Position
     MemberStats.ZoneID = player->GetZoneId();
