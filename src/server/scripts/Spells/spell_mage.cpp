@@ -2260,8 +2260,9 @@ public:
                 return;
 
             Position pos = caster->GetPosition();
-            caster->MovePositionToFirstCollision(pos, 40.0f, caster->GetOrientation());
-            at->SetDestination(pos, 5000);
+
+            at->MovePositionToFirstCollision(pos, 40.0f, 0.0f);
+            at->SetDestination(pos, 4000);     
         }
 
         void OnCreate() override
@@ -2290,6 +2291,9 @@ public:
                                     caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_VISUAL_UI, true);
 
                                 caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST_AURA, true);
+
+                                at->UpdateTimeToTarget(8000);
+                                
                                 procDone = true;
                             }
 
@@ -2331,8 +2335,8 @@ public:
                 return;
 
             Position pos = caster->GetPosition();
-            caster->MovePositionToFirstCollision(pos, 40.0f, caster->GetOrientation());
-            at->SetDestination(pos, 5000);
+            at->MovePositionToFirstCollision(pos, 40.0f, 0.0f);
+            at->SetDestination(pos, 4000);
         }
 
         void OnUpdate(uint32 diff) override
@@ -2341,12 +2345,22 @@ public:
             if (!caster || !caster->IsPlayer())
                 return;
 
+            bool isFirstHit = true;
+
             if (damageInterval <= diff)
             {
                 for (ObjectGuid guid : at->GetInsideUnits())
                     if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
                         if (caster->IsValidAttackTarget(unit))
+                        {
+                            if (isFirstHit)
+                            {
+                                at->UpdateTimeToTarget(10000);
+                                isFirstHit = false;
+                            }
+
                             caster->CastSpell(unit, SPELL_MAGE_ARCANE_ORB_DAMAGE, true);
+                        }
 
                 damageInterval = 500;
             }
