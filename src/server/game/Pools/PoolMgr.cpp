@@ -334,36 +334,27 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint64 trig
         // roll objects to be spawned
         if (!ExplicitlyChanced.empty())
         {
-            while (count && ExplicitlyChanced.size() > rolledObjects.size())
-            {
-                --count;
-                float roll = (float)rand_chance();
+            float roll = (float)rand_chance();
 
-                for (PoolObject& obj : ExplicitlyChanced)
+            for (PoolObject& obj : ExplicitlyChanced)
+            {
+                roll -= obj.chance;
+                // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
+                // so this need explicit check for this case
+                if (roll < 0 && (obj.guid == triggerFrom || !spawns.IsActiveObject<T>(obj.guid)))
                 {
-                    roll -= obj.chance;
-                    // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
-                    // so this need explicit check for this case
-                    if (roll < 0 && (obj.guid == triggerFrom || !spawns.IsActiveObject<T>(obj.guid)))
-                    {
-                        rolledObjects.push_back(obj);
-                        break;
-                    }
+                    rolledObjects.push_back(obj);
+                    break;
                 }
             }
         }
-        else if (!EqualChanced.empty())
-        {
-            rolledObjects = EqualChanced;
 
-            for (auto itr = rolledObjects.begin(); itr != rolledObjects.end();)
+        if (!EqualChanced.empty() && rolledObjects.empty())
+        {
+            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [triggerFrom, &spawns](PoolObject const& object)
             {
-                // remove most of the active objects so there is higher chance inactive ones are spawned
-                if (spawns.IsActiveObject<T>(itr->guid) && urand(1, 4) != 1)
-                    itr = rolledObjects.erase(itr);
-                else
-                    ++itr;
-            }
+                return object.guid == triggerFrom || !spawns.IsActiveObject<T>(object.guid);
+            });
 
             Trinity::Containers::RandomResize(rolledObjects, count);
         }
@@ -371,9 +362,6 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint64 trig
         // try to spawn rolled objects
         for (PoolObject& obj : rolledObjects)
         {
-            if (spawns.IsActiveObject<T>(obj.guid))
-                continue;
-
             if (obj.guid == triggerFrom)
             {
                 ReSpawn1Object(&obj);
