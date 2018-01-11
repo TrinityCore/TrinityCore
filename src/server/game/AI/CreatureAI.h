@@ -142,7 +142,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         void OnCharmed(bool isNew) override;
 
         // Called at reaching home after evade
-        virtual void JustReachedHome() { }
+        virtual void JustReachedHome();
 
         void DoZoneInCombat(Creature* creature = nullptr);
 

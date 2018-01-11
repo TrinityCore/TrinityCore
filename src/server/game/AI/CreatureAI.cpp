@@ -167,7 +167,10 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     }
 
     Reset();
+}
 
+void CreatureAI::JustReachedHome()
+{
     if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
         me->GetVehicleKit()->Reset(true);
 }

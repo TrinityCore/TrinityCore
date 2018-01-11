@@ -324,7 +324,7 @@ class TC_GAME_API BossAI : public ScriptedAI
         void Reset() override { _Reset(); }
         void JustEngagedWith(Unit* /*who*/) override { _JustEngagedWith(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
-        void JustReachedHome() override { _JustReachedHome(); }
+        void JustReachedHome() override { ScriptedAI::JustReachedHome(); _JustReachedHome(); }
 
         bool CanAIAttack(Unit const* target) const override;
 
