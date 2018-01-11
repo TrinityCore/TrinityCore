@@ -8307,7 +8307,8 @@ int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 rac
         if ((!factionEntry->BaseRepClassMask[i] ||
             factionEntry->BaseRepClassMask[i] & classMask) &&
             (!factionEntry->BaseRepRaceMask[i] ||
-            factionEntry->BaseRepRaceMask[i] & raceMask))
+            factionEntry->BaseRepRaceMask[i] & raceMask) &&
+            factionEntry->BaseRepValue[i] > 0)
             return factionEntry->BaseRepValue[i];
     }
 
