@@ -144,7 +144,7 @@ public:
 
         GameObject* object = new GameObject();
 
-        if (!object->Create(objectInfo->entry, map, 0, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
+        if (!object->Create(objectInfo->entry, map, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
         {
             delete object;
             return false;
