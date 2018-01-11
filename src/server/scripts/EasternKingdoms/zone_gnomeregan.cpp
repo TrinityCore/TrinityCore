@@ -23,19 +23,15 @@ SDCategory: Gnomeregan
 EndScriptData */
 
 #include "Creature.h"
-#include "GameObjectAI.h"
-#include "GameObject.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "SpellMgr.h"
 #include "Vehicle.h"
-#include "MovementGenerator.h"
-#include "TargetedMovementGenerator.h"
+#include "MotionMaster.h"
+#include "TemporarySummon.h"
 
 enum GnomeCreatureIds
 {
@@ -84,7 +80,8 @@ public:
 
         void MoveInLineOfSight(Unit * who) override
         {
-            if (who->IsPlayer() && who->IsWithinDist(me, 10.f) && !who->HasAura(SPELL_IRRADIATE))
+            if (who->IsPlayer() && who->IsWithinDist(me, 10.f) && !who->HasAura(SPELL_IRRADIATE)
+                && who->ToPlayer()->GetQuestStatus(QUEST_DECONTAMINATION) == QUEST_STATUS_NONE)
                 who->CastSpell(who, SPELL_IRRADIATE, true);
         }
     };
@@ -105,7 +102,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_WITHDRAW_TO_THE_LOADING_ROOM)
         {
-            if (Creature* agent = player->SummonCreature(NPC_IMUN_AGENT, SpawnPosition[0], TEMPSUMMON_TIMED_DESPAWN, 60000, 0, true))
+            if (TempSummon* agent = player->SummonCreature(NPC_IMUN_AGENT, SpawnPosition, TEMPSUMMON_TIMED_DESPAWN, 60000, 0, true))
             {
                 agent->SetSpeed(MOVE_RUN, 1.0f);
                 agent->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE);
@@ -188,7 +185,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!_vehicle || _vehicle->HasEmptySeat(0))
+            if (_vehicle->HasEmptySeat(0))
                 return;
 
             if (uiTimer <= diff)
@@ -286,7 +283,8 @@ public:
     private:
         Vehicle* _vehicle;
 
-        //! @Riztazz: extreme shit, refactor this to use GUIDs
+        //! @Riztazz: extreme shit, can cause crashes in very specific cases
+        //! refactor to use GUIDs
         Creature* Technician;
         Creature::Unit* Bunny[4];
         Creature::Unit* Cannon[4];
