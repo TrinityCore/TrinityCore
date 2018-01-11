@@ -71,10 +71,7 @@ enum GnomeMoves
     MOVE_IMUN_AGENT = 4783600
 };
 
-Position const SpawnPosition[] =
-{
-    {-4981.25f, 780.992f, 288.485f, 3.316f} //spawnpos
-};
+Position const SpawnPosition = { -4981.25f, 780.992f, 288.485f, 3.316f };
 
 class npc_nevin_twistwrench : public CreatureScript
 {
@@ -85,28 +82,11 @@ public:
     {
         npc_nevin_twistwrenchAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() override
+        void MoveInLineOfSight(Unit * who) override
         {
-            uiTimer = 0;
+            if (who->IsPlayer() && who->IsWithinDist(me, 10.f) && !who->HasAura(SPELL_IRRADIATE))
+                who->CastSpell(who, SPELL_IRRADIATE, true);
         }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (uiTimer <= diff)
-            {
-                std::list<Player*> playerList = me->SelectNearestPlayers(10.0f, true);
-                for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                    if (((*itr)->GetQuestStatus(QUEST_DECONTAMINATION) == QUEST_STATUS_NONE) && (!(*itr)->HasAura(SPELL_IRRADIATE)))
-                        (*itr)->CastSpell((*itr), SPELL_IRRADIATE, true);
-
-                uiTimer = 100;
-            }
-            else uiTimer -= diff;
-        }
-
-    private:
-        uint32 uiTimer;
-
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -125,8 +105,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_WITHDRAW_TO_THE_LOADING_ROOM)
         {
-            player->SummonCreature(NPC_IMUN_AGENT, SpawnPosition[0], TEMPSUMMON_TIMED_DESPAWN, 60000, 0, true);
-            if (Creature* agent = creature->FindNearestCreature(NPC_IMUN_AGENT, 5.0f))
+            if (Creature* agent = player->SummonCreature(NPC_IMUN_AGENT, SpawnPosition[0], TEMPSUMMON_TIMED_DESPAWN, 60000, 0, true))
             {
                 agent->SetSpeed(MOVE_RUN, 1.0f);
                 agent->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE);
@@ -171,155 +150,146 @@ public:
             uiPhase = 0;
         }
 
-        Unit* unit(uint32 entry, uint32 range, bool alive)
-        {
-            if (Unit* unit = me->FindNearestCreature(entry, float(range), alive))
-                if (Unit* unit2 = ObjectAccessor::GetCreature(*me, unit->GetGUID()))
-                    return unit2;
-
-            return nullptr;
-        }
-
         void GetTargets()
         {
             std::list<Creature*> targets = me->FindAllCreaturesInRange(100.0f);
-            if (!targets.empty())
-                for (std::list<Creature*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+
+            for (auto itr : targets)
+            {
+                switch (itr->GetEntry())
                 {
-                    if ((*itr)->GetTypeId() != TYPEID_PLAYER)
-                    {
-                        switch ((*itr)->GetEntry())
-                        {
-                        case NPC_SAFE_TECHNICAN:
-                            if ((*itr)->GetDistance2d(-5165.209961f, 713.809021f) <= 1)
-                                Technician = (*itr);
-                            break;
-                        case NPC_DECONTAMINATION_BUNNY:
-                            if ((*itr)->GetDistance2d(-5164.919922f, 723.890991f) <= 1)
-                                Bunny[0] = (*itr);
-                            if ((*itr)->GetDistance2d(-5182.560059f, 726.656982f) <= 1)
-                                Bunny[1] = (*itr);
-                            if ((*itr)->GetDistance2d(-5166.350098f, 706.336975f) <= 1)
-                                Bunny[2] = (*itr);
-                            if ((*itr)->GetDistance2d(-5184.040039f, 708.405029f) <= 1)
-                                Bunny[3] = (*itr);
-                            break;
-                        case NPC_CLEAN_CANNON:
-                            if ((*itr)->GetDistance2d(-5164.209961f, 719.267029f) <= 1)
-                                Cannon[0] = (*itr);
-                            if ((*itr)->GetDistance2d(-5165.000000f, 709.453979f) <= 1)
-                                Cannon[1] = (*itr);
-                            if ((*itr)->GetDistance2d(-5183.830078f, 722.093994f) <= 1)
-                                Cannon[2] = (*itr);
-                            if ((*itr)->GetDistance2d(-5184.470215f, 712.554993f) <= 1)
-                                Cannon[3] = (*itr);
-                            break;
-                        }
-                    }
+                    case NPC_SAFE_TECHNICAN:
+                        if (itr->GetDistance2d(-5165.209961f, 713.809021f) <= 1)
+                            Technician = itr;
+                        break;
+                    case NPC_DECONTAMINATION_BUNNY:
+                        if (itr->GetDistance2d(-5164.919922f, 723.890991f) <= 1)
+                            Bunny[0] = itr;
+                        if (itr->GetDistance2d(-5182.560059f, 726.656982f) <= 1)
+                            Bunny[1] = itr;
+                        if (itr->GetDistance2d(-5166.350098f, 706.336975f) <= 1)
+                            Bunny[2] = itr;
+                        if (itr->GetDistance2d(-5184.040039f, 708.405029f) <= 1)
+                            Bunny[3] = itr;
+                        break;
+                    case NPC_CLEAN_CANNON:
+                        if (itr->GetDistance2d(-5164.209961f, 719.267029f) <= 1)
+                            Cannon[0] = itr;
+                        if (itr->GetDistance2d(-5165.000000f, 709.453979f) <= 1)
+                            Cannon[1] = itr;
+                        if (itr->GetDistance2d(-5183.830078f, 722.093994f) <= 1)
+                            Cannon[2] = itr;
+                        if (itr->GetDistance2d(-5184.470215f, 712.554993f) <= 1)
+                            Cannon[3] = itr;
+                        break;
                 }
+            }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (!_vehicle->HasEmptySeat(0))
+            if (!_vehicle || _vehicle->HasEmptySeat(0))
+                return;
+
+            if (uiTimer <= diff)
             {
-                if (uiTimer <= diff)
+                if (Unit* passenger = _vehicle->GetPassenger(0))
                 {
-                    if (Player* player = _vehicle->GetPassenger(0)->ToPlayer())
+                    if (Player* player = passenger->ToPlayer())
                     {
                         switch (uiPhase)
                         {
-                        case 0:
-                            ++uiPhase;
-                            uiTimer = 2500;
-                            break;
-                        case 1:
-                            me->GetMotionMaster()->MovePoint(1, -5173.34f, 730.11f, 294.25f);
-                            GetTargets();
-                            ++uiPhase;
-                            uiTimer = 3000;
-                            break;
-                        case 2:
-                            if (Bunny[0] && Bunny[1])
-                            {
-                                Bunny[0]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_1, true);
-                                Bunny[1]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_1, true);
-                            }
-                            ++uiPhase;
-                            uiTimer = 1500;
-                            break;
-                        case 3:
-                            me->GetMotionMaster()->MovePoint(2, -5173.72f, 725.7f, 294.03f);
-                            ++uiPhase;
-                            uiTimer = 500;
-                            break;
-                        case 4:
-                            me->GetMotionMaster()->MovePoint(3, -5174.57f, 716.45f, 289.53f);
-                            ++uiPhase;
-                            uiTimer = 3000;
-                            break;
-                        case 5:
-                            if (Cannon[0] && Cannon[1] && Cannon[2] && Cannon[3])
-                            {
-                                Cannon[0]->CastSpell(player, SPELL_CANNON_BURST, true);
-                                Cannon[1]->CastSpell(player, SPELL_CANNON_BURST, true);
-                                Cannon[2]->CastSpell(player, SPELL_CANNON_BURST, true);
-                                Cannon[3]->CastSpell(player, SPELL_CANNON_BURST, true);
-                            }
-                            ++uiPhase;
-                            uiTimer = 4000;
-                            break;
-                        case 6:
-                            if (Technician)
-                                Technician->AI()->Talk(0);
-                            me->GetMotionMaster()->MovePoint(4, -5175.04f, 707.2f, 294.4f);
-                            ++uiPhase;
-                            uiTimer = 4000;
-                            break;
-                        case 7:
-                            if (Bunny[2] && Bunny[3])
-                            {
-                                Bunny[2]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_2, true);
-                                Bunny[3]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_2, true);
-                            }
-                            player->RemoveAurasDueToSpell(SPELL_IRRADIATE);
-                            ++uiPhase;
-                            uiTimer = 1000;
-                            break;
-                        case 8:
-                            player->CompleteQuest(QUEST_DECONTAMINATION);
-                            Talk(1);
-                            me->GetMotionMaster()->MovePoint(5, -5175.61f, 700.38f, 290.89f);
-                            ++uiPhase;
-                            uiTimer = 3000;
-                            break;
-                        case 9:
-                            Talk(2);
-                            me->CastSpell(me, SPELL_EXPLOSION);
-                            ++uiPhase;
-                            uiTimer = 1000;
-                            break;
-                        case 10:
-                            _vehicle->RemoveAllPassengers();
-                            me->setDeathState(JUST_DIED);
-                            ++uiPhase;
-                            uiTimer = 0;
-                            break;
+                            case 0:
+                                ++uiPhase;
+                                uiTimer = 2500;
+                                break;
+                            case 1:
+                                me->GetMotionMaster()->MovePoint(1, -5173.34f, 730.11f, 294.25f);
+                                GetTargets();
+                                ++uiPhase;
+                                uiTimer = 3000;
+                                break;
+                            case 2:
+                                if (Bunny[0] && Bunny[1])
+                                {
+                                    Bunny[0]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_1, true);
+                                    Bunny[1]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_1, true);
+                                }
+                                ++uiPhase;
+                                uiTimer = 1500;
+                                break;
+                            case 3:
+                                me->GetMotionMaster()->MovePoint(2, -5173.72f, 725.7f, 294.03f);
+                                ++uiPhase;
+                                uiTimer = 500;
+                                break;
+                            case 4:
+                                me->GetMotionMaster()->MovePoint(3, -5174.57f, 716.45f, 289.53f);
+                                ++uiPhase;
+                                uiTimer = 3000;
+                                break;
+                            case 5:
+                                if (Cannon[0] && Cannon[1] && Cannon[2] && Cannon[3])
+                                {
+                                    Cannon[0]->CastSpell(player, SPELL_CANNON_BURST, true);
+                                    Cannon[1]->CastSpell(player, SPELL_CANNON_BURST, true);
+                                    Cannon[2]->CastSpell(player, SPELL_CANNON_BURST, true);
+                                    Cannon[3]->CastSpell(player, SPELL_CANNON_BURST, true);
+                                }
+                                ++uiPhase;
+                                uiTimer = 4000;
+                                break;
+                            case 6:
+                                if (Technician)
+                                    Technician->AI()->Talk(0);
+                                me->GetMotionMaster()->MovePoint(4, -5175.04f, 707.2f, 294.4f);
+                                ++uiPhase;
+                                uiTimer = 4000;
+                                break;
+                            case 7:
+                                if (Bunny[2] && Bunny[3])
+                                {
+                                    Bunny[2]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_2, true);
+                                    Bunny[3]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_2, true);
+                                }
+                                player->RemoveAurasDueToSpell(SPELL_IRRADIATE);
+                                ++uiPhase;
+                                uiTimer = 1000;
+                                break;
+                            case 8:
+                                player->CompleteQuest(QUEST_DECONTAMINATION);
+                                Talk(1);
+                                me->GetMotionMaster()->MovePoint(5, -5175.61f, 700.38f, 290.89f);
+                                ++uiPhase;
+                                uiTimer = 3000;
+                                break;
+                            case 9:
+                                Talk(2);
+                                me->CastSpell(me, SPELL_EXPLOSION);
+                                ++uiPhase;
+                                uiTimer = 1000;
+                                break;
+                            case 10:
+                                _vehicle->RemoveAllPassengers();
+                                me->setDeathState(JUST_DIED);
+                                ++uiPhase;
+                                uiTimer = 0;
+                                break;
                         }
                     }
-
                 }
-                else uiTimer -= diff;
+
             }
+            else uiTimer -= diff;
         }
-    
+
     private:
         Vehicle* _vehicle;
-        Creature* Technician;
 
+        //! @Riztazz: extreme shit, refactor this to use GUIDs
+        Creature* Technician;
         Creature::Unit* Bunny[4];
         Creature::Unit* Cannon[4];
-        std::list<Unit*> targets;
 
         uint32 uiTimer;
         uint32 uiRespawnTimer;
@@ -330,7 +300,6 @@ public:
     {
         return new npc_sanitron_5000AI(creature);
     }
-
 };
 
 class npc_gnomeregan_torben : public CreatureScript
