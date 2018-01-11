@@ -4571,6 +4571,8 @@ class spell_gen_vengeance : public SpellScriptLoader
 
                 if (bp) // make sure that we wont cast Vengeance when the damage bonus is 0
                     caster->CastCustomSpell(caster, SPELL_VENGEANCE_TRIGGERED, &bp, &bp, NULL, true);
+                else if (caster->HasAura(SPELL_VENGEANCE_TRIGGERED))
+                    caster->RemoveAurasDueToSpell(SPELL_VENGEANCE_TRIGGERED);
             }
 
             void Register() override

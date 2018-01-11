@@ -30,9 +30,12 @@
 enum WarriorSpells
 {
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
+    SPELL_WARRIOR_BLITZ_RANK_1                      = 80976,
+    SPELL_WARRIOR_BLITZ_RANK_2                      = 80977,
     SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
     SPELL_WARRIOR_CHARGE                            = 34846,
+    SPELL_WARRIOR_CHARGE_STUN                       = 7922,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 86346,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_1                = 12162,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_2                = 12850,
@@ -70,7 +73,8 @@ enum WarriorSpells
 
 enum WarriorSpellIcons
 {
-    WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989
+    WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989,
+    WARRIOR_ICON_ID_BLOOD_AND_THUNDER               = 5057
 };
 
 
@@ -163,11 +167,14 @@ class spell_warr_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                    {
+                        SPELL_WARRIOR_BLITZ_RANK_1,
+                        SPELL_WARRIOR_BLITZ_RANK_2,
+                        SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT,
+                        SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF,
+                        SPELL_WARRIOR_CHARGE,
+                    });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -179,6 +186,38 @@ class spell_warr_charge : public SpellScriptLoader
                 // Juggernaut crit bonus
                 if (caster->HasAura(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT))
                     caster->CastSpell(caster, SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF, true);
+
+                if ((!caster->HasAura(SPELL_WARRIOR_BLITZ_RANK_1) && !caster->HasAura(SPELL_WARRIOR_BLITZ_RANK_2)))
+                    return;
+
+                TC_LOG_ERROR("sql", "triggered blitz check");
+
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    TC_LOG_ERROR("sql", "triggered charge target");
+
+                    std::list<Unit*> targets;
+                    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(target, target, 5.0f);
+                    Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
+                    Cell::VisitAllObjects(target, searcher, 5.0f);
+
+                    targets.remove(target);
+
+                    for (std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end();)
+                    {
+                        if (!target->IsWithinLOSInMap(*tIter) || (*tIter)->IsTotem() || (*tIter)->IsSpiritService() || (*tIter)->IsCritter())
+                            targets.erase(tIter++);
+                        else
+                            ++tIter;
+                    }
+
+                    if (!targets.empty())
+                        if (Unit* blitzTarget = Trinity::Containers::SelectRandomContainerElement(targets))
+                        {
+                            TC_LOG_ERROR("sql", "triggered blitz stun cast on target");
+                            caster->CastSpell(blitzTarget, SPELL_WARRIOR_CHARGE_STUN, true);
+                        }
+                }
             }
 
             void Register() override
@@ -1110,6 +1149,59 @@ class spell_warr_strikes_of_opportunity : public SpellScriptLoader
         }
 };
 
+class spell_warr_thunder_clap : public SpellScriptLoader
+{
+    public:
+        spell_warr_thunder_clap() : SpellScriptLoader("spell_warr_thunder_clap") { }
+
+        class spell_warr_thunder_clap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_thunder_clap_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_WARRIOR_REND });
+            }
+
+            bool Load() override
+            {
+                allowRendSpread = false;
+                if (AuraEffect* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_WARRIOR, WARRIOR_ICON_ID_BLOOD_AND_THUNDER, EFFECT_0))
+                    return roll_chance_i(aurEff->GetAmount());
+
+                return false;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& unitList)
+            {
+                for (std::list<WorldObject*>::const_iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                    if (Unit* target = (*itr)->ToUnit())
+                        if (target->HasAura(SPELL_WARRIOR_REND))
+                            allowRendSpread = true;
+            }
+
+            void HandleHit(SpellEffIndex /*effIndex*/)
+            {
+                if (allowRendSpread)
+                    GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_REND, true);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_thunder_clap_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+
+        private:
+            bool allowRendSpread;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warr_thunder_clap_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -1135,6 +1227,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sudden_death();
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
+    new spell_warr_thunder_clap();
     new spell_warr_victory_rush();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
