@@ -190,12 +190,8 @@ class spell_warr_charge : public SpellScriptLoader
                 if ((!caster->HasAura(SPELL_WARRIOR_BLITZ_RANK_1) && !caster->HasAura(SPELL_WARRIOR_BLITZ_RANK_2)))
                     return;
 
-                TC_LOG_ERROR("sql", "triggered blitz check");
-
                 if (Unit* target = GetExplTargetUnit())
                 {
-                    TC_LOG_ERROR("sql", "triggered charge target");
-
                     std::list<Unit*> targets;
                     Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(target, target, 5.0f);
                     Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
@@ -213,10 +209,7 @@ class spell_warr_charge : public SpellScriptLoader
 
                     if (!targets.empty())
                         if (Unit* blitzTarget = Trinity::Containers::SelectRandomContainerElement(targets))
-                        {
-                            TC_LOG_ERROR("sql", "triggered blitz stun cast on target");
                             caster->CastSpell(blitzTarget, SPELL_WARRIOR_CHARGE_STUN, true);
-                        }
                 }
             }
 
