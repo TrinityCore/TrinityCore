@@ -884,7 +884,7 @@ void Creature::Motion_Initialize()
         GetMotionMaster()->Initialize();
 }
 
-bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 /*phaseMask*/, uint32 entry, float x, float y, float z, float ang, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
+bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float x, float y, float z, float ang, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
     ASSERT(map);
     SetMap(map);
@@ -1177,8 +1177,8 @@ void Creature::SaveToDB(uint32 mapid, uint64 spawnMask)
     data.unit_flags3 = unitFlags3;
     data.dynamicflags = dynamicflags;
 
-    data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : 0;
-    data.phaseGroup = GetDBPhase() < 0 ? std::abs(GetDBPhase()) : 0;
+    data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
+    data.phaseGroup = GetDBPhase() < 0 ? -GetDBPhase() : data.phaseGroup;
 
     // update in DB
     SQLTransaction trans = WorldDatabase.BeginTransaction();
@@ -1450,7 +1450,7 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
 
     m_spawnId = spawnId;
     m_creatureData = data;
-    if (!Create(map->GenerateLowGuid<HighGuid::Creature>(), map, PHASEMASK_NORMAL, data->id, data->posX, data->posY, data->posZ, data->orientation, data))
+    if (!Create(map->GenerateLowGuid<HighGuid::Creature>(), map, data->id, data->posX, data->posY, data->posZ, data->orientation, data))
         return false;
 
     //We should set first home position, because then AI calls home movement
