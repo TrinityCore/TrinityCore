@@ -178,6 +178,7 @@ void AddSC_blasted_lands();
 void AddSC_duskwood();
 //void AddSC_eastern_plaguelands();
 void AddSC_ghostlands();
+void AddSC_goldshire();
 void AddSC_hinterlands();
 void AddSC_redridge_mountains();
 void AddSC_silverpine_forest();
@@ -187,7 +188,6 @@ void AddSC_tirisfal_glades();
 void AddSC_undercity();
 void AddSC_western_plaguelands();
 void AddSC_wetlands();
-void AddSC_goldshire();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -355,6 +355,7 @@ void AddEasternKingdomsScripts()
     AddSC_duskwood();
     //AddSC_eastern_plaguelands();
     AddSC_ghostlands();
+    AddSC_goldshire();
     AddSC_hinterlands();
     AddSC_redridge_mountains();
     AddSC_silverpine_forest();
@@ -364,5 +365,4 @@ void AddEasternKingdomsScripts()
     AddSC_undercity();
     AddSC_western_plaguelands();
     AddSC_wetlands();
-    AddSC_goldshire();
 }
