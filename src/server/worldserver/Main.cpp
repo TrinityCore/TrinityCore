@@ -56,6 +56,7 @@
 #include <boost/asio/signal_set.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <google/protobuf/stubs/common.h>
 #include <iostream>
 #include <csignal>
@@ -572,6 +573,7 @@ std::string GetChannelName(DiscordMessageChannel channelType)
 bool SendToDiscord(std::string channel, std::string text)
 {
     std::string nodeServerRelayURL = sConfigMgr->GetStringDefault("WorldToDiscord.RelayURL", "http://127.0.0.1:8083");
+    boost::replace_all(text, "\"", "\\\"");
 
     std::ostringstream payload;
     payload << "{ \"channel\": \"" << channel << "\", \"text\": \"" << text << "\"}";
