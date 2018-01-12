@@ -2,17 +2,17 @@
 SET @SpellEffectID := 1000000; -- 12 entries needed (1000000 - 1000011)
 
 -- Spells, Spell Effects --
+-- TO-DO: Move to hotfix db!
 -- server-side spell Summon Quicksand
 DELETE FROM `spell_dbc` WHERE `Id` = 75550;
 INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `AttributesEx8`, `AttributesEx9`, `AttributesEx10`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `SchoolMask`, `SpellAuraOptionsId`, `SpellCastingRequirementsId`, `SpellCategoriesId`, `SpellClassOptionsId`, `SpellEquippedItemsId`, `SpellLevelsId`, `SpellTargetRestrictionsId`, `SpellInterruptsId`, `Comment`) VALUES
 (75550, 128, 0, 4, 262144, 128, 8, 0, 0, 0, 0, 0, 1, 18, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Summon Quicksand');
 
--- TO-DO: Recheck types!
 DELETE FROM `spelleffect_dbc` WHERE `Id` BETWEEN @SpellEffectID+0 AND @SpellEffectID+11;
 INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectItemType`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
 (@SpellEffectID+0,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40503, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75550, 0), -- Summon Quicksand
 (@SpellEffectID+1,  77, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,     0,  0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 75621, 0), -- Script Effect: Summon Seedling Pod 40550 (normal) or 51329 (heroic)
-(@SpellEffectID+2,  77, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40592, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75688, 0), -- Summon Seedling Pod 
+(@SpellEffectID+2,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40592, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75688, 0), -- Summon Seedling Pod 
 (@SpellEffectID+3,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40585, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75695, 0), -- Summon Spore
 (@SpellEffectID+4,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40622, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75769, 0), -- Summon Bloodpetal Blossom Visual
 (@SpellEffectID+5,  28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40620, 64, 0, 0, 0, 0, 0, 0, 0, 18, 0, 75771, 0), -- Bloodpetal Blossom
@@ -37,6 +37,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (82382, 'spell_hoo_energy_flux_target_selector'),
 (74880, 'spell_hoo_arcane_energy_check'),
 (73686, 'spell_hoo_fixate');
+
+-- spell condition
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` IN (77461);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 77461, 0, 0, 31, 0, 3, 41364, 0, 0, 0, 0, '', 'Void Infusion targets Void Lord');
 
 -- criteria script
 DELETE FROM `criteria_data` WHERE `criteria_id` IN (15989);
@@ -667,25 +672,36 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48888 WHERE `entry` = 41208;
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 41208 AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(41208, 0, 0, 0, 4, 0, 100, 0, 0, 0, 0, 0, '', 11, 76959, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Sentinel - On Aggro - Cast \'Void Barrier\' on self'),
+(41208, 0, 0, 0, 4, 0, 100, 0,    0,    0,     0,     0, '', 11, 76959, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Sentinel - On Aggro - Cast \'Void Barrier\' on self'),
 (41208, 0, 1, 0, 0, 0, 100, 0, 4000, 4000, 30000, 30000, '', 11, 77238, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Sentinel - In Combat - Cast \'Charged Fists\'');
 
 -- Setesh's Void Seeker SAI
 UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 48889 WHERE `entry` = 41148;
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 41148 AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(41148, 0, 0, 0, 0, 0, 100, 0, 0, 0, 10000, 10000, '', 11, 76146, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Shadow Bolt Volley\''),
+(41148, 0, 0, 0, 0, 0, 100, 0,    0,    0, 10000, 10000, '', 11, 76146, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Shadow Bolt Volley\''),
 (41148, 0, 1, 0, 0, 0, 100, 0, 5000, 5000, 20000, 20000, '', 11, 76903, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Anti-Magic Prison\'');
 
 -- Setesh's Void Wyrm heroic entry
 UPDATE `creature_template` SET `difficulty_entry_1` = 48890 WHERE `entry` = 41212;
 
+-- Void Lord SAI
+UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 49303 WHERE `entry` = 41364;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 41364 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(41364, 0, 0, 1, 25, 0, 100, 0,     0,     0,     0,     0, '', 11, 77458, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Lord - On Reset - Cast \'Darkness State\''),
+(41364, 0, 1, 2, 61, 0, 100, 0,     0,     0,     0,     0, '', 11, 43265, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Lord - Linked - Cast \'Death and Decay (Level 110)\''),
+(41364, 0, 2, 0, 61, 0, 100, 0,     0,     0,     0,     0, '', 11, 77470, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Lord - Linked - Cast \'Void Infusion\''),
+(41364, 0, 3, 0,  0, 0, 100, 0,  3000,  3000, 10000, 10000, '', 11, 76146, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Void Lord - In Combat - Cast \'Shadow Bolt Volley\''),
+(41364, 0, 4, 0,  0, 0, 100, 0, 10000, 10000, 30000, 30000, '', 11, 77475, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Lord - In Combat - Cast \'Void Burst\'');
+
 -- Void Seeker SAI
 UPDATE `creature_template` SET `AIName` = "SmartAI", `difficulty_entry_1` = 49304 WHERE `entry` = 41371;
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 41371 AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(41371, 0, 0, 0, 0, 0, 100, 0, 3000, 3000, 10000, 10000, '', 11, 76146, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Shadow Bolt Volley\''),
-(41371, 0, 1, 0, 0, 0, 100, 0, 10000, 10000, 30000, 30000, '', 11, 73698, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Void Rift\'');
+(41371, 0, 0, 0, 25, 0, 100, 0,     0,     0,     0,     0, '', 11, 77461, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - On Reset - Cast \'Void Infusion\''),
+(41371, 0, 1, 0,  0, 0, 100, 0,  3000,  3000, 10000, 10000, '', 11, 76146, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Shadow Bolt Volley\''),
+(41371, 0, 2, 0,  0, 0, 100, 0, 10000, 10000, 30000, 30000, '', 11, 73698, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Void Seeker - In Combat - Cast \'Void Rift\'');
 
 -- Void Rift dummy SAI
 UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 39266;

@@ -314,13 +314,13 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 DELETE FROM `creature_formations` WHERE `memberGUID` IN (313958, 313959);
 INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
 (313958,313958,0,0,3,5,10),
-(313958,313959,90,2,515,5,10);
+(313958,313959,2,270,515,5,10);
 
 -- Void Worms right-side formation
 DELETE FROM `creature_formations` WHERE `memberGUID` IN (313961, 313960);
 INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
 (313961,313961,0,0,3,4,8),
-(313961,313960,270,2,515,4,8);
+(313961,313960,2,270,515,4,8);
 
 -- Void Lord and 2x Void Seeker formation
 DELETE FROM `creature_formations` WHERE `memberGUID` IN (313962, 313967, 313968);
@@ -522,7 +522,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (3139580,  3,  -479.5243, 11.73611,  343.924,  0, 0, 0, 0, 100, 0),
 (3139580,  4,  -483.2934, 21.49826,  343.9048, 0, 0, 0, 0, 100, 0),
 (3139580,  5,  -491.0434, 28.45313,  343.942,  0, 0, 0, 0, 100, 0),
-(3139580,  6,  -479.6943, 29.81992,  343.9431, 0, 0, 0, 0, 100, 0), -- turn back
+(3139580,  6,  -498.3116, 27.82349,  343.9431, 0, 0, 0, 0, 100, 0), -- turn back
 (3139580,  7,  -491.0434, 28.45313,  343.942,  0, 0, 0, 0, 100, 0),
 (3139580,  8,  -483.2934, 21.49826,  343.9048, 0, 0, 0, 0, 100, 0),
 (3139580,  9,  -479.5243, 11.73611,  343.924,  0, 0, 0, 0, 100, 0),
