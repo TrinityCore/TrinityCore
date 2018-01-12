@@ -916,13 +916,13 @@ class spell_warr_slam : public SpellScriptLoader
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_SLAM, args);
 
                 Aura* aura = GetCaster()->GetOwnedAura(SPELL_WARRIOR_SLAM_AURA);
-                if (aura) {
+                if (aura)
+                {
                     uint8 auraCount = aura->GetCharges();
-                    if (auraCount > 1) {
+                    if (auraCount > 1)
                         aura->SetCharges(auraCount - 1);
-                    } else {
+                    else
                         GetCaster()->RemoveAurasDueToSpell(SPELL_WARRIOR_SLAM_AURA);
-                    }
                 }
             }
 
