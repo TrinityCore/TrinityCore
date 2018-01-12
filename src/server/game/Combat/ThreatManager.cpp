@@ -343,7 +343,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         {
             float const origAmount = amount;
             // intentional iteration by index - there's a nested AddThreat call further down that might cause AI calls which might modify redirect info through spells
-            for (size_t i=0; i<redirInfo.size(); ++i)
+            for (size_t i = 0; i < redirInfo.size(); ++i)
             {
                 auto const pair = redirInfo[i]; // (victim,pct)
                 Unit* redirTarget = nullptr;
