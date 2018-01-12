@@ -4201,11 +4201,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
         spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
     });
-    // END OF HALLS OF ORIGINATION SPELLS
 
-    //
-    // THE LOST CITY OF THE TOL'VIR SPELLS
-    //
     // Solar Fire
     ApplySpellFix({ 89133, 89878 }, [](SpellInfo* spellInfo)
     {
@@ -4217,38 +4213,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
     });
-
-    // Heaven's Fury
-    ApplySpellFix({ 81942, 90040 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
-    });
-
-    // Hallowed Ground
-    ApplySpellFix({ 88814, 90010 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
-    });
-
-    // Blaze of the Heavens
-    ApplySpellFix({ 91196 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
-    });
-
-    // Repentance
-    ApplySpellFix({ 82430 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].MiscValue = 150;
-    });
-
-    // Blaze of the Heavens
-    ApplySpellFix({ 95249 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
-    });
-    // END OF THE LOST CITY OF THE TOL'VIR SPELLS
+    // END OF HALLS OF ORIGINATION SPELLS
 
     //
     // SHADOWFANG KEEP SPELLS
