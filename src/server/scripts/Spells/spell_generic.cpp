@@ -4485,54 +4485,54 @@ enum ProjectileGoods
 
 class spell_gen_projectile_goods : public SpellScriptLoader
 {
-public:
-    spell_gen_projectile_goods() : SpellScriptLoader("spell_gen_projectile_goods") { }
+    public:
+        spell_gen_projectile_goods() : SpellScriptLoader("spell_gen_projectile_goods") { }
 
-    class spell_gen_projectile_goods_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_gen_projectile_goods_SpellScript);
+        class spell_gen_projectile_goods_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_projectile_goods_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo(
-                {
-                SPELL_PROJECTILE_GOODS_1,
-                SPELL_PROJECTILE_GOODS_2,
-                SPELL_PROJECTILE_GOODS_3,
-                SPELL_PROJECTILE_GOODS_4,
-                });
-        }
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            uint32 spellId = 0;
-            switch (RAND(0, 3))
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                case 0:
-                    spellId = SPELL_PROJECTILE_GOODS_1;
-                    break;
-                case 1:
-                    spellId = SPELL_PROJECTILE_GOODS_2;
-                    break;
-                case 2:
-                    spellId = SPELL_PROJECTILE_GOODS_3;
-                    break;
-                case 3:
-                    spellId = SPELL_PROJECTILE_GOODS_4;
-                    break;
+                return ValidateSpellInfo(
+                    {
+                        SPELL_PROJECTILE_GOODS_1,
+                        SPELL_PROJECTILE_GOODS_2,
+                        SPELL_PROJECTILE_GOODS_3,
+                        SPELL_PROJECTILE_GOODS_4,
+                    });
             }
-            GetCaster()->CastSpell(GetHitUnit(), spellId, true);
-        }
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId = 0;
+                switch (RAND(0, 3))
+                {
+                    case 0:
+                        spellId = SPELL_PROJECTILE_GOODS_1;
+                        break;
+                    case 1:
+                        spellId = SPELL_PROJECTILE_GOODS_2;
+                        break;
+                    case 2:
+                        spellId = SPELL_PROJECTILE_GOODS_3;
+                        break;
+                    case 3:
+                        spellId = SPELL_PROJECTILE_GOODS_4;
+                        break;
+                }
+                GetCaster()->CastSpell(GetHitUnit(), spellId, true);
+            }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_projectile_goods_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_gen_projectile_goods_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_gen_projectile_goods_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_gen_projectile_goods_SpellScript();
-    }
 };
 
 enum Vengeance
