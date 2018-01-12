@@ -376,7 +376,7 @@ class TC_GAME_API Battleground
         // Packet Transfer
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) { }
-        void SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender = NULL, bool self = true) const;
+        void SendPacketToTeam(uint32 teamId, WorldPacket const* packet, Player* except = nullptr) const;
         void SendPacketToAll(WorldPacket const* packet) const;
 
         void SendChatMessage(Creature* source, uint8 textId, WorldObject* target = NULL);
