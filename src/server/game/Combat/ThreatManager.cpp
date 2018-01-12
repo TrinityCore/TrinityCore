@@ -115,7 +115,7 @@ void ThreatReference::UpdateTauntState(bool victimIsTaunting)
         HeapNotifyIncreased();
         return;
     }
-    
+
     // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
     for (AuraEffect const* eff : _victim->GetAuraEffectsByType(SPELL_AURA_MOD_DETAUNT))
         if (eff->GetCasterGUID() == _owner->GetGUID())
@@ -334,7 +334,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         {
             float const origAmount = amount;
             // intentional iteration by index - there's a nested AddThreat call further down that might cause AI calls which might modify redirect info through spells
-            for (size_t i=0; i<redirInfo.size(); ++i)
+            for (size_t i = 0; i < redirInfo.size(); ++i)
             {
                 auto const pair = redirInfo[i]; // (victim,pct)
                 Unit* redirTarget = nullptr;
@@ -366,7 +366,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     // otherwise, ensure we're in combat (threat implies combat!)
     if (!_owner->GetCombatManager().SetInCombatWith(target)) // if this returns false, we're not actually in combat, and thus cannot have threat!
         return;                                              // typical causes: bad scripts trying to add threat to GMs, dead targets etc
-    
+
     // ok, we're now in combat - create the threat list reference and push it to the respective managers
     ThreatReference* ref = new ThreatReference(this, target, amount);
     PutThreatListRef(target->GetGUID(), ref);
@@ -710,7 +710,7 @@ void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid, bool sendRemove)
 
     if (_currentVictimRef == ref)
         _currentVictimRef = nullptr;
-    
+
     _sortedThreatList.erase(ref->_handle);
     if (sendRemove && ref->IsOnline())
         SendRemoveToClients(ref->_victim);

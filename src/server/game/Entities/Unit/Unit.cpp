@@ -8563,7 +8563,7 @@ void Unit::AttackedTarget(Unit* target, bool canInitialAggro)
     target->EngageWithTarget(this);
     if (Unit* targetOwner = target->GetCharmerOrOwner())
         targetOwner->EngageWithTarget(this);
-    
+
     Player* myPlayerOwner = GetCharmerOrOwnerPlayerOrPlayerItself();
     Player* targetPlayerOwner = target->GetCharmerOrOwnerPlayerOrPlayerItself();
     if (myPlayerOwner && targetPlayerOwner && !(myPlayerOwner->duel && myPlayerOwner->duel->opponent == targetPlayerOwner))
@@ -12418,7 +12418,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         }
         player->SetClientControl(this, true);
     }
-    
+
     EngageWithTarget(charmer);
 
     // a guardian should always have charminfo
