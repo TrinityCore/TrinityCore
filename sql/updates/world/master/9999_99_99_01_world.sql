@@ -579,10 +579,12 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` IN (40550, 51329);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (40550, 51329) AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(40550, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 75657, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Reset - Cast \'Energize\' on self'),
-(40550, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75624, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - Linked - Cast \'Energizing Growth\' on self'),
-(51329, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 75657, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Reset - Cast \'Energize\' on self'),
-(51329, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75624, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - Linked - Cast \'Energizing Growth\' on self');
+(40550, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 75688, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Reset - Cast \'Summon Seedling Pod (dummy)\' on self'),
+(40550, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75657, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - Linked - Cast \'Energize\' on self'),
+(40550, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75624, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - Linked - Cast \'Energizing Growth\' on self'),
+(51329, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 75688, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Reset - Cast \'Summon Seedling Pod (dummy)\' on self'),
+(51329, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75657, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - Linked - Cast \'Energize\' on self'),
+(51329, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, '', 11, 75624, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - Linked - Cast \'Energizing Growth\' on self');
 
 -- Seedling Pod (trash) SAI
 UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40716;
@@ -590,8 +592,6 @@ DELETE FROM `smart_scripts` WHERE `entryorguid` = 40716 AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (40716, 0, 0, 0, 25, 0, 100, 0, 0, 0, 0, 0, '', 11, 96278, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Reset - Cast \'Seedling Pod\' on self'),
 (40716, 0, 1, 0, 6, 0, 100, 0, 0, 0, 0, 0, '', 11, 75994, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Seedling Pod - On Death - Cast \'Flourish\'');
-
-75791
 
 -- Seedling Pod dummy
 UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 40592;

@@ -160,39 +160,39 @@ enum Achievements
     // Achievement.db2 ID 5293: ParentTree 19724
     // CriteriaTree.db2 ID 19725: ParentTree 19724 - Criteria 15988
     // Criteria.db2 ID 15988: on Anhuur kill, world state 5638 = value 0
-    //CRITERIA_I_HATE_THAT_SONG        = 15988,
-    WS_I_HATE_THIS_SONG                =  5638,
+    //CRITERIA_I_HATE_THAT_SONG         = 15988,
+    WS_I_HATE_THIS_SONG                 =  5638,
     
     //    Straw That Broke the Camel's Back
     // Achievement.db2 ID 5294: ParentTree 18221
     // CriteriaTree.db2 ID 18222: ParentTree 18221 - Criteria 15989
     // Criteria.db2 ID 15989: on Ptah kill, tree 2838?
-    CRITERIA_STRAW_BROKE_CAMELS_BACK   = 15989,
+    CRITERIA_STRAW_BROKE_CAMELS_BACK    = 15989,
 
     //    Faster Than The Speed Of Light
     // Achievement.db2 ID 5296: ParentTree  17685
     // CriteriaTree.db2 ID 17686: ParentTree 17685 - Criteria 16008
     // Criteria.db2 ID 16008: spell 94067, startEvent 24212, tree 2615?, world state 5653 = value 0, type 69
-    ACHIEV_VAULT_OF_LIGHTS_START_EVENT = 24212,
-    SPELL_VAULT_OF_LIGHTS_CREDIT       = 94067  // Achievement aura, not in DBC
+    ACHIEV_VAULT_OF_LIGHTS_START_EVENT  = 24212,
+    SPELL_VAULT_OF_LIGHTS_CREDIT        = 94067  // Achievement aura, not in DBC
 };
 
 enum HOOMisc
 {
-    AREA_TOMB_OF_THE_EARTHRAGER     =  4945,
-    SPELL_ZERO_ENERGY_NO_REGEN_AURA = 72242, // Zero Energy + Zero Regen (used by some npcs in HoO)
-//  SPELL_AURA_UNKNOWN_PURPOSE      = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
-    SPELL_DUMMY_NUKE                = 68991,
+    AREA_TOMB_OF_THE_EARTHRAGER         = 4945,
+    SPELL_ZERO_ENERGY_NO_REGEN_AURA     = 72242, // Zero Energy + Zero Regen (used by some npcs in HoO)
+//  SPELL_AURA_UNKNOWN_PURPOSE          = 59632, // Used by static NPCs, summoned by bosses in The Four Seats (not in DBC!)
+    SPELL_DUMMY_NUKE                    = 68991,
 
     // Hmm... Do elementals use these spells to spawn on a random platform?
     // Probably also 81796, 81798, 81799, 81800 (all hidden client-side).
-    SPELL_TELEPORT_EARTH            = 82329, // South-West
-    SPELL_TELEPORT_AIR              = 82330, // South-East
-    SPELL_TELEPORT_FIRE             = 82331, // North-West
-    SPELL_TELEPORT_WATER            = 82332, // North-East
+    SPELL_TELEPORT_EARTH                = 82329, // South-West
+    SPELL_TELEPORT_AIR                  = 82330, // South-East
+    SPELL_TELEPORT_FIRE                 = 82331, // North-West
+    SPELL_TELEPORT_WATER                = 82332, // North-East
 
     // Seedling Pod
-    SPELL_SUMMON_SEEDLING_POD_DUMMY = 75688  // summons 40592 (dummy)
+    SPELL_SUMMON_SEEDLING_POD_DUMMY     = 75688  // summons 40592 (dummy)
 };
 
 enum HOOGlobalActions
