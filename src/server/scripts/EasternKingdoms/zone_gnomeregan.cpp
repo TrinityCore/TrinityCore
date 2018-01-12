@@ -98,7 +98,7 @@ class npc_carvo_blastbolt : public CreatureScript
 public:
     npc_carvo_blastbolt() : CreatureScript("npc_carvo_blastbolt") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_WITHDRAW_TO_THE_LOADING_ROOM)
         {
