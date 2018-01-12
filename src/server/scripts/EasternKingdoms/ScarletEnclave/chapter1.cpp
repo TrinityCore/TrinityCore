@@ -30,6 +30,7 @@
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
 
 /*######
@@ -642,7 +643,11 @@ public:
 enum DarkRiderOfAcherus
 {
     SAY_DARK_RIDER              = 0,
-    SPELL_DESPAWN_HORSE         = 51918
+    SPELL_DESPAWN_HORSE         = 52267,
+
+    EVENT_START_MOVE            = 0,
+    EVENT_DESPAWN_HORSE,
+    EVENT_END_SCRIPT
 };
 
 class npc_dark_rider_of_acherus : public CreatureScript
@@ -652,78 +657,57 @@ class npc_dark_rider_of_acherus : public CreatureScript
 
         struct npc_dark_rider_of_acherusAI : public ScriptedAI
         {
-            npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                PhaseTimer = 4000;
-                Phase = 0;
-                Intro = false;
-                TargetGUID.Clear();
-            }
+            npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
-                Initialize();
+                _horseGUID.Clear();
+
+                if (TempSummon* summon = me->ToTempSummon())
+                    if (Unit* summoner = summon->GetSummoner())
+                        _horseGUID = summoner->GetGUID();
+
+                _events.ScheduleEvent(EVENT_START_MOVE, 0);
+                _events.ScheduleEvent(EVENT_DESPAWN_HORSE, Seconds(5));
+                _events.ScheduleEvent(EVENT_END_SCRIPT, Seconds(12));
             }
 
             void UpdateAI(uint32 diff) override
             {
-                if (!Intro || !TargetGUID)
-                    return;
+                _events.Update(diff);
 
-                if (PhaseTimer <= diff)
+                switch (uint32 eventId = _events.ExecuteEvent())
                 {
-                    switch (Phase)
-                    {
-                       case 0:
-                            Talk(SAY_DARK_RIDER);
-                            PhaseTimer = 5000;
-                            Phase = 1;
-                            break;
-                        case 1:
-                            if (Unit* target = ObjectAccessor::GetUnit(*me, TargetGUID))
-                                DoCast(target, SPELL_DESPAWN_HORSE, true);
-                            PhaseTimer = 3000;
-                            Phase = 2;
-                            break;
-                        case 2:
-                            me->SetVisible(false);
-                            PhaseTimer = 2000;
-                            Phase = 3;
-                            break;
-                        case 3:
-                            me->DespawnOrUnsummon();
-                            break;
-                        default:
-                            break;
-                    }
+                    case EVENT_START_MOVE:
+                        me->SetTarget(_horseGUID);
+                        me->SetSpeedRate(MOVE_RUN, 0.4f);
+
+                        if (Creature* horse = ObjectAccessor::GetCreature(*me, _horseGUID))
+                            me->GetMotionMaster()->MoveFollow(horse, 2.0f, 0.f);
+                        break;
+                    case EVENT_DESPAWN_HORSE:
+                        Talk(SAY_DARK_RIDER);
+                        if (Creature* horse = ObjectAccessor::GetCreature(*me, _horseGUID))
+                            DoCast(horse, SPELL_DESPAWN_HORSE, true);
+                        break;
+                    case EVENT_END_SCRIPT:
+                        me->DespawnOrUnsummon();
+                        break;
+                    default:
+                        break;
                 }
-                else
-                    PhaseTimer -= diff;
             }
 
-            void InitDespawnHorse(Unit* who)
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
-                if (!who)
-                    return;
-
-                TargetGUID = who->GetGUID();
-                me->SetWalk(true);
-                me->SetSpeedRate(MOVE_RUN, 0.4f);
-                me->GetMotionMaster()->MoveChase(who);
-                me->SetTarget(TargetGUID);
-                Intro = true;
+                if (spell->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == _horseGUID)
+                    if (Creature* creature = target->ToCreature())
+                        creature->DespawnOrUnsummon(2500);
             }
 
         private:
-            uint32 PhaseTimer;
-            uint32 Phase;
-            bool Intro;
-            ObjectGuid TargetGUID;
+            ObjectGuid _horseGUID;
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -742,6 +726,9 @@ enum SalanarTheHorseman
     GOSSIP_SALANAR_OPTION             = 0,
     SALANAR_SAY                       = 0,
     QUEST_INTO_REALM_OF_SHADOWS       = 12687,
+    NPC_HAVENSHIRE_STALLION           = 28605,
+    NPC_HAVENSHIRE_MARE               = 28606,
+    NPC_HAVENSHIRE_COLT               = 28607,
     NPC_DARK_RIDER_OF_ACHERUS         = 28654,
     NPC_SALANAR_IN_REALM_OF_SHADOWS   = 28788,
     SPELL_EFFECT_STOLEN_HORSE         = 52263,
@@ -768,28 +755,6 @@ public:
                 player->PlayerTalkClass->SendCloseGossip();
             }
             return false;
-        }
-
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
-        {
-            if (spell->Id == SPELL_DELIVER_STOLEN_HORSE)
-            {
-                if (caster->GetTypeId() == TYPEID_UNIT && caster->IsVehicle())
-                {
-                    if (Unit* charmer = caster->GetCharmer())
-                    {
-                        if (charmer->HasAura(SPELL_EFFECT_STOLEN_HORSE))
-                        {
-                            charmer->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
-                            caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                            caster->SetFaction(FACTION_FRIENDLY);
-                            DoCast(caster, SPELL_CALL_DARK_RIDER, true);
-                            if (Creature* Dark_Rider = me->FindNearestCreature(NPC_DARK_RIDER_OF_ACHERUS, 15))
-                                ENSURE_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
-                        }
-                    }
-                }
-            }
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -825,6 +790,50 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_salanar_the_horsemanAI(creature);
+    }
+};
+
+class spell_deliver_stolen_horse : public SpellScriptLoader
+{
+public:
+    spell_deliver_stolen_horse() : SpellScriptLoader("spell_deliver_stolen_horse") { }
+
+    class spell_deliver_stolen_horse_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_deliver_stolen_horse_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_DELIVER_STOLEN_HORSE, SPELL_EFFECT_STOLEN_HORSE });
+        }
+
+        bool Load() override
+        {
+            return GetCaster()->GetEntry() == NPC_HAVENSHIRE_STALLION || GetCaster()->GetEntry() == NPC_HAVENSHIRE_MARE || GetCaster()->GetEntry() == NPC_HAVENSHIRE_COLT;
+        }
+
+        void HitTargetCheck(SpellEffIndex /*effIndex*/)
+        {
+            if (Player* player = GetHitPlayer())
+                player->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
+
+            Unit* caster = GetCaster();
+            caster->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
+            caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            caster->SetFaction(FACTION_FRIENDLY);
+
+            caster->CastSpell(caster, SPELL_CALL_DARK_RIDER, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_deliver_stolen_horse_SpellScript::HitTargetCheck, EFFECT_1, SPELL_EFFECT_KILL_CREDIT2);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_deliver_stolen_horse_SpellScript();
     }
 };
 
@@ -1244,6 +1253,7 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_eye_of_acherus();
     new npc_death_knight_initiate();
     new npc_salanar_the_horseman();
+    new spell_deliver_stolen_horse();
     new npc_dark_rider_of_acherus();
     new npc_ros_dark_rider();
     new npc_dkc1_gothik();
