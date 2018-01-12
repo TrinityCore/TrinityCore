@@ -911,10 +911,19 @@ class spell_warr_slam : public SpellScriptLoader
             {
                 if (!GetHitUnit())
                     return;
-                GetCaster()->RemoveAurasDueToSpell(SPELL_WARRIOR_SLAM_AURA);
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 args.SpellValueOverrides.AddBP0(GetEffectValue());
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_SLAM, args);
+
+                Aura* aura = GetCaster()->GetOwnedAura(SPELL_WARRIOR_SLAM_AURA);
+                if (aura) {
+                    uint8 auraCount = aura->GetCharges();
+                    if (auraCount > 1) {
+                        aura->SetCharges(auraCount - 1);
+                    } else {
+                        GetCaster()->RemoveAurasDueToSpell(SPELL_WARRIOR_SLAM_AURA);
+                    }
+                }
             }
 
             void Register() override
