@@ -30,6 +30,8 @@ npc_fel_guard_hound
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -1039,6 +1041,208 @@ public:
     }
 };
 
+enum WatchCommanderLeonus
+{
+    SAY_COVER                   = 0,
+    EVENT_LEONUS_TALK           = 1,
+    EVENT_INFERNAL_RAIN_ATTACK  = 2,
+    EVENT_FEAR_CONTROLLER_CAST  = 3,
+    EVENT_ACTIVE_FALSE          = 4,
+    NPC_INFERNAL_RAIN           = 18729,
+    SPELL_INFERNAL_RAIN         = 33814,
+    NPC_FEAR_CONTROLLER         = 19393,
+    DATA_ACTIVE                 = 1,
+};
+
+struct npc_watch_commander_leonus : public ScriptedAI
+{
+    npc_watch_commander_leonus(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_LEONUS_TALK, 2min, 10min);
+        _events.ScheduleEvent(EVENT_INFERNAL_RAIN_ATTACK, 2min, 10min);
+        _events.ScheduleEvent(EVENT_FEAR_CONTROLLER_CAST, 2min, 10min);
+    }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        switch (data)
+        {
+            case DATA_ACTIVE:
+                _events.ScheduleEvent(EVENT_ACTIVE_FALSE, 1s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LEONUS_TALK:
+                    Talk(SAY_COVER);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
+                    break;
+                case EVENT_INFERNAL_RAIN_ATTACK:
+                {
+                    std::list<Creature*> infernalrainList;
+                    Trinity::AllCreaturesOfEntryInRange checkerInfernalrain(me, NPC_INFERNAL_RAIN, 200.0f);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcherInfernal(me, infernalrainList, checkerInfernalrain);
+                    Cell::VisitAllObjects(me, searcherInfernal, 200.0f);
+
+                    for (Creature* infernal : infernalrainList)
+                        if (!infernal->isMoving() && infernal->GetPositionZ() > 118.0f)
+                            infernal->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+
+                    break;
+                }
+                case EVENT_FEAR_CONTROLLER_CAST:
+                {
+                    std::list<Creature*> fearcontrollerList;
+                    Trinity::AllCreaturesOfEntryInRange checkerFear(me, NPC_FEAR_CONTROLLER, 200.0f);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcherFear(me, fearcontrollerList, checkerFear);
+                    Cell::VisitAllObjects(me, searcherFear, 200.0f);
+
+                    for (Creature* fearController : fearcontrollerList)
+                        fearController->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+
+                    break;
+                }
+                case EVENT_ACTIVE_FALSE:
+                    _events.ScheduleEvent(EVENT_LEONUS_TALK, 1h);
+                    _events.ScheduleEvent(EVENT_INFERNAL_RAIN_ATTACK, 1h);
+                    _events.ScheduleEvent(EVENT_FEAR_CONTROLLER_CAST, 1h);
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
+enum InfernalRainHellfire
+{
+    EVENT_INFERNAL_RAIN_CAST   = 1,
+    EVENT_INFERNAL_RAIN_STOP   = 2,
+    NPC_WATCH_COMMANDER_LEONUS = 19392
+};
+
+struct npc_infernal_rain_hellfire : public ScriptedAI
+{
+    npc_infernal_rain_hellfire(Creature* creature) : ScriptedAI(creature) { }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        switch (data)
+        {
+            case DATA_ACTIVE:
+                _events.ScheduleEvent(EVENT_INFERNAL_RAIN_CAST, 1s, 2s);
+                _events.ScheduleEvent(EVENT_INFERNAL_RAIN_STOP, 60s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_INFERNAL_RAIN_CAST:
+                {
+                    std::list<Creature*> infernalrainList;
+                    Trinity::AllCreaturesOfEntryInRange checker(me, NPC_INFERNAL_RAIN, 200.0f);
+                    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, infernalrainList, checker);
+                    Cell::VisitAllObjects(me, searcher, 200.0f);
+
+                    if (!infernalrainList.empty())
+                    {
+                        Creature* random = Trinity::Containers::SelectRandomContainerElement(infernalrainList);
+                        if (random->isMoving() && random->GetPositionZ() < 118.0f)
+                        {
+                            CastSpellExtraArgs args;
+                            args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, 1);
+                            me->CastSpell(random, SPELL_INFERNAL_RAIN, args);
+                        }
+                    }
+
+                    _events.ScheduleEvent(EVENT_INFERNAL_RAIN_CAST, 1s, 2s);
+                    break;
+                }
+                case EVENT_INFERNAL_RAIN_STOP:
+                    _events.CancelEvent(EVENT_INFERNAL_RAIN_CAST);
+                    if (Creature* watchcommanderLeonus = me->FindNearestCreature(NPC_WATCH_COMMANDER_LEONUS, 200))
+                        watchcommanderLeonus->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+enum fear_controller
+{
+    EVENT_FEAR_CAST = 1,
+    EVENT_FEAR_STOP = 2,
+    SPELL_FEAR      = 33815 // Serverside spell
+};
+
+struct npc_fear_controller : public ScriptedAI
+{
+    npc_fear_controller(Creature* creature) : ScriptedAI(creature) { }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        if (data == DATA_ACTIVE)
+        {
+            _events.ScheduleEvent(EVENT_FEAR_CAST, 1s);
+            _events.ScheduleEvent(EVENT_FEAR_STOP, 60s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FEAR_CAST:
+                    DoCastAOE(SPELL_FEAR);
+                    _events.Repeat(10s);
+                    break;
+                case EVENT_FEAR_STOP:
+                    _events.CancelEvent(EVENT_FEAR_CAST);
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
 void AddSC_hellfire_peninsula()
 {
     new npc_aeranas();
@@ -1048,4 +1252,7 @@ void AddSC_hellfire_peninsula()
     new npc_colonel_jules();
     new npc_barada();
     new npc_magister_aledis();
+    RegisterCreatureAI(npc_watch_commander_leonus);
+    RegisterCreatureAI(npc_infernal_rain_hellfire);
+    RegisterCreatureAI(npc_fear_controller);
 }
