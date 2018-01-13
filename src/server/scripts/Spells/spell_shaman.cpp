@@ -435,7 +435,7 @@ class spell_sha_earth_shield : public SpellScriptLoader
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* caster = GetCaster())
-                    amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL);
+                    amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL, { });
                 // SpellHealingBonusTaken will be called on Heal
             }
 
@@ -996,7 +996,7 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
                         if (Unit* owner = caster->GetOwner())
                         {
                             if (triggeringSpell)
-                                damage = int32(owner->SpellHealingBonusDone(target, triggeringSpell, damage, HEAL));
+                                damage = int32(owner->SpellHealingBonusDone(target, triggeringSpell, damage, HEAL, { }));
 
                             // Restorative Totems
                             if (AuraEffect* dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_RESTORATIVE_TOTEMS, 1))

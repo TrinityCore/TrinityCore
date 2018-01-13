@@ -781,7 +781,7 @@ class spell_dk_dancing_rune_weapon : public SpellScriptLoader
 
                 int32 amount = static_cast<int32>(damageInfo->GetDamage()) / 2;
                 drw->SendSpellNonMeleeDamageLog(drw->GetVictim(), spellInfo->Id, amount, spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
-                drw->DealDamage(drw->GetVictim(), amount, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
+                Unit::DealDamage(drw, drw->GetVictim(), amount, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
             }
 
             void Register() override
@@ -1278,7 +1278,7 @@ class spell_dk_hysteria : public AuraScript
     void PeriodicTick(AuraEffect const* aurEff)
     {
         uint32 const damage = GetTarget()->CountPctFromMaxHealth(GetTarget()->CalculateSpellDamage(nullptr, GetSpellInfo(), aurEff->GetEffIndex()));
-        GetTarget()->DealDamage(GetTarget(), damage, nullptr, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+        Unit::DealDamage(GetTarget(), GetTarget(), damage, nullptr, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
     }
 
     void Register() override
@@ -1733,40 +1733,36 @@ class spell_dk_pestilence : public SpellScriptLoader
                 {
                     if (Aura* aurOld = victim->GetAura(SPELL_DK_BLOOD_PLAGUE, caster->GetGUID())) // Check Blood Plague application on victim.
                     {
+                        float donePct = aurOld->GetDonePct();
+                        float critChance = aurOld->GetCritChance();
+
                         if (AuraEffect* aurEffOld = aurOld->GetEffect(EFFECT_0))
                         {
-                            float donePct = aurEffOld->GetDonePct();
-                            float critChance = aurEffOld->GetCritChance();
-
                             caster->CastSpell(hitUnit, SPELL_DK_BLOOD_PLAGUE, true); // Spread the disease to hitUnit.
 
                             if (Aura* aurNew = hitUnit->GetAura(SPELL_DK_BLOOD_PLAGUE, caster->GetGUID())) // Check Blood Plague application on hitUnit.
                             {
+                                aurNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
+                                aurNew->SetDonePct(donePct);
                                 if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
-                                {
-                                    aurEffNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
-                                    aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
-                                }
+                                    aurEffNew->ChangeAmount(aurEffNew->CalculateAmount(aurEffNew->GetCaster()), false);
                             }
                         }
                     }
 
                     if (Aura* aurOld = victim->GetAura(SPELL_DK_FROST_FEVER, caster->GetGUID())) // Check Frost Fever application on victim.
                     {
+                        float donePct = aurOld->GetDonePct();
+
                         if (AuraEffect* aurEffOld = aurOld->GetEffect(EFFECT_0))
                         {
-                            float donePct = aurEffOld->GetDonePct();
-
                             caster->CastSpell(hitUnit, SPELL_DK_FROST_FEVER, true); // Spread the disease to hitUnit.
 
                             if (Aura* aurNew = hitUnit->GetAura(SPELL_DK_FROST_FEVER, caster->GetGUID())) // Check Frost Fever application on hitUnit.
                             {
+                                aurNew->SetDonePct(donePct);
                                 if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
-                                {
-                                    aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
-                                }
+                                    aurEffNew->ChangeAmount(aurEffNew->CalculateAmount(aurEffNew->GetCaster()), false);
                             }
                         }
                     }
@@ -2569,7 +2565,7 @@ class spell_dk_wandering_plague : public SpellScriptLoader
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
-                if (!roll_chance_f(caster->GetUnitCriticalChance(BASE_ATTACK, target)))
+                if (!roll_chance_f(caster->GetUnitCriticalChanceAgainst(BASE_ATTACK, target)))
                     return;
 
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();

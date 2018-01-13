@@ -254,10 +254,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                                 spellId = SPELL_HUNTER_CHIMERA_SHOT_SERPENT;
 
                                 // first, calculate damage of basic tick (C&P from AuraEffect::HandlePeriodicDamageAurasTick)
-                                basePoint = (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct();
-                                if (Player* modOwner = caster->GetSpellModOwner())
-                                    modOwner->ApplySpellMod(aurEff->GetId(), SPELLMOD_DOT, basePoint);
-
+                                basePoint = aurEff->GetAmount();
                                 basePoint = unitTarget->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
 
                                 // then, multiply to get damage potential

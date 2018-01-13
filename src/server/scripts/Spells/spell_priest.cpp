@@ -880,7 +880,7 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
                 {
                     if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, caster->GetGUID()))
                     {
-                        aur->SetBonusAmount(caster->SpellDamageBonusDone(target, aur->GetSpellInfo(), 0, DOT));
+                        aur->ChangeAmount(aur->CalculateAmount(aur->GetCaster()), false);
                         aur->CalculatePeriodic(caster, false, false);
                         aur->GetBase()->RefreshDuration();
                     }
@@ -1112,10 +1112,7 @@ class spell_pri_renew : public SpellScriptLoader
                 // Empowered Renew
                 if (AuraEffect const* empoweredRenewAurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT, EFFECT_1))
                 {
-                    int32 heal = (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct();
-                    if (Player* modOwner = caster->GetSpellModOwner())
-                        modOwner->ApplySpellMod(GetId(), SPELLMOD_DOT, heal);
-
+                    int32 heal = aurEff->GetAmount();
                     heal = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DOT);
 
                     heal *= GetSpellInfo()->GetMaxTicks();

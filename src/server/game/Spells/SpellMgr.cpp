@@ -2977,6 +2977,21 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     }
 
+    // Allows those to crit
+    ApplySpellFix({
+        379,   // Earth Shield
+        33778, // Lifebloom Final Bloom
+        64844, // Divine Hymn
+        71607, // Item - Bauble of True Blood 10m
+        71646, // Item - Bauble of True Blood 25m
+        71610, // Item - Althor's Abacus trigger 10m
+        71641  // Item - Althor's Abacus trigger 25m
+    }, [](SpellInfo* spellInfo)
+    {
+        // We need more spells to find a general way (if there is any)
+        spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+    });
+
     // Spell Reflection
     ApplySpellFix({ 57643 }, [](SpellInfo* spellInfo)
     {
@@ -3170,6 +3185,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         // Target entry seems to be wrong for this spell :/
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS);
+    });
+
+    // Arcane Potency
+    ApplySpellFix({ 57529, 57531 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].SpellClassMask = flag96();
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
+        spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_CRITICAL_CHANCE;
     });
 
     ApplySpellFix({

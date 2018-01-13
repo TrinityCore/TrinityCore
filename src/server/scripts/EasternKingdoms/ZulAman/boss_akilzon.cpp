@@ -216,7 +216,7 @@ class boss_akilzon : public CreatureScript
                     me->InterruptNonMeleeSpells(false);
                     CloudGUID.Clear();
                     if (Cloud)
-                        Cloud->DealDamage(Cloud, Cloud->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                        Cloud->KillSelf();
                     SetWeather(WEATHER_STATE_FINE, 0.0f);
                     isRaining = false;
                 }
