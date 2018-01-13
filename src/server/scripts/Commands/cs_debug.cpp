@@ -848,7 +848,7 @@ public:
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
-        
+
         ThreatManager& mgr = target->GetThreatManager();
         if (!target->IsAlive())
         {

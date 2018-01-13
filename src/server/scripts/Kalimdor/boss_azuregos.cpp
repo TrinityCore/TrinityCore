@@ -121,7 +121,7 @@ class boss_azuregos : public CreatureScript
                             for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
                                 if (Player* player = pair.second->GetOther(me)->ToPlayer())
                                     DoTeleportPlayer(player, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, player->GetOrientation());
-                         
+
                             ResetThreatList();
                             events.ScheduleEvent(EVENT_TELEPORT, 30000);
                             break;
