@@ -94,7 +94,7 @@ bool AreaTrigger::LoadFromDB(ObjectGuid::LowType guidLow, Map* map)
     if (!areaTriggerList)
         return false;
 
-    for (AreaTriggerData trigger : *areaTriggerList)
+    for (AreaTriggerData const& trigger : *areaTriggerList)
     {
         if (trigger.guid == guidLow)
         {
