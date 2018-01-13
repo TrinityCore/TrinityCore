@@ -152,7 +152,7 @@ public:
                     HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_SNOWDRIFT_POSSESSIONS:
-                    go->SetPhaseMask(2, true);
+                    go->SetInPhase(50, true, true);
                     snowdriftPossessionsGUID = go->GetGUID();
                     break;
                 case GO_SNOWDRIFT_FIRE_WALL:
@@ -235,7 +235,7 @@ public:
                             break;
                         case DONE:
                             if (GameObject* possessions = instance->GetGameObject(snowdriftPossessionsGUID))
-                                possessions->SetPhaseMask(1, true);
+                                possessions->ClearPhases(true);
 
                             HandleGameObject(snowdriftEntranceGUID, true);
                             HandleGameObject(snowdriftFirewallGUID, true);

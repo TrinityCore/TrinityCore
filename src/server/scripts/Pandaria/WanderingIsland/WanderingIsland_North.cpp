@@ -825,9 +825,9 @@ public:
 
     bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
     {
-        if (quest->GetQuestId() == 29414) // La voie des tushui
+        /*if (quest->GetQuestId() == 29414) // La voie des tushui
             if (Creature* tempSummon = creature->SummonCreature(56661, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0, true))
-                tempSummon->SetPhaseMask(65535, true);
+                tempSummon->SetPhaseMask(65535, true);*/
 
         return true;
     }
@@ -1130,7 +1130,7 @@ public:
             Creature* tempSummon = creature->SummonCreature(54856, creature->GetPositionX() + 19, creature->GetPositionY() + 4, creature->GetPositionZ() - 1, creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0, true);
             if (tempSummon)
             {
-                tempSummon->SetPhaseMask(1024, true);
+                //tempSummon->SetPhaseMask(1024, true);
                 tempSummon->AI()->SetGUID(player->GetGUID());
                 tempSummon->AI()->Reset();
                 tempSummon->AI()->AttackStart(player);

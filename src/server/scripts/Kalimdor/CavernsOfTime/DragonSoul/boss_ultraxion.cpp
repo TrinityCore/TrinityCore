@@ -150,7 +150,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->GetMotionMaster()->MovePoint(0, ultraxionPos[1]);
             me->SetSpeed(MOVE_FLIGHT, 0.5f);
-            me->SetPhaseMask(17, true);
+            //me->SetPhaseMask(17, true);
 
             events.ScheduleEvent(EVENT_INTRO, 1000);
             events.ScheduleEvent(EVENT_START_FIGHT, 26000);

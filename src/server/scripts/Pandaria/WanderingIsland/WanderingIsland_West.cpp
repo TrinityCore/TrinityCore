@@ -875,12 +875,12 @@ public:
 
     void SummonHiFirepawHelper(Player* summoner, uint32 entry)
     {
-        uint32 phase = summoner->GetPhaseMask();
+        uint32 phase = 1;// summoner->GetPhaseMask();
         Position pos = summoner->GetPosition();
 
         Guardian* summon = new Guardian(NULL, summoner, false);
 
-        if (!summon->Create(summoner->GetMap()->GenerateLowGuid<HighGuid::Creature>(), summoner->GetMap(), phase, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
+        if (!summon->Create(summoner->GetMap()->GenerateLowGuid<HighGuid::Creature>(), summoner->GetMap(), entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
         {
             delete summon;
             return;

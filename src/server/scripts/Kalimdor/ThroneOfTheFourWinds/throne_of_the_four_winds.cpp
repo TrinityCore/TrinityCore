@@ -134,13 +134,13 @@ public:
                 { // Activate Slipstream
 
                     if (linkedSlipstreamObject)
-                        linkedSlipstreamObject->SetPhaseMask(PHASEMASK_NORMAL, true);
+                        linkedSlipstreamObject->ClearPhases(true);
 
                 }else
                 { // Deactivate Slipstream
 
                     if (linkedSlipstreamObject)
-                        linkedSlipstreamObject->SetPhaseMask(2, true);
+                        linkedSlipstreamObject->SetInPhase(50, true, true);
                 }
 
                 isActive = !isActive;

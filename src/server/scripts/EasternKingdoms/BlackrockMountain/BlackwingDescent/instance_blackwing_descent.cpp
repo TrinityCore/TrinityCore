@@ -299,7 +299,7 @@ public:
 
                 case DATA_ATRAMEDES:
                     if(GameObject* onyxiaPlatform = instance->GetGameObject(gobOnyxiaPlatform))
-                        onyxiaPlatform->SetPhaseMask(PHASEMASK_NORMAL, true);
+                        onyxiaPlatform->ClearPhases(true);
                     break;
                 }
             }

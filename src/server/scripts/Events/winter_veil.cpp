@@ -322,7 +322,7 @@ class spell_throw_bomb : public SpellScriptLoader
 
                 if (GameObject * pGobject = pTrigger->FindNearestGameObject(GOB_BOULES_DE_CANONS, 50.0f))
                 {
-                    if (pGobject->GetPhaseMask() == 2) // Gob en attente de respawn
+                    if (pGobject->HasInPhaseList(50)) // Gob en attente de respawn
                     {
                         return;
                     }
@@ -332,8 +332,8 @@ class spell_throw_bomb : public SpellScriptLoader
 
                         pCaster->KilledMonsterCredit(NPC_BOMBE_TRIGGER);
 
-                        pGobject->SetPhaseMask(2, true);
-                        cTrigger->SetPhaseMask(2, true);
+                        pGobject->SetInPhase(50, true, true);
+                        cTrigger->SetInPhase(50, true, true);
                     }
                 }
             }
@@ -387,8 +387,8 @@ class npc_throw_bomb_bunny : public CreatureScript
                     {
                         if (GameObject * pGobject = me->FindNearestGameObject(GOB_BOULES_DE_CANONS, 50.0f))
                         {
-                            pGobject->SetPhaseMask(1, true);
-                            me->SetPhaseMask(1, true);
+                            pGobject->ClearPhases(true);
+                            me->ClearPhases(true);
                         }
 
                         StartRespawnTimer = false;

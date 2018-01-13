@@ -3709,7 +3709,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster, true);
                 tempSumm->CastCustomSpell(SPELL_SHAMAN_EARTHQUAKE_DAMAGE, SPELLVALUE_BASE_POINT0, caster->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_NORMAL, false) * 0.3, caster, TRIGGERED_FULL_MASK);
             }
 

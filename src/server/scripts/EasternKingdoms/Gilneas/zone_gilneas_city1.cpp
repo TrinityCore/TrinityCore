@@ -2707,7 +2707,7 @@ public:
         if (quest->GetQuestId() == QUEST_FROM_THE_SHADOWS)
         {
             if (Pet* pet = player->GetPet())
-                player->RemovePet(pet, PET_SAVE_AS_CURRENT, true);
+                player->RemovePet(pet, PET_SAVE_CURRENT_STATE, true);
             player->CastSpell(player, SPELL_SUMMON_GILNEAN_MASTIFF);
             creature->AI()->Talk(0);
         }

@@ -5839,7 +5839,7 @@ void Spell::EffectSummonObjectPersonnal(SpellEffIndex effIndex)
     Map* map = target->GetMap();
 
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f);
-    if (!pGameObj->Create(gameobject_id, map, m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
+    if (!pGameObj->Create(gameobject_id, map, Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
     {
         delete pGameObj;
         return;

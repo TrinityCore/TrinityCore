@@ -2166,7 +2166,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster, true);
                 caster->CastSpell(tempSumm, SPELL_MAGE_BLIZZARD_DAMAGE, true);
             }
 

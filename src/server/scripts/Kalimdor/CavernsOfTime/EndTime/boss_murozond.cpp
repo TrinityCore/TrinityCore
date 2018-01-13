@@ -147,7 +147,7 @@ class boss_murozond : public CreatureScript
 
                 Rewardchest = GetClosestGameObjectWithEntry(me, 209547, 500.0f);
                 if (Rewardchest != nullptr)
-                    Rewardchest->SetPhaseMask(2, true);
+                    Rewardchest->SetInPhase(50, true, true);
             }
 
             void JustReachedHome() override
@@ -227,7 +227,7 @@ class boss_murozond : public CreatureScript
             }
 
                 if (Rewardchest)
-                    Rewardchest->SetPhaseMask(1, true);
+                    Rewardchest->ClearPhases(true);
             }
 
             void JustSummoned(Creature* summon) override

@@ -2651,7 +2651,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster, true);
                 caster->CastSpell(tempSumm, SPELL_HUNTER_FLARE_EFFECT, true);
             }
         }
@@ -2704,7 +2704,7 @@ public:
                     {
                         tempSumm->setFaction(caster->getFaction());
                         tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                        tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                        tempSumm->CopyPhaseFrom(caster, true);
                         caster->CastSpell(tempSumm, SPELL_HUNTER_EXPLOSIVE_TRAP_DAMAGE, true);
                         at->Remove();
                     }
@@ -2728,7 +2728,7 @@ public:
                 {
                     tempSumm->setFaction(caster->getFaction());
                     tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                    tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                    tempSumm->CopyPhaseFrom(caster, true);
                     caster->CastSpell(tempSumm, SPELL_HUNTER_EXPLOSIVE_TRAP_DAMAGE, true);
                     at->Remove();
                 }
@@ -2851,7 +2851,7 @@ public:
                     {
                         tempSumm->setFaction(caster->getFaction());
                         tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                        tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                        tempSumm->CopyPhaseFrom(caster, true);
                         caster->CastSpell(tempSumm, SPELL_HUNTER_ACTIVATE_TAR_TRAP, true);
                         at->Remove();
                     }
@@ -2874,7 +2874,7 @@ public:
                 {
                     tempSumm->setFaction(caster->getFaction());
                     tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                    tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                    tempSumm->CopyPhaseFrom(caster, true);
                     caster->CastSpell(tempSumm, SPELL_HUNTER_ACTIVATE_TAR_TRAP, true);
                     at->Remove();
                 }
