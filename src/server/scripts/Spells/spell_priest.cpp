@@ -131,7 +131,7 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
                     return;
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(healInfo->GetHeal(), 10));
+                args.AddSpellBP0(CalculatePct(healInfo->GetHeal(), 10));
                 caster->CastSpell(caster, SPELL_PRIEST_ORACULAR_HEAL, args);
             }
 
@@ -180,7 +180,7 @@ public:
             bp += target->GetRemainingPeriodicAmount(target->GetGUID(), triggerSpell, SPELL_AURA_PERIODIC_HEAL);
 
             CastSpellExtraArgs args(aurEff);
-            args.SpellValueOverrides.AddBP0(bp);
+            args.AddSpellBP0(bp);
             target->CastSpell(target, triggerSpell, args);
         }
 
@@ -333,7 +333,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                 absorb = std::min(absorb, eventInfo.GetProcTarget()->getLevel() * 125);
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(absorb);
+                args.AddSpellBP0(absorb);
                 GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_DIVINE_AEGIS, args);
             }
 
@@ -411,7 +411,7 @@ class spell_pri_glyph_of_dispel_magic : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(target->CountPctFromMaxHealth(aurEff->GetAmount()));
+                args.AddSpellBP0(target->CountPctFromMaxHealth(aurEff->GetAmount()));
                 eventInfo.GetActor()->CastSpell(target, SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL, args);
             }
 
@@ -454,7 +454,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
 
                 ASSERT(triggeredSpellInfo->GetMaxTicks() > 0);
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(healInfo->GetHeal(), aurEff->GetAmount()) / triggeredSpellInfo->GetMaxTicks());
+                args.AddSpellBP0(CalculatePct(healInfo->GetHeal(), aurEff->GetAmount()) / triggeredSpellInfo->GetMaxTicks());
                 GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL, args);
             }
 
@@ -509,7 +509,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
                 // remove the aura now, we don't want 40% healing bonus
                 Remove(AURA_REMOVE_BY_ENEMY_SPELL);
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(healAmount);
+                args.AddSpellBP0(healAmount);
                 target->CastSpell(target, SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL, args);
                 absorbAmount = dmgInfo.GetDamage();
             }
@@ -1035,7 +1035,7 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                 if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.SpellValueOverrides.AddBP0(CalculatePct(absorbAmount, talentAurEff->GetAmount()));
+                    args.AddSpellBP0(CalculatePct(absorbAmount, talentAurEff->GetAmount()));
                     target->CastSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, args);
                 }
             }
@@ -1118,7 +1118,7 @@ class spell_pri_renew : public SpellScriptLoader
                     heal *= GetSpellInfo()->GetMaxTicks();
 
                     CastSpellExtraArgs args(aurEff);
-                    args.SpellValueOverrides.AddBP0(CalculatePct(heal, empoweredRenewAurEff->GetAmount()));
+                    args.AddSpellBP0(CalculatePct(heal, empoweredRenewAurEff->GetAmount()));
                     caster->CastSpell(GetTarget(), SPELL_PRIEST_EMPOWERED_RENEW, args);
                 }
             }
@@ -1202,7 +1202,7 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
                     AddPct(damage, aurEff->GetAmount());
 
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(damage);
+                args.AddSpellBP0(damage);
                 GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH, args);
             }
 
@@ -1243,8 +1243,8 @@ class spell_pri_vampiric_embrace : public SpellScriptLoader
                 int32 selfHeal = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
                 int32 partyHeal = selfHeal / 5;
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(partyHeal);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT1, selfHeal);
+                args.AddSpellBP0(partyHeal);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT1, selfHeal);
                 eventInfo.GetActor()->CastSpell(nullptr, SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL, args);
             }
 
@@ -1294,7 +1294,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
                         {
                             // backfire damage
                             CastSpellExtraArgs args(aurEff);
-                            args.SpellValueOverrides.AddBP0(aurEff->GetAmount() * 8);
+                            args.AddSpellBP0(aurEff->GetAmount() * 8);
                             caster->CastSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, args);
                         }
                     }
@@ -1435,7 +1435,7 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PRIEST_BLESSED_HEALING, SPELL_AURA_PERIODIC_HEAL);
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 caster->CastSpell(target, SPELL_PRIEST_BLESSED_HEALING, args);
             }
 

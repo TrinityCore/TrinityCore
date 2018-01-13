@@ -13278,7 +13278,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             {
                 CastSpellExtraArgs args(flags);
                 args.OriginalCaster = origCasterGUID;
-                args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1);
+                args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1);
                 caster->CastSpell(target, itr->second.spellId, args);
             }
             else    // This can happen during Player::_LoadAuras
@@ -13312,7 +13312,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 void Unit::EnterVehicle(Unit* base, int8 seatId)
 {
     CastSpellExtraArgs args(TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
-    args.SpellValueOverrides.AddBP0(seatId + 1);
+    args.AddSpellBP0(seatId + 1);
     CastSpell(base, VEHICLE_SPELL_RIDE_HARDCODED, args);
 }
 

@@ -175,7 +175,7 @@ class boss_akilzon : public CreatureScript
                                 CastSpellExtraArgs args;
                                 args.TriggerFlags = TRIGGERED_FULL_MASK;
                                 args.OriginalCaster = me->GetGUID();
-                                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, bp0);
+                                args.AddSpellMod(SPELLVALUE_BASE_POINT0, bp0);
                                 Cloud->CastSpell(target, SPELL_ZAP, args);
                             }
                         }
@@ -200,7 +200,7 @@ class boss_akilzon : public CreatureScript
                                 CastSpellExtraArgs args;
                                 args.TriggerFlags = TRIGGERED_FULL_MASK;
                                 args.OriginalCaster = Cloud->GetGUID();
-                                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, bp0);
+                                args.AddSpellMod(SPELLVALUE_BASE_POINT0, bp0);
                                 Cloud->CastSpell(trigger, SPELL_ZAP, args);
                             }
                         }

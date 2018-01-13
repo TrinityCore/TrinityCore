@@ -181,7 +181,7 @@ class spell_hun_ascpect_of_the_viper : public SpellScriptLoader
                     AddPct(mana, glyph->GetAmount());
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(mana);
+                args.AddSpellBP0(mana);
                 GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE, args);
             }
 
@@ -290,7 +290,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                     if (spellId)
                     {
                         CastSpellExtraArgs args(TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD));
-                        args.SpellValueOverrides.AddBP0(basePoint);
+                        args.AddSpellBP0(basePoint);
                         caster->CastSpell(unitTarget, spellId, args);
                     }
                 }
@@ -330,7 +330,7 @@ class spell_hun_cobra_strikes : public SpellScriptLoader
                 SpellInfo const* triggeredSpellInfo = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
 
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, triggeredSpellInfo->StackAmount);
+                args.AddSpellMod(SPELLVALUE_AURA_STACK, triggeredSpellInfo->StackAmount);
                 GetTarget()->CastSpell(nullptr, triggeredSpellInfo->Id, args);
             }
 
@@ -450,7 +450,7 @@ class spell_hun_glyph_of_arcane_shot : public SpellScriptLoader
 
                 // castspell refactor note: this is not triggered - is this intended?
                 CastSpellExtraArgs args;
-                args.SpellValueOverrides.AddBP0(mana);
+                args.AddSpellBP0(mana);
                 GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_GLYPH_OF_ARCANE_SHOT, args);
             }
 
@@ -515,7 +515,7 @@ class spell_hun_explosive_shot : public AuraScript
         if (Unit* caster = GetCaster())
         {
             CastSpellExtraArgs args(aurEff);
-            args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+            args.AddSpellBP0(aurEff->GetAmount());
             caster->CastSpell(GetTarget(), SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE, args);
         }
     }
@@ -719,7 +719,7 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(caster->CountPctFromMaxHealth(30));
+                args.AddSpellBP0(caster->CountPctFromMaxHealth(30));
                 caster->CastSpell(caster, SPELL_HUNTER_PET_LAST_STAND_TRIGGERED, args);
             }
 
@@ -1045,7 +1045,7 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
                     if (!caster->HasAura(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddBP0(100); // @todo shouldn't this be in spellmgr if it's constant?
+                        args.AddSpellBP0(100); // @todo shouldn't this be in spellmgr if it's constant?
                         owner->CastSpell(caster, SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, args);
                         caster->CastSpell(caster, SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF, true);
                     }
@@ -1103,7 +1103,7 @@ public:
                 bp += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_HUNTER_PIERCING_SHOTS, SPELL_AURA_PERIODIC_DAMAGE);
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(bp);
+                args.AddSpellBP0(bp);
                 caster->CastSpell(target, SPELL_HUNTER_PIERCING_SHOTS, args);
             }
         }
@@ -1142,7 +1142,7 @@ class spell_hun_rapid_recuperation : public SpellScriptLoader
 
                 Unit* target = GetTarget();
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(target->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
+                args.AddSpellBP0(CalculatePct(target->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
                 target->CastSpell(target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, args);
             }
 
@@ -1294,7 +1294,7 @@ class spell_hun_roar_of_sacrifice : public SpellScriptLoader
                 PreventDefaultAction();
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
+                args.AddSpellBP0(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
                 eventInfo.GetActor()->CastSpell(GetCaster(), SPELL_ROAR_OF_SACRIFICE_TRIGGERED, args);
             }
 
@@ -1532,7 +1532,7 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
                     return;
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 caster->CastSpell(nullptr, SPELL_HUNTER_THRILL_OF_THE_HUNT_MANA, args);
             }
 

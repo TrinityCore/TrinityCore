@@ -1303,7 +1303,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (caster->HasAura(64760))
                     {
                         CastSpellExtraArgs args(GetEffect(EFFECT_0));
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, GetEffect(EFFECT_0)->GetAmount());
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetEffect(EFFECT_0)->GetAmount());
                         caster->CastSpell(target, 64801, args);
                     }
                 }
@@ -1342,7 +1342,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     {
                         // Refresh or add visual aura
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, sSpellMgr->AssertSpellInfo(74396)->StackAmount);
+                        args.AddSpellMod(SPELLVALUE_AURA_STACK, sSpellMgr->AssertSpellInfo(74396)->StackAmount);
                         target->CastSpell(nullptr, 74396, args);
                         break;
                     }
@@ -1369,8 +1369,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 
                         CastSpellExtraArgs args(devouringPlague), args2(devouringPlague);
                         int32 basepoints0 = CalculatePct(devouringPlague->GetTotalTicks() * static_cast<int32>(damage), aurEff->GetAmount());
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, basepoints0);
-                        args2.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, CalculatePct(basepoints0, 15));
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, basepoints0);
+                        args2.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(basepoints0, 15));
                         caster->CastSpell(target, 63675, args);
                         caster->CastSpell(nullptr, 75999, args2);
                     }
@@ -1384,7 +1384,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // instantly heal m_amount% of the absorb-value
                         int32 heal = glyph->GetAmount() * GetEffect(0)->GetAmount()/100;
                         CastSpellExtraArgs args(GetEffect(0));
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, heal);
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, heal);
                         caster->CastSpell(GetUnitOwner(), 56160, args);
                     }
                 }
@@ -1526,7 +1526,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     {
                         int32 basepoints0 = aurEff->GetAmount() * caster->GetCreateMana() / 100;
                         CastSpellExtraArgs args(GetEffect(0));
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, basepoints0);
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, basepoints0);
                         caster->CastSpell(caster, 64103, args);
                     }
                 }
@@ -1560,7 +1560,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                 multiplier += 0.5f;
 
                             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                            args.SpellValueOverrides.AddBP0(CalculatePct(caster->GetMaxPower(POWER_MANA), multiplier));
+                            args.AddSpellBP0(CalculatePct(caster->GetMaxPower(POWER_MANA), multiplier));
                             caster->CastSpell(caster, 47755, args);
                         }
                         // effect on aura target
@@ -1575,7 +1575,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                 case POWER_MANA:
                                 {
                                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                                    args.SpellValueOverrides.AddBP0(CalculatePct(target->GetMaxPower(POWER_MANA), 2));
+                                    args.AddSpellBP0(CalculatePct(target->GetMaxPower(POWER_MANA), 2));
                                     caster->CastSpell(target, 63654, args);
                                     break;
                                 }
@@ -1669,7 +1669,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->RemoveAurasDueToSpell(31666);
 
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+                        args.AddSpellBP0(aurEff->GetAmount());
                         target->CastSpell(target, 31665, args);
                     }
                 }
