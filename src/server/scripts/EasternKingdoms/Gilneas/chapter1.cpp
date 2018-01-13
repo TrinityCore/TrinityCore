@@ -310,11 +310,11 @@ class npc_worgen_runt : public CreatureScript
                         case EVENT_JUMP_TO_PRISON:
                             me->GetMotionMaster()->MoveJump(worgenRuntJumpPos[_worgenID], 16.0f, _worgenID < WORGEN_ID_CATHEDRAL_1 ? 19.2911f : frand(3.945607f, 4.852813f));
                             me->SetHomePosition(worgenRuntJumpPos[_worgenID]);
-                            _events.ScheduleEvent(EVENT_AGGRO_PLAYER, Seconds(1));
+                            _events.ScheduleEvent(EVENT_AGGRO_PLAYER, Seconds(2));
                             break;
                         case EVENT_AGGRO_PLAYER:
                             if (Unit* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
-                                if (me->IsAIEnabled && me->IsInDist(&player->GetPosition(), 50.0f))
+                                if (me->IsAIEnabled && me->IsInDist(&player->GetPosition(), 100.0f))
                                     me->AI()->AttackStart(player);
                             break;
                         default:
