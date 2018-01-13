@@ -8,7 +8,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (50415, 35911, 35552, 35551);
 INSERT INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
-(50415, 0, 0, 'You''ve been bitten by a worgen.  It''s probably nothing, but it sure stings a little.$B$B|TInterface\\Icons\\INV_Misc_monsterfang_02.blp:32|t', 42, 0, 100, 0, 0, 19614, 50192, 'Josiah Event Trigger to Player'),
+(50415, 0, 0, 'You''ve been bitten by a worgen.  It''s probably nothing, but it sure stings a little.$B$B|TInterface\\Icons\\INV_Misc_monsterfang_02.blp:32|t', 42, 0, 100, 0, 0, 0, 50192, 'Josiah Event Trigger to Player'),
 (35911, 0, 0, 'If we can make it past the gates into Duskhaven we''ll be safe.  The eastern mountains are virtually impassable.', 12, 0, 100, 1, 0, 19696, 36107, 'King Genn Greymane to Player'),
 (35911, 1, 0, 'We were fools to take up arms against each other, Darius.  The worgen would''ve never stood a chance.', 12, 0, 100, 1, 0, 19696, 36108, 'King Genn Greymane to Player'),
 
