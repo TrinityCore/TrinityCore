@@ -1545,6 +1545,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             ENSURE_AI(SmartAI, me->AI())->SetRun(e.action.setRun.run != 0);
+            if (e.action.setRun.speed && e.action.setRun.speedDivider)
+                me->SetSpeed(MOVE_RUN, float(e.action.setRun.speed) / float(e.action.setRun.speedDivider));
             break;
         }
         case SMART_ACTION_SET_SWIM:
@@ -1699,7 +1701,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, dest, e.action.MoveToPos.disablePathfinding == 0);
             }
             else
-                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), e.action.MoveToPos.disablePathfinding == 0);
+            {
+                float x, y, z;
+                if (e.action.MoveToPos.closePoint)
+                    target->GetClosePoint(x, y, z, target->GetObjectSize(), e.action.MoveToPos.distance, frand(0, 2 * (float)M_PI));
+                else
+                    target->GetPosition(x, y, z);
+
+                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, x, y, z, e.action.MoveToPos.disablePathfinding == 0);
+            }
             break;
         }
         case SMART_ACTION_RESPAWN_TARGET:
@@ -2577,18 +2587,23 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (IsCreature(*itr))
                 {
-                    if (e.action.animKit.type == 0)
-                        (*itr)->ToCreature()->PlayOneShotAnimKitId(e.action.animKit.animKit);
-                    else if (e.action.animKit.type == 1)
-                        (*itr)->ToCreature()->SetAIAnimKitId(e.action.animKit.animKit);
-                    else if (e.action.animKit.type == 2)
-                        (*itr)->ToCreature()->SetMeleeAnimKitId(e.action.animKit.animKit);
-                    else if (e.action.animKit.type == 3)
-                        (*itr)->ToCreature()->SetMovementAnimKitId(e.action.animKit.animKit);
-                    else
+                    switch (e.action.animKit.type)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartScript: Invalid type for SMART_ACTION_PLAY_ANIMKIT, skipping");
-                        break;
+                        case 0:
+                            (*itr)->ToCreature()->PlayOneShotAnimKitId(e.action.animKit.animKit);
+                            break;
+                        case 1:
+                            (*itr)->ToCreature()->SetAIAnimKitId(e.action.animKit.animKit);
+                            break;
+                        case 2:
+                            (*itr)->ToCreature()->SetMeleeAnimKitId(e.action.animKit.animKit);
+                            break;
+                        case 3:
+                            (*itr)->ToCreature()->SetMovementAnimKitId(e.action.animKit.animKit);
+                            break;
+                        case 4:
+                            (*itr)->ToCreature()->SendPlaySpellVisualKit(e.action.animKit.animKit, 0, 0);
+                            break;
                     }
 
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_ANIMKIT: target: %s (%s), AnimKit: %u, Type: %u",
