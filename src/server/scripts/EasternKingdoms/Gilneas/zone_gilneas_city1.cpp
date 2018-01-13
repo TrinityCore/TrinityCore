@@ -1139,11 +1139,13 @@ public:
             case 0:
             {
                 SummonOnlyCitizen(player, go);
+                player->KilledMonsterCredit(NPC_GILNEAS_EVACUATION_FACING_MARKER_35830);
                 break;
             }
             case 1:
             {
                 SummonCitizenAndWorgen(player, go);
+                player->KilledMonsterCredit(NPC_GILNEAS_EVACUATION_FACING_MARKER_35830);
                 break;
             }
         }
