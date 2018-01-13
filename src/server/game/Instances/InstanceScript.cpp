@@ -254,6 +254,8 @@ void InstanceScript::AddObject(Creature* obj, bool add)
     ObjectInfoMap::const_iterator j = _creatureInfo.find(obj->GetEntry());
     if (j != _creatureInfo.end())
         AddObject(obj, j->second, add);
+    else
+        AddObject(obj, obj->GetEntry(), add);
 }
 
 void InstanceScript::AddObject(GameObject* obj, bool add)
@@ -261,6 +263,8 @@ void InstanceScript::AddObject(GameObject* obj, bool add)
     ObjectInfoMap::const_iterator j = _gameObjectInfo.find(obj->GetEntry());
     if (j != _gameObjectInfo.end())
         AddObject(obj, j->second, add);
+    else
+        AddObject(obj, obj->GetEntry(), add);
 }
 
 void InstanceScript::AddObject(WorldObject* obj, uint32 type, bool add)
