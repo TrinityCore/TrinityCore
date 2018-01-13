@@ -906,8 +906,8 @@ public:
                     for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         if ((*itr)->GetQuestStatus(QUEST_PUSH_THEM_OUT) == QUEST_STATUS_REWARDED)
                         {
-                            if ((*itr)->GetPhaseMask() != 262144)
-                                (*itr)->SetPhaseMask(262144, true);
+                            if ((*itr)->HasInPhaseList(262144))
+                                (*itr)->SetInPhase(262144, true, true);
                         }
 
                     if (playerList.size() && !m_playerIsInvited && !m_battleIsStarted)
@@ -1909,8 +1909,8 @@ public:
                     std::list<Player*> playerList = me->SelectNearestPlayers(200.0f, true);
                     for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         if ((*itr)->GetQuestStatus(QUEST_PUSH_THEM_OUT) == QUEST_STATUS_REWARDED)
-                            if ((*itr)->GetPhaseMask() != 262144)
-                                (*itr)->SetPhaseMask(262144, true);
+                            if ((*itr)->HasInPhaseList(262144))
+                                (*itr)->SetInPhase(262144, true, true);
 
                     m_events.ScheduleEvent(EVENT_CHECK_PLAYER_FOR_PHASE, 2500);
                     break;

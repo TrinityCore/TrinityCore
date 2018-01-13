@@ -396,7 +396,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster);
                 caster->CastSpell(tempSumm, SPELL_DH_FURY_OF_THE_ILLIDARI_MH, true);
                 caster->CastSpell(tempSumm, SPELL_DH_FURY_OF_THE_ILLIDARI_OH, true);
             }

@@ -1081,9 +1081,6 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (me->GetPhaseMask() == 1)
-                return;
-
             events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(10, 20) * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_NEGATE, urand(5, 10) * IN_MILLISECONDS);
@@ -1094,9 +1091,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (me->GetPhaseMask() == 1)
-                return;
-
             if (!UpdateVictim())
                 return;
 

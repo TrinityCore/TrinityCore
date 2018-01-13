@@ -862,7 +862,7 @@ public:
                 {
                     tempSumm->setFaction(caster->getFaction());
                     tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                    tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                    tempSumm->CopyPhaseFrom(caster, true);
                     caster->CastSpell(tempSumm, SPELL_DH_CONSUME_SOUL_MISSILE, true);
                 }
                 at->SetDuration(0);
@@ -2869,7 +2869,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster, true);
                 caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_TRIGGER, true);
                 caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_EXPLOSION, true);
             }
@@ -2906,7 +2906,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster, true);
                 caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_TRIGGER, true);
                 caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_EXPLOSION, true);
             }
@@ -2945,7 +2945,7 @@ public:
 
             tempSumm->setFaction(caster->getFaction());
             tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-            tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+            tempSumm->CopyPhaseFrom(caster, true);
             caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_CHAINS_EXPLOSION, true);
 
             GuidUnorderedSet const objects = at->GetInsideUnits();
@@ -3108,7 +3108,7 @@ public:
             {
                 tempSumm->setFaction(caster->getFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster, true);
                 caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_TRIGGER, true);
                 caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_EXPLOSION, true);
             }

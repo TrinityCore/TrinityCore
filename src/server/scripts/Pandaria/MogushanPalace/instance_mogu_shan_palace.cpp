@@ -104,7 +104,12 @@ public:
                 case DATA_TRIAL_OF_THE_KING:
                     HandleGameObject(doorBeforeTrialGUID, state != IN_PROGRESS);
                     if (GameObject* chest = instance->GetGameObject(trialChestGUID))
-                        chest->SetPhaseMask(state == DONE ? 1: 128, true);
+                    {
+                        if (state == DONE)
+                            chest->ClearPhases();
+                        else
+                            chest->SetInPhase(176, true, true);
+                    }
                     break;
                 case DATA_GEKKAN:
                     HandleGameObject(doorAfterTrialGUID, state == DONE);
@@ -127,7 +132,7 @@ public:
                     break;
                 case GO_TRIAL_CHEST:
                     trialChestGUID = go->GetGUID();
-                    go->SetPhaseMask(128, true);
+                    go->SetInPhase(176, true, true);
                     break;
                 case GO_DOOR_AFTER_TRIAL:
                     doorAfterTrialGUID = go->GetGUID();

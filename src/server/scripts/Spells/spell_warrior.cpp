@@ -27,6 +27,7 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "PathGenerator.h"
 #include "Player.h"
 #include "Unit.h"
@@ -2695,6 +2696,117 @@ public:
     }
 };
 
+// Ravager - 152277
+class spell_warr_ravager : public AuraScript
+{
+    PrepareAuraScript(spell_warr_ravager);
+
+    enum eDatas
+    {
+        NPC_RAVAGER             = 76168,
+        SPELL_RAVAGER_DAMAGE    = 156287
+    };
+
+    void CalculateParryPCT(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        if (GetCaster() == nullptr)
+            return;
+
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            if (player->GetSpecializationId() != TALENT_SPEC_WARRIOR_PROTECTION)
+                amount = 0;
+        }
+    }
+
+    void OnTick(AuraEffect const* aurEff)
+    {
+        int32 tickNumber = aurEff->GetTickNumber();
+
+        if (tickNumber > aurEff->GetSpellInfo()->GetEffect(EFFECT_3)->BasePoints)
+            return;
+
+        Unit* caster = GetCaster();
+
+        if (caster == nullptr)
+            return;
+
+        Creature* ravager = nullptr;
+        for (auto l_Iter : caster->m_Controlled)
+        {
+            if (l_Iter->GetEntry() == NPC_RAVAGER)
+                ravager = l_Iter->ToCreature();
+        }
+
+        if (ravager == nullptr)
+            return;
+
+        caster->CastSpell(ravager, SPELL_RAVAGER_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_ravager::CalculateParryPCT, EFFECT_0, SPELL_AURA_MOD_PARRY_PERCENT);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_ravager::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// Ravager - 76168
+class npc_warr_ravager : public CreatureScript
+{
+public:
+    npc_warr_ravager() : CreatureScript("npc_warr_ravager") { }
+
+    enum eDatas
+    {
+        RAVAGER_DISPLAYID       = 55644,
+        SPELL_RAVAGER_VISUAL    = 153709
+    };
+
+    struct spell_npc_warr_ravagerAI : public ScriptedAI
+    {
+        spell_npc_warr_ravagerAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void IsSummonedBy(Unit* summoner)
+        {
+            me->SetDisplayId(RAVAGER_DISPLAYID);
+            me->CastSpell(me, SPELL_RAVAGER_VISUAL, true);
+            me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE |
+                                          UNIT_FLAG_UNK_15 |
+                                          UNIT_FLAG_PVP_ATTACKABLE);
+
+            if (summoner == nullptr || !summoner->IsPlayer())
+                return;
+
+            if (Player* player = summoner->ToPlayer())
+            {
+                if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_MAINHAND))
+                {
+                    if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(item->GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS)))
+                        me->SetVirtualItem(0, l_Proto->GetId());
+                    else
+                        me->SetVirtualItem(0, item->GetTemplate()->GetId());
+                }
+
+                if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_OFFHAND))
+                {
+                    if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(item->GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS)))
+                        me->SetVirtualItem(2, l_Proto->GetId());
+                    else
+                        me->SetVirtualItem(2, item->GetTemplate()->GetId());
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const
+    {
+        return new spell_npc_warr_ravagerAI(p_Creature);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_berzerker_rage();
@@ -2759,4 +2871,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_wrecking_ball_effect();
     new spell_warr_rallying_cry();
     new spell_warr_jump_to_skyhold();
+    RegisterAuraScript(spell_warr_ravager);
+
+    new npc_warr_ravager();
 }

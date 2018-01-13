@@ -159,7 +159,7 @@ public:
                     me->Say(SAY_D_E, LANG_UNIVERSAL, player);
                     me->CastSpell(player, 54732, true);
                     player->RemoveAurasDueToSpell(SPELL_DEAD_STILL);
-                    player->SetPhaseMask(1, true);
+                    player->ClearPhases(true);
                     break;
                 case 1 :
                     me->Say(SAY_D_F, LANG_UNIVERSAL, player);
@@ -930,7 +930,7 @@ public:
             player->CastSpell(player, 68935, true);
            if (Creature *t = player->SummonCreature(9100000, go->GetPositionX(), go->GetPositionY(),  go->GetPositionZ() + 2,  go->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS))
             {
-                t->SetPhaseMask(4, true);
+                t->SetInPhase(171, true, true);
                 t->CastSpell(t, 71093, true);
                 t->CastSpell(t, 71095, true);
                 t->CastSpell(t, 71096, true);
@@ -2041,26 +2041,26 @@ public:
     {
         if (player->GetQuestStatus(25207) == QUEST_STATUS_INCOMPLETE)
         {
-            if (player->GetPhaseMask() == 32768)
+            if (player->IsInPhase(32768))
                 return false;
             player->CastSpell(player, 69077, true);
             player->AddAura(90418, player);
             player->KilledMonsterCredit(39393);
             if (Creature *t = player->SummonCreature(41505, 2477.0f, 2082.0f,  14.0f,  go->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10*IN_MILLISECONDS))
             {
-                t->SetPhaseMask(32768, true);
+                t->SetInPhase(32768, true, true);
                 t->CastSpell(t, 93569, true);
                 t->CastSpell(t, 71094, true);
             }
             if (Creature *t = player->SummonCreature(41505, 2499.28f, 2091.48f,  17.0f,  go->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10*IN_MILLISECONDS))
             {
-                t->SetPhaseMask(32768, true);
+                t->SetInPhase(32768, true, true);
                 t->CastSpell(t, 93569, true);
                 t->CastSpell(t, 71094, true);
             }
             if (Creature *t = player->SummonCreature(41505, 2450.424f, 2068.89f,  28.0f,  go->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10*IN_MILLISECONDS))
             {
-                t->SetPhaseMask(32768, true);
+                t->SetInPhase(32768, true, true);
                 t->SetCanFly(true);
                 t->CastSpell(t, 93569, true);
                 t->CastSpell(t, 71094, true);

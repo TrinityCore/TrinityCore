@@ -229,7 +229,7 @@ public:
             if (Creature* tempSumm = caster->SummonCreature(NPC_JETSAM, hit->GetPositionX(), hit->GetPositionY(), hit->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000))
             {
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->SetPhaseMask(caster->GetPhaseMask(), true);
+                tempSumm->CopyPhaseFrom(caster);
                 tempSumm->SetName(caster->GetName());
                 caster->AddAura(SPELL_JETSAM_TARGET, tempSumm);
                 tempSumm->CastSpell(tempSumm, SPELL_JETSAM_DAMAGE, true);

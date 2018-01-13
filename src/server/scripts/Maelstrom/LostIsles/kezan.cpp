@@ -543,9 +543,9 @@ public:
         if (player->GetQuestStatus(14122) == QUEST_STATUS_INCOMPLETE)
         {
             if (Creature *t = player->SummonCreature(35486, player->GetPositionX(), player->GetPositionY(),  player->GetPositionZ(),  player->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS))
-                t->SetPhaseMask(2048, true);
+                t->SetInPhase(180, true, true);
             if (Creature *t = player->SummonCreature(850000, go->GetPositionX(), go->GetPositionY(),  go->GetPositionZ(),  player->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS))
-                t->SetPhaseMask(2048, true);
+                t->SetInPhase(180, true, true);
             return true;
         }
         return true;
@@ -801,7 +801,7 @@ public:
 
         void Reset() override
         {
-            me->SetPhaseMask(2048, true);
+            me->SetInPhase(180, true, true);
             const Player *pl  = me->SelectNearestPlayer(50);
             if (pl)
                 _playerGUID = pl->GetGUID();
@@ -1372,7 +1372,7 @@ public:
             if (!_scriptetre)
                 return;
             m_ty = 600000;
-            me->SetPhaseMask(2048, true);
+            me->SetInPhase(180, true, true);
         }
 
         void DoAction(const int32 param) override

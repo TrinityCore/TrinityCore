@@ -111,14 +111,14 @@ public:
         void OnPlayerEnter(Player* player) override
         {
             if (GetData(DATA_BRASIER_CLICKED) == NOT_STARTED)
-                player->SetPhaseMask(1, true);
+                player->ClearPhases(true);
             else
-                player->SetPhaseMask(2, true);
+                player->SetInPhase(50, true, true);
         }
 
         void OnPlayerLeave(Player* player)
         {
-            player->SetPhaseMask(1, true);
+            player->ClearPhases(true);
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -216,16 +216,16 @@ public:
             {
                 case DATA_KIPTILAK:
                 {
-                    if (state == DONE)
+                    /*if (state == DONE)
                         for (auto itr: mantidBombsGUIDs)
                             if (GameObject* bomb = instance->GetGameObject(itr))
-                                bomb->SetPhaseMask(32768, true); // Set Invisible
+                                bomb->SetPhaseMask(32768, true); // Set Invisible*/
                     break;
                 }
                 case DATA_GADOK:
                 {
-                    if (GameObject* portal = instance->GetGameObject(portalTempGadokGUID))
-                        portal->SetPhaseMask(state == IN_PROGRESS ? 4 : 3, true);
+                    /*if (GameObject* portal = instance->GetGameObject(portalTempGadokGUID))
+                        portal->SetPhaseMask(state == IN_PROGRESS ? 4 : 3, true);*/
                     break;
                 }
                 case DATA_RIMOK:
@@ -320,7 +320,7 @@ public:
                         if (Player* player = it->GetSource())
                         {
                             player->SendCinematicStart(CINEMATIC_SETTING_SUN);
-                            player->SetPhaseMask(2, true);
+                            player->SetInPhase(50, true, true);
                             player->NearTeleportTo(1370.0f, 2283.6f, 402.328f, 2.70f);
                         }
                     }

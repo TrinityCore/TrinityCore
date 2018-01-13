@@ -161,7 +161,7 @@ public:
                     {
                         tempSumm->setFaction(me->getFaction());
                         tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, me->GetGUID());
-                        tempSumm->SetPhaseMask(me->GetPhaseMask(), true);
+                        tempSumm->CopyPhaseFrom(me);
                         tempSumm->SetLevel(me->getLevel());
                         tempSumm->SetName(me->GetName());
                         tempSumm->CastSpell(tempSumm, SPELL_CRACKLING_JOLT_TARGET_PICKER, true, nullptr, nullptr, me->GetGUID()); //If any of you knows how to make the game think Nithogg launched the spell, please tell me
