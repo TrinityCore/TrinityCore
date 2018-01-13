@@ -21,6 +21,8 @@
 #include "GameEventMgr.h"
 #include "GameTime.h"
 #include "CreatureGroups.h"
+#include "ScriptedCreature.h"
+#include "CreatureAIImpl.h"
 
 enum COG_Paths
 {
