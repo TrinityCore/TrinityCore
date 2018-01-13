@@ -10044,47 +10044,54 @@ void ObjectMgr::LoadQuestTasks()
         if (!quest_template || quest_template->GetQuestType() != QUEST_TYPE_TASK)
             continue;
 
-        QuestPOIVector const* questPOIs = GetQuestPOIVector(quest_template->GetQuestId());
-        if (questPOIs)
+        if (QuestPOIVector const* questPOIs = GetQuestPOIVector(quest_template->GetQuestId()))
         {
+            if (questPOIs->size() <= 0)
+                continue;
+
             for (QuestPOIVector::const_iterator itr = questPOIs->begin(); itr != questPOIs->end(); ++itr)
             {
-                int32 minX, minY, maxX, maxY;
-                bool first = true;
-                for (auto poi : itr->points)
-                {
-                    if (first)
-                    {
-                        minX = poi.X;
-                        minY = poi.Y;
-                        maxX = poi.X;
-                        maxY = poi.Y;
-                        first = false;
-                    }
-                    else
-                    {
-                        if (poi.X > maxX)
-                            maxX = poi.X;
-                        if (poi.Y > maxY)
-                            maxY = poi.Y;
-                        if (poi.X < minX)
-                            minX = poi.X;
-                        if (poi.Y < minY)
-                            minY = poi.Y;
-                    }
-                }
-                int32 areaWidth = std::abs(maxX - minX);
-                int32 areaHeight = std::abs(maxY - minY);
-                minX -= (0.35f * float(areaWidth)) / 2.0f;
-                minY -= (0.35f * float(areaHeight)) / 2.0f;
-                maxX += (0.35f * float(areaWidth)) / 2.0f;
-                maxY += (0.35f * float(areaHeight)) / 2.0f;
+                if (itr->points.size() <= 0)
+                    continue;
+
                 BonusQuestRectEntry rec;
-                rec.X = minX;
-                rec.Y = minY;
-                rec.XMax = maxX;
-                rec.YMax = maxY;
                 rec.MapID = itr->MapID;
+                rec.MinX = 5000000.f;
+                rec.MinY = 5000000.f;
+                rec.MaxX = -5000000.f;
+                rec.MaxY = -5000000.f;
+
+                for (auto const& poi : itr->points)
+                {
+                    if (poi.X == 0 && poi.Y == 0)
+                        continue;
+
+                    rec.MaxX = std::max(rec.MaxX, poi.X);
+                    rec.MaxY = std::max(rec.MaxY, poi.Y);
+
+                    rec.MinX = std::min(rec.MinX, poi.X);
+                    rec.MinY = std::min(rec.MinY, poi.Y);
+                }
+
+                // If the area is a single point, we assume 50m
+                if (itr->points.size() == 1)
+                {
+                    rec.MinX -= 50;
+                    rec.MaxX += 50;
+                    rec.MinY -= 50;
+                    rec.MaxY += 50;
+                }
+                else
+                {
+                    int32 areaWidth = std::abs(rec.MaxX - rec.MinX);
+                    rec.MinX -= 0.175f * float(areaWidth);
+                    rec.MaxX += 0.175f * float(areaWidth);
+
+                    int32 areaHeight = std::abs(rec.MaxY - rec.MinY);
+                    rec.MinY -= 0.175f * float(areaHeight);
+                    rec.MaxY += 0.175f * float(areaHeight);
+                }
+
                 BonusQuestsRects[quest_template->GetQuestId()].push_back(rec);
             }
         }

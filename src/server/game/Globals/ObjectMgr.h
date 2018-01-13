@@ -1122,12 +1122,12 @@ class TC_GAME_API ObjectMgr
 
         struct BonusQuestRectEntry
         {
-            int32 X, Y, XMax, YMax;
+            int32 MinX, MinY, MaxX, MaxY;
             uint32 MapID;
 
             bool IsIn(uint32 mapID, int x, int y)
             {
-                return MapID == mapID && X <= x && XMax >= x && Y <= y && YMax >= y;
+                return MapID == mapID && MinX <= x && MaxX >= x && MinY <= y && MaxY >= y;
             }
         };
         std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;

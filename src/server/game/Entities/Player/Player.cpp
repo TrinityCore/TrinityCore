@@ -6014,11 +6014,7 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
 
-    if ((time(nullptr) - m_areaQuestTimer) >= 5)
-    {
-        m_areaQuestTimer = time(0) + 5;
-        UpdateWorldQuestPosition(x, y);
-    }
+    UpdateWorldQuestPosition(x, y);
 
     //if (movementInfo.flags & MOVEMENTFLAG_MOVING)
     //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
@@ -6051,6 +6047,11 @@ bool Player::HasWorldQuestEnabled() const
 
 void Player::UpdateWorldQuestPosition(float x, float y)
 {
+    if (time(nullptr) < m_areaQuestTimer)
+        return;
+
+    m_areaQuestTimer = time(nullptr) + 2;
+
     for (auto bonus_quest : sObjectMgr->BonusQuestsRects)
     {
         if (IsQuestRewarded(bonus_quest.first))
