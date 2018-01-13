@@ -26,17 +26,21 @@
 #include "AreaTriggerAI.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Creature.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "PetPackets.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
 
 enum HunterSpells
 {
@@ -587,11 +591,14 @@ class spell_hun_tame_beast : public SpellScriptLoader
             SpellCastResult CheckCast()
             {
                 Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
+                if (!caster->IsPlayer())
                     return SPELL_FAILED_DONT_REPORT;
 
                 if (!GetExplTargetUnit())
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                if (!caster->ToPlayer()->GetFirstUnusedActivePetSlot())
+                    return SPELL_FAILED_DONT_REPORT;
 
                 if (Creature* target = GetExplTargetUnit()->ToCreature())
                 {

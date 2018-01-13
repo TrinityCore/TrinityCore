@@ -239,6 +239,18 @@ namespace WorldPackets
 
             ObjectGuid StableMaster;
         };
+
+        class SetPetSlot final : public ClientPacket
+        {
+        public:
+            SetPetSlot(WorldPacket&& packet) : ClientPacket(CMSG_SET_PET_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 PetNumber;
+            uint8 DestSlot;
+            ObjectGuid StableMaster;
+        };
     }
 }
 
