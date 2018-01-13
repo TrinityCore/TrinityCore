@@ -4674,12 +4674,11 @@ class spell_gen_gilneas_prison_periodic_dummy : public SpellScriptLoader
         }
 };
 
-enum Sacrifices
+enum ThrowTorch
 {
     CREDIT_ROUND_UP_WORGEN  = 35582,
     SPELL_THROW_TORCH       = 67063
 };
-
 
 class spell_gen_throw_torch : public SpellScriptLoader
 {

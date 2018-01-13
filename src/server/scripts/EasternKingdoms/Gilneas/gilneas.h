@@ -269,9 +269,6 @@ Position const worgenRuntJumpPos[] =
     { -1674.15f, 1448.9f,  52.2871f },
 };
 
-
-
-
 /*######
 ## Quest 14293 - Save Krennan Aranas
 ######*/
@@ -305,6 +302,5 @@ G3D::Vector3 const greymanesHorsePath2[] =
     { -1771.557f, 1423.011f, 19.98499f },
     { -1770.955f, 1430.332f, 19.83506f }
 };
-
 
 #endif // GILNEAS_M_
