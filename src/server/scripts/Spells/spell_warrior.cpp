@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Optional.h"
 #include "Player.h"
 #include "Random.h"
 #include "SpellAuraEffects.h"

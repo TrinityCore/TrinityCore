@@ -24,7 +24,7 @@
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
 #include "CombatManager.h"
-#include "Optional.h"
+#include "OptionalFwd.h"
 #include "SpellAuraDefines.h"
 #include "SpellDefines.h"
 #include "ThreatManager.h"

@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "GameTime.h"
+#include "Optional.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
