@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,6 +52,9 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
+
+VendorItemCount::VendorItemCount(uint32 _item, uint32 _count)
+    : itemId(_item), count(_count), lastIncrementTime(GameTime::GetGameTime()) { }
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -367,7 +370,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
 
     if (m_respawnCompatibilityMode)
     {
-        m_corpseRemoveTime = time(nullptr);
+        m_corpseRemoveTime = GameTime::GetGameTime();
         setDeathState(DEAD);
         RemoveAllAuras();
         loot.clear();
@@ -380,7 +383,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
 
         // Should get removed later, just keep "compatibility" with scripts
         if (setSpawnTime)
-            m_respawnTime = std::max<time_t>(time(nullptr) + respawnDelay, m_respawnTime);
+            m_respawnTime = std::max<time_t>(GameTime::GetGameTime() + respawnDelay, m_respawnTime);
 
         // if corpse was removed during falling, the falling will continue and override relocation to respawn position
         if (IsFalling())
@@ -413,7 +416,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
         if (setSpawnTime)
         {
             uint32 respawnDelay = m_respawnDelay;
-            m_respawnTime = std::max<time_t>(time(nullptr) + respawnDelay, m_respawnTime);
+            m_respawnTime = std::max<time_t>(GameTime::GetGameTime() + respawnDelay, m_respawnTime);
 
             SaveRespawnTime(0, false);
         }
@@ -613,12 +616,14 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     UpdateMovementFlags();
     LoadCreaturesAddon();
     LoadTemplateImmunities();
+
+    GetThreatManager().UpdateOnlineStates(true, true);
     return true;
 }
 
 void Creature::Update(uint32 diff)
 {
-    if (IsAIEnabled && m_triggerJustAppeared && m_deathState == ALIVE)
+    if (IsAIEnabled && m_triggerJustAppeared && m_deathState != DEAD)
     {
         if (m_respawnCompatibilityMode && m_vehicleKit)
             m_vehicleKit->Reset();
@@ -640,7 +645,7 @@ void Creature::Update(uint32 diff)
             break;
         case DEAD:
         {
-            time_t now = time(nullptr);
+            time_t now = GameTime::GetGameTime();
             if (m_respawnTime <= now)
             {
 
@@ -697,7 +702,7 @@ void Creature::Update(uint32 diff)
                 }
                 else m_groupLootTimer -= diff;
             }
-            else if (m_corpseRemoveTime <= time(nullptr))
+            else if (m_corpseRemoveTime <= GameTime::GetGameTime())
             {
                 RemoveCorpse(false);
                 TC_LOG_DEBUG("entities.unit", "Removing corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
@@ -713,16 +718,22 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
+            GetThreatManager().Update(diff);
+
             if (m_shouldReacquireTarget && !IsFocusing(nullptr, true))
             {
                 SetTarget(m_suppressedTarget);
-                if (m_suppressedTarget)
+
+                if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
                 {
-                    if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
-                        SetFacingToObject(objTarget, false);
+                    if (m_suppressedTarget)
+                    {
+                        if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
+                            SetFacingToObject(objTarget, false);
+                    }
+                    else
+                        SetFacingTo(m_suppressedOrientation, false);
                 }
-                else
-                    SetFacingTo(m_suppressedOrientation, false);
                 m_shouldReacquireTarget = false;
             }
 
@@ -746,6 +757,7 @@ void Creature::Update(uint32 diff)
                 if (diff >= m_boundaryCheckTime)
                 {
                     AI()->CheckInRoom();
+                    GetThreatManager().UpdateOnlineStates(false, true);
                     m_boundaryCheckTime = 2500;
                 } else
                     m_boundaryCheckTime -= diff;
@@ -1091,7 +1103,106 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
     }
 
+    GetThreatManager().Initialize();
+
     return true;
+}
+
+Unit* Creature::SelectVictim()
+{
+    Unit* target = nullptr;
+
+    ThreatManager& mgr = GetThreatManager();
+
+    if (mgr.CanHaveThreatList())
+    {
+        target = mgr.SelectVictim();
+        while (!target)
+        {
+            Unit* newTarget = nullptr;
+            // nothing found to attack - try to find something we're in combat with (but don't have a threat entry for yet) and start attacking it
+            for (auto const& pair : GetCombatManager().GetPvECombatRefs())
+            {
+                newTarget = pair.second->GetOther(this);
+                if (!mgr.IsThreatenedBy(newTarget, true))
+                {
+                    mgr.AddThreat(newTarget, 0.0f, nullptr, true, true);
+                    break;
+                }
+                else
+                    newTarget = nullptr;
+            }
+            if (!newTarget)
+                break;
+            target = mgr.SelectVictim();
+        }
+    }
+    else if (!HasReactState(REACT_PASSIVE))
+    {
+        // We're a player pet, probably
+        target = getAttackerForHelper();
+        if (!target && IsSummon())
+        {
+            if (Unit* owner = ToTempSummon()->GetOwner())
+            {
+                if (owner->IsInCombat())
+                    target = owner->getAttackerForHelper();
+                if (!target)
+                {
+                    for (ControlList::const_iterator itr = owner->m_Controlled.begin(); itr != owner->m_Controlled.end(); ++itr)
+                    {
+                        if ((*itr)->IsInCombat())
+                        {
+                            target = (*itr)->getAttackerForHelper();
+                            if (target)
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+        return nullptr;
+
+    if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
+    {
+        if (!IsFocusing(nullptr, true))
+            SetInFront(target);
+        return target;
+    }
+
+    /// @todo a vehicle may eat some mob, so mob should not evade
+    if (GetVehicle())
+        return nullptr;
+
+    // search nearby enemy before enter evade mode
+    if (HasReactState(REACT_AGGRESSIVE))
+    {
+        target = SelectNearestTargetInAttackDistance(m_CombatDistance ? m_CombatDistance : ATTACK_DISTANCE);
+
+        if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
+            return target;
+    }
+
+    Unit::AuraEffectList const& iAuras = GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
+    if (!iAuras.empty())
+    {
+        for (Unit::AuraEffectList::const_iterator itr = iAuras.begin(); itr != iAuras.end(); ++itr)
+        {
+            if ((*itr)->GetBase()->IsPermanent())
+            {
+                AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_OTHER);
+                break;
+            }
+        }
+        return nullptr;
+    }
+
+    // enter in evade mode in other case
+    AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_HOSTILES);
+
+    return nullptr;
 }
 
 void Creature::InitializeReactState()
@@ -1547,7 +1658,7 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
 
     // Is the creature script objecting to us spawning? If yes, delay by a little bit (then re-check in ::Update)
     if (m_respawnCompatibilityMode && !m_respawnTime && !sScriptMgr->CanSpawn(spawnId, GetEntry(), GetCreatureData(), map))
-        m_respawnTime = time(nullptr)+urand(4,7);
+        m_respawnTime = GameTime::GetGameTime() + urand(4,7);
 
     if (m_respawnTime)                          // respawn on Update
     {
@@ -1685,6 +1796,26 @@ void Creature::DeleteFromDB()
     stmt->setUInt32(0, m_spawnId);
     trans->Append(stmt);
 
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
+    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_CREATURE);
+    trans->Append(stmt);
+
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
+    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_GO);
+    trans->Append(stmt);
+
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
+    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_CREATURE);
+    trans->Append(stmt);
+
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
+    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_CREATURE);
+    trans->Append(stmt);
+
     WorldDatabase.CommitTransaction(trans);
 
     // then delete any active instances of the creature
@@ -1698,7 +1829,7 @@ bool Creature::IsInvisibleDueToDespawn() const
     if (Unit::IsInvisibleDueToDespawn())
         return true;
 
-    if (IsAlive() || isDying() || m_corpseRemoveTime > time(nullptr))
+    if (IsAlive() || isDying() || m_corpseRemoveTime > GameTime::GetGameTime())
         return false;
 
     return true;
@@ -1816,7 +1947,7 @@ void Creature::setDeathState(DeathState s)
 
     if (s == JUST_DIED)
     {
-        m_corpseRemoveTime = time(nullptr) + m_corpseDelay;
+        m_corpseRemoveTime = GameTime::GetGameTime() + m_corpseDelay;
 
         uint32 respawnDelay = m_respawnDelay;
         if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
@@ -1827,14 +1958,14 @@ void Creature::setDeathState(DeathState s)
             if (IsDungeonBoss() && !m_respawnDelay)
                 m_respawnTime = std::numeric_limits<time_t>::max(); // never respawn in this instance
             else
-                m_respawnTime = time(nullptr) + respawnDelay + m_corpseDelay;
+                m_respawnTime = GameTime::GetGameTime() + respawnDelay + m_corpseDelay;
         }
         else
         {
             if (IsDungeonBoss() && !m_respawnDelay)
                 m_respawnTime = std::numeric_limits<time_t>::max(); // never respawn in this instance
             else
-                m_respawnTime = time(nullptr) + respawnDelay;
+                m_respawnTime = GameTime::GetGameTime() + respawnDelay;
         }
 
         // always save boss respawn time at death to prevent crash cheating
@@ -2016,7 +2147,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
             uint32 respawnDelay = m_respawnDelay;
             if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
                 GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
-            m_respawnTime = time(nullptr) + respawnDelay;
+            m_respawnTime = GameTime::GetGameTime() + respawnDelay;
             SaveRespawnTime();
         }
 
@@ -2293,7 +2424,7 @@ void Creature::SaveRespawnTime(uint32 forceDelay, bool savetodb)
         return;
     }
 
-    time_t thisRespawnTime = forceDelay ? time(nullptr) + forceDelay : m_respawnTime;
+    time_t thisRespawnTime = forceDelay ? GameTime::GetGameTime() + forceDelay : m_respawnTime;
     GetMap()->SaveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId, GetEntry(), thisRespawnTime, GetMap()->GetZoneId(GetHomePosition()), Trinity::ComputeGridCoord(GetHomePosition().GetPositionX(), GetHomePosition().GetPositionY()).GetId(), savetodb && m_creatureData && m_creatureData->dbData);
 }
 
@@ -2497,11 +2628,16 @@ bool Creature::HasSpell(uint32 spellID) const
 
 time_t Creature::GetRespawnTimeEx() const
 {
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     if (m_respawnTime > now)
         return m_respawnTime;
     else
         return now;
+}
+
+void Creature::SetRespawnTime(uint32 respawn)
+{
+    m_respawnTime = respawn ? GameTime::GetGameTime() + respawn : 0;
 }
 
 void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, float* dist) const
@@ -2534,7 +2670,7 @@ void Creature::AllLootRemovedFromCorpse()
         if (LootTemplates_Skinning.HaveLootFor(GetCreatureTemplate()->SkinLootId))
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     // Do not reset corpse remove time if corpse is already removed
     if (m_corpseRemoveTime <= now)
         return;
@@ -2602,7 +2738,7 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
 
     VendorItemCount* vCount = &*itr;
 
-    time_t ptime = time(nullptr);
+    time_t ptime = GameTime::GetGameTime();
 
     if (time_t(vCount->lastIncrementTime + vItem->incrtime) <= ptime)
         if (ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item))
@@ -2640,7 +2776,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     VendorItemCount* vCount = &*itr;
 
-    time_t ptime = time(nullptr);
+    time_t ptime = GameTime::GetGameTime();
 
     if (time_t(vCount->lastIncrementTime + vItem->incrtime) <= ptime)
         if (ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item))
@@ -2888,7 +3024,7 @@ void Creature::UpdateMovementFlags()
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
     float ground = GetFloorZ();
 
-    bool isInAir = (G3D::fuzzyGt(GetPositionZMinusOffset(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZMinusOffset(), ground - 0.05f)); // Can be underground too, prevent the falling
+    bool isInAir = (G3D::fuzzyGt(GetPositionZMinusOffset(), ground + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZMinusOffset(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
 
     if (GetCreatureTemplate()->InhabitType & INHABIT_AIR && isInAir && !IsFalling())
     {
@@ -2990,15 +3126,19 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
         }
     }
 
-    bool const canTurnDuringCast = !spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
-    // Face the target - we need to do this before the unit state is modified for no-turn spells
-    if (target)
-        SetFacingToObject(target, false);
-    else if (!canTurnDuringCast)
-        if (Unit* victim = GetVictim())
-            SetFacingToObject(victim, false); // ensure orientation is correct at beginning of cast
+    bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
 
-    if (!canTurnDuringCast)
+    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+    {
+        // Face the target - we need to do this before the unit state is modified for no-turn spells
+        if (target)
+            SetFacingToObject(target, false);
+        else if (noTurnDuringCast)
+            if (Unit* victim = GetVictim())
+                SetFacingToObject(victim, false); // ensure orientation is correct at beginning of cast
+    }
+
+    if (noTurnDuringCast)
         AddUnitState(UNIT_STATE_CANNOT_TURN);
 }
 
@@ -3036,7 +3176,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
     if (focusSpell && focusSpell != m_focusSpell)
         return;
 
-    if (IsPet()) // player pets do not use delay system
+    if (IsPet() && !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN)) // player pets do not use delay system
     {
         SetGuidValue(UNIT_FIELD_TARGET, m_suppressedTarget);
         if (m_suppressedTarget)
@@ -3080,7 +3220,12 @@ bool Creature::IsMovementPreventedByCasting() const
 
 void Creature::StartPickPocketRefillTimer()
 {
-    _pickpocketLootRestore = time(nullptr) + sWorld->getIntConfig(CONFIG_CREATURE_PICKPOCKET_REFILL);
+    _pickpocketLootRestore = GameTime::GetGameTime() + sWorld->getIntConfig(CONFIG_CREATURE_PICKPOCKET_REFILL);
+}
+
+bool Creature::CanGeneratePickPocketLoot() const
+{
+    return _pickpocketLootRestore <= GameTime::GetGameTime();
 }
 
 void Creature::SetTextRepeatId(uint8 textGroup, uint8 id)
@@ -3116,6 +3261,37 @@ bool Creature::CanGiveExperience() const
         && !IsPet()
         && !IsTotem()
         && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
+}
+
+void Creature::AtEnterCombat()
+{
+    Unit::AtEnterCombat();
+
+    if (!(GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
+        Dismount();
+
+    if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
+    {
+        UpdateSpeed(MOVE_RUN);
+        UpdateSpeed(MOVE_SWIM);
+        UpdateSpeed(MOVE_FLIGHT);
+    }
+}
+
+void Creature::AtExitCombat()
+{
+    Unit::AtExitCombat();
+
+    ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
+    if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
+        SetUInt32Value(UNIT_DYNAMIC_FLAGS, GetCreatureTemplate()->dynamicflags);
+
+    if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
+    {
+        UpdateSpeed(MOVE_RUN);
+        UpdateSpeed(MOVE_SWIM);
+        UpdateSpeed(MOVE_FLIGHT);
+    }
 }
 
 bool Creature::IsEscortNPC(bool onlyIfActive)

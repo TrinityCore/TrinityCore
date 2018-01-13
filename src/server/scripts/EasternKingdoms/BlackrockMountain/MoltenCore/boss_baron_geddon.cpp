@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,9 +62,9 @@ class boss_baron_geddon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_INFERNO, 45000);
                 events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
                 events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
@@ -137,8 +137,12 @@ class spell_baron_geddon_inferno : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                int32 damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
-                GetTarget()->CastCustomSpell(SPELL_INFERNO_DMG, SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1], (Unit*)nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                static const int32 damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
+                CastSpellExtraArgs args;
+                args.TriggerFlags = TRIGGERED_FULL_MASK;
+                args.TriggeringAura = aurEff;
+                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1]);
+                GetTarget()->CastSpell(nullptr, SPELL_INFERNO_DMG, args);
             }
 
             void Register() override

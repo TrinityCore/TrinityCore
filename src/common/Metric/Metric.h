@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,11 +27,11 @@
 #include <memory>
 #include <string>
 
-namespace boost
+namespace Trinity
 {
-    namespace asio
+    namespace Asio
     {
-        class io_service;
+        class IoContext;
     }
 }
 
@@ -95,7 +95,7 @@ public:
     ~Metric();
     static Metric* instance();
 
-    void Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger);
+    void Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
     void LoadFromConfigs();
     void Update();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -453,7 +453,6 @@ enum Rates
     RATE_TALENT,
     RATE_CORPSE_DECAY_LOOTED,
     RATE_INSTANCE_RESET_TIME,
-    RATE_TARGET_POS_RECALCULATION_RANGE,
     RATE_DURABILITY_LOSS_ON_DEATH,
     RATE_DURABILITY_LOSS_DAMAGE,
     RATE_DURABILITY_LOSS_PARRY,

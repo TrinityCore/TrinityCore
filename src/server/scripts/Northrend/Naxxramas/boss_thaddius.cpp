@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -563,7 +563,7 @@ public:
                     Talk(SAY_STALAGG_SLAY);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_STALAGG_AGGRO);
 
@@ -821,7 +821,7 @@ public:
                     Talk(SAY_FEUGEN_SLAY);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_FEUGEN_AGGRO);
 
@@ -981,7 +981,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override { } // never stop casting due to evade
         void UpdateAI(uint32 /*diff*/) override { } // never do anything unless told
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
     };
 };

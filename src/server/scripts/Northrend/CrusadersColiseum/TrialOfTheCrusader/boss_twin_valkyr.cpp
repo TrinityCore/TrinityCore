@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,10 +46,14 @@ enum Texts
     SAY_DEATH               = 8
 };
 
-enum Equipment
+enum Misc
 {
-    EQUIP_MAIN_1         = 9423,
-    EQUIP_MAIN_2         = 37377
+    EQUIP_MAIN_1            = 9423,
+    EQUIP_MAIN_2            = 37377,
+    POINT_INITIAL_MOVEMENT  = 1,
+    SPLINE_INITIAL_MOVEMENT = 1,
+    PHASE_EVENT             = 1,
+    PHASE_COMBAT            = 2
 };
 
 enum Summons
@@ -101,7 +105,8 @@ enum Events
     EVENT_TWIN_SPIKE      = 1,
     EVENT_TOUCH           = 2,
     EVENT_SPECIAL_ABILITY = 3,
-    EVENT_BERSERK         = 4
+    EVENT_BERSERK         = 4,
+    EVENT_START_MOVE      = 5
 };
 
 enum Stages
@@ -133,9 +138,7 @@ enum Actions
 class OrbsDespawner : public BasicEvent
 {
     public:
-        explicit OrbsDespawner(Creature* creature) : _creature(creature)
-        {
-        }
+        explicit OrbsDespawner(Creature* creature) : _creature(creature) { }
 
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
@@ -186,7 +189,6 @@ struct boss_twin_baseAI : public BossAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         me->ModifyAuraState(AuraState, true);
         /* Uncomment this once that they are floating above the ground
@@ -194,30 +196,26 @@ struct boss_twin_baseAI : public BossAI
         me->SetFlying(true); */
 
         summons.DespawnAll();
+        events.SetPhase(PHASE_EVENT);
+        events.ScheduleEvent(EVENT_START_MOVE, 4s);
     }
 
     void JustReachedHome() override
     {
         instance->SetBossState(DATA_TWIN_VALKIRIES, FAIL);
-
+        HandleRemoveAuras();
         summons.DespawnAll();
         me->DespawnOrUnsummon();
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId) override
+    void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (uiType != POINT_MOTION_TYPE)
-            return;
-
-        switch (uiId)
+        if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
         {
-            case 1:
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetImmuneToPC(false);
-                me->SetReactState(REACT_AGGRESSIVE);
-                break;
-            default:
-                break;
+            me->SetImmuneToPC(false);
+            me->SetReactState(REACT_AGGRESSIVE);
+            if (me->GetEntry() == NPC_FJOLA_LIGHTBANE) // avoid call twice
+                instance->DoCloseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
         }
     }
 
@@ -227,25 +225,13 @@ struct boss_twin_baseAI : public BossAI
             Talk(SAY_KILL_PLAYER);
     }
 
-    void SummonedCreatureDespawn(Creature* summoned) override
+    void HandleRemoveAuras()
     {
-        switch (summoned->GetEntry())
-        {
-            case NPC_LIGHT_ESSENCE:
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
-                break;
-            case NPC_DARK_ESSENCE:
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
-                break;
-            case NPC_BULLET_CONTROLLER:
-                me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
-                break;
-            default:
-                break;
-        }
-        summons.Despawn(summoned);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+        me->m_Events.AddEventAtOffset(new OrbsDespawner(me), 100ms);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -259,6 +245,7 @@ struct boss_twin_baseAI : public BossAI
                 pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                 events.Reset();
                 summons.DespawnAll();
+                HandleRemoveAuras();
                 instance->SetBossState(DATA_TWIN_VALKIRIES, DONE);
             }
             else
@@ -276,7 +263,7 @@ struct boss_twin_baseAI : public BossAI
         return instance->GetCreature(GetSisterData(SisterNpcId));
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetInCombatWithZone();
         if (Creature* pSister = GetSister())
@@ -334,16 +321,44 @@ struct boss_twin_baseAI : public BossAI
                 break;
             case EVENT_TOUCH:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true, OtherEssenceSpellId))
-                    me->CastCustomSpell(TouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
+                {
+                    CastSpellExtraArgs args;
+                    args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, 1); // @todo spellmgr correction instead?
+                    me->CastSpell(target, TouchSpellId, args);
+                }
                 events.ScheduleEvent(EVENT_TOUCH, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
                 break;
             case EVENT_BERSERK:
                 DoCast(me, SPELL_BERSERK);
                 Talk(SAY_BERSERK);
                 break;
+            case EVENT_START_MOVE:
+                events.SetPhase(PHASE_COMBAT);
+                me->GetMotionMaster()->MoveAlongSplineChain(POINT_INITIAL_MOVEMENT, SPLINE_INITIAL_MOVEMENT, false);
+                break;
             default:
                 break;
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            ExecuteEvent(eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
     }
 
     protected:
@@ -424,12 +439,12 @@ class boss_fjola : public CreatureScript
                     boss_twin_baseAI::ExecuteEvent(eventId);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
                 events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 45 * IN_MILLISECONDS);
                 me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
-                boss_twin_baseAI::EnterCombat(who);
+                boss_twin_baseAI::JustEngagedWith(who);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -715,8 +730,11 @@ class spell_bullet_controller : public AuraScript
         if (!caster)
             return;
 
-        caster->CastCustomSpell(SPELL_SUMMON_PERIODIC_LIGHT, SPELLVALUE_MAX_TARGETS, urand(1, 6), GetTarget(), true);
-        caster->CastCustomSpell(SPELL_SUMMON_PERIODIC_DARK, SPELLVALUE_MAX_TARGETS, urand(1, 6), GetTarget(), true);
+        CastSpellExtraArgs args1(TRIGGERED_FULL_MASK), args2(TRIGGERED_FULL_MASK);
+        args1.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
+        args2.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
+        caster->CastSpell(GetTarget(), SPELL_SUMMON_PERIODIC_LIGHT, args1);
+        caster->CastSpell(GetTarget(), SPELL_SUMMON_PERIODIC_DARK, args2);
     }
 
     void Register() override

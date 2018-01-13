@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 #include "DisableMgr.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
@@ -816,16 +817,23 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->maxgold = cInfo->mingold;
     }
 
-    if (cInfo->AIName == "TotemAI")
+    if (!cInfo->AIName.empty())
     {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has not-allowed `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
-        const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
-    }
-
-    if (!cInfo->AIName.empty() && !sCreatureAIRegistry->HasItem(cInfo->AIName))
-    {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-registered `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
-        const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+        auto registryItem = sCreatureAIRegistry->GetRegistryItem(cInfo->AIName);
+        if (!registryItem)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-registered `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
+            const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+        }
+        else
+        {
+            DBPermit const* permit = dynamic_cast<DBPermit const*>(registryItem);
+            if (!ASSERT_NOTNULL(permit)->IsScriptNameAllowedInDB())
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has not-allowed `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
+                const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+            }
+        }
     }
 
     FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);
@@ -1458,7 +1466,7 @@ void ObjectMgr::LoadLinkedRespawn()
         bool error = false;
         switch (linkType)
         {
-            case CREATURE_TO_CREATURE:
+            case LINKED_RESPAWN_CREATURE_TO_CREATURE:
             {
                 CreatureData const* slave = GetCreatureData(guidLow);
                 if (!slave)
@@ -1495,7 +1503,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 linkedGuid = ObjectGuid(HighGuid::Unit, master->id, linkedGuidLow);
                 break;
             }
-            case CREATURE_TO_GO:
+            case LINKED_RESPAWN_CREATURE_TO_GO:
             {
                 CreatureData const* slave = GetCreatureData(guidLow);
                 if (!slave)
@@ -1532,7 +1540,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
                 break;
             }
-            case GO_TO_GO:
+            case LINKED_RESPAWN_GO_TO_GO:
             {
                 GameObjectData const* slave = GetGameObjectData(guidLow);
                 if (!slave)
@@ -1569,7 +1577,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
                 break;
             }
-            case GO_TO_CREATURE:
+            case LINKED_RESPAWN_GO_TO_CREATURE:
             {
                 GameObjectData const* slave = GetGameObjectData(guidLow);
                 if (!slave)
@@ -1628,8 +1636,9 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
     if (!linkedGuidLow) // we're removing the linking
     {
         _linkedRespawnStore.erase(guid);
-        PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CRELINKED_RESPAWN);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
         stmt->setUInt32(0, guidLow);
+        stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_CREATURE);
         WorldDatabase.Execute(stmt);
         return true;
     }
@@ -1657,9 +1666,10 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
     ObjectGuid linkedGuid(HighGuid::Unit, slave->id, linkedGuidLow);
 
     _linkedRespawnStore[guid] = linkedGuid;
-    PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_LINKED_RESPAWN);
     stmt->setUInt32(0, guidLow);
     stmt->setUInt32(1, linkedGuidLow);
+    stmt->setUInt32(2, LINKED_RESPAWN_CREATURE_TO_CREATURE);
     WorldDatabase.Execute(stmt);
     return true;
 }
@@ -5811,7 +5821,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
     uint32 oldMSTime = getMSTime();
 
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
     tm lt;
     localtime_r(&curTime, &lt);
     uint64 basetime(curTime);

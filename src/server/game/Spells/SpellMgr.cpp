@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2977,6 +2977,21 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     }
 
+    // Allows those to crit
+    ApplySpellFix({
+        379,   // Earth Shield
+        33778, // Lifebloom Final Bloom
+        64844, // Divine Hymn
+        71607, // Item - Bauble of True Blood 10m
+        71646, // Item - Bauble of True Blood 25m
+        71610, // Item - Althor's Abacus trigger 10m
+        71641  // Item - Althor's Abacus trigger 25m
+    }, [](SpellInfo* spellInfo)
+    {
+        // We need more spells to find a general way (if there is any)
+        spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+    });
+
     // Spell Reflection
     ApplySpellFix({ 57643 }, [](SpellInfo* spellInfo)
     {
@@ -3172,6 +3187,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS);
     });
 
+    // Arcane Potency
+    ApplySpellFix({ 57529, 57531 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].SpellClassMask = flag96();
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
+        spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_CRITICAL_CHANCE;
+    });
+
     ApplySpellFix({
         44978, // Wild Magic
         45001, // Wild Magic
@@ -3205,14 +3228,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         52438, // Summon Skittering Swarmer (Force Cast)
         52449, // Summon Skittering Infector (Force Cast)
         53609, // Summon Anub'ar Assassin (Force Cast)
-        53457  // Summon Impale Trigger (AoE)
+        53457, // Summon Impale Trigger (AoE)
+        45907  // Torch Target Picker
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
     });
 
-    // Skartax Purple Beam
-    ApplySpellFix({ 36384 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        36384  // Skartax Purple Beam
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 2;
     });
@@ -3242,6 +3267,44 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 4;
+    });
+
+    ApplySpellFix({
+        42005, // Bloodboil
+        38296, // Spitfire Totem
+        37676, // Insidious Whisper
+        46008, // Negative Energy
+        45641, // Fire Bloom
+        55665, // Life Drain - Sapphiron (H)
+        28796  // Poison Bolt Volly - Faerlina
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 5;
+    });
+
+    ApplySpellFix({
+        54835  // Curse of the Plaguebringer - Noth (H)
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 8;
+    });
+
+    ApplySpellFix({
+        40827, // Sinful Beam
+        40859, // Sinister Beam
+        40860, // Vile Beam
+        40861, // Wicked Beam
+        54098  // Poison Bolt Volly - Faerlina (H)
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 10;
+    });
+
+    ApplySpellFix({
+        50312  // Unholy Frenzy
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 15;
     });
 
     ApplySpellFix({
@@ -3279,43 +3342,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_DUMMY;
         spellInfo->Effects[EFFECT_1].MiscValue = 127;
         spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
-    });
-
-    ApplySpellFix({
-        42005, // Bloodboil
-        38296, // Spitfire Totem
-        37676, // Insidious Whisper
-        46008, // Negative Energy
-        45641, // Fire Bloom
-        55665, // Life Drain - Sapphiron (H)
-        28796  // Poison Bolt Volly - Faerlina
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 5;
-    });
-
-
-    // Curse of the Plaguebringer - Noth (H)
-    ApplySpellFix({ 54835 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 8;
-    });
-
-    ApplySpellFix({
-        40827, // Sinful Beam
-        40859, // Sinister Beam
-        40860, // Vile Beam
-        40861, // Wicked Beam
-        54098  // Poison Bolt Volly - Faerlina (H)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 10;
-    });
-
-    // Unholy Frenzy
-    ApplySpellFix({ 50312 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 15;
     });
 
     // Murmur's Touch
@@ -3762,6 +3788,14 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
+        19503, // Scatter Shot
+        34490  // Silencing Shot
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Speed = 0.f;
+    });
+
+    ApplySpellFix({
         55741, // Desecration (Rank 1)
         68766, // Desecration (Rank 2)
         57842  // Killing Spree (Off hand damage)
@@ -4185,7 +4219,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 70106 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
     });
 
     // Ice Lock

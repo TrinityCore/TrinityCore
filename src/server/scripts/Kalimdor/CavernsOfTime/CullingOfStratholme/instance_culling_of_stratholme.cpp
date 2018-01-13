@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -297,7 +297,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                     if (Creature* infinite = instance->GetCreature(_infiniteGUID))
                                     {
                                         if (Creature* guardian = infinite->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
-                                            infinite->Kill(guardian);
+                                            Unit::Kill(infinite, guardian);
 
                                         if (Creature* rift = infinite->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
                                         {

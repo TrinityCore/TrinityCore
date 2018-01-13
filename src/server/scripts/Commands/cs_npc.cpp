@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@ EndScriptData */
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
@@ -563,7 +564,7 @@ public:
             if (!lowguid)
                 return false;
             // force respawn to make sure we find something
-            handler->GetSession()->GetPlayer()->GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, lowguid, true);
+            handler->GetSession()->GetPlayer()->GetMap()->ForceRespawn(SPAWN_TYPE_CREATURE, lowguid);
             // then try to find it
             creature = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
         }
@@ -773,16 +774,16 @@ public:
         uint32 mechanicImmuneMask = cInfo->MechanicImmuneMask;
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
-        uint32 Entry = target->GetEntry();
+        uint32 entry = target->GetEntry();
 
-        int64 curRespawnDelay = target->GetRespawnCompatibilityMode() ? target->GetRespawnTimeEx() - time(nullptr) : target->GetMap()->GetCreatureRespawnTime(target->GetSpawnId()) - time(nullptr);
+        int64 curRespawnDelay = target->GetRespawnCompatibilityMode() ? target->GetRespawnTimeEx() - GameTime::GetGameTime() : target->GetMap()->GetCreatureRespawnTime(target->GetSpawnId()) - GameTime::GetGameTime();
 
         if (curRespawnDelay < 0)
             curRespawnDelay = 0;
         std::string curRespawnDelayStr = secsToTimeString(uint64(curRespawnDelay), true);
         std::string defRespawnDelayStr = secsToTimeString(target->GetRespawnDelay(), true);
 
-        handler->PSendSysMessage(LANG_NPCINFO_CHAR, target->GetSpawnId(), target->GetGUID().GetCounter(), faction, npcflags, Entry, displayid, nativeid);
+        handler->PSendSysMessage(LANG_NPCINFO_CHAR, target->GetName().c_str(), target->GetSpawnId(), target->GetGUID().GetCounter(), entry, faction, npcflags, displayid, nativeid);
         if (target->GetCreatureData() && target->GetCreatureData()->spawnGroupData->groupId)
         {
             SpawnGroupTemplateData const* const groupData = target->GetCreatureData()->spawnGroupData;

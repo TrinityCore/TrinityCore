@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -106,10 +106,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
-                _EnterCombat();
+                _JustEngagedWith();
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_CLEAVE, Seconds(13), 0, PHASE_COMBAT);
@@ -251,7 +251,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 events.Reset();
@@ -273,7 +273,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             {
                 // This is here because DamageTaken wont trigger if the damage is deadly.
                 if (Creature* baltharus = instance->GetCreature(DATA_BALTHARUS_THE_WARBORN))
-                    killer->Kill(baltharus);
+                    Unit::Kill(killer, baltharus);
             }
 
             void UpdateAI(uint32 diff) override

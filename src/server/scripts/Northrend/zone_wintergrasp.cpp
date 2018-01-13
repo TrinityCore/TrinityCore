@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@
 #include "DBCStores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -278,7 +279,7 @@ class npc_wg_queue : public CreatureScript
                 FrostArmor_Timer = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -309,7 +310,7 @@ class npc_wg_queue : public CreatureScript
                 else
                 {
                     uint32 timer = wintergrasp->GetTimer() / 1000;
-                    player->SendUpdateWorldState(4354, time(nullptr) + timer);
+                    player->SendUpdateWorldState(4354, GameTime::GetGameTime() + timer);
                     if (timer < 15 * MINUTE)
                     {
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);

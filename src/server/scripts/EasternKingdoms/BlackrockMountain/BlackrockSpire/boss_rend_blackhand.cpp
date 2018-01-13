@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -182,9 +182,9 @@ public:
             portcullisGUID.Clear();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_WHIRLWIND,     urand(13000, 15000));
             events.ScheduleEvent(EVENT_CLEAVE,        urand(15000, 17000));
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(17000, 19000));

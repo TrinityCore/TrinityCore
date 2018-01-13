@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -99,7 +99,11 @@ int32 CritterAI::Permissible(Creature const* creature)
 void TriggerAI::IsSummonedBy(Unit* summoner)
 {
     if (me->m_spells[0])
-        me->CastSpell(me, me->m_spells[0], false, nullptr, nullptr, summoner->GetGUID());
+    {
+        CastSpellExtraArgs extra;
+        extra.OriginalCaster = summoner->GetGUID();
+        me->CastSpell(me, me->m_spells[0], extra);
+    }
 }
 
 int32 TriggerAI::Permissible(Creature const* creature)

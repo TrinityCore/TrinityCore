@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -504,7 +504,7 @@ public:
                         DoCast(player, SPELL_ARCANE_CHANNELING, true);//Arcane Channeling
                         break;
                     case 35:
-                        me->CastSpell(-8088, 1520.43f, 2.67f, SPELL_TIME_STOP, true);
+                        me->CastSpell({ -8088, 1520.43f, 2.67f }, SPELL_TIME_STOP, true);
                         break;
                     case 36:
                         DoCast(player, SPELL_CALL_PRISMATIC_BARRIER, true);
@@ -554,7 +554,7 @@ public:
                         break;
                     case 50:
                         Fandral->AI()->Talk(FANDRAL_EMOTE_2);
-                        Fandral->CastSpell(-8127, 1525, 17.5f, SPELL_THROW_HAMMER, true);
+                        Fandral->CastSpell({ -8127, 1525, 17.5f }, SPELL_THROW_HAMMER, true);
                         break;
                     case 51:
                     {
@@ -697,7 +697,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void JustDied(Unit* /*slayer*/) override;
 
         void UpdateAI(uint32 diff) override
@@ -1420,7 +1420,7 @@ class spell_silithus_summon_cultist_periodic : public AuraScript
         // All these spells trigger a spell that requires reagents; if the
         // triggered spell is cast as "triggered", reagents are not consumed
         if (Unit* caster = GetCaster())
-            caster->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST), nullptr, aurEff);
+            caster->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST)).SetTriggeringAura(aurEff));
     }
 
     void Register() override

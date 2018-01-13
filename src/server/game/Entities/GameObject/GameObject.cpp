@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -464,7 +464,7 @@ void GameObject::Update(uint32 diff)
                 case GAMEOBJECT_TYPE_FISHINGNODE:
                 {
                     // fishing code (bobber ready)
-                    if (time(nullptr) > m_respawnTime - FISHING_BOBBER_READY_TIME)
+                    if (GameTime::GetGameTime() > m_respawnTime - FISHING_BOBBER_READY_TIME)
                     {
                         // splash bobber (bobber ready now)
                         Unit* caster = GetOwner();
@@ -498,7 +498,7 @@ void GameObject::Update(uint32 diff)
             {
                 if (m_respawnTime > 0)                          // timer on
                 {
-                    time_t now = time(nullptr);
+                    time_t now = GameTime::GetGameTime();
                     if (m_respawnTime <= now)            // timer expired
                     {
                         ObjectGuid dbtableHighGuid(HighGuid::GameObject, GetEntry(), m_spawnId);
@@ -776,7 +776,7 @@ void GameObject::Update(uint32 diff)
             uint32 respawnDelay = m_respawnDelayTime;
             if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
                 GetMap()->ApplyDynamicModeRespawnScaling(this, this->m_spawnId, respawnDelay, scalingMode);
-            m_respawnTime = time(nullptr) + respawnDelay;
+            m_respawnTime = GameTime::GetGameTime() + respawnDelay;
 
             // if option not set then object will be saved at grid unload
             // Otherwise just save respawn time to map object memory
@@ -987,7 +987,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
             m_respawnTime = GetMap()->GetGORespawnTime(m_spawnId);
 
             // ready to respawn
-            if (m_respawnTime && m_respawnTime <= time(nullptr))
+            if (m_respawnTime && m_respawnTime <= GameTime::GetGameTime())
             {
                 m_respawnTime = 0;
                 GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId);
@@ -1027,6 +1027,26 @@ void GameObject::DeleteFromDB()
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_EVENT_GAMEOBJECT);
     stmt->setUInt32(0, m_spawnId);
+    trans->Append(stmt);
+
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
+    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_GO);
+    trans->Append(stmt);
+
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
+    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_CREATURE);
+    trans->Append(stmt);
+
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
+    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_GO);
+    trans->Append(stmt);
+
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
+    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_GO);
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -1094,7 +1114,7 @@ Unit* GameObject::GetOwner() const
 
 void GameObject::SaveRespawnTime(uint32 forceDelay, bool savetodb)
 {
-    if (m_goData && m_respawnTime > time(nullptr) && m_spawnedByDefault)
+    if (m_goData && m_respawnTime > GameTime::GetGameTime() && m_spawnedByDefault)
     {
         if (m_respawnCompatibilityMode)
         {
@@ -1102,7 +1122,7 @@ void GameObject::SaveRespawnTime(uint32 forceDelay, bool savetodb)
             return;
         }
 
-        uint32 thisRespawnTime = forceDelay ? time(nullptr) + forceDelay : m_respawnTime;
+        uint32 thisRespawnTime = forceDelay ? GameTime::GetGameTime() + forceDelay : m_respawnTime;
         GetMap()->SaveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, GetEntry(), thisRespawnTime, GetZoneId(), Trinity::ComputeGridCoord(GetPositionX(), GetPositionY()).GetId(), m_goData->dbData ? savetodb : false);
     }
 }
@@ -1164,11 +1184,26 @@ uint8 GameObject::getLevelForTarget(WorldObject const* target) const
     return 1;
 }
 
+time_t GameObject::GetRespawnTimeEx() const
+{
+    time_t now = GameTime::GetGameTime();
+    if (m_respawnTime > now)
+        return m_respawnTime;
+    else
+        return now;
+}
+
+void GameObject::SetRespawnTime(int32 respawn)
+{
+    m_respawnTime = respawn > 0 ? GameTime::GetGameTime() + respawn : 0;
+    m_respawnDelayTime = respawn > 0 ? respawn : 0;
+}
+
 void GameObject::Respawn()
 {
     if (m_spawnedByDefault && m_respawnTime > 0)
     {
-        m_respawnTime = time(nullptr);
+        m_respawnTime = GameTime::GetGameTime();
         GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, true);
     }
 }
@@ -1893,8 +1928,7 @@ void GameObject::Use(Unit* user)
     if (!spellId)
         return;
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    if (!spellInfo)
+    if (!sSpellMgr->GetSpellInfo(spellId))
     {
         if (user->GetTypeId() != TYPEID_PLAYER || !sOutdoorPvPMgr->HandleCustomSpell(user->ToPlayer(), spellId, this))
             TC_LOG_ERROR("misc", "WORLD: unknown spell id %u at use action for gameobject (Entry: %u GoType: %u)", spellId, GetEntry(), GetGoType());
@@ -1907,7 +1941,7 @@ void GameObject::Use(Unit* user)
         sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
     if (spellCaster)
-        spellCaster->CastSpell(user, spellInfo, triggered);
+        spellCaster->CastSpell(user, spellId, triggered);
     else
         CastSpell(user, spellId);
 }
@@ -1936,7 +1970,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
     if (self)
     {
         if (target)
-            target->CastSpell(target, spellInfo, triggered);
+            target->CastSpell(target, spellInfo->Id, triggered);
         return;
     }
 
@@ -1948,6 +1982,8 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
     // remove immunity flags, to allow spell to target anything
     trigger->SetImmuneToAll(false);
 
+    CastSpellExtraArgs args;
+    args.TriggerFlags = triggered;
     if (Unit* owner = GetOwner())
     {
         trigger->SetFaction(owner->GetFaction());
@@ -1957,14 +1993,17 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
         trigger->SetByteValue(UNIT_FIELD_BYTES_2, 1, owner->GetByteValue(UNIT_FIELD_BYTES_2, 1));
         // needed for GO casts for proper target validation checks
         trigger->SetOwnerGUID(owner->GetGUID());
-        trigger->CastSpell(target ? target : trigger, spellInfo, triggered, nullptr, nullptr, owner->GetGUID());
+
+        args.OriginalCaster = owner->GetGUID();
+        trigger->CastSpell(target ? target : trigger, spellInfo->Id, args);
     }
     else
     {
         trigger->SetFaction(spellInfo->IsPositive() ? FACTION_FRIENDLY : FACTION_MONSTER);
         // Set owner guid for target if no owner available - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-        trigger->CastSpell(target ? target : trigger, spellInfo, triggered, nullptr, nullptr, target ? target->GetGUID() : ObjectGuid::Empty);
+        args.OriginalCaster = target ? target->GetGUID() : ObjectGuid::Empty;
+        trigger->CastSpell(target ? target : trigger, spellInfo->Id, args);
     }
 }
 
@@ -2244,6 +2283,11 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 
         EnableCollision(collision);
     }
+}
+
+void GameObject::SetLootGenerationTime()
+{
+    m_lootGenerationTime = GameTime::GetGameTime();
 }
 
 void GameObject::SetGoState(GOState state)

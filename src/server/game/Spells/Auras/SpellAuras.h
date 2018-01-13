@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -82,6 +82,15 @@ class TC_GAME_API AuraApplication
         void ClientUpdate(bool remove = false);
 };
 
+// Caches some information about caster (because it may no longer exist)
+struct CasterInfo
+{
+    float CritChance = 0.f;
+    float BonusDonePct = 0.f;
+    uint8 Level = 0;
+    bool  ApplyResilience = false;
+};
+
 class TC_GAME_API Aura
 {
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer);
@@ -94,6 +103,7 @@ class TC_GAME_API Aura
         static Aura* Create(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID);
         explicit Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID);
         void _InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount);
+        void SaveCasterInfo(Unit* caster);
         virtual ~Aura();
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
@@ -148,7 +158,13 @@ class TC_GAME_API Aura
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
 
-        uint8 GetCasterLevel() const { return m_casterLevel; }
+        bool  CanApplyResilience() const { return _casterInfo.ApplyResilience; }
+        void  SetCanApplyResilience(bool val) { _casterInfo.ApplyResilience = val; }
+        uint8 GetCasterLevel() const { return _casterInfo.Level; }
+        float GetCritChance() const { return _casterInfo.CritChance; }
+        void  SetCritChance(float val) { _casterInfo.CritChance = val; }
+        float GetDonePct() const { return _casterInfo.BonusDonePct; }
+        void  SetDonePct(float val) { _casterInfo.BonusDonePct = val; }
 
         bool HasMoreThanOneEffectForType(AuraType auraType) const;
         bool IsArea() const;
@@ -173,9 +189,12 @@ class TC_GAME_API Aura
         void UnregisterSingleTarget();
         int32 CalcDispelChance(Unit const* auraTarget, bool offensive) const;
 
-        void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, int32 * amount);
+        void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount);
 
         // helpers for aura effects
+        bool CanPeriodicTickCrit(Unit const* caster) const;
+        float CalcPeriodicCritChance(Unit const* caster) const;
+
         bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != nullptr; }
         bool HasEffectType(AuraType type) const;
         AuraEffect* GetEffect(uint8 effIndex) const { ASSERT (effIndex < MAX_SPELL_EFFECTS); return m_effects[effIndex]; }
@@ -192,7 +211,6 @@ class TC_GAME_API Aura
 
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, bool apply, bool onReapply);
-        void HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* caster);
         bool CanBeAppliedOn(Unit* target);
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;
@@ -258,7 +276,7 @@ class TC_GAME_API Aura
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
 
-        uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
+        CasterInfo _casterInfo;
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
 

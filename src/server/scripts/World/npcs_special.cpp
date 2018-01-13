@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -286,7 +286,7 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -410,7 +410,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void ReceiveEmote(Player* player, uint32 emote) override
         {
@@ -473,10 +473,10 @@ public:
         {
             _scheduler.Schedule(Seconds(2), [this](TaskContext context)
             {
-                me->CastCustomSpell(SPELL_TORCH_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1);
+                me->CastSpell(nullptr, SPELL_TORCH_TARGET_PICKER);
                 _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
                 {
-                    me->CastCustomSpell(SPELL_TORCH_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1);
+                    me->CastSpell(nullptr, SPELL_TORCH_TARGET_PICKER);
                 });
                 context.Repeat(Seconds(5));
             });
@@ -798,7 +798,7 @@ public:
 
         void UpdateAI(uint32 diff) override;
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void QuestAccept(Player* player, Quest const* quest) override
         {
@@ -870,7 +870,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
@@ -1076,7 +1076,7 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(70));
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
@@ -1178,7 +1178,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -1391,7 +1391,7 @@ public:
         npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void OnPossess(bool apply)
         {
@@ -1444,7 +1444,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void AttackStart(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -1746,10 +1746,7 @@ class npc_brewfest_reveler : public CreatureScript
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
-    NPC_TARGET_DUMMY                           = 2673,
-
-    EVENT_TD_CHECK_COMBAT                      = 1,
-    EVENT_TD_DESPAWN                           = 2
+    NPC_TARGET_DUMMY                           = 2673
 };
 
 class npc_training_dummy : public CreatureScript
@@ -1757,27 +1754,21 @@ class npc_training_dummy : public CreatureScript
 public:
     npc_training_dummy() : CreatureScript("npc_training_dummy") { }
 
-    struct npc_training_dummyAI : ScriptedAI
+    struct npc_training_dummyAI : PassiveAI
     {
-        npc_training_dummyAI(Creature* creature) : ScriptedAI(creature)
+        npc_training_dummyAI(Creature* creature) : PassiveAI(creature), _combatCheckTimer(500)
         {
-            SetCombatMovement(false);
+            uint32 const entry = me->GetEntry();
+            if (entry == NPC_TARGET_DUMMY || entry == NPC_ADVANCED_TARGET_DUMMY)
+            {
+                _combatCheckTimer = 0;
+                me->DespawnOrUnsummon(16s);
+            }
         }
-
-        EventMap _events;
-        std::unordered_map<ObjectGuid, time_t> _damageTimes;
 
         void Reset() override
         {
-            // TODO: solve this in a different way! setting them as stunned prevents dummies from parrying
-            me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
-
-            _events.Reset();
             _damageTimes.clear();
-            if (me->GetEntry() != NPC_ADVANCED_TARGET_DUMMY && me->GetEntry() != NPC_TARGET_DUMMY)
-                _events.ScheduleEvent(EVENT_TD_CHECK_COMBAT, 1000);
-            else
-                _events.ScheduleEvent(EVENT_TD_DESPAWN, 15000);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -1790,54 +1781,47 @@ public:
 
         void DamageTaken(Unit* doneBy, uint32& damage) override
         {
-            AddThreat(doneBy, float(damage));    // just to create threat reference
-            _damageTimes[doneBy->GetGUID()] = time(nullptr);
+            _damageTimes[doneBy->GetGUID()] = GameTime::GetGameTime();
             damage = 0;
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (!me->IsInCombat())
+            if (!_combatCheckTimer || !me->IsInCombat())
                 return;
 
-            if (!me->HasUnitState(UNIT_STATE_STUNNED))
-                me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
-
-            _events.Update(diff);
-
-            if (uint32 eventId = _events.ExecuteEvent())
+            if (diff < _combatCheckTimer)
             {
-                switch (eventId)
-                {
-                    case EVENT_TD_CHECK_COMBAT:
-                    {
-                        time_t now = time(nullptr);
-                        for (std::unordered_map<ObjectGuid, time_t>::iterator itr = _damageTimes.begin(); itr != _damageTimes.end();)
-                        {
-                            // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
-                            if (itr->second < now - 5)
-                            {
-                                if (Unit* unit = ObjectAccessor::GetUnit(*me, itr->first))
-                                    unit->getHostileRefManager().deleteReference(me);
-
-                                itr = _damageTimes.erase(itr);
-                            }
-                            else
-                                ++itr;
-                        }
-                        _events.ScheduleEvent(EVENT_TD_CHECK_COMBAT, 1000);
-                        break;
-                    }
-                    case EVENT_TD_DESPAWN:
-                        me->DespawnOrUnsummon(1);
-                        break;
-                    default:
-                        break;
-                }
+                _combatCheckTimer -= diff;
+                return;
             }
+
+            _combatCheckTimer = 500;
+
+            time_t const now = GameTime::GetGameTime();
+            auto const& pveRefs = me->GetCombatManager().GetPvECombatRefs();
+            for (auto itr = _damageTimes.begin(); itr != _damageTimes.end();)
+            {
+                // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
+                if (itr->second < now - 5)
+                {
+                    auto it = pveRefs.find(itr->first);
+                    if (it != pveRefs.end())
+                        it->second->EndCombat();
+
+                    itr = _damageTimes.erase(itr);
+                }
+                else
+                    ++itr;
+            }
+
+            for (auto const& pair : pveRefs)
+                if (_damageTimes.find(pair.first) == _damageTimes.end())
+                    _damageTimes[pair.first] = now;
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) override { }
+        std::unordered_map<ObjectGuid, time_t> _damageTimes;
+        uint32 _combatCheckTimer;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -2325,7 +2309,7 @@ public:
             }
             else
                 //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
-                me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), GetFireworkSpell(me->GetEntry()), true);
+                me->CastSpell(me->GetPosition(), GetFireworkSpell(me->GetEntry()), true);
         }
     };
 
@@ -2388,7 +2372,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DoAction(int32 /*param*/) override
         {

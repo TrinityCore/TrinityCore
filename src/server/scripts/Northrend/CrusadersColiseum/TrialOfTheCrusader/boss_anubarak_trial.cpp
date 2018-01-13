@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -271,9 +271,9 @@ class boss_anubarak_trial : public CreatureScript
                 summons.Summon(summoned);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
@@ -310,12 +310,20 @@ class boss_anubarak_trial : public CreatureScript
                             events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
                             return;
                         case EVENT_PENETRATING_COLD:
-                            me->CastCustomSpell(SPELL_PENETRATING_COLD, SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5, 2, 5));
-                            events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, 0, PHASE_MELEE);
+                        {
+                            CastSpellExtraArgs args;
+                            args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5, 2, 5));
+                            me->CastSpell(nullptr, SPELL_PENETRATING_COLD, args);
+                            events.ScheduleEvent(EVENT_PENETRATING_COLD, 20 * IN_MILLISECONDS, 0, PHASE_MELEE);
                             return;
+                        }
                         case EVENT_SUMMON_NERUBIAN:
                             if (IsHeroic() || !_reachedPhase3)
-                                me->CastCustomSpell(SPELL_SUMMON_BURROWER, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
+                            {
+                                CastSpellExtraArgs args;
+                                args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
+                                me->CastSpell(nullptr, SPELL_SUMMON_BURROWER, args);
+                            }
                             events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 45*IN_MILLISECONDS, 0, PHASE_MELEE);
                             return;
                         case EVENT_NERUBIAN_SHADOW_STRIKE:
@@ -710,7 +718,7 @@ class npc_anubarak_spike : public CreatureScript
                 return victim->GetTypeId() == TYPEID_PLAYER;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {
@@ -814,7 +822,7 @@ class npc_anubarak_spike : public CreatureScript
                 DoCast(who, SPELL_MARK);
                 me->SetSpeedRate(MOVE_RUN, 0.5f);
                 // make sure the Spine will really follow the one he should
-                ResetThreatList();
+                me->GetThreatManager().ResetAllThreat();
                 me->SetInCombatWithZone();
                 AddThreat(who, 1000000.0f);
                 me->GetMotionMaster()->Clear(true);
@@ -928,10 +936,12 @@ class spell_anubarak_leeching_swarm : public SpellScriptLoader
                     int32 lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
                     if (lifeLeeched < 250)
                         lifeLeeched = 250;
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, lifeLeeched);
                     // Damage
-                    caster->CastCustomSpell(target, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, true);
+                    caster->CastSpell(target, SPELL_LEECHING_SWARM_DMG, args);
                     // Heal
-                    caster->CastCustomSpell(caster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, true);
+                    caster->CastSpell(caster, SPELL_LEECHING_SWARM_HEAL, args);
                 }
             }
 

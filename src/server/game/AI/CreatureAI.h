@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,8 @@
 #include "UnitAI.h"
 #include "Common.h"
 #include "ObjectDefines.h"
+#include "Optional.h"
+#include "QuestDef.h"
 
 class AreaBoundary;
 class Creature;
@@ -110,8 +112,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called for reaction at stopping attack at no attackers or targets
         virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
-        // Called for reaction when initially engaged
-        virtual void EnterCombat(Unit* /*victim*/) { }
+        // Called for reaction when initially engaged - this will always happen _after_ JustEnteredCombat
+        virtual void JustEngagedWith(Unit* /*who*/) { }
 
         // Called when the creature is killed
         virtual void JustDied(Unit* /*killer*/) { }
@@ -174,6 +176,33 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called when victim entered water and creature can not enter water
         //virtual bool CanReachByRangeAttack(Unit*) { return false; }
+
+        /// == Gossip system ================================
+
+        // Called when the dialog status between a player and the creature is requested.
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return boost::none; }
+
+        // Called when a player opens a gossip dialog with the creature.
+        virtual bool GossipHello(Player* /*player*/) { return false; }
+
+        // Called when a player selects a gossip item in the creature's gossip menu.
+        virtual bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
+
+        // Called when a player selects a gossip with a code in the creature's gossip menu.
+        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/) { return false; }
+
+        // Called when a player accepts a quest from the creature.
+        virtual void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
+        virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
+
+        /// == Waypoints system =============================
+
+        virtual void WaypointPathStarted(uint32 /*pathId*/) { }
+        virtual void WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/) { }
+        virtual void WaypointReached(uint32 /*nodeId*/, uint32 /*pathId*/) { }
+        virtual void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) { }
 
         /// == Fields =======================================
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,6 +20,7 @@
 #include "DBCFileLoader.h"
 #include "DBCfmt.h"
 #include "Errors.h"
+#include "IteratorPair.h"
 #include "Log.h"
 #include "ObjectDefines.h"
 #include "Regex.h"
@@ -37,7 +38,6 @@ typedef std::map<uint32, uint32> AreaFlagByMapID;
 
 typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
-typedef std::multimap<uint32, CharSectionsEntry const*> CharSectionsMap;
 
 DBCStorage <AreaTableEntry> sAreaTableStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
@@ -53,10 +53,12 @@ DBCStorage <BankBagSlotPricesEntry> sBankBagSlotPricesStore(BankBagSlotPricesEnt
 DBCStorage <BannedAddOnsEntry> sBannedAddOnsStore(BannedAddOnsfmt);
 DBCStorage <BattlemasterListEntry> sBattlemasterListStore(BattlemasterListEntryfmt);
 DBCStorage <BarberShopStyleEntry> sBarberShopStyleStore(BarberShopStyleEntryfmt);
+DBCStorage <CharacterFacialHairStylesEntry> sCharacterFacialHairStylesStore(CharacterFacialHairStylesfmt);
+std::unordered_map<uint32, CharacterFacialHairStylesEntry const*> sCharFacialHairMap;
+DBCStorage <CharSectionsEntry> sCharSectionsStore(CharSectionsEntryfmt);
+std::unordered_multimap<uint32, CharSectionsEntry const*> sCharSectionMap;
 DBCStorage <CharStartOutfitEntry> sCharStartOutfitStore(CharStartOutfitEntryfmt);
 std::map<uint32, CharStartOutfitEntry const*> sCharStartOutfitMap;
-DBCStorage <CharSectionsEntry> sCharSectionsStore(CharSectionsEntryfmt);
-CharSectionsMap sCharSectionMap;
 DBCStorage <CharTitlesEntry> sCharTitlesStore(CharTitlesEntryfmt);
 DBCStorage <ChatChannelsEntry> sChatChannelsStore(ChatChannelsEntryfmt);
 DBCStorage <ChrClassesEntry> sChrClassesStore(ChrClassesEntryfmt);
@@ -283,8 +285,9 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sBannedAddOnsStore,                  "BannedAddOns.dbc");
     LOAD_DBC(sBattlemasterListStore,              "BattlemasterList.dbc");
     LOAD_DBC(sBarberShopStyleStore,               "BarberShopStyle.dbc");
-    LOAD_DBC(sCharStartOutfitStore,               "CharStartOutfit.dbc");
+    LOAD_DBC(sCharacterFacialHairStylesStore,     "CharacterFacialHairStyles.dbc");
     LOAD_DBC(sCharSectionsStore,                  "CharSections.dbc");
+    LOAD_DBC(sCharStartOutfitStore,               "CharStartOutfit.dbc");
     LOAD_DBC(sCharTitlesStore,                    "CharTitles.dbc");
     LOAD_DBC(sChatChannelsStore,                  "ChatChannels.dbc");
     LOAD_DBC(sChrClassesStore,                    "ChrClasses.dbc");
@@ -395,12 +398,16 @@ void LoadDBCStores(const std::string& dataPath)
 
 #undef LOAD_DBC_EXT
 
-    for (CharStartOutfitEntry const* outfit : sCharStartOutfitStore)
-        sCharStartOutfitMap[outfit->Race | (outfit->Class << 8) | (outfit->Gender << 16)] = outfit;
+    for (CharacterFacialHairStylesEntry const* entry : sCharacterFacialHairStylesStore)
+        if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) // ignore nonplayable races
+            sCharFacialHairMap.insert({ entry->Race | (entry->Gender << 8) | (entry->Variation << 16), entry });
 
     for (CharSectionsEntry const* entry : sCharSectionsStore)
-        if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) //ignore Nonplayable races
+        if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) // ignore nonplayable races
             sCharSectionMap.insert({ entry->GenType | (entry->Gender << 8) | (entry->Race << 16), entry });
+
+    for (CharStartOutfitEntry const* outfit : sCharStartOutfitStore)
+        sCharStartOutfitMap[outfit->Race | (outfit->Class << 8) | (outfit->Gender << 16)] = outfit;
 
     for (EmotesTextSoundEntry const* entry : sEmotesTextSoundStore)
         sEmotesTextSoundMap[EmotesTextSoundKey(entry->EmotesTextId, entry->RaceId, entry->SexId)] = entry;
@@ -854,10 +861,10 @@ uint32 GetLiquidFlags(uint32 liquidType)
     return 0;
 }
 
-CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender)
+CharacterFacialHairStylesEntry const* GetCharFacialHairEntry(uint8 race, uint8 gender, uint8 facialHairID)
 {
-    std::map<uint32, CharStartOutfitEntry const*>::const_iterator itr = sCharStartOutfitMap.find(race | (class_ << 8) | (gender << 16));
-    if (itr == sCharStartOutfitMap.end())
+    auto itr = sCharFacialHairMap.find(uint32(race) | uint32(gender << 8) | uint32(facialHairID << 16));
+    if (itr == sCharFacialHairMap.end())
         return nullptr;
 
     return itr->second;
@@ -865,14 +872,23 @@ CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, ui
 
 CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color)
 {
-    std::pair<CharSectionsMap::const_iterator, CharSectionsMap::const_iterator> eqr = sCharSectionMap.equal_range(uint32(genType) | uint32(gender << 8) | uint32(race << 16));
-    for (CharSectionsMap::const_iterator itr = eqr.first; itr != eqr.second; ++itr)
+    uint32 const key = uint32(genType) | uint32(gender << 8) | uint32(race << 16);
+    for (auto const& section : Trinity::Containers::MapEqualRange(sCharSectionMap, key))
     {
-        if (itr->second->Type == type && itr->second->Color == color)
-            return itr->second;
+        if (section.second->Type == type && section.second->Color == color)
+            return section.second;
     }
 
     return nullptr;
+}
+
+CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender)
+{
+    std::map<uint32, CharStartOutfitEntry const*>::const_iterator itr = sCharStartOutfitMap.find(race | (class_ << 8) | (gender << 16));
+    if (itr == sCharStartOutfitMap.end())
+        return nullptr;
+
+    return itr->second;
 }
 
 /// Returns LFGDungeonEntry for a specific map and difficulty. Will return first found entry if multiple dungeons use the same map (such as Scarlet Monastery)

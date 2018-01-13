@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ enum Spells
     SPELL_FATAL_ATTRACTION_DAMAGE   = 40871,
     SPELL_SILENCING_SHRIEK          = 40823,
     SPELL_SABER_LASH_IMMUNITY       = 43690,
-    SPELL_FATAL_ATTACTION_TELEPORT  = 40869,
+    SPELL_FATAL_ATTRACTION_TELEPORT = 40869,
     SPELL_BERSERK                   = 45078,
     SPELL_FATAL_ATTRACTION          = 41001,
     SPELL_SINISTER_PERIODIC         = 40863,
@@ -117,9 +117,9 @@ struct boss_mother_shahraz : public BossAI
         _enraged = false;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_SILENCING_SHRIEK, Seconds(22));
         events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, Seconds(15));
@@ -171,7 +171,7 @@ struct boss_mother_shahraz : public BossAI
                 break;
             case EVENT_FATAL_ATTRACTION:
                 Talk(SAY_SPELL);
-                me->CastCustomSpell(SPELL_FATAL_ATTACTION_TELEPORT, SPELLVALUE_MAX_TARGETS, 3, me);
+                DoCastSelf(SPELL_FATAL_ATTRACTION_TELEPORT, { SPELLVALUE_MAX_TARGETS, 3 });
                 events.Repeat(Seconds(30));
                 break;
             case EVENT_SILENCING_SHRIEK:

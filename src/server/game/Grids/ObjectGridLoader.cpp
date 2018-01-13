@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@
 #include "DynamicObject.h"
 #include "Log.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "World.h"
@@ -143,7 +144,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
                 // If script is blocking spawn, don't spawn but queue for a re-check in a little bit
                 if (!(group->flags & SPAWNGROUP_FLAG_COMPATIBILITY_MODE) && !sScriptMgr->CanSpawn(guid, cdata->id, cdata, map))
                 {
-                    map->SaveRespawnTime(SPAWN_TYPE_CREATURE, guid, cdata->id, time(nullptr) + urand(4,7), map->GetZoneId(cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
+                    map->SaveRespawnTime(SPAWN_TYPE_CREATURE, guid, cdata->id, GameTime::GetGameTime() + urand(4,7), map->GetZoneId(cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
                     delete obj;
                     continue;
                 }
@@ -259,7 +260,7 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         iter->GetSource()->RemoveAllDynObjects();
-        if (iter->GetSource()->IsInCombat() || !iter->GetSource()->GetThreatManager().areThreatListsEmpty())
+        if (iter->GetSource()->IsInCombat())
         {
             iter->GetSource()->CombatStop();
             iter->GetSource()->GetThreatManager().ClearAllThreat();

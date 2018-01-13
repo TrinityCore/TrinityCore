@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -85,9 +85,9 @@ class boss_buru : public CreatureScript
                 Eggs.clear();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(EMOTE_TARGET, who);
                 DoCast(me, SPELL_THORNS);
 
@@ -102,7 +102,7 @@ class boss_buru : public CreatureScript
             {
                 if (action == ACTION_EXPLODE)
                     if (_phase == PHASE_EGG)
-                        me->DealDamage(me, 45000);
+                        Unit::DealDamage(me, me, 45000);
             }
 
             void KilledUnit(Unit* victim) override
@@ -208,7 +208,7 @@ class npc_buru_egg : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void EnterCombat(Unit* attacker) override
+            void JustEngagedWith(Unit* attacker) override
             {
                 if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
                     if (!buru->IsInCombat())
@@ -261,7 +261,7 @@ class spell_egg_explosion : public SpellScriptLoader
             void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    GetCaster()->DealDamage(target, -16 * GetCaster()->GetDistance(target) + 500);
+                    Unit::DealDamage(GetCaster(), target, -16 * GetCaster()->GetDistance(target) + 500);
             }
 
             void Register() override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -297,6 +297,8 @@ namespace VMAP
             Vector3 pos = convertPositionToInternalRep(x, y, z);
             if (instanceTree->second->GetLocationInfo(pos, info))
             {
+                ASSERT(info.hitModel);
+                ASSERT(info.hitInstance);
                 data.floorZ = info.ground_Z;
                 uint32 liquidType = info.hitModel->GetLiquidType();
                 float liquidLevel;

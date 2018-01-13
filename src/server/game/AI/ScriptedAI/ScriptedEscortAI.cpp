@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -219,7 +219,7 @@ void EscortAI::UpdateAI(uint32 diff)
     }
 
     // Check if player or any member of his group is within range
-    if (_despawnAtFar && HasEscortState(STATE_ESCORT_ESCORTING) && _playerGUID && !me->GetVictim() && !HasEscortState(STATE_ESCORT_RETURNING))
+    if (_despawnAtFar && HasEscortState(STATE_ESCORT_ESCORTING) && _playerGUID && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (_playerCheckTimer <= diff)
         {
@@ -231,10 +231,13 @@ void EscortAI::UpdateAI(uint32 diff)
                 if (CreatureData const* creatureData = me->GetCreatureData())
                     isEscort = (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (creatureData->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC));
 
-                if (_instantRespawn && !isEscort)
-                    me->DespawnOrUnsummon(0, Seconds(1));
-                else if (_instantRespawn && isEscort)
-                    me->GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, me->GetSpawnId(), true);
+                if (_instantRespawn)
+                {
+                    if (!isEscort)
+                      me->DespawnOrUnsummon(0, 1s);
+                    else
+                      me->GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, me->GetSpawnId(), true);
+                }
                 else
                     me->DespawnOrUnsummon();
 

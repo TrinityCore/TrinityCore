@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -906,7 +906,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_THALADRED_AGGRO);
                 AddThreat(who, 5000000.0f);
@@ -1004,7 +1004,7 @@ class boss_lord_sanguinar : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_SANGUINAR_AGGRO);
             }
@@ -1100,7 +1100,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_CAPERNIAN_AGGRO);
             }
@@ -1207,7 +1207,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                 advisorbase_ai::JustDied(killer);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_TELONICUS_AGGRO);
             }
@@ -1284,7 +1284,7 @@ class npc_kael_flamestrike : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
