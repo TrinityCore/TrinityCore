@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "gilneas.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -138,38 +139,209 @@ class npc_frightened_citizen : public CreatureScript
 };
 
 /*######
-##Quest 14293 - Save Krennan Aranas
+## Quest 14154 - By the Skin of his Teeth
 ######*/
 
-uint32 const pathSize1 = 7;
-G3D::Vector3 const greymanesHorsePath1[pathSize1] =
+enum WorgenRunt
 {
-    { -1797.425f, 1396.941f, 20.07336f },
-    { -1788.675f, 1378.441f, 20.07336f },
-    { -1780.925f, 1368.941f, 20.07336f },
-    { -1767.425f, 1358.191f, 19.82336f },
-    { -1746.425f, 1358.691f, 20.07336f },
-    { -1726.175f, 1354.191f, 19.82336f },
-    { -1709.064f, 1348.535f, 19.78232f }
+    EVENT_JUMP_TO_PRISON            = 1,
+    EVENT_AGGRO_PLAYER              = 2,
+    EVENT_FORCE_DESPAWN             = 3,
+
+    PHASE_ROOF                      = 0,
+    PHASE_COMBAT                    = 1,
+
+    WORGEN_ID_ROOF_1                = 0,
+    WORGEN_ID_ROOF_2                = 1,
+    WORGEN_ID_ROOF_3                = 2,
+    WORGEN_ID_ROOF_4                = 3,
+    WORGEN_ID_ROOF_5                = 4,
+    WORGEN_ID_ROOF_6                = 5,
+    WORGEN_ID_ROOF_7                = 6,
+
+    WORGEN_ID_CATHEDRAL_1           = 7,
+    WORGEN_ID_CATHEDRAL_2           = 8,
+    WORGEN_ID_CATHEDRAL_3           = 9,
+    WORGEN_ID_CATHEDRAL_4           = 10,
+    WORGEN_ID_CATHEDRAL_5           = 11,
+    WORGEN_ID_CATHEDRAL_6           = 12,
+    WORGEN_ID_CATHEDRAL_7           = 13,
+    WORGEN_ID_CATHEDRAL_8           = 14,
+    WORGEN_ID_CATHEDRAL_9           = 15,
+
+    NPC_WORGEN_RUNT_SPELL           = 35188,
 };
 
-uint32 const pathSize2 = 13;
-G3D::Vector3 const greymanesHorsePath2[] =
+Position const runtSpellSummonJumpPos = { -1671.915f, 1446.734f, 52.28712f };
+
+class npc_worgen_runt : public CreatureScript
 {
-    { -1664.807f, 1345.011f, 15.48499f },
-    { -1662.807f, 1354.511f, 15.48499f },
-    { -1667.307f, 1362.511f, 15.48499f },
-    { -1674.307f, 1363.761f, 15.48499f },
-    { -1686.057f, 1355.011f, 15.48499f },
-    { -1691.057f, 1347.261f, 15.48499f },
-    { -1705.807f, 1350.011f, 19.98499f },
-    { -1731.307f, 1360.011f, 19.98499f },
-    { -1744.807f, 1370.511f, 20.23499f },
-    { -1758.807f, 1389.511f, 19.98499f },
-    { -1768.307f, 1410.011f, 19.98499f },
-    { -1771.557f, 1423.011f, 19.98499f },
-    { -1770.955f, 1430.332f, 19.83506f }
+    public:
+        npc_worgen_runt() :  CreatureScript("npc_worgen_runt") { }
+
+        struct npc_worgen_runtAI : public ScriptedAI
+        {
+            npc_worgen_runtAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _worgenID = 0;
+                _wayPointCounter = 0;
+                _jumped = false;
+                _playerGuid = ObjectGuid::Empty;
+            }
+
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                _events.SetPhase(PHASE_COMBAT);
+            }
+
+            void IsSummonedBy(Unit* summoner) override
+            {
+                me->setActive(true); // we are in a phased and cut off map so we're fine to use that here
+                _events.SetPhase(PHASE_ROOF);
+                _events.ScheduleEvent(EVENT_FORCE_DESPAWN, Seconds(70), 0, PHASE_ROOF);
+                _playerGuid = summoner->GetGUID();
+                if (me->GetEntry() == NPC_WORGEN_RUNT_SPELL)
+                    me->GetMotionMaster()->MoveJump(runtSpellSummonJumpPos, 16.0f, 4.371286f);
+            }
+
+            void DoAction(int32 action) override
+            {
+                _worgenID = action;
+                switch (_worgenID) // ugly as fuck but needed for individual controls
+                {
+                    // House roof cases
+                    case WORGEN_ID_ROOF_1:
+                        _wayPointCounter = runtHousePathSize1;
+                        me->GetMotionMaster()->MoveSmoothPath(runtHousePathSize1, worgenRuntHousePath1, runtHousePathSize1);
+                        break;
+                    case WORGEN_ID_ROOF_2:
+                        _wayPointCounter = runtHousePathSize2;
+                        me->GetMotionMaster()->MoveSmoothPath(runtHousePathSize2, worgenRuntHousePath2, runtHousePathSize2);
+                        break;
+                    case WORGEN_ID_ROOF_3:
+                        _wayPointCounter = runtHousePathSize3;
+                        me->GetMotionMaster()->MoveSmoothPath(runtHousePathSize3, worgenRuntHousePath3, runtHousePathSize3);
+                        break;
+                    case WORGEN_ID_ROOF_4:
+                        _wayPointCounter = runtHousePathSize4;
+                        me->GetMotionMaster()->MoveSmoothPath(runtHousePathSize4, worgenRuntHousePath4, runtHousePathSize4);
+                        break;
+                    case WORGEN_ID_ROOF_5:
+                        _wayPointCounter = runtHousePathSize5;
+                        me->GetMotionMaster()->MoveSmoothPath(runtHousePathSize5, worgenRuntHousePath5, runtHousePathSize5);
+                        break;
+                    case WORGEN_ID_ROOF_6:
+                        _wayPointCounter = runtHousePathSize6;
+                        me->GetMotionMaster()->MoveSmoothPath(runtHousePathSize6, worgenRuntHousePath6, runtHousePathSize6);
+                        break;
+                    case WORGEN_ID_ROOF_7:
+                        _wayPointCounter = runtHousePathSize7;
+                        me->GetMotionMaster()->MoveSmoothPath(runtHousePathSize7, worgenRuntHousePath7, runtHousePathSize7);
+                        break;
+                    // Cathedral cases
+                    case WORGEN_ID_CATHEDRAL_1:
+                        _wayPointCounter = runtCathedralPathSize1;
+                        me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize1, worgenRuntCathedralPath1, runtCathedralPathSize1);
+                        break;
+                    case WORGEN_ID_CATHEDRAL_2:
+                        _wayPointCounter = runtCathedralPathSize2;
+                        me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize2, worgenRuntCathedralPath1, runtCathedralPathSize2);
+                        break;
+                    case WORGEN_ID_CATHEDRAL_3:
+                        _wayPointCounter = runtCathedralPathSize3;
+                        me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize3, worgenRuntCathedralPath1, runtCathedralPathSize3);
+                        break;
+                    case WORGEN_ID_CATHEDRAL_4:
+                        _wayPointCounter = runtCathedralPathSize4;
+                        me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize4, worgenRuntCathedralPath1, runtCathedralPathSize4);
+                        break;
+                    case WORGEN_ID_CATHEDRAL_5:
+                        _wayPointCounter = runtCathedralPathSize5;
+                        me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize5, worgenRuntCathedralPath1, runtCathedralPathSize5);
+                        break;
+                    case WORGEN_ID_CATHEDRAL_6:
+                        _wayPointCounter = runtCathedralPathSize6;
+                        me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize6, worgenRuntCathedralPath1, runtCathedralPathSize6);
+                        break;
+                    case WORGEN_ID_CATHEDRAL_7:
+                        _wayPointCounter = runtCathedralPathSize7;
+                        me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize7, worgenRuntCathedralPath1, runtCathedralPathSize7);
+                        break;
+                    case WORGEN_ID_CATHEDRAL_8:
+                        _wayPointCounter = runtCathedralPathSize8;
+                        me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize8, worgenRuntCathedralPath1, runtCathedralPathSize8);
+                        break;
+                }
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                me->DespawnOrUnsummon(Seconds(5));
+            }
+
+            void MovementInform(uint32 type, uint32 pointId) override
+            {
+                if (type == EFFECT_MOTION_TYPE && pointId == _wayPointCounter && !_jumped)
+                {
+                    _jumped = true;
+                    _events.ScheduleEvent(EVENT_JUMP_TO_PRISON, Milliseconds(1));
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim() && !_events.IsInPhase(PHASE_ROOF))
+                    return;
+
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch(eventId)
+                    {
+                        case EVENT_FORCE_DESPAWN:
+                            me->DespawnOrUnsummon();
+                            break;
+                        case EVENT_JUMP_TO_PRISON:
+                            me->GetMotionMaster()->MoveJump(worgenRuntJumpPos[_worgenID], 16.0f, _worgenID < WORGEN_ID_CATHEDRAL_1 ? 19.2911f : frand(3.945607f, 4.852813f));
+                            me->SetHomePosition(worgenRuntJumpPos[_worgenID]);
+                            _events.ScheduleEvent(EVENT_AGGRO_PLAYER, Seconds(1));
+                            break;
+                        case EVENT_AGGRO_PLAYER:
+                            if (Unit* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
+                                if (me->IsAIEnabled && me->IsInDist(&player->GetPosition(), 50.0f))
+                                    me->AI()->AttackStart(player);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        private:
+            uint32 _worgenID;
+            uint32 _wayPointCounter;
+            bool _jumped;
+            ObjectGuid _playerGuid;
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_worgen_runtAI(creature);
+        }
 };
+
+
+/*######
+## Quest 14293 - Save Krennan Aranas
+######*/
 
 Position const greymanesHorseJumpPos = { -1676.16f, 1346.19f, 15.1349f };
 
@@ -286,5 +458,6 @@ class npc_greymanes_horse : public CreatureScript
 void AddSC_gilneas_c1()
 {
     new npc_frightened_citizen();
+    new npc_worgen_runt();
     new npc_greymanes_horse();
 }

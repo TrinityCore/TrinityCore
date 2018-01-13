@@ -3080,6 +3080,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 2;
     });
 
+    // Summon Ravenous Worgen
+    // Serverside dummy target so we have to change to spell_target_position
+    ApplySpellFix({ 66925, 66836 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DB;
+    });
+
     // Renewed Hope
     ApplySpellFix({
         57470, // (Rank 1)
