@@ -808,7 +808,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
     pos.GetPosition(x, y, z, o);
 
     Creature* creature = new Creature();
-    if (!creature->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, PHASEMASK_NORMAL, entry, x, y, z, o))
+    if (!creature->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, entry, x, y, z, o))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);
         delete creature;
@@ -843,8 +843,8 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
     }
 
     // Create gameobject
-    GameObject* go = new GameObject;
-    if (!go->Create(entry, map, PHASEMASK_NORMAL, pos, rot, 255, GO_STATE_READY))
+    GameObject* go = new GameObject();
+    if (!go->Create(entry, map, pos, rot, 255, GO_STATE_READY))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
         delete go;

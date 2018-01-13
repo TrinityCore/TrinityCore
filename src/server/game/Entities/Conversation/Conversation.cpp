@@ -115,7 +115,6 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     Relocate(pos);
 
     Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
-    SetPhaseMask(creator->GetPhaseMask(), false);
     CopyPhaseFrom(creator);
 
     SetEntry(conversationEntry);

@@ -90,7 +90,7 @@ public:
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
             GameObject* go = new GameObject();
-            if (!go->Create(entry, instance, PHASEMASK_NORMAL, pos, QuaternionData(), 255, GO_STATE_READY))
+            if (!go->Create(entry, instance, pos, QuaternionData(), 255, GO_STATE_READY))
             {
                 delete go;
                 return;
