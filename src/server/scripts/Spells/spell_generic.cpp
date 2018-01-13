@@ -4674,6 +4674,46 @@ class spell_gen_gilneas_prison_periodic_dummy : public SpellScriptLoader
         }
 };
 
+enum Sacrifices
+{
+    CREDIT_ROUND_UP_WORGEN  = 35582,
+    SPELL_THROW_TORCH       = 67063
+};
+
+
+class spell_gen_throw_torch : public SpellScriptLoader
+{
+    public:
+        spell_gen_throw_torch() : SpellScriptLoader("spell_gen_throw_torch") { }
+
+        class spell_gen_throw_torch_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_throw_torch_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo( { SPELL_THROW_TORCH });
+            }
+
+            void HandleEffect()
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                    if (GetHitUnit() && !GetHitUnit()->HasAura(SPELL_THROW_TORCH))
+                        player->KilledMonsterCredit(CREDIT_ROUND_UP_WORGEN);
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_gen_throw_torch_SpellScript::HandleEffect);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_throw_torch_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4780,4 +4820,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_projectile_goods();
     new spell_gen_vengeance();
     new spell_gen_gilneas_prison_periodic_dummy();
+    new spell_gen_throw_torch();
 }

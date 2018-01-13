@@ -508,9 +508,11 @@ class npc_greymanes_horse : public CreatureScript
                         case EVENT_ANNOUNCE_RESCUE:
                             me->SetControlled(true, UNIT_STATE_ROOT);
                             if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+                            {
                                 Talk(SAY_ANNOUNCE_RESCUE, passenger);
-                            if (Creature* krennan = me->FindNearestCreature(NPC_TRAPPED_KRENNAN, 30.0f, true))
-                                krennan->AI()->Talk(SAY_TRAPPED);
+                                if (Creature* krennan = me->FindNearestCreature(NPC_TRAPPED_KRENNAN, 30.0f, true))
+                                    krennan->AI()->Talk(SAY_TRAPPED, passenger);
+                            }
                             break;
                         case EVENT_START_PATH_2:
                             me->SetControlled(true, UNIT_STATE_ROOT);
@@ -547,10 +549,125 @@ class npc_greymanes_horse : public CreatureScript
         }
 };
 
+/*######
+## Quest 14212 - Sacrifices
+######*/
+
+enum CrowleysHorse
+{
+    EVENT_JUMP_OVER_BARRICADES_1 = 1,
+    EVENT_JUMP_OVER_BARRICADES_2,
+    EVENT_MOVE_PATH_MAIN_1,
+    EVENT_MOVE_PATH_MAIN_2,
+    EVENT_MOVE_OFF_PATH = 6,
+
+    PATH_ID_CROWLEYS_HORSE_1    = 352310,
+    PATH_ID_CROWLEYS_HORSE_2    = 352311,
+    PATH_ID_CROWLEYS_HORSE_3    = 444280,
+
+    SPELL_THROW_TORCH           = 67063,
+    NPC_CROWLEYS_HORSE_2        = 44428,
+};
+
+Position const crowleysHorseJumpPos = { -1714.762f, 1673.16f, 20.49182f };
+Position const crowleysHorseJumpPos2 = { -1566.71f, 1708.04f, 20.4849f };
+
+class npc_crowleys_horse : public CreatureScript
+{
+    public:
+        npc_crowleys_horse() : CreatureScript("npc_crowleys_horse") { }
+
+        struct npc_crowleys_horseAI : public VehicleAI
+        {
+            npc_crowleys_horseAI(Creature* creature) : VehicleAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _currentPath = 0;
+            }
+
+            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+            {
+                if (apply && passenger->GetTypeId() == TYPEID_PLAYER && me->GetEntry() != NPC_CROWLEYS_HORSE_2)
+                {
+                    me->SetControlled(true, UNIT_STATE_ROOT);
+                    _events.ScheduleEvent(EVENT_JUMP_OVER_BARRICADES_1, Seconds(2));
+                }
+                else if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+                {
+                    me->SetControlled(true, UNIT_STATE_ROOT);
+                    _events.ScheduleEvent(EVENT_MOVE_OFF_PATH, Seconds(2));
+                }
+            }
+
+            void MovementInform(uint32 type, uint32 pointId) override
+            {
+                if (type == WAYPOINT_MOTION_TYPE && pointId == 14 && _currentPath == PATH_ID_CROWLEYS_HORSE_1)
+                    _events.ScheduleEvent(EVENT_JUMP_OVER_BARRICADES_2, Seconds(1));
+                else if (type == WAYPOINT_MOTION_TYPE && pointId ==  15 && _currentPath == PATH_ID_CROWLEYS_HORSE_2)
+                    _events.ScheduleEvent(EVENT_DISMOUNT_PLAYER, Milliseconds(1));
+                else if (type == WAYPOINT_MOTION_TYPE && pointId == 16 && _currentPath == PATH_ID_CROWLEYS_HORSE_3)
+                    _events.ScheduleEvent(EVENT_DISMOUNT_PLAYER, Milliseconds(1));
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_JUMP_OVER_BARRICADES_1:
+                            me->SetControlled(false, UNIT_STATE_ROOT);
+                            me->GetMotionMaster()->MoveJump(crowleysHorseJumpPos, 16.0f, 18.56182f);
+                            _events.ScheduleEvent(EVENT_MOVE_PATH_MAIN_1, Seconds(2));
+                            break;
+                        case EVENT_MOVE_PATH_MAIN_1:
+                            me->GetMotionMaster()->MovePath(PATH_ID_CROWLEYS_HORSE_1, false);
+                            _currentPath = PATH_ID_CROWLEYS_HORSE_1;
+                            break;
+                        case EVENT_JUMP_OVER_BARRICADES_2:
+                            me->GetMotionMaster()->MoveJump(crowleysHorseJumpPos2, 16.0f, 18.56182f);
+                            _events.ScheduleEvent(EVENT_MOVE_PATH_MAIN_2, Seconds(2));
+                            break;
+                        case EVENT_MOVE_PATH_MAIN_2:
+                            _currentPath = PATH_ID_CROWLEYS_HORSE_2;
+                            me->GetMotionMaster()->MovePath(PATH_ID_CROWLEYS_HORSE_2, false);
+                            break;
+                        case EVENT_DISMOUNT_PLAYER:
+                            me->RemoveAurasDueToSpell(VEHICLE_SPELL_RIDE_HARDCODED);
+                            me->DespawnOrUnsummon(Seconds(5));
+                            break;
+                        case EVENT_MOVE_OFF_PATH:
+                            me->SetControlled(false, UNIT_STATE_ROOT);
+                            _currentPath = PATH_ID_CROWLEYS_HORSE_3;
+                            me->GetMotionMaster()->MovePath(PATH_ID_CROWLEYS_HORSE_3, false);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        private:
+            EventMap _events;
+            uint32 _currentPath;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_crowleys_horseAI(creature);
+        }
+};
+
 void AddSC_gilneas_c1()
 {
     new npc_frightened_citizen();
     new npc_worgen_runt();
     new npc_josiah_avery();
     new npc_greymanes_horse();
+    new npc_crowleys_horse();
 }
