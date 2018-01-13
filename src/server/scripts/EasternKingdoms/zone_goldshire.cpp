@@ -215,9 +215,16 @@ struct npc_cameron : public ScriptedAI
                     break;
                 case EVENT_WP_START_LISA:
                     for (uint32 i = 0; i < _childrenGUIDs.size(); ++i)
+                    {
                         if (Creature* lisa = ObjectAccessor::GetCreature(*me, _childrenGUIDs[i]))
+                        {
                             if (lisa->GetEntry() == NPC_LISA)
+                            {
                                 lisa->GetMotionMaster()->MovePath(LISA_PATH, false);
+                                break;
+                            }
+                        }
+                    }
                     break;
                 case EVENT_PLAY_SOUNDS:
                     me->PlayDistanceSound(SoundPicker());
