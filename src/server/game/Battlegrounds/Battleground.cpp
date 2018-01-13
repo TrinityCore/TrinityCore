@@ -673,15 +673,13 @@ void Battleground::SendPacketToAll(WorldPacket const* packet) const
             player->SendDirectMessage(packet);
 }
 
-void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender, bool self) const
+void Battleground::SendPacketToTeam(uint32 teamId, WorldPacket const* packet, Player* except /*= nullptr*/) const
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
-        if (Player* player = _GetPlayerForTeam(TeamID, itr, "SendPacketToTeam"))
-        {
-            if (self || sender != player)
+        if (Player* player = _GetPlayerForTeam(teamId, itr, "SendPacketToTeam"))
+            if (player != except)
                 player->SendDirectMessage(packet);
-        }
     }
 }
 
@@ -697,11 +695,7 @@ void Battleground::PlaySoundToAll(uint32 soundID)
 
 void Battleground::PlaySoundToTeam(uint32 soundID, uint32 teamID)
 {
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-    {
-        if (Player* player = _GetPlayerForTeam(teamID, itr, "PlaySoundToTeam"))
-            player->SendDirectMessage(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundID).Write());
-    }
+    SendPacketToTeam(teamID, WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundID).Write());
 }
 
 void Battleground::CastSpellOnTeam(uint32 SpellID, uint32 TeamID)
@@ -1024,7 +1018,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         // Let others know
         WorldPackets::Battleground::BattlegroundPlayerLeft playerLeft;
         playerLeft.Guid = guid;
-        SendPacketToTeam(team, playerLeft.Write(), player, false);
+        SendPacketToTeam(team, playerLeft.Write(), player);
     }
 
     if (player)
@@ -1114,7 +1108,7 @@ void Battleground::AddPlayer(Player* player)
 
     WorldPackets::Battleground::BattlegroundPlayerJoined playerJoined;
     playerJoined.Guid = player->GetGUID();
-    SendPacketToTeam(team, playerJoined.Write(), player, false);
+    SendPacketToTeam(team, playerJoined.Write(), player);
 
     // BG Status packet
     BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
