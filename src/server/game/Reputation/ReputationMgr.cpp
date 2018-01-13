@@ -93,7 +93,8 @@ int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
             (factionEntry->BaseRepRaceMask[i] == 0  &&
              factionEntry->BaseRepClassMask[i] != 0)) &&
             (factionEntry->BaseRepClassMask[i] & classMask ||
-             factionEntry->BaseRepClassMask[i] == 0))
+             factionEntry->BaseRepClassMask[i] == 0 &&
+            factionEntry->BaseRepValue[i] > 0))
 
             return factionEntry->BaseRepValue[i];
     }
