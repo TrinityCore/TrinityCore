@@ -2368,7 +2368,8 @@ public:
             uint32 damage = eventInfo.GetDamageInfo()->GetDamage();
             float mastery = caster->GetFloatValue(PLAYER_MASTERY);
             int32 base = aurEff->GetBaseAmount();
-            uint32 heal = CalculatePct(damage, AddPct(base, mastery));
+            AddPct(base, mastery);
+            uint32 heal = CalculatePct(damage, base);
 
             std::list<Unit*> units;
             Trinity::AnyFriendlyUnitInObjectRangeCheck check(caster, caster, 100.0f);
