@@ -311,7 +311,8 @@ class spell_pal_avenging_wrath : public SpellScriptLoader
                 if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1, EFFECT_2))
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.AddSpellBP0(aurEff->GetAmount());
+                    args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount())
+                        .AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetAmount());
                     target->CastSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, args);
                 }
             }
