@@ -2740,6 +2740,25 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victi
         if (!(ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
         {
             chance = 5.0f;
+
+            if (IsPet() || IsHunterPet() || IsGuardian())
+            {
+                switch (attackType)
+                {
+                case BASE_ATTACK:
+                    chance = GetOwner()->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                    break;
+                case OFF_ATTACK:
+                    chance = GetOwner()->GetFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE);
+                    break;
+                case RANGED_ATTACK:
+                    chance = GetOwner()->GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
+                    break;
+                default:
+                    chance = 0.0f;
+                    break;
+                }
+            }
             chance += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
             chance += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
         }
@@ -5998,7 +6017,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 {
                     // remove existing minion pet
                     if (oldPet->IsPet())
-                        ((Pet*)oldPet)->Remove(PET_SAVE_AS_CURRENT);
+                        ((Pet*)oldPet)->Remove(PET_SAVE_DISMISS);
                     else
                         oldPet->UnSummon();
                     SetPetGUID(minion->GetGUID());
@@ -9679,7 +9698,7 @@ uint32 Unit::GetPowerIndex(uint32 powerType) const
     /// POWER_RAGE, so we enforce the class to hunter so that they
     /// effectively get focus power.
     uint32 classId = getClass();
-    if (ToPet() && ToPet()->getPetType() == HUNTER_PET)
+    if (ToPet() && ToPet()->IsHunterPet())
         classId = CLASS_HUNTER;
 
     return sDB2Manager.GetPowerIndexByClass(powerType, classId);
@@ -9904,17 +9923,19 @@ void CharmInfo::RestoreState()
 
 void CharmInfo::InitPetActionBar()
 {
-    // the first 3 SpellOrActions are attack, follow and stay
-    for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_START - ACTION_BAR_INDEX_START; ++i)
-        SetActionBar(ACTION_BAR_INDEX_START + i, COMMAND_ATTACK - i, ACT_COMMAND);
+    // the first 3 SpellOrActions are attack, follow and moveTo
+    SetActionBar(ACTION_BAR_INDEX_ATTACK, COMMAND_ATTACK, ACT_COMMAND);
+    SetActionBar(ACTION_BAR_INDEX_FOLLOW, COMMAND_FOLLOW, ACT_COMMAND);
+    SetActionBar(ACTION_BAR_INDEX_MOVE_TO, COMMAND_MOVE_TO, ACT_COMMAND);
 
     // middle 4 SpellOrActions are spells/special attacks/abilities
     for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_END-ACTION_BAR_INDEX_PET_SPELL_START; ++i)
         SetActionBar(ACTION_BAR_INDEX_PET_SPELL_START + i, 0, ACT_PASSIVE);
 
     // last 3 SpellOrActions are reactions
-    for (uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
-        SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, COMMAND_ATTACK - i, ACT_REACTION);
+    SetActionBar(ACTION_BAR_INDEX_ASSIST, REACT_ASSIST, ACT_REACTION);
+    SetActionBar(ACTION_BAR_INDEX_DEFENSIVE, REACT_DEFENSIVE, ACT_REACTION);
+    SetActionBar(ACTION_BAR_INDEX_PASSIVE, REACT_PASSIVE, ACT_REACTION);
 }
 
 void CharmInfo::InitEmptyActionBar(bool withAttack)
@@ -10037,7 +10058,7 @@ bool CharmInfo::AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates new
         uint8 j = (preferredSlot + i) % MAX_UNIT_ACTION_BAR_INDEX;
         if (!PetActionBar[j].GetAction() && PetActionBar[j].IsActionBarForSpell())
         {
-            SetActionBar(j, spell_id, newstate == ACT_DECIDE ? spellInfo->IsAutocastable() ? ACT_DISABLED : ACT_PASSIVE : newstate);
+            SetActionBar(j, spell_id, newstate == ACT_DECIDE ? spellInfo->IsAutocastable() ? ACT_ENABLED : ACT_PASSIVE : newstate);
             return true;
         }
     }
@@ -10647,6 +10668,14 @@ void Unit::UpdateAttackTimeField(WeaponAttackType att)
 
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
 {
+    if (Player* player = ToPlayer())
+        if (Pet* pet = player->GetPet())
+        {
+            pet->ApplyAttackTimePercentMod(att, val, apply);
+            if (att == RANGED_ATTACK)
+                pet->UpdatePlayerFieldModPetHaste();
+        }
+
     float remainingTimePct = float(m_attackTimer[att]) / (m_baseAttackSpeed[att] * m_modAttackSpeedPct[att]);
     if (val > 0)
     {
@@ -10914,18 +10943,18 @@ void Unit::RemovePetAura(PetAura const* petSpell)
 
 Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
 {
-    if (GetTypeId() != TYPEID_PLAYER)
-        return NULL;
+    if (!IsPlayer())
+        return nullptr;
 
     Pet* pet = new Pet(ToPlayer(), HUNTER_PET);
 
     if (!pet->CreateBaseAtCreature(creatureTarget))
     {
         delete pet;
-        return NULL;
+        return nullptr;
     }
 
-    uint8 level = creatureTarget->GetLevelForTarget(this) + 5 < getLevel() ? (getLevel() - 5) : creatureTarget->GetLevelForTarget(this);
+    uint8 level = getLevel();
 
     InitTamedPet(pet, level, spell_id);
 
@@ -10934,19 +10963,19 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
 
 Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
 {
-    if (GetTypeId() != TYPEID_PLAYER)
-        return NULL;
+    if (!IsPlayer())
+        return nullptr;
 
     CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry);
     if (!creatureInfo)
-        return NULL;
+        return nullptr;
 
     Pet* pet = new Pet(ToPlayer(), HUNTER_PET);
 
     if (!pet->CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, getLevel(), spell_id))
     {
         delete pet;
-        return NULL;
+        return nullptr;
     }
 
     return pet;
@@ -10974,6 +11003,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     pet->InitPetCreateSpells();
     //pet->InitLevelupSpellsForLevel();
     pet->SetFullHealth();
+    pet->SetReactState(REACT_ASSIST);
     return true;
 }
 
