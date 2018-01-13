@@ -570,7 +570,7 @@ public:
             {
                 //spell Burn should possible do this, but it doesn't, so do this for now.
                 uint16 dmg = urand(1650, 2050);
-                me->DealDamage(me, dmg, nullptr, DOT, SPELL_SCHOOL_MASK_FIRE, nullptr, false);
+                Unit::DealDamage(me, me, dmg, nullptr, DOT, SPELL_SCHOOL_MASK_FIRE, nullptr, false);
                 BurnTimer += 2000;
             } BurnTimer -= diff;
 

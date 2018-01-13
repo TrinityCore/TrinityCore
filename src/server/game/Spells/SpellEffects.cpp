@@ -420,10 +420,9 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     data.Target = unitTarget->GetGUID();
     data.Caster = m_caster->GetGUID();
     data.SpellID = m_spellInfo->Id;
-
     m_caster->SendMessageToSet(data.Write(), true);
 
-    m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), nullptr, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+    Unit::DealDamage(m_caster, unitTarget, unitTarget->GetHealth(), nullptr, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 }
 
 void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
@@ -440,7 +439,7 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
     else
     {
         DamageInfo damageInfo(m_caster, unitTarget, damage, m_spellInfo, m_spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, BASE_ATTACK);
-        m_caster->CalcAbsorbResist(damageInfo);
+        Unit::CalcAbsorbResist(damageInfo);
 
         SpellNonMeleeDamage log(m_caster, unitTarget, m_spellInfo, m_SpellVisual, m_spellInfo->GetSchoolMask(), m_castId);
         log.damage = damageInfo.GetDamage();
@@ -1075,7 +1074,7 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
         return;
 
     // add spell damage bonus
-    uint32 bonus = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, effectInfo);
+    uint32 bonus = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE, effectInfo);
     damage = bonus + uint32(bonus * variance);
     damage = unitTarget->SpellDamageBonusTaken(m_caster, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE, effectInfo);
 
@@ -1203,9 +1202,8 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
             addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, int32(caster->CountPctFromMaxHealth(damage)), HEAL, effectInfo);
         else
         {
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL, effectInfo);
             uint32 bonus = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL, effectInfo);
-            damage = bonus + uint32(bonus * variance);
+            addhealth = bonus + uint32(bonus * variance);
         }
 
         addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL, effectInfo);
@@ -1231,9 +1229,7 @@ void Spell::EffectHealPct(SpellEffIndex /*effIndex*/)
         return;
 
     uint32 heal = m_originalCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, unitTarget->CountPctFromMaxHealth(damage), HEAL, effectInfo);
-    heal = unitTarget->SpellHealingBonusTaken(m_originalCaster, m_spellInfo, heal, HEAL, effectInfo);
-
-    m_healing += heal;
+    m_healing += unitTarget->SpellHealingBonusTaken(m_originalCaster, m_spellInfo, heal, HEAL, effectInfo);
 }
 
 void Spell::EffectHealMechanical(SpellEffIndex /*effIndex*/)
@@ -2969,10 +2965,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->GetSpellHistory()->LockSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
                     if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
-                        m_originalCaster->ProcSkillsAndAuras(unitTarget, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG,
+                        Unit::ProcSkillsAndAuras(m_originalCaster, unitTarget, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG,
                             PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_INTERRUPT, nullptr, nullptr, nullptr);
                     else if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE)
-                        m_originalCaster->ProcSkillsAndAuras(unitTarget, PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS, PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS,
+                        Unit::ProcSkillsAndAuras(m_originalCaster, unitTarget, PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS, PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS,
                             PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_INTERRUPT, nullptr, nullptr, nullptr);
                 }
                 ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
@@ -3589,7 +3585,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     // the player dies if hearthstone is in cooldown, else the player is teleported to home
     if (player->GetSpellHistory()->HasCooldown(8690))
     {
-        player->Kill(player);
+        player->KillSelf();
         return;
     }
 

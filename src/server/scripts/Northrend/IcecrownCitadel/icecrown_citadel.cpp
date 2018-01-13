@@ -881,7 +881,7 @@ class boss_sister_svalna : public CreatureScript
                 switch (spell->Id)
                 {
                     case SPELL_IMPALING_SPEAR_KILL:
-                        me->Kill(target);
+                        Unit::Kill(me, target);
                         break;
                     case SPELL_IMPALING_SPEAR:
                         if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))

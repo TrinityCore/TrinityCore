@@ -101,7 +101,7 @@ class boss_buru : public CreatureScript
             {
                 if (action == ACTION_EXPLODE)
                     if (_phase == PHASE_EGG)
-                        me->DealDamage(me, 45000);
+                        Unit::DealDamage(me, me, 45000);
             }
 
             void KilledUnit(Unit* victim) override

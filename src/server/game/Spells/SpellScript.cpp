@@ -249,7 +249,7 @@ SpellScript::OnCalcCritChanceHandler::OnCalcCritChanceHandler(SpellOnCalcCritCha
     _onCalcCritChanceHandlerScript = onCalcCritChanceHandlerScript;
 }
 
-void SpellScript::OnCalcCritChanceHandler::Call(SpellScript* spellScript, Unit* victim, float& critChance) const
+void SpellScript::OnCalcCritChanceHandler::Call(SpellScript* spellScript, Unit const* victim, float& critChance) const
 {
     (spellScript->*_onCalcCritChanceHandlerScript)(victim, critChance);
 }
@@ -952,7 +952,7 @@ AuraScript::EffectCalcCritChanceHandler::EffectCalcCritChanceHandler(AuraEffectC
     _effectHandlerScript = effectHandlerScript;
 }
 
-void AuraScript::EffectCalcCritChanceHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, Unit* victim, float& critChance) const
+void AuraScript::EffectCalcCritChanceHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, Unit const* victim, float& critChance) const
 {
     (auraScript->*_effectHandlerScript)(aurEff, victim, critChance);
 }

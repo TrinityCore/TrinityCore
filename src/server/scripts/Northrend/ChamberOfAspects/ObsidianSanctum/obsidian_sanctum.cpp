@@ -815,7 +815,7 @@ public:
                 me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             else
                 me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-            me->DealDamage(me, me->GetHealth());
+            me->KillSelf();
         }
 
         void JustSummoned(Creature* who) override

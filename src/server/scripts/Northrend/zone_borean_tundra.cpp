@@ -149,7 +149,7 @@ public:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         if (Unit* worm = me->FindNearestCreature(NPC_SCOURGED_BURROWER, 3.0f))
                         {
-                            me->Kill(worm);
+                            Unit::Kill(me, worm);
                             worm->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
                         }
                         phaseTimer = 2000;

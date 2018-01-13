@@ -202,9 +202,9 @@ public:
             instance->DoCastSpellOnPlayers(SPELL_AHUNE_ACHIEVEMENT);
 
             if (Creature* ahuneBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AHUNE_BUNNY)))
-                me->Kill(ahuneBunny);
+                Unit::Kill(me, ahuneBunny);
             if (Creature* frozenCore = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FROZEN_CORE)))
-                me->Kill(frozenCore);
+                Unit::Kill(me, frozenCore);
 
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.isEmpty())
@@ -317,7 +317,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Creature* ahune = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AHUNE)))
-                me->Kill(ahune);
+                Unit::Kill(me, ahune);
 
             DoCast(SPELL_SUMMON_LOOT_MISSILE);
             DoCast(SPELL_MINION_DESPAWNER);

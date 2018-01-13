@@ -54,8 +54,8 @@ class TC_GAME_API AuraEffect
         int32 GetMiscValueB() const { return GetSpellEffectInfo()->MiscValueB; }
         int32 GetMiscValue() const { return GetSpellEffectInfo()->MiscValue; }
         AuraType GetAuraType() const { return (AuraType)GetSpellEffectInfo()->ApplyAuraName; }
-        int32 GetAmount() const { return m_amount; }
-        void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false;}
+        int32 GetAmount() const { return _amount; }
+        void SetAmount(int32 amount) { _amount = amount; m_canBeRecalculated = false; }
 
         int32 GetPeriodicTimer() const { return _periodicTimer; }
         void SetPeriodicTimer(int32 periodicTimer) { _periodicTimer = periodicTimer; }
@@ -71,13 +71,6 @@ class TC_GAME_API AuraEffect
         void HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply, AuraEffect const* triggeredBy = nullptr);
         void HandleEffect(Unit* target, uint8 mode, bool apply, AuraEffect const* triggeredBy = nullptr);
         void ApplySpellMod(Unit* target, bool apply, AuraEffect const* triggeredBy = nullptr);
-
-        void  SetDamage(int32 val) { m_damage = val; }
-        int32 GetDamage() const { return m_damage; }
-        void  SetCritChance(float val) { m_critChance = val; }
-        float GetCritChance() const { return m_critChance; }
-        void  SetDonePct(float val) { m_donePct = val; }
-        float GetDonePct() const { return m_donePct; }
 
         void Update(uint32 diff, Unit* caster);
 
@@ -116,10 +109,7 @@ class TC_GAME_API AuraEffect
         SpellModifier* m_spellmod;
 
         int32 const m_baseAmount;
-        int32 m_amount;
-        int32 m_damage;
-        float m_critChance;
-        float m_donePct;
+        int32 _amount;
 
         // periodic stuff
         int32 _periodicTimer;
@@ -128,6 +118,8 @@ class TC_GAME_API AuraEffect
 
         bool m_canBeRecalculated;
         bool m_isPeriodic;
+
+        float GetCritChanceFor(Unit const* caster, Unit const* target) const;
 
     public:
         // aura effect apply/remove handlers

@@ -366,9 +366,9 @@ static bool IsEncounterFinished(Unit* who)
         vx001->GetStandState() == UNIT_STAND_STATE_DEAD &&
         aerial->GetStandState() == UNIT_STAND_STATE_DEAD)
     {
-        who->Kill(mkii);
-        who->Kill(vx001);
-        who->Kill(aerial);
+        Unit::Kill(who, mkii);
+        Unit::Kill(who, vx001);
+        Unit::Kill(who, aerial);
         mkii->DespawnOrUnsummon(120000);
         vx001->DespawnOrUnsummon(120000);
         aerial->DespawnOrUnsummon(120000);

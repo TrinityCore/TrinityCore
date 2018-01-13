@@ -142,7 +142,7 @@ public:
 
                         case 6:
                             Talk(SAY_PERSUADED6);
-                            player->Kill(me);
+                            Unit::Kill(player, me);
                             speechCounter = 0;
                             player->GroupEventHappens(QUEST_HOW_TO_WIN_FRIENDS, me);
                             return;

@@ -58,7 +58,7 @@ public:
         void DoDie()
         {
             //summoner dies here
-            me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+            me->KillSelf();
             //override any database `spawntimesecs` to prevent duplicated summons
             uint32 rTime = me->GetRespawnDelay();
             if (rTime < 600)

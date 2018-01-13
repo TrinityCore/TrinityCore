@@ -648,7 +648,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
         case DAMAGE_SLIME:
         {
             DamageInfo dmgInfo(this, this, damage, nullptr, type == DAMAGE_LAVA ? SPELL_SCHOOL_MASK_FIRE : SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, BASE_ATTACK);
-            CalcAbsorbResist(dmgInfo);
+            Unit::CalcAbsorbResist(dmgInfo);
             absorb = dmgInfo.GetAbsorb();
             resist = dmgInfo.GetResist();
             damage = dmgInfo.GetDamage();
@@ -658,7 +658,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
             break;
     }
 
-    DealDamageMods(this, damage, &absorb);
+    Unit::DealDamageMods(nullptr, this, damage, &absorb);
 
     WorldPackets::CombatLog::EnvironmentalDamageLog packet;
     packet.Victim = GetGUID();
@@ -667,7 +667,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     packet.Absorbed = absorb;
     packet.Resisted = resist;
 
-    uint32 final_damage = DealDamage(this, damage, nullptr, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+    uint32 final_damage = Unit::DealDamage(this, this, damage, nullptr, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 
     packet.LogData.Initialize(this);
     SendCombatLogMessage(&packet);

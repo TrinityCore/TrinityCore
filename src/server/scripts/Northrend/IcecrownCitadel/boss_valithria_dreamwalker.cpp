@@ -373,7 +373,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                         lichKing->CastSpell(lichKing, SPELL_SPAWN_CHEST, false);
 
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_TRIGGER)))
-                        me->Kill(trigger);
+                        Unit::Kill(me, trigger);
                 }
             }
 

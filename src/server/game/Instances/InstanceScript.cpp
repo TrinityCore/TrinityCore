@@ -382,7 +382,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                         for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
                             if (Player* player = i->GetSource())
                                 if (player->IsAlive())
-                                    player->ProcSkillsAndAuras(nullptr, PROC_FLAG_ENCOUNTER_START, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+                                    Unit::ProcSkillsAndAuras(player, nullptr, PROC_FLAG_ENCOUNTER_START, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
                     break;
                 }
                 case FAIL:

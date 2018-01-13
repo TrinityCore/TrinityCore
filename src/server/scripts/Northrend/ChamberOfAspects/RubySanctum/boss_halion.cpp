@@ -452,7 +452,7 @@ class boss_twilight_halion : public CreatureScript
                         halion->LowerPlayerDamageReq(halion->GetMaxHealth());
 
                     if (halion->IsAlive())
-                        killer->Kill(halion);
+                        Unit::Kill(killer, halion);
                 }
 
                 if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))

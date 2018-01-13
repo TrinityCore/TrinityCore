@@ -879,7 +879,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetResistance(SpellSchoolMask mask) const;
         void SetResistance(SpellSchools school, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Resistances, school), val); }
         void SetBonusResistanceMod(SpellSchools school, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BonusResistanceMods, school), val); }
-        float CalculateAverageResistReduction(SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr) const;
+        static float CalculateAverageResistReduction(Unit const* attacker, SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr);
 
         uint64 GetHealth()    const { return m_unitData->Health; }
         uint64 GetMaxHealth() const { return m_unitData->MaxHealth; }
@@ -1019,13 +1019,13 @@ class TC_GAME_API Unit : public WorldObject
         uint16 GetMeleeAnimKitId() const override { return _meleeAnimKitId; }
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = nullptr) const { return (target ? GetLevelForTarget(target) : getLevel()) * 5; }
-        void DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) const;
-        uint32 DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage = nullptr, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = nullptr, bool durabilityLoss = true);
-        void Kill(Unit* victim, bool durabilityLoss = true, bool skipSettingDeathState = false);
-        void KillSelf(bool durabilityLoss = true, bool skipSettingDeathState = false) { Kill(this, durabilityLoss, skipSettingDeathState); }
-        void DealHeal(HealInfo& healInfo);
+        static void DealDamageMods(Unit const* attacker, Unit const* victim, uint32& damage, uint32* absorb);
+        static uint32 DealDamage(Unit* attacker, Unit* victim, uint32 damage, CleanDamage const* cleanDamage = nullptr, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = nullptr, bool durabilityLoss = true);
+        static void Kill(Unit* attacker, Unit* victim, bool durabilityLoss = true, bool skipSettingDeathState = false);
+        void KillSelf(bool durabilityLoss = true, bool skipSettingDeathState = false) { Unit::Kill(this, this, durabilityLoss, skipSettingDeathState); }
+        static void DealHeal(HealInfo& healInfo);
 
-        void ProcSkillsAndAuras(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
+        static void ProcSkillsAndAuras(Unit* actor, Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
                                 uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
                                 DamageInfo* damageInfo, HealInfo* healInfo);
 
@@ -1051,7 +1051,10 @@ class TC_GAME_API Unit : public WorldObject
         // player or player's pet resilience (-1%)
         uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE, 1.0f, 100.0f, damage); }
 
-        void ApplyResilience(Unit const* victim, int32* damage) const;
+        virtual bool CanApplyResilience() const;
+        static void ApplyResilience(Unit const* victim, int32* damage);
+
+        int32 CalculateAOEAvoidance(int32 damage, uint32 schoolMask, Unit* caster) const;
 
         float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, SpellInfo const* spellInfo) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
@@ -1062,7 +1065,9 @@ class TC_GAME_API Unit : public WorldObject
         float GetUnitParryChance(WeaponAttackType attType, Unit const* victim) const;
         float GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) const;
         float GetUnitMissChance(WeaponAttackType attType) const;
-        float GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victim) const;
+        float GetUnitCriticalChanceDone(WeaponAttackType attackType) const;
+        float GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType attackType, float critDone) const;
+        float GetUnitCriticalChanceAgainst(WeaponAttackType attackType, Unit const* victim) const;
         int32 GetMechanicResistChance(SpellInfo const* spellInfo) const;
         bool CanUseAttackType(uint8 attacktype) const;
 
@@ -1701,10 +1706,10 @@ class TC_GAME_API Unit : public WorldObject
 
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
         bool   isBlockCritical();
-        bool   IsSpellCrit(Unit* victim, Spell* spell, AuraEffect const* aurEff, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
-        float  GetUnitSpellCriticalChance(Unit* victim, Spell* spell, AuraEffect const* aurEff, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
-        uint32 SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
-        uint32 SpellCriticalHealingBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
+        float  SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
+        float  SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect const* aurEff, SpellSchoolMask schoolMask, float doneChance, WeaponAttackType attackType = BASE_ATTACK) const;
+        static uint32 SpellCriticalDamageBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim);
+        static uint32 SpellCriticalHealingBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim);
 
         uint32 GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectType damagetype, uint32 CastingTime) const;
         float CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffectType damagetype) const;
@@ -1721,11 +1726,11 @@ class TC_GAME_API Unit : public WorldObject
         bool IsImmunedToDamage(SpellInfo const* spellInfo) const;
         virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const; // redefined in Creature
 
-        bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr, int8 effIndex = -1);
-        uint32 CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = MAX_ATTACK) const;
-        uint32 CalcSpellResistedDamage(Unit* attacker, Unit* victim, uint32 damage, SpellSchoolMask schoolMask, SpellInfo const* spellInfo);
-        void CalcAbsorbResist(DamageInfo& damageInfo);
-        void CalcHealAbsorb(HealInfo& healInfo) const;
+        static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr, int8 effIndex = -1);
+        static uint32 CalcArmorReducedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, uint8 attackerLevel = 0, WeaponAttackType attackType = MAX_ATTACK);
+        static uint32 CalcSpellResistedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellSchoolMask schoolMask, SpellInfo const* spellInfo);
+        static void CalcAbsorbResist(DamageInfo& damageInfo);
+        static void CalcHealAbsorb(HealInfo& healInfo);
 
         void  UpdateSpeed(UnitMoveType mtype);
         float GetSpeed(UnitMoveType mtype) const;

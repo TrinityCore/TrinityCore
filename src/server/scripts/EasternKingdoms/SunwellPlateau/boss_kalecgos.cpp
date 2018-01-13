@@ -477,7 +477,7 @@ struct boss_sathrovarr : public BossAI
         if (spell->Id == SPELL_TAP_CHECK_DAMAGE)
         {
             DoCastSelf(SPELL_TELEPORT_BACK, true);
-            caster->Kill(me);
+            Unit::Kill(caster, me);
         }
     }
 

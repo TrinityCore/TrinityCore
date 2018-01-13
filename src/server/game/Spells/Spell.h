@@ -852,7 +852,7 @@ class TC_GAME_API Spell
         void CallScriptOnHitHandlers();
         void CallScriptAfterHitHandlers();
     public:
-        void CallScriptCalcCritChanceHandlers(Unit* victim, float& chance);
+        void CallScriptCalcCritChanceHandlers(Unit const* victim, float& chance);
     protected:
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);

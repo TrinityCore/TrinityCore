@@ -948,7 +948,7 @@ class boss_yogg_saron : public CreatureScript
                 Talk(SAY_YOGG_SARON_DEATH);
 
                 if (Creature* creature = _instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))
-                    me->Kill(creature);
+                    Unit::Kill(me, creature);
 
                 for (uint8 i = DATA_SARA; i <= DATA_BRAIN_OF_YOGG_SARON; ++i)
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(i)))
@@ -3104,7 +3104,7 @@ class spell_yogg_saron_titanic_storm : public SpellScriptLoader    // 64172
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    GetCaster()->Kill(target);
+                    Unit::Kill(GetCaster(), target);
             }
 
             void Register() override

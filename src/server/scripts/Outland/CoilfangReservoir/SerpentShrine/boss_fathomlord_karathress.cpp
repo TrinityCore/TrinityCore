@@ -348,7 +348,7 @@ public:
 
             Creature* Pet = ObjectAccessor::GetCreature(*me, SummonedPet);
             if (Pet && Pet->IsAlive())
-                Pet->DealDamage(Pet, Pet->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                Pet->KillSelf();
 
             SummonedPet.Clear();
 

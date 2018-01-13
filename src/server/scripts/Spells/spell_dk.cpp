@@ -286,7 +286,7 @@ class spell_dk_dancing_rune_weapon : public AuraScript
         int32 amount = static_cast<int32>(damageInfo->GetDamage()) / 2;
         SpellNonMeleeDamage log(drw, drw->GetVictim(), spellInfo, { spellInfo->GetSpellXSpellVisualId(drw), 0 }, spellInfo->GetSchoolMask());
         log.damage = amount;
-        drw->DealDamage(drw->GetVictim(), amount, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
+        Unit::DealDamage(drw, drw->GetVictim(), amount, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
         drw->SendSpellNonMeleeDamageLog(&log);
     }
 

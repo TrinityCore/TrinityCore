@@ -386,6 +386,19 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
             _effects[effect->EffectIndex] = new AuraEffect(this, effect, baseAmount ? baseAmount + effect->EffectIndex : nullptr, caster);
 }
 
+float Aura::CalcPeriodicCritChance(Unit const* caster) const
+{
+    if (!caster)
+        return 0.0f;
+
+    Player* modOwner = caster->GetSpellModOwner();
+    if (!modOwner)
+        return 0.0f;
+
+    float critChance = modOwner->SpellCritChanceDone(GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
+    return std::max(0.0f, critChance);
+}
+
 Aura::~Aura()
 {
     // unload scripts
@@ -916,13 +929,8 @@ void Aura::SetStackAmount(uint8 stackAmount)
             effect->ChangeAmount(effect->CalculateAmount(caster), false, true);
 
     for (std::list<AuraApplication*>::const_iterator apptItr = applications.begin(); apptItr != applications.end(); ++apptItr)
-    {
         if (!(*apptItr)->GetRemoveMode())
-        {
-            HandleAuraSpecificPeriodics(*apptItr, caster);
             HandleAuraSpecificMods(*apptItr, caster, true, true);
-        }
-    }
 
     SetNeedClientUpdateForTargets();
 }
@@ -1419,55 +1427,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
     }
 }
 
-void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* caster)
-{
-    Unit* target = aurApp->GetTarget();
-
-    if (!caster || aurApp->GetRemoveMode())
-        return;
-
-    for (AuraEffect* effect : GetAuraEffects())
-    {
-        if (!effect || effect->IsAreaAuraEffect() || effect->IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
-            continue;
-
-        switch (effect->GetSpellEffectInfo()->ApplyAuraName)
-        {
-            case SPELL_AURA_PERIODIC_DAMAGE:
-            case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-            case SPELL_AURA_PERIODIC_LEECH:
-            {
-                // ignore non positive values (can be result apply spellmods to aura damage
-                uint32 damage = std::max(effect->GetAmount(), 0);
-
-                // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
-                sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
-
-                effect->SetDonePct(caster->SpellDamagePctDone(target, m_spellInfo, DOT)); // Calculate done percentage first!
-                effect->SetDamage(caster->SpellDamageBonusDone(target, m_spellInfo, damage, DOT, effect->GetSpellEffectInfo(), GetStackAmount()) * effect->GetDonePct());
-                effect->SetCritChance(caster->GetUnitSpellCriticalChance(target, nullptr, effect, m_spellInfo->GetSchoolMask()));
-                break;
-            }
-            case SPELL_AURA_PERIODIC_HEAL:
-            case SPELL_AURA_OBS_MOD_HEALTH:
-            {
-                // ignore non positive values (can be result apply spellmods to aura damage
-                uint32 damage = std::max(effect->GetAmount(), 0);
-
-                // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
-                sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
-
-                effect->SetDonePct(caster->SpellHealingPctDone(target, m_spellInfo)); // Calculate done percentage first!
-                effect->SetDamage(caster->SpellHealingBonusDone(target, m_spellInfo, damage, DOT, effect->GetSpellEffectInfo(), GetStackAmount()) * effect->GetDonePct());
-                effect->SetCritChance(caster->GetUnitSpellCriticalChance(target, nullptr, effect, m_spellInfo->GetSchoolMask()));
-                break;
-            }
-            default:
-                break;
-        }
-    }
-}
-
 bool Aura::CanBeAppliedOn(Unit* target)
 {
     // unit not in world or during remove from world
@@ -1853,7 +1812,7 @@ float Aura::CalcPPMProcChance(Unit* actor) const
     using FSeconds = std::chrono::duration<float, Seconds::period>;
 
     // Formula see http://us.battle.net/wow/en/forum/topic/8197741003#1
-    float ppm = m_spellInfo->CalcProcPPM(actor, m_castItemLevel);
+    float ppm = m_spellInfo->CalcProcPPM(actor, GetCastItemLevel());
     float averageProcInterval = 60.0f / ppm;
 
     std::chrono::steady_clock::time_point currentTime = GameTime::GetGameTimeSteadyPoint();
@@ -2068,7 +2027,7 @@ void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellM
     }
 }
 
-void Aura::CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit* victim, float& critChance)
+void Aura::CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit const* victim, float& critChance)
 {
     for (AuraScript* loadedScript : m_loadedScripts)
     {

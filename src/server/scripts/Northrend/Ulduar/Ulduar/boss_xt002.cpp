@@ -695,7 +695,7 @@ class npc_boombot : public CreatureScript
                     instakill.SpellID = SPELL_BOOM;
                     me->SendMessageToSet(instakill.Write(), false);
 
-                    me->DealDamage(me, me->GetHealth(), nullptr, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    me->KillSelf();
 
                     damage = 0;
 

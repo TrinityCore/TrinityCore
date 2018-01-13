@@ -130,7 +130,7 @@ class boss_faerlina : public CreatureScript
                 {
                     ++_frenzyDispels;
                     Talk(EMOTE_WIDOW_EMBRACE, caster);
-                    me->Kill(caster);
+                    Unit::Kill(me, caster);
                 }
             }
 
