@@ -338,6 +338,91 @@ class npc_worgen_runt : public CreatureScript
         }
 };
 
+/*######
+## Quest 14159 - The Rebel Lord's Arsenal
+######*/
+
+enum TheRebelLordsArsena
+{
+    PHASE_ID_WOUND          = 171,
+    NPC_LORNA_CROWLEY       = 35378,
+    NPC_GENERIC_TRIGGER_LAB = 35374,
+
+    SPELL_SHOOT_INSTAKILL   = 67593,
+    SPELL_COSMETIC_ATTACK   = 42880,
+    SPELL_PULL_TO           = 67357,
+
+    EVENT_COSMETIC_ATTACK   = 1,
+    EVENT_JUMP_TO_PLAYER,
+    EVENT_SHOOT_JOSIAH
+};
+
+Position const josiahJumpPos = { -1796.63f, 1427.73f, 12.4624f };
+
+class npc_josiah_avery : public CreatureScript
+{
+    public:
+        npc_josiah_avery() :  CreatureScript("npc_josiah_avery") { }
+
+        struct npc_josiah_averyAI : public PassiveAI
+        {
+            npc_josiah_averyAI(Creature* creature) : PassiveAI(creature)
+            {
+            }
+            void IsSummonedBy(Unit* summoner) override
+            {
+                me->SetInPhase(PHASE_ID_WOUND, false, true);
+                _playerGuid = summoner->GetGUID();
+                _events.ScheduleEvent(EVENT_COSMETIC_ATTACK, Milliseconds(500));
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                me->DespawnOrUnsummon(Seconds(5));
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch(eventId)
+                    {
+                        case EVENT_COSMETIC_ATTACK:
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
+                            {
+                                DoCast(player, SPELL_COSMETIC_ATTACK);
+                                if (Creature* lorna = me->FindNearestCreature(NPC_LORNA_CROWLEY, 30.0f, true))
+                                    if (Creature* labTrigger = lorna->FindNearestCreature(NPC_GENERIC_TRIGGER_LAB, 5.0f, true))
+                                        labTrigger->CastSpell(player, SPELL_PULL_TO);
+
+                                _events.ScheduleEvent(EVENT_JUMP_TO_PLAYER, Seconds(1));
+                            }
+                            break;
+                        case EVENT_JUMP_TO_PLAYER:
+                            me->GetMotionMaster()->MoveJump(josiahJumpPos, 10.0f, 14.18636f);
+                            _events.ScheduleEvent(EVENT_SHOOT_JOSIAH, Milliseconds(500));
+                            break;
+                        case EVENT_SHOOT_JOSIAH:
+                            if (Creature* lorna = me->FindNearestCreature(NPC_LORNA_CROWLEY, 30.0f, true))
+                                lorna->CastSpell(me, SPELL_SHOOT_INSTAKILL, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        private:
+            ObjectGuid _playerGuid;
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_josiah_averyAI(creature);
+        }
+};
 
 /*######
 ## Quest 14293 - Save Krennan Aranas
@@ -349,6 +434,7 @@ enum GreymanesHorse
 {
     SAY_ANNOUNCE_RESCUE     = 0,
     SAY_RESCUED             = 0,
+    SAY_TRAPPED             = 0,
 
     PATH_KRENNAN_TREE       = 0,
     PATH_KRENNAN_BACK       = 1,
@@ -359,7 +445,8 @@ enum GreymanesHorse
     EVENT_ANNOUNCE_RESCUE,
     EVENT_DISMOUNT_PLAYER,
 
-    NPC_RESCUED_KRENNAN     = 35907
+    NPC_RESCUED_KRENNAN     = 35907,
+    NPC_TRAPPED_KRENNAN     = 35753,
 };
 
 class npc_greymanes_horse : public CreatureScript
@@ -383,7 +470,7 @@ class npc_greymanes_horse : public CreatureScript
             {
                 if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
                 {
-                    me->SetControlled(false, UNIT_STATE_ROOT);
+                    me->SetControlled(true, UNIT_STATE_ROOT);
                     _events.ScheduleEvent(EVENT_START_PATH_1, Seconds(1));
                 }
                 else if (apply && passenger->GetEntry() == NPC_RESCUED_KRENNAN)
@@ -410,6 +497,7 @@ class npc_greymanes_horse : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_START_PATH_1:
+                            me->SetControlled(false, UNIT_STATE_ROOT);
                             _currentPath = PATH_KRENNAN_TREE;
                             me->GetMotionMaster()->MoveSmoothPath(pathSize1, greymanesHorsePath1, pathSize1);
                             break;
@@ -418,10 +506,14 @@ class npc_greymanes_horse : public CreatureScript
                             _events.ScheduleEvent(EVENT_ANNOUNCE_RESCUE, Seconds(2));
                             break;
                         case EVENT_ANNOUNCE_RESCUE:
+                            me->SetControlled(true, UNIT_STATE_ROOT);
                             if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
                                 Talk(SAY_ANNOUNCE_RESCUE, passenger);
+                            if (Creature* krennan = me->FindNearestCreature(NPC_TRAPPED_KRENNAN, 30.0f, true))
+                                krennan->AI()->Talk(SAY_TRAPPED);
                             break;
                         case EVENT_START_PATH_2:
+                            me->SetControlled(true, UNIT_STATE_ROOT);
                             _currentPath = PATH_KRENNAN_BACK;
                             me->GetMotionMaster()->MoveSmoothPath(pathSize2, greymanesHorsePath2, pathSize2);
                             break;
@@ -459,5 +551,6 @@ void AddSC_gilneas_c1()
 {
     new npc_frightened_citizen();
     new npc_worgen_runt();
+    new npc_josiah_avery();
     new npc_greymanes_horse();
 }

@@ -3087,6 +3087,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DB;
     });
 
+    // Pull-to
+    ApplySpellFix({ 67357 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MiscValue = 150;
+    });
+
     // Renewed Hope
     ApplySpellFix({
         57470, // (Rank 1)
