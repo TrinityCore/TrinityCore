@@ -193,7 +193,7 @@ class spell_item_alchemist_stone : public AuraScript
 
         Unit* caster = eventInfo.GetActionTarget();
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddBP0(amount);
+        args.AddSpellBP0(amount);
         caster->CastSpell(nullptr, spellId, args);
     }
 
@@ -438,7 +438,7 @@ class spell_item_blessing_of_ancient_kings : public AuraScript
         else
         {
             CastSpellExtraArgs args(aurEff);
-            args.SpellValueOverrides.AddBP0(absorb);
+            args.AddSpellBP0(absorb);
             GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PROTECTION_OF_ANCIENT_KINGS, args);
         }
     }
@@ -502,7 +502,7 @@ class spell_item_deadly_precision_dummy : public SpellScript
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DEADLY_PRECISION, GetCastDifficulty());
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, spellInfo->StackAmount);
+        args.AddSpellMod(SPELLVALUE_AURA_STACK, spellInfo->StackAmount);
         GetCaster()->CastSpell(GetCaster(), spellInfo->Id, args);
     }
 
@@ -962,7 +962,7 @@ class spell_item_frozen_shadoweave : public AuraScript
 
         Unit* caster = eventInfo.GetActor();
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+        args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
         caster->CastSpell(nullptr, SPELL_SHADOWMEND, args);
     }
 
@@ -1300,7 +1300,7 @@ class spell_item_necrotic_touch : public AuraScript
             return;
 
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+        args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
         GetTarget()->CastSpell(nullptr, SPELL_ITEM_NECROTIC_TOUCH_PROC, args);
     }
 
@@ -1458,7 +1458,7 @@ class spell_item_persistent_shield : public AuraScript
                 return;
 
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddBP0(bp0);
+        args.AddSpellBP0(bp0);
         caster->CastSpell(target, SPELL_PERSISTENT_SHIELD_TRIGGERED, args);
     }
 
@@ -1494,7 +1494,7 @@ class spell_item_pet_healing : public AuraScript
             return;
 
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+        args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
         eventInfo.GetActor()->CastSpell(nullptr, SPELL_HEALTH_LINK, args);
     }
 
@@ -1918,7 +1918,7 @@ class spell_item_swift_hand_justice_dummy : public AuraScript
 
         Unit* caster = eventInfo.GetActor();
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddBP0(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
+        args.AddSpellBP0(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
         caster->CastSpell(nullptr, SPELL_SWIFT_HAND_OF_JUSTICE_HEAL, args);
     }
 

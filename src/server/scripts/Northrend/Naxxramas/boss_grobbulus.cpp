@@ -207,7 +207,7 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
                 int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_RADIUS_MOD, mod);
+                args.AddSpellMod(SPELLVALUE_RADIUS_MOD, mod);
                 GetTarget()->CastSpell(nullptr, triggerSpell, args);
             }
 

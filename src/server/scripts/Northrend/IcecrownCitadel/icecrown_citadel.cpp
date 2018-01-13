@@ -888,7 +888,7 @@ class boss_sister_svalna : public CreatureScript
                         {
                             Talk(EMOTE_SVALNA_IMPALE, target);
                             CastSpellExtraArgs args;
-                            args.SpellValueOverrides.AddBP0(1);
+                            args.AddSpellBP0(1);
                             summon->CastSpell(target, VEHICLE_SPELL_RIDE_HARDCODED, args);
                             summon->AddUnitFlag2(UnitFlags2(UNIT_FLAG2_UNK1 | UNIT_FLAG2_ALLOW_ENEMY_INTERACT));
                         }

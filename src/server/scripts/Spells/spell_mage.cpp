@@ -658,7 +658,7 @@ class spell_mage_ignite : public AuraScript
         amount += eventInfo.GetProcTarget()->GetRemainingPeriodicAmount(eventInfo.GetActor()->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
 
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddBP0(amount);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
         GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_IGNITE, args);
     }
 

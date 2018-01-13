@@ -2501,7 +2501,7 @@ class spell_yogg_saron_empowered : public SpellScriptLoader     // 64161
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, 9);
+                args.AddSpellMod(SPELLVALUE_AURA_STACK, 9);
                 GetTarget()->CastSpell(GetTarget(), SPELL_EMPOWERED_BUFF, args);
             }
 
@@ -2515,7 +2515,7 @@ class spell_yogg_saron_empowered : public SpellScriptLoader     // 64161
                 {
                     target->RemoveAurasDueToSpell(SPELL_WEAKENED);
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, stack);
+                    args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
                     target->CastSpell(target, SPELL_EMPOWERED_BUFF, args);
                 }
                 else if (!target->HealthAbovePct(1) && !target->HasAura(SPELL_WEAKENED))
@@ -2745,7 +2745,7 @@ class spell_yogg_saron_grim_reprisal : public SpellScriptLoader     // 63305
                     return;
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), 60));
+                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), 60));
                 GetTarget()->CastSpell(damageInfo->GetAttacker(), SPELL_GRIM_REPRISAL_DAMAGE, args);
             }
 

@@ -85,7 +85,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
                 if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.SpellValueOverrides.AddBP0(damageInfo->GetDamage());
+                    args.AddSpellBP0(damageInfo->GetDamage());
                     GetTarget()->CastSpell(_procTarget, SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, args);
                 }
             }

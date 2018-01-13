@@ -153,7 +153,7 @@ class spell_marwyn_shared_suffering : public SpellScriptLoader
                     if (remainingDamage > 0)
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT1, remainingDamage);
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT1, remainingDamage);
                         caster->CastSpell(GetTarget(), SPELL_SHARED_SUFFERING_DISPEL, args);
                     }
                 }

@@ -146,7 +146,7 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
                     return;
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(static_cast<int32>(healInfo->GetHeal()), 10));
+                args.AddSpellBP0(CalculatePct(static_cast<int32>(healInfo->GetHeal()), 10));
                 caster->CastSpell(caster, SPELL_PRIEST_ORACULAR_HEAL, args);
             }
 
@@ -352,7 +352,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
                 // remove the aura now, we don't want 40% healing bonus
                 Remove(AURA_REMOVE_BY_ENEMY_SPELL);
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(healAmount);
+                args.AddSpellBP0(healAmount);
                 target->CastSpell(target, SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL, args);
                 absorbAmount = dmgInfo.GetDamage();
             }
@@ -1092,7 +1092,7 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PRIEST_BLESSED_HEALING, SPELL_AURA_PERIODIC_HEAL);
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 caster->CastSpell(target, SPELL_PRIEST_BLESSED_HEALING, args);
             }
 
@@ -1140,8 +1140,8 @@ class spell_pri_vampiric_embrace : public SpellScriptLoader
                 int32 teamHeal = selfHeal / 2;
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, teamHeal);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT1, selfHeal);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, teamHeal);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT1, selfHeal);
                 GetTarget()->CastSpell(nullptr, SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL, args);
             }
 
@@ -1210,7 +1210,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
                         {
                             // backfire damage
                             CastSpellExtraArgs args(aurEff);
-                            args.SpellValueOverrides.AddBP0(aurEff->GetAmount() * 8);
+                            args.AddSpellBP0(aurEff->GetAmount() * 8);
                             caster->CastSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, args);
                         }
                     }

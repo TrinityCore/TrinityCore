@@ -139,7 +139,7 @@ class spell_baron_geddon_inferno : public SpellScriptLoader
                 CastSpellExtraArgs args;
                 args.TriggerFlags = TRIGGERED_FULL_MASK;
                 args.TriggeringAura = aurEff;
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1]);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1]);
                 GetTarget()->CastSpell(nullptr, SPELL_INFERNO_DMG, args);
             }
 

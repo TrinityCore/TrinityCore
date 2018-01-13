@@ -221,7 +221,7 @@ class boss_jaraxxus : public CreatureScript
                         case EVENT_NETHER_POWER:
                         {
                             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                            args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, RAID_MODE(5, 10, 5, 10));
+                            args.AddSpellMod(SPELLVALUE_AURA_STACK, RAID_MODE(5, 10, 5, 10));
                             me->CastSpell(me, SPELL_NETHER_POWER, args);
                             events.ScheduleEvent(EVENT_NETHER_POWER, 40 * IN_MILLISECONDS);
                             break;

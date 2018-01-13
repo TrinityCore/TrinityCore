@@ -1051,7 +1051,7 @@ public:
 
             int32 damage = int32(200 * std::pow(2.0f, GetStackAmount()));
             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-            args.SpellValueOverrides.AddBP0(damage);
+            args.AddSpellBP0(damage);
             caster->CastSpell(caster, SPELL_BITING_COLD_DAMAGE, args);
 
             if (caster->isMoving())

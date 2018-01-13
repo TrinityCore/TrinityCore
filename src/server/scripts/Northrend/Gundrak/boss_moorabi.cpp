@@ -236,7 +236,7 @@ class spell_moorabi_mojo_frenzy : public SpellScriptLoader
                 Unit* owner = GetUnitOwner();
                 int32 castSpeedBonus = (100.0f - owner->GetHealthPct()) * 4; // between 0% and 400% cast speed bonus
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(castSpeedBonus);
+                args.AddSpellBP0(castSpeedBonus);
                 owner->CastSpell(owner, SPELL_MOJO_FRENZY_CAST_SPEED, args);
             }
 

@@ -449,7 +449,7 @@ class spell_warr_item_t10_prot_4p_bonus : public SpellScriptLoader
                 Unit* target = eventInfo.GetActionTarget();
                 int32 bp0 = CalculatePct(target->GetMaxHealth(), GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue());
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(bp0);
+                args.AddSpellBP0(bp0);
                 target->CastSpell(nullptr, SPELL_WARRIOR_STOICISM, args);
             }
 

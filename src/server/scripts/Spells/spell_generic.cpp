@@ -493,7 +493,7 @@ class spell_gen_blood_reserve : public AuraScript
 
         Unit* caster = eventInfo.GetActionTarget();
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+        args.AddSpellBP0(aurEff->GetAmount());
         caster->CastSpell(caster, SPELL_GEN_BLOOD_RESERVE_HEAL, args);
         caster->RemoveAura(SPELL_GEN_BLOOD_RESERVE_AURA);
     }
@@ -782,7 +782,7 @@ class spell_gen_chaos_blast : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-            args.SpellValueOverrides.AddBP0(basepoints0);
+            args.AddSpellBP0(basepoints0);
             caster->CastSpell(target, SPELL_CHAOS_BLAST, args);
         }
     }
@@ -1839,7 +1839,7 @@ class spell_gen_negative_energy_periodic : public AuraScript
         PreventDefaultAction();
 
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, aurEff->GetTickNumber() / 10 + 1);
+        args.AddSpellMod(SPELLVALUE_MAX_TARGETS, aurEff->GetTickNumber() / 10 + 1);
         GetTarget()->CastSpell(nullptr, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, args);
     }
 
@@ -3118,7 +3118,7 @@ class spell_gen_vampiric_touch : public AuraScript
 
         Unit* caster = eventInfo.GetActor();
         CastSpellExtraArgs args(aurEff);
-        args.SpellValueOverrides.AddBP0(damageInfo->GetDamage() / 2);
+        args.AddSpellBP0(damageInfo->GetDamage() / 2);
         caster->CastSpell(caster, SPELL_VAMPIRIC_TOUCH_HEAL, args);
     }
 

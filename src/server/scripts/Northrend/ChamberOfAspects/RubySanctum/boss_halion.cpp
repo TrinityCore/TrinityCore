@@ -1244,13 +1244,13 @@ class npc_combustion_consumption : public CreatureScript
                     return;
 
                 CastSpellExtraArgs args;
-                args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, stackAmount + 1);
+                args.AddSpellMod(SPELLVALUE_AURA_STACK, stackAmount + 1);
                 me->CastSpell(me, SPELL_SCALE_AURA, args);
                 DoCastSelf(_damageSpell);
 
                 int32 damage = 1200 + (stackAmount * 1290); // Needs more research.
                 CastSpellExtraArgs args2;
-                args2.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damage);
+                args2.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
                 summoner->CastSpell(summoner, _explosionSpell, args2);
             }
 
@@ -1518,7 +1518,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
 
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
-                args.SpellValueOverrides.AddMod(SPELLVALUE_RADIUS_MOD, radius);
+                args.AddSpellMod(SPELLVALUE_RADIUS_MOD, radius);
                 caster->CastSpell(nullptr, triggerSpell, args);
             }
 
@@ -1572,7 +1572,7 @@ class spell_halion_marks : public SpellScriptLoader
 
                 // Stacks marker
                 CastSpellExtraArgs args(GetCasterGUID());
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount());
+                args.AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount());
                 GetTarget()->CastSpell(GetTarget(), _summonSpellId, args);
             }
 

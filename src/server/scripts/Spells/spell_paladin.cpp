@@ -818,7 +818,7 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
                         if (!applications.empty())
                         {
                             CastSpellExtraArgs args(aurEff);
-                            args.SpellValueOverrides.AddBP0(heal);
+                            args.AddSpellMod(SPELLVALUE_BASE_POINT0, heal);
                             eventInfo.GetActor()->CastSpell(applications.front()->GetTarget(), SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, args);
                         }
                         return;
@@ -1039,7 +1039,7 @@ class spell_pal_t8_2p_bonus : public SpellScriptLoader
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_HOLY_MENDING, SPELL_AURA_PERIODIC_HEAL);
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 caster->CastSpell(target, SPELL_PALADIN_HOLY_MENDING, args);
             }
 

@@ -145,7 +145,7 @@ public:
         if (!GetTarget()->HasAura(SPELL_DK_VOLATILE_SHIELDING))
         {
             CastSpellExtraArgs args(aurEff);
-            args.SpellValueOverrides.AddBP0(CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
+            args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
             GetTarget()->CastSpell(GetTarget(), SPELL_DK_RUNIC_POWER_ENERGIZE, args);
         }
     }

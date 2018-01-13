@@ -820,7 +820,7 @@ class npc_gas_cloud : public CreatureScript
             void CastMainSpell() override
             {
                 CastSpellExtraArgs args;
-                args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, 10);
+                args.AddSpellMod(SPELLVALUE_AURA_STACK, 10);
                 me->CastSpell(me, SPELL_GASEOUS_BLOAT, args);
             }
 
@@ -852,7 +852,7 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
                     if (!target->HasAura(GetId()))
                     {
                         CastSpellExtraArgs args;
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, 10);
+                        args.AddSpellMod(SPELLVALUE_AURA_STACK, 10);
                         caster->CastSpell(caster, SPELL_GASEOUS_BLOAT, args);
                     }
                 }
@@ -869,7 +869,7 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
                     dmg += mod * i;
 
                 CastSpellExtraArgs args;
-                args.SpellValueOverrides.AddBP0(dmg);
+                args.AddSpellBP0(dmg);
                 caster->CastSpell(nullptr, SPELL_EXPUNGED_GAS, args);
             }
 
@@ -1327,7 +1327,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
 
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = GetCasterGUID();
-                args.SpellValueOverrides.AddBP0(damage);
+                args.AddSpellBP0(damage);
                 GetTarget()->CastSpell(GetTarget(), triggerSpell, args);
             }
 
@@ -1341,7 +1341,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
 
                 int32 heal = healSpellInfo->GetEffect(EFFECT_0)->CalcValue() * GetStackAmount();
                 CastSpellExtraArgs args(GetCasterGUID());
-                args.SpellValueOverrides.AddBP0(heal);
+                args.AddSpellBP0(heal);
                 GetTarget()->CastSpell(GetTarget(), healSpell, args);
             }
 

@@ -1843,7 +1843,7 @@ class spell_igb_rocket_pack : public SpellScriptLoader
                 SpellInfo const* damageInfo = sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE, GetCastDifficulty());
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 args.CastDifficulty = GetCastDifficulty();
-                args.SpellValueOverrides.AddBP0(2 * (damageInfo->GetEffect(EFFECT_0)->CalcValue() + aurEff->GetTickNumber() * aurEff->GetPeriod()));
+                args.AddSpellBP0(2 * (damageInfo->GetEffect(EFFECT_0)->CalcValue() + aurEff->GetTickNumber() * aurEff->GetPeriod()));
                 GetTarget()->CastSpell(nullptr, SPELL_ROCKET_PACK_DAMAGE, args);
                 GetTarget()->CastSpell(nullptr, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
             }
@@ -2254,7 +2254,7 @@ class spell_igb_burning_pitch : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(8000);
+                args.AddSpellBP0(8000);
                 GetCaster()->CastSpell(nullptr, GetEffectValue(), args);
                 GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BURNING_PITCH, TRIGGERED_FULL_MASK);
             }
@@ -2323,7 +2323,7 @@ class spell_igb_rocket_artillery_explosion : public SpellScriptLoader
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.SpellValueOverrides.AddBP0(5000);
+                    args.AddSpellBP0(5000);
                     GetCaster()->CastSpell(nullptr, instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_BURNING_PITCH_DAMAGE_A : SPELL_BURNING_PITCH_DAMAGE_H, args);
                 }
             }

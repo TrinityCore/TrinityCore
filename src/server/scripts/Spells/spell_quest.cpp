@@ -2282,7 +2282,7 @@ class spell_q12919_gymers_grab : public SpellScriptLoader
                 if (!GetHitCreature())
                     return;
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(2);
+                args.AddSpellBP0(2);
                 GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE_GYMER, args);
                 GetHitCreature()->CastSpell(GetHitCreature(), SPELL_GRABBED, true);
             }

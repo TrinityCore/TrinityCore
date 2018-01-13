@@ -44,7 +44,10 @@ class spell_dh_chaos_strike : public AuraScript
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_CHAOS_STRIKE_ENERGIZE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(aurEff->GetAmount()).SetTriggeringAura(aurEff));
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
+        args.SetTriggeringAura(aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_CHAOS_STRIKE_ENERGIZE, args);
     }
 
     void Register() override

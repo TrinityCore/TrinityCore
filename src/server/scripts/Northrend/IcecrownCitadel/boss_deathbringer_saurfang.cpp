@@ -435,7 +435,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                         if (me->GetPower(POWER_ENERGY) != me->GetMaxPower(POWER_ENERGY))
                         {
                             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                            args.SpellValueOverrides.AddBP0(1);
+                            args.AddSpellBP0(1);
                             target->CastSpell(nullptr, SPELL_BLOOD_LINK_DUMMY, args);
                         }
                         break;
@@ -1020,7 +1020,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(GetEffectValue());
+                args.AddSpellBP0(GetEffectValue());
                 GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BLOOD_LINK_POWER, args);
                 PreventHitDefaultEffect(EFFECT_0);
             }

@@ -380,7 +380,7 @@ class boss_freya : public CreatureScript
                     Talk(SAY_AGGRO_WITH_ELDER);
 
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, 150);
+                args.AddSpellMod(SPELLVALUE_AURA_STACK, 150);
                 me->CastSpell(me, SPELL_ATTUNED_TO_NATURE, args);
 
                 events.ScheduleEvent(EVENT_WAVE, 10000);
@@ -757,7 +757,7 @@ class boss_elder_brightleaf : public CreatureScript
                             if (Aura* aura = me->GetAura(SPELL_FLUX_AURA))
                                 stackAmount = aura->GetStackAmount();
                             CastSpellExtraArgs args;
-                            args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, stackAmount);
+                            args.AddSpellMod(SPELLVALUE_MAX_TARGETS, stackAmount);
                             me->CastSpell(me, SPELL_SOLAR_FLARE, args);
                             events.ScheduleEvent(EVENT_SOLAR_FLARE, urand(5000, 10000));
                             break;
@@ -844,7 +844,7 @@ class boss_elder_stonebark : public CreatureScript
                 if (me->HasAura(SPELL_PETRIFIED_BARK))
                 {
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.SpellValueOverrides.AddBP0(damage);
+                    args.AddSpellBP0(damage);
                     who->CastSpell(who, SPELL_PETRIFIED_BARK_DMG, args);
                     damage = 0;
                 }
