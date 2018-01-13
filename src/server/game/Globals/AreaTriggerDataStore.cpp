@@ -243,10 +243,8 @@ void AreaTriggerDataStore::LoadAreaTriggers()
 
         // Skip spawnMask check for transport maps
         if (!sObjectMgr->IsTransportMap(my_temp.map_id) && my_temp.spawn_mask & ~spawnMasks[my_temp.spawn_mask])
-        {
             TC_LOG_ERROR("sql.sql", "Table `areatrigger` has areatrigger (GUID: " UI64FMTD ") that have wrong spawn mask %u including unsupported difficulty modes for map (Id: %u).", my_temp.guid, my_temp.spawn_mask, my_temp.map_id);
-            continue;
-        }
+
         _areaTriggerData[my_temp.map_id].push_back(my_temp);
 
         sObjectMgr->AddAreaTriggerToGrid(my_temp.guid, &my_temp);
