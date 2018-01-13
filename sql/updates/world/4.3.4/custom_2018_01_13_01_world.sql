@@ -16,7 +16,7 @@ INSERT INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `lan
 (35552, 0, 0, 'We need to keep the worgen''s attention in the city, Genn.  It''s the only shot we have for the survivors to make it to Duskhaven.', 12, 0, 100, 66, 0, 19696, 36103, 'Lord Darius Crowley to Player'),
 (35552, 1, 0, 'Not a chance, boy.  Gilneas is going to need its king''s undivided attention.  Can''t have your father wondering whether his child is alive or not.', 12, 0, 100, 66, 0, 19696, 36104, 'Lord Darius Crowley to Player'),
 (35552, 2, 0, 'My men and I will hole up inside the Light''s Dawn Cathedral.  I''ve already given the order and the cannons are on their way.  Lead our people well, Genn.', 12, 0, 100, 66, 0, 19696, 36105, 'Lord Darius Crowley to Player'),
-(35753, 0, 0, 'Help!  Up here!', 14, 0, 100, 0, 0, 19615, 46756, 'Krennan Aranas to Player');
+(35753, 0, 0, 'Help!  Up here!', 14, 0, 100, 0, 0, 0, 46756, 'Krennan Aranas to Player');
 
 UPDATE `creature_template` SET `scriptname`= 'npc_josiah_avery' WHERE `entry`= 35370;
 
