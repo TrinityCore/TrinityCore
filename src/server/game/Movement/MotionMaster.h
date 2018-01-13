@@ -95,6 +95,7 @@ enum RotateDirection
 struct JumpArrivalCastArgs
 {
     uint32 SpellId;
+    ObjectGuid Caster;
     ObjectGuid Target;
 };
 

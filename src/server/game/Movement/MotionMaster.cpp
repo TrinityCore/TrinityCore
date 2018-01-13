@@ -411,14 +411,16 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     init.Launch();
 
     uint32 arrivalSpellId = 0;
+    ObjectGuid arrivalSpellCasterGuid;
     ObjectGuid arrivalSpellTargetGuid;
     if (arrivalCast)
     {
         arrivalSpellId = arrivalCast->SpellId;
+        arrivalSpellCasterGuid = arrivalCast->Caster;
         arrivalSpellTargetGuid = arrivalCast->Target;
     }
 
-    Mutate(new EffectMovementGenerator(id, arrivalSpellId, arrivalSpellTargetGuid), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(id, arrivalSpellId, arrivalSpellCasterGuid, arrivalSpellTargetGuid), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
