@@ -2741,22 +2741,22 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victi
         {
             chance = 5.0f;
 
-            if (IsPet() || IsHunterPet() || IsGuardian())
+            if (GetOwner() && GetOwner()->IsPlayer() && (IsPet() || IsHunterPet() || IsGuardian()))
             {
                 switch (attackType)
                 {
-                case BASE_ATTACK:
-                    chance = GetOwner()->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
-                    break;
-                case OFF_ATTACK:
-                    chance = GetOwner()->GetFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE);
-                    break;
-                case RANGED_ATTACK:
-                    chance = GetOwner()->GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
-                    break;
-                default:
-                    chance = 0.0f;
-                    break;
+                    case BASE_ATTACK:
+                        chance = GetOwner()->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                        break;
+                    case OFF_ATTACK:
+                        chance = GetOwner()->GetFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE);
+                        break;
+                    case RANGED_ATTACK:
+                        chance = GetOwner()->GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
+                        break;
+                    default:
+                        chance = 0.0f;
+                        break;
                 }
             }
             chance += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
