@@ -157,27 +157,27 @@ public:
                 {
                     case NPC_SAFE_TECHNICAN:
                         if (itr->GetDistance2d(-5165.209961f, 713.809021f) <= 1)
-                            Technician = itr;
+                            TechnicianGUID = itr->GetGUID();
                         break;
                     case NPC_DECONTAMINATION_BUNNY:
                         if (itr->GetDistance2d(-5164.919922f, 723.890991f) <= 1)
-                            Bunny[0] = itr;
+                            BunnyGUID[0] = itr->GetGUID();
                         if (itr->GetDistance2d(-5182.560059f, 726.656982f) <= 1)
-                            Bunny[1] = itr;
+                            BunnyGUID[1] = itr->GetGUID();
                         if (itr->GetDistance2d(-5166.350098f, 706.336975f) <= 1)
-                            Bunny[2] = itr;
+                            BunnyGUID[2] = itr->GetGUID();
                         if (itr->GetDistance2d(-5184.040039f, 708.405029f) <= 1)
-                            Bunny[3] = itr;
+                            BunnyGUID[3] = itr->GetGUID();
                         break;
                     case NPC_CLEAN_CANNON:
                         if (itr->GetDistance2d(-5164.209961f, 719.267029f) <= 1)
-                            Cannon[0] = itr;
+                            CannonGUID[0] = itr->GetGUID();
                         if (itr->GetDistance2d(-5165.000000f, 709.453979f) <= 1)
-                            Cannon[1] = itr;
+                            CannonGUID[1] = itr->GetGUID();
                         if (itr->GetDistance2d(-5183.830078f, 722.093994f) <= 1)
-                            Cannon[2] = itr;
+                            CannonGUID[2] = itr->GetGUID();
                         if (itr->GetDistance2d(-5184.470215f, 712.554993f) <= 1)
-                            Cannon[3] = itr;
+                            CannonGUID[3] = itr->GetGUID();
                         break;
                 }
             }
@@ -207,11 +207,10 @@ public:
                                 uiTimer = 3000;
                                 break;
                             case 2:
-                                if (Bunny[0] && Bunny[1])
-                                {
-                                    Bunny[0]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_1, true);
-                                    Bunny[1]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_1, true);
-                                }
+                                for (uint8 i = 0; i < 2; ++i)
+                                    if (Creature* bunny = ObjectAccessor::GetCreature(*me, BunnyGUID[i]))
+                                        bunny->CastSpell(player, SPELL_DECONTAMINATE_STAGE_1, true);
+
                                 ++uiPhase;
                                 uiTimer = 1500;
                                 break;
@@ -226,29 +225,25 @@ public:
                                 uiTimer = 3000;
                                 break;
                             case 5:
-                                if (Cannon[0] && Cannon[1] && Cannon[2] && Cannon[3])
-                                {
-                                    Cannon[0]->CastSpell(player, SPELL_CANNON_BURST, true);
-                                    Cannon[1]->CastSpell(player, SPELL_CANNON_BURST, true);
-                                    Cannon[2]->CastSpell(player, SPELL_CANNON_BURST, true);
-                                    Cannon[3]->CastSpell(player, SPELL_CANNON_BURST, true);
-                                }
+                                for (uint8 i = 0; i < 4; ++i)
+                                    if (Creature* cannon = ObjectAccessor::GetCreature(*me, CannonGUID[i]))
+                                        cannon->CastSpell(player, SPELL_CANNON_BURST, true);
+
                                 ++uiPhase;
                                 uiTimer = 4000;
                                 break;
                             case 6:
-                                if (Technician)
-                                    Technician->AI()->Talk(0);
+                                if (Creature* technician = ObjectAccessor::GetCreature(*me, TechnicianGUID))
+                                    technician->AI()->Talk(0);
                                 me->GetMotionMaster()->MovePoint(4, -5175.04f, 707.2f, 294.4f);
                                 ++uiPhase;
                                 uiTimer = 4000;
                                 break;
                             case 7:
-                                if (Bunny[2] && Bunny[3])
-                                {
-                                    Bunny[2]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_2, true);
-                                    Bunny[3]->CastSpell(player, SPELL_DECONTAMINATE_STAGE_2, true);
-                                }
+                                for (uint8 i = 2; i < 4; ++i)
+                                    if (Creature* bunny = ObjectAccessor::GetCreature(*me, BunnyGUID[i]))
+                                        bunny->CastSpell(player, SPELL_DECONTAMINATE_STAGE_2, true);
+
                                 player->RemoveAurasDueToSpell(SPELL_IRRADIATE);
                                 ++uiPhase;
                                 uiTimer = 1000;
@@ -283,11 +278,9 @@ public:
     private:
         Vehicle* _vehicle;
 
-        //! @Riztazz: extreme shit, can cause crashes in very specific cases
-        //! refactor to use GUIDs
-        Creature* Technician;
-        Creature::Unit* Bunny[4];
-        Creature::Unit* Cannon[4];
+        ObjectGuid TechnicianGUID;
+        ObjectGuid BunnyGUID[4] = {};
+        ObjectGuid CannonGUID[4] = {};
 
         uint32 uiTimer;
         uint32 uiRespawnTimer;
