@@ -122,14 +122,16 @@ struct npc_cameron : public ScriptedAI
             if (Creature* children = ObjectAccessor::GetCreature(*me, _childrenGUIDs[i]))
             {
                 children->SetWalk(true);
-                children->GetMotionMaster()->MovePoint(0, MovePosPositions[i], true, MovePosPositions[i].GetOrientation());
+                children->GetMotionMaster()->MovePoint(0, MovePosPositions.at(i));
+                me->SetHomePosition(MovePosPositions.at(i));
             }
         }
         me->SetWalk(true);
-        me->GetMotionMaster()->MovePoint(0, MovePosPositions.back(), true, MovePosPositions.back().GetOrientation());
+        me->GetMotionMaster()->MovePoint(0, MovePosPositions.back());
+        me->SetHomePosition(MovePosPositions.back());
     }
 
-    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    void WaypointReached(uint32 waypointId, uint32 pathId)
     {
         switch (pathId)
         {
@@ -138,7 +140,7 @@ struct npc_cameron : public ScriptedAI
                 if (waypointId == STORMWIND_WAYPOINT)
                 {
                     me->GetMotionMaster()->MoveRandom(10.f);
-                    _events.ScheduleEvent(EVENT_WP_START_GOLDSHIRE, 11min);
+                    _events.ScheduleEvent(EVENT_WP_START_GOLDSHIRE, Minutes(11));
                 }
 
                 break;
@@ -148,7 +150,7 @@ struct npc_cameron : public ScriptedAI
                 if (waypointId == GOLDSHIRE_WAYPOINT)
                 {
                     me->GetMotionMaster()->MoveRandom(10.f);
-                    _events.ScheduleEvent(EVENT_WP_START_WOODS, 15min);
+                    _events.ScheduleEvent(EVENT_WP_START_WOODS, Minutes(15));
                 }
                 break;
             }
@@ -157,8 +159,8 @@ struct npc_cameron : public ScriptedAI
                 if (waypointId == WOODS_WAYPOINT)
                 {
                     me->GetMotionMaster()->MoveRandom(10.f);
-                    _events.ScheduleEvent(EVENT_WP_START_HOUSE, 6min);
-                    _events.ScheduleEvent(EVENT_WP_START_LISA, 2s);
+                    _events.ScheduleEvent(EVENT_WP_START_HOUSE, Minutes(6));
+                    _events.ScheduleEvent(EVENT_WP_START_LISA, Seconds(2));
                 }
 
                 break;
@@ -167,11 +169,11 @@ struct npc_cameron : public ScriptedAI
             {
                 if (waypointId == HOUSE_WAYPOINT)
                 {
-                    // Move childeren at last point 
+                    // Move childeren at last point
                     MoveTheChildren();
 
                     // After 30 seconds a random sound should play
-                    _events.ScheduleEvent(EVENT_PLAY_SOUNDS, 30s);
+                    _events.ScheduleEvent(EVENT_PLAY_SOUNDS, Seconds(30));
                 }
                 break;
             }
@@ -184,7 +186,7 @@ struct npc_cameron : public ScriptedAI
         {
             // Start event at 7 am
             // Begin pathing
-            _events.ScheduleEvent(EVENT_BEGIN_EVENT, 2s);
+            _events.ScheduleEvent(EVENT_BEGIN_EVENT, Seconds(2));
             _started = true;
         }
         else if (!start && eventId == GAME_EVENT_CHILDEREN_OF_GOLDSHIRE)
