@@ -5043,12 +5043,12 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
     if (log->damage > log->preHitHealth)
         packet.Overkill = log->damage - log->preHitHealth;
     else
-        packet.Overkill = 0;
+        packet.Overkill = -1;
 
     packet.SchoolMask = log->schoolMask;
-    packet.ShieldBlock = log->blocked;
-    packet.Resisted = log->resist;
     packet.Absorbed = log->absorb;
+    packet.Resisted = log->resist;
+    packet.ShieldBlock = log->blocked;
     packet.Periodic = log->periodicLog;
     packet.Flags = log->HitInfo;
 
