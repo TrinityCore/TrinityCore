@@ -285,7 +285,7 @@ class npc_glob_of_viscidus : public CreatureScript
                     {
                         Viscidus->SetVisible(true);
                         if (Viscidus->GetVictim())
-                            Viscidus->EnsureVictim()->Kill(Viscidus);
+                            Unit::Kill(Viscidus->EnsureVictim(), Viscidus);
                     }
                     else
                     {

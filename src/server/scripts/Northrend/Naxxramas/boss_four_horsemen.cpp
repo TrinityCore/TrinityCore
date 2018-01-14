@@ -730,7 +730,7 @@ class spell_four_horsemen_mark : public SpellScriptLoader
                     if (damage)
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddBP0(damage);
+                        args.AddSpellBP0(damage);
                         caster->CastSpell(GetTarget(), SPELL_MARK_DAMAGE, args);
                     }
                 }

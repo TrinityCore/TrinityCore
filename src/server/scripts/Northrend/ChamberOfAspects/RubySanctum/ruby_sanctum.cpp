@@ -198,7 +198,7 @@ class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
                 if (_targetCount && !GetCaster()->HasAura(SPELL_RALLY))
                 {
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, _targetCount);
+                    args.AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount);
                     GetCaster()->CastSpell(GetCaster(), SPELL_RALLY, args);
                 }
             }

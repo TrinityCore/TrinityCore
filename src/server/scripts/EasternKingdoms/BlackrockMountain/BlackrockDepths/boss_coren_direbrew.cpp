@@ -262,7 +262,7 @@ struct boss_coren_direbrew : public BossAI
                 {
                     CastSpellExtraArgs args;
                     args.TriggerFlags = TRIGGERED_FULL_MASK;
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, 1);
+                    args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
                     me->CastSpell(nullptr, SPELL_MOLE_MACHINE_TARGET_PICKER, args);
                     events.Repeat(Seconds(15));
                     break;
