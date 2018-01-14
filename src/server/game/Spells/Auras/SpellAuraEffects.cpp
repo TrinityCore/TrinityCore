@@ -5247,9 +5247,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     // Calculate armor mitigation
     if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
     {
-        uint32 damageReductedArmor = Unit::CalcArmorReducedDamage(caster, target, damage, GetSpellInfo(), GetBase()->GetCasterLevel());
-        cleanDamage.mitigated_damage += damage - damageReductedArmor;
-        damage = damageReductedArmor;
+        uint32 damageReducedArmor = Unit::CalcArmorReducedDamage(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetAttackType(), GetBase()->GetCasterLevel());
+        cleanDamage.mitigated_damage += damage - damageReducedArmor;
+        damage = damageReducedArmor;
     }
 
     if (!GetSpellInfo()->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
@@ -5320,7 +5320,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         caster->SpellHitResult(target, GetSpellInfo(), false) != SPELL_MISS_NONE)
         return;
 
-    CleanDamage cleanDamage = CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
+    CleanDamage cleanDamage = CleanDamage(0, 0, GetSpellInfo()->GetAttackType(), MELEE_HIT_NORMAL);
 
     uint32 stackAmountForBonuses = !GetSpellEffectInfo()->EffectAttributes.HasFlag(SpellEffectAttributes::NoScaleWithStack) ? GetBase()->GetStackAmount() : 1;
 
@@ -5338,9 +5338,9 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     // Calculate armor mitigation
     if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
     {
-        uint32 damageReductedArmor = Unit::CalcArmorReducedDamage(caster, target, damage, GetSpellInfo(), GetBase()->GetCasterLevel());
-        cleanDamage.mitigated_damage += damage - damageReductedArmor;
-        damage = damageReductedArmor;
+        uint32 damageReducedArmor = Unit::CalcArmorReducedDamage(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetAttackType(), GetBase()->GetCasterLevel());
+        cleanDamage.mitigated_damage += damage - damageReducedArmor;
+        damage = damageReducedArmor;
     }
 
     if (!GetSpellInfo()->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
@@ -5354,7 +5354,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         Unit::ApplyResilience(target, &dmg);
     damage = dmg;
 
-    DamageInfo damageInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
+    DamageInfo damageInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, GetSpellInfo()->GetAttackType());
     Unit::CalcAbsorbResist(damageInfo);
 
     uint32 absorb = damageInfo.GetAbsorb();
