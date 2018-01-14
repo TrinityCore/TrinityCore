@@ -103,9 +103,19 @@ DamageInfo::DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo co
 {
 }
 
-DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
-    : m_attacker(dmgInfo.attacker), m_victim(dmgInfo.target), m_damage(dmgInfo.damage), m_spellInfo(nullptr), m_schoolMask(SpellSchoolMask(dmgInfo.damageSchoolMask)),
-    m_damageType(DIRECT_DAMAGE), m_attackType(dmgInfo.attackType), m_absorb(dmgInfo.absorb), m_resist(dmgInfo.resist), m_block(dmgInfo.blocked_amount), m_hitMask(0)
+DamageInfo::DamageInfo(DamageInfo const& dmg1, DamageInfo const& dmg2)
+    : m_attacker(dmg1.m_attacker), m_victim(dmg1.m_victim), m_damage(dmg1.m_damage + dmg2.m_damage), m_spellInfo(dmg1.m_spellInfo), m_schoolMask(SpellSchoolMask(dmg1.m_schoolMask | dmg2.m_schoolMask)),
+    m_damageType(dmg1.m_damageType), m_attackType(dmg1.m_attackType), m_absorb(dmg1.m_absorb + dmg2.m_absorb), m_resist(dmg1.m_resist + dmg2.m_resist), m_block(dmg1.m_block), m_hitMask(dmg1.m_hitMask | dmg2.m_hitMask)
+{
+}
+
+DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo) : DamageInfo(DamageInfo(dmgInfo, 0), DamageInfo(dmgInfo, 1))
+{
+}
+
+DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo, uint8 damageIndex)
+    : m_attacker(dmgInfo.Attacker), m_victim(dmgInfo.Target), m_damage(dmgInfo.Damages[damageIndex].Damage), m_spellInfo(nullptr), m_schoolMask(SpellSchoolMask(dmgInfo.Damages[damageIndex].DamageSchoolMask)),
+    m_damageType(DIRECT_DAMAGE), m_attackType(dmgInfo.AttackType), m_absorb(dmgInfo.Damages[damageIndex].Absorb), m_resist(dmgInfo.Damages[damageIndex].Resist), m_block(dmgInfo.Blocked), m_hitMask(0)
 {
     switch (dmgInfo.TargetState)
     {
@@ -128,7 +138,7 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
 
     bool const damageNullified = (dmgInfo.HitInfo & (HITINFO_FULL_ABSORB | HITINFO_FULL_RESIST)) != 0 ||
         (m_hitMask & (PROC_HIT_IMMUNE | PROC_HIT_FULL_BLOCK)) != 0;
-    switch (dmgInfo.hitOutCome)
+    switch (dmgInfo.HitOutCome)
     {
         case MELEE_HIT_MISS:
             m_hitMask |= PROC_HIT_MISS;
@@ -332,8 +342,11 @@ Unit::Unit(bool isWorldObject) :
 
     for (uint8 i = 0; i < MAX_ATTACK; ++i)
     {
-        m_weaponDamage[i][MINDAMAGE] = BASE_MINDAMAGE;
-        m_weaponDamage[i][MAXDAMAGE] = BASE_MAXDAMAGE;
+        m_weaponDamage[i][MINDAMAGE][0] = BASE_MINDAMAGE;
+        m_weaponDamage[i][MAXDAMAGE][0] = BASE_MAXDAMAGE;
+
+        m_weaponDamage[i][MINDAMAGE][1] = 0.f;
+        m_weaponDamage[i][MAXDAMAGE][1] = 0.f;
     }
 
     for (uint8 i = 0; i < MAX_STATS; ++i)
@@ -1115,23 +1128,28 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss)
 }
 
 /// @todo for melee need create structure as in
-void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType)
+void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType)
 {
-    damageInfo->attacker         = this;
-    damageInfo->target           = victim;
-    damageInfo->damageSchoolMask = GetMeleeDamageSchoolMask();
-    damageInfo->attackType       = attackType;
-    damageInfo->damage           = 0;
-    damageInfo->cleanDamage      = 0;
-    damageInfo->absorb           = 0;
-    damageInfo->resist           = 0;
-    damageInfo->blocked_amount   = 0;
+    damageInfo->Attacker         = this;
+    damageInfo->Target           = victim;
 
-    damageInfo->TargetState      = 0;
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+    {
+        damageInfo->Damages[i].DamageSchoolMask = GetMeleeDamageSchoolMask(attackType, i);
+        damageInfo->Damages[i].Damage = 0;
+        damageInfo->Damages[i].Absorb = 0;
+        damageInfo->Damages[i].Resist = 0;
+    }
+
+    damageInfo->Blocked          = 0;
     damageInfo->HitInfo          = 0;
-    damageInfo->procAttacker     = PROC_FLAG_NONE;
-    damageInfo->procVictim       = PROC_FLAG_NONE;
-    damageInfo->hitOutCome       = MELEE_HIT_EVADE;
+    damageInfo->TargetState      = 0;
+
+    damageInfo->AttackType       = attackType;
+    damageInfo->ProcAttacker     = PROC_FLAG_NONE;
+    damageInfo->ProcVictim       = PROC_FLAG_NONE;
+    damageInfo->CleanDamage      = 0;
+    damageInfo->HitOutCome       = MELEE_HIT_EVADE;
 
     if (!victim)
         return;
@@ -1143,61 +1161,78 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     switch (attackType)
     {
         case BASE_ATTACK:
-            damageInfo->procAttacker = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_MAINHAND_ATTACK;
-            damageInfo->procVictim   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
+            damageInfo->ProcAttacker = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_MAINHAND_ATTACK;
+            damageInfo->ProcVictim   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
             break;
         case OFF_ATTACK:
-            damageInfo->procAttacker = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK;
-            damageInfo->procVictim   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
+            damageInfo->ProcAttacker = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK;
+            damageInfo->ProcVictim   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
             damageInfo->HitInfo      = HITINFO_OFFHAND;
             break;
         default:
             return;
     }
 
-    // Physical Immune check
-    if (damageInfo->target->IsImmunedToDamage(SpellSchoolMask(damageInfo->damageSchoolMask)))
-    {
-       damageInfo->HitInfo       |= HITINFO_NORMALSWING;
-       damageInfo->TargetState    = VICTIMSTATE_IS_IMMUNE;
+    // Physical Immune check (must immune to all damages)
+    uint8 immunedMask = 0;
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+        if (damageInfo->Target->IsImmunedToDamage(SpellSchoolMask(damageInfo->Damages[i].DamageSchoolMask)))
+            immunedMask |= (1 << i);
 
-       damageInfo->damage         = 0;
-       damageInfo->cleanDamage    = 0;
-       return;
+    if (immunedMask == ((1 << 0) | (1 << 1)))
+    {
+        damageInfo->HitInfo |= HITINFO_NORMALSWING;
+        damageInfo->TargetState = VICTIMSTATE_IS_IMMUNE;
+        damageInfo->CleanDamage = 0;
+        return;
     }
 
-    damage += CalculateDamage(damageInfo->attackType, false, true);
-    // Add melee damage bonus
-    damage = MeleeDamageBonusDone(damageInfo->target, damage, damageInfo->attackType);
-    damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
-
-    // Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
-    sScriptMgr->ModifyMeleeDamage(damageInfo->target, damageInfo->attacker, damage);
-
-    // Calculate armor reduction
-    if (Unit::IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
     {
-        damageInfo->damage = Unit::CalcArmorReducedDamage(damageInfo->attacker, damageInfo->target, damage, nullptr, damageInfo->attackType);
-        damageInfo->cleanDamage += damage - damageInfo->damage;
+        if (immunedMask & (1 << i))
+            continue;
+
+        SpellSchoolMask schoolMask = SpellSchoolMask(damageInfo->Damages[i].DamageSchoolMask);
+        bool const addPctMods = (schoolMask & SPELL_SCHOOL_MASK_NORMAL);
+
+        uint32 damage = 0;
+        damage += CalculateDamage(damageInfo->AttackType, false, addPctMods, (1 << i));
+        // Add melee damage bonus
+        damage = MeleeDamageBonusDone(damageInfo->Target, damage, damageInfo->AttackType, nullptr, schoolMask);
+        damage = damageInfo->Target->MeleeDamageBonusTaken(this, damage, damageInfo->AttackType, nullptr, schoolMask);
+
+        // Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
+        sScriptMgr->ModifyMeleeDamage(damageInfo->Target, damageInfo->Attacker, damage);
+
+        // Calculate armor reduction
+        if (Unit::IsDamageReducedByArmor(SpellSchoolMask(damageInfo->Damages[i].DamageSchoolMask)))
+        {
+            damageInfo->Damages[i].Damage = Unit::CalcArmorReducedDamage(damageInfo->Attacker, damageInfo->Target, damage, nullptr, damageInfo->AttackType);
+            damageInfo->CleanDamage += damage - damageInfo->Damages[i].Damage;
+        }
+        else
+            damageInfo->Damages[i].Damage = damage;
     }
-    else
-        damageInfo->damage = damage;
 
-    damageInfo->hitOutCome = RollMeleeOutcomeAgainst(damageInfo->target, damageInfo->attackType);
+    damageInfo->HitOutCome = RollMeleeOutcomeAgainst(damageInfo->Target, damageInfo->AttackType);
 
-    switch (damageInfo->hitOutCome)
+    switch (damageInfo->HitOutCome)
     {
         case MELEE_HIT_EVADE:
             damageInfo->HitInfo        |= HITINFO_MISS | HITINFO_SWINGNOHITSOUND;
             damageInfo->TargetState     = VICTIMSTATE_EVADES;
-            damageInfo->damage = 0;
-            damageInfo->cleanDamage = 0;
+
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+                damageInfo->Damages[i].Damage = 0;
+            damageInfo->CleanDamage = 0;
             return;
         case MELEE_HIT_MISS:
             damageInfo->HitInfo        |= HITINFO_MISS;
             damageInfo->TargetState     = VICTIMSTATE_INTACT;
-            damageInfo->damage          = 0;
-            damageInfo->cleanDamage     = 0;
+
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+                damageInfo->Damages[i].Damage = 0;
+            damageInfo->CleanDamage     = 0;
             break;
         case MELEE_HIT_NORMAL:
             damageInfo->TargetState     = VICTIMSTATE_HIT;
@@ -1208,51 +1243,86 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
             damageInfo->TargetState     = VICTIMSTATE_HIT;
 
             // Crit bonus calc
-            damageInfo->damage += damageInfo->damage;
-            float mod = 0.0f;
-            // Apply SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE or SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE
-            if (damageInfo->attackType == RANGED_ATTACK)
-                mod += damageInfo->target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
-            else
-                mod += damageInfo->target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+            {
+                damageInfo->Damages[i].Damage *= 2;
 
-            // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
-            mod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, damageInfo->damageSchoolMask) - 1.0f) * 100;
+                float mod = 0.0f;
+                // Apply SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE or SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE
+                if (damageInfo->AttackType == RANGED_ATTACK)
+                    mod += damageInfo->Target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
+                else
+                    mod += damageInfo->Target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
 
-            uint32 crTypeMask = damageInfo->target->GetCreatureTypeMask();
+                // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
+                mod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, damageInfo->Damages[i].DamageSchoolMask) - 1.0f) * 100;
 
-            // Increase crit damage from SPELL_AURA_MOD_CRIT_PERCENT_VERSUS
-            mod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_PERCENT_VERSUS, crTypeMask);
-            if (mod != 0)
-                AddPct(damageInfo->damage, mod);
+                uint32 crTypeMask = damageInfo->Target->GetCreatureTypeMask();
+
+                // Increase crit damage from SPELL_AURA_MOD_CRIT_PERCENT_VERSUS
+                mod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_PERCENT_VERSUS, crTypeMask);
+                if (mod != 0)
+                    AddPct(damageInfo->Damages[i].Damage, mod);
+            }
             break;
         }
         case MELEE_HIT_PARRY:
             damageInfo->TargetState  = VICTIMSTATE_PARRY;
-            damageInfo->cleanDamage += damageInfo->damage;
-            damageInfo->damage = 0;
+            damageInfo->CleanDamage = 0;
+
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+            {
+                damageInfo->CleanDamage += damageInfo->Damages[i].Damage;
+                damageInfo->Damages[i].Damage = 0;
+            }
             break;
         case MELEE_HIT_DODGE:
             damageInfo->TargetState  = VICTIMSTATE_DODGE;
-            damageInfo->cleanDamage += damageInfo->damage;
-            damageInfo->damage = 0;
+            damageInfo->CleanDamage = 0;
+
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+            {
+                damageInfo->CleanDamage += damageInfo->Damages[i].Damage;
+                damageInfo->Damages[i].Damage = 0;
+            }
             break;
         case MELEE_HIT_BLOCK:
+        {
             damageInfo->TargetState = VICTIMSTATE_HIT;
             damageInfo->HitInfo    |= HITINFO_BLOCK;
-            damageInfo->blocked_amount = damageInfo->target->GetShieldBlockValue();
+            damageInfo->Blocked     = damageInfo->Target->GetShieldBlockValue();
             // double blocked amount if block is critical
-            if (damageInfo->target->isBlockCritical())
-                damageInfo->blocked_amount += damageInfo->blocked_amount;
-            if (damageInfo->blocked_amount >= damageInfo->damage)
+            if (damageInfo->Target->isBlockCritical())
+                damageInfo->Blocked *= 2;
+
+            uint32 remainingBlock = damageInfo->Blocked;
+            uint8  fullBlockMask = 0;
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
             {
-                damageInfo->TargetState = VICTIMSTATE_BLOCKS;
-                damageInfo->blocked_amount = damageInfo->damage;
+                if (remainingBlock && remainingBlock >= damageInfo->Damages[i].Damage)
+                {
+                    fullBlockMask |= (1 << i);
+
+                    remainingBlock               -= damageInfo->Damages[i].Damage;
+                    damageInfo->CleanDamage      += damageInfo->Damages[i].Damage;
+                    damageInfo->Damages[i].Damage = 0;
+                }
+                else
+                {
+                    damageInfo->CleanDamage       += remainingBlock;
+                    damageInfo->Damages[i].Damage -= remainingBlock;
+                    remainingBlock                 = 0;
+                }
             }
 
-            damageInfo->damage      -= damageInfo->blocked_amount;
-            damageInfo->cleanDamage += damageInfo->blocked_amount;
+            // full block
+            if (fullBlockMask == ((1 << 0) | (1 << 1)))
+            {
+                damageInfo->TargetState = VICTIMSTATE_BLOCKS;
+                damageInfo->Blocked    -= remainingBlock;
+            }
             break;
+        }
         case MELEE_HIT_GLANCING:
         {
             damageInfo->HitInfo     |= HITINFO_GLANCING;
@@ -1266,15 +1336,22 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
             int32 const reductionMax = leveldif * 10;
             int32 const reductionMin = reductionMax - 10;
             float reducePercent = 1.f - irand(reductionMin, reductionMax) / 100.0f;
-            damageInfo->cleanDamage += damageInfo->damage - uint32(reducePercent * damageInfo->damage);
-            damageInfo->damage = uint32(reducePercent * damageInfo->damage);
+
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+            {
+                uint32 reducedDamage = uint32(reducePercent * damageInfo->Damages[i].Damage);
+                damageInfo->CleanDamage += damageInfo->Damages[i].Damage - reducedDamage;
+                damageInfo->Damages[i].Damage = reducedDamage;
+            }
             break;
         }
         case MELEE_HIT_CRUSHING:
             damageInfo->HitInfo     |= HITINFO_CRUSHING;
             damageInfo->TargetState  = VICTIMSTATE_HIT;
+
             // 150% normal damage
-            damageInfo->damage += (damageInfo->damage / 2);
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+                damageInfo->Damages[i].Damage += (damageInfo->Damages[i].Damage / 2);
             break;
         default:
             break;
@@ -1284,39 +1361,62 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     if (!(damageInfo->HitInfo & HITINFO_MISS))
         damageInfo->HitInfo |= HITINFO_AFFECTS_VICTIM;
 
-    int32 resilienceReduction = damageInfo->damage;
-    // attackType is checked already for BASE_ATTACK or OFF_ATTACK so it can't be RANGED_ATTACK here
-    if (CanApplyResilience())
-        Unit::ApplyResilience(victim, nullptr, &resilienceReduction, (damageInfo->hitOutCome == MELEE_HIT_CRIT), CR_CRIT_TAKEN_MELEE);
-    resilienceReduction = damageInfo->damage - resilienceReduction;
-    damageInfo->damage      -= resilienceReduction;
-    damageInfo->cleanDamage += resilienceReduction;
+    uint32 tmpHitInfo[MAX_ITEM_PROTO_DAMAGES] = { };
 
-    // Calculate absorb resist
-    if (int32(damageInfo->damage) > 0)
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
     {
-        damageInfo->procVictim |= PROC_FLAG_TAKEN_DAMAGE;
-        // Calculate absorb & resists
-        DamageInfo dmgInfo(*damageInfo);
-        Unit::CalcAbsorbResist(dmgInfo);
-        damageInfo->absorb = dmgInfo.GetAbsorb();
-        damageInfo->resist = dmgInfo.GetResist();
+        int32 resilienceReduction = damageInfo->Damages[i].Damage;
+        // attackType is checked already for BASE_ATTACK or OFF_ATTACK so it can't be RANGED_ATTACK here
+        if (CanApplyResilience())
+            Unit::ApplyResilience(victim, nullptr, &resilienceReduction, (damageInfo->HitOutCome == MELEE_HIT_CRIT), CR_CRIT_TAKEN_MELEE);
+        resilienceReduction = damageInfo->Damages[i].Damage - resilienceReduction;
+        damageInfo->Damages[i].Damage -= resilienceReduction;
+        damageInfo->CleanDamage += resilienceReduction;
 
-        if (damageInfo->absorb)
-            damageInfo->HitInfo |= (damageInfo->damage - damageInfo->absorb == 0 ? HITINFO_FULL_ABSORB : HITINFO_PARTIAL_ABSORB);
+        // Calculate absorb resist
+        if (int32(damageInfo->Damages[i].Damage) > 0)
+        {
+            damageInfo->ProcVictim |= PROC_FLAG_TAKEN_DAMAGE;
+            // Calculate absorb & resists
+            DamageInfo dmgInfo(*damageInfo, i);
+            Unit::CalcAbsorbResist(dmgInfo);
+            damageInfo->Damages[i].Absorb = dmgInfo.GetAbsorb();
+            damageInfo->Damages[i].Resist = dmgInfo.GetResist();
 
-        if (damageInfo->resist)
-            damageInfo->HitInfo |= (damageInfo->damage - damageInfo->resist == 0 ? HITINFO_FULL_RESIST : HITINFO_PARTIAL_RESIST);
+            if (damageInfo->Damages[i].Absorb)
+                tmpHitInfo[i] |= (damageInfo->Damages[i].Damage - damageInfo->Damages[i].Absorb == 0 ? HITINFO_FULL_ABSORB : HITINFO_PARTIAL_ABSORB);
 
-        damageInfo->damage = dmgInfo.GetDamage();
+            if (damageInfo->Damages[i].Resist)
+                tmpHitInfo[i] |= (damageInfo->Damages[i].Damage - damageInfo->Damages[i].Resist == 0 ? HITINFO_FULL_RESIST : HITINFO_PARTIAL_RESIST);
+
+            damageInfo->CleanDamage += damageInfo->Damages[i].Damage - dmgInfo.GetDamage();
+            damageInfo->Damages[i].Damage = dmgInfo.GetDamage();
+        }
+        else // Impossible get negative result but....
+            damageInfo->Damages[i].Damage = 0;
     }
-    else // Impossible get negative result but....
-        damageInfo->damage = 0;
+
+    // set proper HitInfo flags
+    if ((tmpHitInfo[0] & HITINFO_FULL_ABSORB) != 0)
+    {
+        // only set full absorb whenever both damages were fully absorbed
+        damageInfo->HitInfo |= ((tmpHitInfo[1] & HITINFO_FULL_ABSORB) != 0) ? HITINFO_FULL_ABSORB : HITINFO_PARTIAL_ABSORB;
+    }
+    else
+        damageInfo->HitInfo |= (tmpHitInfo[0] & HITINFO_PARTIAL_ABSORB);
+
+    if (tmpHitInfo[0] == HITINFO_FULL_RESIST)
+    {
+        // only set full resist whenever both damages were fully resisted
+        damageInfo->HitInfo |= ((tmpHitInfo[1] & HITINFO_FULL_RESIST) != 0) ? HITINFO_FULL_RESIST : HITINFO_PARTIAL_RESIST;
+    }
+    else
+        damageInfo->HitInfo |= (tmpHitInfo[0] & HITINFO_FULL_RESIST);
 }
 
 void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 {
-    Unit* victim = damageInfo->target;
+    Unit* victim = damageInfo->Target;
 
     if (!victim->IsAlive() || victim->HasUnitState(UNIT_STATE_IN_FLIGHT) || (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsEvadingAttacks()))
         return;
@@ -1324,7 +1424,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     // Hmmmm dont like this emotes client must by self do all animations
     if (damageInfo->HitInfo & HITINFO_CRITICALHIT)
         victim->HandleEmoteCommand(EMOTE_ONESHOT_WOUND_CRITICAL);
-    if (damageInfo->blocked_amount && damageInfo->TargetState != VICTIMSTATE_BLOCKS)
+    if (damageInfo->Blocked && damageInfo->TargetState != VICTIMSTATE_BLOCKS)
         victim->HandleEmoteCommand(EMOTE_ONESHOT_PARRY_SHIELD);
 
     if (damageInfo->TargetState == VICTIMSTATE_PARRY &&
@@ -1360,12 +1460,15 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         }
     }
 
-    // Call default DealDamage
-    CleanDamage cleanDamage(damageInfo->cleanDamage, damageInfo->absorb, damageInfo->attackType, damageInfo->hitOutCome);
-    Unit::DealDamage(this, victim, damageInfo->damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask), nullptr, durabilityLoss);
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+    {
+        // Call default DealDamage
+        CleanDamage cleanDamage(damageInfo->CleanDamage, damageInfo->Damages[i].Absorb, damageInfo->AttackType, damageInfo->HitOutCome);
+        Unit::DealDamage(this, victim, damageInfo->Damages[i].Damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->Damages[i].DamageSchoolMask), nullptr, durabilityLoss);
+    }
 
     // If this is a creature and it attacks from behind it has a probability to daze it's victim
-    if ((damageInfo->hitOutCome == MELEE_HIT_CRIT || damageInfo->hitOutCome == MELEE_HIT_CRUSHING || damageInfo->hitOutCome == MELEE_HIT_NORMAL || damageInfo->hitOutCome == MELEE_HIT_GLANCING) &&
+    if ((damageInfo->HitOutCome == MELEE_HIT_CRIT || damageInfo->HitOutCome == MELEE_HIT_CRUSHING || damageInfo->HitOutCome == MELEE_HIT_NORMAL || damageInfo->HitOutCome == MELEE_HIT_GLANCING) &&
         GetTypeId() != TYPEID_PLAYER && !ToCreature()->IsControlledByPlayer() && !victim->HasInArc(float(M_PI), this)
         && (victim->GetTypeId() == TYPEID_PLAYER || !victim->ToCreature()->isWorldBoss())&& !victim->IsVehicle())
     {
@@ -1394,7 +1497,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 
     // Do effect if any damage done to target
-    if (damageInfo->damage)
+    if (damageInfo->Damages[0].Damage + damageInfo->Damages[1].Damage)
     {
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
@@ -1540,7 +1643,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     damageReduction /= (1.0f + damageReduction);
 
     RoundToInterval(damageReduction, 0.f, 0.75f);
-    return std::max<uint32>(damage * (1.0f - damageReduction), 1);
+    return std::max<uint32>(damage * (1.0f - damageReduction), 0);
 }
 
 /*static*/ uint32 Unit::CalcSpellResistedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellSchoolMask schoolMask, SpellInfo const* spellInfo)
@@ -1991,22 +2094,24 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         victim = GetMeleeHitRedirectTarget(victim);
 
         CalcDamageInfo damageInfo;
-        CalculateMeleeDamage(victim, 0, &damageInfo, attType);
+        CalculateMeleeDamage(victim, &damageInfo, attType);
         // Send log damage message to client
-        Unit::DealDamageMods(victim, damageInfo.damage, &damageInfo.absorb);
+
+        for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+            Unit::DealDamageMods(victim, damageInfo.Damages[i].Damage, &damageInfo.Damages[i].Absorb);
         SendAttackStateUpdate(&damageInfo);
 
         DealMeleeDamage(&damageInfo, true);
 
         DamageInfo dmgInfo(damageInfo);
-        Unit::ProcSkillsAndAuras(damageInfo.attacker, damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
+        Unit::ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
 
         if (GetTypeId() == TYPEID_PLAYER)
             TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-                GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+                GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), dmgInfo.GetDamage(), dmgInfo.GetAbsorb(), dmgInfo.GetBlock(), dmgInfo.GetResist());
         else
             TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (NPC)    %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-                GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+                GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), dmgInfo.GetDamage(), dmgInfo.GetAbsorb(), dmgInfo.GetBlock(), dmgInfo.GetResist());
     }
 }
 
@@ -2031,24 +2136,29 @@ void Unit::FakeAttackerStateUpdate(Unit* victim, WeaponAttackType attType /*= BA
         SetFacingToObject(victim, false); // update client side facing to face the target (prevents visual glitches when casting untargeted spells)
 
     CalcDamageInfo damageInfo;
-    damageInfo.attacker = this;
-    damageInfo.target = victim;
-    damageInfo.damageSchoolMask = GetMeleeDamageSchoolMask();
-    damageInfo.attackType = attType;
-    damageInfo.damage = 0;
-    damageInfo.cleanDamage = 0;
-    damageInfo.absorb = 0;
-    damageInfo.resist = 0;
-    damageInfo.blocked_amount = 0;
+    damageInfo.Attacker = this;
+    damageInfo.Target = victim;
+
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    {
+        damageInfo.Damages[i].DamageSchoolMask = GetMeleeDamageSchoolMask(attType, i);
+        damageInfo.Damages[i].Damage = 0;
+        damageInfo.Damages[i].Absorb = 0;
+        damageInfo.Damages[i].Resist = 0;
+    }
+
+    damageInfo.AttackType = attType;
+    damageInfo.CleanDamage = 0;
+    damageInfo.Blocked = 0;
 
     damageInfo.TargetState = VICTIMSTATE_HIT;
     damageInfo.HitInfo = HITINFO_AFFECTS_VICTIM | HITINFO_NORMALSWING | HITINFO_FAKE_DAMAGE;
     if (attType == OFF_ATTACK)
         damageInfo.HitInfo |= HITINFO_OFFHAND;
 
-    damageInfo.procAttacker = PROC_FLAG_NONE;
-    damageInfo.procVictim = PROC_FLAG_NONE;
-    damageInfo.hitOutCome = MELEE_HIT_NORMAL;
+    damageInfo.ProcAttacker = PROC_FLAG_NONE;
+    damageInfo.ProcVictim = PROC_FLAG_NONE;
+    damageInfo.HitOutCome = MELEE_HIT_NORMAL;
 
     SendAttackStateUpdate(&damageInfo);
 }
@@ -2190,13 +2300,28 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     return MELEE_HIT_NORMAL;
 }
 
-uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct) const
+uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, uint8 itemDamagesMask /*= 0*/) const
 {
     float minDamage = 0.0f;
     float maxDamage = 0.0f;
 
-    if (normalized || !addTotalPct)
-        CalculateMinMaxDamage(attType, normalized, addTotalPct, minDamage, maxDamage);
+    if (normalized || !addTotalPct || itemDamagesMask)
+    {
+        // get both by default
+        if (!itemDamagesMask)
+            itemDamagesMask = (1 << 0) | (1 << 1);
+
+        for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+        {
+            if (itemDamagesMask & (1 << i))
+            {
+                float minTmp, maxTmp;
+                CalculateMinMaxDamage(attType, normalized, addTotalPct, minTmp, maxTmp, i);
+                minDamage += minTmp;
+                maxDamage += maxTmp;
+            }
+        }
+    }
     else
     {
         switch (attType)
@@ -2223,9 +2348,6 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
 
     if (minDamage > maxDamage)
         std::swap(minDamage, maxDamage);
-
-    if (maxDamage == 0.0f)
-        maxDamage = 5.0f;
 
     return urand(uint32(minDamage), uint32(maxDamage));
 }
@@ -5338,36 +5460,39 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
-    TC_LOG_DEBUG("entities.unit", "WORLD: Sending SMSG_ATTACKERSTATEUPDATE");
+    uint32 count = 1;
+    if (damageInfo->Damages[1].Damage || damageInfo->Damages[1].Absorb || damageInfo->Damages[1].Resist)
+        ++count;
 
-    uint32 const count = 1;
-    size_t const maxsize = 4+5+5+4+4+1+4+4+4+4+4+1+4+4+4+4+4*12;
-    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, maxsize);    // we guess size
+    // guess size
+    size_t const maxsize = 4+5+5+4+4+1+(4+4+4)*2+4*2+4*2+1+4+4+4+4+4*12;
+    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, maxsize);
+
     data << uint32(damageInfo->HitInfo);
-    data << damageInfo->attacker->GetPackGUID();
-    data << damageInfo->target->GetPackGUID();
-    data << uint32(damageInfo->damage);                     // Full damage
-    int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
+    data << damageInfo->Attacker->GetPackGUID();
+    data << damageInfo->Target->GetPackGUID();
+    data << uint32(damageInfo->Damages[0].Damage + damageInfo->Damages[1].Damage); // Full damage
+    int32 overkill = damageInfo->Damages[0].Damage + damageInfo->Damages[1].Damage - damageInfo->Target->GetHealth();
     data << uint32(overkill < 0 ? 0 : overkill);            // Overkill
     data << uint8(count);                                   // Sub damage count
 
     for (uint32 i = 0; i < count; ++i)
     {
-        data << uint32(damageInfo->damageSchoolMask);       // School of sub damage
-        data << float(damageInfo->damage);                  // sub damage
-        data << uint32(damageInfo->damage);                 // Sub Damage
+        data << uint32(damageInfo->Damages[i].DamageSchoolMask);       // School of sub damage
+        data << float(damageInfo->Damages[i].Damage);                  // sub damage
+        data << uint32(damageInfo->Damages[i].Damage);                 // Sub Damage
     }
 
     if (damageInfo->HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
     {
         for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->absorb);             // Absorb
+            data << uint32(damageInfo->Damages[i].Absorb);             // Absorb
     }
 
     if (damageInfo->HitInfo & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
     {
         for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->resist);             // Resist
+            data << uint32(damageInfo->Damages[i].Resist);             // Resist
     }
 
     data << uint8(damageInfo->TargetState);
@@ -5375,7 +5500,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     data << uint32(0);  // Melee spellid
 
     if (damageInfo->HitInfo & HITINFO_BLOCK)
-        data << uint32(damageInfo->blocked_amount);
+        data << uint32(damageInfo->Blocked);
 
     if (damageInfo->HitInfo & HITINFO_RAGE_GAIN)
         data << uint32(0);
@@ -5404,14 +5529,21 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
 {
     CalcDamageInfo dmgInfo;
     dmgInfo.HitInfo = HitInfo;
-    dmgInfo.attacker = this;
-    dmgInfo.target = target;
-    dmgInfo.damage = Damage - AbsorbDamage - Resist - BlockedAmount;
-    dmgInfo.damageSchoolMask = damageSchoolMask;
-    dmgInfo.absorb = AbsorbDamage;
-    dmgInfo.resist = Resist;
+    dmgInfo.Attacker = this;
+    dmgInfo.Target = target;
+
+    dmgInfo.Damages[0].Damage = Damage - AbsorbDamage - Resist - BlockedAmount;
+    dmgInfo.Damages[0].DamageSchoolMask = damageSchoolMask;
+    dmgInfo.Damages[0].Absorb = AbsorbDamage;
+    dmgInfo.Damages[0].Resist = Resist;
+
+    dmgInfo.Damages[1].Damage = 0;
+    dmgInfo.Damages[1].DamageSchoolMask = 0;
+    dmgInfo.Damages[1].Absorb = 0;
+    dmgInfo.Damages[1].Resist = 0;
+
     dmgInfo.TargetState = TargetState;
-    dmgInfo.blocked_amount = BlockedAmount;
+    dmgInfo.Blocked = BlockedAmount;
     SendAttackStateUpdate(&dmgInfo);
 }
 
@@ -8103,7 +8235,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit
     return false;
 }
 
-uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto)
+uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto /*= nullptr*/, SpellSchoolMask damageSchoolMask /*= SPELL_SCHOOL_MASK_NORMAL*/)
 {
     if (!victim || pdamage == 0)
         return 0;
@@ -8146,21 +8278,23 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
 
-    // Some spells don't benefit from pct done mods
-    if (spellProto && !spellProto->HasAttribute(SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS))
+    SpellSchoolMask schoolMask = spellProto ? spellProto->GetSchoolMask() : damageSchoolMask;
+
+    // mods for SPELL_SCHOOL_MASK_NORMAL are already factored in base melee damage calculation
+    if (!(schoolMask & SPELL_SCHOOL_MASK_NORMAL))
     {
-        // mods for SPELL_SCHOOL_MASK_NORMAL are already factored in base melee damage calculation
-        if (!(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
+        // Some spells don't benefit from pct done mods
+        if (!spellProto || !spellProto->HasAttribute(SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS))
         {
             float maxModDamagePercentSchool = 0.0f;
             if (GetTypeId() == TYPEID_PLAYER)
             {
                 for (uint32 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-                    if (spellProto->GetSchoolMask() & (1 << i))
+                    if (schoolMask & (1 << i))
                         maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
             }
             else
-                maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, spellProto->GetSchoolMask());
+                maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, schoolMask);
 
             DoneTotalMod *= maxModDamagePercentSchool;
         }
@@ -8264,7 +8398,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
-uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto)
+uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto /*= nullptr*/, SpellSchoolMask damageSchoolMask /*= SPELL_SCHOOL_MASK_NORMAL*/)
 {
     if (pdamage == 0)
         return 0;
@@ -8351,7 +8485,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     // Sanctified Wrath (bypass damage reduction)
     if (attacker && TakenTotalMod < 1.0f)
     {
-        SpellSchoolMask const attackSchoolMask = spellProto ? spellProto->GetSchoolMask() : SPELL_SCHOOL_MASK_NORMAL;
+        SpellSchoolMask const attackSchoolMask = spellProto ? spellProto->GetSchoolMask() : damageSchoolMask;
 
         float damageReduction = 1.0f - TakenTotalMod;
         Unit::AuraEffectList const& casterIgnoreResist = attacker->GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
@@ -10042,12 +10176,12 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
     }
 }
 
-float Unit::GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type) const
+float Unit::GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type, uint8 damageIndex /*= 0*/) const
 {
     if (attType == OFF_ATTACK && !haveOffhandWeapon())
         return 0.0f;
 
-    return m_weaponDamage[attType][type];
+    return m_weaponDamage[attType][type][damageIndex];
 }
 
 bool Unit::CanFreeMove() const
@@ -10851,12 +10985,6 @@ void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTrigg
     }
 }
 
-void Unit::TriggerAurasProcOnEvent(CalcDamageInfo& damageInfo)
-{
-    DamageInfo dmgInfo = DamageInfo(damageInfo);
-    TriggerAurasProcOnEvent(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
-}
-
 void Unit::TriggerAurasProcOnEvent(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
 {
     // prepare data for self trigger
@@ -10921,11 +11049,6 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
 
     if (disableProcs)
         SetCantProc(false);
-}
-
-SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
-{
-    return SPELL_SCHOOL_MASK_NORMAL;
 }
 
 ObjectGuid Unit::GetCharmerOrOwnerGUID() const

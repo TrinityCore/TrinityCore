@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "ItemTemplate.h"
 #include "Optional.h"
 #include "Player.h"
 #include "Random.h"
@@ -50,7 +51,7 @@ enum WarriorSpells
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF        = 65156,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
-    SPELL_WARRIOR_RETALIATION_DAMAGE                = 22858,
+    SPELL_WARRIOR_RETALIATION_DAMAGE                = 20240,
     SPELL_WARRIOR_SLAM                              = 50783,
     SPELL_WARRIOR_SLAM_GCD_REDUCED                  = 71072,
     SPELL_WARRIOR_SUDDEN_DEATH_R1                   = 29723,
@@ -743,8 +744,14 @@ class spell_warr_rend : public SpellScriptLoader
                     // $0.2 * (($MWB + $mwb) / 2 + $AP / 14 * $MWS) bonus per tick
                     float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
                     int32 mws = caster->GetAttackTime(BASE_ATTACK);
-                    float mwbMin = caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
-                    float mwbMax = caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+                    float mwbMin = 0.f;
+                    float mwbMax = 0.f;
+                    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+                    {
+                        mwbMin += caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE, i);
+                        mwbMax += caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE, i);
+                    }
+
                     float mwb = ((mwbMin + mwbMax) / 2 + ap * mws / 14000) * 0.2f;
                     amount += int32(caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), mwb));
 
