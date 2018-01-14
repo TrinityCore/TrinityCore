@@ -7013,7 +7013,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             if (!(aurEff->GetMiscValue() & spellProto->GetSchoolMask()))
                 continue;
 
-            ApplyPct(damageReduction, aurEff->GetAmount());
+            AddPct(damageReduction, -aurEff->GetAmount());
         }
 
         TakenTotalMod = 1.0f - damageReduction;
@@ -7931,7 +7931,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
             if (!(aurEff->GetMiscValue() & attackSchoolMask))
                 continue;
 
-            ApplyPct(damageReduction, aurEff->GetAmount());
+            AddPct(damageReduction, -aurEff->GetAmount());
         }
 
         TakenTotalMod = 1.0f - damageReduction;
