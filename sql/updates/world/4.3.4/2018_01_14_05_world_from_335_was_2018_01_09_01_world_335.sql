@@ -1,3 +1,4 @@
+/*
 -- Chemist Cuely
 DELETE FROM `creature_text` WHERE `CreatureID`=8390;
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
@@ -40,3 +41,4 @@ UPDATE `quest_offer_reward` SET `Emote1`=1 WHERE `ID`=3569;
 
 -- Quest "Seeping Corruption (Part 3)"
 UPDATE `quest_offer_reward` SET `Emote1`=4, `Emote2`=11, `RewardText`="I never dreamed the elixir would take hold that quickly. Thank you, $n. I will get to work on the rest of these samples right away. I'm sure they'll be usable by the Lady Sylvanas and the Forsaken soon enough." WHERE `ID`=3570;
+*/

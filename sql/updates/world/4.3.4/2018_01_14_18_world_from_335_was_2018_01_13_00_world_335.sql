@@ -1,3 +1,4 @@
+--
 DELETE FROM `game_event` WHERE `eventEntry`=76;
 INSERT INTO `game_event` (`eventEntry`, `start_time`, `end_time`, `occurence`, `length`, `holiday`, `holidayStage`, `description`, `world_event`, `announce`) VALUES
 (76, '2018-01-01 07:00:00', '2020-01-01 08:00:00', 1440, 60, 0, 0, 'Childeren of Goldshire', 0, 2);

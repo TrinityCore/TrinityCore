@@ -1,3 +1,4 @@
+/*
 -- Witch Doctor Uzer'i
 DELETE FROM `creature_text` WHERE `CreatureID`=8115 AND `GroupID` IN (0,1);
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
@@ -22,3 +23,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (811500,9,10,0,0,0,100,0,3000,3000,0,0,1,1,0,0,0,0,0,7,0,0,0,0,0,0,0,"Witch Doctor Uzer'i - On Script - Say Line 1"),
 (811500,9,11,0,0,0,100,0,0,0,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,4.72984,"Witch Doctor Uzer'i - On Script - Set Orientation"),
 (811500,9,12,0,0,0,100,0,0,0,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Witch Doctor Uzer'i - On Script - Add Npc Flag Questgiver+Gossip");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Remove unique items from reference table 24077
 DELETE FROM `reference_loot_template` WHERE `Entry`=24077 AND `Item` IN (827, 1214, 1219, 1405, 1925, 1928, 1958, 1959, 4676);
 -- Add former items from reference table 24077 to their proper NPCs
@@ -15,3 +16,4 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Mi
 (624, 1958, 0.1, 1, 1, 1, 2, 'Undead Excavator - Petrified Shinbone'),
 (624, 4676, 0.1, 1, 1, 1, 2, 'Undead Excavator - Skeletal Gauntlets'),
 (625, 1958, 0.1, 1, 1, 1, 0, 'Undead Dynamiter - Petrified Shinbone');
+*/
