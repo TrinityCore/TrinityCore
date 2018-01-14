@@ -2139,7 +2139,7 @@ void Unit::FakeAttackerStateUpdate(Unit* victim, WeaponAttackType attType /*= BA
     damageInfo.Attacker = this;
     damageInfo.Target = victim;
 
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
     {
         damageInfo.Damages[i].DamageSchoolMask = GetMeleeDamageSchoolMask(attType, i);
         damageInfo.Damages[i].Damage = 0;
