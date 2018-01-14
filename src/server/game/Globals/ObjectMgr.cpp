@@ -4694,6 +4694,7 @@ void ObjectMgr::LoadQuests()
     }
 
     sWorldQuestMgr->LoadWorldQuestTemplates();
+    sWorldQuestMgr->LoadWorldQuestRewardTemplates();
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " quests definitions in %u ms", _questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }

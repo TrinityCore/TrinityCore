@@ -678,12 +678,9 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
 void WorldSession::HandleQueryQuestRewards(WorldPackets::Quest::QueryQuestReward& packet)
 {
     WorldPackets::Quest::QueryQuestRewardResponse response;
-    response.QuestID = packet.QuestID;
-    response.Unk1 = packet.Unk;
-    /* WorldPackets::Quest::QueryQuestRewardResponse::ItemReward item;
-    item.Item.ItemID = packet.ItemID;
-    item.Quantity = packet.Quantity;
-    response.ItemRewards.push_back(item); */
+    response.QuestID    = packet.QuestID;
+    response.Unk1       = packet.Unk;
+    sWorldQuestMgr->BuildRewardPacket(GetPlayer(), response.QuestID, response);
     SendPacket(response.Write());
 }
 

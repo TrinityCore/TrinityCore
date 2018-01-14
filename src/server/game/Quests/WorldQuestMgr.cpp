@@ -79,6 +79,27 @@ void WorldQuestMgr::LoadWorldQuestTemplates()
         TC_LOG_ERROR("server.loading", "World Quest: There is %lu emissary quests but %u needed...", _emissaryWorldQuestTemplates.size(), uint32(WORLD_QUEST_EMISSARY));
 }
 
+void WorldQuestMgr::LoadWorldQuestRewardTemplates()
+{
+    QueryResult result = WorldDatabase.Query("SELECT id, questType, rewardType - 1 AS rewardType, rewardId, rewardCount FROM world_quest_reward");
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        WorldQuestReward worldQuestReward = WorldQuestReward(fields[0].GetUInt32(),
+                                                             fields[1].GetUInt8(),
+                                                             fields[2].GetUInt8(),
+                                                             fields[3].GetUInt32(),
+                                                             fields[4].GetUInt32());
+
+        _worldQuestRewards[worldQuestReward.Id].push_back(worldQuestReward);
+        _worldQuestRewardByQuestInfos[worldQuestReward.QuestType].push_back(worldQuestReward.Id);
+    } while (result->NextRow());
+}
+
 void WorldQuestMgr::LoadActiveWorldQuests()
 {
     // not asynch, only at startup
@@ -96,7 +117,8 @@ void WorldQuestMgr::LoadActiveWorldQuests()
         Field* fields = result->Fetch();
 
         uint32 questId      = fields[0].GetUInt32();
-        uint32 startTime    = fields[1].GetUInt32();
+        uint32 rewardId     = fields[1].GetUInt32();
+        uint32 startTime    = fields[2].GetUInt32();
 
         WorldQuestTemplate* worldQuestTemplate = GetWorldQuestTemplate(questId);
         if (!worldQuestTemplate)
@@ -105,7 +127,7 @@ void WorldQuestMgr::LoadActiveWorldQuests()
             continue;
         }
 
-        ActiveWorldQuest* activeWorldQuest = new ActiveWorldQuest(questId, startTime);
+        ActiveWorldQuest* activeWorldQuest = new ActiveWorldQuest(questId, rewardId, startTime);
         _activeWorldQuests[worldQuestTemplate->QuestId] = activeWorldQuest;
 
     } while (result->NextRow());
@@ -162,7 +184,9 @@ void WorldQuestMgr::ActivateQuest(WorldQuestTemplate* worldQuestTemplate)
     if (IsQuestActive(worldQuestTemplate->QuestId))
         return;
 
-    ActiveWorldQuest* activeWorldQuest = new ActiveWorldQuest(worldQuestTemplate->QuestId, time(nullptr));
+    uint32 rewardId = GetRandomRewardForQuestType(quest->GetQuestInfoID());
+
+    ActiveWorldQuest* activeWorldQuest = new ActiveWorldQuest(worldQuestTemplate->QuestId, rewardId, time(nullptr));
     _activeWorldQuests[worldQuestTemplate->QuestId] = activeWorldQuest;
 
     // We add Emissary Quests to all eligible players
@@ -179,7 +203,8 @@ void WorldQuestMgr::ActivateQuest(WorldQuestTemplate* worldQuestTemplate)
     PreparedStatement* stmt = nullptr;
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_WORLD_QUEST);
     stmt->setUInt32(0, activeWorldQuest->QuestId);
-    stmt->setUInt32(1, activeWorldQuest->StartTime);
+    stmt->setUInt32(1, activeWorldQuest->RewardId);
+    stmt->setUInt32(2, activeWorldQuest->StartTime);
     CharacterDatabase.Execute(stmt);
 }
 
@@ -221,9 +246,61 @@ void WorldQuestMgr::DisableQuest(ActiveWorldQuest* activeWorldQuest, bool delete
         _activeWorldQuests.erase(activeWorldQuest->QuestId);
 }
 
+ActiveWorldQuest const* WorldQuestMgr::GetQuestActive(uint32 questId)
+{
+    auto activeWorldQuestItr = _activeWorldQuests.find(questId);
+    if (activeWorldQuestItr != _activeWorldQuests.end())
+        return activeWorldQuestItr->second;
+
+    return nullptr;
+}
+
 bool WorldQuestMgr::IsQuestActive(uint32 questId)
 {
-    return _activeWorldQuests.find(questId) != _activeWorldQuests.end();
+    return GetQuestActive(questId) != nullptr;
+}
+
+void WorldQuestMgr::RewardQuestForPlayer(Player* player, uint32 questId)
+{
+    ActiveWorldQuest const* activeWorldQuest = sWorldQuestMgr->GetQuestActive(questId);
+    if (!activeWorldQuest)
+        return;
+
+    std::vector<WorldQuestReward const*> worldQuestRewards = sWorldQuestMgr->GetRewardsForPlayerById(player, activeWorldQuest->RewardId);
+    for (WorldQuestReward const* worldQuestReward : worldQuestRewards)
+    {
+        switch (worldQuestReward->RewardType)
+        {
+            case WORLD_QUEST_REWARD_ITEM:
+            {
+                ItemPosCountVec dest;
+                if (player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, worldQuestReward->RewardId, worldQuestReward->RewardCount) == EQUIP_ERR_OK)
+                {
+                    std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, 0);
+
+                    Item* item = player->StoreNewItem(dest, worldQuestReward->RewardId, true, GenerateItemRandomPropertyId(worldQuestReward->RewardId), GuidSet(), 0, bonusListIDs);
+                    player->SendNewItem(item, worldQuestReward->RewardCount, true, false);
+                }
+                break;
+            }
+            case WORLD_QUEST_REWARD_CURRENCY:
+            {
+                player->ModifyCurrency(worldQuestReward->RewardId, worldQuestReward->RewardCount);
+                break;
+            }
+            case WORLD_QUEST_REWARD_GOLD:
+            {
+                uint64 moneyRew = worldQuestReward->RewardCount * sWorld->getRate(RATE_MONEY_QUEST);
+                player->ModifyMoney(moneyRew);
+
+                if (moneyRew > 0)
+                    player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD, uint32(moneyRew));
+                break;
+            }
+            default:
+                break;
+        }
+    }
 }
 
 WorldQuestTemplate* WorldQuestMgr::GetWorldQuestTemplate(uint32 questId)
@@ -247,6 +324,42 @@ uint32 WorldQuestMgr::GetActiveQuestsCount()
     return _activeWorldQuests.size();
 }
 
+uint32 WorldQuestMgr::GetRandomRewardForQuestType(uint32 questType)
+{
+    auto rewardByQuestInfosItr = _worldQuestRewardByQuestInfos.find(questType);
+    if (rewardByQuestInfosItr == _worldQuestRewardByQuestInfos.end())
+        return 0;
+
+    return Trinity::Containers::SelectRandomContainerElement(rewardByQuestInfosItr->second);
+}
+
+std::vector<WorldQuestReward const*> WorldQuestMgr::GetRewardsForPlayerById(Player* player, uint32 rewardId)
+{
+    std::vector<WorldQuestReward const*> rewards;
+
+    auto rewardsItr = _worldQuestRewards.find(rewardId);
+    if (rewardsItr == _worldQuestRewards.end())
+        return rewards;
+
+    for (WorldQuestReward const& reward : rewardsItr->second)
+    {
+        switch (reward.RewardType)
+        {
+            case WORLD_QUEST_REWARD_ITEM:
+            {
+                if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(reward.RewardId))
+                    if (proto->IsUsableByLootSpecialization(player, false))
+                        rewards.push_back(&reward);
+                break;
+            }
+            default:
+                rewards.push_back(&reward);
+        }
+    }
+
+    return rewards;
+}
+
 void WorldQuestMgr::BuildPacket(Player* player, WorldPackets::Quest::WorldQuestUpdate& packet)
 {
     WorldPackets::Quest::WorldQuestUpdateInfo quest;
@@ -264,6 +377,47 @@ void WorldQuestMgr::BuildPacket(Player* player, WorldPackets::Quest::WorldQuestU
             quest.Timer         = worldQuestTemplate->Duration;
             quest.Value         = worldQuestTemplate->Value;
             packet.WorldQuestUpdates.push_back(quest);
+        }
+    }
+}
+
+void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPackets::Quest::QueryQuestRewardResponse& packet)
+{
+    ActiveWorldQuest const* activeWorldQuest = GetQuestActive(questId);
+    if (!activeWorldQuest)
+        return;
+
+    std::vector<WorldQuestReward const*> worldQuestRewards = GetRewardsForPlayerById(player, activeWorldQuest->RewardId);
+    if (!worldQuestRewards.size())
+        return;
+
+    for (WorldQuestReward const* worldQuestReward : worldQuestRewards)
+    {
+        switch (worldQuestReward->RewardType)
+        {
+            case WORLD_QUEST_REWARD_ITEM:
+            {
+                WorldPackets::Quest::QueryQuestRewardResponse::ItemReward itemReward;
+                itemReward.Item.ItemID = worldQuestReward->RewardId;
+                itemReward.Quantity = worldQuestReward->RewardCount;
+                packet.ItemRewards.push_back(itemReward);
+                break;
+            }
+            case WORLD_QUEST_REWARD_CURRENCY:
+            {
+                WorldPackets::Quest::QueryQuestRewardResponse::CurrencyReward currencyReward;
+                currencyReward.CurrencyID = worldQuestReward->RewardId;
+                currencyReward.Quantity = worldQuestReward->RewardCount;
+                packet.CurrencyRewards.push_back(currencyReward);
+                break;
+            }
+            case WORLD_QUEST_REWARD_GOLD:
+            {
+                packet.Money = worldQuestReward->RewardCount;
+                break;
+            }
+            default:
+                break;
         }
     }
 }
