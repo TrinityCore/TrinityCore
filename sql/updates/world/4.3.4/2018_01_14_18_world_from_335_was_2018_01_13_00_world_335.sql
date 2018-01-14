@@ -5,14 +5,14 @@ INSERT INTO `game_event` (`eventEntry`, `start_time`, `end_time`, `occurence`, `
 
 UPDATE `creature_template` SET `ScriptName`='npc_cameron' WHERE `entry`=805;
 
-DELETE FROM `creature_formations` WHERE `leaderGUID`=79638;
+DELETE FROM `creature_formations` WHERE `leaderGUID`=280697;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES
-(79638, 79638, 0, 0,   515), -- Cameron
-(79638, 79639, 3, 230, 515), -- John
-(79638, 79640, 3, 180, 515), -- Dana
-(79638, 79641, 3, 130, 515), -- Jose
-(79638, 79642, 3, 310, 515), -- Lisa
-(79638, 79643, 3, 50,  515); -- Aaron
+(280697, 280697, 0, 0,   515), -- Cameron
+(280697, 280040, 3, 230, 515), -- John
+(280697, 280043, 3, 180, 515), -- Dana
+(280697, 280042, 3, 130, 515), -- Jose
+(280697, 280696, 3, 310, 515), -- Lisa
+(280697, 280041, 3, 50,  515); -- Aaron
 
 -- STORMWIND_PATH
 SET @ENTRY := 80500;
@@ -190,9 +190,9 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@ENTRY, 4,-9353.076,-86.58789,65.68958, 0, 0, 0, 0, 100, 0); -- 07:33:47
 
 -- Correct position for each child
-UPDATE `creature` SET `position_x`=-9373.521, `position_y`=-67.71767, `position_z`=69.201965, `orientation`=1.117011 WHERE `guid`=79642;
-UPDATE `creature` SET `position_x`=-9374.94, `position_y`=-62.51654, `position_z`=69.201965, `orientation`=5.201081 WHERE `guid`=79643;
-UPDATE `creature` SET `position_x`=-9371.013, `position_y`=-71.20811, `position_z`=69.201965, `orientation`=1.937315 WHERE `guid`=79641;
-UPDATE `creature` SET `position_x`=-9368.419, `position_y`=-66.47543, `position_z`=69.201965, `orientation`=3.141593 WHERE `guid`=79638;
-UPDATE `creature` SET `position_x`=-9372.376, `position_y`=-65.49946, `position_z`=69.201965, `orientation`=4.206244 WHERE `guid`=79640;
-UPDATE `creature` SET `position_x`=-9377.477, `position_y`=-67.8297, `position_z`=69.201965, `orientation`=0.296706 WHERE `guid`=79639;
+UPDATE `creature` SET `position_x`=-9373.521, `position_y`=-67.71767, `position_z`=69.201965, `orientation`=1.117011 WHERE `guid`=280696;
+UPDATE `creature` SET `position_x`=-9374.94, `position_y`=-62.51654, `position_z`=69.201965, `orientation`=5.201081 WHERE `guid`=280041;
+UPDATE `creature` SET `position_x`=-9371.013, `position_y`=-71.20811, `position_z`=69.201965, `orientation`=1.937315 WHERE `guid`=280042;
+UPDATE `creature` SET `position_x`=-9368.419, `position_y`=-66.47543, `position_z`=69.201965, `orientation`=3.141593 WHERE `guid`=280697;
+UPDATE `creature` SET `position_x`=-9372.376, `position_y`=-65.49946, `position_z`=69.201965, `orientation`=4.206244 WHERE `guid`=280043;
+UPDATE `creature` SET `position_x`=-9377.477, `position_y`=-67.8297, `position_z`=69.201965, `orientation`=0.296706 WHERE `guid`=280040;
