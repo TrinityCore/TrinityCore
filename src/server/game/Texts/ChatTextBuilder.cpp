@@ -18,6 +18,7 @@
 #include "ChatTextBuilder.h"
 #include "ChatPackets.h"
 #include "DB2Stores.h"
+#include "ObjectMgr.h"
 #include <cstdarg>
 
 WorldPackets::Packet* Trinity::BroadcastTextBuilder::operator()(LocaleConstant locale) const
