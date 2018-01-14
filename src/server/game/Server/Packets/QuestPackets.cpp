@@ -610,8 +610,8 @@ WorldPacket const* WorldPackets::Quest::QueryQuestRewardResponse::Write()
 {
     _worldPacket << QuestID;
     _worldPacket << Unk1;
-    _worldPacket << uint32(CurrencyRewards.size());
     _worldPacket << uint32(ItemRewards.size());
+    _worldPacket << uint32(CurrencyRewards.size());
     _worldPacket << Money;
 
     for (auto const& currency : CurrencyRewards)

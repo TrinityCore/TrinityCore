@@ -34,9 +34,20 @@
 
 struct WorldQuestTemplate;
 struct ActiveWorldQuest;
+struct WorldQuestReward;
 
 typedef std::unordered_map<uint32, WorldQuestTemplate*> WorldQuestTemplateMap;
 typedef std::unordered_map<uint32, ActiveWorldQuest*> ActiveWorldQuestMap;
+
+typedef std::unordered_map<uint32 /*RewardId*/, std::vector<WorldQuestReward>> WorldQuestRewardMap;
+typedef std::unordered_map<uint32 /*QuestInfo*/, std::vector<uint32 /*RewardId*/>> WorldQuestRewardByQuestInfoMap;
+
+enum WorldQuestRewardType
+{
+    WORLD_QUEST_REWARD_ITEM     = 0,
+    WORLD_QUEST_REWARD_CURRENCY = 1,
+    WORLD_QUEST_REWARD_GOLD     = 2,
+};
 
 class TC_GAME_API WorldQuestMgr
 {
@@ -47,19 +58,28 @@ public:
     static WorldQuestMgr* instance();
 
     void LoadWorldQuestTemplates();
+    void LoadWorldQuestRewardTemplates();
     void LoadActiveWorldQuests();
     void Update();
 
     void ActivateQuest(WorldQuestTemplate* worldQuestTemplate);
     void DisableQuest(ActiveWorldQuest* activeWorldQuest, bool deleteFromMap = true);
+
+    ActiveWorldQuest const* GetQuestActive(uint32 questId);
     bool IsQuestActive(uint32 questId);
+
+    void RewardQuestForPlayer(Player* player, uint32 questId);
 
     WorldQuestTemplate* GetWorldQuestTemplate(uint32 questId);
 
     uint8 GetActiveEmissaryQuestsCount();
     uint32 GetActiveQuestsCount();
 
+    uint32 GetRandomRewardForQuestType(uint32 questType);
+    std::vector<WorldQuestReward const*> GetRewardsForPlayerById(Player* player, uint32 rewardId);
+
     void BuildPacket(Player* player, WorldPackets::Quest::WorldQuestUpdate& packet);
+    void BuildRewardPacket(Player* player, uint32 questId, WorldPackets::Quest::QueryQuestRewardResponse& packet);
     void FillInitWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     std::vector<CriteriaEntry const*> GetCriteriasForQuest(uint32 quest_id);
@@ -72,6 +92,9 @@ public:
 private:
     WorldQuestTemplateMap _worldQuestTemplates;
     WorldQuestTemplateMap _emissaryWorldQuestTemplates;
+
+    WorldQuestRewardMap _worldQuestRewards;
+    WorldQuestRewardByQuestInfoMap _worldQuestRewardByQuestInfos;
 
     ActiveWorldQuestMap _activeWorldQuests;
 };
@@ -91,12 +114,25 @@ struct WorldQuestTemplate
     Quest const* GetQuest() const { return sObjectMgr->GetQuestTemplate(QuestId); }
 };
 
+struct WorldQuestReward
+{
+    WorldQuestReward(uint32 id, uint8 questType, uint8 rewardType, uint32 rewardId, uint32 rewardCount) :
+        Id(id), QuestType(questType), RewardType(rewardType), RewardId(rewardId), RewardCount(rewardCount) { }
+
+    uint32 Id;
+    uint8 QuestType;
+    uint8 RewardType;
+    uint32 RewardId;
+    uint32 RewardCount;
+};
+
 struct ActiveWorldQuest
 {
-    ActiveWorldQuest(uint32 questId, int32 startTime) :
-        QuestId(questId), StartTime(startTime) { }
+    ActiveWorldQuest(uint32 questId, uint32 rewardId, int32 startTime) :
+        QuestId(questId), RewardId(rewardId), StartTime(startTime) { }
 
     uint32 QuestId;
+    uint32 RewardId;
     int32 StartTime;
 
     WorldQuestTemplate const* GetTemplate() const { return sWorldQuestMgr->GetWorldQuestTemplate(QuestId); }

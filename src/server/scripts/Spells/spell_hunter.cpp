@@ -1757,29 +1757,15 @@ public:
         void OnApply(AuraEffect const*, AuraEffectHandleModes)
         {
             if (GetCaster()->IsPlayer())
-            {
                 if (Unit* pet = GetCaster()->GetGuardianPet())
-                {
-                    if (!pet)
-                        return;
-
                     pet->CastSpell(pet, SPELL_HUNTER_CAMOUFLAGE, true);
-                }
-            }
         }
 
         void OnRemove(AuraEffect const*, AuraEffectHandleModes)
         {
             if (GetCaster()->IsPlayer())
-            {
                 if (Unit* pet = GetCaster()->GetGuardianPet())
-                {
-                    if (!pet)
-                        return;
-
                     pet->RemoveAurasDueToSpell(SPELL_HUNTER_CAMOUFLAGE);
-                }
-            }
         }
 
         void Register() override
