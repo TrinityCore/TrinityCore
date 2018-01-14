@@ -261,7 +261,7 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
                     {
                         CastSpellExtraArgs args;
                         args.TriggerFlags = TRIGGERED_FULL_MASK;
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, _targetCount);
+                        args.AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount);
                         GetCaster()->CastSpell(GetCaster(), SPELL_SWARM_BUFF, args);
                     }
                 }

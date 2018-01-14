@@ -1185,7 +1185,7 @@ class spell_brewfest_ram : public SpellScriptLoader
                     case SPELL_RAM_CANTER:
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, 1);
+                        args.AddSpellMod(SPELLVALUE_AURA_STACK, 1);
                         target->CastSpell(target, SPELL_RAM_FATIGUE, args);
                         if (aurEff->GetTickNumber() == 8)
                             target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_YELLOW, true);
@@ -1194,7 +1194,7 @@ class spell_brewfest_ram : public SpellScriptLoader
                     case SPELL_RAM_GALLOP:
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, target->HasAura(SPELL_RAM_FATIGUE) ? 4 : 5 /*Hack*/);
+                        args.AddSpellMod(SPELLVALUE_AURA_STACK, target->HasAura(SPELL_RAM_FATIGUE) ? 4 : 5 /*Hack*/);
                         target->CastSpell(target, SPELL_RAM_FATIGUE, args);
                         if (aurEff->GetTickNumber() == 8)
                             target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_RED, true);

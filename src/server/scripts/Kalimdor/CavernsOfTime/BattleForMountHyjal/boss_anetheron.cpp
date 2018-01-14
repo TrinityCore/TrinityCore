@@ -286,7 +286,7 @@ class spell_anetheron_vampiric_aura : public SpellScriptLoader
 
                 Unit* actor = eventInfo.GetActor();
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damageInfo->GetDamage() * 3);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, damageInfo->GetDamage() * 3);
                 actor->CastSpell(actor, SPELL_VAMPIRIC_AURA_HEAL, args);
             }
 

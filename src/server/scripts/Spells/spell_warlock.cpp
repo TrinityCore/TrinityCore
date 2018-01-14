@@ -426,7 +426,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
                                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
                                 int32 hp = targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(targetCreature, spellInfo, 0));
                                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                                args.SpellValueOverrides.AddBP0(hp);
+                                args.AddSpellBP0(hp);
                                 targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, args);
                                 //unitTarget->CastSpell(unitTarget, 54441, true);
                                 break;
@@ -490,7 +490,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
 
                 int32 amount = CalculatePct(caster->GetMaxPower(POWER_MANA), impDrainSoul->GetSpellInfo()->Effects[EFFECT_2].CalcValue());
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 caster->CastSpell(nullptr, SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC, args);
             }
 
@@ -524,7 +524,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
                     // Refresh corruption on target
                     if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, caster->GetGUID()))
                     {
-                        aur->SetBonusAmount(caster->SpellDamageBonusDone(target, aur->GetSpellInfo(), 0, DOT));
+                        aur->ChangeAmount(aur->CalculateAmount(aur->GetCaster()), false);
                         aur->CalculatePeriodic(caster, false, false);
                         aur->GetBase()->RefreshDuration(true);
                     }
@@ -573,7 +573,7 @@ class spell_warl_fel_synergy : public SpellScriptLoader
 
                 int32 heal = CalculatePct(static_cast<int32>(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(heal);
+                args.AddSpellBP0(heal);
                 GetTarget()->CastSpell(nullptr, SPELL_WARLOCK_FEL_SYNERGY_HEAL, args); // TARGET_UNIT_PET
             }
 
@@ -730,7 +730,7 @@ class spell_warl_haunt : public SpellScriptLoader
                 {
                     CastSpellExtraArgs args(aurEff);
                     args.OriginalCaster = GetCasterGUID();
-                    args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+                    args.AddSpellBP0(aurEff->GetAmount());
                     GetTarget()->CastSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, args);
                 }
             }
@@ -832,7 +832,7 @@ class spell_warl_life_tap : public SpellScriptLoader
 
                     // @todo castspell refactor note: this is not triggered - intended?
                     CastSpellExtraArgs args;
-                    args.SpellValueOverrides.AddBP0(mana);
+                    args.AddSpellBP0(mana);
                     caster->CastSpell(target, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
 
                     // Mana Feed
@@ -844,7 +844,7 @@ class spell_warl_life_tap : public SpellScriptLoader
                     {
                         ApplyPct(manaFeedVal, mana);
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddBP0(manaFeedVal);
+                        args.AddSpellBP0(manaFeedVal);
                         caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, args);
                     }
                 }
@@ -990,7 +990,7 @@ class spell_warl_demonic_pact : public SpellScriptLoader
                     {
                         int32 bp0 = static_cast<int32>((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) + 100.0f) / 100.0f);
                         CastSpellExtraArgs args(aurEff);
-                        args.SpellValueOverrides.AddBP0(bp0);
+                        args.AddSpellBP0(bp0);
                         owner->CastSpell(nullptr, SPELL_WARLOCK_DEMONIC_PACT_PROC, args);
                     }
                 }
@@ -1287,7 +1287,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
                     AddPct(amount, glyph->GetAmount());
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SIPHON_LIFE_HEAL, args);
             }
 
@@ -1340,7 +1340,7 @@ class spell_warl_soul_leech : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActor();
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
                 caster->CastSpell(caster, SPELL_WARLOCK_SOUL_LEECH_HEAL, args);
 
                 // Improved Soul Leech code below
@@ -1465,7 +1465,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
                     {
                         // backfire damage and silence
                         CastSpellExtraArgs args(aurEff);
-                        args.SpellValueOverrides.AddBP0(aurEff->GetAmount() * 9);
+                        args.AddSpellBP0(aurEff->GetAmount() * 9);
                         caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, args);
                     }
             }
