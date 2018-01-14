@@ -1046,7 +1046,7 @@ class spell_warl_seed_of_corruption_generic : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                caster->CastSpell(eventInfo.GetActionTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC, true);
+                caster->CastSpell(eventInfo.GetActionTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1383,11 +1383,11 @@ class spell_warl_t4_2p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ Trigger });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(caster, Trigger, true);
+                caster->CastSpell(caster, Trigger, true, nullptr, aurEff);
             }
 
             void Register() override
