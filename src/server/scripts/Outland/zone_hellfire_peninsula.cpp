@@ -1178,7 +1178,7 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
                         if (random->isMoving() && random->GetPositionZ() < 118.0f)
                         {
                             CastSpellExtraArgs args;
-                            args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, 1);
+                            args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
                             me->CastSpell(random, SPELL_INFERNAL_RAIN, args);
                         }
                     }
