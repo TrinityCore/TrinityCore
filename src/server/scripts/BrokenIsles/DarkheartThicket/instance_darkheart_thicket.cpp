@@ -62,33 +62,6 @@ class instance_darkheart_thicket : public InstanceMapScript
                 LoadDoorData(doorData);
             }
 
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_ARCHDRUID_GLAIDALIS:
-                        archdruidGUID = creature->GetGUID();
-                        break;
-                    case NPC_OAKHEART:
-                        oakheartGUID = creature->GetGUID();
-                        break;
-                    case NPC_DRESARON:
-                        dresaronGUID = creature->GetGUID();
-                        break;
-                    case NPC_SHADE_OF_XAVIUS:
-                        xaviusGUID = creature->GetGUID();
-                        break;
-                    case NPC_MALFURION_STORMRAGE:
-                        malfurionGUID = creature->GetGUID();
-                        break;
-                    case NPC_TRIGGER_SHIELD:
-                        triggerShieldGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
@@ -115,7 +88,7 @@ class instance_darkheart_thicket : public InstanceMapScript
                         AddDoor(go, true);
                         break;
                     case GO_GLAIDALIS_EVENT:
-                        goGlaidalisEventGUID = go->GetGUID();
+                        AddObject(go, true);
                         break;
                     default:
                         break;
@@ -147,6 +120,9 @@ class instance_darkheart_thicket : public InstanceMapScript
                     case GO_DOOR_ROOM_XAVIUS:
                         AddDoor(go, false);
                         break;
+                    case GO_GLAIDALIS_EVENT:
+                        AddObject(go, false);
+                        break;
                     default:
                         break;
                 }
@@ -159,55 +135,19 @@ class instance_darkheart_thicket : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_ARCHDRUID_GLAIDALIS:
-                    case DATA_OAKHEART:
-                    case DATA_DRESARON:
-                        break;
                     case DATA_SHADE_OF_XAVIUS:
+                    {
                         if (state == DONE)
-                        {
-                            if (Creature* malfurion = instance->GetCreature(malfurionGUID))
+                            if (Creature* malfurion = GetCreature(NPC_MALFURION_STORMRAGE))
                                 malfurion->AI()->DoAction(ACTION_MALFURION_OUTRO);
-                        }
                         break;
+                    }
                     default:
                         break;
                 }
 
                 return true;
             }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_ARCHDRUID_GLAIDALIS:
-                        return archdruidGUID;
-                    case DATA_OAKHEART:
-                        return oakheartGUID;
-                    case DATA_DRESARON:
-                        return dresaronGUID;
-                    case DATA_SHADE_OF_XAVIUS:
-                        return xaviusGUID;
-                    case DATA_SHIELD_TRIGGER:
-                        return triggerShieldGUID;
-                    case GO_EVENT_GLAIDALIS:
-                        return goGlaidalisEventGUID;
-                    default:
-                        break;
-                }
-
-                return ObjectGuid::Empty;
-            }
-
-        private:
-            ObjectGuid archdruidGUID;
-            ObjectGuid oakheartGUID;
-            ObjectGuid dresaronGUID;
-            ObjectGuid xaviusGUID;
-            ObjectGuid malfurionGUID;
-            ObjectGuid triggerShieldGUID;
-            ObjectGuid goGlaidalisEventGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
