@@ -411,7 +411,7 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
                     return;
 
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), 45));
+                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), 45));
                 GetTarget()->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_DAMAGE, args);
             }
 

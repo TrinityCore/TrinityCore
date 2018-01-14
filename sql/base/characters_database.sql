@@ -543,6 +543,8 @@ CREATE TABLE `character_aura` (
   `maxDuration` int(11) NOT NULL DEFAULT '0',
   `remainTime` int(11) NOT NULL DEFAULT '0',
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `critChance` float NOT NULL DEFAULT '0',
+  `applyResilience` tinyint(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2317,6 +2319,8 @@ CREATE TABLE `pet_aura` (
   `maxDuration` int(11) NOT NULL DEFAULT '0',
   `remainTime` int(11) NOT NULL DEFAULT '0',
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `critChance` float NOT NULL DEFAULT '0',
+  `applyResilience` tinyint(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2616,7 +2620,8 @@ INSERT INTO `updates` VALUES
 ('2017_04_12_01_characters.sql','5A8A1215E3A2356722F52CD7A64BBE03D21FBEA3','ARCHIVED','2017-04-12 00:00:00',0),
 ('2017_04_19_00_characters.sql','CE06FA9005C8A8EE4BDD925520278A5D83E87485','RELEASED','2017-04-19 00:07:40',25),
 ('2017_10_29_00_characters.sql','6209D716E22C391F1FB464221D9F25AF','RELEASED','2017-04-19 00:07:40',25),
-('2017_11_27_00_characters.sql','6FF1F84B8985ADFC7FF97F0BF8E53403CF13C320','RELEASED','2017-11-27 22:08:42',0);
+('2017_11_27_00_characters.sql','6FF1F84B8985ADFC7FF97F0BF8E53403CF13C320','RELEASED','2017-11-27 22:08:42',0),
+('2018_01_13_00_characters.sql','E3C0DA9995BA71ED5A267294470CD03DC51862DD','RELEASED','2018-01-13 00:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
