@@ -62,6 +62,17 @@ enum BattlegroundCriteriaId
     BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH,
 };
 
+enum BattlegroundBroadcastTexts
+{
+    BG_TEXT_ALLIANCE_WINS       = 10633,
+    BG_TEXT_HORDE_WINS          = 10634,
+
+    BG_TEXT_START_TWO_MINUTES   = 18193,
+    BG_TEXT_START_ONE_MINUTE    = 18194,
+    BG_TEXT_START_HALF_MINUTE   = 18195,
+    BG_TEXT_BATTLE_HAS_BEGUN    = 18196,
+};
+
 enum BattlegroundSounds
 {
     SOUND_HORDE_WINS                = 8454,
@@ -380,6 +391,7 @@ class TC_GAME_API Battleground
         void SendPacketToAll(WorldPacket const* packet) const;
 
         void SendChatMessage(Creature* source, uint8 textId, WorldObject* target = NULL);
+        void SendBroadcastText(uint32 id, ChatMsg msgType, WorldObject const* target = nullptr);
 
         template<class Do>
         void BroadcastWorker(Do& _do);
@@ -396,9 +408,6 @@ class TC_GAME_API Battleground
 
         void SendMessageToAll(uint32 entry, ChatMsg type, Player const* source = NULL);
         void PSendMessageToAll(uint32 entry, ChatMsg type, Player const* source, ...);
-
-        // specialized version with 2 string id args
-        void SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* source, uint32 strId1 = 0, uint32 strId2 = 0);
 
         // Raid Group
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }

@@ -21,7 +21,6 @@
 #include "Log.h"
 #include "Player.h"
 #include "Random.h"
-#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
 BattlegroundDS::BattlegroundDS()
