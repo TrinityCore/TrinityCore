@@ -85,7 +85,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
                 if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.SpellValueOverrides.AddBP0(damageInfo->GetDamage());
+                    args.AddSpellBP0(damageInfo->GetDamage());
                     GetTarget()->CastSpell(_procTarget, SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, args);
                 }
             }
@@ -593,7 +593,7 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
                     if (!target->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK))
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddBP0(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+                        args.AddSpellBP0(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
                         target->CastSpell(target, SPELL_ROGUE_PREY_ON_THE_WEAK, args);
                     }
                 }
@@ -638,7 +638,7 @@ class spell_rog_quick_recovery : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 int32 amount = CalculatePct(spellInfo->CalcPowerCost(caster, spellInfo->GetSchoolMask()), aurEff->GetAmount());
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 caster->CastSpell(nullptr, SPELL_ROGUE_QUICK_RECOVERY_ENERGY, args);
             }
 

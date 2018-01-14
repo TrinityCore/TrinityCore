@@ -467,7 +467,7 @@ class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT1, aurEff->GetAmount());
+                    args.AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetAmount());
                     caster->CastSpell(GetTarget(), SPELL_MARK_OF_THE_FACELESS_DAMAGE, args);
                 }
             }
@@ -533,8 +533,8 @@ class spell_general_vezax_saronite_vapors : public SpellScriptLoader
                 {
                     int32 mana = int32(aurEff->GetAmount() * std::pow(2.0f, GetStackAmount())); // mana restore - bp * 2^stackamount
                     CastSpellExtraArgs args1(TRIGGERED_FULL_MASK), args2(TRIGGERED_FULL_MASK);
-                    args1.SpellValueOverrides.AddBP0(mana);
-                    args2.SpellValueOverrides.AddBP0(mana * 2);
+                    args1.AddSpellBP0(mana);
+                    args2.AddSpellBP0(mana * 2);
                     caster->CastSpell(GetTarget(), SPELL_SARONITE_VAPORS_ENERGIZE, args1);
                     caster->CastSpell(GetTarget(), SPELL_SARONITE_VAPORS_DAMAGE, args2);
                 }
