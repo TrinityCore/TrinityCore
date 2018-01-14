@@ -2148,22 +2148,24 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
         if (!checkMask)
             checkMask = VEHICLE_SEAT_FLAG_CAN_ATTACK;
 
-        VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(caster);
-        if (!HasAttribute(SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE) && !HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_MOUNTED)
-            && (vehicleSeat->Flags[0] & checkMask) != checkMask)
-            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-        // Can only summon uncontrolled minions/guardians when on controlled vehicle
-        if (vehicleSeat->Flags[0] & (VEHICLE_SEAT_FLAG_CAN_CONTROL | VEHICLE_SEAT_FLAG_UNK2))
+        if (VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(caster))
         {
-            for (SpellEffectInfo const* effect : GetEffectsForDifficulty(caster->GetMap()->GetDifficultyID()))
-            {
-                if (!effect || effect->Effect != SPELL_EFFECT_SUMMON)
-                    continue;
+            if (!HasAttribute(SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE) && !HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_MOUNTED)
+                && (vehicleSeat->Flags[0] & checkMask) != checkMask)
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
-                SummonPropertiesEntry const* props = sSummonPropertiesStore.LookupEntry(effect->MiscValueB);
-                if (props && props->Category != SUMMON_CATEGORY_WILD)
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+            // Can only summon uncontrolled minions/guardians when on controlled vehicle
+            if (vehicleSeat->Flags[0] & (VEHICLE_SEAT_FLAG_CAN_CONTROL | VEHICLE_SEAT_FLAG_UNK2))
+            {
+                for (SpellEffectInfo const* effect : GetEffectsForDifficulty(caster->GetMap()->GetDifficultyID()))
+                {
+                    if (!effect || effect->Effect != SPELL_EFFECT_SUMMON)
+                        continue;
+
+                    SummonPropertiesEntry const* props = sSummonPropertiesStore.LookupEntry(effect->MiscValueB);
+                    if (props && props->Category != SUMMON_CATEGORY_WILD)
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                }
             }
         }
     }
