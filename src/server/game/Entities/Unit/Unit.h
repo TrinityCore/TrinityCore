@@ -1054,7 +1054,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanApplyResilience() const;
         static void ApplyResilience(Unit const* victim, int32* damage);
 
-        int32 CalculateAOEAvoidance(int32 damage, uint32 schoolMask, Unit* caster) const;
+        int32 CalculateAOEAvoidance(int32 damage, uint32 schoolMask, ObjectGuid const& casterGuid) const;
 
         float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, SpellInfo const* spellInfo) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
