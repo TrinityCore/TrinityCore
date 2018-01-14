@@ -33,6 +33,7 @@
 #include "Map.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "SpellAuras.h"
