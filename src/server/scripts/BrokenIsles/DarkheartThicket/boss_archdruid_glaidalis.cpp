@@ -83,12 +83,13 @@ enum Events
     EVENT_INTRO_GLAIDALIS_7     = 7,
     EVENT_INTRO_GLAIDALIS_8     = 8,
     EVENT_INTRO_GLAIDALIS_9     = 9,
+    EVENT_INTRO_GLAIDALIS_10    = 10,
 
     // Boss
-    EVENT_NIGHTFALL             = 10,
-    EVENT_GL_LEAP_1             = 11,
-    EVENT_GL_LEAP_BACK          = 12,
-    EVENT_PR                    = 13
+    EVENT_NIGHTFALL             = 11,
+    EVENT_GL_LEAP_1             = 12,
+    EVENT_GL_LEAP_BACK          = 13,
+    EVENT_PR                    = 14
 };
 
 enum Phases
@@ -203,93 +204,64 @@ public:
             {
                 events.Update(diff);
 
-                switch (events.ExecuteEvent())
+                switch (uint32 eventId = events.ExecuteEvent())
                 {
                     case EVENT_INTRO_GLAIDALIS_1:
-                        if (Creature* druidSum1 = me->SummonCreature(NPC_DRUIDIC_PRESERVER, SummonPositions[0], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                            druidGUID1 = druidSum1->GetGUID();
-                        if (Creature* druidSum2 = me->SummonCreature(NPC_DRUIDIC_PRESERVER, SummonPositions[1], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                            druidGUID2 = druidSum2->GetGUID();
-                        if (Creature* druidSum3 = me->SummonCreature(NPC_DRUIDIC_PRESERVER, SummonPositions[2], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                            druidGUID3 = druidSum3->GetGUID();
-                        if (Creature* druidSum4 = me->SummonCreature(NPC_DRUIDIC_PRESERVER, SummonPositions[3], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                            druidGUID4 = druidSum4->GetGUID();
+                        for (uint8 i = 0; i < 4; ++i)
+                            if (Creature* druid = me->SummonCreature(NPC_DRUIDIC_PRESERVER, SummonPositions[i], TEMPSUMMON_TIMED_DESPAWN, 25000))
+                                druidGUID[i] = druid->GetGUID();
+
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                         me->GetMotionMaster()->MovePoint(0, 2876.5976f, 1958.9278f, 189.7037f);
                         break;
-
                     case EVENT_INTRO_GLAIDALIS_2:
                         Talk(SAY_EVENT);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                         events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_3, 1000);
                         break;
-
                     case EVENT_INTRO_GLAIDALIS_3:
-                        if (Creature* druid1 = ObjectAccessor::GetCreature(*me, druidGUID1))
-                            if (Creature* triggerSum1 = me->SummonCreature(NPC_TRIGGER_PERSERVER, SummonPositions[4], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                                druid1->CastSpell(triggerSum1, SPELL_RAY_PRESERVATION, false);
-                        if (Creature* druid2 = ObjectAccessor::GetCreature(*me, druidGUID2))
-                            if (Creature* triggerSum2 = me->SummonCreature(NPC_TRIGGER_PERSERVER, SummonPositions[5], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                                druid2->CastSpell(triggerSum2, SPELL_RAY_PRESERVATION, false);
-                        if (Creature* druid3 = ObjectAccessor::GetCreature(*me, druidGUID3))
-                            if (Creature* triggerSum3 = me->SummonCreature(NPC_TRIGGER_PERSERVER, SummonPositions[6], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                                druid3->CastSpell(triggerSum3, SPELL_RAY_PRESERVATION, false);
-                        if (Creature* druid4 = ObjectAccessor::GetCreature(*me, druidGUID4))
-                            if (Creature* triggerSum4 = me->SummonCreature(NPC_TRIGGER_PERSERVER, SummonPositions[7], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                            {
-                                druid4->CastSpell(triggerSum4, SPELL_RAY_PRESERVATION, false);
-                                druid4->AI()->Talk(SAY_DRUID);
-                            }
+                        for (uint8 i = 0; i < 4; ++i)
+                            if (Creature* druid = ObjectAccessor::GetCreature(*me, druidGUID[i]))
+                                if (Creature* triggerSum1 = me->SummonCreature(NPC_TRIGGER_PERSERVER, SummonPositions[4 + i], TEMPSUMMON_TIMED_DESPAWN, 25000))
+                                {
+                                    druid->CastSpell(triggerSum1, SPELL_RAY_PRESERVATION, false);
+
+                                    if (i == 3)
+                                        druid->AI()->Talk(SAY_DRUID);
+                                }
+
                         events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_4, 5000);
                         break;
 
                     case EVENT_INTRO_GLAIDALIS_4:
                         me->CastSpell(me, SPELL_CAT_FORM, false);
                         me->SetObjectScale(1.8f);
-                        if (Creature* druid1 = ObjectAccessor::GetCreature(*me, druidGUID1))
-                        {
-                            me->GetMotionMaster()->MoveJump(druid1->GetPositionX(), druid1->GetPositionY(), druid1->GetPositionZ(), druid1->GetOrientation(), 20.0f, 10.0f);
-                            druid1->CastSpell(druid1, SPELL_SUICIDE, true);
-                        }
-                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_5, 1500);
+                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_5, 100);
                         break;
-
                     case EVENT_INTRO_GLAIDALIS_5:
-                        if (Creature* druid2 = ObjectAccessor::GetCreature(*me, druidGUID2))
-                        {
-                            me->GetMotionMaster()->MoveJump(druid2->GetPositionX(), druid2->GetPositionY(), druid2->GetPositionZ(), druid2->GetOrientation(), 20.0f, 10.0f);
-                            druid2->CastSpell(druid2, SPELL_SUICIDE, true);
-                        }
-                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_6, 1800);
-                        break;
-
                     case EVENT_INTRO_GLAIDALIS_6:
-                        if (Creature* druid3 = ObjectAccessor::GetCreature(*me, druidGUID3))
-                        {
-                            me->GetMotionMaster()->MoveJump(druid3->GetPositionX(), druid3->GetPositionY(), druid3->GetPositionZ(), druid3->GetOrientation(), 20.0f, 10.0f);
-                            druid3->CastSpell(druid3, SPELL_SUICIDE, true);
-                        }
-                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_7, 1800);
-                        break;
-
                     case EVENT_INTRO_GLAIDALIS_7:
-                        if (Creature* druid4 = ObjectAccessor::GetCreature(*me, druidGUID4))
-                        {
-                            me->GetMotionMaster()->MoveJump(druid4->GetPositionX(), druid4->GetPositionY(), druid4->GetPositionZ(), druid4->GetOrientation(), 20.0f, 10.0f);
-                            druid4->CastSpell(druid4, SPELL_SUICIDE, true);
-                        }
-                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_8, 1800);
-                        break;
-
                     case EVENT_INTRO_GLAIDALIS_8:
-                        if (Creature* triggerShield = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHIELD_TRIGGER)))
-                            triggerShield->RemoveAurasDueToSpell(SPELL_GREEN_SHIELD);
-                        if (GameObject* collisionEvent = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EVENT_GLAIDALIS)))
-                            collisionEvent->SetGoState(GO_STATE_ACTIVE);
-                        me->GetMotionMaster()->MoveJump(2876.5976f, 1958.9278f, 189.7037f, 0.441398f, 20.0f, 20.0f);
-                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_9, 2000);
+                        if (Creature* druid = ObjectAccessor::GetCreature(*me, druidGUID[eventId - EVENT_INTRO_GLAIDALIS_5]))
+                        {
+                            JumpArrivalCastArgs args;
+                            args.SpellId    = SPELL_SUICIDE;
+                            args.Caster     = args.Target = druid->GetGUID();
+
+                            me->GetMotionMaster()->MoveJump(druid->GetPosition(), 20.0f, 10.0f, 1004, false, &args);
+                        }
+                        events.ScheduleEvent(eventId + 1, 1800);
                         break;
 
                     case EVENT_INTRO_GLAIDALIS_9:
+                        if (Creature* triggerShield = instance->GetCreature(NPC_TRIGGER_SHIELD))
+                            triggerShield->RemoveAurasDueToSpell(SPELL_GREEN_SHIELD);
+                        if (GameObject* collisionEvent = instance->GetGameObject(GO_GLAIDALIS_EVENT))
+                            collisionEvent->SetGoState(GO_STATE_ACTIVE);
+                        me->GetMotionMaster()->MoveJump(2876.5976f, 1958.9278f, 189.7037f, 0.441398f, 20.0f, 20.0f);
+                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_10, 2000);
+                        break;
+
+                    case EVENT_INTRO_GLAIDALIS_10:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                         me->RemoveAurasDueToSpell(SPELL_CAT_FORM);
                         me->SetObjectScale(1.0f);
@@ -328,29 +300,21 @@ public:
                     {
                         case EVENT_NIGHTFALL:
                         {
-                            events.ScheduleEvent(EVENT_NIGHTFALL, urand(14500, 17500));
-                            Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true);
-                            Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true);
-                            if (!target1)
-                                return;
+                            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                                me->CastSpell(target1, SPELL_NIGHTFALL_MISSILE, false);
 
-                            me->CastSpell(target1, SPELL_NIGHTFALL_MISSILE, false);
+                            if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                                me->CastSpell(target2, SPELL_NIGHTFALL_MISSILE, false);
 
-                            if (!target2)
-                                return;
-
-                            me->CastSpell(target2, SPELL_NIGHTFALL_MISSILE, false);
-
+                            events.Repeat(14500, 17500);
                             break;
                         }
                         case EVENT_GL_LEAP_1:
                         {
-                            events.ScheduleEvent(EVENT_GL_LEAP_1, urand(20200, 22200));
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me));
-                            if (!target)
-                                return;
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                                me->CastSpell(target, SPELL_GL_LEAP_1);
 
-                            me->CastSpell(target, SPELL_GL_LEAP_1);
+                            events.Repeat(20200, 22200);
                             break;
                         }
                         case EVENT_PR:
@@ -358,7 +322,8 @@ public:
                             me->CastSpell(me, SPELL_PR_MORPH, true);
                             DoCastAOE(SPELL_PR_DAMAGE_1);
                             me->CastSpell(me, SPELL_PR_CHARGE, false);
-                            events.ScheduleEvent(EVENT_PR, urand(15800, 20100));
+
+                            events.Repeat(15800, 20100);
                             break;
                         }
                     }
@@ -369,10 +334,7 @@ public:
         }
 
         private:
-            ObjectGuid druidGUID1;
-            ObjectGuid druidGUID2;
-            ObjectGuid druidGUID3;
-            ObjectGuid druidGUID4;
+            ObjectGuid druidGUID[4] = {};
             bool hp65;
             bool hp45;
     };
@@ -385,276 +347,166 @@ public:
 
 //At : 5445
 //Spell : 198402
-class at_archdruid_glaidalis_nightfall : public AreaTriggerEntityScript
+struct at_archdruid_glaidalis_nightfall : AreaTriggerAI
 {
-public:
-    at_archdruid_glaidalis_nightfall() : AreaTriggerEntityScript("at_archdruid_glaidalis_nightfall") { }
+    at_archdruid_glaidalis_nightfall(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_archdruid_glaidalis_nightfallAI : AreaTriggerAI
+    void OnCreate() override
     {
-        at_archdruid_glaidalis_nightfallAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        at->SetUInt32Value(AREATRIGGER_DECAL_PROPERTIES_ID, 34);
+    }
 
-        void OnCreate() override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            at->SetUInt32Value(AREATRIGGER_DECAL_PROPERTIES_ID, 34);
-
-            for (auto guid : at->GetInsideUnits())
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                    if (unit->GetTypeId() == TYPEID_PLAYER)
-                        unit->CastSpell(unit, SPELL_NIGHTFALL_DAMAGE, true);
-        }
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (unit->GetTypeId() == TYPEID_PLAYER)
-                unit->CastSpell(unit, SPELL_NIGHTFALL_DAMAGE, true);
-        }
-
-        void OnUnitExit(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
-            if (unit->HasAura(SPELL_NIGHTFALL_DAMAGE))
-                unit->RemoveAura(SPELL_NIGHTFALL_DAMAGE);
-        }
-
-        void OnRemove() override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            for (auto guid : at->GetInsideUnits())
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                    if (unit->HasAura(SPELL_NIGHTFALL_DAMAGE))
-                        unit->RemoveAura(SPELL_NIGHTFALL_DAMAGE);
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUnitEnter(Unit* unit) override
     {
-        return new at_archdruid_glaidalis_nightfallAI(areatrigger);
+        if (Unit* caster = at->GetCaster())
+            if (unit->IsPlayer())
+                caster->CastSpell(unit, SPELL_NIGHTFALL_DAMAGE, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        if (unit->HasAura(SPELL_NIGHTFALL_DAMAGE))
+            unit->RemoveAurasDueToSpell(SPELL_NIGHTFALL_DAMAGE);
     }
 };
 
-/*
-
-Grevious leap
-
-*/
-
 //196346
-class spell_archdruid_glaidalis_grevious_leap_target : public SpellScriptLoader
+class spell_archdruid_glaidalis_grevious_leap_target : public SpellScript
 {
-public:
-    spell_archdruid_glaidalis_grevious_leap_target() : SpellScriptLoader("spell_archdruid_glaidalis_grevious_leap_target") { }
+    PrepareSpellScript(spell_archdruid_glaidalis_grevious_leap_target);
 
-    class spell_archdruid_glaidalis_grevious_leap_target_SpellScript : public SpellScript
+    void HandleHitTarget(SpellEffIndex effIndex)
     {
-        PrepareSpellScript(spell_archdruid_glaidalis_grevious_leap_target_SpellScript);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
 
-        void HandleHitTarget(SpellEffIndex effIndex)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
+        caster->CastSpell(target, GetSpellInfo()->GetEffect(effIndex)->BasePoints, false);
+    }
 
-            caster->CastSpell(target, GetSpellInfo()->GetEffect(effIndex)->BasePoints, false);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_archdruid_glaidalis_grevious_leap_target_SpellScript::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_archdruid_glaidalis_grevious_leap_target_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_archdruid_glaidalis_grevious_leap_target::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 //196348
-class spell_archdruid_glaidalis_grevious_leap_first : public SpellScriptLoader
+class spell_archdruid_glaidalis_grevious_leap_first : public SpellScript
 {
-public:
-    spell_archdruid_glaidalis_grevious_leap_first() : SpellScriptLoader("spell_archdruid_glaidalis_grevious_leap_first") { }
+    PrepareSpellScript(spell_archdruid_glaidalis_grevious_leap_first);
 
-    class spell_archdruid_glaidalis_grevious_leap_first_SpellScript : public SpellScript
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_archdruid_glaidalis_grevious_leap_first_SpellScript);
+        Unit* caster = GetCaster();
 
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
+        if (!caster || !caster->GetAI())
+            return;
 
-            if (!caster || !caster->GetAI())
-                return;
+        Unit* target = caster->GetAI()->SelectTarget(SELECT_TARGET_TOPAGGRO);
+        if (!target)
+            return;
 
-            Unit* target = caster->GetAI()->SelectTarget(SELECT_TARGET_TOPAGGRO);
-            if (!target)
-                return;
+        caster->CastSpell(target, SPELL_GL_LEAP_2, true);
+    }
 
-            caster->CastSpell(target, SPELL_GL_LEAP_2, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_archdruid_glaidalis_grevious_leap_first_SpellScript::HandleHit, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_archdruid_glaidalis_grevious_leap_first_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_archdruid_glaidalis_grevious_leap_first::HandleHit, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 //196354
-class spell_archdruid_glaidalis_grevious_leap_damage : public SpellScriptLoader
+class spell_archdruid_glaidalis_grevious_leap_damage : public SpellScript
 {
-public:
-    spell_archdruid_glaidalis_grevious_leap_damage() : SpellScriptLoader("spell_archdruid_glaidalis_grevious_leap_damage") { }
+    PrepareSpellScript(spell_archdruid_glaidalis_grevious_leap_damage);
 
-    class spell_archdruid_glaidalis_grevious_leap_damage_SpellScript : public SpellScript
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_archdruid_glaidalis_grevious_leap_damage_SpellScript);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
 
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
 
-            if (!caster || !target)
-                return;
+        caster->CastSpell(target, SPELL_GL_DOT, true);
+    }
 
-            caster->CastSpell(target, SPELL_GL_DOT, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_archdruid_glaidalis_grevious_leap_damage_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_archdruid_glaidalis_grevious_leap_damage_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_archdruid_glaidalis_grevious_leap_damage::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
-/*
-
-Primordial Rage
-
-*/
-
 //198379
-class spell_archdruid_glaidalis_primal_rage_charge : public SpellScriptLoader
+class spell_archdruid_glaidalis_primal_rage_charge : public AuraScript
 {
-public:
-    spell_archdruid_glaidalis_primal_rage_charge() : SpellScriptLoader("spell_archdruid_glaidalis_primal_rage_charge") { }
+    PrepareAuraScript(spell_archdruid_glaidalis_primal_rage_charge);
 
-    class spell_archdruid_glaidalis_primal_rage_charge_AuraScript : public AuraScript
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_archdruid_glaidalis_primal_rage_charge_AuraScript);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
+        caster->CastSpell(caster, SPELL_PR_END, true);
+    }
 
-            caster->CastSpell(caster, SPELL_PR_END, true);
-        }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_archdruid_glaidalis_primal_rage_charge_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_AREA_TRIGGER, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_archdruid_glaidalis_primal_rage_charge_AuraScript();
+        OnEffectRemove += AuraEffectRemoveFn(spell_archdruid_glaidalis_primal_rage_charge::HandleRemove, EFFECT_0, SPELL_AURA_AREA_TRIGGER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 //AT : 5443
 //Spell : 198379
-class at_archdruid_glaidalis_primal_rage : public AreaTriggerEntityScript
+struct at_archdruid_glaidalis_primal_rage : AreaTriggerAI
 {
-public:
-    at_archdruid_glaidalis_primal_rage() : AreaTriggerEntityScript("at_archdruid_glaidalis_primal_rage") { }
+    at_archdruid_glaidalis_primal_rage(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_archdruid_glaidalis_primal_rageAI : AreaTriggerAI
+    void OnUnitEnter(Unit* unit) override
     {
-        at_archdruid_glaidalis_primal_rageAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster || !unit)
-                return;
-
+        if (Unit* caster = at->GetCaster())
             caster->CastSpell(unit, SPELL_PR_DAMAGE_1, true);
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_archdruid_glaidalis_primal_rageAI(areatrigger);
     }
 };
 
-class at_archdruid_glaidalis_event : public AreaTriggerScript
+struct at_archdruid_glaidalis_event : AreaTriggerAI
 {
-public:
-    at_archdruid_glaidalis_event() : AreaTriggerScript("at_archdruid_glaidalis_event") { }
+    at_archdruid_glaidalis_event(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+    void OnUnitEnter(Unit* unit) override
     {
-        InstanceScript* instance = player->GetInstanceScript();
-        if (!instance)
-            return false;
+        if (!unit->IsPlayer())
+            return;
 
-        if (instance->GetBossState(DATA_ARCHDRUID_GLAIDALIS) != SPECIAL && instance->GetBossState(DATA_ARCHDRUID_GLAIDALIS) != DONE && instance->GetBossState(DATA_ARCHDRUID_GLAIDALIS) != FAIL && instance->GetBossState(DATA_ARCHDRUID_GLAIDALIS) != IN_PROGRESS)
-            if (Creature* archdruidGlaidalis = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_ARCHDRUID_GLAIDALIS)))
+        InstanceScript* instance = unit->ToPlayer()->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (instance->GetBossState(DATA_ARCHDRUID_GLAIDALIS) != SPECIAL &&
+            instance->GetBossState(DATA_ARCHDRUID_GLAIDALIS) != DONE &&
+            instance->GetBossState(DATA_ARCHDRUID_GLAIDALIS) != FAIL &&
+            instance->GetBossState(DATA_ARCHDRUID_GLAIDALIS) != IN_PROGRESS)
+        {
+            if (Creature* archdruidGlaidalis = instance->GetCreature(NPC_ARCHDRUID_GLAIDALIS))
             {
                 archdruidGlaidalis->AI()->DoAction(ACTION_GLAIDALIS_INTRO);
-                return true;
             }
-
-        return false;
+        }
     }
 };
 
 void AddSC_boss_archdruid_glaidalis()
 {
-    new at_archdruid_glaidalis_nightfall();
-    new at_archdruid_glaidalis_primal_rage();
-    new at_archdruid_glaidalis_event();
+    RegisterAreaTriggerAI(at_archdruid_glaidalis_nightfall);
+    RegisterAreaTriggerAI(at_archdruid_glaidalis_primal_rage);
+    RegisterAreaTriggerAI(at_archdruid_glaidalis_event);
 
     new boss_archdruid_glaidalis();
 
-    new spell_archdruid_glaidalis_grevious_leap_damage();
-    new spell_archdruid_glaidalis_grevious_leap_first();
-    new spell_archdruid_glaidalis_grevious_leap_target();
-    new spell_archdruid_glaidalis_primal_rage_charge();
+    RegisterSpellScript(spell_archdruid_glaidalis_grevious_leap_damage);
+    RegisterSpellScript(spell_archdruid_glaidalis_grevious_leap_first);
+    RegisterSpellScript(spell_archdruid_glaidalis_grevious_leap_target);
+    RegisterAuraScript(spell_archdruid_glaidalis_primal_rage_charge);
 }
