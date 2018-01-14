@@ -2365,7 +2365,7 @@ public:
                 return;
 
             // Heal = DamageDealt * (40 * (1+mastery%))
-            uint32 damage = eventInfo.GetDamageInfo()->GetDamage();
+            uint32 damage = eventInfo.GetDamageInfo() ? eventInfo.GetDamageInfo()->GetDamage() : 0;
             float mastery = caster->GetFloatValue(PLAYER_MASTERY);
             int32 base = aurEff->GetBaseAmount();
             AddPct(base, mastery);
