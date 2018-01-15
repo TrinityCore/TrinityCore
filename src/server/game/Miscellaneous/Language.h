@@ -634,79 +634,7 @@ enum TrinityStrings
 
     // End Level 3 list, continued at 1100
 
-    // Battleground
-    LANG_BG_A_WINS                      = 600,
-    LANG_BG_H_WINS                      = 601,
-
-    LANG_BG_WS_START_TWO_MINUTES        = 753,
-    LANG_BG_WS_START_ONE_MINUTE         = 602,
-    LANG_BG_WS_START_HALF_MINUTE        = 603,
-    LANG_BG_WS_HAS_BEGUN                = 604,
-
-    LANG_BG_WS_CAPTURED_HF              = 605,
-    LANG_BG_WS_CAPTURED_AF              = 606,
-    LANG_BG_WS_DROPPED_HF               = 607,
-    LANG_BG_WS_DROPPED_AF               = 608,
-    LANG_BG_WS_RETURNED_AF              = 609,
-    LANG_BG_WS_RETURNED_HF              = 610,
-    LANG_BG_WS_PICKEDUP_HF              = 611,
-    LANG_BG_WS_PICKEDUP_AF              = 612,
-    LANG_BG_WS_F_PLACED                 = 613,
-    LANG_BG_WS_ALLIANCE_FLAG_RESPAWNED  = 614,
-    LANG_BG_WS_HORDE_FLAG_RESPAWNED     = 615,
-
-    LANG_BG_EY_START_TWO_MINUTES        = 755,
-    LANG_BG_EY_START_ONE_MINUTE         = 636,
-    LANG_BG_EY_START_HALF_MINUTE        = 637,
-    LANG_BG_EY_HAS_BEGUN                = 638,
-
-    LANG_BG_AB_ALLY                     = 650,
-    LANG_BG_AB_HORDE                    = 651,
-    LANG_BG_AB_NODE_STABLES             = 652,
-    LANG_BG_AB_NODE_BLACKSMITH          = 653,
-    LANG_BG_AB_NODE_FARM                = 654,
-    LANG_BG_AB_NODE_LUMBER_MILL         = 655,
-    LANG_BG_AB_NODE_GOLD_MINE           = 656,
-    LANG_BG_AB_NODE_TAKEN               = 657,
-    LANG_BG_AB_NODE_DEFENDED            = 658,
-    LANG_BG_AB_NODE_ASSAULTED           = 659,
-    LANG_BG_AB_NODE_CLAIMED             = 660,
-
-    LANG_BG_AB_START_TWO_MINUTES        = 754,
-    LANG_BG_AB_START_ONE_MINUTE         = 661,
-    LANG_BG_AB_START_HALF_MINUTE        = 662,
-    LANG_BG_AB_HAS_BEGUN                = 663,
-    LANG_BG_AB_A_NEAR_VICTORY           = 664,
-    LANG_BG_AB_H_NEAR_VICTORY           = 665,
-    LANG_BG_MARK_BY_MAIL                = 666,
-
-    LANG_BG_EY_HAS_TAKEN_A_M_TOWER      = 667,
-    LANG_BG_EY_HAS_TAKEN_H_M_TOWER      = 668,
-    LANG_BG_EY_HAS_TAKEN_A_D_RUINS      = 669,
-    LANG_BG_EY_HAS_TAKEN_H_D_RUINS      = 670,
-    LANG_BG_EY_HAS_TAKEN_A_B_TOWER      = 671,
-    LANG_BG_EY_HAS_TAKEN_H_B_TOWER      = 672,
-    LANG_BG_EY_HAS_TAKEN_A_F_RUINS      = 673,
-    LANG_BG_EY_HAS_TAKEN_H_F_RUINS      = 674,
-    LANG_BG_EY_HAS_LOST_A_M_TOWER       = 675,
-    LANG_BG_EY_HAS_LOST_H_M_TOWER       = 676,
-    LANG_BG_EY_HAS_LOST_A_D_RUINS       = 677,
-    LANG_BG_EY_HAS_LOST_H_D_RUINS       = 678,
-    LANG_BG_EY_HAS_LOST_A_B_TOWER       = 679,
-    LANG_BG_EY_HAS_LOST_H_B_TOWER       = 680,
-    LANG_BG_EY_HAS_LOST_A_F_RUINS       = 681,
-    LANG_BG_EY_HAS_LOST_H_F_RUINS       = 682,
-    LANG_BG_EY_HAS_TAKEN_FLAG           = 683,
-    LANG_BG_EY_CAPTURED_FLAG_A          = 684,
-    LANG_BG_EY_CAPTURED_FLAG_H          = 685,
-    LANG_BG_EY_DROPPED_FLAG             = 686,
-    LANG_BG_EY_RESETED_FLAG             = 687,
-
-    LANG_ARENA_ONE_TOOLOW               = 700,
-    LANG_ARENA_ONE_MINUTE               = 701,
-    LANG_ARENA_THIRTY_SECONDS           = 702,
-    LANG_ARENA_FIFTEEN_SECONDS          = 703,
-    LANG_ARENA_HAS_BEGUN                = 704,
+    // 600-704 - free
 
     LANG_WAIT_BEFORE_SPEAKING           = 705,
     LANG_NOT_EQUIPPED_ITEM              = 706,
@@ -729,9 +657,7 @@ enum TrinityStrings
     LANG_ARENA_GROUP_TOO_LARGE          = 721,              // "Your group is too large for this arena. Please regroup to join."
     LANG_ARENA_YOUR_TEAM_ONLY           = 722,              // "Your group has members not in your arena team. Please regroup to join."
     LANG_ARENA_NOT_ENOUGH_PLAYERS       = 723,              // "Your group does not have enough players to join this match."
-    LANG_ARENA_GOLD_WINS                = 724,              // "The Gold Team wins!"
-    LANG_ARENA_GREEN_WINS               = 725,              // "The Green Team wins!"
-//                                      = 726, not used
+    // 724-726 - free
     LANG_BG_GROUP_OFFLINE_MEMBER        = 727,              // "Your group has an offline member. Please remove him before joining."
     LANG_BG_GROUP_MIXED_FACTION         = 728,              // "Your group has players from the opposing faction. You can't join the battleground as a group."
     LANG_BG_GROUP_MIXED_LEVELS          = 729,              // "Your group has players from different battleground brakets. You can't join as group."
@@ -759,14 +685,13 @@ enum TrinityStrings
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 750,       // "Not enough players. This game will close in %u mins."
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751,  // "Not enough players. This game will close in %u seconds."
 //                                      = 752, see LANG_PINFO_ACC_IP
-//  LANG_BG_WS_START_TWO_MINUTES        = 753, - defined above
-//  LANG_BG_AB_START_TWO_MINUTES        = 754, - defined above
-//  LANG_BG_EY_START_TWO_MINUTES        = 755, - defined above
+    // 753-755 - free
 
-    // Room for BG/ARENA                = 773-784, 788-799 not used
+    // Room for BG/ARENA                = 773-784
     LANG_ARENA_TESTING                  = 785,
     LANG_AUTO_ANN                       = 786,
     LANG_ANNOUNCE_COLOR                 = 787,
+    // 788-799 - free
 
     // in game strings
     LANG_PET_INVALID_NAME               = 800,
@@ -1011,41 +936,7 @@ enum TrinityStrings
     LANG_DEBUG_AREATRIGGER_OFF          = 1203,
     LANG_DEBUG_AREATRIGGER_ENTERED      = 1204,
 
-    // Isle of Conquest
-    LANG_BG_IC_START_TWO_MINUTES        = 1205,
-    LANG_BG_IC_START_ONE_MINUTE         = 1206,
-    LANG_BG_IC_START_HALF_MINUTE        = 1207,
-    LANG_BG_IC_HAS_BEGUN                = 1208,
-    LANG_BG_IC_ALLIANCE_KEEP            = 1209,
-    LANG_BG_IC_HORDE_KEEP               = 1210,
-    LANG_BG_IC_TEAM_WINS                = 1211,
-    LANG_BG_IC_WEST_GATE_DESTROYED      = 1212,
-    LANG_BG_IC_EAST_GATE_DESTROYED      = 1213,
-    LANG_BG_IC_SOUTH_GATE_DESTROYED     = 1214,
-    LANG_BG_IC_NORTH_GATE_DESTROYED     = 1215,
-    LANG_BG_IC_TEAM_ASSAULTED_NODE_1    = 1216,
-    LANG_BG_IC_TEAM_DEFENDED_NODE       = 1217,
-    LANG_BG_IC_TEAM_ASSAULTED_NODE_2    = 1218,
-    LANG_BG_IC_TEAM_HAS_TAKEN_NODE      = 1219,
-    LANG_BG_IC_WORKSHOP                 = 1220,
-    LANG_BG_IC_DOCKS                    = 1221,
-    LANG_BG_IC_REFINERY                 = 1222,
-    LANG_BG_IC_QUARRY                   = 1223,
-    LANG_BG_IC_HANGAR                   = 1224,
-    //                                    1225-1299
-    LANG_BG_IC_ALLIANCE                 = 1300,
-    LANG_BG_IC_HORDE                    = 1301,
-
-    //                                    1302-1325
-    // AV
-    LANG_BG_AV_START_ONE_MINUTE         = 1326,
-    LANG_BG_AV_START_HALF_MINUTE        = 1327,
-    LANG_BG_AV_HAS_BEGUN                = 1328,
-    LANG_BG_AV_A_NEAR_LOSE              = 1329,
-    LANG_BG_AV_H_NEAR_LOSE              = 1330,
-    //                                    1331-1332
-    LANG_BG_AV_START_TWO_MINUTES        = 1333,
-    // FREE IDS                           1334-2002
+    // 1205-2002 - free
 
     // Ticket Strings 2003-2028
     LANG_COMMAND_TICKETCLOSED           = 2003,
@@ -1210,14 +1101,7 @@ enum TrinityStrings
     LANG_OPVP_ZM_GOSSIP_ALLIANCE        = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE           = 10055,
 
-    LANG_BG_SA_START_TWO_MINUTES            = 10056,
-    LANG_BG_SA_START_ONE_MINUTE             = 10057,
-    LANG_BG_SA_START_HALF_MINUTE            = 10058,
-    // unused                                 10059-10062
-    LANG_BG_SA_ALLIANCE_CAPTURED_RELIC      = 10063, //The Alliance captured the titan portal!
-    LANG_BG_SA_HORDE_CAPTURED_RELIC         = 10064, //The Horde captured the titan portal!
-    LANG_BG_SA_ROUND_TWO_ONE_MINUTE         = 10065, //Round 2 of the Battle for the Strand of the Ancients begins in 1 minute.
-    LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE  = 10066, //Round 2 begins in 30 seconds. Prepare yourselves!
+    // 10056-10066 - free
 
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
