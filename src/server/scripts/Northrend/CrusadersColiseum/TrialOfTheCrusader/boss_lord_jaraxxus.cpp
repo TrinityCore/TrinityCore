@@ -225,7 +225,7 @@ struct boss_jaraxxus : public BossAI
                 case EVENT_NETHER_POWER:
                 {
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, RAID_MODE(5, 10, 5, 10));
+                    args.AddSpellMod(SPELLVALUE_AURA_STACK, RAID_MODE(5, 10, 5, 10));
                     me->CastSpell(me, SPELL_NETHER_POWER, args);
                     events.Repeat(42s);
                     break;
@@ -508,7 +508,7 @@ class spell_mistress_kiss_area : public SpellScript
         // get a list of players with mana
         targets.remove_if([](WorldObject* unit)
         {
-            return unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->getPowerType() == POWER_MANA;
+            return unit->GetTypeId() == TYPEID_PLAYER && unit->getPowerType() == POWER_MANA;
         });
 
         if (targets.empty())
