@@ -24,46 +24,46 @@
 
 enum Spells
 {
-    SPELL_SUMMON_SKYFALL_STAR = 96260, // summons 52019
-    SPELL_CHAIN_LIGHTNING = 87622,
-    SPELL_SOTS_TARGETING = 86632,
-    SPELL_STATIC_CLING = 87618,
+    SPELL_SUMMON_SKYFALL_STAR               = 96260, // summons 52019
+    SPELL_CHAIN_LIGHTNING                   = 87622,
+    SPELL_SOTS_TARGETING                    = 86632,
+    SPELL_STATIC_CLING                      = 87618,
 
-    SPELL_UNSTABLE_GROUNDING_FIELD = 86911, // 20 sec channel, visual
-    SPELL_SUPREMACY_OF_THE_STORM_TELEPORT = 87328,
-    SPELL_SUPREMACY_OF_THE_STORM = 86930,
+    SPELL_UNSTABLE_GROUNDING_FIELD          = 86911, // 20 sec channel, visual
+    SPELL_SUPREMACY_OF_THE_STORM_TELEPORT   = 87328,
+    SPELL_SUPREMACY_OF_THE_STORM            = 86930,
 
     // Skyfall Star
-    SPELL_ARCANE_BARRAGE_AURA = 87845,
+    SPELL_ARCANE_BARRAGE_AURA               = 87845,
 
     // Storm Target
-    SPELL_SOTS_SUMMON = 86658,
+    SPELL_SOTS_SUMMON                       = 86658,
 
     // Unstable Grounding Field
-    SPELL_SOTS_TRIGGER = 86926,
-    SPELL_STORM_RUNE_BEAM_AA = 86981,
-    SPELL_STORM_RUNE_BEAM_A = 86921,
-    SPELL_STORM_RUNE_BEAM_B = 86923,
-    SPELL_STORM_RUNE_BEAM_C = 86925,
-    SPELL_STORM_SUMMON_GROUNDING_FIELD = 87518,
+    SPELL_SOTS_TRIGGER                      = 86926,
+    SPELL_STORM_RUNE_BEAM_AA                = 86981,
+    SPELL_STORM_RUNE_BEAM_A                 = 86921,
+    SPELL_STORM_RUNE_BEAM_B                 = 86923,
+    SPELL_STORM_RUNE_BEAM_C                 = 86925,
+    SPELL_STORM_SUMMON_GROUNDING_FIELD      = 87518,
 
     // Grounding Field
-    SPELL_GROUNDING_FIELD_VISUAL_BEAMS = 87517,
+    SPELL_GROUNDING_FIELD_VISUAL_BEAMS      = 87517,
 };
 
 enum NPCs
 {
-    NPC_SKYFALL_STAR = 52019,
-    NPC_STORM_TARGET = 46387,
-    NPC_UNSTABLE_GROUNDING_FIELD = 46492,
+    NPC_SKYFALL_STAR                = 52019,
+    NPC_STORM_TARGET                = 46387,
+    NPC_UNSTABLE_GROUNDING_FIELD    = 46492,
 };
 
 enum Texts
 {
-    SAY_AGGRO = 0,
-    SAY_SOTS_EMOTE = 1,
-    SAY_SOTS = 2,
-    SAY_DEATH = 3,
+    SAY_AGGRO       = 0,
+    SAY_SOTS_EMOTE  = 1,
+    SAY_SOTS        = 2,
+    SAY_DEATH       = 3,
 };
 
 enum Actions

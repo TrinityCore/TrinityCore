@@ -23,27 +23,27 @@
 
 enum Spells
 {
-    SPELL_CALL_THE_WIND = 88276, // targets 47305 in hook
-    SPELL_CHILLING_BREATH = 88322,
-    SPELL_LIGHTNING_BLAST = 88357,
+    SPELL_CALL_THE_WIND         = 88276, // targets 47305 in hook
+    SPELL_CHILLING_BREATH       = 88322,
+    SPELL_LIGHTNING_BLAST       = 88357,
 
     // Invisible Stalker
     SPELL_CALL_THE_WIND_CHANNEL = 88772, // visual channeling targeting Air Current
 
     // Air Current
-    SPELL_CALL_THE_WIND_AURA = 88244, // periodically triggers upwind
-    SPELL_UPWIND_OF_ALTAIRUS = 88282,
-    SPELL_DOWNWIND_OF_ALTAIRUS = 88286,
+    SPELL_CALL_THE_WIND_AURA    = 88244, // periodically triggers upwind
+    SPELL_UPWIND_OF_ALTAIRUS    = 88282,
+    SPELL_DOWNWIND_OF_ALTAIRUS  = 88286,
 
     // Twister
-    SPELL_TWISTER_AURA = 88313,
+    SPELL_TWISTER_AURA          = 88313,
 };
 
 enum NPCs
 {
-    NPC_INVISIBLE_STALKER = 42844,
-    NPC_AIR_CURRENT = 47305,
-    NPC_TWISTER = 47342,
+    NPC_INVISIBLE_STALKER       = 42844,
+    NPC_AIR_CURRENT             = 47305,
+    NPC_TWISTER                 = 47342,
 };
 
 enum Texts
@@ -124,18 +124,12 @@ class boss_altairus : public CreatureScript
                 //me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
             }
 
-            void Reset() override
-            {
-                _Reset();
-
-                events.ScheduleEvent(EVENT_CALL_THE_WIND, 6000);
-                events.ScheduleEvent(EVENT_CHILLING_BREATH, 15000);
-                events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 1000);
-            }
-
             void JustEngagedWith(Unit* /*target*/) override
             {
                 _JustEngagedWith();
+                events.ScheduleEvent(EVENT_CALL_THE_WIND, 6000);
+                events.ScheduleEvent(EVENT_CHILLING_BREATH, 15000);
+                events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 1000);
 
                 me->SummonCreature(NPC_INVISIBLE_STALKER, InvisibleStalkerPos);
 

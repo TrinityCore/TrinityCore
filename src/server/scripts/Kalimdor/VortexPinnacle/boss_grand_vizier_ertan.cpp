@@ -23,18 +23,18 @@
 
 enum Spells
 {
-    SPELL_STORMS_EDGE_AURA = 86295,
-    SPELL_LIGHTNING_BOLT = 86331,
-    SPELL_SUMMON_TEMPEST = 86340,
-    SPELL_STORMS_EDGE_VISUAL = 86329,
-    SPELL_STORMS_EDGE_CYCLONE_SHIELD_AURA = 86310, // periodically triggers 86311
+    SPELL_STORMS_EDGE_AURA                  = 86295,
+    SPELL_LIGHTNING_BOLT                    = 86331,
+    SPELL_SUMMON_TEMPEST                    = 86340,
+    SPELL_STORMS_EDGE_VISUAL                = 86329,
+    SPELL_STORMS_EDGE_CYCLONE_SHIELD_AURA   = 86310, // periodically triggers 86311
 
     // Ertan's Vortex
-    SPELL_CYCLONE_SHIELD = 86267,
-    SPELL_CYCLONE_SHIELD_TRIGGER = 86292,
+    SPELL_CYCLONE_SHIELD                    = 86267,
+    SPELL_CYCLONE_SHIELD_TRIGGER            = 86292,
 
-    SPELL_STORMS_EDGE_SCRIPT = 86299, // targets closest cyclone and makes it cast SPELL_STORMS_EDGE_DAMAGE on caster
-//  SPELL_STORMS_EDGE_DAMAGE = 86309,
+    SPELL_STORMS_EDGE_SCRIPT                = 86299, // targets closest cyclone and makes it cast SPELL_STORMS_EDGE_DAMAGE on caster
+    // SPELL_STORMS_EDGE_DAMAGE               = 86309,
 };
 
 enum NPCs
