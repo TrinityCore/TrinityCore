@@ -344,6 +344,7 @@ class npc_worgen_runt : public CreatureScript
 
 enum TheRebelLordsArsena
 {
+    PHASE_ID_SUMMON         = 170,
     PHASE_ID_WOUND          = 171,
     NPC_LORNA_CROWLEY       = 35378,
     NPC_GENERIC_TRIGGER_LAB = 35374,
@@ -369,8 +370,10 @@ class npc_josiah_avery : public CreatureScript
             npc_josiah_averyAI(Creature* creature) : PassiveAI(creature)
             {
             }
+
             void IsSummonedBy(Unit* summoner) override
             {
+                me->SetInPhase(PHASE_ID_SUMMON, false, false);
                 me->SetInPhase(PHASE_ID_WOUND, false, true);
                 _playerGuid = summoner->GetGUID();
                 _events.ScheduleEvent(EVENT_COSMETIC_ATTACK, Milliseconds(500));
