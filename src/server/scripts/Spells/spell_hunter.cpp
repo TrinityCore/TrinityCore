@@ -1635,54 +1635,35 @@ public:
     }
 };
 
-class ThrowingAxesDamageEvent : public BasicEvent
+// Throwing Axes - 200163
+class spell_hun_throwing_axes : public SpellScript
 {
-public:
+    PrepareSpellScript(spell_hun_throwing_axes);
 
-    ThrowingAxesDamageEvent(Unit* caster, Unit* target) : _caster(caster), _target(target) { }
-
-    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
+    void HandleOnCast()
     {
-        _caster->CastSpell(_target, SPELL_HUNTER_THOWING_AXES_DAMAGE, false);
-        return true;
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+        if (!caster || !target)
+            return;
+
+        ObjectGuid targetGUID = target->GetGUID();
+        uint8 throwCount = GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints;
+
+        for (uint8 i = 0; i < throwCount; ++i)
+        {
+            caster->GetScheduler().Schedule(Milliseconds(500 * i), [targetGUID](TaskContext context)
+            {
+                if (Unit* caster = context.GetContextUnit())
+                    if (Unit* target = ObjectAccessor::GetCreature(*caster, targetGUID))
+                        caster->CastSpell(target, SPELL_HUNTER_THOWING_AXES_DAMAGE, false);
+            });
+        }
     }
 
-private:
-    Unit* _caster;
-    Unit* _target;
-};
-
-// Throwing Axes - 200163
-class spell_hun_throwing_axes : public SpellScriptLoader
-{
-public:
-    spell_hun_throwing_axes() : SpellScriptLoader("spell_hun_throwing_axes") { }
-
-    class spell_hun_throwing_axes_SpellScript : public SpellScript
+    void Register() override
     {
-        PrepareSpellScript(spell_hun_throwing_axes_SpellScript);
-
-        void HandleOnCast()
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetExplTargetUnit();
-            if (!caster || !target)
-                return;
-
-            caster->m_Events.AddEvent(new ThrowingAxesDamageEvent(caster, target), caster->m_Events.CalculateTime(0));
-            caster->m_Events.AddEvent(new ThrowingAxesDamageEvent(caster, target), caster->m_Events.CalculateTime(500));
-            caster->m_Events.AddEvent(new ThrowingAxesDamageEvent(caster, target), caster->m_Events.CalculateTime(1000));
-        }
-
-        void Register() override
-        {
-            OnCast += SpellCastFn(spell_hun_throwing_axes_SpellScript::HandleOnCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_hun_throwing_axes_SpellScript();
+        OnCast += SpellCastFn(spell_hun_throwing_axes::HandleOnCast);
     }
 };
 
@@ -3146,7 +3127,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_killer_cobra();
     new spell_hun_disengage();
     new spell_hun_farstrider();
-    new spell_hun_throwing_axes();
+    RegisterSpellScript(spell_hun_throwing_axes);
     new spell_hun_rangers_net();
     new spell_hun_sticky_bomb();
     new spell_hun_camouflage();
