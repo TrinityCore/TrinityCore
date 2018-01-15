@@ -31,7 +31,7 @@
 #include "GameObjectAI.h"
 
 /*######
-##Quest 14098 - Evacuate the Merchant Place
+## Quest 14098 - Evacuate the Merchant Square
 ######*/
 
 enum FrightenedCitizen
