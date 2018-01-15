@@ -390,7 +390,11 @@ struct npc_tirion_toc : public ScriptedAI
         else if (_instance->GetBossState(DATA_NORTHREND_BEASTS) != DONE)
             me->SummonCreature(NPC_BARRETT_BEASTS, BarretSpawnPosition);
         else if (_instance->GetBossState(DATA_JARAXXUS) != DONE)
+        {
             me->SummonCreature(NPC_BARRETT_JARAXXUS, BarretSpawnPosition);
+            if (_instance->GetBossState(DATA_JARAXXUS) == FAIL)
+                DoAction(ACTION_SUMMON_JARAXXUS);
+        }
         else if (_instance->GetBossState(DATA_FACTION_CRUSADERS) != DONE)
             me->SummonCreature(NPC_BARRETT_FACTION, BarretSpawnPosition);
         else if (_instance->GetBossState(DATA_TWIN_VALKIRIES) != DONE)
