@@ -1062,6 +1062,13 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         achievement->InstanceID = 631;
     });
 
+    // Straw That Broke the Camel's Back - Halls of Origination
+    // Correct map requirement (currently has Lost City of the Tol'vir)
+    hotfixes.ApplyHotfix(5294, [](AchievementEntry* achievement)
+    {
+        achievement->MapID = 644;
+    });
+
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
