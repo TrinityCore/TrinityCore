@@ -44,7 +44,7 @@ struct GameObjectTemplate
     std::string castBarCaption;
     std::string unk1;
     float   size;
-    int32   unkInt32;
+    int32   RequiredLevel;
     union                                                   // different GO types have different data field
     {
         //0 GAMEOBJECT_TYPE_DOOR
