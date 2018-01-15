@@ -363,6 +363,10 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         }
     }
 
+    // ensure we're in combat (threat implies combat!)
+    if (!_owner->GetCombatManager().SetInCombatWith(target)) // if this returns false, we're not actually in combat, and thus cannot have threat!
+        return;                                              // typical causes: bad scripts trying to add threat to GMs, dead targets etc
+
     // ok, now we actually apply threat
     // check if we already have an entry - if we do, just increase threat for that entry and we're done
     auto it = _myThreatListEntries.find(target->GetGUID());
@@ -371,10 +375,6 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         it->second->AddThreat(amount);
         return;
     }
-
-    // otherwise, ensure we're in combat (threat implies combat!)
-    if (!_owner->GetCombatManager().SetInCombatWith(target)) // if this returns false, we're not actually in combat, and thus cannot have threat!
-        return;                                              // typical causes: bad scripts trying to add threat to GMs, dead targets etc
 
     // ok, we're now in combat - create the threat list reference and push it to the respective managers
     ThreatReference* ref = new ThreatReference(this, target, amount);

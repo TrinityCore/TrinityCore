@@ -201,7 +201,7 @@ bool CombatManager::SetInCombatWith(Unit* who)
         NotifyAICombat(_owner, who);
     if (needOtherAI)
         NotifyAICombat(who, _owner);
-    return true;
+    return IsInCombatWith(who);
 }
 
 bool CombatManager::IsInCombatWith(ObjectGuid const& guid) const
