@@ -255,7 +255,7 @@ public:
 
         void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
-            if (spell->Id == SPELL_LAND_MINE_PLAYER_SEARCH_EFFECT && target->GetTypeId() == TYPEID_PLAYER)
+            if (spell->Id == SPELL_LAND_MINE_PLAYER_SEARCH_EFFECT && target->GetTypeId() == TYPEID_PLAYER && !target->GetVehicle())
             {
                 DoCastSelf(SPELL_MYSTIC_TRAP_DAMAGE, true);
                 me->RemoveAurasDueToSpell(SPELL_LAND_MINE_PLAYER_SEARCH_TRIGGER);
