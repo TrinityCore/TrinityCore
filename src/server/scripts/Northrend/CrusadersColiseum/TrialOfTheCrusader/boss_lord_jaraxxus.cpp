@@ -506,9 +506,9 @@ class spell_mistress_kiss_area : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         // get a list of players with mana
-        targets.remove_if([](WorldObject* unit)
+        targets.remove_if([](WorldObject* target)
         {
-            return unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->getPowerType() == POWER_MANA;
+            return target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->getPowerType() == POWER_MANA;
         });
 
         if (targets.empty())
