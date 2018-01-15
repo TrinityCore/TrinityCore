@@ -39,6 +39,7 @@
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -48,7 +49,6 @@
 #include "Player.h"
 #include "SharedDefines.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 bool BattlegroundTemplate::IsArena() const
 {

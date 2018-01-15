@@ -21,7 +21,6 @@
 #include "Creature.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
-#include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
@@ -58,11 +57,6 @@ BattlegroundAB::BattlegroundAB()
 
     m_HonorTics = 0;
     m_ReputationTics = 0;
-
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AB_START_TWO_MINUTES;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AB_START_HALF_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AB_HAS_BEGUN;
 }
 
 BattlegroundAB::~BattlegroundAB() { }
@@ -104,19 +98,17 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                     // create new occupied banner
                     _CreateBanner(node, BG_AB_NODE_TYPE_OCCUPIED, teamIndex, true);
                     _SendNodeUpdate(node);
-                    _NodeOccupied(node, (teamIndex == 0) ? ALLIANCE:HORDE);
+                    _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
                     // Message to chatlog
 
-                    if (teamIndex == 0)
+                    if (teamIndex == TEAM_ALLIANCE)
                     {
-                        // FIXME: team and node names not localized
-                        SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AB_ALLY, _GetNodeNameId(node));
+                        SendBroadcastText(ABNodes[node].TextAllianceTaken, CHAT_MSG_BG_SYSTEM_ALLIANCE);
                         PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
                     }
                     else
                     {
-                        // FIXME: team and node names not localized
-                        SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
+                        SendBroadcastText(ABNodes[node].TextHordeTaken, CHAT_MSG_BG_SYSTEM_HORDE);
                         PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
                     }
                 }
@@ -158,9 +150,9 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                 if (!m_IsInformedNearVictory && m_TeamScores[team] > BG_AB_WARNING_NEAR_VICTORY_SCORE)
                 {
                     if (team == TEAM_ALLIANCE)
-                        SendMessageToAll(LANG_BG_AB_A_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                        SendBroadcastText(BG_AB_TEXT_ALLIANCE_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
                     else
-                        SendMessageToAll(LANG_BG_AB_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                        SendBroadcastText(BG_AB_TEXT_HORDE_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
                     PlaySoundToAll(BG_AB_SOUND_NEAR_VICTORY);
                     m_IsInformedNearVictory = true;
                 }
@@ -305,21 +297,6 @@ void BattlegroundAB::_DelBanner(uint8 node, uint8 type, uint8 teamIndex)
         return;
     obj = node * 8 + ((type == BG_AB_NODE_TYPE_OCCUPIED) ? (5 + teamIndex) : 7);
     SpawnBGObject(obj, RESPAWN_ONE_DAY);
-}
-
-int32 BattlegroundAB::_GetNodeNameId(uint8 node)
-{
-    switch (node)
-    {
-        case BG_AB_NODE_STABLES:    return LANG_BG_AB_NODE_STABLES;
-        case BG_AB_NODE_BLACKSMITH: return LANG_BG_AB_NODE_BLACKSMITH;
-        case BG_AB_NODE_FARM:       return LANG_BG_AB_NODE_FARM;
-        case BG_AB_NODE_LUMBER_MILL:return LANG_BG_AB_NODE_LUMBER_MILL;
-        case BG_AB_NODE_GOLD_MINE:  return LANG_BG_AB_NODE_GOLD_MINE;
-        default:
-            ABORT();
-    }
-    return 0;
 }
 
 void BattlegroundAB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
@@ -469,11 +446,10 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         _SendNodeUpdate(node);
         m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
 
-        // FIXME: team and node names not localized
-        if (teamIndex == 0)
-            SendMessage2ToAll(LANG_BG_AB_NODE_CLAIMED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), LANG_BG_AB_ALLY);
+        if (teamIndex == TEAM_ALLIANCE)
+            SendBroadcastText(ABNodes[node].TextAllianceClaims, CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
         else
-            SendMessage2ToAll(LANG_BG_AB_NODE_CLAIMED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), LANG_BG_AB_HORDE);
+            SendBroadcastText(ABNodes[node].TextHordeClaims, CHAT_MSG_BG_SYSTEM_HORDE, source);
 
         sound = BG_AB_SOUND_NODE_CLAIMED;
     }
@@ -493,11 +469,10 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
             _SendNodeUpdate(node);
             m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
 
-            // FIXME: node names not localized
             if (teamIndex == TEAM_ALLIANCE)
-                SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+                SendBroadcastText(ABNodes[node].TextAllianceAssaulted, CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
             else
-                SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
+                SendBroadcastText(ABNodes[node].TextHordeAssaulted, CHAT_MSG_BG_SYSTEM_HORDE, source);
         }
         // If contested, change back to occupied
         else
@@ -511,13 +486,12 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
             _CreateBanner(node, BG_AB_NODE_TYPE_OCCUPIED, teamIndex, true);
             _SendNodeUpdate(node);
             m_NodeTimers[node] = 0;
-            _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE:HORDE);
+            _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
 
-            // FIXME: node names not localized
             if (teamIndex == TEAM_ALLIANCE)
-                SendMessage2ToAll(LANG_BG_AB_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+                SendBroadcastText(ABNodes[node].TextAllianceDefended, CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
             else
-                SendMessage2ToAll(LANG_BG_AB_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
+                SendBroadcastText(ABNodes[node].TextHordeDefended, CHAT_MSG_BG_SYSTEM_HORDE, source);
         }
         sound = (teamIndex == TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
     }
@@ -535,11 +509,10 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         _NodeDeOccupied(node);
         m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
 
-        // FIXME: node names not localized
         if (teamIndex == TEAM_ALLIANCE)
-            SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+            SendBroadcastText(ABNodes[node].TextAllianceAssaulted, CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
         else
-            SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
+            SendBroadcastText(ABNodes[node].TextHordeAssaulted, CHAT_MSG_BG_SYSTEM_HORDE, source);
 
         sound = (teamIndex == TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
     }
@@ -547,11 +520,10 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
     // If node is occupied again, send "X has taken the Y" msg.
     if (m_Nodes[node] >= BG_AB_NODE_TYPE_OCCUPIED)
     {
-        // FIXME: team and node names not localized
         if (teamIndex == TEAM_ALLIANCE)
-            SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AB_ALLY, _GetNodeNameId(node));
+            SendBroadcastText(ABNodes[node].TextAllianceTaken, CHAT_MSG_BG_SYSTEM_ALLIANCE);
         else
-            SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
+            SendBroadcastText(ABNodes[node].TextHordeTaken, CHAT_MSG_BG_SYSTEM_HORDE);
     }
     PlaySoundToAll(sound);
 }
