@@ -354,29 +354,6 @@ public:
         {
             if (damage >= me->GetHealth())
                 damage = me->GetHealth() - 1;
-
-            if (me->GetHealthPct() <= 50 && !_calledForHelp)
-            {
-                Talk(SAY_HELP_HOGGER);
-                DoCast(SPELL_SUMMON_MINIONS);
-                events.ScheduleEvent(EVENT_MOVE_TO_MEAT, Seconds(4));
-                _calledForHelp = true;
-            }
-
-            if (me->GetHealth() == 1 && !_defeated)
-            {
-                events.Reset();
-                me->SetReactState(REACT_PASSIVE);
-                me->RemoveAllAuras();
-                me->KillSelf();
-                me->setDeathState(ALIVE);
-                me->setRegeneratingHealth(false);
-                me->SetHealth(1);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                Talk(SAY_SURRENDER);
-                me->GetMotionMaster()->MovePoint(POINT_SURRENDER, HoggerEndPos, true);
-                _defeated = true;
-            }
         }
 
         void MovementInform(uint32 type, uint32 pointId) override
@@ -411,6 +388,29 @@ public:
         {
             if (!UpdateVictim() && !_defeated)
                 return;
+
+            if (me->GetHealthPct() <= 50.0f && !_calledForHelp)
+            {
+                Talk(SAY_HELP_HOGGER);
+                DoCast(SPELL_SUMMON_MINIONS);
+                events.ScheduleEvent(EVENT_MOVE_TO_MEAT, Seconds(4));
+                _calledForHelp = true;
+            }
+
+            if (me->GetHealth() == 1 && !_defeated)
+            {
+                events.Reset();
+                me->SetReactState(REACT_PASSIVE);
+                me->RemoveAllAuras();
+                me->KillSelf();
+                me->setDeathState(ALIVE);
+                me->setRegeneratingHealth(false);
+                me->SetHealth(1);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                Talk(SAY_SURRENDER);
+                me->GetMotionMaster()->MovePoint(POINT_SURRENDER, HoggerEndPos, true);
+                _defeated = true;
+            }
 
             events.Update(diff);
 
