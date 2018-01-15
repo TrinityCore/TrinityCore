@@ -211,9 +211,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         data << info->unk1;                                 // 2.0.3, string
         data.append(info->raw.data, MAX_GAMEOBJECT_DATA);
         data << float(info->size);                          // go size
-
-        data << int32(info->unkInt32);                      // 4.x, unknown
-
+        data << int32(info->RequiredLevel);                 // 4.x, Required level
 
         GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(entry);
         if (items)
