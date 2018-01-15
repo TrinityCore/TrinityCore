@@ -5043,12 +5043,12 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
     if (log->damage > log->preHitHealth)
         packet.Overkill = log->damage - log->preHitHealth;
     else
-        packet.Overkill = 0;
+        packet.Overkill = -1;
 
     packet.SchoolMask = log->schoolMask;
-    packet.ShieldBlock = log->blocked;
-    packet.Resisted = log->resist;
     packet.Absorbed = log->absorb;
+    packet.Resisted = log->resist;
+    packet.ShieldBlock = log->blocked;
     packet.Periodic = log->periodicLog;
     packet.Flags = log->HitInfo;
 
@@ -14102,11 +14102,11 @@ void Unit::Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject con
 {
     if (!sBroadcastTextStore.LookupEntry(textId))
     {
-        TC_LOG_ERROR("entities.unit", "WorldObject::MonsterText: `broadcast_text` was not %u found", textId);
+        TC_LOG_ERROR("entities.unit", "WorldObject::MonsterText: `broadcast_text` (ID: %u) was not found", textId);
         return;
     }
 
-    Trinity::BroadcastTextBuilder builder(this, msgType, textId, target);
+    Trinity::BroadcastTextBuilder builder(this, msgType, textId, getGender(), target);
     Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> localizer(builder);
     Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> > worker(this, textRange, localizer);
     Cell::VisitWorldObjects(this, worker, textRange);
