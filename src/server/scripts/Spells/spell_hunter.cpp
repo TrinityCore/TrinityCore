@@ -139,7 +139,7 @@ class spell_hun_aspect_of_the_beast_pet : public AuraScript
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Player* owner = GetUnitOwner()->GetSpellModOwner();
-        if (!owner->HasAura(SPELL_HUNTER_ASPECT_OF_THE_BEAST))
+        if (!ASSERT_NOTNULL(owner)->HasAura(SPELL_HUNTER_ASPECT_OF_THE_BEAST))
             Remove();
     }
 
