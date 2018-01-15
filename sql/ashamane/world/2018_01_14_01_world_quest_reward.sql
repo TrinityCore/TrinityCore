@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `world_quest_reward`;
 CREATE TABLE `world_quest_reward`(
     `id` INT(11) UNSIGNED NOT NULL,
     `questType` MEDIUMINT(8) UNSIGNED NOT NULL,
