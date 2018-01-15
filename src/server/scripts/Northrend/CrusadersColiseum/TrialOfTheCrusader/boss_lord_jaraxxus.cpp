@@ -508,7 +508,7 @@ class spell_mistress_kiss_area : public SpellScript
         // get a list of players with mana
         targets.remove_if([](WorldObject* unit)
         {
-            return unit->GetTypeId() == TYPEID_PLAYER && unit->getPowerType() == POWER_MANA;
+            return unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->getPowerType() == POWER_MANA;
         });
 
         if (targets.empty())
