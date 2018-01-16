@@ -137,7 +137,9 @@ enum DeathKnightSpells
     SPELL_DK_BONE_SHIELD                        = 195181,
     SPELL_DK_BLOOD_MIRROR_DAMAGE                = 221847,
     SPELL_DK_BLOOD_MIRROR                       = 206977,
-    SPELL_DK_BONESTORM_HEAL                     = 196545
+    SPELL_DK_BONESTORM_HEAL                     = 196545,
+    SPELL_DK_GLACIAL_ADVANCE                    = 194913,
+    SPELL_DK_GLACIAL_ADVANCE_DAMAGE             = 195975,
 };
 
 // 70656 - Advantage (T10 4P Melee Bonus)
@@ -2477,6 +2479,38 @@ public:
     }
 };
 
+// 194913 - Glacial Advance
+class spell_dk_glacial_advance : public SpellScript
+{
+    PrepareSpellScript(spell_dk_glacial_advance);
+
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+
+        Position castPosition = *caster;
+        Position collisonPos = caster->GetFirstCollisionPosition(GetEffectInfo()->MaxRadiusEntry->RadiusMax);
+        float maxDistance = caster->GetDistance(collisonPos);
+
+        for (float dist = 0.0f; dist <= maxDistance; dist += 1.5f)
+        {
+            caster->GetScheduler().Schedule(Milliseconds(uint32(dist / 1.5f * 50.0f)), [castPosition, dist](TaskContext context)
+            {
+                Unit* caster = context.GetContextUnit();
+
+                Position targetPosition = castPosition;
+                caster->MovePosition(targetPosition, dist);
+                caster->CastSpell(targetPosition, SPELL_DK_GLACIAL_ADVANCE_DAMAGE, true);
+            });
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dk_glacial_advance::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_advantage_t10_4p();
@@ -2531,4 +2565,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_unholy_blight();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
+    RegisterSpellScript(spell_dk_glacial_advance);
 }
