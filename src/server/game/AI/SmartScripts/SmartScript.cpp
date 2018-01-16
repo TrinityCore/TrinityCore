@@ -2851,13 +2851,13 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             }
             break;
         }
-        case SMART_TARGET_VEHICLE_ACCESSORY:
+        case SMART_TARGET_VEHICLE_PASSENGER:
         {
             if (me && me->IsVehicle())
-            {
-                if (Unit* target = me->GetVehicleKit()->GetPassenger(e.target.vehicle.seat))
-                    targets.push_back(target);
-            }
+                for (auto seatItr = me->GetVehicleKit()->Seats.begin(); seatItr != me->GetVehicleKit()->Seats.end(); ++seatItr)
+                    if (!e.target.vehicle.seatMask || (e.target.vehicle.seatMask & (1 << seatItr->first)))
+                        if (Unit* u = ObjectAccessor::GetUnit(*me, seatItr->second.Passenger.Guid))
+                            targets.push_back(u);
             break;
         }
         case SMART_TARGET_POSITION:
