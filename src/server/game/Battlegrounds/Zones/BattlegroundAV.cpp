@@ -23,7 +23,9 @@
 #include "GameObject.h"
 #include "Log.h"
 #include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "WorldSession.h"
 #include "WorldStatePackets.h"
 
 BattlegroundAV::BattlegroundAV()
