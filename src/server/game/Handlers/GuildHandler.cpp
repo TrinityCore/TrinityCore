@@ -18,6 +18,7 @@
 
 #include "WorldSession.h"
 #include "Common.h"
+#include "Creature.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Log.h"
