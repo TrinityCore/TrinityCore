@@ -1453,7 +1453,7 @@ public:
                     return;
                 }
                 CastSpellExtraArgs args;
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, 500 + rand32() % 700);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, 500 + rand32() % 700);
                 me->CastSpell(me->GetVictim(), SPELL_EXPLODING_SHOT, args);
                 ExplodeTimer = 5000 + rand32() % 5000;
             } else ExplodeTimer -= diff;
