@@ -558,7 +558,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
             if (player->IsGameMaster() || !instance)
                 return false;
 
-            if (instance->GetBossState(DATA_TYRANNUS) != DONE)
+            if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
                 if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
                 {
                     tyrannus->AI()->DoAction(ACTION_START_INTRO);
