@@ -252,7 +252,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectLaunchTarget += SpellEffectFn(spell_dru_eclipse_energize_SpellScript::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectLaunch += SpellEffectFn(spell_dru_eclipse_energize_SpellScript::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
