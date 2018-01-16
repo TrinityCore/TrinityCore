@@ -2484,7 +2484,7 @@ class spell_dk_glacial_advance : public SpellScript
 {
     PrepareSpellScript(spell_dk_glacial_advance);
 
-    void HandleHit(SpellEffIndex effIndex)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
 
