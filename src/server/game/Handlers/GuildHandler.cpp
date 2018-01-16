@@ -19,6 +19,7 @@
 #include "WorldSession.h"
 #include "AchievementPackets.h"
 #include "Common.h"
+#include "Creature.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"

@@ -16,9 +16,11 @@
  */
 
 #include "BankPackets.h"
+#include "Creature.h"
 #include "Item.h"
 #include "DB2Stores.h"
 #include "Log.h"
+#include "Map.h"
 #include "NPCPackets.h"
 #include "Opcodes.h"
 #include "Player.h"

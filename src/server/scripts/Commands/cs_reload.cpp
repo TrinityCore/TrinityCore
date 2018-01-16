@@ -30,6 +30,7 @@ EndScriptData */
 #include "CharacterTemplateDataStore.h"
 #include "Chat.h"
 #include "ConversationDataStore.h"
+#include "Creature.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
