@@ -4487,7 +4487,7 @@ bool Unit::HasStrongerAuraWithDR(SpellInfo const* auraSpellInfo, Unit* caster, b
         if (spellInfo->GetDiminishingReturnsGroupForSpell(triggered) != diminishGroup)
             continue;
 
-        int32 existingDuration = itr->second->GetBase()->GetMaxDuration();
+        int32 existingDuration = itr->second->GetBase()->GetDuration();
         int32 newDuration = auraSpellInfo->GetMaxDuration();
         ApplyDiminishingToDuration(auraSpellInfo, triggered, newDuration, caster, level);
         if (newDuration > 0 && newDuration < existingDuration)
