@@ -3252,16 +3252,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
-        5176,  // Wrath
-        2912,  // Starfire
-        78674  // Starsurge
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
-        spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
-    });
-
-    ApplySpellFix({
         70728, // Exploit Weakness (needs target selection script)
         70840  // Devious Minds (needs target selection script)
     }, [](SpellInfo* spellInfo)
