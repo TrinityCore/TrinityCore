@@ -1974,25 +1974,23 @@ class spell_q13264_thats_abominable : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
 
-                if (Unit* unit = GetHitUnit())
+                if (Creature* creature = GetHitCreature())
                 {
-                    ObjectGuid objGuid = unit->GetGUID();
-
                     // Except Player
-                    if (objGuid.IsPlayer())
+                    if (creature->GetGUID().IsPlayer())
                         return;
 
                     if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
                         if (Player* player = charmer->ToPlayer())
                             if (player->GetQuestStatus(QUEST_THATS_ABOMINABLE) == QUEST_STATUS_INCOMPLETE)
-                                if (GiveCreditIfValid(player, &objGuid))
-                                    unit->KillSelf();
+                                if (GiveCreditIfValid(player, creature))
+                                    creature->KillSelf();
                 }
             }
 
-            bool GiveCreditIfValid(Player* player, ObjectGuid* obj)
+            bool GiveCreditIfValid(Player* player, Creature* creature)
             {
-                uint32 entry = obj->GetEntry();
+                uint32 entry = creature->GetGUID().GetEntry();
 
                 switch(entry)
                 {
@@ -2010,16 +2008,17 @@ class spell_q13264_thats_abominable : public SpellScriptLoader
                         player->CastSpell(player, SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT, true);
                         return true;
                         break;
-                    default:
-                        return false;
-                        break;
                 }
+
+                return false;
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->ToCreature()->KillSelf();
-                GetCaster()->ToCreature()->DespawnOrUnsummon();
+                if (Creature* creature = GetCaster()->ToCreature()) {
+                    creature->KillSelf();
+                    creature->DespawnOrUnsummon();
+                }
             }
 
             void Register() override
