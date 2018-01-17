@@ -1975,22 +1975,16 @@ class spell_q13264_thats_abominable : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
 
                 if (Creature* creature = GetHitCreature())
-                {
-                    // Except Player
-                    if (creature->GetGUID().IsPlayer())
-                        return;
-
                     if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
                         if (Player* player = charmer->ToPlayer())
                             if (player->GetQuestStatus(QUEST_THATS_ABOMINABLE) == QUEST_STATUS_INCOMPLETE)
                                 if (GiveCreditIfValid(player, creature))
                                     creature->KillSelf();
-                }
             }
 
             bool GiveCreditIfValid(Player* player, Creature* creature)
             {
-                uint32 entry = creature->GetGUID().GetEntry();
+                uint32 entry = creature->GetEntry();
 
                 switch(entry)
                 {
