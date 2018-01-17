@@ -177,16 +177,19 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-        for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+        CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
+        for (auto const& creatureTemplate : ctc)
         {
-            uint32 id = itr->second.Entry;
+            if (!creatureTemplate)
+                continue;
+
+            uint32 id = creatureTemplate->Entry;
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
             if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(id))
             {
                 if (creatureLocale->Name.size() > localeIndex && !creatureLocale->Name[localeIndex].empty())
                 {
-                    std::string name = creatureLocale->Name[localeIndex];
+                    std::string const& name = creatureLocale->Name[localeIndex];
 
                     if (Utf8FitTo(name, wNamePart))
                     {
@@ -209,7 +212,7 @@ public:
                 }
             }
 
-            std::string name = itr->second.Name;
+            std::string const& name = creatureTemplate->Name;
             if (name.empty())
                 continue;
 
@@ -412,10 +415,10 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in ItemSparse
-        ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-        for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
+        ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
+        for (auto const& itemTemplate : its)
         {
-            std::string name = itr->second.GetName(handler->GetSessionDbcLocale());
+            std::string name = itemTemplate->GetName(handler->GetSessionDbcLocale());
             if (name.empty())
                 continue;
 
@@ -428,9 +431,9 @@ public:
                 }
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.GetId(), itr->second.GetId(), name.c_str());
+                    handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itemTemplate->GetId(), itemTemplate->GetId(), name.c_str());
                 else
-                    handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.GetId(), name.c_str());
+                    handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itemTemplate->GetId(), name.c_str());
 
                 if (!found)
                     found = true;
@@ -532,16 +535,18 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        GameObjectTemplateContainer const* gotc = sObjectMgr->GetGameObjectTemplates();
-        for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
+        GameObjectTemplateContainer const& gotc = sObjectMgr->GetGameObjectTemplates();
+        for (auto const& gameObjectTemplate : gotc)
         {
+            if (!gameObjectTemplate)
+                continue;
+
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
-            if (GameObjectLocale const* objectLocalte = sObjectMgr->GetGameObjectLocale(itr->second.entry))
+            if (GameObjectLocale const* objectLocalte = sObjectMgr->GetGameObjectLocale(gameObjectTemplate->entry))
             {
                 if (objectLocalte->Name.size() > localeIndex && !objectLocalte->Name[localeIndex].empty())
                 {
-                    std::string name = objectLocalte->Name[localeIndex];
-
+                    std::string const& name = objectLocalte->Name[localeIndex];
                     if (Utf8FitTo(name, wNamePart))
                     {
                         if (maxResults && count++ == maxResults)
@@ -551,9 +556,9 @@ public:
                         }
 
                         if (handler->GetSession())
-                            handler->PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, itr->second.entry, itr->second.entry, name.c_str());
+                            handler->PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, gameObjectTemplate->entry, gameObjectTemplate->entry, name.c_str());
                         else
-                            handler->PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, itr->second.entry, name.c_str());
+                            handler->PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, gameObjectTemplate->entry, name.c_str());
 
                         if (!found)
                             found = true;
@@ -563,7 +568,7 @@ public:
                 }
             }
 
-            std::string name = itr->second.name;
+            std::string const& name = gameObjectTemplate->name;
             if (name.empty())
                 continue;
 
@@ -576,9 +581,9 @@ public:
                 }
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, itr->second.entry, itr->second.entry, name.c_str());
+                    handler->PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, gameObjectTemplate->entry, gameObjectTemplate->entry, name.c_str());
                 else
-                    handler->PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, itr->second.entry, name.c_str());
+                    handler->PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, gameObjectTemplate->entry, name.c_str());
 
                 if (!found)
                     found = true;
@@ -612,12 +617,13 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        ObjectMgr::QuestMap const& qTemplates = sObjectMgr->GetQuestTemplates();
-        for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
+        ObjectMgr::QuestContainer const& questTemplates = sObjectMgr->GetQuestTemplates();
+        for (auto const& qInfo : questTemplates)
         {
-            Quest* qInfo = iter->second;
+            if (!qInfo)
+                continue;
 
-            int localeIndex = handler->GetSessionDbLocaleIndex();
+            uint8 localeIndex = handler->GetSessionDbLocaleIndex();
             if (localeIndex >= 0)
             {
                 uint8 ulocaleIndex = uint8(localeIndex);
@@ -669,8 +675,8 @@ public:
                                     scalingFactionGroup = contentTuning->GetScalingFactionGroup();
 
                                 handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, qInfo->GetQuestId(), qInfo->GetQuestId(),
-                                    handler->GetSession()->GetPlayer()->GetQuestLevel(qInfo),
-                                    handler->GetSession()->GetPlayer()->GetQuestMinLevel(qInfo),
+                                    handler->GetSession()->GetPlayer()->GetQuestLevel(qInfo.get()),
+                                    handler->GetSession()->GetPlayer()->GetQuestMinLevel(qInfo.get()),
                                     maxLevel, scalingFactionGroup,
                                     title.c_str(), statusStr);
                             }
@@ -732,8 +738,8 @@ public:
                         scalingFactionGroup = contentTuning->GetScalingFactionGroup();
 
                     handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, qInfo->GetQuestId(), qInfo->GetQuestId(),
-                        handler->GetSession()->GetPlayer()->GetQuestLevel(qInfo),
-                        handler->GetSession()->GetPlayer()->GetQuestMinLevel(qInfo),
+                        handler->GetSession()->GetPlayer()->GetQuestLevel(qInfo.get()),
+                        handler->GetSession()->GetPlayer()->GetQuestMinLevel(qInfo.get()),
                         maxLevel, scalingFactionGroup,
                         title.c_str(), statusStr);
                 }

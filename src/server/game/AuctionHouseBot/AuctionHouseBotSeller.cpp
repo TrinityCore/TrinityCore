@@ -65,11 +65,12 @@ bool AuctionBotSeller::Initialize()
     TC_LOG_DEBUG("ahbot", "Forced Exclusion " SZFMTD " items", excludeItems.size());
 
     TC_LOG_DEBUG("ahbot", "Loading npc vendor items for filter..");
-    CreatureTemplateContainer const* creatures = sObjectMgr->GetCreatureTemplates();
-    for (auto it = creatures->begin(); it != creatures->end(); ++it)
-        if (VendorItemData const* data = sObjectMgr->GetNpcVendorItemList(it->first))
-            for (VendorItem const& vendorItem : data->m_items)
-                npcItems.insert(vendorItem.item);
+    CreatureTemplateContainer const& creatures = sObjectMgr->GetCreatureTemplates();
+    for (auto const& creatureTemplate : creatures)
+        if (creatureTemplate)
+            if (VendorItemData const* data = sObjectMgr->GetNpcVendorItemList(creatureTemplate->Entry))
+                for (VendorItem const& vendorItem : data->m_items)
+                    npcItems.insert(vendorItem.item);
 
     TC_LOG_DEBUG("ahbot", "Npc vendor filter has " SZFMTD " items", npcItems.size());
 

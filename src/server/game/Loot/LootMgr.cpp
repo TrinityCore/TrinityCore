@@ -791,13 +791,16 @@ void LoadLootTemplates_Creature()
     uint32 count = LootTemplates_Creature.LoadAndCollectLootIds(lootIdSet);
 
     // Remove real entries and check loot existence
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
+    for (auto const& creatureTemplate : ctc)
     {
-        if (uint32 lootid = itr->second.lootid)
+        if (!creatureTemplate)
+            continue;
+
+        if (uint32 lootid = creatureTemplate->lootid)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", itr->second.Entry);
+                LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", creatureTemplate->Entry);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -827,13 +830,9 @@ void LoadLootTemplates_Disenchant()
     LootIdSet lootIdSet, lootIdSetUsed;
     uint32 count = LootTemplates_Disenchant.LoadAndCollectLootIds(lootIdSet);
 
-    for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
+    for (ItemDisenchantLootEntry const* disenchant : sItemDisenchantLootStore)
     {
-        ItemDisenchantLootEntry const* disenchant = sItemDisenchantLootStore.LookupEntry(i);
-        if (!disenchant)
-            continue;
-
-        uint32 lootid = i;
+        uint32 lootid = disenchant->ID;
         if (lootIdSet.find(lootid) == lootIdSet.end())
             LootTemplates_Disenchant.ReportNonExistingId(lootid);
         else
@@ -885,13 +884,16 @@ void LoadLootTemplates_Gameobject()
     uint32 count = LootTemplates_Gameobject.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    GameObjectTemplateContainer const* gotc = sObjectMgr->GetGameObjectTemplates();
-    for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
+    GameObjectTemplateContainer const& gotc = sObjectMgr->GetGameObjectTemplates();
+    for (auto const& gameObjectTemplate : gotc)
     {
-        if (uint32 lootid = itr->second.GetLootId())
+        if (!gameObjectTemplate)
+            continue;
+
+        if (uint32 lootid = gameObjectTemplate->GetLootId())
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Gameobject.ReportNonExistingId(lootid, "Gameobject", itr->second.entry);
+                LootTemplates_Gameobject.ReportNonExistingId(lootid, "Gameobject", gameObjectTemplate->entry);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -919,10 +921,15 @@ void LoadLootTemplates_Item()
     uint32 count = LootTemplates_Item.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
-        if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end() && itr->second.GetFlags() & ITEM_FLAG_HAS_LOOT)
-            lootIdSet.erase(itr->second.GetId());
+    ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
+    for (auto const& itemTemplate : its)
+    {
+        if (!itemTemplate)
+            continue;
+
+        if (lootIdSet.find(itemTemplate->GetId()) != lootIdSet.end() && (itemTemplate->GetFlags() & ITEM_FLAG_HAS_LOOT))
+            lootIdSet.erase(itemTemplate->GetId());
+    }
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Item.ReportUnusedIds(lootIdSet);
@@ -943,14 +950,14 @@ void LoadLootTemplates_Milling()
     uint32 count = LootTemplates_Milling.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
+    ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
+    for (auto const& itemTemplate : its)
     {
-        if (!(itr->second.GetFlags() & ITEM_FLAG_IS_MILLABLE))
+        if (!itemTemplate || !(itemTemplate->GetFlags() & ITEM_FLAG_IS_MILLABLE))
             continue;
 
-        if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end())
-            lootIdSet.erase(itr->second.GetId());
+        if (lootIdSet.find(itemTemplate->GetId()) != lootIdSet.end())
+            lootIdSet.erase(itemTemplate->GetId());
     }
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -972,13 +979,16 @@ void LoadLootTemplates_Pickpocketing()
     uint32 count = LootTemplates_Pickpocketing.LoadAndCollectLootIds(lootIdSet);
 
     // Remove real entries and check loot existence
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
+    for (auto const& creatureTemplate : ctc)
     {
-        if (uint32 lootid = itr->second.pickpocketLootId)
+        if (!creatureTemplate)
+            continue;
+
+        if (uint32 lootid = creatureTemplate->pickpocketLootId)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", itr->second.Entry);
+                LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", creatureTemplate->Entry);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -1006,14 +1016,14 @@ void LoadLootTemplates_Prospecting()
     uint32 count = LootTemplates_Prospecting.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
+    ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
+    for (auto const& itemTemplate : its)
     {
-        if (!(itr->second.GetFlags() & ITEM_FLAG_IS_PROSPECTABLE))
+        if (!itemTemplate || !(itemTemplate->GetFlags() & ITEM_FLAG_IS_PROSPECTABLE))
             continue;
 
-        if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end())
-            lootIdSet.erase(itr->second.GetId());
+        if (lootIdSet.find(itemTemplate->GetId()) != lootIdSet.end())
+            lootIdSet.erase(itemTemplate->GetId());
     }
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -1059,13 +1069,16 @@ void LoadLootTemplates_Skinning()
     uint32 count = LootTemplates_Skinning.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
+    for (auto const& creatureTemplate : ctc)
     {
-        if (uint32 lootid = itr->second.SkinLootId)
+        if (!creatureTemplate)
+            continue;
+
+        if (uint32 lootid = creatureTemplate->SkinLootId)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", itr->second.Entry);
+                LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", creatureTemplate->Entry);
             else
                 lootIdSetUsed.insert(lootid);
         }

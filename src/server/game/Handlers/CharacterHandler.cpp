@@ -2365,10 +2365,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
 
             // Disable all old-faction specific quests
             {
-                ObjectMgr::QuestMap const& questTemplates = sObjectMgr->GetQuestTemplates();
-                for (ObjectMgr::QuestMap::const_iterator iter = questTemplates.begin(); iter != questTemplates.end(); ++iter)
+                ObjectMgr::QuestContainer const& questTemplates = sObjectMgr->GetQuestTemplates();
+                for (auto const& quest : questTemplates)
                 {
-                    Quest const* quest = iter->second;
+                    if (!quest)
+                        continue;
+
                     uint64 newRaceMask = (newTeamId == TEAM_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE;
                     if (quest->GetAllowableRaces().RawValue != uint64(-1) && !(quest->GetAllowableRaces().RawValue & newRaceMask))
                     {

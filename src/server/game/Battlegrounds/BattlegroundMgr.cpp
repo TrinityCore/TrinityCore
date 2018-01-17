@@ -749,13 +749,16 @@ void BattlegroundMgr::LoadBattleMastersEntry()
 
 void BattlegroundMgr::CheckBattleMasters()
 {
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
+    for (auto const& creatureTemplate : ctc)
     {
-        if ((itr->second.npcflag & UNIT_NPC_FLAG_BATTLEMASTER) && mBattleMastersMap.find(itr->second.Entry) == mBattleMastersMap.end())
+        if (!creatureTemplate)
+            continue;
+
+        if ((creatureTemplate->npcflag & UNIT_NPC_FLAG_BATTLEMASTER) && mBattleMastersMap.find(creatureTemplate->Entry) == mBattleMastersMap.end())
         {
-            TC_LOG_ERROR("sql.sql", "Creature_Template Entry: %u has UNIT_NPC_FLAG_BATTLEMASTER, but no data in the `battlemaster_entry` table. Removing flag.", itr->second.Entry);
-            const_cast<CreatureTemplate*>(&itr->second)->npcflag &= ~UNIT_NPC_FLAG_BATTLEMASTER;
+            TC_LOG_ERROR("sql.sql", "Creature_Template Entry: %u has UNIT_NPC_FLAG_BATTLEMASTER, but no data in the `battlemaster_entry` table. Removing flag.", creatureTemplate->Entry);
+            const_cast<CreatureTemplate*>(creatureTemplate.get())->npcflag &= ~UNIT_NPC_FLAG_BATTLEMASTER;
         }
     }
 }

@@ -1439,38 +1439,38 @@ public:
         TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_ADDITEMSET), itemSetId);
 
         bool found = false;
-        ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-        for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
+        ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
+        for (auto const& itemTemplate : its)
         {
-            if (itr->second.GetItemSet() == itemSetId)
+            if (!itemTemplate || itemTemplate->GetItemSet() != itemSetId)
+                continue;
+
+            found = true;
+            ItemPosCountVec dest;
+            InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemTemplate->GetId(), 1);
+            if (msg == EQUIP_ERR_OK)
             {
-                found = true;
-                ItemPosCountVec dest;
-                InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.GetId(), 1);
-                if (msg == EQUIP_ERR_OK)
+                std::vector<int32> bonusListIDsForItem = bonusListIDs; // copy, bonuses for each depending on context might be different for each item
+                if (itemContext != ItemContext::NONE && itemContext < ItemContext::Max)
                 {
-                    std::vector<int32> bonusListIDsForItem = bonusListIDs; // copy, bonuses for each depending on context might be different for each item
-                    if (itemContext != ItemContext::NONE && itemContext < ItemContext::Max)
-                    {
-                        std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(itr->second.GetId(), itemContext);
-                        bonusListIDsForItem.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
-                    }
-
-                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true, {}, GuidSet(), itemContext, bonusListIDsForItem);
-
-                    // remove binding (let GM give it to another player later)
-                    if (player == playerTarget)
-                        item->SetBinding(false);
-
-                    player->SendNewItem(item, 1, false, true);
-                    if (player != playerTarget)
-                        playerTarget->SendNewItem(item, 1, true, false);
+                    std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(itemTemplate->GetId(), itemContext);
+                    bonusListIDsForItem.insert(bonusListIDsForItem.begin(), contextBonuses.begin(), contextBonuses.end());
                 }
-                else
-                {
-                    player->SendEquipError(msg, nullptr, nullptr, itr->second.GetId());
-                    handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itr->second.GetId(), 1);
-                }
+
+                Item* item = playerTarget->StoreNewItem(dest, itemTemplate->GetId(), true, {}, GuidSet(), itemContext, bonusListIDsForItem);
+
+                // remove binding (let GM give it to another player later)
+                if (player == playerTarget)
+                    item->SetBinding(false);
+
+                player->SendNewItem(item, 1, false, true);
+                if (player != playerTarget)
+                    playerTarget->SendNewItem(item, 1, true, false);
+            }
+            else
+            {
+                player->SendEquipError(msg, nullptr, nullptr, itemTemplate->GetId());
+                handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemTemplate->GetId(), 1);
             }
         }
 
