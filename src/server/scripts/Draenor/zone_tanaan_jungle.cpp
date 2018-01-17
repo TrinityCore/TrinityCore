@@ -30,42 +30,26 @@
 #include "Vehicle.h"
 
 /// Fel Sludge - 188520
-class spell_tanaan_fel_sludge : public SpellScriptLoader
+class spell_tanaan_fel_sludge : public AuraScript
 {
-public:
-    spell_tanaan_fel_sludge() : SpellScriptLoader("spell_tanaan_fel_sludge") { }
+    PrepareAuraScript(spell_tanaan_fel_sludge);
 
-    class spell_tanaan_fel_sludge_AuraScript : public AuraScript
+    void OnTick(AuraEffect const* aurEff)
     {
-        PrepareAuraScript(spell_tanaan_fel_sludge_AuraScript);
+        if (Unit* target = GetTarget())
+            if (aurEff->GetBase()->GetStackAmount() >= 10)
+                target->Kill(target, true);
+    }
 
-        void OnTick(AuraEffect const* p_AurEff)
-        {
-            Unit* l_Target = GetTarget();
-
-            if (!l_Target)
-                return;
-
-            if (p_AurEff->GetBase()->GetStackAmount() >= 10)
-                l_Target->Kill(l_Target, true);
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_tanaan_fel_sludge_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_tanaan_fel_sludge_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_tanaan_fel_sludge::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 enum eMaps
 {
     TANAAN_JUNGLE_100_PHASE_MAP = 1464,
-    DREANOR_MAP                 = 1116,
     TANAAN_JUNGLE_100_ZONE_ID   = 6723
 };
 
@@ -73,23 +57,21 @@ enum eMaps
 class PlayerScript_TanaanJungle_Phasing : public PlayerScript
 {
 public:
-    PlayerScript_TanaanJungle_Phasing() : PlayerScript("PlayerScript_TanaanJungle_Phasing")
-    {
-    }
+    PlayerScript_TanaanJungle_Phasing() : PlayerScript("PlayerScript_TanaanJungle_Phasing") { }
 
     void OnUpdateZone(Player* player, uint32 newZoneID, uint32 oldZoneID, uint32 /*newAreaID*/) override
     {
         if (player->IsInFlight())
             return;
 
-        if (player->GetMapId() == TANAAN_JUNGLE_100_PHASE_MAP || player->GetMapId() == DREANOR_MAP)
+        if (player->GetMapId() == TANAAN_JUNGLE_100_PHASE_MAP || player->GetMapId() == MAP_DRAENOR)
         {
             if (newZoneID != oldZoneID && (newZoneID == TANAAN_JUNGLE_100_ZONE_ID || oldZoneID == TANAAN_JUNGLE_100_ZONE_ID))
             {
-                if (newZoneID == TANAAN_JUNGLE_100_ZONE_ID && player->GetMapId() == DREANOR_MAP)
+                if (newZoneID == TANAAN_JUNGLE_100_ZONE_ID && player->GetMapId() == MAP_DRAENOR)
                     player->SeamlessTeleportToMap(TANAAN_JUNGLE_100_PHASE_MAP);
                 else if (newZoneID != TANAAN_JUNGLE_100_ZONE_ID && player->GetMapId() == TANAAN_JUNGLE_100_PHASE_MAP)
-                    player->SeamlessTeleportToMap(DREANOR_MAP);
+                    player->SeamlessTeleportToMap(MAP_DRAENOR);
             }
         }
     }
@@ -220,64 +202,42 @@ public:
     };
 };
 
-class at_deathtalon_screech : public AreaTriggerEntityScript
+struct at_deathtalon_screech : AreaTriggerAI
 {
-public:
-    at_deathtalon_screech() : AreaTriggerEntityScript("at_deathtalon_screech") { }
+    at_deathtalon_screech(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_deathtalon_screechAI : AreaTriggerAI
+    enum eSpells
     {
-        at_deathtalon_screechAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        enum eSpells
-        {
-            SPELL_SCREECH_DAMAGE = 158558
-        };
-
-        void OnUnitEnter(Unit* unit) override
-        {
-            if (Unit* caster = at->GetCaster())
-                if (caster != unit)
-                    caster->CastSpell(unit, SPELL_SCREECH_DAMAGE, true);
-        }
+        SPELL_SCREECH_DAMAGE = 158558
     };
 
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUnitEnter(Unit* unit) override
     {
-        return new at_deathtalon_screechAI(areatrigger);
+        if (Unit* caster = at->GetCaster())
+            if (caster != unit)
+                caster->CastSpell(unit, SPELL_SCREECH_DAMAGE, true);
     }
 };
 
 /// Quills - 158564
-class spell_deathtalon_quills : public SpellScriptLoader
+class spell_deathtalon_quills : public AuraScript
 {
-public:
-    spell_deathtalon_quills() : SpellScriptLoader("spell_deathtalon_quills") { }
+    PrepareAuraScript(spell_deathtalon_quills);
 
-    class spell_deathtalon_quills_AuraScript : public AuraScript
+    enum
     {
-        PrepareAuraScript(spell_deathtalon_quills_AuraScript);
-
-        enum
-        {
-            SPELL_QUILLS_DAMAGE = 158567
-        };
-
-        void OnTick(AuraEffect const* /*aurEff*/)
-        {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, SPELL_QUILLS_DAMAGE, true);
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathtalon_quills_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
+        SPELL_QUILLS_DAMAGE = 158567
     };
 
-    AuraScript* GetAuraScript() const override
+    void OnTick(AuraEffect const* /*aurEff*/)
     {
-        return new spell_deathtalon_quills_AuraScript();
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_QUILLS_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathtalon_quills::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -342,7 +302,7 @@ public:
 
 void AddSC_tanaan_jungle()
 {
-    new spell_tanaan_fel_sludge();
+    RegisterAuraScript(spell_tanaan_fel_sludge);
 
     new PlayerScript_TanaanJungle_Phasing();
 
@@ -351,6 +311,6 @@ void AddSC_tanaan_jungle()
     new npc_doomroller();
 
     new npc_deathtalon();
-    new at_deathtalon_screech();
-    new spell_deathtalon_quills();
+    RegisterAreaTriggerAI(at_deathtalon_screech);
+    RegisterAuraScript(spell_deathtalon_quills);
 }
