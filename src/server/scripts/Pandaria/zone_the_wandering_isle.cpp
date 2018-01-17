@@ -1172,117 +1172,117 @@ public:
 
 enum RukRukOoksplosions
 {
-	SPELL_OOKSPLOSIONS_TRIGGERED	= 125885
+    SPELL_OOKSPLOSIONS_TRIGGERED    = 125885
 };
 
 class spell_ruk_ruk_ooksplosions : public SpellScriptLoader
 {
 public:
-	spell_ruk_ruk_ooksplosions() : SpellScriptLoader("spell_ruk_ruk_ooksplosions") { }
+    spell_ruk_ruk_ooksplosions() : SpellScriptLoader("spell_ruk_ruk_ooksplosions") { }
 
-	class spell_ruk_ruk_ooksplosions_AuraScript : public AuraScript
-	{
-		PrepareAuraScript(spell_ruk_ruk_ooksplosions_AuraScript);
+    class spell_ruk_ruk_ooksplosions_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_ruk_ruk_ooksplosions_AuraScript);
 
-		void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-		{
-			Unit* caster = GetCaster();
+        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+        {
+            Unit* caster = GetCaster();
             float x, y, z;
             caster->GetClosePoint(x, y, z, caster->GetObjectSize() / 2, frand(0, 3), frand(0, 2 * float(M_PI)));
             caster->CastSpell(x, y, z, SPELL_OOKSPLOSIONS_TRIGGERED, true);
-		}
+        }
 
-		void Register() override
-		{
-			OnEffectPeriodic += AuraEffectPeriodicFn(spell_ruk_ruk_ooksplosions_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-		}
-	};
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_ruk_ruk_ooksplosions_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
 
-	AuraScript* GetAuraScript() const override
-	{
-		return new spell_ruk_ruk_ooksplosions_AuraScript();
-	}
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_ruk_ruk_ooksplosions_AuraScript();
+    }
 };
 
 enum RukRukEvents
 {
-	EVENT_AIM			= 1,
-	EVENT_OOKSPLOSIONS  = 2
+    EVENT_AIM            = 1,
+    EVENT_OOKSPLOSIONS  = 2
 };
 
 enum RukRukSpells
 {
-	SPELL_AIM			= 125609,
-	SPELL_OOKSPLOSIONS	= 125699,
-	SPELL_AIM_VISUAL	= 26079
+    SPELL_AIM            = 125609,
+    SPELL_OOKSPLOSIONS    = 125699,
+    SPELL_AIM_VISUAL    = 26079
 };
 
 class npc_ruk_ruk : public CreatureScript
 {
 public:
-	npc_ruk_ruk() : CreatureScript("npc_ruk_ruk") { }
+    npc_ruk_ruk() : CreatureScript("npc_ruk_ruk") { }
 
-	struct npc_ruk_rukAI : public ScriptedAI
-	{
-		npc_ruk_rukAI(Creature* creature) : ScriptedAI(creature) { }
+    struct npc_ruk_rukAI : public ScriptedAI
+    {
+        npc_ruk_rukAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
             _events.Reset();
         }
 
-		void EnterCombat(Unit* /*who*/) override
-		{
-			_events.ScheduleEvent(EVENT_AIM, 10000);
-			_events.ScheduleEvent(EVENT_OOKSPLOSIONS, 30000);
-		}
+        void EnterCombat(Unit* /*who*/) override
+        {
+            _events.ScheduleEvent(EVENT_AIM, 10000);
+            _events.ScheduleEvent(EVENT_OOKSPLOSIONS, 30000);
+        }
 
         Position GetRocketTargetPos() const
         {
             return _pos;
         }
 
-		void UpdateAI(uint32 diff) override
-		{
+        void UpdateAI(uint32 diff) override
+        {
             if (!UpdateVictim())
                 return;
 
-			_events.Update(diff);
+            _events.Update(diff);
 
-			while (uint32 eventId = _events.ExecuteEvent())
-			{
-				switch (eventId)
-				{
-					case EVENT_AIM:
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_AIM:
                         if (me->HasUnitState(UNIT_STATE_CASTING))
                         {
                             _events.RescheduleEvent(EVENT_AIM, 1000);
                             break;
                         }
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-						{
-							me->SetFacingToObject(target);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        {
+                            me->SetFacingToObject(target);
                             CalculateSpellVisual(target);
-							DoCast(target, SPELL_AIM);
-							_events.ScheduleEvent(EVENT_AIM, urand(15000, 25000));
-						}
-						break;
-					case EVENT_OOKSPLOSIONS:
+                            DoCast(target, SPELL_AIM);
+                            _events.ScheduleEvent(EVENT_AIM, urand(15000, 25000));
+                        }
+                        break;
+                    case EVENT_OOKSPLOSIONS:
                         if (me->HasUnitState(UNIT_STATE_CASTING))
                         {
                             _events.RescheduleEvent(EVENT_OOKSPLOSIONS, 1000);
                             break;
                         }
-						DoCast(SPELL_OOKSPLOSIONS);
-						_events.ScheduleEvent(EVENT_OOKSPLOSIONS, urand(25000, 35000));
-						break;
-				}
-			}
+                        DoCast(SPELL_OOKSPLOSIONS);
+                        _events.ScheduleEvent(EVENT_OOKSPLOSIONS, urand(25000, 35000));
+                        break;
+                }
+            }
 
-			DoMeleeAttackIfReady();
-		}
+            DoMeleeAttackIfReady();
+        }
 
-	private:
+    private:
         EventMap _events;
         Position _pos;
 
@@ -1306,12 +1306,12 @@ public:
                     break;
             }
         }
-	};
+    };
 
-	CreatureAI* GetAI(Creature* creature) const override
-	{
-		return new npc_ruk_rukAI(creature);
-	}
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_ruk_rukAI(creature);
+    }
 };
 
 typedef npc_ruk_ruk::npc_ruk_rukAI RukRukAI;
@@ -1630,6 +1630,11 @@ public:
     }
 };
 
+enum SpellMasterShangFinalEscortNPCs
+{
+    NPC_MASTER_SHANG    = 55672
+};
+
 class spell_master_shang_final_escort_say : public SpellScriptLoader
 {
 public:
@@ -1642,7 +1647,7 @@ public:
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* target = GetTarget())
-                if (Creature* creature = target->FindNearestCreature(55672, target->GetVisibilityRange(), true))
+                if (Creature* creature = target->FindNearestCreature(NPC_MASTER_SHANG, target->GetVisibilityRange(), true))
                     creature->AI()->Talk(0, target);
         }
 
