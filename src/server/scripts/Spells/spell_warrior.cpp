@@ -2517,7 +2517,7 @@ public:
             if (!caster)
                 return;
 
-            damageTaken = eventInfo.GetDamageInfo()->GetDamage();
+            damageTaken = eventInfo.GetDamageInfo() ? eventInfo.GetDamageInfo()->GetDamage() : 0;
             if (damageTaken <= 0)
                 return;
 
@@ -2609,7 +2609,7 @@ public:
                     return false;
 
 
-                uint32 bonusDamage = eventInfo.GetDamageInfo()->GetDamage();
+                uint32 bonusDamage = eventInfo.GetDamageInfo() ? eventInfo.GetDamageInfo()->GetDamage() : 0;
                 bonusDamage *= 0.2f;
                 //If the target already has the dot
                 if (target->HasAura(SPELL_WARRIOR_TRAUMA_DOT))
