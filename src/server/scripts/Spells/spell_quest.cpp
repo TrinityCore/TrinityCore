@@ -1991,11 +1991,9 @@ class spell_q13264_thats_abominable : public SpellScriptLoader
                     case NPC_ICY_GHOUL:
                         player->CastSpell(player, SPELL_ICY_GHOUL_CREDIT, true);
                         return true;
-
                     case NPC_VICIOUS_GEIST:
                         player->CastSpell(player, SPELL_VICIOUS_GEISTS_CREDIT, true);
                         return true;
-
                     case NPC_RISEN_ALLIANCE_SOLDIERS:
                         player->CastSpell(player, SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT, true);
                         return true;
