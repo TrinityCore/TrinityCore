@@ -1188,23 +1188,6 @@ public:
     }
 };
 
-class FlurryDamageEvent : public BasicEvent
-{
-public:
-
-    FlurryDamageEvent(Unit* caster, Unit* target) : _caster(caster), _target(target) { }
-
-    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
-    {
-        _caster->CastSpell(_target, SPELL_MAGE_FLURRY_VISUAL, false);
-        return true;
-    }
-
-private:
-    Unit* _caster;
-    Unit* _target;
-};
-
 // Flurry - 44614
 class spell_mage_flurry : public SpellScriptLoader
 {
@@ -1222,9 +1205,16 @@ public:
             if (!caster || !target)
                 return;
 
-            caster->m_Events.AddEvent(new FlurryDamageEvent(caster, target), caster->m_Events.CalculateTime(0));
-            caster->m_Events.AddEvent(new FlurryDamageEvent(caster, target), caster->m_Events.CalculateTime(250));
-            caster->m_Events.AddEvent(new FlurryDamageEvent(caster, target), caster->m_Events.CalculateTime(500));
+            ObjectGuid targetGuid = target->GetGUID();
+            for (uint8 i = 0; i < 3; ++i)
+            {
+                caster->GetScheduler().Schedule(Milliseconds(i * 250), [targetGuid](TaskContext context)
+                {
+                    if (Unit* caster = context.GetContextUnit())
+                        if (Unit* target = ObjectAccessor::GetUnit(*caster, targetGuid))
+                            context.GetContextUnit()->CastSpell(target, SPELL_MAGE_FLURRY_VISUAL, false);
+                });
+            }
         }
 
         void Register() override
