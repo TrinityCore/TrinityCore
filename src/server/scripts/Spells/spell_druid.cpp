@@ -852,12 +852,8 @@ public:
 
         void OnRemoveEffect(Unit* target, AuraEffect const* aurEff, uint32 stack)
         {
-            int32 healAmount = aurEff->GetAmount();
             if (Unit* caster = GetCaster())
             {
-                healAmount = caster->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, aurEff->GetSpellEffectInfo(), stack);
-                healAmount = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, aurEff->GetSpellEffectInfo(), stack);
-
                 // restore mana
                 std::vector<SpellPowerCost> costs = GetSpellInfo()->CalcPowerCost(caster, GetSpellInfo()->GetSchoolMask());
                 auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
@@ -870,10 +866,7 @@ public:
                 }
             }
 
-            CastSpellExtraArgs args(aurEff);
-            args.OriginalCaster = GetCasterGUID();
-            args.AddSpellBP0(healAmount);
-            target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, args);
+            target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, { aurEff, GetCasterGUID() });
         }
 
         void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
