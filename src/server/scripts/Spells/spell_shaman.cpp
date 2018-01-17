@@ -980,7 +980,6 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();
-                SpellInfo const* triggeringSpell = GetTriggeringSpell();
                 if (Unit* target = GetHitUnit())
                 {
                     Unit* caster = GetCaster();
