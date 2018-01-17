@@ -310,8 +310,7 @@ public:
 
         void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
-            if (!prisonerGUID)
-                prisonerGUID = guid;
+            prisonerGUID = guid;
         }
 
         ObjectGuid GetGUID(int32 /*id*/) const override
