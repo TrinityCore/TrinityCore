@@ -1937,6 +1937,92 @@ class spell_q13086_cannons_target : public SpellScriptLoader
         }
 };
 
+enum ThatsAbominable
+{
+    QUEST_THATS_ABOMINABLE                = 13264,
+
+    NPC_ICY_GHOUL                         = 31142,
+    NPC_RISEN_ALLIANCE_SOLDIERS           = 31205,
+    NPC_VICIOUS_GEIST                     = 31147,
+    NPC_RENIMATED_ABOMINATION             = 31692,
+
+    SPELL_ICY_GHOUL_CREDIT                = 59591, // Credit for Icy Ghoul
+    SPELL_VICIOUS_GEISTS_CREDIT           = 60042, // Credit for Vicious Geists
+    SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT  = 60040, // Credit for Risen Alliance Soldiers
+};
+
+class spell_q13264_thats_abominable : public SpellScriptLoader
+{
+    public:
+        spell_q13264_thats_abominable() : SpellScriptLoader("spell_q13264_thats_abominable") { }
+
+        class spell_q13264_thats_abominable_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13264_thats_abominable_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                {
+                    SPELL_ICY_GHOUL_CREDIT,
+                    SPELL_VICIOUS_GEISTS_CREDIT,
+                    SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT,
+                });
+            }
+
+            void HandleKnockBack(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (Creature* creature = GetHitCreature())
+                    if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
+                        if (Player* player = charmer->ToPlayer())
+                            if (player->GetQuestStatus(QUEST_THATS_ABOMINABLE) == QUEST_STATUS_INCOMPLETE)
+                                if (GiveCreditIfValid(player, creature))
+                                    creature->KillSelf();
+            }
+
+            bool GiveCreditIfValid(Player* player, Creature* creature)
+            {
+                uint32 entry = creature->GetEntry();
+
+                switch(entry)
+                {
+                    case NPC_ICY_GHOUL:
+                        player->CastSpell(player, SPELL_ICY_GHOUL_CREDIT, true);
+                        return true;
+                    case NPC_VICIOUS_GEIST:
+                        player->CastSpell(player, SPELL_VICIOUS_GEISTS_CREDIT, true);
+                        return true;
+                    case NPC_RISEN_ALLIANCE_SOLDIERS:
+                        player->CastSpell(player, SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT, true);
+                        return true;
+                }
+
+                return false;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* creature = GetCaster()->ToCreature()) {
+                    creature->KillSelf();
+                    creature->DespawnOrUnsummon();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13264_thats_abominable_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
+                OnEffectHitTarget += SpellEffectFn(spell_q13264_thats_abominable_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q13264_thats_abominable_SpellScript();
+        }
+};
+
 enum BurstAtTheSeams
 {
     NPC_DRAKKARI_CHIEFTAINK                 = 29099,
@@ -2833,6 +2919,7 @@ void AddSC_quest_spell_scripts()
     new spell_q12847_summon_soul_moveto_bunny();
     new spell_q13011_bear_flank_master();
     new spell_q13086_cannons_target();
+    new spell_q13264_thats_abominable();
     new spell_q12690_burst_at_the_seams();
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
