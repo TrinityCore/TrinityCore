@@ -4113,6 +4113,19 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF THE VORTEX PINNACLE SPELLS
 
     //
+    // GRIM BATOL SPELLS
+    //
+    // General Umbriss
+    // Ground Siege
+    ApplySpellFix({ 74634, 90249 }, [](SpellInfo* spellInfo)
+    {
+        // SPELL_ATTR3_ONLY_TARGET_PLAYERS is the only attribute here so we can nullify it
+        spellInfo->AttributesEx3 = 0;
+    });
+
+    // ENDOF GRIM_BATOL SPELLS
+
+    //
     // THE LOST CITY OF THE TOL'VIR SPELLS
     //
     // General Husam

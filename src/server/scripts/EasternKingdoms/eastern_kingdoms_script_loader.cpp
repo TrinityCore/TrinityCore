@@ -73,6 +73,8 @@ void AddSC_boss_mr_smite();
 void AddSC_gilneas_c1();                     //Gilneas
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
+void AddSC_instance_grim_batol();            //Grim Batol
+void AddSC_boss_general_umbriss();
 void AddSC_boss_attumen();                   //Karazhan
 void AddSC_boss_curator();
 void AddSC_boss_maiden_of_virtue();
@@ -270,6 +272,8 @@ void AddEasternKingdomsScripts()
     AddSC_gilneas_c1();                     //Gilneas
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
+    AddSC_instance_grim_batol();            //Grim Batol
+    AddSC_boss_general_umbriss();
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();
     AddSC_boss_maiden_of_virtue();
