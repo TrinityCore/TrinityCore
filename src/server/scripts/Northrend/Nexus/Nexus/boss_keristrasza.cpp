@@ -116,7 +116,7 @@ class boss_keristrasza : public CreatureScript
 
             bool CheckContainmentSpheres(bool removePrison = false)
             {
-                for (uint32 i = ANOMALUS_CONTAINMET_SPHERE; i < (ANOMALUS_CONTAINMET_SPHERE + DATA_CONTAINMENT_SPHERES); ++i)
+                for (uint32 i = ANOMALUS_CONTAINMENT_SPHERE; i < (ANOMALUS_CONTAINMENT_SPHERE + DATA_CONTAINMENT_SPHERES); ++i)
                 {
                     GameObject* containmentSpheres = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(i));
                     if (!containmentSpheres || containmentSpheres->GetGoState() != GO_STATE_ACTIVE)
