@@ -99,27 +99,21 @@ class spell_warr_bloodthirst : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetEffectValue();
-                ApplyPct(damage, GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
+                uint32 APbonus = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+                if (Unit* victim = GetHitUnit())
+                    APbonus += victim->GetTotalAuraModifier(SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS);
 
-                if (Unit* target = GetHitUnit())
-                {
-                    damage = GetCaster()->SpellDamageBonusDone(target, GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE, { });
-                    damage = target->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE);
-                }
-                SetHitDamage(damage);
+                SetEffectValue(CalculatePct(APbonus, GetEffectValue()));
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.AddSpellBP0(GetEffectValue());
-                GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST, args);
+                GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST, true);
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectLaunchTarget += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnEffectHit += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
@@ -140,10 +134,16 @@ class spell_warr_bloodthirst_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_WARRIOR_BLOODTHIRST_DAMAGE });
+            }
+
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_BLOODTHIRST_DAMAGE))
-                    SetHitHeal(GetCaster()->CountPctFromMaxHealth(spellInfo->Effects[EFFECT_1].CalcValue(GetCaster())));
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_BLOODTHIRST_DAMAGE);
+                int32 const healPct = spellInfo->Effects[EFFECT_1].CalcValue(GetCaster());
+                SetHitHeal(GetCaster()->CountPctFromMaxHealth(healPct));
             }
 
             void Register() override

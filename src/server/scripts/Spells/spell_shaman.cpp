@@ -432,13 +432,6 @@ class spell_sha_earth_shield : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_EARTH_SHIELD_HEAL });
             }
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (Unit* caster = GetCaster())
-                    amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL, { });
-                // SpellHealingBonusTaken will be called on Heal
-            }
-
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
@@ -451,7 +444,6 @@ class spell_sha_earth_shield : public SpellScriptLoader
 
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_earth_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_DUMMY);
                 OnEffectProc += AuraEffectProcFn(spell_sha_earth_shield_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
@@ -988,31 +980,24 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();
-                SpellInfo const* triggeringSpell = GetTriggeringSpell();
                 if (Unit* target = GetHitUnit())
                 {
-                    if (Unit* caster = GetCaster())
-                    {
+                    Unit* caster = GetCaster();
+                    if (caster->GetTypeId() == TYPEID_UNIT && caster->IsTotem())
                         if (Unit* owner = caster->GetOwner())
-                        {
-                            if (triggeringSpell)
-                                damage = int32(owner->SpellHealingBonusDone(target, triggeringSpell, damage, HEAL, { }));
+                            caster = owner;
 
-                            // Restorative Totems
-                            if (AuraEffect* dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_RESTORATIVE_TOTEMS, 1))
-                                AddPct(damage, dummy->GetAmount());
+                    // Restorative Totems
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_RESTORATIVE_TOTEMS, EFFECT_1))
+                        AddPct(damage, aurEff->GetAmount());
 
-                            // Glyph of Healing Stream Totem
-                            if (AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
-                                AddPct(damage, aurEff->GetAmount());
+                    // Glyph of Healing Stream Totem
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
+                        AddPct(damage, aurEff->GetAmount());
 
-                            damage = int32(target->SpellHealingBonusTaken(owner, triggeringSpell, damage, HEAL));
-                        }
-
-                        CastSpellExtraArgs args(GetOriginalCaster()->GetGUID());
-                        args.AddSpellBP0(damage);
-                        caster->CastSpell(target, SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, args);
-                    }
+                    CastSpellExtraArgs args(GetOriginalCaster()->GetGUID());
+                    args.AddSpellBP0(damage);
+                    caster->CastSpell(target, SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, args);
                 }
             }
 
