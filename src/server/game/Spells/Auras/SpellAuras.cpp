@@ -1669,6 +1669,27 @@ uint32 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& even
     if (!procEntry)
         return 0;
 
+    // check spell triggering us
+    if (Spell const* spell = eventInfo.GetProcSpell())
+    {
+        // Do not allow auras to proc from effect triggered from itself
+        if (spell->IsTriggeredByAura(m_spellInfo))
+            return 0;
+
+        // check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
+        if (spell->IsTriggered() && !(procEntry->AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
+            if (!GetSpellInfo()->HasAttribute(SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED))
+                return 0;
+    }
+
+    // check don't break stealth attr present
+    if (m_spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_MOD_STEALTH))
+    {
+        if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+            if (spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_BREAK_STEALTH))
+                return 0;
+    }
+
     // check if we have charges to proc with
     if (IsUsingCharges())
     {
@@ -1686,23 +1707,8 @@ uint32 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& even
         return 0;
 
     // do checks against db data
-    if (!sSpellMgr->CanSpellTriggerProcOnEvent(*procEntry, eventInfo))
+    if (!SpellMgr::CanSpellTriggerProcOnEvent(*procEntry, eventInfo))
         return 0;
-
-    // check don't break stealth attr present
-    if (m_spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_MOD_STEALTH))
-    {
-        if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
-            if (spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_BREAK_STEALTH))
-                return 0;
-    }
-
-    // check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
-    if (!(procEntry->AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
-        if (Spell const* spell = eventInfo.GetProcSpell())
-            if (spell->IsTriggered())
-                if (!GetSpellInfo()->HasAttribute(SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED))
-                    return 0;
 
     // do checks using conditions table
     if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPELL_PROC, GetId(), eventInfo.GetActor(), eventInfo.GetActionTarget()))

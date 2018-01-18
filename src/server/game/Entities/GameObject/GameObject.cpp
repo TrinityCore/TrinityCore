@@ -197,7 +197,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit /*= 0*/)
+bool GameObject::Create(uint32 name_id, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit /*= 0*/)
 {
     ASSERT(map);
     SetMap(map);
@@ -381,7 +381,7 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 phaseMask, Position con
     if (uint32 linkedEntry = GetGOInfo()->GetLinkedGameObjectEntry())
     {
         GameObject* linkedGO = new GameObject();
-        if (linkedGO->Create(linkedEntry, map, phaseMask, pos, rotation, 255, GO_STATE_READY))
+        if (linkedGO->Create(linkedEntry, map, pos, rotation, 255, GO_STATE_READY))
         {
             SetLinkedTrap(linkedGO);
             map->AddToMap(linkedGO);
@@ -906,8 +906,8 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     data.spawnMask = spawnMask;
     data.artKit = GetGoArtKit();
 
-    data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : 0;
-    data.phaseGroup = GetDBPhase() < 0 ? std::abs(GetDBPhase()) : 0;
+    data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
+    data.phaseGroup = GetDBPhase() < 0 ? -GetDBPhase() : data.phaseGroup;
 
     // Update in DB
     SQLTransaction trans = WorldDatabase.BeginTransaction();
@@ -959,7 +959,7 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
     uint32 artKit = data->artKit;
 
     m_spawnId = spawnId;
-    if (!Create(entry, map, PHASEMASK_NORMAL, pos, data->rotation, animprogress, go_state, artKit))
+    if (!Create(entry, map, pos, data->rotation, animprogress, go_state, artKit))
         return false;
 
     if (data->phaseId)
@@ -1221,18 +1221,8 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
     if (!trapSpell)                                          // checked at load already
         return;
 
-    float range = float(target->GetSpellMaxRangeForTarget(GetOwner(), trapSpell));
-
-    // search nearest linked GO
-    GameObject* trapGO = nullptr;
-    // using original GO distance
-    Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*target, trapEntry, range);
-    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO, go_check);
-    Cell::VisitGridObjects(this, checker, range);
-
-    // found correct GO
-    if (trapGO)
-        trapGO->CastSpell(target, trapInfo->trap.spell);
+    if (GameObject* trapGO = GetLinkedTrap())
+        trapGO->CastSpell(target, trapSpell->Id);
 }
 
 GameObject* GameObject::LookupFishingHoleAround(float range)

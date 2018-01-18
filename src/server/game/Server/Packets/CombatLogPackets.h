@@ -39,7 +39,7 @@ namespace WorldPackets
             int32 SpellID = 0;
             int32 SpellXSpellVisualID = 0;
             int32 Damage = 0;
-            int32 Overkill = 0;
+            int32 Overkill = -1;
             uint8 SchoolMask = 0;
             int32 ShieldBlock = 0;
             int32 Resisted = 0;
