@@ -733,12 +733,27 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
         // if one delayed trigger spell fail, the next one must also fail
         uint32 triggerSpellId           = m_spellInfo->Id;
         ObjectGuid originalCasterGUID   = m_originalCasterGUID;
+        ObjectGuid targetGUID           = targets.GetUnitTargetGUID();
 
-        m_caster->GetScheduler().Schedule(Milliseconds(effectInfo->MiscValue), triggerSpellId, [targets, spellInfo, values, originalCasterGUID, triggerSpellId](TaskContext task)
+        SpellDestination targetDest;
+        if (targets.GetDst())
+            targetDest = *targets.GetDst();
+
+        m_caster->GetScheduler().Schedule(Milliseconds(effectInfo->MiscValue), triggerSpellId, [targetGUID, targetDest, spellInfo, values, originalCasterGUID, triggerSpellId](TaskContext context)
         {
-            if (Unit* caster = task.GetContextUnit())
-                if (!caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, originalCasterGUID))
-                    task.CancelGroup(triggerSpellId);
+            if (Unit* caster = context.GetContextUnit())
+            {
+                SpellCastTargets delayedTargets;
+
+                if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
+                    delayedTargets.SetDst(targetDest);
+
+                if (Unit* target = ObjectAccessor::GetUnit(*caster, targetGUID))
+                    delayedTargets.SetUnitTarget(target);
+
+                if (!caster->CastSpell(delayedTargets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, originalCasterGUID))
+                    context.CancelGroup(triggerSpellId);
+            }
         });
     }
     else
