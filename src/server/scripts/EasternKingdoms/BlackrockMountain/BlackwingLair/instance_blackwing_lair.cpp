@@ -102,17 +102,19 @@ public:
             }
         }
 
+        uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) override
+        {
+            if (entry == GO_BLACK_DRAGON_EGG && GetBossState(DATA_FIREMAW) == DONE)
+                return 0;
+            return entry;
+        }
+
         void OnGameObjectCreate(GameObject* go) override
         {
             InstanceScript::OnGameObjectCreate(go);
 
             if (go->GetEntry() == GO_BLACK_DRAGON_EGG)
-            {
-                if (GetBossState(DATA_FIREMAW) == DONE)
-                    go->SetPhaseMask(2, true);
-                else
-                    EggList.push_back(go->GetGUID());
-            }
+                EggList.push_back(go->GetGUID());
         }
 
         void OnGameObjectRemove(GameObject* go) override
@@ -255,7 +257,6 @@ public:
                     case EVENT_RESPAWN_NEFARIUS:
                         if (Creature* nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS))
                         {
-                            nefarius->SetPhaseMask(1, true);
                             nefarius->setActive(true);
                             nefarius->Respawn();
                             nefarius->GetMotionMaster()->MoveTargetedHome();
