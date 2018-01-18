@@ -2554,7 +2554,7 @@ void Group::SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags fla
 Group::Rolls::iterator Group::GetRoll(ObjectGuid lootObjectGuid, uint8 lootListId)
 {
     for (Rolls::iterator iter = RollId.begin(); iter != RollId.end(); ++iter)
-        if ((**iter)->GetGUID() == lootObjectGuid && (*iter)->itemSlot == lootListId && (*iter)->isValid())
+        if ((*iter)->isValid() && (**iter)->GetGUID() == lootObjectGuid && (*iter)->itemSlot == lootListId)
             return iter;
 
     return RollId.end();
