@@ -41,7 +41,6 @@ enum Spells
 
 enum Events
 {
-    // General Husam
     EVENT_BLEEDING_WOUND = 1,
     EVENT_BLITZ,
     EVENT_GROUND_SIEGE,
