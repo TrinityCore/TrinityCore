@@ -110,7 +110,7 @@ public:
                 {
                     float x, y, z, o;
                     target->GetPosition(x, y, z, o);
-                    uint32 p = target->GetPhaseMask();
+                    std::set<uint32> p = target->GetPhases();
                     switch (ID)
                     {
                     case DELET: GOMove::DeleteGameObject(target); GOMove::SendRemove(player, lowguid); break;
@@ -187,7 +187,7 @@ public:
                 {
                     float x, y, z, o;
                     target->GetPosition(x, y, z, o);
-                    uint32 p = target->GetPhaseMask();
+                    std::set<uint32> p = target->GetPhases();
                     switch (ID)
                     {
                     case NORTH: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y, z, o, p, lowguid);                            break;
@@ -202,7 +202,7 @@ public:
                     case DOWN: GOMove::MoveGameObject(player, x, y, z - ((float)ARG / 100), o, p, lowguid);                             break;
                     case RIGHT: GOMove::MoveGameObject(player, x, y, z, o - ((float)ARG / 100), p, lowguid);                            break;
                     case LEFT: GOMove::MoveGameObject(player, x, y, z, o + ((float)ARG / 100), p, lowguid);                             break;
-                    case PHASE: GOMove::MoveGameObject(player, x, y, z, o, ARG, lowguid);                                               break;
+                    case PHASE: GOMove::MoveGameObject(player, x, y, z, o, {ARG}, lowguid);                                               break;
                     }
                 }
             }
@@ -212,7 +212,7 @@ public:
                 {
                 case SPAWN:
                 {
-                    if (GOMove::SpawnGameObject(player, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), player->GetPhaseMask(), ARG))
+                    if (GOMove::SpawnGameObject(player, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), player->GetPhases(), ARG))
                         GOMove::Store.SpawnQueAdd(player->GetGUID(), ARG);
                 } break;
                 case SPAWNSPELL:
@@ -256,7 +256,7 @@ public:
             if (!summonPos)
                 return;
             if (uint32 entry = GOMove::Store.SpawnQueGet(player->GetGUID()))
-                GOMove::SpawnGameObject(player, summonPos->GetPositionX(), summonPos->GetPositionY(), summonPos->GetPositionZ(), player->GetOrientation(), player->GetPhaseMask(), entry);
+                GOMove::SpawnGameObject(player, summonPos->GetPositionX(), summonPos->GetPositionY(), summonPos->GetPositionZ(), player->GetOrientation(), player->GetPhases(), entry);
         }
 
         void Register() override

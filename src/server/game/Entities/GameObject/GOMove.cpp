@@ -86,7 +86,7 @@ void GOMove::DeleteGameObject(GameObject * object)
     object->DeleteFromDB();
 }
 
-GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, float o, uint32 /*p*/, uint32 entry)
+GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, float o, std::set<uint32> p, uint32 entry)
 {
     if (!player || !entry)
         return nullptr;
@@ -114,17 +114,22 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     pos.m_positionZ = z;
     pos.SetOrientation(o);
     GameObject* object = new GameObject;
-    if (!object->Create(objectInfo->entry, map, 0, pos, quat, 0.0f, GO_STATE_READY))
+    if (!object->Create(objectInfo->entry, map, pos, quat, 255, GO_STATE_READY))
     {
         delete object;
         return nullptr;
     }
 
-    //fix to get the right rotation after spawn visualized
-    object->SetWorldRotationAngles(o, 0.0f, 0.0f);
+    // copy paste from WorldObject::CopyPhaseFrom(object, update)
+    bool update = false;
+    for (uint32 phase : p)
+        object->SetInPhase(phase, false, true);
+    if (update && object->IsInWorld())
+        object->UpdateObjectVisibility();
+
     // fill the gameobject data and save to the db
     object->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
-    ObjectGuid::LowType guidLow = object->GetSpawnId();
+    ObjectGuid::LowType spawnId = object->GetSpawnId();
 
     // delete the old object and do a clean load from DB with a fresh new GameObject instance.
     // this is required to avoid weird behavior and memory leaks
@@ -132,21 +137,21 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
 
     object = new GameObject();
     // this will generate a new guid if the object is in an instance
-    if (!object->LoadGameObjectFromDB(guidLow, map))
+    if (!object->LoadGameObjectFromDB(spawnId, map))
     {
         delete object;
         return nullptr;
     }
 
     /// @todo is it really necessary to add both the real and DB table guid here ?
-    sObjectMgr->AddGameobjectToGrid(guidLow, ASSERT_NOTNULL(sObjectMgr->GetGOData(guidLow)));
+    sObjectMgr->AddGameobjectToGrid(spawnId, ASSERT_NOTNULL(sObjectMgr->GetGOData(spawnId)));
 
     if (object)
-        SendAdd(player, guidLow);
+        SendAdd(player, spawnId);
     return object;
 }
 
-GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, float o, uint32 /*p*/, ObjectGuid::LowType lowguid)
+GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, float o, std::set<uint32> p, ObjectGuid::LowType lowguid)
 {
     if (!player)
         return nullptr;
@@ -161,32 +166,29 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
     if (!MapManager::IsValidMapCoord(object->GetMapId(), x, y, z))
         return nullptr;
 
-    // copy paste .gob move command
     // copy paste .gob turn command
     object->Relocate(x, y, z, o);
     object->RelocateStationaryPosition(x, y, z, o);
     object->SetWorldRotationAngles(o, 0.0f, 0.0f);
-    object->UpdateModelPosition();
+    object->DestroyForNearbyPlayers();
     object->UpdateObjectVisibility();
+
+    // copy paste .gob move command
+    object->DestroyForNearbyPlayers();
+    object->RelocateStationaryPosition(x, y, z, object->GetOrientation());
+    object->GetMap()->GameObjectRelocation(object, x, y, z, object->GetOrientation());
+
+    // copy paste .gob phase command
+    // TODO multi phase support for 7.x
+    object->ClearPhases();
+    // copy paste from WorldObject::CopyPhaseFrom(object, update)
+    bool update = true;
+    for (uint32 phase : p)
+        object->SetInPhase(phase, false, true);
+    if (update && object->IsInWorld())
+        object->UpdateObjectVisibility();
+
     object->SaveToDB();
-
-    // Generate a completely new spawn with new guid
-    // 3.3.5a client caches recently deleted objects and brings them back to life
-    // when CreateObject block for this guid is received again
-    // however it entirely skips parsing that block and only uses already known location
-    object->Delete();
-
-    object = new GameObject();
-    if (!object->LoadGameObjectFromDB(lowguid, map))
-    {
-        delete object;
-        SendRemove(player, lowguid);
-        return nullptr;
-    }
-
-    // copy paste from .gob phase command
-    // object->SetPhaseMask(p, true);
-    // object->SaveToDB();
 
     return object;
 }
