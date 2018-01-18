@@ -1440,24 +1440,24 @@ public:
 
         bool found = false;
         ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
-        for (auto const& itemTemplate : its)
+        for (auto const& itemTemplatePair : its)
         {
-            if (!itemTemplate || itemTemplate->GetItemSet() != itemSetId)
+            if (itemTemplatePair.second.GetItemSet() != itemSetId)
                 continue;
 
             found = true;
             ItemPosCountVec dest;
-            InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemTemplate->GetId(), 1);
+            InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemTemplatePair.first, 1);
             if (msg == EQUIP_ERR_OK)
             {
                 std::vector<int32> bonusListIDsForItem = bonusListIDs; // copy, bonuses for each depending on context might be different for each item
                 if (itemContext != ItemContext::NONE && itemContext < ItemContext::Max)
                 {
-                    std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(itemTemplate->GetId(), itemContext);
+                    std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(itemTemplatePair.first, itemContext);
                     bonusListIDsForItem.insert(bonusListIDsForItem.begin(), contextBonuses.begin(), contextBonuses.end());
                 }
 
-                Item* item = playerTarget->StoreNewItem(dest, itemTemplate->GetId(), true, {}, GuidSet(), itemContext, bonusListIDsForItem);
+                Item* item = playerTarget->StoreNewItem(dest, itemTemplatePair.first, true, {}, GuidSet(), itemContext, bonusListIDsForItem);
 
                 // remove binding (let GM give it to another player later)
                 if (player == playerTarget)
@@ -1469,8 +1469,8 @@ public:
             }
             else
             {
-                player->SendEquipError(msg, nullptr, nullptr, itemTemplate->GetId());
-                handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemTemplate->GetId(), 1);
+                player->SendEquipError(msg, nullptr, nullptr, itemTemplatePair.first);
+                handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemTemplatePair.first, 1);
             }
         }
 

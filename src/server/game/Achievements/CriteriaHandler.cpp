@@ -4214,12 +4214,9 @@ void CriteriaMgr::LoadCriteriaList()
             scenarioCriteriaTreeIds[scenarioStep->Criteriatreeid] = scenarioStep;
 
     std::unordered_map<uint32 /*criteriaTreeID*/, QuestObjective const*> questObjectiveCriteriaTreeIds;
-    for (auto const& questTemplate : sObjectMgr->GetQuestTemplates())
+    for (auto const& questTemplatePair : sObjectMgr->GetQuestTemplates())
     {
-        if (!questTemplate)
-            continue;
-
-        for (QuestObjective const& objective : questTemplate->Objectives)
+        for (QuestObjective const& objective : questTemplatePair.second.Objectives)
         {
             if (objective.Type != QUEST_OBJECTIVE_CRITERIA_TREE)
                 continue;
