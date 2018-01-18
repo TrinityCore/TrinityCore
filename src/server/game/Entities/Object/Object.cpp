@@ -449,7 +449,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         data->WriteBit(HasSpline);
         data->FlushBits();
 
-        for (auto itr : unit->GetMovementForces())
+        for (auto const& itr : unit->GetMovementForces())
         {
             *data << itr.first;
             *data << itr.second.Origin;
