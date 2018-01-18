@@ -573,7 +573,9 @@ class boss_kaelthas : public CreatureScript
                 if (_phase == PHASE_NONE)
                 {
                     DoAction(ACTION_START_ENCOUNTER);
-                    me->SetTarget(attacker->GetGUID());
+
+                    if (attacker)
+                        me->SetTarget(attacker->GetGUID());
                 }
 
                 if (!_hasFullPower && me->HealthBelowPctDamaged(50, damage))

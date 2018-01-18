@@ -1781,7 +1781,8 @@ public:
 
         void DamageTaken(Unit* doneBy, uint32& damage) override
         {
-            _damageTimes[doneBy->GetGUID()] = GameTime::GetGameTime();
+            if (doneBy)
+                _damageTimes[doneBy->GetGUID()] = GameTime::GetGameTime();
             damage = 0;
         }
 
