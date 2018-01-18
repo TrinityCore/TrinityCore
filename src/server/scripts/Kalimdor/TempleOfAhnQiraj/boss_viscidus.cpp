@@ -119,7 +119,7 @@ class boss_viscidus : public CreatureScript
 
                 ++_hitcounter;
 
-                if (attacker->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && _hitcounter >= HITCOUNTER_EXPLODE)
+                if (attacker && attacker->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && _hitcounter >= HITCOUNTER_EXPLODE)
                 {
                     Talk(EMOTE_EXPLODE);
                     events.Reset();

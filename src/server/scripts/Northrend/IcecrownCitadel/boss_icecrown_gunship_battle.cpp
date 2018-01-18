@@ -975,7 +975,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 return false;
             }
 
-            void DamageTaken(Unit* , uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(65, damage) && !me->HasAura(SPELL_TASTE_OF_BLOOD))
                     DoCast(me, SPELL_TASTE_OF_BLOOD, true);
@@ -1245,7 +1245,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 return false;
             }
 
-            void DamageTaken(Unit* , uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(65, damage) && me->HasAura(SPELL_TASTE_OF_BLOOD))
                     DoCast(me, SPELL_TASTE_OF_BLOOD, true);

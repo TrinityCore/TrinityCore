@@ -67,7 +67,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage) override
         {
-            if (who->GetTypeId() == TYPEID_UNIT && me->HealthBelowPctDamaged(82, damage))
+            if ((!who || who->GetTypeId() == TYPEID_UNIT) && me->HealthBelowPctDamaged(82, damage))
                 damage = 0;
         }
 
@@ -102,7 +102,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage) override
         {
-            if (who->GetTypeId() == TYPEID_UNIT && me->HealthBelowPctDamaged(82, damage))
+            if ((!who || who->GetTypeId() == TYPEID_UNIT) && me->HealthBelowPctDamaged(82, damage))
                 damage = 0;
         }
 

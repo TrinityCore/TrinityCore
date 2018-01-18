@@ -716,7 +716,8 @@ class boss_leviathan_mk_ii : public CreatureScript
                     {
                         me->SetStandState(UNIT_STAND_STATE_DEAD);
 
-                        if (IsEncounterFinished(who))
+                        Unit* ref = who ? who : me;
+                        if (IsEncounterFinished(ref))
                             return;
 
                         me->CastStop();
@@ -960,7 +961,8 @@ class boss_vx_001 : public CreatureScript
                         me->SetStandState(UNIT_STAND_STATE_DEAD);
                         me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
-                        if (IsEncounterFinished(who))
+                        Unit* ref = who ? who : me;
+                        if (IsEncounterFinished(ref))
                             return;
 
                         me->CastStop();
@@ -1139,7 +1141,8 @@ class boss_aerial_command_unit : public CreatureScript
                     {
                         me->SetStandState(UNIT_STAND_STATE_DEAD);
 
-                        if (IsEncounterFinished(who))
+                        Unit* ref = who ? who : me;
+                        if (IsEncounterFinished(ref))
                             return;
 
                         me->CastStop();

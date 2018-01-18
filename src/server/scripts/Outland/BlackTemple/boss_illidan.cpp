@@ -703,8 +703,7 @@ struct boss_illidan_stormrage : public BossAI
 
     void DamageTaken(Unit* who, uint32 &damage) override
     {
-
-        if (damage >= me->GetHealth() && who->GetGUID() != me->GetGUID())
+        if (damage >= me->GetHealth() && (!who || who->GetGUID() != me->GetGUID()))
         {
             damage = me->GetHealth() - 1;
             if (!_dead)

@@ -301,7 +301,7 @@ class boss_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
-                    if (!me->IsInPhase(attacker))
+                    if (!attacker || !me->IsInPhase(attacker))
                         return;
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -482,7 +482,7 @@ class boss_twilight_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
-                    if (!me->IsInPhase(attacker))
+                    if (!attacker || !me->IsInPhase(attacker))
                         return;
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
