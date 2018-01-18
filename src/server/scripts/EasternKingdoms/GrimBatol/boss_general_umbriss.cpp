@@ -159,7 +159,7 @@ class boss_general_umbriss : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
-                if (me->HealthBelowPct(30) && !_frenzyCasted && !me->HasAura(SPELL_FRENZY))
+                if (me->HealthBelowPct(30) && !_frenzyCasted)
                 {
                     _frenzyCasted = true;
                     DoCastSelf(SPELL_FRENZY, true);
