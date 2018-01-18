@@ -162,7 +162,6 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
         return nullptr;
     }
 
-    Map* map = object->GetMap();
     if (!MapManager::IsValidMapCoord(object->GetMapId(), x, y, z))
         return nullptr;
 
