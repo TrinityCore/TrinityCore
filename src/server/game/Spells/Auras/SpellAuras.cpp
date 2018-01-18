@@ -1720,29 +1720,29 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
     Unit* target = aurApp->GetTarget();
     if (IsPassive() && target->GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetSpellInfo()->EquippedItemClass == ITEM_CLASS_WEAPON)
+        if (!GetSpellInfo()->HasAttribute(SPELL_ATTR3_NO_PROC_EQUIP_REQUIREMENT))
         {
-            if (target->ToPlayer()->IsInFeralForm())
-                return 0;
-
-            if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
+            Item* item = nullptr;
+            if (GetSpellInfo()->EquippedItemClass == ITEM_CLASS_WEAPON)
             {
-                WeaponAttackType attType = damageInfo->GetAttackType();
-                Item* item = nullptr;
-                if (attType == BASE_ATTACK || attType == RANGED_ATTACK)
-                    item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                else if (attType == OFF_ATTACK)
-                    item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-                if (!item || item->IsBroken() || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON || !((1 << item->GetTemplate()->GetSubClass()) & GetSpellInfo()->EquippedItemSubClassMask))
+                if (target->ToPlayer()->IsInFeralForm())
                     return 0;
+
+                if (DamageInfo const* damageInfo = eventInfo.GetDamageInfo())
+                {
+                    if (damageInfo->GetAttackType() != OFF_ATTACK)
+                        item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    else
+                        item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                }
             }
-        }
-        else if (GetSpellInfo()->EquippedItemClass == ITEM_CLASS_ARMOR)
-        {
-            // Check if player is wearing shield
-            Item* item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            if (!item || item->IsBroken() || item->GetTemplate()->GetClass() != ITEM_CLASS_ARMOR || !((1 << item->GetTemplate()->GetSubClass()) & GetSpellInfo()->EquippedItemSubClassMask))
+            else if (GetSpellInfo()->EquippedItemClass == ITEM_CLASS_ARMOR)
+            {
+                // Check if player is wearing shield
+                item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+            }
+
+            if (!item || item->IsBroken() || !item->IsFitToSpellRequirements(GetSpellInfo()))
                 return 0;
         }
     }

@@ -482,7 +482,7 @@ enum SpellAttr2
 enum SpellAttr3
 {
     SPELL_ATTR3_UNK0                             = 0x00000001, //  0
-    SPELL_ATTR3_UNK1                             = 0x00000002, //  1
+    SPELL_ATTR3_NO_PROC_EQUIP_REQUIREMENT        = 0x00000002, //  1 Ignores subclass mask check when checking proc
     SPELL_ATTR3_UNK2                             = 0x00000004, //  2
     SPELL_ATTR3_BLOCKABLE_SPELL                  = 0x00000008, //  3 Only dmg class melee in 3.1.3
     SPELL_ATTR3_IGNORE_RESURRECTION_TIMER        = 0x00000010, //  4 you don't have to wait to be resurrected with these spells
