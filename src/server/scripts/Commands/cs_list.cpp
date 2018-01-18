@@ -600,7 +600,7 @@ public:
             return false;
         }
 
-        SceneTemplateByInstance const& instanceByPackageMap = target->GetSceneMgr().GetSceneTemplateByInstanceMap();
+        SceneTemplateByInstance const& instanceByPackageMap = target->GetSceneMgr().GetSceneByInstanceMap();
 
         handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_LIST, target->GetSceneMgr().GetActiveSceneCount());
 

@@ -230,7 +230,7 @@ void SceneMgr::RemoveAurasDueToSceneId(uint32 sceneId)
     }
 }
 
-SceneTemplate const* SceneMgr::GetSceneTemplateFromInstanceId(uint32 sceneInstanceID)
+SceneTemplate const* SceneMgr::GetSceneTemplateFromInstanceId(uint32 sceneInstanceID) const
 {
     auto itr = _scenesByInstance.find(sceneInstanceID);
 
@@ -240,7 +240,7 @@ SceneTemplate const* SceneMgr::GetSceneTemplateFromInstanceId(uint32 sceneInstan
     return nullptr;
 }
 
-uint32 SceneMgr::GetActiveSceneCount(uint32 sceneScriptPackageId /*= 0*/)
+uint32 SceneMgr::GetActiveSceneCount(uint32 sceneScriptPackageId /*= 0*/) const
 {
     uint32 activeSceneCount = 0;
 

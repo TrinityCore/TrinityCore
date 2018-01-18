@@ -184,6 +184,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         case HighGuid::DynamicObject:
         case HighGuid::AreaTrigger:
         case HighGuid::Conversation:
+        case HighGuid::SceneObject:
             updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
         case HighGuid::Creature:
@@ -354,7 +355,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
     bool SmoothPhasing = false;
     bool SceneObjCreate = false;
-    bool PlayerCreateData = GetTypeId() == TYPEID_PLAYER && ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
+    bool PlayerCreateData = IsPlayer() && ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
     std::vector<uint32> const* PauseTimes = nullptr;
     uint32 PauseTimesCount = 0;
     if (GameObject const* go = ToGameObject())
@@ -803,21 +804,22 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
     if (PlayerCreateData)
     {
-        bool HasSceneInstanceIDs = false;
+        Player const* player = ToPlayer();
+
+        uint32 SceneInstanceIDCount = player->GetSceneMgr().GetActiveSceneCount();
         bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
 
-        data->WriteBit(HasSceneInstanceIDs);
+        data->WriteBit(SceneInstanceIDCount != 0);
         data->WriteBit(HasRuneState);
         data->FlushBits();
-        //if (HasSceneInstanceIDs)
-        //{
-        //    *data << uint32(SceneInstanceIDs.size());
-        //    for (std::size_t i = 0; i < SceneInstanceIDs.size(); ++i)
-        //        *data << uint32(SceneInstanceIDs[i]);
-        //}
+        if (SceneInstanceIDCount >= 0)
+        {
+            *data << uint32(SceneInstanceIDCount);
+            for (auto itr : player->GetSceneMgr().GetSceneByInstanceMap())
+                *data << uint32(itr.first);
+        }
         if (HasRuneState)
         {
-            Player const* player = ToPlayer();
             float baseCd = float(player->GetRuneBaseCooldown());
             uint32 maxRunes = uint32(player->GetMaxPower(POWER_RUNES));
 

@@ -14585,6 +14585,22 @@ void Unit::GetAreatriggerListInRange(std::list<AreaTrigger*>& list, float fMaxSe
     l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, fMaxSearchRange);
 }
 
+void Unit::GetSceneObjectListInRange(std::list<SceneObject*>& list, float fMaxSearchRange) const
+{
+    CellCoord l_Coords(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
+    Cell l_Cell(l_Coords);
+    l_Cell.SetNoCreate();
+
+    Trinity::AnySceneObjectInObjectRangeCheck l_Check(this, fMaxSearchRange);
+    Trinity::SceneObjectVectorSearcher<Trinity::AnySceneObjectInObjectRangeCheck> searcher(this, list, l_Check);
+
+    TypeContainerVisitor<Trinity::SceneObjectVectorSearcher<Trinity::AnySceneObjectInObjectRangeCheck>, WorldTypeMapContainer> l_WorldSearcher(searcher);
+    TypeContainerVisitor<Trinity::SceneObjectVectorSearcher<Trinity::AnySceneObjectInObjectRangeCheck>, GridTypeMapContainer>  l_GridSearcher(searcher);
+
+    l_Cell.Visit(l_Coords, l_WorldSearcher, *GetMap(), *this, fMaxSearchRange);
+    l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, fMaxSearchRange);
+}
+
 void Unit::GetConversationListInRange(std::list<Conversation*>& list, float fMaxSearchRange) const
 {
     CellCoord l_Coords(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
