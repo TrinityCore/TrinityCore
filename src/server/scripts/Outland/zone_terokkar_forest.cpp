@@ -103,9 +103,10 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage) override
         {
-            Player* player = done_by->ToPlayer();
+            if (!done_by || !me->HealthBelowPctDamaged(30, damage))
+                return;
 
-            if (player && me->HealthBelowPctDamaged(30, damage))
+            if (Player* player = done_by->ToPlayer())
             {
                 if (Group* group = player->GetGroup())
                 {
