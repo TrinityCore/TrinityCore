@@ -1607,7 +1607,7 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
         if (!creature->GetCharmInfo())
         {
             TC_LOG_ERROR("entities.unit", "Trying to spawn Creature (Entry: %u) with script '%s' inheriting from not allowed AI 'PetAI', this Creature will have a default AI",
-                creature->GetEntry(), creature->GetScriptName());
+                creature->GetEntry(), creature->GetScriptName().c_str());
             delete ai;
             return nullptr;
         }
