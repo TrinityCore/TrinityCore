@@ -68,9 +68,9 @@ public:
     void RemoveSceneInstanceId(uint32 sceneInstanceID);
     void RemoveAurasDueToSceneId(uint32 sceneId);
 
-    SceneTemplate const* GetSceneTemplateFromInstanceId(uint32 sceneInstanceID);
-    uint32 GetActiveSceneCount(uint32 sceneScriptPackageId = 0);
-    SceneTemplateByInstance const& GetSceneTemplateByInstanceMap() const { return _scenesByInstance; }
+    SceneTemplate const* GetSceneTemplateFromInstanceId(uint32 sceneInstanceID)  const;
+    uint32 GetActiveSceneCount(uint32 sceneScriptPackageId = 0)  const;
+    SceneTemplateByInstance const& GetSceneByInstanceMap() const { return _scenesByInstance; }
 
     uint32 GetNewStandaloneSceneInstanceID() { return ++_standaloneSceneInstanceID; }
 

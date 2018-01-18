@@ -27,6 +27,7 @@
 #include "GameObject.h"
 #include "Packet.h"
 #include "Player.h"
+#include "SceneObject.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "UnitAI.h"
@@ -115,6 +116,7 @@ namespace Trinity
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
         void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
+        void Visit(SceneObjectMapType &m) { updateObjects<SceneObject>(m); }
         void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
 
@@ -208,6 +210,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(SceneObjectMapType &m);
         void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -230,6 +233,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(SceneObjectMapType &m);
         void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -253,6 +257,7 @@ namespace Trinity
         void Visit(GameObjectMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(SceneObjectMapType &m);
         void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -317,6 +322,15 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
                 return;
             for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+                if (itr->GetSource()->IsInPhase(_searcher))
+                    i_do(itr->GetSource());
+        }
+
+        void Visit(SceneObjectMapType &m)
+        {
+            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_SCENEOBJECT))
+                return;
+            for (SceneObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
                 if (itr->GetSource()->IsInPhase(_searcher))
                     i_do(itr->GetSource());
         }
@@ -645,6 +659,37 @@ namespace Trinity
 
     /// Conversation searchers
     template<class Check>
+    struct SceneObjectVectorSearcher
+    {
+        WorldObject const* i_searcher;
+        std::list<SceneObject*>& m_SceneObjects;
+        Check& i_check;
+
+        SceneObjectVectorSearcher(WorldObject const* searcher, std::list<SceneObject*>& sceneObject, Check& check)
+            : i_searcher(searcher), m_SceneObjects(sceneObject), i_check(check) { }
+
+        void Visit(SceneObjectMapType& p_SceneObjectMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    template<class Check>
+    struct SceneObjectSearcher
+    {
+        WorldObject const* i_searcher;
+        SceneObject* &i_object;
+        Check & i_check;
+
+        SceneObjectSearcher(WorldObject const* searcher, SceneObject* & result, Check & check)
+            : i_searcher(searcher), i_object(result), i_check(check) { }
+
+        void Visit(SceneObjectMapType& p_ConversationMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    /// Conversation searchers
+    template<class Check>
     struct ConversationVectorSearcher
     {
         WorldObject const* i_searcher;
@@ -744,6 +789,22 @@ namespace Trinity
         private:
             Unit const* i_unit;
             uint32 i_focusId;
+    };
+
+    class AnySceneObjectInObjectRangeCheck
+    {
+    public:
+        AnySceneObjectInObjectRangeCheck(WorldObject const* p_Object, float p_Range) : m_Object(p_Object), m_Range(p_Range) { }
+        bool operator()(SceneObject* p_SceneObject)
+        {
+            if (m_Object->IsWithinDistInMap(p_SceneObject, m_Range))
+                return true;
+
+            return false;
+        }
+    private:
+        WorldObject const* m_Object;
+        float m_Range;
     };
 
     class AnyConversationInObjectRangeCheck
