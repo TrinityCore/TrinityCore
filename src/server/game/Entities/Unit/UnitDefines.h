@@ -336,9 +336,10 @@ enum ActiveStates
 
 enum ReactStates
 {
-    REACT_PASSIVE    = 0,
-    REACT_DEFENSIVE  = 1,
-    REACT_AGGRESSIVE = 2
+    REACT_NONE       = 0,
+    REACT_PASSIVE    = 1,
+    REACT_DEFENSIVE  = 2,
+    REACT_AGGRESSIVE = 3,
 };
 
 enum CommandStates : uint8
