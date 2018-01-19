@@ -75,8 +75,8 @@ public:
                 //Take 0 damage
                 uiDamage = 0;
 
-                if (Player* player = pDoneBy->ToPlayer())
-                    player->AreaExploredOrEventHappens(QUEST_BEAT);
+                if (pDoneBy && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+                    pDoneBy->ToPlayer()->AreaExploredOrEventHappens(QUEST_BEAT);
                 EnterEvadeMode();
             }
         }
