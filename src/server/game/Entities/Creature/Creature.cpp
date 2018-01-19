@@ -1641,9 +1641,9 @@ float Creature::GetAttackDistance(Unit const* player) const
     if (aggroRate == 0.0f)
         return 0.0f;
 
-    // The aggro radius for creatures with equal level as the player is 20 yards.
+    // The aggro radius for creatures with equal level as the player is 15 yards.
     // The combatreach should not get taken into account for the distance so we drop it from the range (see Supremus as expample)
-    float baseAggroDistance = 20.0f - GetCombatReach();
+    float baseAggroDistance = 15.0f - GetCombatReach();
     float aggroRadius = baseAggroDistance;
 
     // detect range auras
