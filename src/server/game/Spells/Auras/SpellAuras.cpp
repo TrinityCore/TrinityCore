@@ -1930,9 +1930,30 @@ uint8 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo,
             return 0;
 
         // check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
-        if (spell->IsTriggered() && !(procEntry->AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
-            if (!GetSpellInfo()->HasAttribute(SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED))
+        if (spell->IsTriggered() && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
+        {
+            auto triggeredSpellCheck = [](SpellInfo const* auraSpellInfo, SpellProcEntry const& procEntry, ProcEventInfo const& eventInfo) -> bool
+            {
+                // attribute check, if aura has attribute it can proc no matter what
+                if ((procEntry.AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) != 0)
+                    return true;
+
+                // aura attribute check
+                if (auraSpellInfo->HasAttribute(SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED))
+                    return true;
+
+                // spell attribute check
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (spellInfo->HasAttribute(SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC) ||
+                    spellInfo->HasAttribute(SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2))
+                    return true;
+
+                return false;
+            };
+
+            if (!triggeredSpellCheck(GetSpellInfo(), *procEntry, eventInfo))
                 return 0;
+        }
     }
 
     // check don't break stealth attr present
