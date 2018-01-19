@@ -1291,7 +1291,7 @@ class spell_hun_roar_of_sacrifice : public SpellScriptLoader
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
-                eventInfo.GetActor()->CastSpell(GetCaster(), SPELL_ROAR_OF_SACRIFICE_TRIGGERED, args);
+                eventInfo.GetActionTarget()->CastSpell(GetCaster(), SPELL_ROAR_OF_SACRIFICE_TRIGGERED, args);
             }
 
             void Register() override
