@@ -4194,6 +4194,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(157); // 90yd
     });
 
+    // Suppression ( Valithria Dreamwalker )
+    ApplySpellFix({ 70588 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->ChannelInterruptFlags = 0;
+    });
+
     ApplySpellFix({
         72706, // Achievement Check (Valithria Dreamwalker)
         71357  // Order Whelp

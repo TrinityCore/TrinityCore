@@ -867,14 +867,8 @@ class npc_suppresser : public CreatureScript
             void MovementInform(uint32 /*type*/, uint32 id) override
             {
                 if (id == 42)
-                {
-                    me->SetReactState(REACT_AGGRESSIVE);
                     if (Creature* valithria = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))
-                    {
-                        AttackStart(valithria);
                         DoCastAOE(SPELL_SUPPRESSION);
-                    }
-                }
             }
 
             void UpdateAI(uint32 diff) override
