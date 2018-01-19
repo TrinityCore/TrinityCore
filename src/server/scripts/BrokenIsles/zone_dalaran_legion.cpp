@@ -150,11 +150,20 @@ struct npc_dalaran_karazhan_kirintor_guardian : public ScriptedAI
 {
     npc_dalaran_karazhan_kirintor_guardian(Creature* creature) : ScriptedAI(creature) { }
 
-    void MoveInLineOfSight(Unit* who) override
+    void Reset()
     {
-        if (who->IsPlayer() && who->GetPositionZ() < 700.0f)
-            if (SpellTargetPosition const* targetPosition = sSpellMgr->GetSpellTargetPosition(228329, EFFECT_0)) // Teleport to Dalaran
-                who->NearTeleportTo(targetPosition->target_X, targetPosition->target_Y, targetPosition->target_Z, targetPosition->target_Orientation);
+        me->GetScheduler().Schedule(Milliseconds(500), [](TaskContext context)
+        {
+            std::vector<Player*> playerList;
+            context.GetContextUnit()->GetPlayerListInGrid(playerList, 300.0f);
+
+            for (Player* player : playerList)
+                if (player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_INCOMPLETE && player->GetPositionZ() < 700.0f)
+                    if (SpellTargetPosition const* targetPosition = sSpellMgr->GetSpellTargetPosition(228329, EFFECT_0)) // Teleport to Dalaran
+                        player->NearTeleportTo(targetPosition->target_X, targetPosition->target_Y, targetPosition->target_Z, targetPosition->target_Orientation);
+
+            context.Repeat();
+        });
     }
 };
 
