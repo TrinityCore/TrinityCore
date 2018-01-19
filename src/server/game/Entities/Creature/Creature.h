@@ -734,6 +734,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool CanGiveExperience() const;
 
+        // Handles the repositioning to the current target
+        void MoveAdvanceTo(Unit* target);
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -757,6 +760,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 m_boundaryCheckTime;                         // (msecs) remaining time for next evade boundary check
         uint32 m_combatPulseTime;                           // (msecs) remaining time for next zone-in-combat pulse
         uint32 m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
+        uint32 m_andvanceMovementTime;                      // (msecs) remaining time for next reposition update to avoid creatures standing inside each other
 
         ReactStates m_reactState;                           // for AI, not charmInfo
         void RegenerateMana();
