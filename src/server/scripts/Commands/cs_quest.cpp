@@ -84,12 +84,12 @@ public:
         ItemTemplateContainer const& itc = sObjectMgr->GetItemTemplateStore();
         auto itr = std::find_if(std::begin(itc), std::end(itc), [quest](ItemTemplateContainer::value_type const& value)
         {
-            return value && value->StartQuest == quest->GetQuestId();
+            return value.second.StartQuest == quest->GetQuestId();
         });
 
         if (itr != std::end(itc))
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, (*itr)->ItemId);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, itr->first);
             handler->SetSentErrorMessage(true);
             return false;
         }

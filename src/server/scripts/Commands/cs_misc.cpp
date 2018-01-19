@@ -1343,17 +1343,17 @@ public:
 
         bool found = false;
         ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
-        for (auto const& itemTemplate : its)
+        for (auto const& itemTemplatePair : its)
         {
-            if (!itemTemplate || itemTemplate->ItemSet != itemSetId)
+            if (itemTemplatePair.second.ItemSet != itemSetId)
                 continue;
 
             found = true;
             ItemPosCountVec dest;
-            InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemTemplate->ItemId, 1);
+            InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemTemplatePair.first, 1);
             if (msg == EQUIP_ERR_OK)
             {
-                Item* item = playerTarget->StoreNewItem(dest, itemTemplate->ItemId, true);
+                Item* item = playerTarget->StoreNewItem(dest, itemTemplatePair.first, true);
 
                 // remove binding (let GM give it to another player later)
                 if (player == playerTarget)
@@ -1365,8 +1365,8 @@ public:
             }
             else
             {
-                player->SendEquipError(msg, nullptr, nullptr, itemTemplate->ItemId);
-                handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemTemplate->ItemId, 1);
+                player->SendEquipError(msg, nullptr, nullptr, itemTemplatePair.first);
+                handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemTemplatePair.first, 1);
             }
         }
 
