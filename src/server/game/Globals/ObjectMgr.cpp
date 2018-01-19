@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -854,16 +854,23 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->maxgold = cInfo->mingold;
     }
 
-    if (cInfo->AIName == "TotemAI" || cInfo->AIName == "PetAI")
+    if (!cInfo->AIName.empty())
     {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has not-allowed `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
-        const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
-    }
-
-    if (!cInfo->AIName.empty() && !sCreatureAIRegistry->HasItem(cInfo->AIName))
-    {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-registered `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
-        const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+        auto registryItem = sCreatureAIRegistry->GetRegistryItem(cInfo->AIName);
+        if (!registryItem)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-registered `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
+            const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+        }
+        else
+        {
+            DBPermit const* permit = dynamic_cast<DBPermit const*>(registryItem);
+            if (!ASSERT_NOTNULL(permit)->IsScriptNameAllowedInDB())
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has not-allowed `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
+                const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+            }
+        }
     }
 
     FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);
@@ -6905,7 +6912,7 @@ void ObjectMgr::LoadGameObjectTemplate()
     //                                        21      22      23      24      25      26      27      28      29      30      31      32      33      34      35      36
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, Data24, Data25, Data26, Data27, Data28, "
     //                                        37      38      39      40        41      42
-                                             "Data29, Data30, Data31, unkInt32, AIName, ScriptName "
+                                             "Data29, Data30, Data31, RequiredLevel, AIName, ScriptName "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -6936,7 +6943,7 @@ void ObjectMgr::LoadGameObjectTemplate()
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
             got.raw.data[i] = fields[8 + i].GetUInt32();
 
-        got.unkInt32 = fields[40].GetInt32();
+        got.RequiredLevel = fields[40].GetInt32();
         got.AIName = fields[41].GetString();
         got.ScriptId = GetScriptId(fields[42].GetCString());
 

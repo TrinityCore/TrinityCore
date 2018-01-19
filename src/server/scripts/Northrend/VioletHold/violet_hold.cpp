@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -655,7 +655,7 @@ struct npc_violet_hold_teleportation_portal_commonAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* /*who*/) override { }
 
-    void EnterCombat(Unit* /*who*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
 
     void JustSummoned(Creature* summon) override
     {
@@ -916,9 +916,9 @@ struct violet_hold_trashAI : public npc_escortAI
             CreatureStartAttackDoor();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        npc_escortAI::EnterCombat(who);
+        npc_escortAI::JustEngagedWith(who);
         ScheduledTasks();
     }
 

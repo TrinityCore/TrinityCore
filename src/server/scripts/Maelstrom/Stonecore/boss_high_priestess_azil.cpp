@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -144,9 +144,9 @@ class boss_high_priestess_azil : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, 40000);
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 DoCast(me, SPELL_ENERGY_SHIELD);
                 Talk(SAY_AGGRO);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -111,7 +111,7 @@ class boss_akilzon : public CreatureScript
                 SetWeather(WEATHER_STATE_FINE, 0.0f);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 20000)); // 10 to 20 seconds (bosskillers)
                 events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));      // 20 to 30 seconds(bosskillers)
@@ -121,7 +121,7 @@ class boss_akilzon : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);      // 10 minutes till enrage(bosskillers)
 
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
                 //DoZoneInCombat();
                 instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
             }
@@ -397,7 +397,7 @@ class npc_akilzon_eagle : public CreatureScript
                 me->SetDisableGravity(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }

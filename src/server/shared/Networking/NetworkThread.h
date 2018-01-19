@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ template<class SocketType>
 class NetworkThread
 {
 public:
-    NetworkThread() : _connections(0), _stopped(false), _thread(nullptr),
+    NetworkThread() : _connections(0), _stopped(false), _thread(nullptr), _io_service(1),
         _acceptSocket(_io_service), _updateTimer(_io_service)
     {
     }

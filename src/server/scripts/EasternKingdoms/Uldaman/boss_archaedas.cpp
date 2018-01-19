@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -118,7 +118,7 @@ class boss_archaedas : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_MONSTER);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -267,7 +267,7 @@ class npc_archaedas_minions : public CreatureScript
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction (FACTION_MONSTER);
                 me->RemoveAllAuras();
@@ -356,7 +356,7 @@ class npc_stonekeepers : public CreatureScript
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_MONSTER);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

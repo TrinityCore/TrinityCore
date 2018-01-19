@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -83,9 +83,9 @@ class boss_general_zarithrian : public CreatureScript
                 return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE && BossAI::CanAIAttack(target));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_CLEAVE, Seconds(8));
                 events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, Seconds(14));
@@ -189,7 +189,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 MoveToGeneral();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(17));
                 _events.ScheduleEvent(EVENT_LAVA_GOUT, Seconds(3));

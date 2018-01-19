@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1768,7 +1768,7 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
 
 void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(mode & AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK))
         return;
 
     Unit* target = aurApp->GetTarget();

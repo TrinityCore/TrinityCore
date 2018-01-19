@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,21 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "MoveSplineInit.h"
 #include "CreatureTextMgr.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 enum Yells
@@ -500,7 +509,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* sara = instance->GetCreature(DATA_SARA))
                     sara->SetInCombatWith(me);
@@ -753,7 +762,7 @@ class boss_sara : public CreatureScript
                     Talk(SAY_SARA_KILL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_SARA_AGGRO);
                 _events.ScheduleEvent(EVENT_SARAS_FERVOR, 5000, 0, PHASE_ONE);
@@ -1298,7 +1307,7 @@ class npc_constrictor_tentacle : public CreatureScript
             void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
             {
                 if (!apply)
-                    passenger->RemoveAurasDueToSpell(SPELL_SQUEEZE);
+                    passenger->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_SQUEEZE, passenger));
             }
 
             void UpdateAI(uint32 /*diff*/) override
@@ -1596,7 +1605,7 @@ class npc_yogg_saron_keeper : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 switch (me->GetEntry())
                 {
@@ -2426,7 +2435,7 @@ class spell_yogg_saron_lunge : public SpellScriptLoader    // 64131
         }
 };
 
-class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125
+class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125, 64126
 {
     public:
         spell_yogg_saron_squeeze() : SpellScriptLoader("spell_yogg_saron_squeeze") { }

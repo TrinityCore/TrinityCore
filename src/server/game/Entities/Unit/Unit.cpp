@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -883,7 +883,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (damagetype != NODAMAGE && damage)
         {
             if (victim != this && victim->GetTypeId() == TYPEID_PLAYER && // does not support creature push_back
-                (!spellProto || !spellProto->HasAttribute(SPELL_ATTR7_NO_PUSHBACK_ON_DAMAGE)))
+                (!spellProto || !(spellProto->HasAttribute(SPELL_ATTR7_NO_PUSHBACK_ON_DAMAGE) || spellProto->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))))
             {
                 if (damagetype != DOT)
                     if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
@@ -1962,7 +1962,7 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
     if (attType != BASE_ATTACK && attType != OFF_ATTACK)
         return;                                             // ignore ranged case
 
-    if (GetTypeId() == TYPEID_UNIT && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+    if (GetTypeId() == TYPEID_UNIT && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
         SetFacingToObject(victim, false); // update client side facing to face the target (prevents visual glitches when casting untargeted spells)
 
     // melee attack spell cast at main hand attack only - no normal melee dmg dealt
@@ -2010,7 +2010,7 @@ void Unit::FakeAttackerStateUpdate(Unit* victim, WeaponAttackType attType /*= BA
     if (attType != BASE_ATTACK && attType != OFF_ATTACK)
         return;                                             // ignore ranged case
 
-    if (GetTypeId() == TYPEID_UNIT && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+    if (GetTypeId() == TYPEID_UNIT && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
         SetFacingToObject(victim, false); // update client side facing to face the target (prevents visual glitches when casting untargeted spells)
 
     CalcDamageInfo damageInfo;
@@ -3000,13 +3000,14 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
             if (GetTypeId() == TYPEID_PLAYER)
                 ToPlayer()->SendAutoRepeatCancel(this);
 
+        m_currentSpells[spellType] = nullptr;
+
         if (spell->getState() != SPELL_STATE_FINISHED)
             spell->cancel();
 
         if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
             ToCreature()->AI()->OnSpellCastInterrupt(spell->GetSpellInfo());
 
-        m_currentSpells[spellType] = NULL;
         spell->SetReferencedFromCurrent(false);
     }
 }
@@ -4074,9 +4075,10 @@ void Unit::RemoveArenaAuras()
     RemoveAppliedAuras([](AuraApplication const* aurApp)
     {
         Aura const* aura = aurApp->GetBase();
-        return !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR4_UNK21)                                       // don't remove stances, shadowform, pally/hunter auras
-            && !aura->IsPassive()                                                                           // don't remove passive auras
-            && (aurApp->IsPositive() || !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR3_DEATH_PERSISTENT)); // not negative death persistent auras
+        return (!aura->GetSpellInfo()->HasAttribute(SPELL_ATTR4_UNK21)                                         // don't remove stances, shadowform, pally/hunter auras
+            && !aura->IsPassive()                                                                              // don't remove passive auras
+            && (aurApp->IsPositive() || !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR3_DEATH_PERSISTENT))) || // not negative death persistent auras
+            aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_REMOVE_ON_ARENA_ENTER);                             // special marker, always remove
     });
 }
 
@@ -6576,7 +6578,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         return 1.0f;
 
     // Some spells don't benefit from pct done mods
-    if (spellProto->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
+    if (spellProto->HasAttribute(SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS))
         return 1.0f;
 
     // For totems pct done mods are calculated when its calculation is run on the player in SpellDamageBonusDone.
@@ -7778,7 +7780,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     float DoneTotalMod = 1.0f;
 
     // Some spells don't benefit from pct done mods
-    if (spellProto && !spellProto->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
+    if (spellProto && !spellProto->HasAttribute(SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS))
     {
         // mods for SPELL_SCHOOL_MASK_NORMAL are already factored in base melee damage calculation
         if (!(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
@@ -8266,7 +8268,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         if (enemy)
         {
             if (IsAIEnabled)
-                creature->AI()->EnterCombat(enemy);
+                creature->AI()->JustEngagedWith(enemy);
 
             if (creature->GetFormation())
                 creature->GetFormation()->MemberAttackStart(creature, enemy);

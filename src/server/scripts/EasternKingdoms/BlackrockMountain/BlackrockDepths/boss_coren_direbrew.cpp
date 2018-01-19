@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -287,9 +287,9 @@ public:
     {
         npc_coren_direbrew_sistersAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void SetGUID(ObjectGuid guid, int32 data) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (data == DATA_TARGET_GUID)
+            if (id == DATA_TARGET_GUID)
                 _targetGUID = guid;
         }
 
@@ -301,7 +301,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCastSelf(SPELL_PORT_TO_COREN);
 
@@ -403,10 +403,10 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_ANTAGONIST_COMBAT, who);
-            ScriptedAI::EnterCombat(who);
+            ScriptedAI::JustEngagedWith(who);
         }
     };
 

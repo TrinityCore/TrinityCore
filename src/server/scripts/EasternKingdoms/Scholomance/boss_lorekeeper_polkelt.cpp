@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,9 +50,9 @@ class boss_lorekeeper_polkelt : public CreatureScript
         {
             boss_lorekeeperpolkeltAI(Creature* creature) : BossAI(creature, DATA_LOREKEEPERPOLKELT) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_VOLATILEINFECTION, 38000);
                 events.ScheduleEvent(EVENT_DARKPLAGUE, 8000);
                 events.ScheduleEvent(EVENT_CORROSIVEACID, 45000);

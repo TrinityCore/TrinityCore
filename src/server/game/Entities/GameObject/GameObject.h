@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,7 +44,7 @@ struct GameObjectTemplate
     std::string castBarCaption;
     std::string unk1;
     float   size;
-    int32   unkInt32;
+    int32   RequiredLevel;
     union                                                   // different GO types have different data field
     {
         //0 GAMEOBJECT_TYPE_DOOR

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -73,6 +73,8 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mJustReset = false;
     mConditionsTimer = 0;
     mHasConditions = sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, c->GetEntry());
+
+    _gossipReturn = false;
 }
 
 bool SmartAI::IsAIControlled() const
@@ -603,7 +605,7 @@ void SmartAI::JustReachedHome()
     mJustReset = false;
 }
 
-void SmartAI::EnterCombat(Unit* enemy)
+void SmartAI::JustEngagedWith(Unit* enemy)
 {
     if (IsAIControlled())
         me->InterruptNonMeleeSpells(false); // must be before ProcessEvents
@@ -762,7 +764,7 @@ void SmartAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, nullptr, id, value);
 }
 
-void SmartAI::SetGUID(ObjectGuid /*guid*/, int32 /*id*/) { }
+void SmartAI::SetGUID(ObjectGuid const& /*guid*/, int32 /*id*/) { }
 
 ObjectGuid SmartAI::GetGUID(int32 /*id*/) const
 {
@@ -797,14 +799,16 @@ void SmartAI::SetEvadeDisabled(bool disable)
 
 bool SmartAI::GossipHello(Player* player)
 {
+    _gossipReturn = false;
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player);
-    return false;
+    return _gossipReturn;
 }
 
 bool SmartAI::GossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
 {
+    _gossipReturn = false;
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, menuId, gossipListId);
-    return false;
+    return _gossipReturn;
 }
 
 bool SmartAI::GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, const char* /*code*/)
@@ -975,9 +979,9 @@ void SmartGameObjectAI::Reset()
 // Called when a player opens a gossip dialog with the gameobject.
 bool SmartGameObjectAI::GossipHello(Player* player)
 {
-    TC_LOG_DEBUG("scripts.ai", "SmartGameObjectAI::GossipHello");
+    _gossipReturn = false;
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, 0, 0, false, nullptr, me);
-    return false;
+    return _gossipReturn;
 }
 
 bool SmartGameObjectAI::OnReportUse(Player* player)
@@ -990,8 +994,9 @@ bool SmartGameObjectAI::OnReportUse(Player* player)
 // Called when a player selects a gossip item in the gameobject's gossip menu.
 bool SmartGameObjectAI::GossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
 {
+    _gossipReturn = false;
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, menuId, gossipListId, false, nullptr, me);
-    return false;
+    return _gossipReturn;
 }
 
 // Called when a player selects a gossip with a code in the gameobject's gossip menu.

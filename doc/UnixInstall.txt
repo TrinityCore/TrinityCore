@@ -1,15 +1,15 @@
 = TrinityCore -- Linux installation =
-Copyright (C) 2008-2017 TrinityCore (http://www.trinitycore.org/)
+Copyright (C) 2008-2018 TrinityCore (https://www.trinitycore.org/)
 
 =========================================================
 WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
 FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
 =========================================================
 
-CHECK http://www.trinitycore.info/How-to:Linux FOR FURTHER HELP
+CHECK https://www.trinitycore.info/display/tc/Requirements FOR FURTHER HELP
 
 These are instructions for installation in a Linux environment, if you are
-using Windows refer to http://www.trinitycore.info/How-to:Win
+using Windows refer to https://trinitycore.atlassian.net/wiki/spaces/tc/pages/10977296/Windows+Requirements
 
 Installing TrinityCore is fairly simple on a Linux machine, assuming you 
 have all required applications
@@ -17,9 +17,9 @@ have all required applications
 The most important ones are:
 
     g++
-    gcc version 4.3.x or greater
+    gcc version 6.3.x or greater
     make
-    cmake version 2.6.x or greater
+    cmake version 3.2.x or greater
     libmysql++-dev
     git (for checking out the core and database)
     openssl

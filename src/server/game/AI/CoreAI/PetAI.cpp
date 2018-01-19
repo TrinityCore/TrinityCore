@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,9 +31,6 @@
 
 int32 PetAI::Permissible(Creature const* creature)
 {
-    if (creature->IsPet())
-        return PERMIT_BASE_SPECIAL;
-
     if (creature->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
     {
         if (reinterpret_cast<Guardian const*>(creature)->GetOwner()->GetTypeId() == TYPEID_PLAYER)

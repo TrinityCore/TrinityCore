@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -132,7 +132,7 @@ public:
             me->LoadEquipment(0, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ICY_TOUCH, 1000, GCD_CAST);
             events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3000, GCD_CAST);
@@ -305,7 +305,7 @@ public:
 
         ObjectGuid prisonerGUID;
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             if (!prisonerGUID)
                 prisonerGUID = guid;
@@ -846,7 +846,7 @@ public:
     {
         npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             me->ExitVehicle();
         }
@@ -1169,7 +1169,7 @@ class npc_scarlet_miner : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*id = 0*/) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
             {
                 InitWaypoint();
                 Start(false, false, guid);

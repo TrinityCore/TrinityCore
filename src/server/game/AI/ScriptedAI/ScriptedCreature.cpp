@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -444,7 +444,7 @@ void BossAI::_JustDied()
         instance->SetBossState(_bossId, DONE);
 }
 
-void BossAI::_EnterCombat()
+void BossAI::_JustEngagedWith()
 {
     if (instance)
     {
@@ -552,7 +552,7 @@ void WorldBossAI::_JustDied()
     summons.DespawnAll();
 }
 
-void WorldBossAI::_EnterCombat()
+void WorldBossAI::_JustEngagedWith()
 {
     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
     if (target)

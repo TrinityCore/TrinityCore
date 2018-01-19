@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,6 +46,8 @@ class instance_arcatraz : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_DALLIAH:
@@ -56,6 +58,9 @@ class instance_arcatraz : public InstanceMapScript
                         break;
                     case NPC_MELLICHAR:
                         MellicharGUID = creature->GetGUID();
+                        break;
+                    case NPC_MILLHOUSE:
+                        MillhouseGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -179,6 +184,15 @@ class instance_arcatraz : public InstanceMapScript
                             SetData(DATA_WARDEN_4, NOT_STARTED);
                             SetData(DATA_WARDEN_5, NOT_STARTED);
                         }
+                        else if (state == DONE)
+                        {
+                            if (!instance->IsHeroic())
+                                break;
+
+                            if (Creature* millhouse = instance->GetCreature(MillhouseGUID))
+                                if (millhouse->IsAlive())
+                                    DoCastSpellOnPlayers(SPELL_QID_10886);
+                        }
                         break;
                     default:
                         break;
@@ -192,6 +206,7 @@ class instance_arcatraz : public InstanceMapScript
             ObjectGuid StasisPodGUIDs[5];
             ObjectGuid MellicharGUID;
             ObjectGuid WardensShieldGUID;
+            ObjectGuid MillhouseGUID;
 
             uint8 ConversationState;
             uint8 StasisPodStates[5];

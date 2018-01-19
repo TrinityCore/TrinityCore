@@ -1081,6 +1081,7 @@ bool logChildren)
                     offset, bHandled, Name, "", false, false);
 
                 // Set Value back to an empty string since the Array object itself has no value, only its elements have
+                std::string firstElementValue = symbolDetails.top().Value;
                 symbolDetails.top().Value.clear();
 
                 DWORD elementsCount;
@@ -1112,10 +1113,30 @@ bool logChildren)
                     default:
                         for (DWORD index = 0; index < elementsCount && index < WER_MAX_ARRAY_ELEMENTS_COUNT; index++)
                         {
+                            bool elementHandled = false;
                             PushSymbolDetail();
-                            symbolDetails.top().Suffix += "[" + std::to_string(index) + "]";
-                            FormatOutputValue(buffer, basicType, length, (PVOID)(offset + length * index), sizeof(buffer));
-                            symbolDetails.top().Value = buffer;
+                            if (index == 0)
+                            {
+                                if (firstElementValue.empty())
+                                {
+                                    FormatOutputValue(buffer, basicType, length, (PVOID)(offset + length * index), sizeof(buffer));
+                                    firstElementValue = buffer;
+                                }
+                                symbolDetails.top().Value = firstElementValue;
+                            }
+                            else
+                            {
+                                DumpTypeIndex(modBase, innerTypeID, offset + length * index, elementHandled, "", "", false, false);
+                                if (!elementHandled)
+                                {
+                                    FormatOutputValue(buffer, basicType, length, (PVOID)(offset + length * index), sizeof(buffer));
+                                    symbolDetails.top().Value = buffer;
+                                }
+                            }
+                            symbolDetails.top().Prefix.clear();
+                            symbolDetails.top().Type.clear();
+                            symbolDetails.top().Suffix = "[" + std::to_string(index) + "]";
+                            symbolDetails.top().Name.clear();
                             PopSymbolDetail();
                         }
                         break;

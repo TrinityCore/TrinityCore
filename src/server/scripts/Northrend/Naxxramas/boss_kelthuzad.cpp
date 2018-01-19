@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -593,7 +593,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 kelThuzad->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             _movementTimer = 0; // once it's zero, it'll never get checked again
             if (!me->HasReactState(REACT_PASSIVE))
@@ -615,7 +615,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 }
             me->SetReactState(REACT_AGGRESSIVE);
             AttackStart(who);
-            ScriptedAI::EnterCombat(who);
+            ScriptedAI::JustEngagedWith(who);
         }
 
         void AttackStart(Unit* who) override
@@ -632,7 +632,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
             }
 
             if (me->CanStartAttack(who, false) && me->GetDistance2d(who) <= MINION_AGGRO_DISTANCE)
-                EnterCombat(who);
+                JustEngagedWith(who);
         }
 
         void SetData(uint32 data, uint32 value) override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -472,6 +472,22 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
         {
             return new spell_item_blessing_of_ancient_kings_AuraScript();
         }
+};
+
+// 64415 Val'anyr Hammer of Ancient Kings - Equip Effect
+class spell_item_valanyr_hammer_of_ancient_kings : public AuraScript
+{
+    PrepareAuraScript(spell_item_valanyr_hammer_of_ancient_kings);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetEffectiveHeal() > 0;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_item_valanyr_hammer_of_ancient_kings::CheckProc);
+    }
 };
 
 enum DeadlyPrecision
@@ -1785,6 +1801,47 @@ class spell_item_piccolo_of_the_flaming_fire : public SpellScriptLoader
         {
             return new spell_item_piccolo_of_the_flaming_fire_SpellScript();
         }
+};
+
+enum PowerCircle
+{
+    SPELL_LIMITLESS_POWER = 45044
+};
+
+// 45043 - Power Circle (Shifting Naaru Sliver)
+class spell_item_power_circle : public AuraScript
+{
+    PrepareAuraScript(spell_item_power_circle);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LIMITLESS_POWER });
+    }
+
+    bool CheckCaster(Unit* target)
+    {
+        return target->GetGUID() == GetCasterGUID();
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_LIMITLESS_POWER, true);
+        if (Aura* buff = GetTarget()->GetAura(SPELL_LIMITLESS_POWER))
+            buff->SetDuration(GetDuration());
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_LIMITLESS_POWER);
+    }
+
+    void Register() override
+    {
+        DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_item_power_circle::CheckCaster);
+
+        AfterEffectApply += AuraEffectApplyFn(spell_item_power_circle::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_item_power_circle::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // http://www.wowhead.com/item=6657 Savory Deviate Delight
@@ -4692,6 +4749,7 @@ void AddSC_item_spell_scripts()
     new spell_item_aura_of_madness();
     new spell_item_dementia();
     new spell_item_blessing_of_ancient_kings();
+    RegisterAuraScript(spell_item_valanyr_hammer_of_ancient_kings);
     new spell_item_deadly_precision();
     new spell_item_deadly_precision_dummy();
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA, SPELL_AGILITY_OF_THE_VRYKUL, SPELL_POWER_OF_THE_TAUNKA, SPELL_AIM_OF_THE_IRON_DWARVES, SPELL_SPEED_OF_THE_VRYKUL>("spell_item_deathbringers_will_normal");
@@ -4723,6 +4781,7 @@ void AddSC_item_spell_scripts()
     new spell_item_persistent_shield();
     new spell_item_pet_healing();
     new spell_item_piccolo_of_the_flaming_fire();
+    RegisterAuraScript(spell_item_power_circle);
     new spell_item_savory_deviate_delight();
     new spell_item_scroll_of_recall();
     new spell_item_unsated_craving();

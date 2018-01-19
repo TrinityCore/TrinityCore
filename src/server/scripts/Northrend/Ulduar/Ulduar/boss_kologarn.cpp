@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -114,7 +114,7 @@ class boss_kologarn : public CreatureScript
             bool left, right;
             ObjectGuid eyebeamTarget;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -130,7 +130,7 @@ class boss_kologarn : public CreatureScript
                         if (Unit* arm = vehicle->GetPassenger(i))
                             arm->ToCreature()->SetInCombatWithZone();
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void Reset() override

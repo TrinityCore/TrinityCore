@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -3402,6 +3402,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
     });
 
+    ApplySpellFix({
+        19503, // Scatter Shot
+        34490  // Silencing Shot
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Speed = 0.f;
+    });
+
     // Safeguard
     ApplySpellFix({
         46946, // (Rank 1)
@@ -3808,7 +3816,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 70106 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
     });
 
     // Ice Lock

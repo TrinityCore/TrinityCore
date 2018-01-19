@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -165,7 +165,7 @@ class TC_GAME_API UnitAI
         virtual void DoAction(int32 /*param*/) { }
         virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
-        virtual void SetGUID(ObjectGuid /*guid*/, int32 /*id*/ = 0) { }
+        virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id*/ = 0) { }
         virtual ObjectGuid GetGUID(int32 /*id*/ = 0) const { return ObjectGuid::Empty; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
@@ -259,6 +259,13 @@ class TC_GAME_API UnitAI
             else
                 targetList.resize(maxTargets);
         }
+
+       // Called when the unit enters combat
+        // (NOTE: Creature engage logic should NOT be here, but in JustEngagedWith, which happens once threat is established!)
+        virtual void JustEnteredCombat(Unit* /*who*/) { }
+
+        // Called when the unit leaves combat
+        virtual void JustExitedCombat() { }
 
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }

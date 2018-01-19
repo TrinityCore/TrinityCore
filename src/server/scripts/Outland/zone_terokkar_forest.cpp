@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -89,7 +89,7 @@ public:
             me->SetFaction(FACTION_OGRE);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DoNice()
         {
@@ -189,7 +189,7 @@ public:
         npc_infested_root_walkerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit* done_by, uint32 &damage) override
         {
@@ -240,7 +240,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* who) override
 
@@ -287,7 +287,7 @@ public:
         npc_rotting_forest_ragerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit* done_by, uint32 &damage) override
         {
@@ -386,7 +386,7 @@ class npc_floon : public CreatureScript
                     me->SetFaction(m_uiNormFaction);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {

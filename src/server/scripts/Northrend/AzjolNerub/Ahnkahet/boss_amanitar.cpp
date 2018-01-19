@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -64,9 +64,9 @@ class boss_amanitar : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_ROOT, urand(5, 9) * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_BASH, urand(10, 14) * IN_MILLISECONDS);
@@ -190,7 +190,7 @@ public:
                 DoCast(me, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void AttackStart(Unit* /*victim*/) override { }
 
         void UpdateAI(uint32 diff) override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -470,9 +470,9 @@ public:
                     akama->AI()->DoAction(ACTION_ACTIVE_AKAMA_INTRO);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             me->SetCanDualWield(true);
             if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
                 musicController->PlayDirectMusic(EVENT_BT_SUMMIT_WALK_3_SOUND_ID);
@@ -1633,7 +1633,7 @@ public:
             });
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             _targetGUID = guid;
             if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
@@ -1679,7 +1679,7 @@ public:
             _canDown = true;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.SetPhase(PHASE_1);
             _events.ScheduleEvent(EVENT_CAGE_TRAP, Seconds(30));
