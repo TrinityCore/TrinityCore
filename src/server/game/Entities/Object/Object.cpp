@@ -812,7 +812,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         data->WriteBit(SceneInstanceIDCount != 0);
         data->WriteBit(HasRuneState);
         data->FlushBits();
-        if (SceneInstanceIDCount >= 0)
+        if (SceneInstanceIDCount > 0)
         {
             *data << uint32(SceneInstanceIDCount);
             for (auto itr : player->GetSceneMgr().GetSceneByInstanceMap())
