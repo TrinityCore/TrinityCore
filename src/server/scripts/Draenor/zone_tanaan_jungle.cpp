@@ -53,7 +53,6 @@ enum eMaps
     TANAAN_JUNGLE_100_ZONE_ID   = 6723
 };
 
-// Dark Portal phasing
 class PlayerScript_TanaanJungle_Phasing : public PlayerScript
 {
 public:
