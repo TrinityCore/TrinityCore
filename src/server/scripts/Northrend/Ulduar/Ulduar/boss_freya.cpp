@@ -838,9 +838,10 @@ class boss_elder_stonebark : public CreatureScript
 
             void DamageTaken(Unit* who, uint32& damage) override
             {
-                if (who == me)
+                if (!who || who == me)
                     return;
 
+                ///HACK: should be handled by proc
                 if (me->HasAura(SPELL_PETRIFIED_BARK))
                 {
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
