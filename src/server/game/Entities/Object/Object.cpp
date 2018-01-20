@@ -34,6 +34,7 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SpellAuraEffects.h"
 #include "TemporarySummon.h"
@@ -2496,8 +2497,10 @@ void WorldObject::SetZoneScript()
         {
             if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
                 m_zoneScript = bf;
+            else if (ZoneScript* out = sOutdoorPvPMgr->GetZoneScript(GetZoneId()))
+                m_zoneScript = out;
             else
-                m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+                m_zoneScript = sScriptMgr->GetZoneScript(sObjectMgr->GetScriptIdForZone(GetZoneId()));
         }
     }
 }

@@ -1628,6 +1628,9 @@ class TC_GAME_API ObjectMgr
         WorldQuestContainer const& GetWorldQuestStore() const{ return _worldQuestStore; }
         PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
 
+        void LoadZoneScriptNames();
+        uint32 GetScriptIdForZone(uint32 zoneId);
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1712,6 +1715,7 @@ class TC_GAME_API ObjectMgr
         TerrainUIPhaseInfo _terrainWorldMapStore;
         PhaseInfo _phases;
 
+        std::unordered_map<uint32, uint32> _scriptIdsByZoneStore;
     private:
         void LoadScripts(ScriptsType type);
         void LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go);

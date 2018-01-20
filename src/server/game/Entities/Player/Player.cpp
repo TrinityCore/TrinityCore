@@ -7273,6 +7273,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
+
+        if (ZoneScript* oldZoneScript = GetZoneScript())
+            if (oldZoneScript->IsZoneScript())
+                oldZoneScript->OnPlayerExit(this);
     }
 
     // group update
@@ -7288,6 +7292,15 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     // zone changed, so area changed as well, update it.
     UpdateArea(newArea);
+
+    if (m_zoneUpdateId != oldZone)
+    {
+        SetZoneScript();
+
+        if (ZoneScript* newZoneScript = GetZoneScript())
+            if (newZoneScript->IsZoneScript())
+                GetZoneScript()->OnPlayerEnter(this);
+    }
 
     sScriptMgr->OnPlayerUpdateZone(this, newZone, oldZone, newArea);
 
