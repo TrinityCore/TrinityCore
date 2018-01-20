@@ -6483,6 +6483,9 @@ void Unit::SetCharm(Unit* charm, bool apply)
             charm->m_ControlledByPlayer = false;
             charm->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             charm->SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, 0);
+            charm->GetCharmInfo()->SetIsFollowing(false);
+            if (charm->_oldFactionId)
+                charm->SetFaction(charm->_oldFactionId);
         }
 
         if (charm->IsWalking() != _isWalkingBeforeCharm)
@@ -11700,6 +11703,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 {
     pet->SetCreatorGUID(GetGUID());
     pet->SetFaction(GetFaction());
+    
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spell_id);
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -11716,6 +11720,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     pet->InitPetCreateSpells();
     //pet->InitLevelupSpellsForLevel();
     pet->SetFullHealth();
+    pet->GetCharmInfo()->SetIsFollowing(true);
     return true;
 }
 
