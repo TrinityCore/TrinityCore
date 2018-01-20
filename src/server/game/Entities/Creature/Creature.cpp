@@ -765,7 +765,7 @@ void Creature::Update(uint32 diff)
 
                 if (diff >= m_andvanceMovementTime)
                 {
-                    AI()->CheckDistanceToCurrentVictim();
+                    AI()->CheckMeleeRepositionRequirements();
                     m_andvanceMovementTime = 3000;
                 } else
                     m_andvanceMovementTime -= diff;
