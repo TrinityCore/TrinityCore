@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Common.h"
 #include "ObjectGuid.h"
+#include "ScriptMgr.h"
 
 class Creature;
 class GameObject;
@@ -28,12 +29,21 @@ class Unit;
 class WorldObject;
 struct CreatureData;
 
-class TC_GAME_API ZoneScript
+enum ZoneScriptType
+{
+    ZONE_SCRIPT_TYPE_ZONE,
+    ZONE_SCRIPT_TYPE_INSTANCE,
+    ZONE_SCRIPT_TYPE_BATTLEFIELD,
+    ZONE_SCRIPT_TYPE_OUTDOORPVP,
+};
+
+class TC_GAME_API ZoneScript : public ScriptObject
 {
     public:
         Ashamane::VariablesSafe Variables;
 
-        ZoneScript() { }
+        ZoneScript() : ScriptObject(""), _scriptType(ZONE_SCRIPT_TYPE_ZONE) { }
+        ZoneScript(const char* name);
         virtual ~ZoneScript() { }
 
         virtual uint32 GetCreatureEntry(ObjectGuid::LowType /*spawnId*/, CreatureData const* data);
@@ -46,6 +56,10 @@ class TC_GAME_API ZoneScript
         virtual void OnGameObjectRemove(GameObject* ) { }
 
         virtual void OnUnitDeath(Unit*) { }
+
+        // Called when a player successfully enters or exit the zone.
+        virtual void OnPlayerEnter(Player* /*player*/) { }
+        virtual void OnPlayerExit(Player* /*player*/) { }
 
         //All-purpose data storage ObjectGuid
         virtual ObjectGuid GetGuidData(uint32 /*DataId*/) const { return ObjectGuid::Empty; }
@@ -60,6 +74,12 @@ class TC_GAME_API ZoneScript
         virtual void SetData(uint32 /*DataId*/, uint32 /*Value*/) { }
 
         virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/) { }
+
+        bool IsZoneScript()     { return _scriptType == ZONE_SCRIPT_TYPE_ZONE; }
+        bool IsInstanceScript() { return _scriptType == ZONE_SCRIPT_TYPE_INSTANCE; }
+
+    protected:
+        ZoneScriptType _scriptType;
 };
 
 #endif

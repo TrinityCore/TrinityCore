@@ -145,28 +145,6 @@ public:
     }
 };
 
-// 114325
-struct npc_dalaran_karazhan_kirintor_guardian : public ScriptedAI
-{
-    npc_dalaran_karazhan_kirintor_guardian(Creature* creature) : ScriptedAI(creature) { }
-
-    void Reset()
-    {
-        me->GetScheduler().Schedule(Milliseconds(500), [](TaskContext context)
-        {
-            std::vector<Player*> playerList;
-            context.GetContextUnit()->GetPlayerListInGrid(playerList, 300.0f);
-
-            for (Player* player : playerList)
-                if (player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_INCOMPLETE && player->GetPositionZ() < 700.0f)
-                    if (SpellTargetPosition const* targetPosition = sSpellMgr->GetSpellTargetPosition(228329, EFFECT_0)) // Teleport to Dalaran
-                        player->NearTeleportTo(targetPosition->target_X, targetPosition->target_Y, targetPosition->target_Z, targetPosition->target_Orientation);
-
-            context.Repeat();
-        });
-    }
-};
-
 class scene_dalaran_kharazan_teleportion : public SceneScript
 {
 public:
@@ -199,28 +177,20 @@ public:
  * Legion Dalaran
  */
 
-enum eMaps
-{
-    ZONE_DALARAN_SEWERS     = 8392
-};
-
-class PlayerScript_DalaranLegion_Underbelly : public PlayerScript
+// Zone 8392
+class zone_legion_dalaran_underbelly : public ZoneScript
 {
 public:
-    PlayerScript_DalaranLegion_Underbelly() : PlayerScript("PlayerScript_DalaranLegion_Underbelly") { }
+    zone_legion_dalaran_underbelly() : ZoneScript("zone_legion_dalaran_underbelly") { }
 
-    void OnUpdateZone(Player* player, uint32 newZoneID, uint32 oldZoneID, uint32 /*newAreaID*/) override
+    void OnPlayerEnter(Player* player) override
     {
-        if (player->GetMapId() == MAP_BROKEN_ISLANDS || player->GetMapId() == MAP_DALARAN_UNDERBELLY)
-        {
-            if (newZoneID != oldZoneID && (newZoneID == ZONE_DALARAN_SEWERS || oldZoneID == ZONE_DALARAN_SEWERS))
-            {
-                if (newZoneID == ZONE_DALARAN_SEWERS && player->GetMapId() == MAP_BROKEN_ISLANDS)
-                    player->SeamlessTeleportToMap(MAP_DALARAN_UNDERBELLY);
-                else if (newZoneID != ZONE_DALARAN_SEWERS && player->GetMapId() == MAP_DALARAN_UNDERBELLY)
-                    player->SeamlessTeleportToMap(MAP_BROKEN_ISLANDS);
-            }
-        }
+        player->SeamlessTeleportToMap(MAP_DALARAN_UNDERBELLY);
+    }
+
+    void OnPlayerExit(Player* player) override
+    {
+        player->SeamlessTeleportToMap(MAP_BROKEN_ISLANDS);
     }
 };
 
@@ -230,7 +200,6 @@ void AddSC_dalaran_legion()
     RegisterSpellScript(spell_dalaran_teleportation);
     new go_dalaran_karazhan();
     new npc_dalaran_karazhan_khadgar();
-    RegisterCreatureAI(npc_dalaran_karazhan_kirintor_guardian);
     new scene_dalaran_kharazan_teleportion();
-    new PlayerScript_DalaranLegion_Underbelly();
+    new zone_legion_dalaran_underbelly();
 }

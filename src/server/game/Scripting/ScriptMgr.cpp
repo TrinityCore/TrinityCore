@@ -46,6 +46,7 @@
 #include "Vehicle.h"
 #include "Weather.h"
 #include "WorldPacket.h"
+#include "ZoneScript.h"
 #include <unordered_map>
 
 // Trait which indicates whether this script type
@@ -120,6 +121,10 @@ struct is_script_database_bound<SceneScript>
 
 template<>
 struct is_script_database_bound<QuestScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<ZoneScript>
     : std::true_type { };
 
 enum Spells
@@ -755,6 +760,35 @@ private:
 /// This hook is responsible for swapping QuestScript's
 template<typename Base>
 class ScriptRegistrySwapHooks<QuestScript, Base>
+    : public ScriptRegistrySwapHookBase
+{
+public:
+    ScriptRegistrySwapHooks() : swapped(false) { }
+
+    void BeforeReleaseContext(std::string const& context) final override
+    {
+        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+        if (bounds.first != bounds.second)
+            swapped = true;
+    }
+
+    void BeforeSwapContext(bool /*initialize*/) override
+    {
+        swapped = false;
+    }
+
+    void BeforeUnload() final override
+    {
+        ASSERT(!swapped);
+    }
+
+private:
+    bool swapped;
+};
+
+/// This hook is responsible for swapping ZoneScript's
+template<typename Base>
+class ScriptRegistrySwapHooks<ZoneScript, Base>
     : public ScriptRegistrySwapHookBase
 {
 public:
@@ -1809,6 +1843,15 @@ AreaTriggerAI* ScriptMgr::GetAreaTriggerAI(AreaTrigger* areatrigger)
     return tmpscript->GetAI(areatrigger);
 }
 
+ZoneScript* ScriptMgr::GetZoneScript(uint32 scriptId)
+{
+    if (!scriptId)
+        return nullptr;
+
+    GET_SCRIPT_RET(ZoneScript, scriptId, zoneScript, nullptr);
+    return zoneScript;
+}
+
 void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
 {
     ASSERT(creature);
@@ -2821,6 +2864,12 @@ ConversationScript::ConversationScript(char const* name)
     ScriptRegistry<ConversationScript>::Instance()->AddScript(this);
 }
 
+ZoneScript::ZoneScript(const char* name)
+    : ScriptObject(name), _scriptType(ZONE_SCRIPT_TYPE_ZONE)
+{
+    ScriptRegistry<ZoneScript>::Instance()->AddScript(this);
+}
+
 // Specialize for each script type class like so:
 template class TC_GAME_API ScriptRegistry<SpellScriptLoader>;
 template class TC_GAME_API ScriptRegistry<ServerScript>;
@@ -2853,3 +2902,4 @@ template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
 template class TC_GAME_API ScriptRegistry<ConversationScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;
 template class TC_GAME_API ScriptRegistry<QuestScript>;
+template class TC_GAME_API ScriptRegistry<ZoneScript>;

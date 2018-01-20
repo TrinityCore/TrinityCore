@@ -49,30 +49,24 @@ class spell_tanaan_fel_sludge : public AuraScript
 
 enum eMaps
 {
-    TANAAN_JUNGLE_100_PHASE_MAP = 1464,
-    TANAAN_JUNGLE_100_ZONE_ID   = 6723
+    TANAAN_JUNGLE_100_PHASE_MAP = 1464
 };
 
-class PlayerScript_TanaanJungle_Phasing : public PlayerScript
+// Zone 6723
+class zone_tanaan_jungle_100 : public ZoneScript
 {
 public:
-    PlayerScript_TanaanJungle_Phasing() : PlayerScript("PlayerScript_TanaanJungle_Phasing") { }
+    zone_tanaan_jungle_100() : ZoneScript("zone_tanaan_jungle_100") { }
 
-    void OnUpdateZone(Player* player, uint32 newZoneID, uint32 oldZoneID, uint32 /*newAreaID*/) override
+    void OnPlayerEnter(Player* player) override
     {
-        if (player->IsInFlight())
-            return;
+        if (!player->IsInFlight())
+            player->SeamlessTeleportToMap(TANAAN_JUNGLE_100_PHASE_MAP);
+    }
 
-        if (player->GetMapId() == TANAAN_JUNGLE_100_PHASE_MAP || player->GetMapId() == MAP_DRAENOR)
-        {
-            if (newZoneID != oldZoneID && (newZoneID == TANAAN_JUNGLE_100_ZONE_ID || oldZoneID == TANAAN_JUNGLE_100_ZONE_ID))
-            {
-                if (newZoneID == TANAAN_JUNGLE_100_ZONE_ID && player->GetMapId() == MAP_DRAENOR)
-                    player->SeamlessTeleportToMap(TANAAN_JUNGLE_100_PHASE_MAP);
-                else if (newZoneID != TANAAN_JUNGLE_100_ZONE_ID && player->GetMapId() == TANAAN_JUNGLE_100_PHASE_MAP)
-                    player->SeamlessTeleportToMap(MAP_DRAENOR);
-            }
-        }
+    void OnPlayerExit(Player* player) override
+    {
+        player->SeamlessTeleportToMap(MAP_DRAENOR);
     }
 };
 
@@ -303,7 +297,7 @@ void AddSC_tanaan_jungle()
 {
     RegisterAuraScript(spell_tanaan_fel_sludge);
 
-    new PlayerScript_TanaanJungle_Phasing();
+    new zone_tanaan_jungle_100();
 
     new npc_terrorfist();
     new npc_vengeance();

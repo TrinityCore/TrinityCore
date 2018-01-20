@@ -51,6 +51,8 @@ BossBoundaryData::~BossBoundaryData()
 InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0),
 _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
 {
+    _scriptType = ZONE_SCRIPT_TYPE_INSTANCE;
+
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
     auto const scriptname = sObjectMgr->GetScriptName(scriptId);
