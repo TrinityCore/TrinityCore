@@ -196,6 +196,7 @@ class boss_general_umbriss : public CreatureScript
                             break;
                         case EVENT_GROUND_SIEGE:
                             DoCastAOE(SPELL_GROUND_SIEGE_SUMMON_TRIGGER, true);
+                            events.Repeat(Seconds(23));
                             break;
                         case EVENT_SUMMON_SKARDYN:
                             Talk(SAY_SUMMON_SKARDYN);
@@ -205,6 +206,7 @@ class boss_general_umbriss : public CreatureScript
                             for (uint8 i = 0; i < 3; i++)
                                 if (Creature* troggDweller = DoSummon(NPC_TROGG_DWELLER, TroggDwellerSummonPositions[i], 5000))
                                     troggDweller->GetMotionMaster()->MovePoint(POINT_SKARDYN_SUMMON, TroggDwellerMovePositions[i], false);
+                            events.Repeat(Seconds(23));
                             break;
                         default:
                             break;
@@ -331,44 +333,6 @@ class spell_umbriss_bleeding_wound : public SpellScriptLoader
         }
 };
 
-class spell_umbriss_modguds_malice : public SpellScriptLoader
-{
-    public:
-        spell_umbriss_modguds_malice() : SpellScriptLoader("spell_umbriss_modguds_malice") { }
-
-        class spell_umbriss_modguds_malice_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_umbriss_modguds_malice_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_MODGUDS_MALADY,
-                        SPELL_MODGUDS_MALICE_SPREAD
-                    });
-            }
-
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* owner = GetOwner()->ToUnit())
-                {
-                    owner->CastSpell(owner, SPELL_MODGUDS_MALADY, true);
-                    owner->CastSpell(owner, SPELL_MODGUDS_MALICE_SPREAD, true);
-                }
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectApplyFn(spell_umbriss_modguds_malice_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_umbriss_modguds_malice_AuraScript();
-        }
-};
 
 void AddSC_boss_general_umbriss()
 {
@@ -376,5 +340,4 @@ void AddSC_boss_general_umbriss()
     new spell_umbriss_summon_blitz_trigger();
     new spell_umbriss_summon_ground_siege_trigger();
     new spell_umbriss_bleeding_wound();
-    new spell_umbriss_modguds_malice();
 }
