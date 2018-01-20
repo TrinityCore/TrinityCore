@@ -23528,6 +23528,17 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendQuestGiverStatusMultiple();
     SendTaxiNodeStatusMultiple();
 
+    if (getClass() == CLASS_DEATH_KNIGHT)
+    {
+        for (uint8 i = 0; i < MAX_RUNES; i++)
+        {
+            WorldPacket data(SMSG_CONVERT_RUNE, 2);
+            data << uint8(i);
+            data << uint8(GetCurrentRune(i));
+            GetSession()->SendPacket(&data);
+        }
+    }
+
     // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())
     {
@@ -25362,11 +25373,18 @@ void Player::RestoreBaseRune(uint8 index)
     // If rune was converted by a non-passive aura that still active we should keep it converted
     if (aura && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PASSIVE))
         return;
+
+    // Don't even convert aura for passive convertion
+    if (aura && aura->GetBase()->IsPassive() && aura->GetAuraType() == SPELL_AURA_CONVERT_RUNE)
+        return;
+
     ConvertRune(index, GetBaseRune(index));
     SetRuneConvertAura(index, nullptr);
+
     // Don't drop passive talents providing rune convertion
     if (!aura || aura->GetAuraType() != SPELL_AURA_CONVERT_RUNE)
         return;
+
     for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
         if (aura == m_runes->runes[i].ConvertAura)
