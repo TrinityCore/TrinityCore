@@ -23854,7 +23854,12 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
         if (!ability || ability->skillId != skillId)
             continue;
 
-        if (!sSpellMgr->GetSpellInfo(ability->spellId))
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(ability->spellId);
+        if (!spell)
+            continue;
+
+        // Check if we fulfill the level requirement for the spell
+        if (getLevel() < spell->SpellLevel)
             continue;
 
         if (ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
