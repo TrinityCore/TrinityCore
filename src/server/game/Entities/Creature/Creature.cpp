@@ -734,7 +734,7 @@ void Creature::MoveAdvanceTo(Unit* target)
         return;
 
     // Do not reposition ourself when we are not allowed to move
-    if (HasUnitState(UNIT_STATE_CASTING) || isMoving() || !CanFreeMove())
+    if (IsMovementPreventedByCasting() || isMoving() || !CanFreeMove())
         return;
 
     float x, y, z;
