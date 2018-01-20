@@ -87,7 +87,7 @@ enum RemoveMethod : uint8;
 enum ShutdownExitCode : uint32;
 enum ShutdownMask : uint32;
 enum SpellEffIndex : uint8;
-enum SpellSchoolMask;
+enum SpellSchoolMask : uint16;
 enum WeatherState : uint32;
 enum XPColorChar : uint8;
 
