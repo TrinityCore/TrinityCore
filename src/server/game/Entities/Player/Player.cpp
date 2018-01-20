@@ -2259,25 +2259,23 @@ void Player::RegenerateAll()
     // 5 seconds over and over again which confirms my theory that we have a independed timer.
     if (m_foodEmoteTimerCount >= 5000)
     {
-        std::vector<Aura*> auraList;
+        std::vector<AuraEffect*> auraList;
         AuraEffectList const& ModRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_REGEN);
         AuraEffectList const& ModPowerRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
 
-        for (auto itr = ModRegenAuras.begin(); itr != ModRegenAuras.end(); ++itr)
-            auraList.emplace_back((*itr)->GetBase());
-
-        for (auto itr = ModPowerRegenAuras.begin(); itr != ModPowerRegenAuras.end(); ++itr)
-            auraList.emplace_back((*itr)->GetBase());
+        auraList.reserve(ModRegenAuras.size() + ModPowerRegenAuras.size());
+        auraList.insert(auraList.end(), ModRegenAuras.begin(), ModRegenAuras.end());
+        auraList.insert(auraList.end(), ModPowerRegenAuras.begin(), ModPowerRegenAuras.end());
 
         for (auto itr = auraList.begin(); itr != auraList.end(); ++itr)
         {
             // Food emote comes above drinking emote if we have to decide (mage regen food for example)
-            if ((*itr)->HasEffectType(SPELL_AURA_MOD_REGEN) && (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
+            if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_REGEN) && (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
             {
                 SendPlaySpellVisualKit(SPELL_VISUAL_KIT_FOOD, 0, 0);
                 break;
             }
-            else if ((*itr)->HasEffectType(SPELL_AURA_MOD_POWER_REGEN) && (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
+            else if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_POWER_REGEN) && (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
             {
                 SendPlaySpellVisualKit(SPELL_VISUAL_KIT_DRINK, 0, 0);
                 break;
