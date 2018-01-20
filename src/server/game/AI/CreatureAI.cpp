@@ -382,7 +382,7 @@ void CreatureAI::SetBoundary(CreatureBoundary const* boundary, bool negateBounda
     me->DoImmediateBoundaryCheck();
 }
 
-void CreatureAI::CheckDistanceToCurrentVictim()
+void CreatureAI::CheckMeleeRepositionRequirements()
 {
     if (Unit* victim = me->GetVictim())
     {
