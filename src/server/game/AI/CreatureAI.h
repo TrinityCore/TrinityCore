@@ -228,6 +228,9 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         static bool IsInBounds(CreatureBoundary const& boundary, Position const* who);
 
+        // Called every 3 Seconds to check if the creature needs to reposition itself
+        void CheckDistanceToCurrentVictim();
+
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);
 

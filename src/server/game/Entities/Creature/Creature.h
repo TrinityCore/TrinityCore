@@ -380,6 +380,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
         float m_respawnradius;
         uint32 m_boundaryCheckTime;                         // (msecs) remaining time for next evade boundary check
+        uint32 m_andvanceMovementTime;                      // (msecs) remaining time for next reposition update to avoid creatures standing inside each other
         uint32 m_combatPulseTime;                           // (msecs) remaining time for next zone-in-combat pulse
         uint32 m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
 
