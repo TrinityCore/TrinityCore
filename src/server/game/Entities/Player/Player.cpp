@@ -2941,6 +2941,10 @@ void Player::GiveLevel(uint8 level)
                     SetByteFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL, 0x01);
             }
 
+    // Leaning Running Wild
+    if (getRace() == RACE_WORGEN && level == 20)
+        CastSpell(this, SPELL_RUNNING_WILD_LEARN, true);
+
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
