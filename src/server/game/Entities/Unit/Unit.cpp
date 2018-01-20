@@ -485,6 +485,27 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool gen
     init.Launch();
 }
 
+void Unit::MoveAdvanceTo(Unit* target)
+{
+    if (!target) // Just in case
+        return;
+
+    // Do not reposition ourself when we are not allowed to move
+    if (IsMovementPreventedByCasting() || isMoving() || !CanFreeMove())
+        return;
+
+    float x, y, z;
+    GetNearPoint(target, x, y, z, 0.0f, 0.0f, target->GetAngle(this));
+    Movement::MoveSplineInit init(this);
+    init.MoveTo(x, y, z, true, false);
+
+    // Beasts move backwards instead of turning arround
+    if (ToCreature() && ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_BEAST)
+        init.SetOrientationFixed(true);
+
+    init.Launch();
+}
+
 void Unit::UpdateSplineMovement(uint32 t_diff)
 {
     if (movespline->Finalized())

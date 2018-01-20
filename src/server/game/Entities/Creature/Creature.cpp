@@ -632,7 +632,7 @@ void Creature::Update(uint32 diff)
 
                 if (diff >= m_andvanceMovementTime)
                 {
-                    AI()->CheckDistanceToCurrentVictim();
+                    AI()->CheckRepositionRequirements();
                     m_andvanceMovementTime = 3000;
                 }
                 else
@@ -726,27 +726,6 @@ void Creature::Update(uint32 diff)
         default:
             break;
     }
-}
-
-void Creature::MoveAdvanceTo(Unit* target)
-{
-    if (!target) // Just in case
-        return;
-
-    // Do not reposition ourself when we are not allowed to move
-    if (IsMovementPreventedByCasting() || isMoving() || !CanFreeMove())
-        return;
-
-    float x, y, z;
-    GetNearPoint(target, x, y, z, 0.0f, 0.0f, target->GetAngle(this));
-    Movement::MoveSplineInit init(this);
-    init.MoveTo(x, y, z, true, false);
-
-    // Beasts move backwards instead of turning arround
-    if (GetCreatureTemplate()->type == CREATURE_TYPE_BEAST)
-        init.SetOrientationFixed(true);
- 
-    init.Launch();
 }
 
 void Creature::RegenerateMana()
