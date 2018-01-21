@@ -476,7 +476,8 @@ void Unit::MoveAdvanceTo(Unit* target)
         return;
 
     // Do not reposition ourself when we are not allowed to move
-    if (IsMovementPreventedByCasting() || isMoving() || !CanFreeMove())
+    if ((IsMovementPreventedByCasting() || isMoving() || !CanFreeMove()) &&
+        GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
         return;
 
     float x, y, z;
