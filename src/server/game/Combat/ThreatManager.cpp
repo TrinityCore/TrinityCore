@@ -615,8 +615,11 @@ void ThreatManager::ForwardThreatForAssistingMe(Unit* assistant, float baseAmoun
 {
     if (spell && spell->HasAttribute(SPELL_ATTR1_NO_THREAT)) // shortcut, none of the calls would do anything
         return;
+    if (_threatenedByMe.empty())
+        return;
+    float const perTarget = baseAmount / _threatenedByMe.size(); // Threat is divided evenly among all targets (LibThreat sourced)
     for (auto const& pair : _threatenedByMe)
-        pair.second->GetOwner()->GetThreatManager().AddThreat(assistant, baseAmount, spell, ignoreModifiers);
+        pair.second->GetOwner()->GetThreatManager().AddThreat(assistant, perTarget, spell, ignoreModifiers);
 }
 
 void ThreatManager::RemoveMeFromThreatLists()
