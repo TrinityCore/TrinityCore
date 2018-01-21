@@ -29,6 +29,8 @@ void AddSC_tanaan_intro_shadowmoon();
 void AddSC_tanaan_intro_blackrock();
 void AddSC_tanaan_intro_finale();
 
+void AddSC_spells_garrison();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddDraenorScripts()
@@ -44,4 +46,6 @@ void AddDraenorScripts()
     AddSC_tanaan_intro_shadowmoon();
     AddSC_tanaan_intro_blackrock();
     AddSC_tanaan_intro_finale();
+
+    AddSC_spells_garrison();
 }

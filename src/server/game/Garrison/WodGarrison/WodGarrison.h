@@ -30,6 +30,23 @@ enum GarrisonBuildingFlags
 class GameObject;
 class Map;
 
+// Garrison hearthstone teleport coords
+static const Position GarrisonHearthstoneCoordinates[2][3] =
+{
+    {
+        // Alliance
+        { 1850.71f,   254.430f,  78.08300f, 1.76f   }, // Alliance Level 1
+        { 1947.08f,   324.883f,  90.28076f, 0.00f   }, // Alliance Level 2
+        { 1936.9f,    341.35f,   90.28f,    0.56f   }  // Alliance Level 3
+    },
+    {
+        // Horde
+        { 5561.15f,  4508.785f, 132.70000f, 3.406f  }, // Horde Level 1
+        { 5565.86f,  4593.500f, 140.89300f, 0.000f  }, // Horde Level 2
+        { 5563.70f,  4599.920f, 141.71100f, 0.000f  }, // Horde Level 3
+    }
+};
+
 class TC_GAME_API WodGarrison : public Garrison
 {
 public:

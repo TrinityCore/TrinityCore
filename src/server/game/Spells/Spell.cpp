@@ -99,6 +99,11 @@ void SpellDestination::Relocate(Position const& pos)
     _position.Relocate(pos);
 }
 
+void SpellDestination::Relocate(WorldLocation const &loc)
+{
+    _position = loc;
+}
+
 void SpellDestination::RelocateOffset(Position const& offset)
 {
     if (!_transportGUID.IsEmpty())
