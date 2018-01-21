@@ -2975,14 +2975,25 @@ public:
             return ValidateSpellInfo({ SPELL_GHOUL_FRENZY });
         }
 
-        void CalcDamage()
+        void CalcDamage(SpellEffIndex /*effIndex*/)
         {
-            if (Aura* aur = GetCaster()->GetAura(SPELL_GHOUL_FRENZY))
+            /*
+            Causes more damage per frenzy point:
+               1 point   : ${$AP*$m1*0.01+$AP*0.05}-${$AP*$m1*0.01+$AP*0.10} damage
+               2 points  : ${$AP*$m1*0.01+$AP*0.10}-${$AP*$m1*0.01+$AP*0.20} damage
+               3 points  : ${$AP*$m1*0.01+$AP*0.15}-${$AP*$m1*0.01+$AP*0.30} damage
+               4 points  : ${$AP*$m1*0.01+$AP*0.20}-${$AP*$m1*0.01+$AP*0.40} damage
+               5 points  : ${$AP*$m1*0.01+$AP*0.25}-${$AP*$m1*0.01+$AP*0.50} damage
+            */
+
+            if (Aura* frenzy = GetCaster()->GetAura(SPELL_GHOUL_FRENZY))
             {
-                int32 damage = GetHitDamage();
-                damage += int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.05f * aur->GetStackAmount());
-                aur->Remove();
-                SetHitDamage(damage);
+                float APBonus = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+                float fixedDamageBonus = APBonus * GetEffectValue() * 0.01f;
+                APBonus *= 0.05f * frenzy->GetStackAmount();
+
+                frenzy->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+                SetEffectValue(fixedDamageBonus + irand(int32(APBonus), int32(APBonus * 2.f)));
             }
 
             /*
@@ -2995,7 +3006,7 @@ public:
 
         void Register() override
         {
-            OnHit += SpellHitFn(spell_dk_ghoul_thrash_SpellScript::CalcDamage);
+            OnEffectLaunchTarget += SpellEffectFn(spell_dk_ghoul_thrash_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
