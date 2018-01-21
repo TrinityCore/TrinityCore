@@ -37,6 +37,7 @@
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
+#include "Language.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "SharedDefines.h"

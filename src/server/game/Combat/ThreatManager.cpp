@@ -22,6 +22,7 @@
 #include "ThreatManager.h"
 #include "Unit.h"
 #include "UnitAI.h"
+#include "UnitDefines.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -371,12 +372,13 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     ThreatReference* ref = new ThreatReference(this, target, amount);
     PutThreatListRef(target->GetGUID(), ref);
     target->GetThreatManager().PutThreatenedByMeRef(_owner->GetGUID(), ref);
-    if (!ref->IsOffline() && !_ownerEngaged)
+
+    Creature* cOwner = _owner->ToCreature();
+    assert(cOwner); // if we got here the owner can have a threat list, and must be a creature!
+    if (!_ownerEngaged && (cOwner->HasReactState(REACT_PASSIVE) || !ref->IsOffline()))
     {
         _ownerEngaged = true;
 
-        Creature* cOwner = _owner->ToCreature();
-        assert(cOwner); // if we got here the owner can have a threat list, and must be a creature!
         SaveCreatureHomePositionIfNeed(cOwner);
         if (cOwner->IsAIEnabled)
             cOwner->AI()->JustEngagedWith(target);
@@ -606,8 +608,11 @@ void ThreatManager::ForwardThreatForAssistingMe(Unit* assistant, float baseAmoun
 {
     if (spell && spell->HasAttribute(SPELL_ATTR1_NO_THREAT)) // shortcut, none of the calls would do anything
         return;
+    if (_threatenedByMe.empty())
+        return;
+    float const perTarget = baseAmount / _threatenedByMe.size(); // Threat is divided evenly among all targets (LibThreat sourced)
     for (auto const& pair : _threatenedByMe)
-        pair.second->GetOwner()->GetThreatManager().AddThreat(assistant, baseAmount, spell, ignoreModifiers);
+        pair.second->GetOwner()->GetThreatManager().AddThreat(assistant, perTarget, spell, ignoreModifiers);
 }
 
 void ThreatManager::RemoveMeFromThreatLists()

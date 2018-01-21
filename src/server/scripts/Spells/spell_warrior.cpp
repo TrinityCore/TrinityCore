@@ -143,12 +143,12 @@ class spell_warr_bloodthirst_heal : public SpellScriptLoader
             {
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_BLOODTHIRST_DAMAGE);
                 int32 const healPct = spellInfo->Effects[EFFECT_1].CalcValue(GetCaster());
-                SetHitHeal(GetCaster()->CountPctFromMaxHealth(healPct));
+                SetEffectValue(GetCaster()->CountPctFromMaxHealth(healPct));
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectLaunchTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -209,12 +209,12 @@ class spell_warr_concussion_blow : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                SetHitDamage(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetEffectValue()));
+                SetEffectValue(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetSpellInfo()->Effects[EFFECT_2].CalcValue()));
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_concussion_blow_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+                OnEffectLaunchTarget += SpellEffectFn(spell_warr_concussion_blow_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
