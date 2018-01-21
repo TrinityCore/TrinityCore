@@ -12908,9 +12908,6 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
     if (newPhaseMask == GetPhaseMask())
         return;
 
-    if (IsInWorld())
-        m_threatManager.UpdateOnlineStates(true, true);
-
     // Phase player, dont update
     WorldObject::SetPhaseMask(newPhaseMask, false);
 
