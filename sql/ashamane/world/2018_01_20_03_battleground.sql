@@ -1,0 +1,1 @@
+DELETE FROM `trinity_string` WHERE `entry` BETWEEN 12001 AND 12014;
