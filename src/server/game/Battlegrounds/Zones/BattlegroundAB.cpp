@@ -256,7 +256,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 
 /*  type: 0-neutral, 1-contested, 3-occupied
     teamIndex: 0-ally, 1-horde                        */
-void BattlegroundAB::_ChangeBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay)
+void BattlegroundAB::_ChangeBanner(uint8 node, uint8 type, uint8 teamIndex, bool /*delay*/)
 {
     GameObject* AB_banner = GetBGObject(node);
     if (AB_banner == nullptr)
