@@ -899,7 +899,7 @@ class spell_impale : public SpellScriptLoader
 
                 // make sure Impale doesnt do damage if we are standing on permafrost
                 if (target && target->HasAura(permafrost))
-                    SetHitDamage(0);
+                    PreventHitDamage();
             }
 
             void Register() override
