@@ -69,7 +69,7 @@ BattlegroundWS::BattlegroundWS()
     m_ReputationCapture = 0;
     m_HonorWinKills = 0;
     m_HonorEndKills = 0;
-    _minutesElapsed = 0;
+    m_EndTimestamp  = 0;
 }
 
 BattlegroundWS::~BattlegroundWS() { }
@@ -95,12 +95,6 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
                 EndBattleground(HORDE);
             else
                 EndBattleground(ALLIANCE);
-        }
-        // first update needed after 1 minute of game already in progress
-        else if (GetElapsedTime() > uint32(_minutesElapsed * MINUTE * IN_MILLISECONDS) +  3 * MINUTE * IN_MILLISECONDS)
-        {
-            ++_minutesElapsed;
-            UpdateWorldState(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
         }
 
         if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_WAIT_RESPAWN)
@@ -226,9 +220,6 @@ void BattlegroundWS::StartingEventCloseDoors()
     }
     for (uint32 i = BG_WS_OBJECT_A_FLAG; i <= BG_WS_OBJECT_BERSERKBUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
-
-    UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 1);
-    UpdateWorldState(BG_WS_STATE_TIMER, 25);
 }
 
 void BattlegroundWS::StartingEventOpenDoors()
@@ -248,6 +239,12 @@ void BattlegroundWS::StartingEventOpenDoors()
 
     // players joining later are not eligibles
     StartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
+	
+    // Send start timer
+    m_EndTimestamp = time(nullptr) + 1500;
+
+    UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 1);
+    UpdateWorldState(BG_WS_STATE_TIMER, m_EndTimestamp);
 }
 
 void BattlegroundWS::AddPlayer(Player* player)
@@ -760,7 +757,6 @@ void BattlegroundWS::Reset()
         m_HonorWinKills = 1;
         m_HonorEndKills = 2;
     }
-    _minutesElapsed                  = 0;
     _lastFlagCaptureTeam             = 0;
     _bothFlagsKept                   = false;
     _flagDebuffState                 = 0;
@@ -866,7 +862,7 @@ void BattlegroundWS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER_ACTIVE), 1);
-        packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER), int32(25 - _minutesElapsed));
+        packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER), int32(m_EndTimestamp));
     }
     else
         packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER_ACTIVE), 0);
