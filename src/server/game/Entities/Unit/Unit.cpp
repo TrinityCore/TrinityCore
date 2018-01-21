@@ -12534,11 +12534,6 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, S
 
 void Unit::OnPhaseChange()
 {
-    if (!IsInWorld())
-        return;
-
-    if (GetTypeId() == TYPEID_UNIT || !ToPlayer()->GetSession()->PlayerLogout())
-        m_threatManager.UpdateOnlineStates(true, true);
 }
 
 void Unit::UpdateObjectVisibility(bool forced)
