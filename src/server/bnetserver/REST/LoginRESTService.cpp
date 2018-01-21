@@ -311,12 +311,12 @@ int32 LoginRESTService::HandleGetPortal(std::shared_ptr<AsyncRequest> request)
 
 int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
 {
-    char *buf;
-    size_t len;
+    char* buf = nullptr;
+    size_t len = 0;
     soap_http_body(request->GetClient(), &buf, &len);
 
     Battlenet::JSON::Login::LoginForm loginForm;
-    if (!JSON::Deserialize(buf, &loginForm))
+    if (!buf || !JSON::Deserialize(buf, &loginForm))
     {
         ResponseCodePlugin::GetForClient(request->GetClient())->ErrorCode = 400;
 
