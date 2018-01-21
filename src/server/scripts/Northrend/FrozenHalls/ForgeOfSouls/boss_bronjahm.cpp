@@ -268,20 +268,19 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
         {
             PrepareSpellScript(spell_bronjahm_magic_bane_SpellScript);
 
-            void RecalculateDamage()
+            void RecalculateDamage(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitUnit()->GetPowerType() != POWER_MANA)
                     return;
 
                 int32 const maxDamage = GetCaster()->GetMap()->IsHeroic() ? 15000 : 10000;
-                int32 newDamage = GetHitDamage() + (GetHitUnit()->GetMaxPower(POWER_MANA) / 2);
-
-                SetHitDamage(std::min<int32>(maxDamage, newDamage));
+                int32 newDamage = GetEffectValue() + (GetHitUnit()->GetMaxPower(POWER_MANA) / 2);
+                SetEffectValue(std::min<int32>(maxDamage, newDamage));
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_bronjahm_magic_bane_SpellScript::RecalculateDamage);
+                OnEffectLaunchTarget += SpellEffectFn(spell_bronjahm_magic_bane_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

@@ -209,7 +209,7 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
                 Unit* target = GetHitUnit();
 
                 if (target->HasAura(GetTriggeringSpell()->Id))
-                    SetHitDamage(0);
+                    PreventHitDamage();
             }
 
             void Register() override
