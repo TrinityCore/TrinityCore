@@ -2312,29 +2312,34 @@ class spell_dru_wild_growth : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DRUID_RESTORATION_T10_2P_BONUS });
             }
 
+            void SetTickHeal(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                // includes caster bonuses already
+                _baseTick = amount;
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect const* bonus = caster->GetAuraEffect(SPELL_DRUID_RESTORATION_T10_2P_BONUS, EFFECT_0))
+                        AddPct(_baseReduction, -bonus->GetAmount());
+            }
+
             void HandleTickUpdate(AuraEffect* aurEff)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
-
-                // calculate from base damage, not from aurEff->GetAmount() (already modified)
-                float damage = caster->CalculateSpellDamage(GetUnitOwner(), GetSpellInfo(), aurEff->GetEffIndex());
-
                 // Wild Growth = first tick gains a 6% bonus, reduced by 2% each tick
-                float reduction = 2.f;
-                if (AuraEffect* bonus = caster->GetAuraEffect(SPELL_DRUID_RESTORATION_T10_2P_BONUS, EFFECT_0))
-                    reduction -= CalculatePct(reduction, bonus->GetAmount());
+                float reduction = _baseReduction;
                 reduction *= (aurEff->GetTickNumber() - 1);
 
-                AddPct(damage, 6.f - reduction);
-                aurEff->SetAmount(int32(damage));
+                float const bonus = 6.f - reduction;
+                int32 const amount = int32(_baseTick + CalculatePct(_baseTick, bonus));
+                aurEff->SetAmount(amount);
             }
 
             void Register() override
             {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_wild_growth_AuraScript::SetTickHeal, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dru_wild_growth_AuraScript::HandleTickUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
+
+            float _baseTick = 0.f;
+            float _baseReduction = 2.f;
         };
 
         SpellScript* GetSpellScript() const override
