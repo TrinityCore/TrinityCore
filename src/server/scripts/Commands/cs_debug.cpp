@@ -1627,6 +1627,7 @@ public:
 
         float magnitude     = 10.0f;
         Position direction  = player->GetPosition();
+        Position origin     = Position();
 
         if (*args)
         {
@@ -1634,15 +1635,21 @@ public:
             char* directionX = strtok(NULL, " ");
             char* directionY = strtok(NULL, " ");
             char* directionZ = strtok(NULL, " ");
+            char* originX = strtok(NULL, " ");
+            char* originY = strtok(NULL, " ");
+            char* originZ = strtok(NULL, " ");
 
             if (magnitudeStr)
                 magnitude = (float)atof(magnitudeStr);
 
             if (directionX && directionY && directionZ)
                 direction.Relocate((float)atof(directionX), (float)atof(directionY), (float)atof(directionZ));
+
+            if (originX && originY && directionZ)
+                origin.Relocate((float)atof(originX), (float)atof(originY), (float)atof(originZ));
         }
 
-        unit->ApplyMovementForce(player->GetGUID(), magnitude, direction);
+        unit->ApplyMovementForce(player->GetGUID(), magnitude, direction, origin);
         return true;
     }
 

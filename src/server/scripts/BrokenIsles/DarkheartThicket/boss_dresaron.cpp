@@ -1,20 +1,19 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
@@ -152,64 +151,33 @@ public:
 
 //AT ; 6084
 //Spell : 199345 - Effect 1
-class at_dresaron_down_draft : public AreaTriggerEntityScript
+struct at_dresaron_down_draft : AreaTriggerAI
 {
-public:
-    at_dresaron_down_draft() : AreaTriggerEntityScript("at_dresaron_down_draft") { }
+    at_dresaron_down_draft(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_dresaron_down_draftAI : AreaTriggerAI
+    void OnUnitEnter(Unit* unit) override
     {
-        at_dresaron_down_draftAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-        void OnCreate() override
+        if (unit->IsPlayer() && at->GetCaster())
         {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            for (auto guid : at->GetInsideUnits())
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                    if (unit->GetTypeId() == TYPEID_PLAYER)
-                        unit->CastSpell(unit, SPELL_DD_DOT, true);
+            unit->CastSpell(unit, SPELL_DD_DOT, true);
+            unit->ToPlayer()->ApplyMovementForce(at->GetGUID(), 8.0f, Position());
         }
+    }
 
-        void OnUnitEnter(Unit* unit) override
-        {
-            if (unit->GetTypeId() == TYPEID_PLAYER)
-                unit->CastSpell(unit, SPELL_DD_DOT, true);
-        }
-
-        void OnUnitExit(Unit* unit) override
-        {
-            if (unit->HasAura(SPELL_DD_DOT))
-                unit->RemoveAura(SPELL_DD_DOT);
-        }
-
-        void OnRemove() override
-        {
-            Unit* caster = at->GetCaster();
-
-            if (!caster)
-                return;
-
-            for (auto guid : at->GetInsideUnits())
-                if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
-                    if (unit->HasAura(SPELL_DD_DOT))
-                        unit->RemoveAura(SPELL_DD_DOT);
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUnitExit(Unit* unit) override
     {
-        return new at_dresaron_down_draftAI(areatrigger);
+        if (unit->HasAura(SPELL_DD_DOT))
+            unit->RemoveAura(SPELL_DD_DOT);
+
+        if (unit->IsPlayer())
+            unit->ToPlayer()->RemoveMovementForce(at->GetGUID());
     }
 };
 
 
 void AddSC_boss_dresaron()
 {
-    new at_dresaron_down_draft();
-
     new boss_dresaron();
+
+    RegisterAreaTriggerAI(at_dresaron_down_draft);
 }
