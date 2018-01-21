@@ -17,7 +17,6 @@
 
 #include "BattlegroundTVA.h"
 #include "Player.h"
-#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
 BattlegroundTVA::BattlegroundTVA()

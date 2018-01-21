@@ -248,7 +248,7 @@ class mob_dread_kunchong : public CreatureScript
                 if (!player)
                     return;
 
-                switch (player->GetSpecializationId())
+                switch (player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
                 {
                     case TALENT_SPEC_DEATHKNIGHT_BLOOD:
                     case TALENT_SPEC_DEATHKNIGHT_FROST:
@@ -2968,7 +2968,6 @@ class mob_zandalari_warbringer : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_dread_wastes()
 {
     // Rare Elite Mobs
@@ -3016,4 +3015,4 @@ void AddSC_dread_wastes()
     new go_ancient_amber_chunk();
     new go_kunchong_cage();
 }
-#endif
+

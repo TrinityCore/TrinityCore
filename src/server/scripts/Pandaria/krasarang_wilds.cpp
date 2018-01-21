@@ -2614,7 +2614,6 @@ class mob_yan_quillpaw : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_krasarang_wilds()
 {
     new mob_gaarn_the_toxic();
@@ -2642,4 +2641,3 @@ void AddSC_krasarang_wilds()
     new mob_tukka_tuk();
     new mob_yan_quillpaw();
 }
-#endif

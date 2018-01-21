@@ -20,6 +20,8 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "DB2Stores.h"
+#include "AchievementMgr.h"
 #include "the_veiled_stair.h"
 
 
@@ -190,10 +192,8 @@ class npc_wrathion_mason : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_the_veiled_stair()
 {
     new npc_wrathion();
     new npc_wrathion_mason();
 }
-#endif

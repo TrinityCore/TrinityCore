@@ -30,6 +30,22 @@ enum BG_TP_TimerOrScore
     BG_TP_SPELL_BRUTAL_TIME     = 900000
 };
 
+enum BG_TP_BroadcastTexts
+{
+    BG_TP_TEXT_START_ONE_MINUTE         = 41186,
+    BG_TP_TEXT_START_HALF_MINUTE        = 41187,
+    BG_TP_TEXT_BATTLE_HAS_BEGUN         = 10014,
+
+    BG_TP_TEXT_CAPTURED_HORDE_FLAG      = 9801,
+    BG_TP_TEXT_CAPTURED_ALLIANCE_FLAG   = 9802,
+    BG_TP_TEXT_FLAGS_PLACED             = 9803,
+    BG_TP_TEXT_ALLIANCE_FLAG_PICKED_UP  = 9804,
+    BG_TP_TEXT_ALLIANCE_FLAG_DROPPED    = 9805,
+    BG_TP_TEXT_HORDE_FLAG_PICKED_UP     = 9807,
+    BG_TP_TEXT_HORDE_FLAG_DROPPED       = 9806,
+    BG_TP_TEXT_ALLIANCE_FLAG_RETURNED   = 9808,
+    BG_TP_TEXT_HORDE_FLAG_RETURNED      = 9809
+};
 
 enum BG_TP_Sound
 {
@@ -149,8 +165,8 @@ enum BG_TP_CarrierDebuffs
 
 enum BG_TP_Objectives
 {
-    TP_OBJECTIVE_CAPTURE_FLAG   = 42,
-    TP_OBJECTIVE_RETURN_FLAG    = 44
+    TP_OBJECTIVE_CAPTURE_FLAG   = 290,
+    TP_OBJECTIVE_RETURN_FLAG    = 291
 };
 
 
@@ -280,7 +296,7 @@ class BattlegroundTP : public Battleground
         int32 _flagSpellForceTimer;
         bool _bothFlagsKept;
         uint8 _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
-        uint8 _minutesElapsed;
+        uint32 m_EndTimestamp;
 };
 
 #endif
