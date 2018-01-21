@@ -380,12 +380,13 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     ThreatReference* ref = new ThreatReference(this, target, amount);
     PutThreatListRef(target->GetGUID(), ref);
     target->GetThreatManager().PutThreatenedByMeRef(_owner->GetGUID(), ref);
-    if (!ref->IsOffline() && !_ownerEngaged)
+
+    Creature* cOwner = _owner->ToCreature();
+    ASSERT(cOwner); // if we got here the owner can have a threat list, and must be a creature!
+    if (!_ownerEngaged && (cOwner->HasReactState(REACT_PASSIVE) || !ref->IsOffline()))
     {
         _ownerEngaged = true;
 
-        Creature* cOwner = _owner->ToCreature();
-        assert(cOwner); // if we got here the owner can have a threat list, and must be a creature!
         SaveCreatureHomePositionIfNeed(cOwner);
         if (cOwner->IsAIEnabled)
             cOwner->AI()->JustEngagedWith(target);
