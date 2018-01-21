@@ -66,15 +66,14 @@ void AddSC_boss_sha_of_anger();
 void AddSC_boss_xuen();
 void AddSC_boss_yu_lon();
 
-// Wandering Island
-void AddSC_the_wandering_isle();
-
 // Zones
 void AddSC_dread_wastes();
 void AddSC_jade_forest();
 void AddSC_krasarang_wilds();
 void AddSC_kun_lai_summit();
 void AddSC_timeless_isle();
+void AddSC_the_veiled_stair();
+void AddSC_the_wandering_isle();
 void AddSC_townlong_steppes();
 void AddSC_vale_of_eternal_blossoms();
 void AddSC_valley_of_the_four_winds();
@@ -131,15 +130,14 @@ void AddPandariaScripts()
     AddSC_boss_xuen();
     AddSC_boss_yu_lon();
 
-    // Wandering Island
-    AddSC_the_wandering_isle();
-
     // Zones
     AddSC_dread_wastes();
     AddSC_jade_forest();
     AddSC_krasarang_wilds();
     AddSC_kun_lai_summit();
     AddSC_timeless_isle();
+    AddSC_the_veiled_stair();
+    AddSC_the_wandering_isle();
     AddSC_townlong_steppes();
     AddSC_vale_of_eternal_blossoms();
     AddSC_valley_of_the_four_winds();
