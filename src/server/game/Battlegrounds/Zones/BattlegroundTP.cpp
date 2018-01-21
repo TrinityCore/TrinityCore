@@ -589,7 +589,6 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
         //target_obj->Delete();
     }
 
-    SendMessageToAll(message_id, type, player);
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 

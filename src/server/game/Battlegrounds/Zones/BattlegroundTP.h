@@ -165,8 +165,8 @@ enum BG_TP_CarrierDebuffs
 
 enum BG_TP_Objectives
 {
-    TP_OBJECTIVE_CAPTURE_FLAG   = 42,
-    TP_OBJECTIVE_RETURN_FLAG    = 44
+    TP_OBJECTIVE_CAPTURE_FLAG   = 290,
+    TP_OBJECTIVE_RETURN_FLAG    = 291
 };
 
 
