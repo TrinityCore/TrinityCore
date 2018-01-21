@@ -545,12 +545,12 @@ class spell_tyrannus_rimefang_icy_blast : public SpellScriptLoader
         }
 };
 
-class at_tyrannus_event_starter : public OnlyOnceAreaTriggerScript
+class at_tyrannus_event_starter : public AreaTriggerScript
 {
     public:
-        at_tyrannus_event_starter() : OnlyOnceAreaTriggerScript("at_tyrannus_event_starter") { }
+        at_tyrannus_event_starter() : AreaTriggerScript("at_tyrannus_event_starter") { }
 
-        bool _OnTrigger(Player* player, const AreaTriggerEntry * /*at*/) override
+        bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (player->IsGameMaster() || !instance)
