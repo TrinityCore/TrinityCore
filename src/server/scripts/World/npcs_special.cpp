@@ -18,6 +18,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "BattlegroundAV.h"
 #include "CreatureTextMgr.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
@@ -2293,6 +2294,41 @@ public:
     }
 };
 
+#define REGZAR_TEXT_NEED " supplies are needed for the next upgrade!"
+#define REGZAR_TEXT_MAX "You're already at 1500 supplies!"
+
+class npc_regzar : public CreatureScript
+{
+public:
+    npc_regzar() : CreatureScript("npc_regzar") { }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    {
+        Battleground* AV_BattleGround = player->GetBattleground();
+        if (AV_BattleGround == nullptr || AV_BattleGround->GetTypeID(true) != BattlegroundTypeId::BATTLEGROUND_AV)
+            return false;
+
+        BattlegroundAV* AlteracBG = (BattlegroundAV*)AV_BattleGround;
+
+        int32 ressource = AlteracBG->GetTeamQuestStatus(player->GetTeamId(), 0);
+        if (ressource >= 1500)
+            ressource = -1;
+        else
+            ressource = 500 - (ressource % 500);
+
+        std::ostringstream stream;
+
+        if (ressource == -1)
+            stream << REGZAR_TEXT_MAX;
+        else
+            stream << ressource << REGZAR_TEXT_NEED;
+
+        // creature->MonsterYell(stream.str().c_str(), Language::LANG_ORCISH, 0);
+
+        return true;
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2314,4 +2350,5 @@ void AddSC_npcs_special()
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_creature_damage_limit();
+    new npc_regzar();
 }
