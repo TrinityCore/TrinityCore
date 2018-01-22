@@ -740,7 +740,7 @@ class npc_putricide_oozeAI : public ScriptedAI
             if (_instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) != IN_PROGRESS)
                 me->DespawnOrUnsummon();
 
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
             DoCastAOE(_auraSpellId, true);
         }
 

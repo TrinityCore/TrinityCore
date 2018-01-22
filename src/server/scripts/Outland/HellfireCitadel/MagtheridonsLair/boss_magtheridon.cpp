@@ -250,7 +250,7 @@ class boss_magtheridon : public CreatureScript
                         case EVENT_RELEASED:
                             me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
-                            me->SetInCombatWithZone();
+                            DoZoneInCombat();
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
                             events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
                             events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(60));
@@ -354,7 +354,7 @@ class npc_hellfire_channeler : public CreatureScript
                 if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
                     magtheridon->AI()->JustSummoned(summon);
 
-                summon->SetInCombatWithZone();
+                DoZoneInCombat(summon);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override

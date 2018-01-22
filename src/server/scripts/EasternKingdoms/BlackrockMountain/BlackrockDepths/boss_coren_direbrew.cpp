@@ -169,7 +169,7 @@ struct boss_coren_direbrew : public BossAI
             events.SetPhase(PHASE_ONE);
             me->SetImmuneToPC(false);
             me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
 
             EntryCheckPredicate pred(NPC_ANTAGONIST);
             summons.DoAction(ACTION_ANTAGONIST_HOSTILE, pred);
@@ -217,7 +217,7 @@ struct boss_coren_direbrew : public BossAI
     void SummonSister(uint32 entry)
     {
         if (Creature* sister = me->SummonCreature(entry, me->GetPosition(), TEMPSUMMON_DEAD_DESPAWN))
-            sister->SetInCombatWithZone();
+            DoZoneInCombat(sister);
     }
 
     void UpdateAI(uint32 diff) override
@@ -343,7 +343,7 @@ struct npc_direbrew_minion : public ScriptedAI
     void Reset() override
     {
         me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
-        me->SetInCombatWithZone();
+        DoZoneInCombat();
     }
 
     void IsSummonedBy(Unit* /*summoner*/) override
@@ -373,7 +373,7 @@ struct npc_direbrew_antagonist : public ScriptedAI
             case ACTION_ANTAGONIST_HOSTILE:
                 me->SetImmuneToPC(false);
                 me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
                 break;
             default:
                 break;

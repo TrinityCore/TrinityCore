@@ -358,7 +358,7 @@ struct boss_gormok : public boss_northrend_beastsAI
                 // Npc that should keep raid in combat while boss change
                 if (Creature* combatStalker = me->SummonCreature(NPC_BEASTS_COMBAT_STALKER, CombatStalkerPosition))
                 {
-                    combatStalker->SetInCombatWithZone();
+                    DoZoneInCombat(combatStalker);
                     combatStalker->SetCombatPulseDelay(5);
                 }
                 DoZoneInCombat();

@@ -465,7 +465,7 @@ class npc_swarm_scarab : public CreatureScript
                 me->SetCorpseDelay(0);
                 Initialize();
                 DoCast(me, SPELL_ACID_MANDIBLE);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
                 if (me->IsInCombat())
                     if (Creature* anubarak = _instance->GetCreature(DATA_ANUBARAK))
                         anubarak->AI()->JustSummoned(me);
@@ -545,7 +545,7 @@ class npc_nerubian_burrower : public CreatureScript
                 DoCast(me, SPELL_EXPOSE_WEAKNESS);
                 DoCast(me, SPELL_SPIDER_FRENZY);
                 DoCast(me, SPELL_AWAKENED);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
                 if (me->IsInCombat())
                     if (Creature* anubarak = _instance->GetCreature(DATA_ANUBARAK))
                         anubarak->AI()->JustSummoned(me);
@@ -708,7 +708,7 @@ class npc_anubarak_spike : public CreatureScript
             {
                 Initialize();
                 // make sure the spike has everyone on threat list
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
             }
 
             bool CanAIAttack(Unit const* victim) const override
@@ -821,7 +821,7 @@ class npc_anubarak_spike : public CreatureScript
                 me->SetSpeedRate(MOVE_RUN, 0.5f);
                 // make sure the Spine will really follow the one he should
                 me->GetThreatManager().ResetAllThreat();
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
                 AddThreat(who, 1000000.0f);
                 me->GetMotionMaster()->Clear(true);
                 me->GetMotionMaster()->MoveChase(who);

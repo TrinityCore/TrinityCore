@@ -634,7 +634,7 @@ struct npc_enslaved_soul : public ScriptedAI
         _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
         });
     }
 

@@ -216,7 +216,7 @@ struct dummy_dragonAI : public ScriptedAI
         if (pointId == POINT_ID_LAND)
         {
             me->GetMotionMaster()->Clear();
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
             {
                 AddThreat(target, 1.0f);
@@ -820,7 +820,7 @@ public:
 
         void JustSummoned(Creature* who) override
         {
-            who->SetInCombatWithZone();
+            DoZoneInCombat(who);
         }
 
         void UpdateAI(uint32 diff) override
@@ -987,7 +987,7 @@ public:
         void Reset() override
         {
             me->RemoveAllAuras();
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
             events.ScheduleEvent(EVENT_FADE_ARMOR, 1000);
         }
 

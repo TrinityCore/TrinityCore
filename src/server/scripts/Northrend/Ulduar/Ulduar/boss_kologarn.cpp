@@ -131,7 +131,7 @@ class boss_kologarn : public CreatureScript
                 if (Vehicle* vehicle = me->GetVehicleKit())
                     for (uint8 i = 0; i < 2; ++i)
                         if (Unit* arm = vehicle->GetPassenger(i))
-                            arm->ToCreature()->SetInCombatWithZone();
+                            DoZoneInCombat(arm->ToCreature());
 
                 _JustEngagedWith();
             }
@@ -204,7 +204,7 @@ class boss_kologarn : public CreatureScript
                 else
                 {
                     events.CancelEvent(EVENT_STONE_SHOUT);
-                    who->ToCreature()->SetInCombatWithZone();
+                    DoZoneInCombat(who->ToCreature());
                 }
             }
 

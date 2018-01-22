@@ -233,7 +233,7 @@ struct npc_doom_blossom : public NullCreatureAI
 
         DoCast(SPELL_SUMMON_BLOSSOM_MOVE_TARGET);
         _scheduler.CancelAll();
-        me->SetInCombatWithZone();
+        DoZoneInCombat();
         _scheduler.Schedule(Seconds(12), [this](TaskContext shadowBolt)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))

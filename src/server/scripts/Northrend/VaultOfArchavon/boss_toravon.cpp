@@ -160,7 +160,7 @@ struct npc_frozen_orb : public ScriptedAI
             if (toravon->IsInCombat())
             {
                 toravon->AI()->JustSummoned(me);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
             }
             else
                 me->DespawnOrUnsummon();
