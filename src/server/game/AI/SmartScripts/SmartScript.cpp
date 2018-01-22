@@ -994,7 +994,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (IsCreature(target))
                 {
-                    target->ToCreature()->SetInCombatWithZone();
+                    Creature* creature = target->ToCreature();
+                    if (creature->IsAIEnabled)
+                        creature->AI()->DoZoneInCombat();
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_SET_IN_COMBAT_WITH_ZONE: Creature %u, target: %u", me->GetGUID().GetCounter(), target->GetGUID().GetCounter());
                 }
             }
