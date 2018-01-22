@@ -27,7 +27,7 @@ enum EOADataTypes
 {
     DATA_WARLORD_PARJESH  = 0,
     DATA_LADY_HATECOIL    = 1,
-    DATA_SERPENTRIX       = 2
+    DATA_SERPENTRIX       = 2,
     DATA_KING_DEEPBEARD   = 3,
     DATA_WRATH_OF_AZSHARA = 4
 };
@@ -40,11 +40,5 @@ enum EOACreatureIds
     NPC_KING_DEEPBEARD   = 91797,
     NPC_WRATH_OF_AZSHARA = 96028
 };
-
-template<class AI>
-AI* GetEyeOfAzsharaAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, EoAScriptName);
-}
 
 #endif // EYE_OF_AZSHARA_H_
