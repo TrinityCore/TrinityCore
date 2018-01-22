@@ -55,6 +55,16 @@ enum SharedActions
     ACTION_BUFF_YELL    = -30001
 };
 
+enum BG_AV_BroadcastTexts
+{
+    BG_AV_TEXT_START_ONE_MINUTE     = 10638,
+    BG_AV_TEXT_START_HALF_MINUTE    = 10639,
+    BG_AV_TEXT_BATTLE_HAS_BEGUN     = 10640,
+
+    BG_AV_TEXT_ALLIANCE_NEAR_LOSE   = 23210,
+    BG_AV_TEXT_HORDE_NEAR_LOSE      = 23211
+};
+
 enum BG_AV_Sounds
 { /// @todo: get out if there comes a sound when neutral team captures mine
 
