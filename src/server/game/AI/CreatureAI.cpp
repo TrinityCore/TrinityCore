@@ -398,7 +398,7 @@ void CreatureAI::CheckRepositionRequirements()
         victimPos.Relocate(victim->GetPosition());
 
         // If we are closer than  50% of the combat reach we are going to reposition ourself
-        if (me->GetDistance(victimPos) < CalculatePct(me->GetCombatReach(), 50))
+        if ((me->GetExactDist(victimPos) - me->GetCombatReach()) < CalculatePct(me->GetCombatReach(), 50))
             me->MoveAdvanceTo(victim);
     }
 }

@@ -500,8 +500,8 @@ void Unit::MoveAdvanceTo(Unit* target)
     Movement::MoveSplineInit init(this);
     init.MoveTo(x, y, z, true, false);
 
-    // Beasts move backwards instead of turning arround
-    if (ToCreature() && ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_BEAST)
+    // Creatures except humanoids move backwards instead of turning arround
+    if (ToCreature() && ToCreature()->GetCreatureTemplate()->type != CREATURE_TYPE_HUMANOID)
         init.SetOrientationFixed(true);
 
     init.Launch();

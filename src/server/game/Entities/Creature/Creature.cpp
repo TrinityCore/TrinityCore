@@ -632,7 +632,7 @@ void Creature::Update(uint32 diff)
 
                 if (diff >= m_advanceMovementTime)
                 {
-                    AI()->CheckRepositionRequirements();
+                    // AI()->CheckRepositionRequirements();
                     m_advanceMovementTime = 3000;
                 }
                 else
