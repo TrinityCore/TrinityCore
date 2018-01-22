@@ -9578,6 +9578,18 @@ void Unit::SetLevel(uint8 lvl)
     }
 }
 
+// Return true if unit was above health pct and will be below with damage
+bool Unit::HealthWillBeBelowPctDamaged(int32 pct, uint32 damage) const
+{
+    return !HealthBelowPct(pct) && HealthBelowPctDamaged(pct, damage);
+}
+
+// Return true if unit was below health pct and will be above with damage
+bool Unit::HealthWillBeAbovePctHealed(int32 pct, uint32 damage) const
+{
+    return !HealthAbovePct(pct) && HealthAbovePctHealed(pct, damage);
+}
+
 void Unit::SetHealth(uint64 val)
 {
     if (getDeathState() == JUST_DIED)
