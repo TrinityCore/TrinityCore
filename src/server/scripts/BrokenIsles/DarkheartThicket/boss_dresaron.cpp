@@ -42,12 +42,10 @@ enum Spells
     SPELL_DD_DOT            = 220855,
     SPELL_DD_CHARGE         = 199351,
 
-
     //Earthshaking Roar
     //                        199385 ?
     SPELL_ER_TARGET         = 199389,
     SPELL_ER_DAMAGE         = 218587,
-
 
     //Falling Rocks
     SPELL_FR_TRIGGERMISSILE = 141461,
@@ -55,6 +53,8 @@ enum Spells
     SPELL_FR_AT             = 163897,
     SPELL_FR_DOT            = 163900,
     SPELL_FR_AT_1           = 199458,
+
+    SPELL_DISTURB_EGG       = 199313
 };
 
 enum Events
@@ -64,88 +64,84 @@ enum Events
     EVENT_ER  = 3
 };
 
-class boss_dresaron : public CreatureScript
+enum
 {
-public:
-    boss_dresaron() : CreatureScript("boss_dresaron") { }
+    CREATURE_GROUP_EGGS = 0
+};
 
-    struct boss_dresaronAI : public BossAI
+struct boss_dresaron : public BossAI
+{
+    boss_dresaron(Creature* creature) : BossAI(creature, DATA_DRESARON) { }
+
+    void Reset() override
     {
-        boss_dresaronAI(Creature* creature) : BossAI(creature, DATA_DRESARON) { }
+        _Reset();
+        events.ScheduleEvent(EVENT_BOC, urand(15000, 20000));
+        events.ScheduleEvent(EVENT_ER, 21000);
+        events.ScheduleEvent(EVENT_DD, urand(38000, 42000));
 
-        void Reset() override
+        // Respawn eggs
+        me->SummonCreatureGroup(CREATURE_GROUP_EGGS);
+    }
+
+    void JustReachedHome() override
+    {
+        _JustReachedHome();
+        instance->SetBossState(DATA_DRESARON, FAIL);
+    }
+
+    void EnterCombat(Unit* /*who*/) override
+    {
+        me->setActive(true);
+        DoZoneInCombat();
+        events.Reset();
+        events.ScheduleEvent(EVENT_BOC, urand(15000, 20000));
+        events.ScheduleEvent(EVENT_ER, 21000);
+        events.ScheduleEvent(EVENT_DD, urand(38000, 42000));
+        instance->SetBossState(DATA_DRESARON, IN_PROGRESS);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SetBossState(DATA_DRESARON, DONE);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _Reset();
-            events.ScheduleEvent(EVENT_BOC, urand(15000, 20000));
-            events.ScheduleEvent(EVENT_ER, 21000);
-            events.ScheduleEvent(EVENT_DD, urand(38000, 42000));
-        }
-
-        void JustReachedHome() override
-        {
-            _JustReachedHome();
-            instance->SetBossState(DATA_DRESARON, FAIL);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            me->setActive(true);
-            DoZoneInCombat();
-            events.Reset();
-            events.ScheduleEvent(EVENT_BOC, urand(15000, 20000));
-            events.ScheduleEvent(EVENT_ER, 21000);
-            events.ScheduleEvent(EVENT_DD, urand(38000, 42000));
-            instance->SetBossState(DATA_DRESARON, IN_PROGRESS);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-            instance->SetBossState(DATA_DRESARON, DONE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
+                case EVENT_BOC:
                 {
-                    case EVENT_BOC:
-                    {
-                        events.ScheduleEvent(EVENT_BOC, urand(15000, 20000));
-                        DoCastVictim(SPELL_BOC_TARGET);
-                        break;
-                    }
-                    case EVENT_ER:
-                    {
-                        events.ScheduleEvent(EVENT_ER, 21000);
-                        DoCastAOE(SPELL_ER_TARGET);
-                        break;
-                    }
-                    case EVENT_DD:
-                    {
-                        events.ScheduleEvent(EVENT_DD, urand(38000, 42000));
-                        me->CastSpell(me, SPELL_DD_TARGET, false);
-                    }
+                    events.ScheduleEvent(EVENT_BOC, urand(15000, 20000));
+                    DoCastVictim(SPELL_BOC_TARGET);
+                    break;
+                }
+                case EVENT_ER:
+                {
+                    events.ScheduleEvent(EVENT_ER, 21000);
+                    DoCastAOE(SPELL_ER_TARGET);
+                    break;
+                }
+                case EVENT_DD:
+                {
+                    events.ScheduleEvent(EVENT_DD, urand(38000, 42000));
+                    me->CastSpell(me, SPELL_DD_TARGET, false);
                 }
             }
-
-            DoMeleeAttackIfReady();
         }
 
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_dresaronAI(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -160,7 +156,7 @@ struct at_dresaron_down_draft : AreaTriggerAI
         if (unit->IsPlayer() && at->GetCaster())
         {
             unit->CastSpell(unit, SPELL_DD_DOT, true);
-            unit->ToPlayer()->ApplyMovementForce(at->GetGUID(), 8.0f, Position());
+            unit->ToPlayer()->ApplyMovementForce(at->GetGUID(), -8.0f, at->GetPosition());
         }
     }
 
@@ -174,10 +170,32 @@ struct at_dresaron_down_draft : AreaTriggerAI
     }
 };
 
+// 101072
+class npc_dresaron_corrupted_dragon_egg : public ScriptedAI
+{
+public:
+    npc_dresaron_corrupted_dragon_egg(Creature* creature) : ScriptedAI(creature) {}
+
+    void Reset() override
+    {
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+        SetCanSeeEvenInPassiveMode(true);
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (who->IsPlayer() && me->GetDistance(who) <= 1.0f)
+        {
+            me->CastSpell(who, SPELL_DISTURB_EGG, true);
+            me->KillSelf();
+        }
+    }
+};
 
 void AddSC_boss_dresaron()
 {
-    new boss_dresaron();
+    RegisterCreatureAI(boss_dresaron);
+    RegisterCreatureAI(npc_dresaron_corrupted_dragon_egg);
 
     RegisterAreaTriggerAI(at_dresaron_down_draft);
 }

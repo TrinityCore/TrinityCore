@@ -32,6 +32,7 @@
 
 enum Spells
 {
+    SPELL_DEEP_ROOTS                = 165950,
 
     //Nightmare Breath
     SPELL_NIGHTMARE_BREATH_DAMAGE   = 204667,
@@ -80,12 +81,23 @@ struct boss_oakheart : public BossAI
         events.ScheduleEvent(EVENT_SHATTERED_EARTH, urand(4000, 6000));
         events.ScheduleEvent(EVENT_NIGHTMARE_BREATH, urand(10000, 12000));
         events.ScheduleEvent(EVENT_CRUSHING_GRIP, 20000);
+
+        SetCanSeeEvenInPassiveMode(true);
     }
 
     void JustReachedHome() override
     {
         _JustReachedHome();
         instance->SetBossState(DATA_OAKHEART, FAIL);
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (me->GetDistance(who) < 20.0f)
+        {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_15 | UNIT_FLAG_STUNNED);
+            me->RemoveAurasDueToSpell(SPELL_DEEP_ROOTS);
+        }
     }
 
     void EnterCombat(Unit* /*who*/) override
@@ -126,34 +138,32 @@ struct boss_oakheart : public BossAI
             {
                 case EVENT_SHATTERED_EARTH:
                 {
-                    events.ScheduleEvent(EVENT_SHATTERED_EARTH, urand(35000, 40000));
                     me->CastSpell(me, SPELL_SHATTERED_EARTH_DAMAGE, false);
+                    events.Repeat(35000, 40000);
                     break;
                 }
                 case EVENT_CRUSHING_GRIP:
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO);
-                    if (!target)
-                        break;
-                    me->CastSpell(target, SPELL_CRUSHING_GRIP_CAST, false);
-                    events.ScheduleEvent(EVENT_CRUSHING_GRIP, urand(29000, 32000));
+                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        me->CastSpell(target, SPELL_CRUSHING_GRIP_CAST, false);
+                    events.Repeat(29000, 32000);
                     break;
                 }
                 case EVENT_STRANGLING_ROOTS:
                 {
-                    events.ScheduleEvent(EVENT_STRANGLING_ROOTS, urand(23000, 31000));
                     me->CastSpell(me, SPELL_STRANGLING_ROOTS_TARGET, false);
                     Talk(SAY_ROOT);
+                    events.Repeat(23000, 31000);
                     break;
                 }
                 case EVENT_NIGHTMARE_BREATH:
                 {
-                    events.ScheduleEvent(EVENT_NIGHTMARE_BREATH, urand(26000, 35000));
-                    Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO);
-                    if (!target)
-                        break;
-                    me->CastSpell(target, SPELL_NIGHTMARE_BREATH_DAMAGE, false);
-                    Talk(SAY_BREATH);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                    {
+                        me->CastSpell(target, SPELL_NIGHTMARE_BREATH_DAMAGE, false);
+                        Talk(SAY_BREATH);
+                    }
+                    events.Repeat(26000, 35000);
                     break;
                 }
             }
@@ -165,10 +175,8 @@ struct boss_oakheart : public BossAI
 };
 
 /*
-
-    Strangling Roots
-
-*/
+ * Strangling Roots
+ */
 
 //204574
 class spell_oakheart_strangling_roots_target : public SpellScript
@@ -197,13 +205,9 @@ class spell_oakheart_strangling_roots_summon : public SpellScript
 {
     PrepareSpellScript(spell_oakheart_strangling_roots_summon);
 
-    void HandleSummon(Creature* /*creature*/)
+    void HandleSummon(Creature* creature)
     {
-        Unit* caster = GetCaster();
-
-        if (!caster)
-            return;
-
+        creature->setFaction(GetCaster()->getFaction());
         //creature->CastSpell(creature, SPELL_STRANGLING_ROOTS_AT, false);
     }
 
@@ -242,12 +246,8 @@ public:
 };
 
 /*
-
-    Crushing Grip
-
-*/
-
-
+ * Crushing Grip
+ */
 
 void AddSC_boss_oakheart()
 {
