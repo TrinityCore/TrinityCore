@@ -614,7 +614,21 @@ void PlayerAI::DoRangedAttackIfReady()
     if (!rangedAttackSpell)
         return;
 
-    me->CastSpell(victim, rangedAttackSpell, TRIGGERED_CAST_DIRECTLY);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(rangedAttackSpell, me->GetMap()->GetDifficultyID());
+    if (!spellInfo)
+        return;
+
+    Spell* spell = new Spell(me, spellInfo, TRIGGERED_CAST_DIRECTLY);
+    if (spell->CheckPetCast(victim) != SPELL_CAST_OK)
+    {
+        delete spell;
+        return;
+    }
+
+    SpellCastTargets targets;
+    targets.SetUnitTarget(victim);
+    spell->prepare(targets);
+
     me->resetAttackTimer(RANGED_ATTACK);
 }
 
