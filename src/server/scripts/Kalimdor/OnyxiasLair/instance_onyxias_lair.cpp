@@ -88,7 +88,7 @@ public:
                     Position goPos = go->GetPosition();
                     if (Creature* temp = go->SummonCreature(NPC_WHELP, goPos, TEMPSUMMON_CORPSE_DESPAWN))
                     {
-                        temp->SetInCombatWithZone();
+                        temp->AI()->DoZoneInCombat();
                         ++manyWhelpsCounter;
                     }
                     break;

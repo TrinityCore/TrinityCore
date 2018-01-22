@@ -264,11 +264,11 @@ struct boss_twin_baseAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetInCombatWithZone();
+        DoZoneInCombat();
         if (Creature* pSister = GetSister())
         {
             me->AddAura(MyEmphatySpellId, pSister);
-            pSister->SetInCombatWithZone();
+            DoZoneInCombat(pSister);
         }
         instance->SetBossState(BOSS_VALKIRIES, IN_PROGRESS);
 

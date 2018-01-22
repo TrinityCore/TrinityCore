@@ -214,7 +214,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 if (type != SPLINE_CHAIN_MOTION_TYPE && pointId != POINT_GENERAL_ROOM)
                     return;
 
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
             }
 
             void MoveToGeneral()

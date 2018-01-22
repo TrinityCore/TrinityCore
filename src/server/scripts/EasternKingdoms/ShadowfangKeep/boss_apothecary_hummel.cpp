@@ -216,7 +216,7 @@ class boss_apothecary_hummel : public CreatureScript
                         case EVENT_START_FIGHT:
                         {
                             me->SetImmuneToAll(false);
-                            me->SetInCombatWithZone();
+                            DoZoneInCombat();
                             events.ScheduleEvent(EVENT_CALL_BAXTER, Seconds(6));
                             events.ScheduleEvent(EVENT_CALL_FRYE, Seconds(14));
                             events.ScheduleEvent(EVENT_PERFUME_SPRAY, Milliseconds(3640));
@@ -296,7 +296,7 @@ struct npc_apothecary_genericAI : public ScriptedAI
         else if (action == ACTION_START_FIGHT)
         {
             me->SetImmuneToAll(false);
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
         }
     }
 

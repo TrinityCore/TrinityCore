@@ -300,7 +300,7 @@ public:
                     break;
                 case EVENT_INTRO_LANDING:
                     me->SetImmuneToPC(false);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     break;
                 case EVENT_LAND:
                     Talk(YELL_LAND_PHASE);
