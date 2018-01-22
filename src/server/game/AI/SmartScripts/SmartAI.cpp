@@ -548,14 +548,14 @@ void SmartAI::JustReachedHome()
     GetScript()->ProcessEventsFor(SMART_EVENT_REACHED_HOME);
 
     CreatureGroup* formation = me->GetFormation();
-    if (!formation || formation->getLeader() == me || !formation->isFormed())
+    if (!formation || formation->GetLeader() == me || !formation->IsFormed())
     {
         if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != WAYPOINT_MOTION_TYPE && me->GetWaypointPath())
             me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
         else
             me->ResumeMovement();
     }
-    else if (formation->isFormed())
+    else if (formation->IsFormed())
         me->GetMotionMaster()->MoveIdle(); // wait the order of leader
 }
 

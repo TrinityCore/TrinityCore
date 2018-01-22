@@ -252,7 +252,7 @@ struct npc_cameron : public ScriptedAI
                         _childrenGUIDs.push_back(jose->GetGUID());
 
                     // If Formation was disbanded, remake.
-                    if (!me->GetFormation()->isFormed())
+                    if (!me->GetFormation()->IsFormed())
                         for (ObjectGuid guid : _childrenGUIDs)
                             if (Creature* child = ObjectAccessor::GetCreature(*me, guid))
                                 child->SearchFormation();
