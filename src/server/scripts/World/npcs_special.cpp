@@ -2302,7 +2302,7 @@ class npc_regzar : public CreatureScript
 public:
     npc_regzar() : CreatureScript("npc_regzar") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
     {
         Battleground* AV_BattleGround = player->GetBattleground();
         if (AV_BattleGround == nullptr || AV_BattleGround->GetTypeID(true) != BattlegroundTypeId::BATTLEGROUND_AV)
