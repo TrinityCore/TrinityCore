@@ -241,7 +241,7 @@ public:
 
     private:
 
-        SpellModifier* mod;
+        SpellModifier* mod = nullptr;
 
         void HandleApply(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
         {
