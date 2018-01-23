@@ -732,7 +732,6 @@ void AuctionHouseMgr::PendingAuctionProcess(Player* player)
             trans->Append(stmt);
             ++itrAH;
         } while (itrAH != iterMap->second.Auctions.end());
-
         CharacterDatabase.CommitTransaction(trans);
     }
 

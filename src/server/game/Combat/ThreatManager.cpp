@@ -420,7 +420,7 @@ void ThreatManager::MatchUnitThreatToHighestThreat(Unit* target)
 
             if ((++it) != end)
             {
-                ThreatReference const* a = *it;
+                a = *it;
                 if (a->IsOnline() && a->GetThreat() > highest->GetThreat())
                     highest = a;
             }

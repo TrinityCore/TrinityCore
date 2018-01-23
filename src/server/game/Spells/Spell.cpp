@@ -3202,11 +3202,11 @@ void Spell::_cast(bool skipCheck)
         // Let any pets know we've attacked something. Check DmgClass for harmful spells only
         // This prevents spells such as Hunter's Mark from triggering pet attack
         if (GetSpellInfo()->DmgClass != SPELL_DAMAGE_CLASS_NONE)
-            if (Unit* unitTarget = m_targets.GetUnitTarget())
+            if (Unit* target = m_targets.GetUnitTarget())
                 for (Unit* controlled : playerCaster->m_Controlled)
                     if (Creature* cControlled = controlled->ToCreature())
                         if (cControlled->IsAIEnabled)
-                            cControlled->AI()->OwnerAttacked(unitTarget);
+                            cControlled->AI()->OwnerAttacked(target);
     }
 
     SetExecutedCurrently(true);
@@ -3278,7 +3278,7 @@ void Spell::_cast(bool skipCheck)
 
             if (aura_effmask)
             {
-                if (DiminishingGroup diminishGroup = m_spellInfo->GetDiminishingReturnsGroupForSpell())
+                if (m_spellInfo->GetDiminishingReturnsGroupForSpell())
                 {
                     DiminishingReturnsType type = m_spellInfo->GetDiminishingReturnsGroupType();
                     if (type == DRTYPE_ALL || (type == DRTYPE_PLAYER && target->IsAffectedByDiminishingReturns()))

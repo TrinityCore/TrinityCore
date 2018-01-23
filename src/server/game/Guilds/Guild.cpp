@@ -2569,8 +2569,8 @@ bool Guild::Validate()
     Member* leader = GetMember(m_leaderGuid);
     if (!leader)
     {
-        CharacterDatabaseTransaction trans(nullptr);
-        DeleteMember(trans, m_leaderGuid);
+        CharacterDatabaseTransaction dummy(nullptr);
+        DeleteMember(dummy, m_leaderGuid);
         // If no more members left, disband guild
         if (m_members.empty())
         {

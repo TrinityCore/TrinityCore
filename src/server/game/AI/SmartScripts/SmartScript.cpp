@@ -805,8 +805,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             // Special handling for vehicles
             if (Vehicle* vehicle = unit->GetVehicleKit())
                 for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
-                    if (Player* player = ObjectAccessor::GetPlayer(*unit, it->second.Passenger.Guid))
-                        player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
+                    if (Player* passenger = ObjectAccessor::GetPlayer(*unit, it->second.Passenger.Guid))
+                        passenger->GroupEventHappens(e.action.quest.quest, GetBaseObject());
             break;
         }
         case SMART_ACTION_COMBAT_STOP:

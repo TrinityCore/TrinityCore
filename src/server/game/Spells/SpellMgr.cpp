@@ -1428,7 +1428,7 @@ void SpellMgr::LoadSpellGroupStackRules()
                     if (!effectInfo->IsAura())
                         continue;
 
-                    int32 auraName = static_cast<int32>(effectInfo->ApplyAuraName);
+                    uint32 auraName = effectInfo->ApplyAuraName;
                     for (std::vector<uint32> const& subGroup : SubGroups)
                     {
                         if (std::find(subGroup.begin(), subGroup.end(), auraName) != subGroup.end())
