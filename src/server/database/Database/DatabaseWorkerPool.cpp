@@ -35,6 +35,9 @@
 #endif
 #include <mysql.h>
 #include <mysqld_error.h>
+#include <Timer.h>
+
+#define STATEMENT_DURATION 60000;
 
 #define MIN_MYSQL_SERVER_VERSION 50100u
 #define MIN_MYSQL_CLIENT_VERSION 50100u
@@ -48,6 +51,9 @@ class PingOperation : public SQLOperation
         return true;
     }
 };
+
+template <class T>
+std::mutex DatabaseWorkerPool<T>::_deadlockLock;
 
 template <class T>
 DatabaseWorkerPool<T>::DatabaseWorkerPool()
@@ -269,6 +275,7 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction& transaction)
     int errorCode = connection->ExecuteTransaction(transaction);
     if (!errorCode)
     {
+        transaction->Cleanup();
         connection->Unlock();      // OK, operation succesful
         return;
     }
@@ -277,12 +284,22 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction& transaction)
     /// @todo More elegant way
     if (errorCode == ER_LOCK_DEADLOCK)
     {
-        uint8 loopBreaker = 5;
-        for (uint8 i = 0; i < loopBreaker; ++i)
+        // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
+        std::lock_guard<std::mutex> lock(_deadlockLock);
+        uint32 oldMSTime = getMSTime();
+        uint32 loopDuration;
+        uint32 loopExpireTime = STATEMENT_DURATION;
+        for (; loopDuration <= loopExpireTime; loopDuration = GetMSTimeDiffToNow(oldMSTime))
         {
             if (!connection->ExecuteTransaction(transaction))
-                break;
+            {
+                TC_LOG_INFO("sql.sql", "Deadlock SQL Transaction: delay:%d, SQL:%s", loopDuration, transaction->ToString().c_str());
+                transaction->Cleanup();
+                connection->Unlock();
+                return;
+            }
         }
+        TC_LOG_ERROR("sql.sql", "Deadlock SQL Transaction: delay:%d, SQL:%s", loopDuration, transaction->ToString().c_str());
     }
 
     //! Clean up now.

@@ -15,12 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Log.h"
 #include "Transaction.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include <mysqld_error.h>
+#include <Timer.h>
 
 std::mutex TransactionTask::_deadlockLock;
+
+#define STATEMENT_DURATION 60000;
 
 //- Append a raw ad-hoc query to the transaction
 void Transaction::Append(char const* sql)
@@ -63,20 +67,51 @@ void Transaction::Cleanup()
     _cleanedUp = true;
 }
 
+std::string Transaction::ToString()
+{
+    std::string msg;
+    for (SQLElementData const& data : m_queries)
+    {
+        switch (data.type)
+        {
+            case SQL_ELEMENT_PREPARED:
+                msg += data.element.stmt->getQueryString();
+                break;
+            case SQL_ELEMENT_RAW:
+                msg += data.element.query;
+                break;
+        }
+        msg += ";";
+    }
+    return msg;
+}
+
 bool TransactionTask::Execute()
 {
     int errorCode = m_conn->ExecuteTransaction(m_trans);
     if (!errorCode)
+    {
+        m_trans->Cleanup();
         return true;
+    }
 
     if (errorCode == ER_LOCK_DEADLOCK)
     {
         // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
         std::lock_guard<std::mutex> lock(_deadlockLock);
-        uint8 loopBreaker = 5;  // Handle MySQL Errno 1213 without extending deadlock to the core itself
-        for (uint8 i = 0; i < loopBreaker; ++i)
+        uint32 oldMSTime = getMSTime();
+        uint32 loopDuration;
+        uint32 loopExpireTime = STATEMENT_DURATION;
+        for (; loopDuration <= loopExpireTime; loopDuration = GetMSTimeDiffToNow(oldMSTime))
+        {
             if (!m_conn->ExecuteTransaction(m_trans))
+            {
+                TC_LOG_INFO("sql.sql", "Deadlock SQL Transaction: delay:%d, SQL:%s", loopDuration, m_trans->ToString().c_str());
+                m_trans->Cleanup();
                 return true;
+            }
+        }
+        TC_LOG_ERROR("sql.sql", "Deadlock SQL Transaction: delay:%d, SQL:%s", loopDuration, m_trans->ToString().c_str());
     }
 
     // Clean up now.
