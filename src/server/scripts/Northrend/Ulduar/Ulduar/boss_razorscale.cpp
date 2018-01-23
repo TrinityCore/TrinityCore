@@ -1287,7 +1287,7 @@ struct npc_darkrune_watcher : public ScriptedAI
             {
                 case EVENT_START_COMBAT:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     break;
                 case EVENT_LIGHTNING_BOLT:
                     DoCastVictim(LIGHTNING_BOLT);
@@ -1358,7 +1358,7 @@ struct npc_darkrune_guardian : public ScriptedAI
             {
                 case EVENT_START_COMBAT:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     break;
                 case EVENT_STORMSTRIKE:
                     DoCastVictim(SPELL_STORMSTRIKE);
@@ -1417,7 +1417,7 @@ struct npc_darkrune_sentinel : public ScriptedAI
             {
                 case EVENT_START_COMBAT:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     break;
                 case EVENT_HEROIC_STRIKE:
                     DoCastVictim(SPELL_HEROIC_STRIKE);

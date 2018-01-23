@@ -359,9 +359,8 @@ void Creature::SearchFormation()
     if (!lowguid)
         return;
 
-    CreatureGroupInfoType::iterator frmdata = sFormationMgr->CreatureGroupMap.find(lowguid);
-    if (frmdata != sFormationMgr->CreatureGroupMap.end())
-        sFormationMgr->AddCreatureToGroup(frmdata->second->leaderGUID, this);
+    if (FormationInfo const* formationInfo = sFormationMgr->GetFormationInfo(lowguid))
+        sFormationMgr->AddCreatureToGroup(formationInfo->LeaderSpawnId, this);
 }
 
 bool Creature::IsFormationLeader() const
@@ -1042,17 +1041,18 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
 
 void Creature::Motion_Initialize()
 {
-    if (!m_formation)
-        GetMotionMaster()->Initialize();
-    else if (m_formation->getLeader() == this)
+    if (m_formation)
     {
-        m_formation->FormationReset(false);
-        GetMotionMaster()->Initialize();
+        if (m_formation->GetLeader() == this)
+            m_formation->FormationReset(false);
+        else if (m_formation->IsFormed())
+        {
+            GetMotionMaster()->MoveIdle(); //wait the order of leader
+            return;
+        }
     }
-    else if (m_formation->isFormed())
-        GetMotionMaster()->MoveIdle(); //wait the order of leader
-    else
-        GetMotionMaster()->Initialize();
+
+    GetMotionMaster()->Initialize();
 }
 
 bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, Position const& pos, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/, bool dynamic)
@@ -2028,7 +2028,7 @@ void Creature::setDeathState(DeathState s)
         }
 
         //Dismiss group if is leader
-        if (m_formation && m_formation->getLeader() == this)
+        if (m_formation && m_formation->GetLeader() == this)
             m_formation->FormationReset(true);
 
         if ((CanFly() || IsFlying()))
@@ -2615,40 +2615,6 @@ void Creature::SendZoneUnderAttackMessage(Player* attacker)
     WorldPacket data(SMSG_ZONE_UNDER_ATTACK, 4);
     data << (uint32)GetAreaId();
     sWorld->SendGlobalMessage(&data, nullptr, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
-}
-
-void Creature::SetInCombatWithZone()
-{
-    if (!CanHaveThreatList())
-    {
-        TC_LOG_ERROR("entities.unit", "Creature entry %u call SetInCombatWithZone but creature cannot have threat list.", GetEntry());
-        return;
-    }
-
-    Map* map = GetMap();
-
-    if (!map->IsDungeon())
-    {
-        TC_LOG_ERROR("entities.unit", "Creature entry %u call SetInCombatWithZone for map (id: %u) that isn't an instance.", GetEntry(), map->GetId());
-        return;
-    }
-
-    Map::PlayerList const& PlList = map->GetPlayers();
-
-    if (PlList.isEmpty())
-        return;
-
-    for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-    {
-        if (Player* player = i->GetSource())
-        {
-            if (player->IsGameMaster())
-                continue;
-
-            if (player->IsAlive())
-              EngageWithTarget(player);
-        }
-    }
 }
 
 uint32 Creature::GetShieldBlockValue() const                  //dunno mob block value

@@ -390,7 +390,7 @@ public:
             if (summon->GetEntry() == NPC_AHUNE)
                 return;
 
-            summon->SetInCombatWithZone();
+            DoZoneInCombat(summon);
             _summons.Summon(summon);
         }
 
@@ -469,7 +469,7 @@ public:
                         if (TempSummon* ahune = me->SummonCreature(NPC_AHUNE, SummonPositions[0], TEMPSUMMON_DEAD_DESPAWN))
                         {
                             ahune->SummonCreature(NPC_FROZEN_CORE, SummonPositions[1], TEMPSUMMON_CORPSE_DESPAWN);
-                            ahune->SetInCombatWithZone();
+                            DoZoneInCombat(ahune);
                             DoCast(ahune, SPELL_RESURFACE);
                         }
                         break;
@@ -670,7 +670,7 @@ public:
             if (Creature* ahuneBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AHUNE_BUNNY)))
             {
                 ahuneBunny->AI()->DoAction(ACTION_START_EVENT);
-                ahuneBunny->SetInCombatWithZone();
+                ahuneBunny->AI()->DoZoneInCombat();
             }
             if (Creature* luma = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LUMA_SKYMOTHER)))
                 luma->CastSpell(player, SPELL_SUMMONING_RHYME_AURA, true);
