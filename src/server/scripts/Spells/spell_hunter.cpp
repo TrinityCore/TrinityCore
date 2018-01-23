@@ -1909,23 +1909,6 @@ public:
     }
 };
 
-class DireFrenzyDamageEvent : public BasicEvent
-{
-public:
-
-    DireFrenzyDamageEvent(Unit* caster, Unit* target) : _caster(caster), _target(target) { }
-
-    bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
-    {
-        _caster->CastSpell(_target, SPELL_HUNTER_DIRE_FRENZY_DAMAGE, false);
-        return true;
-    }
-
-private:
-    Unit* _caster;
-    Unit* _target;
-};
-
 // Dire Frenzy - 217200
 class spell_hun_dire_frenzy : public SpellScriptLoader
 {
@@ -1958,18 +1941,19 @@ public:
                 return;
 
             if (caster->GetVictim())
-            {
                 caster->AttackStop();
-                caster->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
-            }
-            else
-                caster->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
 
-            caster->m_Events.AddEvent(new DireFrenzyDamageEvent(caster, target), caster->m_Events.CalculateTime(0));
-            caster->m_Events.AddEvent(new DireFrenzyDamageEvent(caster, target), caster->m_Events.CalculateTime(200));
-            caster->m_Events.AddEvent(new DireFrenzyDamageEvent(caster, target), caster->m_Events.CalculateTime(400));
-            caster->m_Events.AddEvent(new DireFrenzyDamageEvent(caster, target), caster->m_Events.CalculateTime(600));
-            caster->m_Events.AddEvent(new DireFrenzyDamageEvent(caster, target), caster->m_Events.CalculateTime(800));
+            caster->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
+
+            for (uint8 timer = 0; timer <= 800; timer += 200)
+            {
+                ObjectGuid targetGuid = target->GetGUID();
+                caster->GetScheduler().Schedule(Milliseconds(timer), [targetGuid](TaskContext context)
+                {
+                    if (Unit* target = ObjectAccessor::GetUnit(*context.GetContextUnit(), targetGuid))
+                        context.GetContextUnit()->CastSpell(target, SPELL_HUNTER_DIRE_FRENZY_DAMAGE, false);
+                });
+            }
         }
 
         void HandleAfterCast()
