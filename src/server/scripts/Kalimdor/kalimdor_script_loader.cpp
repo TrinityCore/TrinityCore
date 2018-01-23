@@ -121,15 +121,14 @@ void AddSC_boss_lockmaw_augh();
 void AddSC_boss_high_prophet_barim();
 void AddSC_boss_siamat();
 void AddSC_instance_dragon_soul();                  //Dragon Soul
-void AddSC_boss_spine_of_deathwing();
+void AddSC_spine_of_deathwing();
 void AddSC_boss_ultraxion();
 void AddSC_boss_warlord_zonozz();
 void AddSC_boss_warmaster_blackhorn();
 void AddSC_boss_yorsahj_the_unsleeping();
 void AddSC_dragon_soul();
-void AddSC_dragon_soul_teleport_and_transport();
-void AddSC_boss_deathwing();
 void AddSC_boss_hagara_the_stormbinder();
+void AddSC_madness_of_deathwing();
 void AddSC_boss_morchok();
 void AddSC_instance_end_time();                     //End of time
 void AddSC_boss_echo_of_sylvanas();
@@ -281,15 +280,14 @@ void AddKalimdorScripts()
     AddSC_boss_high_prophet_barim();
     AddSC_boss_siamat();
     AddSC_instance_dragon_soul();                  //Dragon Soul
-    AddSC_boss_spine_of_deathwing();
+    AddSC_spine_of_deathwing();
     AddSC_boss_ultraxion();
     AddSC_boss_warlord_zonozz();
     AddSC_boss_warmaster_blackhorn();
     AddSC_boss_yorsahj_the_unsleeping();
     AddSC_dragon_soul();
-    AddSC_dragon_soul_teleport_and_transport();
-    AddSC_boss_deathwing();
     AddSC_boss_hagara_the_stormbinder();
+    AddSC_madness_of_deathwing();
     AddSC_boss_morchok();
     AddSC_instance_end_time();                     //End of time
     AddSC_boss_echo_of_sylvanas();
