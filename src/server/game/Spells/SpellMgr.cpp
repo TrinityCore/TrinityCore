@@ -2925,7 +2925,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 continue;
             }
 
-            // TODO: validate attributes
             for (SpellInfo const& spellInfo : spells)
             {
                 if (attributes & SPELL_ATTR0_CU_SHARE_DAMAGE)
@@ -3079,9 +3078,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     break;
                 }
             }
-
-            if (!spellInfoMutable->_IsPositiveEffect(effect->EffectIndex, false))
-                spellInfoMutable->NegativeEffects[effect->EffectIndex] = true;
         }
 
         // spells ignoring hit result should not be binary
@@ -3166,6 +3162,8 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             spellInfoMutable->SchoolMask &= ~SPELL_SCHOOL_MASK_NORMAL;
             spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC;
         }
+
+        spellInfoMutable->_InitializeSpellPositivity();
 
         if (talentSpells.count(spellInfoMutable->Id))
             spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_IS_TALENT;

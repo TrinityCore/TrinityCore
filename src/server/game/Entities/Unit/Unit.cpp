@@ -9136,7 +9136,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellInfo, int32 & castTime, Spell*
         castTime = 500;
 }
 
-void Unit::ModSpellDurationTime(SpellInfo const* spellInfo, int32 & duration, Spell* spell)
+void Unit::ModSpellDurationTime(SpellInfo const* spellInfo, int32& duration, Spell* spell)
 {
     if (!spellInfo || duration < 0)
         return;

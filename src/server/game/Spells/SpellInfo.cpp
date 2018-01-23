@@ -4334,22 +4334,42 @@ void SpellInfo::_InitializeExplicitTargetMask()
     ExplicitTargetMask = targetMask;
 }
 
-bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
+inline bool _isPositiveTarget(SpellInfo const* spellInfo, uint32 effIndex)
 {
-    // not found a single positive spell with this attribute
-    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1))
+    SpellEffectInfo const* effect = spellInfo->GetEffect(effIndex);
+    if (!effect || !effect->IsEffect())
+        return true;
+
+    return (effect->TargetA.GetCheckType() != TARGET_CHECK_ENEMY &&
+        effect->TargetB.GetCheckType() != TARGET_CHECK_ENEMY);
+}
+
+bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint32 effIndex, std::unordered_set<std::pair<SpellInfo const*, uint32>>& visited)
+{
+    SpellEffectInfo const* effect = spellInfo->GetEffect(effIndex);
+    if (!effect || !effect->IsEffect())
+        return true;
+
+    // attribute may be already set in DB
+    if (!spellInfo->IsPositiveEffect(effIndex))
         return false;
 
-    switch (SpellFamilyName)
+    // passive auras like talents are all positive
+    if (spellInfo->IsPassive())
+        return true;
+
+    // not found a single positive spell with this attribute
+    if (spellInfo->HasAttribute(SPELL_ATTR0_NEGATIVE_1))
+        return false;
+
+    visited.insert({ spellInfo, effIndex });
+
+    int32 bp = effect->CalcValue();
+    switch (spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
-            switch (Id)
+            switch (spellInfo->Id)
             {
-                case 29214: // Wrath of the Plaguebringer
-                case 34700: // Allergic Reaction
-                case 41914: // Parasitic Shadowfiend (Illidan)
-                case 41917: // Parasitic Shadowfiend (Illidan)
-                case 54836: // Wrath of the Plaguebringer
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
                     return false;
@@ -4365,24 +4385,13 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                     break;
             }
             break;
-        case SPELLFAMILY_MAGE:
-            // Arcane Missiles
-            if (SpellFamilyFlags[0] == 0x00000800)
+        case SPELLFAMILY_WARRIOR:
+            // Slam, Execute
+            if ((spellInfo->SpellFamilyFlags[0] & 0x20200000) != 0)
                 return false;
             break;
-        case SPELLFAMILY_PRIEST:
-            switch (Id)
-            {
-                case 64844: // Divine Hymn
-                case 64904: // Hymn of Hope
-                case 47585: // Dispersion
-                    return true;
-                default:
-                    break;
-            }
-            break;
         case SPELLFAMILY_ROGUE:
-            switch (Id)
+            switch (spellInfo->Id)
             {
                 // Envenom must be considered as a positive effect even though it deals damage
                 case 32645: // Envenom
@@ -4395,7 +4404,7 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
             break;
     }
 
-    switch (Mechanic)
+    switch (spellInfo->Mechanic)
     {
         case MECHANIC_IMMUNE_SHIELD:
             return true;
@@ -4404,192 +4413,346 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
     }
 
     // Special case: effects which determine positivity of whole spell
-    for (SpellEffectInfo const* effect : _effects)
-        if (effect && effect->IsAura() && effect->ApplyAuraName == SPELL_AURA_MOD_STEALTH)
-            return true;
-
-    if (SpellEffectInfo const* effect = GetEffect(effIndex))
+    if (spellInfo->HasAttribute(SPELL_ATTR1_DONT_REFRESH_DURATION_ON_RECAST))
     {
-        switch (effect->Effect)
+        // check for targets, there seems to be an assortment of dummy triggering spells that should be negative
+        for (SpellEffectInfo const* otherEffect : spellInfo->GetEffects())
+            if (otherEffect && !_isPositiveTarget(spellInfo, otherEffect->EffectIndex))
+                return false;
+    }
+
+    for (SpellEffectInfo const* otherEffect : spellInfo->GetEffects())
+    {
+        if (!otherEffect)
+            continue;
+
+        switch (otherEffect->Effect)
         {
-            case SPELL_EFFECT_DUMMY:
-                // some explicitly required dummy effect sets
-                switch (Id)
-                {
-                    case 28441:
-                        return false; // AB Effect 000
-                    default:
-                        break;
-                }
-                break;
-                // always positive effects (check before target checks that provided non-positive result in some case for positive effects)
             case SPELL_EFFECT_HEAL:
             case SPELL_EFFECT_LEARN_SPELL:
             case SPELL_EFFECT_SKILL_STEP:
             case SPELL_EFFECT_HEAL_PCT:
             case SPELL_EFFECT_ENERGIZE_PCT:
                 return true;
-            case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+            case SPELL_EFFECT_INSTAKILL:
+                if (otherEffect->EffectIndex != effIndex && // for spells like 38044: instakill effect is negative but auras on target must count as buff
+                    otherEffect->TargetA.GetTarget() == effect->TargetA.GetTarget() &&
+                    otherEffect->TargetB.GetTarget() == effect->TargetB.GetTarget())
                 return false;
+            default:
+                break;
+        }
 
-                // non-positive aura use
-            case SPELL_EFFECT_APPLY_AURA:
-            case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+        if (otherEffect->IsAura())
+        {
+            switch (otherEffect->ApplyAuraName)
             {
-                switch (effect->ApplyAuraName)
-                {
-                case SPELL_AURA_MOD_DAMAGE_DONE:            // dependent from bas point sign (negative -> negative)
-                case SPELL_AURA_MOD_STAT:
-                case SPELL_AURA_MOD_SKILL:
-                case SPELL_AURA_MOD_SKILL_2:
-                case SPELL_AURA_MOD_DODGE_PERCENT:
-                case SPELL_AURA_MOD_HEALING_PCT:
-                case SPELL_AURA_MOD_HEALING_DONE:
-                case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
-                    if (effect->CalcValue() < 0)
-                        return false;
-                    break;
-                case SPELL_AURA_MOD_DAMAGE_TAKEN:           // dependent from bas point sign (positive -> negative)
-                    if (effect->CalcValue() > 0)
-                        return false;
-                    break;
-                case SPELL_AURA_MOD_CRIT_PCT:
-                case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
-                    if (effect->CalcValue() > 0)
-                        return true;                        // some expected positive spells have SPELL_ATTR1_NEGATIVE
-                    break;
-                case SPELL_AURA_ADD_TARGET_TRIGGER:
+                case SPELL_AURA_MOD_STEALTH:
+                case SPELL_AURA_MOD_UNATTACKABLE:
                     return true;
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                    if (!deep)
-                    {
-                        if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(effect->TriggerSpell, Difficulty))
-                        {
-                            // negative targets of main spell return early
-                            for (SpellEffectInfo const* eff : spellTriggeredProto->_effects)
-                            {
-                                if (!eff || !eff->Effect)
-                                    continue;
-                                // if non-positive trigger cast targeted to positive target this main cast is non-positive
-                                // this will place this spell auras as debuffs
-                                if (_IsPositiveTarget(eff->TargetA.GetTarget(), eff->TargetB.GetTarget()) && !spellTriggeredProto->_IsPositiveEffect(eff->EffectIndex, true))
-                                    return false;
-                            }
-                        }
-                    }
-                case SPELL_AURA_PROC_TRIGGER_SPELL:
-                    // many positive auras have negative triggered spells at damage for example and this not make it negative (it can be canceled for example)
-                    break;
-                case SPELL_AURA_MOD_STUN:                   //have positive and negative spells, we can't sort its correctly at this moment.
-                {
-                    bool more = false;
-                    for (SpellEffectInfo const* eff : _effects)
-                    {
-                        if (eff && eff->EffectIndex != 0)
-                        {
-                            more = true;
-                            break;
-                        }
-                    }
-                    if (effIndex == 0 && !more)
-                        return false;                       // but all single stun aura spells is negative
-                    break;
-                }
-                case SPELL_AURA_MOD_PACIFY_SILENCE:
-                    if (Id == 24740)             // Wisp Costume
-                        return true;
-                    return false;
-                case SPELL_AURA_MOD_ROOT:
-                case SPELL_AURA_MOD_ROOT_2:
-                case SPELL_AURA_MOD_SILENCE:
-                case SPELL_AURA_GHOST:
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_MOD_STALKED:
-                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-                case SPELL_AURA_PREVENT_RESURRECTION:
+                case SPELL_AURA_SCHOOL_HEAL_ABSORB:
+                case SPELL_AURA_CHANNEL_DEATH_ITEM:
                 case SPELL_AURA_EMPATHY:
                     return false;
-                case SPELL_AURA_PERIODIC_DAMAGE:            // used in positive spells also.
-                    // part of negative spell if cast at self (prevent cancel)
-                    if (effect->TargetA.GetTarget() == TARGET_UNIT_CASTER)
-                        return false;
-                    break;
-                case SPELL_AURA_MOD_DECREASE_SPEED:         // used in positive spells also
-                    // part of positive spell if cast at self
-                    if (effect->TargetA.GetTarget() != TARGET_UNIT_CASTER)
-                        return false;
-                    // but not this if this first effect (didn't find better check)
-                    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1) && effIndex == 0)
-                        return false;
-                    break;
-                case SPELL_AURA_MECHANIC_IMMUNITY:
-                {
-                    // non-positive immunities
-                    switch (effect->MiscValue)
-                    {
-                        case MECHANIC_BANDAGE:
-                        case MECHANIC_SHIELD:
-                        case MECHANIC_MOUNT:
-                        case MECHANIC_INVULNERABILITY:
-                            return false;
-                        default:
-                            break;
-                    }
-                    break;
-                }
-                case SPELL_AURA_ADD_FLAT_MODIFIER:          // mods
-                case SPELL_AURA_ADD_PCT_MODIFIER:
-                {
-                    // non-positive mods
-                    switch (SpellModOp(effect->MiscValue))
-                    {
-                        case SpellModOp::PowerCost0:                 // dependent from bas point sign (negative -> positive)
-                        case SpellModOp::PowerCost1:
-                        case SpellModOp::PowerCost2:
-                            if (effect->CalcValue() > 0)
-                            {
-                                if (!deep)
-                                {
-                                    bool negative = true;
-                                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                                    {
-                                        if (i != effIndex)
-                                            if (_IsPositiveEffect(i, true))
-                                            {
-                                                negative = false;
-                                                break;
-                                            }
-                                    }
-                                    if (negative)
-                                        return false;
-                                }
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
                 default:
                     break;
+            }
+        }
+    }
+
+    switch (effect->Effect)
+    {
+        case SPELL_EFFECT_WEAPON_DAMAGE:
+        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+        case SPELL_EFFECT_SCHOOL_DAMAGE:
+        case SPELL_EFFECT_ENVIRONMENTAL_DAMAGE:
+        case SPELL_EFFECT_HEALTH_LEECH:
+        case SPELL_EFFECT_INSTAKILL:
+        case SPELL_EFFECT_POWER_DRAIN:
+        case SPELL_EFFECT_STEAL_BENEFICIAL_BUFF:
+        case SPELL_EFFECT_INTERRUPT_CAST:
+        case SPELL_EFFECT_PICKPOCKET:
+        case SPELL_EFFECT_GAMEOBJECT_DAMAGE:
+        case SPELL_EFFECT_DURABILITY_DAMAGE:
+        case SPELL_EFFECT_DURABILITY_DAMAGE_PCT:
+        case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+        case SPELL_EFFECT_TAMECREATURE:
+        case SPELL_EFFECT_DISTRACT:
+            return false;
+        case SPELL_EFFECT_ENERGIZE:
+        case SPELL_EFFECT_ENERGIZE_PCT:
+        case SPELL_EFFECT_HEAL_PCT:
+        case SPELL_EFFECT_HEAL_MAX_HEALTH:
+        case SPELL_EFFECT_HEAL_MECHANICAL:
+            return true;
+        case SPELL_EFFECT_KNOCK_BACK:
+        case SPELL_EFFECT_CHARGE:
+        case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+        case SPELL_EFFECT_ATTACK_ME:
+        case SPELL_EFFECT_POWER_BURN:
+            // check targets
+            if (!_isPositiveTarget(spellInfo, effIndex))
+                return false;
+            break;
+        case SPELL_EFFECT_DISPEL:
+            // non-positive dispel
+            switch (effect->MiscValue)
+            {
+                case DISPEL_STEALTH:
+                case DISPEL_INVISIBILITY:
+                case DISPEL_ENRAGE:
+                    return false;
+                default:
+                    break;
+            }
+
+            // also check targets
+            if (!_isPositiveTarget(spellInfo, effIndex))
+                return false;
+            break;
+        case SPELL_EFFECT_DISPEL_MECHANIC:
+            if (!_isPositiveTarget(spellInfo, effIndex))
+            {
+                // non-positive mechanic dispel on negative target
+                switch (effect->MiscValue)
+                {
+                    case MECHANIC_BANDAGE:
+                    case MECHANIC_SHIELD:
+                    case MECHANIC_MOUNT:
+                    case MECHANIC_INVULNERABILITY:
+                        return false;
+                    default:
+                        break;
+                }
+            }
+            break;
+        case SPELL_EFFECT_THREAT:
+        case SPELL_EFFECT_MODIFY_THREAT_PERCENT:
+            // check targets AND basepoints
+            if (!_isPositiveTarget(spellInfo, effIndex) && bp > 0)
+                return false;
+            break;
+        default:
+            break;
+    }
+
+    if (effect->IsAura())
+    {
+        // non-positive aura use
+        switch (effect->ApplyAuraName)
+        {
+            case SPELL_AURA_MOD_DAMAGE_DONE:            // dependent from basepoint sign (negative -> negative)
+            case SPELL_AURA_MOD_STAT:
+            case SPELL_AURA_MOD_SKILL:
+            case SPELL_AURA_MOD_SKILL_2:
+            case SPELL_AURA_MOD_DODGE_PERCENT:
+            case SPELL_AURA_MOD_HEALING_PCT:
+            case SPELL_AURA_MOD_HEALING_DONE:
+            case SPELL_AURA_MOD_DAMAGE_DONE_CREATURE:
+            case SPELL_AURA_OBS_MOD_HEALTH:
+            case SPELL_AURA_OBS_MOD_POWER:
+            case SPELL_AURA_MOD_CRIT_PCT:
+            case SPELL_AURA_MOD_HIT_CHANCE:
+            case SPELL_AURA_MOD_SPELL_HIT_CHANCE:
+            case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
+            case SPELL_AURA_MOD_RANGED_HASTE:
+            case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:
+            case SPELL_AURA_HASTE_SPELLS:
+            case SPELL_AURA_MOD_RESISTANCE:
+            case SPELL_AURA_MOD_RECOVERY_RATE_BY_SPELL_LABEL:
+            case SPELL_AURA_MOD_DETECT_RANGE:
+            case SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT:
+            case SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE:
+            case SPELL_AURA_MOD_INCREASE_SWIM_SPEED:
+                if (bp < 0)
+                    return false;
+                break;
+            case SPELL_AURA_MOD_ATTACKSPEED:            // some buffs have negative bp, check both target and bp
+            case SPELL_AURA_MOD_MELEE_HASTE:
+            case SPELL_AURA_MOD_RESISTANCE_PCT:
+            case SPELL_AURA_MOD_RATING:
+            case SPELL_AURA_MOD_ATTACK_POWER:
+            case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
+            case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
+                if (!_isPositiveTarget(spellInfo, effIndex) && bp < 0)
+                    return false;
+                break;
+            case SPELL_AURA_MOD_DAMAGE_TAKEN:           // dependent from basepoint sign (positive -> negative)
+            case SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN:
+            case SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT:
+            case SPELL_AURA_MOD_COOLDOWN:
+            case SPELL_AURA_MOD_CHARGE_COOLDOWN:
+            case SPELL_AURA_MOD_POWER_COST_SCHOOL:
+            case SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT:
+                if (bp > 0)
+                    return false;
+                break;
+            case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:   // check targets and basepoints (ex Recklessness)
+                if (!_isPositiveTarget(spellInfo, effIndex) && bp > 0)
+                    return false;
+                break;
+            case SPELL_AURA_ADD_TARGET_TRIGGER:
+                return true;
+            case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+            case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                if (!_isPositiveTarget(spellInfo, effIndex))
+                {
+                    if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(effect->TriggerSpell, spellInfo->Difficulty))
+                    {
+                        // negative targets of main spell return early
+                        for (SpellEffectInfo const* spellTriggeredEffect : spellTriggeredProto->GetEffects())
+                        {
+                            if (!spellTriggeredEffect)
+                                continue;
+
+                            // already seen this
+                            if (visited.count({ spellTriggeredProto, spellTriggeredEffect->EffectIndex }) > 0)
+                                continue;
+
+                            if (!spellTriggeredEffect->IsEffect())
+                                continue;
+
+                            // if non-positive trigger cast targeted to positive target this main cast is non-positive
+                            // this will place this spell auras as debuffs
+                            if (_isPositiveTarget(spellTriggeredProto, spellTriggeredEffect->EffectIndex) && !_isPositiveEffectImpl(spellTriggeredProto, spellTriggeredEffect->EffectIndex, visited))
+                                return false;
+                        }
+                    }
+                }
+                break;
+            case SPELL_AURA_MOD_STUN:
+            case SPELL_AURA_TRANSFORM:
+            case SPELL_AURA_MOD_DECREASE_SPEED:
+            case SPELL_AURA_MOD_FEAR:
+            case SPELL_AURA_MOD_TAUNT:
+                // special auras: they may have non negative target but still need to be marked as debuff
+                // checked again after all effects (SpellInfo::_InitializeSpellPositivity)
+            case SPELL_AURA_MOD_PACIFY:
+            case SPELL_AURA_MOD_PACIFY_SILENCE:
+            case SPELL_AURA_MOD_DISARM:
+            case SPELL_AURA_MOD_DISARM_OFFHAND:
+            case SPELL_AURA_MOD_DISARM_RANGED:
+            case SPELL_AURA_MOD_CHARM:
+            case SPELL_AURA_AOE_CHARM:
+            case SPELL_AURA_MOD_POSSESS:
+            case SPELL_AURA_MOD_LANGUAGE:
+            case SPELL_AURA_DAMAGE_SHIELD:
+            case SPELL_AURA_PROC_TRIGGER_SPELL:
+            case SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE:
+            case SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE:
+            case SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE:
+            case SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE:
+            case SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE:
+            case SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE:
+                // have positive and negative spells, check target
+                if (!_isPositiveTarget(spellInfo, effIndex))
+                    return false;
+                break;
+            case SPELL_AURA_MOD_CONFUSE:
+            case SPELL_AURA_MOD_ROOT:
+            case SPELL_AURA_MOD_ROOT_2:
+            case SPELL_AURA_MOD_SILENCE:
+            case SPELL_AURA_MOD_DETAUNT:
+            case SPELL_AURA_GHOST:
+            case SPELL_AURA_PERIODIC_LEECH:
+            case SPELL_AURA_PERIODIC_MANA_LEECH:
+            case SPELL_AURA_MOD_STALKED:
+            case SPELL_AURA_PREVENT_RESURRECTION:
+            case SPELL_AURA_PERIODIC_DAMAGE:
+            case SPELL_AURA_PERIODIC_WEAPON_PERCENT_DAMAGE:
+            case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+            case SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS:
+            case SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS:
+                return false;
+            case SPELL_AURA_MECHANIC_IMMUNITY:
+            {
+                // non-positive immunities
+                switch (effect->MiscValue)
+                {
+                    case MECHANIC_BANDAGE:
+                    case MECHANIC_SHIELD:
+                    case MECHANIC_MOUNT:
+                    case MECHANIC_INVULNERABILITY:
+                        return false;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case SPELL_AURA_ADD_FLAT_MODIFIER:          // mods
+            case SPELL_AURA_ADD_PCT_MODIFIER:
+            case SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL:
+            case SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL:
+            {
+                switch (SpellModOp(effect->MiscValue))
+                {
+                    case SpellModOp::ChangeCastTime:        // dependent from basepoint sign (positive -> negative)
+                    case SpellModOp::Period:
+                    case SpellModOp::PowerCostOnMiss:
+                    case SpellModOp::StartCooldown:
+                        if (bp > 0)
+                            return false;
+                        break;
+                    case SpellModOp::Cooldown:
+                    case SpellModOp::PowerCost0:
+                    case SpellModOp::PowerCost1:
+                    case SpellModOp::PowerCost2:
+                        if (!spellInfo->IsPositive() && bp > 0) // dependent on prev effects too (ex Arcane Power)
+                            return false;
+                        break;
+                    case SpellModOp::PointsIndex0:          // always positive
+                    case SpellModOp::PointsIndex1:
+                    case SpellModOp::PointsIndex2:
+                    case SpellModOp::PointsIndex3:
+                    case SpellModOp::PointsIndex4:
+                    case SpellModOp::Points:
+                    case SpellModOp::Hate:
+                    case SpellModOp::ChainAmplitude:
+                    case SpellModOp::Amplitude:
+                        return true;
+                    case SpellModOp::Duration:
+                    case SpellModOp::CritChance:
+                    case SpellModOp::HealingAndDamage:
+                    case SpellModOp::ChainTargets:
+                        if (!spellInfo->IsPositive() && bp < 0) // dependent on prev effects too
+                            return false;
+                        break;
+                    default:                                // dependent from basepoint sign (negative -> negative)
+                        if (bp < 0)
+                            return false;
+                        break;
                 }
                 break;
             }
             default:
                 break;
         }
+    }
 
-        // non-positive targets
-        if (!_IsPositiveTarget(effect->TargetA.GetTarget(), effect->TargetB.GetTarget()))
-            return false;
-
-        // negative spell if triggered spell is negative
-        if (!deep && !effect->ApplyAuraName && effect->TriggerSpell)
+    // negative spell if triggered spell is negative
+    if (!effect->ApplyAuraName && effect->TriggerSpell)
+    {
+        if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(effect->TriggerSpell, spellInfo->Difficulty))
         {
-            if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(effect->TriggerSpell, Difficulty))
-                if (!spellTriggeredProto->_IsPositiveSpell())
+            // spells with at least one negative effect are considered negative
+            // some self-applied spells have negative effects but in self casting case negative check ignored.
+            for (SpellEffectInfo const* spellTriggeredEffect : spellTriggeredProto->GetEffects())
+            {
+                if (!spellTriggeredEffect)
+                    continue;
+
+                // already seen this
+                if (visited.count({ spellTriggeredProto, spellTriggeredEffect->EffectIndex }) > 0)
+                    continue;
+
+                if (!spellTriggeredEffect->IsEffect())
+                    continue;
+
+                if (!_isPositiveEffectImpl(spellTriggeredProto, spellTriggeredEffect->EffectIndex, visited))
                     return false;
+            }
         }
     }
 
@@ -4597,36 +4760,38 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
     return true;
 }
 
-bool SpellInfo::_IsPositiveSpell() const
+void SpellInfo::_InitializeSpellPositivity()
 {
-    // spells with at least one negative effect are considered negative
-    // some self-applied spells have negative effects but in self casting case negative check ignored.
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (!_IsPositiveEffect(i, true))
-            return false;
-    return true;
-}
+    std::unordered_set<std::pair<SpellInfo const*, uint32 /*effIndex*/>> visited;
 
-bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
-{
-    // non-positive targets
-    switch (targetA)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (!_isPositiveEffectImpl(this, i, visited))
+            NegativeEffects[i] = true;
+
+    // additional checks after effects marked
+    for (SpellEffectInfo const* effect : GetEffects())
     {
-        case TARGET_UNIT_NEARBY_ENEMY:
-        case TARGET_UNIT_TARGET_ENEMY:
-        case TARGET_UNIT_SRC_AREA_ENEMY:
-        case TARGET_UNIT_DEST_AREA_ENEMY:
-        case TARGET_UNIT_CONE_ENEMY_24:
-        case TARGET_UNIT_CONE_ENEMY_104:
-        case TARGET_DEST_DYNOBJ_ENEMY:
-        case TARGET_DEST_TARGET_ENEMY:
-            return false;
-        default:
-            break;
+        if (!effect || !effect->IsEffect() || !IsPositiveEffect(effect->EffectIndex))
+            continue;
+
+        switch (effect->ApplyAuraName)
+        {
+            // has other non positive effect?
+            // then it should be marked negative despite of targets (ex 8510, 8511, 8893, 10267)
+            case SPELL_AURA_DUMMY:
+            case SPELL_AURA_MOD_STUN:
+            case SPELL_AURA_MOD_FEAR:
+            case SPELL_AURA_MOD_TAUNT:
+            case SPELL_AURA_TRANSFORM:
+            case SPELL_AURA_MOD_ATTACKSPEED:
+            case SPELL_AURA_MOD_DECREASE_SPEED:
+                if (!IsPositive())
+                    NegativeEffects[effect->EffectIndex] = true;
+                break;
+            default:
+                break;
+        }
     }
-    if (targetB)
-        return _IsPositiveTarget(targetB, 0);
-    return true;
 }
 
 void SpellInfo::_UnloadImplicitTargetConditionLists()
