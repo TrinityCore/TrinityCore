@@ -17,7 +17,6 @@
 
 #include "BattlegroundTTP.h"
 #include "Player.h"
-#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
 BattlegroundTTP::BattlegroundTTP()

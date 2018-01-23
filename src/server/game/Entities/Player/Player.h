@@ -2449,6 +2449,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         PlayerAchievementMgr* GetAchievementMgr() { return m_achievementMgr; }
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
+        SceneMgr const& GetSceneMgr() const { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
 
         struct MovieDelayedTeleport

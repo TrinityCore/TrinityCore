@@ -617,8 +617,8 @@ void GameObject::Update(uint32 diff)
                     if (Unit* owner = GetOwner())
                     {
                         // Hunter trap: Search units which are unfriendly to the trap's owner
-                        Trinity::NearestUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
-                        Trinity::UnitLastSearcher<Trinity::NearestUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
+                        Trinity::NearestAttackableNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
+                        Trinity::UnitLastSearcher<Trinity::NearestAttackableNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
                         Cell::VisitAllObjects(this, searcher, radius);
                     }
                     else
@@ -1771,6 +1771,7 @@ void GameObject::Use(Unit* user)
             break;
         }
 
+        case GAMEOBJECT_TYPE_CAPTURE_POINT:                 // 42
         case GAMEOBJECT_TYPE_FLAGSTAND:                     // 24
         {
             if (user->GetTypeId() != TYPEID_PLAYER)
@@ -1992,6 +1993,8 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
         trigger->setFaction(owner->getFaction());
         if (owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
             trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+        // copy pvp state flags from owner
+        trigger->SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, owner->GetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG));
         // needed for GO casts for proper target validation checks
         trigger->SetOwnerGUID(owner->GetGUID());
         trigger->CastSpell(target ? target : trigger, spellInfo, triggered, nullptr, nullptr, owner->GetGUID());

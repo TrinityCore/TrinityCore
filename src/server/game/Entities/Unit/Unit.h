@@ -1036,8 +1036,10 @@ class TC_GAME_API Unit : public WorldObject
         bool IsFullHealth() const { return GetHealth() == GetMaxHealth(); }
         bool HealthBelowPct(int32 pct) const { return GetHealth() < CountPctFromMaxHealth(pct); }
         bool HealthBelowPctDamaged(int32 pct, uint32 damage) const { return int64(GetHealth()) - int64(damage) < int64(CountPctFromMaxHealth(pct)); }
+        bool HealthWillBeBelowPctDamaged(int32 pct, uint32 damage) const;
         bool HealthAbovePct(int32 pct) const { return GetHealth() > CountPctFromMaxHealth(pct); }
         bool HealthAbovePctHealed(int32 pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
+        bool HealthWillBeAbovePctHealed(int32 pct, uint32 damage) const;
         float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
         uint64 CountPctFromMaxHealth(int32 pct) const { return CalculatePct(GetMaxHealth(), pct); }
         uint64 CountPctFromCurHealth(int32 pct) const { return CalculatePct(GetHealth(), pct); }
@@ -1314,6 +1316,7 @@ class TC_GAME_API Unit : public WorldObject
         void ApplyMovementForce(ObjectGuid source, float magnitude, Position direction, Position origin = Position());
         void RemoveMovementForce(ObjectGuid source);
         void RemoveAllMovementForces();
+        std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> const& GetMovementForces() const { return _movementForces; }
 
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori, bool force = false);
@@ -1913,6 +1916,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
         void GetAreatriggerListInRange(std::list<AreaTrigger*>& list, float fMaxSearchRange) const;
+        void GetSceneObjectListInRange(std::list<SceneObject*>& list, float fMaxSearchRange) const;
         void GetConversationListInRange(std::list<Conversation*>& list, float fMaxSearchRange) const;
         void GetAreaTriggerListWithSpellIDInRange(std::list<AreaTrigger*>& list, uint32 spellid, float fMaxSearchRange) const;
 

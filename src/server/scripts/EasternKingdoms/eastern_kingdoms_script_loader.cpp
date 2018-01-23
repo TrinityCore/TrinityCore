@@ -229,6 +229,7 @@ void AddSC_boss_ozumat();
 void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
 void AddSC_burning_steppes();
+void AddSC_deadwind_pass();
 void AddSC_dun_morogh();
 void AddSC_dun_morogh_area_coldridge_valley();
 void AddSC_duskwood();
@@ -466,6 +467,7 @@ void AddEasternKingdomsScripts()
     AddSC_arathi_highlands();
     AddSC_blasted_lands();
     AddSC_burning_steppes();
+    AddSC_deadwind_pass();
     AddSC_dun_morogh();
     AddSC_dun_morogh_area_coldridge_valley();
     AddSC_duskwood();

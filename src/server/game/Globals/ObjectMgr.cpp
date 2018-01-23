@@ -9208,6 +9208,8 @@ void ObjectMgr::LoadScriptNames()
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM quest_template_addon WHERE ScriptName <> '' "
         "UNION "
+        "SELECT DISTINCT(ScriptName) FROM zone_scripts WHERE ScriptName <> '' "
+        "UNION "
         "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 
     if (!result)
@@ -9250,6 +9252,36 @@ uint32 ObjectMgr::GetScriptId(std::string const& name)
         return 0;
 
     return uint32(itr - _scriptNamesStore.begin());
+}
+
+void ObjectMgr::LoadZoneScriptNames()
+{
+    uint32 oldMSTime = getMSTime();
+    QueryResult result = WorldDatabase.Query("SELECT zoneId, scriptname FROM zone_scripts");
+
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loading 0 zone scripts");
+        return;
+    }
+
+    do
+    {
+        if (uint32 scriptId = GetScriptId((*result)[1].GetString()))
+            _scriptIdsByZoneStore[(*result)[0].GetUInt32()] = scriptId;
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " zone scriptnames in %u ms", _scriptIdsByZoneStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+uint32 ObjectMgr::GetScriptIdForZone(uint32 zoneId)
+{
+    auto itr = _scriptIdsByZoneStore.find(zoneId);
+    if (itr != _scriptIdsByZoneStore.end())
+        return itr->second;
+
+    return 0;
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)

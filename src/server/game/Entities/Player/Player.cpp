@@ -7273,6 +7273,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
+
+        if (ZoneScript* oldZoneScript = GetZoneScript())
+            if (oldZoneScript->IsZoneScript())
+                oldZoneScript->OnPlayerExit(this);
     }
 
     // group update
@@ -7288,6 +7292,15 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     // zone changed, so area changed as well, update it.
     UpdateArea(newArea);
+
+    if (m_zoneUpdateId != oldZone)
+    {
+        SetZoneScript();
+
+        if (ZoneScript* newZoneScript = GetZoneScript())
+            if (newZoneScript->IsZoneScript())
+                GetZoneScript()->OnPlayerEnter(this);
+    }
 
     sScriptMgr->OnPlayerUpdateZone(this, newZone, oldZone, newArea);
 
@@ -23985,6 +23998,7 @@ template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data
 template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(AreaTrigger*   target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(SceneObject*   target, UpdateData& data, std::set<Unit*>& visibleNow);
 template void Player::UpdateVisibilityOf(Conversation*  target, UpdateData& data, std::set<Unit*>& visibleNow);
 
 void Player::UpdateObjectVisibility(bool forced)
@@ -27629,6 +27643,13 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
 
     activeGlyphs.IsFullUpdate = true;
     SendDirectMessage(activeGlyphs.Write());
+
+    Unit::AuraEffectList const& shapeshiftAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
+    for (AuraEffect* aurEff : shapeshiftAuras)
+    {
+        aurEff->HandleShapeshiftBoosts(this, false);
+        aurEff->HandleShapeshiftBoosts(this, true);
+    }
 }
 
 void Player::ResetTimeSync()

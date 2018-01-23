@@ -17,9 +17,11 @@
 
 #include "Conversation.h"
 #include "GameObject.h"
+#include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
@@ -78,39 +80,36 @@ public:
 };
 
 // 228329 & 228330 - Téléportation
-class spell_dalaran_teleportation : public SpellScriptLoader
+class spell_dalaran_teleportation : public SpellScript
 {
-public:
-    spell_dalaran_teleportation() : SpellScriptLoader("spell_dalaran_teleportation") { }
+    PrepareSpellScript(spell_dalaran_teleportation);
 
-    class spell_dalaran_teleportation_SpellScript : public SpellScript
+    void EffectTeleportDalaranKarazhan(SpellEffIndex effIndex)
     {
-        PrepareSpellScript(spell_dalaran_teleportation_SpellScript);
-
-        void EffectTeleportDalaranKarazhan(SpellEffIndex effIndex)
+        if (Player* player = GetCaster()->ToPlayer())
         {
-            if (Player* player = GetCaster()->ToPlayer())
-                if (player->getLevel() < 100 || player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) != QUEST_STATUS_INCOMPLETE)
-                    PreventHitEffect(effIndex);
+            if (player->getLevel() < 100 || player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) != QUEST_STATUS_INCOMPLETE)
+                PreventHitEffect(effIndex);
+            else
+            {
+                if (SpellTargetPosition const* targetPosition = sSpellMgr->GetSpellTargetPosition(GetSpellInfo()->Id, effIndex))
+                    if (Map* map = sMapMgr->FindMap(targetPosition->target_mapId, 0))
+                        map->LoadGrid(targetPosition->target_X, targetPosition->target_Y);
+            }
         }
+    }
 
-        void EffectTeleportDalaranLegion(SpellEffIndex effIndex)
-        {
-            if (Player* player = GetCaster()->ToPlayer())
-                if (player->getLevel() < 100 || player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_INCOMPLETE)
-                    PreventHitEffect(effIndex);
-        }
-
-        void Register() override
-        {
-            OnEffectLaunch += SpellEffectFn(spell_dalaran_teleportation_SpellScript::EffectTeleportDalaranKarazhan, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
-            OnEffectLaunch += SpellEffectFn(spell_dalaran_teleportation_SpellScript::EffectTeleportDalaranLegion, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void EffectTeleportDalaranLegion(SpellEffIndex effIndex)
     {
-        return new spell_dalaran_teleportation_SpellScript();
+        if (Player* player = GetCaster()->ToPlayer())
+            if (player->getLevel() < 100 || player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_INCOMPLETE)
+                PreventHitEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_dalaran_teleportation::EffectTeleportDalaranKarazhan, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunch += SpellEffectFn(spell_dalaran_teleportation::EffectTeleportDalaranLegion, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
     }
 };
 
@@ -178,11 +177,29 @@ public:
  * Legion Dalaran
  */
 
+// Zone 8392
+class zone_legion_dalaran_underbelly : public ZoneScript
+{
+public:
+    zone_legion_dalaran_underbelly() : ZoneScript("zone_legion_dalaran_underbelly") { }
+
+    void OnPlayerEnter(Player* player) override
+    {
+        player->SeamlessTeleportToMap(MAP_DALARAN_UNDERBELLY);
+    }
+
+    void OnPlayerExit(Player* player) override
+    {
+        player->SeamlessTeleportToMap(MAP_BROKEN_ISLANDS);
+    }
+};
+
 void AddSC_dalaran_legion()
 {
     new OnLegionArrival();
-    new spell_dalaran_teleportation();
+    RegisterSpellScript(spell_dalaran_teleportation);
     new go_dalaran_karazhan();
     new npc_dalaran_karazhan_khadgar();
     new scene_dalaran_kharazan_teleportion();
+    new zone_legion_dalaran_underbelly();
 }
