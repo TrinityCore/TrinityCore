@@ -100,7 +100,7 @@ bool TransactionTask::Execute()
         // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
         std::lock_guard<std::mutex> lock(_deadlockLock);
         uint32 oldMSTime = getMSTime();
-        uint32 loopDuration;
+        uint32 loopDuration = 0;
         uint32 loopExpireTime = STATEMENT_DURATION;
         for (; loopDuration <= loopExpireTime; loopDuration = GetMSTimeDiffToNow(oldMSTime))
         {
