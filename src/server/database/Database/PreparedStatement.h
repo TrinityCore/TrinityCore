@@ -98,6 +98,8 @@ class TC_DATABASE_API PreparedStatement
         void setString(const uint8 index, const std::string& value);
         void setBinary(const uint8 index, const std::vector<uint8>& value);
 
+        std::string getQueryString();
+
     protected:
         void BindParameters(MySQLPreparedStatement* stmt);
 

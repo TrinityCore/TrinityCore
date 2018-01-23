@@ -48,6 +48,8 @@ class TC_DATABASE_API Transaction
 
         std::size_t GetSize() const { return m_queries.size(); }
 
+        const char* ToString();
+
     protected:
         void Cleanup();
         std::vector<SQLElementData> m_queries;
