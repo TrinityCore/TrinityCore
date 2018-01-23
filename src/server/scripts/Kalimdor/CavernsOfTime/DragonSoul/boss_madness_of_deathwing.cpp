@@ -540,7 +540,7 @@ class boss_madness_of_deathwing : public CreatureScript
                 return 0;
             }
 
-            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
             {
                 if (spellInfo->Id == SPELL_AGONIZING_PAIN)
                 {

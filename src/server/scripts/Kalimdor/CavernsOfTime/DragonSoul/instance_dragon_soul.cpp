@@ -527,7 +527,6 @@ class instance_dragon_soul : public InstanceMapScript
                     if (!plrList.isEmpty())
                     for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
                     if (Player* pPlayer = i->GetSource())
-                    if (pInstance = pPlayer->GetInstanceScript())
                     {
                         if (pInstance->GetBossState(BOSS_MORCHOK) != DONE)
                         if (pPlayer->GetPositionZ() < 50.0f && !pPlayer->IsBeingTeleported())

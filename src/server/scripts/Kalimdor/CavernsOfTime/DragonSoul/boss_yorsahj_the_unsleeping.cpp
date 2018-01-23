@@ -1039,7 +1039,7 @@ class achievement_taste_the_rainbow : public AchievementCriteriaScript
     public:
         achievement_taste_the_rainbow(char const* scriptName, uint32 Id) : AchievementCriteriaScript(scriptName), _Id(Id) { }
 
-        bool OnCheck(Player* source, Unit* target) override
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target)
                 return false;

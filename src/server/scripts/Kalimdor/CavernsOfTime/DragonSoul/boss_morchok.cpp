@@ -1103,7 +1103,7 @@ class achievement_dont_stay_so_close_to_me : public AchievementCriteriaScript
     public:
         achievement_dont_stay_so_close_to_me() : AchievementCriteriaScript("achievement_dont_stay_so_close_to_me") { }
 
-        bool OnCheck(Player* source, Unit* target) override
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target)
                 return false;

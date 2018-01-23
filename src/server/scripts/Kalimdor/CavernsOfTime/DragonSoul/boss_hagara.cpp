@@ -441,7 +441,7 @@ class boss_hagara_the_stormbinder: public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WATERY_ENTRENCHMENT);
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -527,7 +527,7 @@ class boss_hagara_the_stormbinder: public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
+            void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override
             {
                 if (!bEvent)
                     return;
@@ -988,7 +988,7 @@ class npc_hagara_the_stormbinder_stormborn_myrmidon : public CreatureScript
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(2000, 10000));
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat(me, 200.0f);
@@ -1082,7 +1082,7 @@ class npc_hagara_the_stormbinder_stormbinder_adept : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat(me, 200.0f);
@@ -1209,7 +1209,7 @@ class npc_hagara_the_stormbinder_twilight_frost_evoker : public CreatureScript
                 events.ScheduleEvent(EVENT_SHACKLES_OF_ICE, urand(5000, 15000));
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat(me, 200.0f);
@@ -1323,7 +1323,7 @@ class npc_hagara_the_stormbinder_lieutenant_shara : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat(me, 200.0f);
