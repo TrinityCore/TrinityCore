@@ -249,19 +249,18 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 case COMMAND_ABANDON:                       // abandon (hunter pet) or dismiss (summoned pet)
                     if (pet->GetCharmerGUID() == GetPlayer()->GetGUID())
                         _player->StopCastingCharm();
-                    if (pet->GetOwnerGUID() == GetPlayer()->GetGUID() || pet->GetCharmerGUID() == ObjectGuid::Empty)
+                    else if (pet->GetOwnerGUID() == GetPlayer()->GetGUID())
                     {
                         ASSERT(pet->GetTypeId() == TYPEID_UNIT);
-                        if (pet->IsHunterPet())
+                        if (pet->IsPet())
                         {
-                            GetPlayer()->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
+                            if (((Pet*)pet)->getPetType() == HUNTER_PET)
+                                GetPlayer()->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
+                            else
+                                //dismissing a summoned pet is like killing them (this prevents returning a soulshard...)
+                                pet->setDeathState(CORPSE);
                         }
-                        else if (pet->IsPet())
-                        {
-                            //dismissing a summoned pet is like killing them (this prevents returning a soulshard...)
-                            pet->setDeathState(CORPSE);
-                        }
-                        if (pet->HasUnitTypeMask(UNIT_MASK_MINION))
+                        else if (pet->HasUnitTypeMask(UNIT_MASK_MINION))
                         {
                             ((Minion*)pet)->UnSummon();
                         }

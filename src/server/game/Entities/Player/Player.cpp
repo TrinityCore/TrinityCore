@@ -20528,26 +20528,19 @@ void Player::StopCastingCharm()
         else if (charm->IsVehicle())
             ExitVehicle();
     }
+    if (GetCharmGUID())
+        charm->RemoveCharmAuras();
 
     if (GetCharmGUID())
     {
-        if (charm->GetCharmerGUID() != GetGUID())
-            TC_LOG_FATAL("entities.player", "Player::StopCastingCharm: Player '%s' (%s) is not able to uncharm unit (%s)", GetName().c_str(), GetGUID().ToString().c_str(), GetCharmGUID().ToString().c_str());
-        if (!charm->GetCharmGUID().IsEmpty())
+        TC_LOG_FATAL("entities.player", "Player::StopCastingCharm: Player '%s' (%s) is not able to uncharm unit (%s)", GetName().c_str(), GetGUID().ToString().c_str(), GetCharmGUID().ToString().c_str());
+        if (!charm->GetCharmerGUID().IsEmpty())
         {
             TC_LOG_FATAL("entities.player", "Player::StopCastingCharm: Charmed unit has charmer %s", charm->GetCharmerGUID().ToString().c_str());
             ABORT();
         }
-        bool bIsHunter = (charm->GetCharmer()->getClass() == CLASS_HUNTER);
+
         SetCharm(charm, false);
-        charm->RemoveCharmAuras();
-        if (bIsHunter)
-        {
-            SetCharmerGUID(ObjectGuid::Empty); // Needed so AI will revert to default.
-            charm->UpdateCharmAI();
-            charm->AddUnitTypeMask(UNIT_MASK_HUNTER_PET); // Added so removePet can be called later.
-            charm->ToCreature()->SetReactState(REACT_NONE); // No reaction for pets that are reverted back to Creatures.
-        }
     }
 }
 
