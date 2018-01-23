@@ -2718,15 +2718,12 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
         if (m_spellInfo->HasHitDelay() && unit->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
             return SPELL_MISS_EVADE;
 
-        if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
+        if (m_caster->IsValidAttackTarget(unit, m_spellInfo))
             unit->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::HostileActionReceived);
         else if (m_caster->IsFriendlyTo(unit))
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
-            /// @todo this cause soul transfer bugged
-            // 63881 - Malady of the Mind jump spell (Yogg-Saron)
-            // 45034 - Curse of Boundless Agony jump spell (Kalecgos)
-            if (m_spellInfo->HasHitDelay() && unit->GetTypeId() == TYPEID_PLAYER && !IsPositive() && m_spellInfo->Id != 63881 && m_spellInfo->Id != 45034)
+            if (m_spellInfo->HasHitDelay() && unit->GetTypeId() == TYPEID_PLAYER && !IsPositive() && !m_caster->IsValidSpellAttackTarget(unit, m_spellInfo))
                 return SPELL_MISS_EVADE;
 
             // assisting case, healing and resurrection
@@ -8090,32 +8087,34 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
     Unit* unitTarget = target->ToUnit();
     if (Corpse* corpseTarget = target->ToCorpse())
     {
-        // use ofter for party/assistance checks
+        // use owner for party/assistance checks
         if (Player* owner = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID()))
             unitTarget = owner;
         else
             return false;
     }
+
     if (unitTarget)
     {
+        // do only faction checks here
         switch (_targetSelectionType)
         {
             case TARGET_CHECK_ENEMY:
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->_IsValidAttackTarget(unitTarget, _spellInfo))
+                if (!_caster->IsValidAttackTarget(unitTarget, _spellInfo, nullptr, false))
                     return false;
                 break;
             case TARGET_CHECK_ALLY:
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
+                if (!_caster->IsValidAssistTarget(unitTarget, _spellInfo, false))
                     return false;
                 break;
             case TARGET_CHECK_PARTY:
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
+                if (!_caster->IsValidAssistTarget(unitTarget, _spellInfo, false))
                     return false;
                 if (!_referer->IsInPartyWith(unitTarget))
                     return false;
@@ -8127,7 +8126,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
             case TARGET_CHECK_RAID:
                 if (unitTarget->IsTotem())
                     return false;
-                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
+                if (!_caster->IsValidAssistTarget(unitTarget, _spellInfo, false))
                     return false;
                 if (!_referer->IsInRaidWith(unitTarget))
                     return false;
@@ -8162,7 +8161,21 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
             default:
                 break;
         }
+
+        // then check actual spell positivity to determine if the target is valid
+        // (negative spells may be targeted on allies)
+        if (_spellInfo->IsPositive())
+        {
+            if (!_caster->IsValidSpellAssistTarget(unitTarget, _spellInfo))
+                return false;
+        }
+        else
+        {
+            if (!_caster->IsValidSpellAttackTarget(unitTarget, _spellInfo))
+                return false;
+        }
     }
+
     if (!_condSrcInfo)
         return true;
     _condSrcInfo->mConditionTargets[0] = target;

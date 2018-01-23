@@ -1161,11 +1161,11 @@ class TC_GAME_API Unit : public WorldObject
 
         bool isTargetableForAttack(bool checkFakeDeath = true) const;
 
-        bool IsValidAttackTarget(Unit const* target) const;
-        bool _IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, WorldObject const* obj = nullptr) const;
+        bool IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell = nullptr, WorldObject const* obj = nullptr, bool spellCheck = true) const;
+        bool IsValidSpellAttackTarget(Unit const* target, SpellInfo const* bySpell, WorldObject const* obj = nullptr) const;
 
-        bool IsValidAssistTarget(Unit const* target) const;
-        bool _IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) const;
+        bool IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell = nullptr, bool spellCheck = true) const;
+        bool IsValidSpellAssistTarget(Unit const* target, SpellInfo const* bySpell) const;
 
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;
