@@ -1065,6 +1065,8 @@ class spell_ultraxion_last_defender_of_azeroth_dummy : public SpellScriptLoader
                     case TALENT_SPEC_MONK_BREWMASTER:
                         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_LAST_DEFENDER_OF_AZEROTH_MONK, true);
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -1280,36 +1282,38 @@ public:
     {
         switch (go->GetEntry())
         {
-        case GO_GIFT_OF_LIFE:
-            if (player->HasAura(SPELL_GIFT_OF_LIVE_AURA) || player->HasAura(SPELL_ESSENCE_OF_DREAMS_AURA) || player->HasAura(SPELL_SOURCE_OF_MAGIC_AURA))
-            {
-                player->RemoveAura(SPELL_ESSENCE_OF_DREAMS_AURA);
-                player->RemoveAura(SPELL_SOURCE_OF_MAGIC_AURA);
-                player->CastSpell(player, SPELL_GIFT_OF_LIVE_AURA, true);
-            }
-            else
-                player->CastSpell(player, SPELL_GIFT_OF_LIVE_AURA, true);
-            break;
-        case GO_ESSENCE_OF_DREAMS:
-            if (player->HasAura(SPELL_GIFT_OF_LIVE_AURA) || player->HasAura(SPELL_ESSENCE_OF_DREAMS_AURA) || player->HasAura(SPELL_SOURCE_OF_MAGIC_AURA))
-            {
-                player->RemoveAura(SPELL_GIFT_OF_LIVE_AURA);
-                player->RemoveAura(SPELL_SOURCE_OF_MAGIC_AURA);
-                player->CastSpell(player, SPELL_ESSENCE_OF_DREAMS_AURA, true);
-            }
-            else
-                player->CastSpell(player, SPELL_ESSENCE_OF_DREAMS_AURA, true);
-            break;
-        case GO_SOURCE_OF_MAGIC:
-            if (player->HasAura(SPELL_GIFT_OF_LIVE_AURA) || player->HasAura(SPELL_ESSENCE_OF_DREAMS_AURA) || player->HasAura(SPELL_SOURCE_OF_MAGIC_AURA))
-            {
-                player->RemoveAura(SPELL_GIFT_OF_LIVE_AURA);
-                player->RemoveAura(SPELL_ESSENCE_OF_DREAMS_AURA);
-                player->CastSpell(player, SPELL_SOURCE_OF_MAGIC_AURA, true);
-            }
-            else
-                player->CastSpell(player, SPELL_SOURCE_OF_MAGIC_AURA, true);
-            break;
+            case GO_GIFT_OF_LIFE:
+                if (player->HasAura(SPELL_GIFT_OF_LIVE_AURA) || player->HasAura(SPELL_ESSENCE_OF_DREAMS_AURA) || player->HasAura(SPELL_SOURCE_OF_MAGIC_AURA))
+                {
+                    player->RemoveAura(SPELL_ESSENCE_OF_DREAMS_AURA);
+                    player->RemoveAura(SPELL_SOURCE_OF_MAGIC_AURA);
+                    player->CastSpell(player, SPELL_GIFT_OF_LIVE_AURA, true);
+                }
+                else
+                    player->CastSpell(player, SPELL_GIFT_OF_LIVE_AURA, true);
+                break;
+            case GO_ESSENCE_OF_DREAMS:
+                if (player->HasAura(SPELL_GIFT_OF_LIVE_AURA) || player->HasAura(SPELL_ESSENCE_OF_DREAMS_AURA) || player->HasAura(SPELL_SOURCE_OF_MAGIC_AURA))
+                {
+                    player->RemoveAura(SPELL_GIFT_OF_LIVE_AURA);
+                    player->RemoveAura(SPELL_SOURCE_OF_MAGIC_AURA);
+                    player->CastSpell(player, SPELL_ESSENCE_OF_DREAMS_AURA, true);
+                }
+                else
+                    player->CastSpell(player, SPELL_ESSENCE_OF_DREAMS_AURA, true);
+                break;
+            case GO_SOURCE_OF_MAGIC:
+                if (player->HasAura(SPELL_GIFT_OF_LIVE_AURA) || player->HasAura(SPELL_ESSENCE_OF_DREAMS_AURA) || player->HasAura(SPELL_SOURCE_OF_MAGIC_AURA))
+                {
+                    player->RemoveAura(SPELL_GIFT_OF_LIVE_AURA);
+                    player->RemoveAura(SPELL_ESSENCE_OF_DREAMS_AURA);
+                    player->CastSpell(player, SPELL_SOURCE_OF_MAGIC_AURA, true);
+                }
+                else
+                    player->CastSpell(player, SPELL_SOURCE_OF_MAGIC_AURA, true);
+                break;
+            default:
+                break;
         }
 
         return true;

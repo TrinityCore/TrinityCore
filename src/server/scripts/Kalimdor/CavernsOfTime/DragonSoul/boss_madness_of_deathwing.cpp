@@ -574,7 +574,7 @@ class boss_madness_of_deathwing : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -949,7 +949,7 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
     public:
         npc_dragon_soul_thrall_1() : CreatureScript("npc_dragon_soul_thrall_1") { }
 
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
         {
             /*if (pPlayer->IsInCombat())
                 return true;*/
@@ -980,7 +980,7 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
             return false;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*sender*/, uint32 action) override
         {
             pPlayer->PlayerTalkClass->SendCloseGossip();
 
@@ -1032,7 +1032,7 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
             return true;
         }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_dragon_soul_thrall_1AI(pCreature);
         }
@@ -1046,7 +1046,7 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
                 pInstance = me->GetInstanceScript();
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 if (action == ACTION_CHECK_PLAYERS)
                     events.ScheduleEvent(EVENT_CHECK_PLAYERS, 5000);
@@ -1070,7 +1070,7 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 events.Update(diff);
 
@@ -1267,7 +1267,7 @@ class npc_madness_of_deathwing_mutated_corruption : public CreatureScript
     public:
         npc_madness_of_deathwing_mutated_corruption() : CreatureScript("npc_madness_of_deathwing_mutated_corruption") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_mutated_corruptionAI(pCreature);
         }
@@ -1291,7 +1291,7 @@ class npc_madness_of_deathwing_mutated_corruption : public CreatureScript
                 pInstance = me->GetInstanceScript();
             }
 
-            void Reset()
+            void Reset() override
             {
                 me->SetVisible(false);
                 me->SetCanFly(true);
@@ -1303,7 +1303,7 @@ class npc_madness_of_deathwing_mutated_corruption : public CreatureScript
                     me->Respawn();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (me->IsVisible())
                 {
@@ -1313,12 +1313,12 @@ class npc_madness_of_deathwing_mutated_corruption : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/) override
             {
                 me->Respawn();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1420,7 +1420,7 @@ class npc_madness_of_deathwing_crush_target : public CreatureScript
     public:
         npc_madness_of_deathwing_crush_target() : CreatureScript("npc_madness_of_deathwing_crush_target") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_crush_targetAI(pCreature);
         }
@@ -1432,7 +1432,7 @@ class npc_madness_of_deathwing_crush_target : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* /*owner*/)
+            void IsSummonedBy(Unit* /*owner*/) override
             {
                 if (Creature* pCorruption = me->FindNearestCreature(NPC_MUTATED_CORRUPTION, 80.0f))
                 {
@@ -1448,7 +1448,7 @@ class npc_madness_of_deathwing_limb_tentacle : public CreatureScript
     public:
         npc_madness_of_deathwing_limb_tentacle() : CreatureScript("npc_madness_of_deathwing_limb_tentacle") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_limb_tentacleAI(pCreature);
         }
@@ -1482,7 +1482,7 @@ class npc_madness_of_deathwing_limb_tentacle : public CreatureScript
                 pInstance = me->GetInstanceScript();
             }
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
                 phase = 0;
@@ -1497,20 +1497,20 @@ class npc_madness_of_deathwing_limb_tentacle : public CreatureScript
                 ForceReset(NPC_BLISTERING_TENTACLE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 phase = 0;
                 tentacles = 0;
                 m_current_platform = 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
                 if (type == DATA_CURRENT_PLATFORM)
                     m_current_platform = data;
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 if (summon->GetEntry() == NPC_BLISTERING_TENTACLE)
                     tentacles++;
@@ -1518,7 +1518,7 @@ class npc_madness_of_deathwing_limb_tentacle : public CreatureScript
                     summon->CastSpell(summon, SPELL_HEMORRHAGE_AURA, true);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 if (action == ACTION_ASSAULT_ASPECTS_FIRST)
                 {
@@ -1544,7 +1544,7 @@ class npc_madness_of_deathwing_limb_tentacle : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 events.Reset();
 
@@ -1582,7 +1582,7 @@ class npc_madness_of_deathwing_limb_tentacle : public CreatureScript
                 me->Respawn();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1698,7 +1698,7 @@ class npc_madness_of_deathwing_blistering_tentacle : public CreatureScript
     public:
         npc_madness_of_deathwing_blistering_tentacle() : CreatureScript("npc_madness_of_deathwing_blistering_tentacle") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_blistering_tentacleAI(pCreature);
         }
@@ -1727,7 +1727,7 @@ class npc_madness_of_deathwing_blistering_tentacle : public CreatureScript
                 me->SetDisableGravity(true);
             }
 
-            void Reset()
+            void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetVisible(false);
@@ -1744,7 +1744,7 @@ class npc_madness_of_deathwing_blistering_tentacle : public CreatureScript
                     me->ExitVehicle();
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1763,7 +1763,7 @@ class npc_madness_of_deathwing_regenerative_blood : public CreatureScript
     public:
         npc_madness_of_deathwing_regenerative_blood() : CreatureScript("npc_madness_of_deathwing_regenerative_blood") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_regenerative_bloodAI(pCreature);
         }
@@ -1790,7 +1790,7 @@ class npc_madness_of_deathwing_regenerative_blood : public CreatureScript
                 platform = GetGround(me);
             }
 
-            void Reset()
+            void Reset() override
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->SetPowerType(POWER_ENERGY);
@@ -1804,7 +1804,7 @@ class npc_madness_of_deathwing_regenerative_blood : public CreatureScript
             }
 
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat(me, 200.0f);
@@ -1812,12 +1812,12 @@ class npc_madness_of_deathwing_regenerative_blood : public CreatureScript
                     AttackStart(target);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_UPDATE_HEALTH, 1000);
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit* who) override
             {
                 if (!who)
                     return;
@@ -1833,12 +1833,12 @@ class npc_madness_of_deathwing_regenerative_blood : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*who*/) override
             {
                 me->DespawnOrUnsummon(2000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1887,7 +1887,7 @@ class npc_madness_of_deathwing_elementium_bolt : public CreatureScript
     public:
         npc_madness_of_deathwing_elementium_bolt() : CreatureScript("npc_madness_of_deathwing_elementium_bolt") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_elementium_boltAI(pCreature);
         }
@@ -1923,7 +1923,7 @@ class npc_madness_of_deathwing_elementium_bolt : public CreatureScript
                 isSlow = false;
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* owner) override
             {
                 if (!owner || !owner->ToCreature())
                     return;
@@ -1931,7 +1931,7 @@ class npc_madness_of_deathwing_elementium_bolt : public CreatureScript
                 platform = owner->ToCreature()->AI()->GetData(DATA_CURRENT_PLATFORM);
             }
 
-            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
             {
                 if (!platform)
                     return;
@@ -1947,7 +1947,7 @@ class npc_madness_of_deathwing_elementium_bolt : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == POINT_MOTION_TYPE)
                     if (id == DATA_METEOR_POINT)
@@ -1963,12 +1963,12 @@ class npc_madness_of_deathwing_elementium_bolt : public CreatureScript
                     }
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*who*/) override
             {
                 me->DespawnOrUnsummon(1000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/) override
             {
                 if (!isSlow && me->FindNearestCreature(NPC_TIME_ZONE, 15.0f, true))
                 {
@@ -1997,7 +1997,7 @@ class npc_madness_of_deathwing_corrupting_parasite : public CreatureScript
     public:
         npc_madness_of_deathwing_corrupting_parasite() : CreatureScript("npc_madness_of_deathwing_corrupting_parasite") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_corrupting_parasiteAI(pCreature);
         }
@@ -2027,12 +2027,12 @@ class npc_madness_of_deathwing_corrupting_parasite : public CreatureScript
                 m_unstable = false;
             }
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 if (action == ACTION_PARASITIC_BACKSLASH && !m_unstable)
                 {
@@ -2046,7 +2046,7 @@ class npc_madness_of_deathwing_corrupting_parasite : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 events.Update(diff);
 
@@ -2060,7 +2060,7 @@ class npc_madness_of_deathwing_corrupting_parasite : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*who*/) override
             {
                 me->DespawnOrUnsummon(1000);
             }
@@ -2077,7 +2077,7 @@ class npc_madness_of_deathwing_deathwing : public CreatureScript
     public:
         npc_madness_of_deathwing_deathwing() : CreatureScript("npc_madness_of_deathwing_deathwing") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_deathwingAI(pCreature);
         }
@@ -2103,7 +2103,7 @@ class npc_madness_of_deathwing_deathwing : public CreatureScript
                 pInstance = me->GetInstanceScript();
             }
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
                 me->SetVisible(false);
@@ -2127,7 +2127,7 @@ class npc_madness_of_deathwing_deathwing : public CreatureScript
                 DespawnCreatures(NPC_CONGEALING_BLOOD);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 if (action == ACTION_HP_UPDATE)
                 {
@@ -2139,7 +2139,7 @@ class npc_madness_of_deathwing_deathwing : public CreatureScript
 
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage) override
             {
                 if ((me->GetHealthPct() <= 15.0f && phase == 0) || (me->GetHealthPct() <= 10.0f && phase == 1) || (me->GetHealthPct() <= 5.0f && phase == 2))
                 {
@@ -2160,7 +2160,7 @@ class npc_madness_of_deathwing_deathwing : public CreatureScript
                     }
             }
 
-            void HealReceived(Unit* /*who*/, uint32& /*heal*/)
+            void HealReceived(Unit* /*who*/, uint32& /*heal*/) override
             {
                 if (me->GetHealthPct() >= 15.0f && phase > 0)
                     phase = 0;
@@ -2170,12 +2170,12 @@ class npc_madness_of_deathwing_deathwing : public CreatureScript
                     phase = 2;
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 DoZoneInCombat(summon);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
 
                 if (healthValueNew > healthValue)
@@ -2260,7 +2260,7 @@ class npc_madness_of_deathwing_impaling_tentacle : public CreatureScript
     public:
         npc_madness_of_deathwing_impaling_tentacle() : CreatureScript("npc_madness_of_deathwing_impaling_tentacle") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_impaling_tentacleAI(pCreature);
         }
@@ -2285,17 +2285,17 @@ class npc_madness_of_deathwing_impaling_tentacle : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 me->DespawnOrUnsummon(2000);
             }
 
-            void SetGUID(ObjectGuid guid, int32 type)
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 if (type == DATA_SHRAPNEL)
                 {
@@ -2306,7 +2306,7 @@ class npc_madness_of_deathwing_impaling_tentacle : public CreatureScript
                     }
                 }
             }
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -2342,7 +2342,7 @@ class npc_madness_of_deathwing_elementium_terror : public CreatureScript
     public:
         npc_madness_of_deathwing_elementium_terror() : CreatureScript("npc_madness_of_deathwing_elementium_terror") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_elementium_terrorAI(pCreature);
         }
@@ -2367,23 +2367,23 @@ class npc_madness_of_deathwing_elementium_terror : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
                 me->AddAura(SPELL_ELEMENTIUM_TERROR_TETANUS_AUR, me);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 me->DespawnOrUnsummon(2000);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/) override
             {
                 events.ScheduleEvent(EVENT_START_MOVE, 1000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -2416,7 +2416,7 @@ class npc_madness_of_deathwing_congealing_blood : public CreatureScript
     public:
         npc_madness_of_deathwing_congealing_blood() : CreatureScript("npc_madness_of_deathwing_congealing_blood") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_congealing_bloodAI(pCreature);
         }
@@ -2439,26 +2439,26 @@ class npc_madness_of_deathwing_congealing_blood : public CreatureScript
                 pInstance = me->GetInstanceScript();
             }
 
-            void IsSummonedBy(Unit* /*owner*/)
+            void IsSummonedBy(Unit* /*owner*/) override
             {
                 isMove = true;
                 bNear = false;
                 events.ScheduleEvent(EVENT_START_MOVE, 1000);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 me->DespawnOrUnsummon(1000);
             }
 
-            void MovementInform(uint32 type, uint32 data)
+            void MovementInform(uint32 type, uint32 data) override
             {
                 if (type == POINT_MOTION_TYPE)
                     if (data == DATA_BLOOD_POINT)
                         events.ScheduleEvent(EVENT_CONGEALING_BLOOD_HEAL, 1);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -2526,7 +2526,7 @@ class npc_dragon_soul_alexstrasza_dragon : public CreatureScript
     public:
         npc_dragon_soul_alexstrasza_dragon() : CreatureScript("npc_dragon_soul_alexstrasza_dragon") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_dragon_soul_alexstrasza_dragonAI(pCreature);
         }
@@ -2553,7 +2553,7 @@ class npc_dragon_soul_alexstrasza_dragon : public CreatureScript
                 return;
             }
 
-            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
             {
                 switch (spellInfo->Id)
                 {
@@ -2582,7 +2582,7 @@ class npc_dragon_soul_alexstrasza_dragon : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 if (isActive && action == ACTION_CAUTERIZE)
                     events.ScheduleEvent(EVENT_CAUTERIZE, 2000);
@@ -2591,13 +2591,13 @@ class npc_dragon_soul_alexstrasza_dragon : public CreatureScript
 
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* pThrall = me->FindNearestCreature(NPC_THRALL_2, 500.0f))
                     pThrall->AI()->DoAction(ACTION_RESET_BATTLE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 events.Update(diff);
 
@@ -2627,7 +2627,7 @@ class npc_dragon_soul_nozdormu_dragon : public CreatureScript
     public:
         npc_dragon_soul_nozdormu_dragon() : CreatureScript("npc_dragon_soul_nozdormu_dragon") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_dragon_soul_nozdormu_dragonAI(pCreature);
         }
@@ -2669,7 +2669,7 @@ class npc_dragon_soul_nozdormu_dragon : public CreatureScript
                 return 0;
             }
 
-            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
             {
                 switch (spellInfo->Id)
                 {
@@ -2698,7 +2698,7 @@ class npc_dragon_soul_nozdormu_dragon : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 if (isActive && action == ACTION_TIME_ZONE)
                 {
@@ -2712,23 +2712,23 @@ class npc_dragon_soul_nozdormu_dragon : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* pThrall = me->FindNearestCreature(NPC_THRALL_2, 500.0f))
                     pThrall->AI()->DoAction(ACTION_RESET_BATTLE);
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 summons.Summon(summon);
             }
 
-            void SummonedCreatureDespawn(Creature* summon)
+            void SummonedCreatureDespawn(Creature* summon) override
             {
                 summons.Despawn(summon);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 events.Update(diff);
 
@@ -2777,7 +2777,7 @@ class npc_dragon_soul_ysera_dragon : public CreatureScript
     public:
         npc_dragon_soul_ysera_dragon() : CreatureScript("npc_dragon_soul_ysera_dragon") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_dragon_soul_ysera_dragonAI(pCreature);
         }
@@ -2802,7 +2802,7 @@ class npc_dragon_soul_ysera_dragon : public CreatureScript
                 return;
             }
 
-            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
             {
                 switch (spellInfo->Id)
                 {
@@ -2834,7 +2834,7 @@ class npc_dragon_soul_ysera_dragon : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* pThrall = me->FindNearestCreature(NPC_THRALL_2, 500.0f))
                     pThrall->AI()->DoAction(ACTION_RESET_BATTLE);
@@ -2850,7 +2850,7 @@ class npc_dragon_soul_kalecgos_dragon : public CreatureScript
     public:
         npc_dragon_soul_kalecgos_dragon() : CreatureScript("npc_dragon_soul_kalecgos_dragon") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_dragon_soul_kalecgos_dragonAI(pCreature);
         }
@@ -2875,7 +2875,7 @@ class npc_dragon_soul_kalecgos_dragon : public CreatureScript
                 return;
             }
 
-            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo)
+            void SpellHit(Unit* /*who*/, const SpellInfo* spellInfo) override
             {
                 switch (spellInfo->Id)
                 {
@@ -2899,7 +2899,7 @@ class npc_dragon_soul_kalecgos_dragon : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* pThrall = me->FindNearestCreature(NPC_THRALL_2, 500.0f))
                     pThrall->AI()->DoAction(ACTION_RESET_BATTLE);
@@ -2915,7 +2915,7 @@ class npc_madness_of_deathwing_jump_pad : public CreatureScript
     public:
         npc_madness_of_deathwing_jump_pad() : CreatureScript("npc_madness_of_deathwing_jump_pad") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_madness_of_deathwing_jump_padAI(pCreature);
         }
@@ -2932,7 +2932,7 @@ class npc_madness_of_deathwing_jump_pad : public CreatureScript
                 spellIdEx2 = 0;
             }
 
-            void Reset()
+            void Reset() override
             {
                 for (uint8 i = 0; i < 6; ++i)
                 {
@@ -2977,7 +2977,7 @@ class npc_madness_of_deathwing_jump_pad : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!spellId)
                     return;
@@ -3096,13 +3096,13 @@ class spell_madness_of_deathwing_assault_aspects : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_madness_of_deathwing_assault_aspects_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_assault_aspects_SpellScript();
         }
@@ -3128,13 +3128,13 @@ class spell_madness_of_deathwing_crush_force : public SpellScriptLoader
                 Trinity::Containers::RandomResize(targets, 1);
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_madness_of_deathwing_crush_force_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_crush_force_SpellScript();
         }
@@ -3157,13 +3157,13 @@ class spell_madness_of_deathwing_hemorrhage_script : public SpellScriptLoader
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_HEMORRHAGE_MISSILE, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_madness_of_deathwing_hemorrhage_script_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_hemorrhage_script_SpellScript();
         }
@@ -3186,13 +3186,13 @@ class spell_madness_of_deathwing_elementium_meteor_summon : public SpellScriptLo
                 GetHitDest()->Relocate(boltPos[0]);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_madness_of_deathwing_elementium_meteor_summon_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_elementium_meteor_summon_SpellScript();
         }
@@ -3219,13 +3219,13 @@ class spell_madness_of_deathwing_elementium_blast : public SpellScriptLoader
                     SetHitDamage(int32(GetHitDamage() * 1.33f / (distance / 5.0f)));
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_madness_of_deathwing_elementium_blast_SpellScript::HandleDamage);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_elementium_blast_SpellScript();
         }
@@ -3257,13 +3257,13 @@ class spell_madness_of_deathwing_corrupting_parasite_aoe : public SpellScriptLoa
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_madness_of_deathwing_corrupting_parasite_aoe_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_corrupting_parasite_aoe_SpellScript();
         }
@@ -3278,7 +3278,7 @@ class spell_madness_of_deathwing_corrupting_parasite_aura : public SpellScriptLo
         {
             PrepareAuraScript(spell_madness_of_deathwing_corrupting_parasite_aura_AuraScript);
 
-            void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* owner = GetUnitOwner())
                 {
@@ -3289,13 +3289,13 @@ class spell_madness_of_deathwing_corrupting_parasite_aura : public SpellScriptLo
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_madness_of_deathwing_corrupting_parasite_aura_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_madness_of_deathwing_corrupting_parasite_aura_AuraScript();
         }
@@ -3320,13 +3320,13 @@ class spell_madness_of_deathwing_agonizing_pain : public SpellScriptLoader
                 SetHitDamage(damage);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_madness_of_deathwing_agonizing_pain_SpellScript::HandleDamage);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_agonizing_pain_SpellScript();
         }
@@ -3351,13 +3351,13 @@ class spell_madness_of_deathwing_impale_aspect : public SpellScriptLoader
                 SetHitDamage(damage);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_madness_of_deathwing_impale_aspect_SpellScript::HandleDamage);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_impale_aspect_SpellScript();
         }
@@ -3418,7 +3418,7 @@ class spell_madness_of_deathwing_shrapnel_aoe : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_madness_of_deathwing_shrapnel_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_madness_of_deathwing_shrapnel_aoe_SpellScript::FilterPlayers, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
@@ -3440,7 +3440,7 @@ class spell_madness_of_deathwing_shrapnel_aoe : public SpellScriptLoader
             };
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_shrapnel_aoe_SpellScript();
         }
@@ -3474,14 +3474,14 @@ class spell_madness_of_deathwing_unstable_corruption : public SpellScriptLoader
                     pParasite->DespawnOrUnsummon(2000);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_madness_of_deathwing_unstable_corruption_SpellScript::HandleDamage);
                 AfterCast += SpellCastFn(spell_madness_of_deathwing_unstable_corruption_SpellScript::HandleCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_unstable_corruption_SpellScript();
         }
@@ -3518,7 +3518,7 @@ class spell_madness_of_deathwing_carrying_winds_script : public SpellScriptLoade
                 GetHitUnit()->CastSpell(GetHitUnit(), SPELL_CARRYING_WINDS_SPEED_10, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_madness_of_deathwing_carrying_winds_script_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -3530,7 +3530,7 @@ class spell_madness_of_deathwing_carrying_winds_script : public SpellScriptLoade
             uint8 _pos;
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_madness_of_deathwing_carrying_winds_script_SpellScript(_pos);
         }
@@ -3561,13 +3561,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_madness_of_deathwing_burning_blood_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_madness_of_deathwing_burning_blood_SpellScript();
     }
@@ -3597,13 +3597,13 @@ public:
             return false;
         }
 
-        void Register()
+        void Register() override
         {
             DoCheckProc += AuraCheckProcFn(spell_madness_of_deathwing_degenerative_bite_AuraScript::OnCheckProc);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_madness_of_deathwing_degenerative_bite_AuraScript();
     }
@@ -3629,13 +3629,13 @@ public:
                 SetHitDamage(GetHitDamage() * 14.3f);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_madness_of_deathwing_elementium_meteor_aura_dps_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_madness_of_deathwing_elementium_meteor_aura_dps_SpellScript();
     }
@@ -3652,20 +3652,20 @@ public:
         PrepareAuraScript(spell_madness_of_deathwing_spellweaving_AuraScript);
 
 
-        void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
             PreventDefaultAction();
             if (Unit* target = GetTarget())
                 target->CastSpell(target, SPELL_SPELLWEAVING_DPS, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectProc += AuraEffectProcFn(spell_madness_of_deathwing_spellweaving_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_madness_of_deathwing_spellweaving_AuraScript();
     }
@@ -3695,13 +3695,13 @@ public:
             return false;
         }
 
-        void Register()
+        void Register() override
         {
             DoCheckProc += AuraCheckProcFn(spell_madness_of_deathwing_tetanus_AuraScript::OnCheckProc);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_madness_of_deathwing_tetanus_AuraScript();
     }
@@ -3746,13 +3746,13 @@ public:
 
         }
 
-        void Register()
+        void Register() override
         {
             OnHit += SpellHitFn(spell_madness_of_deathwing_corrupted_blood_dps_SpellScript::HandleDamage);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_madness_of_deathwing_corrupted_blood_dps_SpellScript();
     }
@@ -3777,13 +3777,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_madness_of_deathwing_fire_dragon_soul_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_madness_of_deathwing_fire_dragon_soul_AuraScript();
     }
@@ -3795,7 +3795,7 @@ class spell_madness_of_deathwing_corrupting_parasite_dmg : public SpellScriptLoa
 public:
     spell_madness_of_deathwing_corrupting_parasite_dmg() : SpellScriptLoader("spell_madness_of_deathwing_corrupting_parasite_dmg") { }
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_madness_of_deathwing_corrupting_parasite_dmg_AuraScript();
     }
@@ -3810,7 +3810,7 @@ public:
             aurEff->SetAmount(dmg / (11 - (aurEff->GetTickNumber() / 2)));
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_madness_of_deathwing_corrupting_parasite_dmg_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
         }
@@ -3822,7 +3822,7 @@ class achievement_chromatic_champion : public AchievementCriteriaScript
 public:
     achievement_chromatic_champion() : AchievementCriteriaScript("achievement_chromatic_champion") { }
 
-    bool OnCheck(Player* source, Unit* target)
+    bool OnCheck(Player* /*source*/, Unit* /*target*/) override
     {
         return false;
     }
