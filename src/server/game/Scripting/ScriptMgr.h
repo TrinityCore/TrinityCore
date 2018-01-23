@@ -64,6 +64,7 @@ class WorldSocket;
 class WorldObject;
 class WorldSession;
 class RestResponse;
+class ZoneScript;
 
 struct AreaTriggerEntry;
 struct AuctionEntry;
@@ -86,7 +87,7 @@ enum RemoveMethod : uint8;
 enum ShutdownExitCode : uint32;
 enum ShutdownMask : uint32;
 enum SpellEffIndex : uint8;
-enum SpellSchoolMask;
+enum SpellSchoolMask : uint16;
 enum WeatherState : uint32;
 enum XPColorChar : uint8;
 
@@ -1285,6 +1286,9 @@ class TC_GAME_API ScriptMgr
 
         void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus);
         void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount);
+
+    public: /* ZoneScript */
+        ZoneScript* GetZoneScript(uint32 scriptId);
 
     private:
         uint32 _scriptCount;

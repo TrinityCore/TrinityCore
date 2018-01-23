@@ -214,10 +214,8 @@ class npc_kairoz : public CreatureScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_timeless_isle()
 {
     new npc_prince_anduin();
     new npc_kairoz();
 }
-#endif

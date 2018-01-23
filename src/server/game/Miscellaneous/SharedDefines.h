@@ -319,7 +319,7 @@ enum SpellSchools : uint16
 
 #define MAX_SPELL_SCHOOL                  7
 
-enum SpellSchoolMask
+enum SpellSchoolMask : uint16
 {
     SPELL_SCHOOL_MASK_NONE    = 0x00,                       // not exist
     SPELL_SCHOOL_MASK_NORMAL  = (1 << SPELL_SCHOOL_NORMAL), // PHYSICAL (Armor)
@@ -6248,6 +6248,7 @@ enum Maps : uint32
     MAP_WOD_BLASTED_LANDS_PHASE = 1190,
     MAP_BROKEN_ISLANDS          = 1220,
     MAP_WOD_TANAAN_JUNGLE_INTRO = 1265,
+    MAP_DALARAN_UNDERBELLY      = 1502,
 };
 
 #endif

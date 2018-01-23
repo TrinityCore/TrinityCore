@@ -44,6 +44,7 @@ class InstanceScript;
 class Map;
 class Player;
 class Scenario;
+class SceneObject;
 class TempSummon;
 class Transport;
 class Unit;
@@ -285,8 +286,12 @@ class TC_GAME_API Object
         AreaTrigger const* ToAreaTrigger() const { if (IsAreaTrigger()) return reinterpret_cast<AreaTrigger const*>(this); else return nullptr; }
 
         inline bool IsConversation() const { return GetTypeId() == TYPEID_CONVERSATION; }
-        Conversation* ToConversation() { if (GetTypeId() == TYPEID_CONVERSATION) return reinterpret_cast<Conversation*>(this); else return nullptr; }
-        Conversation const* ToConversation() const { if (GetTypeId() == TYPEID_CONVERSATION) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
+        Conversation* ToConversation() { if (IsConversation()) return reinterpret_cast<Conversation*>(this); else return nullptr; }
+        Conversation const* ToConversation() const { if (IsConversation()) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
+
+        inline bool IsSceneObject() const { return GetTypeId() == TYPEID_SCENEOBJECT; }
+        SceneObject* ToSceneObject() { if (IsSceneObject()) return reinterpret_cast<SceneObject*>(this); else return nullptr; }
+        SceneObject const* ToSceneObject() const { if (IsSceneObject()) return reinterpret_cast<SceneObject const*>(this); else return nullptr; }
 
     protected:
         Object();

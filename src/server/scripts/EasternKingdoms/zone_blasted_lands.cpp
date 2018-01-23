@@ -85,38 +85,23 @@ enum eSpells
     SPELL_TIME_TRAVELLING = 176111
 };
 
-enum eZones
+// Zone 4
+class zone_blasted_lands : public ZoneScript
 {
-    BLASTER_LANDS_ZONE_ID           = 4
-};
+public:
+    zone_blasted_lands() : ZoneScript("zone_blasted_lands") { }
 
-// Dark Portal phasing
-class PlayerScript_DarkPortal_Phasing: public PlayerScript
-{
-    public:
-        PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing") { }
+    void OnPlayerEnter(Player* player) override
+    {
+        if (player->getLevel() >= 90 && !player->HasAura(SPELL_TIME_TRAVELLING))
+            player->SeamlessTeleportToMap(MAP_WOD_BLASTED_LANDS_PHASE);
+    }
 
-        void OnUpdateZone(Player* player, uint32 newZoneID, uint32 oldZoneID, uint32 /*newAreaID*/) override
-        {
-            if (player->IsInFlight())
-                return;
-
-            if (player->GetMapId() == MAP_EASTERN_KINGDOMS || player->GetMapId() == MAP_WOD_BLASTED_LANDS_PHASE)
-            {
-                if (newZoneID != oldZoneID && (newZoneID == BLASTER_LANDS_ZONE_ID || oldZoneID == BLASTER_LANDS_ZONE_ID))
-                {
-                    if (player->getLevel() >= 90 && newZoneID == BLASTER_LANDS_ZONE_ID && player->GetMapId() == MAP_EASTERN_KINGDOMS && !player->HasAura(SPELL_TIME_TRAVELLING))
-                    {
-                        player->SeamlessTeleportToMap(MAP_WOD_BLASTED_LANDS_PHASE);
-                    }
-
-                    if (newZoneID != BLASTER_LANDS_ZONE_ID && player->GetMapId() == MAP_WOD_BLASTED_LANDS_PHASE)
-                    {
-                        player->SeamlessTeleportToMap(MAP_EASTERN_KINGDOMS);
-                    }
-                }
-            }
-        }
+    void OnPlayerExit(Player* player) override
+    {
+        if (player->GetMapId() == MAP_WOD_BLASTED_LANDS_PHASE)
+            player->SeamlessTeleportToMap(MAP_EASTERN_KINGDOMS);
+    }
 };
 
 // PNJ Permettant un passage entre nouveau/anciennes terres foudroyées
@@ -283,6 +268,5 @@ void AddSC_blasted_lands()
 
     new spell_razelikh_teleport_group();
 
-    /// Player script
-    new PlayerScript_DarkPortal_Phasing();
+    new zone_blasted_lands();
 }

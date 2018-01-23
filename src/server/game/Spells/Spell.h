@@ -154,6 +154,7 @@ struct TC_GAME_API SpellDestination
     SpellDestination(WorldObject const& wObj);
 
     void Relocate(Position const& pos);
+    void Relocate(WorldLocation const &loc);
     void RelocateOffset(Position const& offset);
 
     WorldLocation _position;

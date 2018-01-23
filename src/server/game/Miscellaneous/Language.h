@@ -1136,23 +1136,6 @@ enum TrinityStrings
     LANG_INVALID_POWER_NAME                       = 11021,
 
     LANG_LIST_QUESTS                              = 11022,
-    LANG_LIST_QUESTS_DETAIL                       = 11023,
-
-    //Twin Peaks
-    LANG_BG_TP_START_TWO_MINUTES                  = 12000,
-    LANG_BG_TP_START_ONE_MINUTE                   = 12001,
-    LANG_BG_TP_START_HALF_MINUTE                  = 12002,
-    LANG_BG_TP_HAS_BEGUN                          = 12003,
-    LANG_BG_TP_CAPTURED_HF                        = 12004,
-    LANG_BG_TP_CAPTURED_AF                        = 12005,
-    LANG_BG_TP_DROPPED_HF                         = 12006,
-    LANG_BG_TP_DROPPED_AF                         = 12007,
-    LANG_BG_TP_RETURNED_AF                        = 12008,
-    LANG_BG_TP_RETURNED_HF                        = 12009,
-    LANG_BG_TP_PICKEDUP_HF                        = 12010,
-    LANG_BG_TP_PICKEDUP_AF                        = 12011,
-    LANG_BG_TP_F_PLACED                           = 12012,
-    LANG_BG_TP_ALLIANCE_FLAG_RESPAWNED            = 12013,
-    LANG_BG_TP_HORDE_FLAG_RESPAWNED               = 12014
+    LANG_LIST_QUESTS_DETAIL                       = 11023
 };
 #endif

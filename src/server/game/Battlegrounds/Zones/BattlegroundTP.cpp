@@ -17,17 +17,14 @@
 
 #include "BattlegroundTP.h"
 #include "BattlegroundMgr.h"
-#include "BattlegroundPackets.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
-#include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellInfo.h"
-#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
 enum BG_TP_Rewards
@@ -49,10 +46,10 @@ BattlegroundTP::BattlegroundTP()
     BgObjects.resize(BG_TP_OBJECT_MAX);
     BgCreatures.resize(BG_CREATURES_MAX_TP);
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_TP_START_TWO_MINUTES;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_TP_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_TP_START_HALF_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_TP_HAS_BEGUN;
+    StartMessageIds[BG_STARTING_EVENT_SECOND] = BG_TP_TEXT_START_ONE_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_THIRD]  = BG_TP_TEXT_START_HALF_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_FOURTH] = BG_TP_TEXT_BATTLE_HAS_BEGUN;
+
     _flagSpellForceTimer = 0;
     _bothFlagsKept = false;
     _flagDebuffState = 0;
@@ -70,7 +67,7 @@ BattlegroundTP::BattlegroundTP()
     m_ReputationCapture = 0;
     m_HonorWinKills = 0;
     m_HonorEndKills = 0;
-    _minutesElapsed = 0;
+    m_EndTimestamp  = 0;
 }
 
 
@@ -81,7 +78,7 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (GetElapsedTime() >= 27*MINUTE*IN_MILLISECONDS)
+        if (GetElapsedTime() >= 25*MINUTE*IN_MILLISECONDS)
         {
             if (GetTeamScore(TEAM_ALLIANCE) == 0)
             {
@@ -98,12 +95,6 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
                 EndBattleground(HORDE);
             else
                 EndBattleground(ALLIANCE);
-        }
-        // first update needed after 1 minute of game already in progress
-        else if (GetElapsedTime() > uint32(_minutesElapsed * MINUTE * IN_MILLISECONDS) +  3 * MINUTE * IN_MILLISECONDS)
-        {
-            ++_minutesElapsed;
-            UpdateWorldState(BG_TP_STATE_TIMER, 25 - _minutesElapsed);
         }
 
         if (_flagState[TEAM_ALLIANCE] == BG_TP_FLAG_STATE_WAIT_RESPAWN)
@@ -229,10 +220,6 @@ void BattlegroundTP::StartingEventCloseDoors()
     }
     for (uint32 i = BG_TP_OBJECT_A_FLAG; i <= BG_TP_OBJECT_BERSERKBUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
-
-
-    UpdateWorldState(BG_TP_STATE_TIMER_ACTIVE, 1);
-    UpdateWorldState(BG_TP_STATE_TIMER, 25);
 }
 
 void BattlegroundTP::StartingEventOpenDoors()
@@ -251,6 +238,12 @@ void BattlegroundTP::StartingEventOpenDoors()
 
     // players joining later are not eligible
     //StartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, TP_EVENT_START_BATTLE);
+
+    // Send start timer
+    m_EndTimestamp = time(nullptr) + 1500;
+
+    UpdateWorldState(BG_TP_STATE_TIMER_ACTIVE, 1);
+    UpdateWorldState(BG_TP_STATE_TIMER, m_EndTimestamp);
 }
 
 
@@ -279,7 +272,7 @@ void BattlegroundTP::RespawnFlag(uint32 Team, bool captured)
         //when map_update will be allowed for battlegrounds this code will be useless
         SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_IMMEDIATELY);
         SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(LANG_BG_TP_F_PLACED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendBroadcastText(BG_TP_TEXT_FLAGS_PLACED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
         PlaySoundToAll(BG_TP_SOUND_FLAGS_RESPAWNED);        // flag respawned sound...
     }
     _bothFlagsKept = false;
@@ -293,16 +286,10 @@ void BattlegroundTP::RespawnFlagAfterDrop(uint32 team)
 
     RespawnFlag(team, false);
     if (team == ALLIANCE)
-    {
         SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(LANG_BG_TP_ALLIANCE_FLAG_RESPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-    }
-    else
-    {
         SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(LANG_BG_TP_HORDE_FLAG_RESPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-    }
 
+    SendBroadcastText(BG_TP_TEXT_FLAGS_PLACED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
     PlaySoundToAll(BG_TP_SOUND_FLAGS_RESPAWNED);
 
 
@@ -367,9 +354,9 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player* player)
     SpawnBGObject(BG_TP_OBJECT_A_FLAG, BG_TP_FLAG_RESPAWN_TIME);
 
     if (player->GetTeam() == ALLIANCE)
-        SendMessageToAll(LANG_BG_TP_CAPTURED_HF, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+        SendBroadcastText(BG_TP_TEXT_CAPTURED_HORDE_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
     else
-        SendMessageToAll(LANG_BG_TP_CAPTURED_AF, CHAT_MSG_BG_SYSTEM_HORDE, player);
+        SendBroadcastText(BG_TP_TEXT_CAPTURED_ALLIANCE_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, player);
 
     UpdateFlagState(player->GetTeam(), 1);                  // flag state none
     UpdateTeamScore(player->GetTeamId());
@@ -478,12 +465,12 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player* player)
 
         if (player->GetTeam() == ALLIANCE)
         {
-            SendMessageToAll(LANG_BG_TP_DROPPED_HF, CHAT_MSG_BG_SYSTEM_HORDE, player);
+            SendBroadcastText(BG_TP_TEXT_HORDE_FLAG_DROPPED, CHAT_MSG_BG_SYSTEM_HORDE, player);
             UpdateWorldState(BG_TP_FLAG_UNK_HORDE, uint32(-1));
         }
         else
         {
-            SendMessageToAll(LANG_BG_TP_DROPPED_AF, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+            SendBroadcastText(BG_TP_TEXT_ALLIANCE_FLAG_DROPPED, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
             UpdateWorldState(BG_TP_FLAG_UNK_ALLIANCE, uint32(-1));
         }
 
@@ -496,15 +483,11 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    int32 message_id = 0;
-    ChatMsg type = CHAT_MSG_BG_SYSTEM_NEUTRAL;
-
     //alliance flag picked up from base
     if (player->GetTeam() == HORDE && GetFlagState(ALLIANCE) == BG_TP_FLAG_STATE_ON_BASE
         && BgObjects[BG_TP_OBJECT_A_FLAG] == target_obj->GetGUID())
     {
-        message_id = LANG_BG_TP_PICKEDUP_AF;
-        type = CHAT_MSG_BG_SYSTEM_HORDE;
+        SendBroadcastText(BG_TP_TEXT_ALLIANCE_FLAG_PICKED_UP, CHAT_MSG_BG_SYSTEM_HORDE, player);
         PlaySoundToAll(BG_TP_SOUND_ALLIANCE_FLAG_PICKED_UP);
         SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_ONE_DAY);
         SetAllianceFlagPicker(player->GetGUID());
@@ -522,8 +505,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
     if (player->GetTeam() == ALLIANCE && GetFlagState(HORDE) == BG_TP_FLAG_STATE_ON_BASE
         && BgObjects[BG_TP_OBJECT_H_FLAG] == target_obj->GetGUID())
     {
-        message_id = LANG_BG_TP_PICKEDUP_HF;
-        type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
+        SendBroadcastText(BG_TP_TEXT_HORDE_FLAG_PICKED_UP, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
         PlaySoundToAll(BG_TP_SOUND_HORDE_FLAG_PICKED_UP);
         SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_ONE_DAY);
         SetHordeFlagPicker(player->GetGUID());
@@ -543,8 +525,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
     {
         if (player->GetTeam() == ALLIANCE)
         {
-            message_id = LANG_BG_TP_RETURNED_AF;
-            type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
+            SendBroadcastText(BG_TP_TEXT_ALLIANCE_FLAG_RETURNED, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
             UpdateFlagState(HORDE, BG_TP_FLAG_STATE_WAIT_RESPAWN);
             RespawnFlag(ALLIANCE, false);
             SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
@@ -554,8 +535,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
         }
         else
         {
-            message_id = LANG_BG_TP_PICKEDUP_AF;
-            type = CHAT_MSG_BG_SYSTEM_HORDE;
+            SendBroadcastText(BG_TP_TEXT_ALLIANCE_FLAG_PICKED_UP, CHAT_MSG_BG_SYSTEM_HORDE, player);
             PlaySoundToAll(BG_TP_SOUND_ALLIANCE_FLAG_PICKED_UP);
             SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_ONE_DAY);
             SetAllianceFlagPicker(player->GetGUID());
@@ -578,8 +558,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
     {
         if (player->GetTeam() == HORDE)
         {
-            message_id = LANG_BG_TP_RETURNED_HF;
-            type = CHAT_MSG_BG_SYSTEM_HORDE;
+            SendBroadcastText(BG_TP_TEXT_HORDE_FLAG_RETURNED, CHAT_MSG_BG_SYSTEM_HORDE, player);
             UpdateFlagState(ALLIANCE, BG_TP_FLAG_STATE_WAIT_RESPAWN);
             RespawnFlag(HORDE, false);
             SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_IMMEDIATELY);
@@ -589,8 +568,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
         }
         else
         {
-            message_id = LANG_BG_TP_PICKEDUP_HF;
-            type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
+            SendBroadcastText(BG_TP_TEXT_HORDE_FLAG_PICKED_UP, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
             PlaySoundToAll(BG_TP_SOUND_HORDE_FLAG_PICKED_UP);
             SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_ONE_DAY);
             SetHordeFlagPicker(player->GetGUID());
@@ -607,10 +585,6 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
         //target_obj->Delete();
     }
 
-    if (!message_id)
-        return;
-
-    SendMessageToAll(message_id, type, player);
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
@@ -785,7 +759,6 @@ void BattlegroundTP::Reset()
         m_HonorWinKills = 1;
         m_HonorEndKills = 2;
     }
-    _minutesElapsed                  = 0;
     _lastFlagCaptureTeam             = 0;
     _bothFlagsKept                   = false;
     _flagDebuffState                 = 0;
@@ -893,7 +866,7 @@ void BattlegroundTP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         packet.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER_ACTIVE), 1);
-        packet.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER), int32(25 - _minutesElapsed));
+        packet.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER), int32(m_EndTimestamp));
     }
     else
         packet.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER_ACTIVE), 0);
