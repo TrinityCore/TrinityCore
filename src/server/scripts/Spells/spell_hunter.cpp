@@ -1945,9 +1945,9 @@ public:
 
             caster->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
 
+            ObjectGuid targetGuid = target->GetGUID();
             for (uint8 timer = 0; timer <= 800; timer += 200)
             {
-                ObjectGuid targetGuid = target->GetGUID();
                 caster->GetScheduler().Schedule(Milliseconds(timer), [targetGuid](TaskContext context)
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*context.GetContextUnit(), targetGuid))

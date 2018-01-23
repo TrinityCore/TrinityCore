@@ -216,7 +216,7 @@ class boss_warlord_zonozz: public CreatureScript
                 BossAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (instance->GetBossState(DATA_MORCHOK) != DONE)
                 {

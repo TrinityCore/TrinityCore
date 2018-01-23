@@ -24,8 +24,8 @@
 #include "dragon_soul.h"
 #include "MoveSplineInit.h"
 #include "boss_warmaster_blackhorn.h"
-#include "G3D\Vector3.h"
-#include "SpellAuras.h""
+#include <G3D/Vector3.h>
+#include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "ScriptedGossip.h"
 

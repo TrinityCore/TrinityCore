@@ -1034,8 +1034,8 @@ class npc_dragon_soul_claw_of_gorath : public CreatureScript
 
         void JustDied(Unit* /*pKiller*/) override
         {
-            if (playerVehicle && !launch)
-            if (playerVehicle = me->GetVehicleKit()->GetPassenger(0))
+            playerVehicle = me->GetVehicleKit()->GetPassenger(0);
+            if (playerVehicle)
                 playerVehicle->ExitVehicle();
         }
 
@@ -1057,40 +1057,41 @@ class npc_dragon_soul_claw_of_gorath : public CreatureScript
             {
                 switch (eventId)
                 {
-                case EVENT_OOZE_SPIT:
-                    if (!me->IsWithinMeleeRange(me->GetVictim()))
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(target, SPELL_OOZE_SPIT);
-                    events.ScheduleEvent(EVENT_OOZE_SPIT, 4000);
-                    break;
-                case EVENT_TENTACLE_TOSS_VEHICLE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                    {
-                        target->EnterVehicle(me, 0);
-                        //target->ClearUnitState(UNIT_STATE_ONVEHICLE);
-                        launch = false;
-                        damage = false;
-                        playerVehicle = target;
-                    }
-                    break;
-                case EVENT_TENTACLE_TOSS:
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    {
-                        if (pTarget != playerVehicle)
-                            me->CastSpell(pTarget, SPELL_TENTACLE_TOSS_SUMMON, true);
-                        else
-                            me->SummonCreature(NPC_TENTACLE_TOSS_STALKER, me->GetPositionX() + urand(10.0f, 40.0f), me->GetPositionY() + urand(10.0f, 40.0f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10000);
-                    }
-                    events.ScheduleEvent(EVENT_TENTACLE_TOSS_LAUNCH, 1600);
-                    break;
-                case EVENT_TENTACLE_TOSS_LAUNCH:
-                        if (playerVehicle = me->GetVehicleKit()->GetPassenger(0))
+                    case EVENT_OOZE_SPIT:
+                        if (!me->IsWithinMeleeRange(me->GetVictim()))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_OOZE_SPIT);
+                        events.ScheduleEvent(EVENT_OOZE_SPIT, 4000);
+                        break;
+                    case EVENT_TENTACLE_TOSS_VEHICLE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        {
+                            target->EnterVehicle(me, 0);
+                            //target->ClearUnitState(UNIT_STATE_ONVEHICLE);
+                            launch = false;
+                            damage = false;
+                            playerVehicle = target;
+                        }
+                        break;
+                    case EVENT_TENTACLE_TOSS:
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        {
+                            if (pTarget != playerVehicle)
+                                me->CastSpell(pTarget, SPELL_TENTACLE_TOSS_SUMMON, true);
+                            else
+                                me->SummonCreature(NPC_TENTACLE_TOSS_STALKER, me->GetPositionX() + urand(10.0f, 40.0f), me->GetPositionY() + urand(10.0f, 40.0f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10000);
+                        }
+                        events.ScheduleEvent(EVENT_TENTACLE_TOSS_LAUNCH, 1600);
+                        break;
+                    case EVENT_TENTACLE_TOSS_LAUNCH:
+                        playerVehicle = me->GetVehicleKit()->GetPassenger(0);
+                        if (playerVehicle)
                         {
                             launch = true;
                             if (Creature* tentacle = me->FindNearestCreature(NPC_TENTACLE_TOSS_STALKER, 100.0f))
                             {
                                 playerVehicle->ExitVehicle();
-                                playerVehicle->GetMotionMaster()->MoveJump(tentacle->GetPositionX(), tentacle->GetPositionY(), tentacle->GetPositionZ(), 50.0f, 10.0f);
+                                playerVehicle->GetMotionMaster()->MoveJump(tentacle->GetPosition(), 50.0f, 10.0f);
                             }
                         }
                     break;

@@ -157,7 +157,7 @@ class boss_ultraxion: public CreatureScript
     public:
         boss_ultraxion() : CreatureScript("boss_ultraxion") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new boss_ultraxionAI(pCreature);
         }
@@ -180,7 +180,7 @@ class boss_ultraxion: public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(DSScriptName))
                     me->IsAIEnabled = false;
@@ -188,7 +188,7 @@ class boss_ultraxion: public CreatureScript
                     Reset();
             }
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
                 me->SetVisible(false);
@@ -239,7 +239,7 @@ class boss_ultraxion: public CreatureScript
                 _Reset();
             }
 
-            void AttackStart(Unit* victim)
+            void AttackStart(Unit* victim) override
             {
                 if (!victim)
                     return;
@@ -264,7 +264,7 @@ class boss_ultraxion: public CreatureScript
                 return true;
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 switch (action)
                 {
@@ -310,7 +310,7 @@ class boss_ultraxion: public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
                 _JustDied();
 
@@ -387,13 +387,13 @@ class boss_ultraxion: public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 if (victim && victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim() && !phase)
                     return;
@@ -672,7 +672,7 @@ class spell_ultraxion_twilight_instability : public SpellScriptLoader
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_TWILIGHT_INSTABILITY_DMG, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ultraxion_twilight_instability_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterHit += SpellHitFn(spell_ultraxion_twilight_instability_SpellScript::HandleScript);
@@ -701,7 +701,7 @@ class spell_ultraxion_twilight_instability : public SpellScriptLoader
             };
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ultraxion_twilight_instability_SpellScript();
         }
@@ -725,7 +725,7 @@ public:
         }
 
 
-        void Register()
+        void Register() override
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ultraxion_twilight_burst_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ultraxion_twilight_burst_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
@@ -754,7 +754,7 @@ public:
         };
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_ultraxion_twilight_burst_SpellScript();
     }
@@ -813,7 +813,7 @@ class spell_ultraxion_hour_of_twilight_dmg : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ultraxion_hour_of_twilight_dmg_SpellScript::FilterTargetsDamage, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ultraxion_hour_of_twilight_dmg_SpellScript::FilterTargetsAchievement, EFFECT_2, TARGET_UNIT_SRC_AREA_ENTRY);
@@ -843,7 +843,7 @@ class spell_ultraxion_hour_of_twilight_dmg : public SpellScriptLoader
             };
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ultraxion_hour_of_twilight_dmg_SpellScript();
         }
@@ -870,7 +870,7 @@ class spell_ultraxion_fading_light : public SpellScriptLoader
                 aura->SetMaxDuration(duration);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -884,7 +884,7 @@ class spell_ultraxion_fading_light : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_ultraxion_fading_light_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_ultraxion_fading_light_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
@@ -892,7 +892,7 @@ class spell_ultraxion_fading_light : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ultraxion_fading_light_AuraScript();
         }
@@ -925,7 +925,7 @@ class spell_ultraxion_fading_light : public SpellScriptLoader
                     Trinity::Containers::RandomResize(targets, min_players);
             }
 
-            void Register()
+            void Register() override
             {
                 if (m_scriptSpellId == SPELL_FADING_LIGHT_AOE_1)
                     OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ultraxion_fading_light_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
@@ -967,7 +967,7 @@ class spell_ultraxion_fading_light : public SpellScriptLoader
             };
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ultraxion_fading_light_SpellScript();
         }
@@ -990,7 +990,7 @@ class spell_ultraxion_last_defender_of_azeroth : public SpellScriptLoader
                 targets.remove_if(TankCheck());
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ultraxion_last_defender_of_azeroth_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ultraxion_last_defender_of_azeroth_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
@@ -1025,7 +1025,7 @@ class spell_ultraxion_last_defender_of_azeroth : public SpellScriptLoader
                     uint32 _spellId;
             };
         };
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ultraxion_last_defender_of_azeroth_SpellScript();
         }
@@ -1068,13 +1068,13 @@ class spell_ultraxion_last_defender_of_azeroth_dummy : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_ultraxion_last_defender_of_azeroth_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ultraxion_last_defender_of_azeroth_dummy_SpellScript();
         }
@@ -1089,7 +1089,7 @@ public:
     {
         PrepareAuraScript(spell_ultraxion_cosmetic_lightning_AuraScript);
 
-        void OnPeriodic(AuraEffect const* aurEff)
+        void OnPeriodic(AuraEffect const* /*aurEff*/)
         {
             if (Unit* caster = GetCaster())
             {
@@ -1099,13 +1099,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_ultraxion_cosmetic_lightning_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_ultraxion_cosmetic_lightning_AuraScript();
     }
@@ -1146,13 +1146,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ultraxion_cosmetic_intro_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_ultraxion_cosmetic_intro_SpellScript();
     }
@@ -1167,7 +1167,7 @@ class spell_ultraxion_time_loop : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ultraxion_time_loop_AuraScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -1195,14 +1195,14 @@ class spell_ultraxion_time_loop : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                  DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_ultraxion_time_loop_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
                  OnEffectAbsorb += AuraEffectAbsorbFn(spell_ultraxion_time_loop_AuraScript::Absorb, EFFECT_1);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ultraxion_time_loop_AuraScript();
         }
@@ -1218,9 +1218,8 @@ public:
     {
         PrepareAuraScript(spell_ultraxion_escense_of_dreams_AuraScript);
 
-        void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
-
             if (!GetCaster())
                 return;
 
@@ -1260,13 +1259,13 @@ public:
 
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectProc += AuraEffectProcFn(spell_ultraxion_escense_of_dreams_AuraScript::OnProc, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_ultraxion_escense_of_dreams_AuraScript();
     }
@@ -1277,7 +1276,7 @@ class go_cristal_of_pure_energy : public GameObjectScript
 public:
     go_cristal_of_pure_energy() : GameObjectScript("go_cristal_of_pure_energy") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
         switch (go->GetEntry())
         {
@@ -1324,7 +1323,7 @@ class achievement_minutes_to_midnight : public AchievementCriteriaScript
     public:
         achievement_minutes_to_midnight() : AchievementCriteriaScript("achievement_minutes_to_midnight") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target)
                 return false;
