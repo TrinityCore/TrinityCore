@@ -536,15 +536,21 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
 
     Guild::SendCommandResult(this, GUILD_COMMAND_CREATE_GUILD, ERR_GUILD_COMMAND_SUCCESS, name);
 
-    // Add members from signatures
-    for (uint8 i = 0; i < signatures; ++i)
     {
-        Field* fields = result->Fetch();
-        guild->AddMember(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()));
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        // Checking the return value just to be double safe
-        if (!result->NextRow())
-            break;
+        // Add members from signatures
+        for (uint8 i = 0; i < signatures; ++i)
+        {
+            Field* fields = result->Fetch();
+            guild->AddMember(trans, ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()));
+
+            // Checking the return value just to be double safe
+            if (!result->NextRow())
+                break;
+        }
+
+        CharacterDatabase.CommitTransaction(trans);
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
