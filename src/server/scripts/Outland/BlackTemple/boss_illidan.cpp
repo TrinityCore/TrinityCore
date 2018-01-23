@@ -1379,7 +1379,7 @@ struct npc_parasitic_shadowfiend : public ScriptedAI
         _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
         });
     }
 
@@ -1394,7 +1394,7 @@ struct npc_parasitic_shadowfiend : public ScriptedAI
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
             });
     }
 
@@ -1497,7 +1497,7 @@ struct npc_flame_of_azzinoth : public ScriptedAI
             {
                 case EVENT_ENGAGE:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     _events.ScheduleEvent(EVENT_FLAME_CHARGE, Seconds(5));
                     break;
                 case EVENT_FLAME_CHARGE:
