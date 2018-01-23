@@ -248,6 +248,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Add aura on all players in instance
         void DoAddAuraOnPlayers(uint32 spell);
 
+        // Start movie for all players in instance
+        void DoStartMovie(uint32 movieId);
+
         // Return wether server allow two side groups or not
         bool ServerAllowsTwoSideGroups();
 

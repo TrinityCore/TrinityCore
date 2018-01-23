@@ -726,6 +726,22 @@ void InstanceScript::DoCompleteAchievement(uint32 achievement)
                 player->CompletedAchievement(achievementEntry);
 }
 
+void InstanceScript::DoStartMovie(uint32 movieId)
+{
+    MovieEntry const* movieEntry = sMovieStore.LookupEntry(movieId);
+    if (!movieEntry)
+    {
+        TC_LOG_ERROR("scripts", "DoStartMovie called for not existing movieId %u", movieId);
+        return;
+    }
+
+    Map::PlayerList const& playerList = instance->GetPlayers();
+    if (!playerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->SendMovieStart(movieId);
+}
+
 // Update Achievement Criteria for all players in instance
 void InstanceScript::DoUpdateAchievementCriteria(CriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
 {
