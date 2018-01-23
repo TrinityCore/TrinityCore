@@ -1649,7 +1649,6 @@ class TC_GAME_API Unit : public WorldObject
         void JumpTo(WorldObject* obj, float speedZ, bool withOrientation = false);
 
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
-        void MoveAdvanceTo(Unit* target);
 
         void SendSetPlayHoverAnim(bool enable);
         void SendMovementSetSplineAnim(Movement::AnimType anim);

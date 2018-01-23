@@ -182,7 +182,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
 m_groupLootTimer(0), lootingGroupLowGUID(0), m_PlayerDamageReq(0),
 m_lootRecipient(), m_lootRecipientGroup(0), _skinner(), _pickpocketLootRestore(0), m_corpseRemoveTime(0), m_respawnTime(0),
-m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_advanceMovementTime(3000), m_reactState(REACT_AGGRESSIVE),
+m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0), m_formation(nullptr), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f)
@@ -619,8 +619,7 @@ void Creature::Update(uint32 diff)
                 LastCharmerGUID.Clear();
             }
 
-            // periodic check to see if the creature has passed an evade boundary...
-            // or if the creature needs to reposition itself
+            // periodic check to see if the creature has passed an evade boundary
             if (IsAIEnabled && !IsInEvadeMode() && IsInCombat())
             {
                 if (diff >= m_boundaryCheckTime)
@@ -629,15 +628,6 @@ void Creature::Update(uint32 diff)
                     m_boundaryCheckTime = 2500;
                 } else
                     m_boundaryCheckTime -= diff;
-
-                if (diff >= m_advanceMovementTime)
-                {
-                    // AI()->CheckRepositionRequirements();
-                    m_advanceMovementTime = 3000;
-                }
-                else
-                    m_advanceMovementTime -= diff;
-
             }
 
             // if periodic combat pulse is enabled and we are both in combat and in a dungeon, do this now
