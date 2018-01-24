@@ -250,7 +250,7 @@ class boss_warmaster_blackhorn: public CreatureScript
                 orientation = 0;
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 uiWave = 0;
                 drakeDied = 0;
