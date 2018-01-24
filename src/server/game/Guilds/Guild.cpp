@@ -2187,8 +2187,8 @@ bool Guild::Validate()
     Member* pLeader = GetMember(m_leaderGuid);
     if (!pLeader)
     {
-        SQLTransaction trans(nullptr);
-        DeleteMember(trans, m_leaderGuid);
+        SQLTransaction dummy(nullptr);
+        DeleteMember(dummy, m_leaderGuid);
         // If no more members left, disband guild
         if (m_members.empty())
         {

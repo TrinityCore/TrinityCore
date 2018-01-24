@@ -416,33 +416,29 @@ public:
         for (auto const& itemTemplatePair : its)
         {
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
-            if (localeIndex >= 0)
+            if (ItemLocale const* il = sObjectMgr->GetItemLocale(itemTemplatePair.first))
             {
-                uint8 ulocaleIndex = uint8(localeIndex);
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(itemTemplatePair.first))
+                if (il->Name.size() > localeIndex && !il->Name[localeIndex].empty())
                 {
-                    if (il->Name.size() > ulocaleIndex && !il->Name[ulocaleIndex].empty())
+                    std::string const& name = il->Name[localeIndex];
+
+                    if (Utf8FitTo(name, wNamePart))
                     {
-                        std::string const& name = il->Name[ulocaleIndex];
-
-                        if (Utf8FitTo(name, wNamePart))
+                        if (maxResults && count++ == maxResults)
                         {
-                            if (maxResults && count++ == maxResults)
-                            {
-                                handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                                return true;
-                            }
-
-                            if (handler->GetSession())
-                                handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itemTemplatePair.first, itemTemplatePair.first, name.c_str());
-                            else
-                                handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itemTemplatePair.first, name.c_str());
-
-                            if (!found)
-                                found = true;
-
-                            continue;
+                            handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
                         }
+
+                        if (handler->GetSession())
+                            handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itemTemplatePair.first, itemTemplatePair.first, name.c_str());
+                        else
+                            handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itemTemplatePair.first, name.c_str());
+
+                        if (!found)
+                            found = true;
+
+                        continue;
                     }
                 }
             }
@@ -647,53 +643,49 @@ public:
         for (auto const& questTemplatePair : questTemplates)
         {
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
-            if (localeIndex >= 0)
+            if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(questTemplatePair.first))
             {
-                uint8 ulocaleIndex = uint8(localeIndex);
-                if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(questTemplatePair.first))
+                if (questLocale->Title.size() > localeIndex && !questLocale->Title[localeIndex].empty())
                 {
-                    if (questLocale->Title.size() > ulocaleIndex && !questLocale->Title[ulocaleIndex].empty())
+                    std::string const& title = questLocale->Title[localeIndex];
+
+                    if (Utf8FitTo(title, wNamePart))
                     {
-                        std::string const& title = questLocale->Title[ulocaleIndex];
-
-                        if (Utf8FitTo(title, wNamePart))
+                        if (maxResults && count++ == maxResults)
                         {
-                            if (maxResults && count++ == maxResults)
-                            {
-                                handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                                return true;
-                            }
-
-                            char const* statusStr = "";
-
-                            if (target)
-                            {
-                                switch (target->GetQuestStatus(questTemplatePair.first))
-                                {
-                                    case QUEST_STATUS_COMPLETE:
-                                        statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
-                                        break;
-                                    case QUEST_STATUS_INCOMPLETE:
-                                        statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
-                                        break;
-                                    case QUEST_STATUS_REWARDED:
-                                        statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-
-                            if (handler->GetSession())
-                                handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first, questTemplatePair.second.GetQuestLevel(), title.c_str(), statusStr);
-                            else
-                                handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, questTemplatePair.first, title.c_str(), statusStr);
-
-                            if (!found)
-                                found = true;
-
-                            continue;
+                            handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
                         }
+
+                        char const* statusStr = "";
+
+                        if (target)
+                        {
+                            switch (target->GetQuestStatus(questTemplatePair.first))
+                            {
+                                case QUEST_STATUS_COMPLETE:
+                                    statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
+                                    break;
+                                case QUEST_STATUS_INCOMPLETE:
+                                    statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
+                                    break;
+                                case QUEST_STATUS_REWARDED:
+                                    statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                        if (handler->GetSession())
+                            handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first, questTemplatePair.second.GetQuestLevel(), title.c_str(), statusStr);
+                        else
+                            handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, questTemplatePair.first, title.c_str(), statusStr);
+
+                        if (!found)
+                            found = true;
+
+                        continue;
                     }
                 }
             }

@@ -24,7 +24,7 @@
 class Item;
 class AuraEffect;
 
-enum SpellInterruptFlags
+enum SpellInterruptFlags : uint32
 {
     SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01, // why need this for instant?
     SPELL_INTERRUPT_FLAG_PUSH_BACK    = 0x02, // push back
@@ -35,13 +35,13 @@ enum SpellInterruptFlags
 };
 
 // See SpellAuraInterruptFlags for other values definitions
-enum SpellChannelInterruptFlags
+enum SpellChannelInterruptFlags : uint32
 {
     CHANNEL_INTERRUPT_FLAG_INTERRUPT = 0x0008,  // interrupt
     CHANNEL_FLAG_DELAY               = 0x4000
 };
 
-enum SpellAuraInterruptFlags
+enum SpellAuraInterruptFlags : uint32
 {
     AURA_INTERRUPT_FLAG_HITBYSPELL                  = 0x00000001,   // 0    removed when getting hit by a negative spell?
     AURA_INTERRUPT_FLAG_TAKE_DAMAGE                 = 0x00000002,   // 1    removed by any damage
