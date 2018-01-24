@@ -811,8 +811,6 @@ class boss_madness_of_deathwing : public CreatureScript
                             break;
                         case EVENT_ASPECT_TALK_2:
                         {
-                            Creature* pAspect = NULL;
-
                             switch (urand(0, 3))
                             {
                                 case 0:
