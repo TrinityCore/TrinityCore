@@ -855,6 +855,8 @@ class boss_hagara_the_stormbinder: public CreatureScript
                                         if (Creature* pCronductor = me->SummonCreature(NPC_CRYSTAL_CONDUCTOR, crystalconductorPos[i]))
                                             pCronductor->CastSpell(me, SPELL_CRYSTALLINE_TETHER_2);
                                     break;
+                                default:
+                                    break;
                             }
 
                             me->SummonCreature(NPC_BOUND_LIGHTNING_ELEMENTAL, circlePos[0][3]);

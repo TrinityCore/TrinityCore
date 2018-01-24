@@ -642,7 +642,7 @@ public:
     {
         PrepareSpellScript(spell_monk_mana_tea_SpellScript);
 
-        SpellModifier* spellMod;
+        SpellModifier* mod = nullptr;
 
         void HandleBeforeCast()
         {
@@ -656,23 +656,24 @@ public:
 
                     int32 newDuration = stacks * IN_MILLISECONDS;
 
-                    spellMod = new SpellModifier(manaTeaStacks);
-                    spellMod->op = SPELLMOD_DURATION;
-                    spellMod->type = SPELLMOD_FLAT;
-                    spellMod->spellId = SPELL_MONK_MANA_TEA_REGEN;
-                    spellMod->value = newDuration;
-                    spellMod->mask[1] = 0x200000;
-                    spellMod->mask[2] = 0x1;
+                    mod = new SpellModifier(manaTeaStacks);
+                    mod->op = SPELLMOD_DURATION;
+                    mod->type = SPELLMOD_FLAT;
+                    mod->spellId = SPELL_MONK_MANA_TEA_REGEN;
+                    mod->value = newDuration;
+                    mod->mask[1] = 0x200000;
+                    mod->mask[2] = 0x1;
 
-                    _player->AddSpellMod(spellMod, true);
+                    _player->AddSpellMod(mod, true);
                 }
             }
         }
 
         void HandleAfterCast()
         {
-            if (Player* _player = GetCaster()->ToPlayer())
-                _player->AddSpellMod(spellMod, false);
+            if (mod)
+                if (Player* _player = GetCaster()->ToPlayer())
+                    _player->AddSpellMod(mod, false);
         }
 
         void Register() override

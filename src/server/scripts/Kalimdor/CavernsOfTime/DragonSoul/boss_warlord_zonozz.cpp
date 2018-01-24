@@ -988,7 +988,7 @@ public:
     {
         PrepareSpellScript(spell_warlord_zonozz_disrupting_shadows_dmg_SpellScript);
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             PreventHitDamage();
 

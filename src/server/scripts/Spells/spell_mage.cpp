@@ -615,7 +615,7 @@ public:
 
     private:
 
-        SpellModifier* mod;
+        SpellModifier* mod = nullptr;
 
         bool _hit;
 
@@ -655,7 +655,7 @@ public:
             if (!caster || !target)
                 return;
 
-            if (_hit)
+            if (_hit && mod)
                 caster->AddSpellMod(mod, false);
         }
 
@@ -1148,7 +1148,7 @@ public:
 
     private:
 
-        SpellModifier* mod;
+        SpellModifier* mod = nullptr;
 
         void HandleApply(AuraEffect const* aurEffect, AuraEffectHandleModes /*mode*/)
         {
@@ -1172,7 +1172,8 @@ public:
             if (!player)
                 return;
 
-            player->AddSpellMod(mod, false);
+            if (mod)
+                player->AddSpellMod(mod, false);
         }
 
         void Register() override
