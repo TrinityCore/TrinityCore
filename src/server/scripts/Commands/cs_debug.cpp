@@ -33,6 +33,7 @@ EndScriptData */
 #include "Conversation.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
 #include "Language.h"
 #include "Log.h"
 #include "M2Stores.h"
@@ -107,6 +108,7 @@ public:
             { "boundary",      rbac::RBAC_PERM_COMMAND_DEBUG_BOUNDARY,      false, &HandleDebugBoundaryCommand,         "" },
             { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
             { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
+            { "instancespawn", rbac::RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN, false, &HandleDebugInstanceSpawns,          "" },
             { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
             { "worldstate" ,   rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWorldStateCommand,       "" },
             { "wsexpression" , rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWSExpressionCommand,     "" },
@@ -1481,6 +1483,115 @@ public:
         else
             handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD_NOTFOUND);
 
+        return true;
+    }
+
+    static bool HandleDebugInstanceSpawns(ChatHandler* handler, char const* args)
+    {
+        Player const* const player = handler->GetSession()->GetPlayer();
+        if (!player)
+            return false;
+
+        bool explain = false;
+        uint32 groupID = 0;
+        if (!stricmp(args, "explain"))
+            explain = true;
+        else
+            groupID = atoi(args);
+
+        if (groupID && !sObjectMgr->GetSpawnGroupData(groupID))
+        {
+            handler->PSendSysMessage("There is no spawn group with ID %u.", groupID);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Map const* const map = player->GetMap();
+        char const* const mapName = map->GetMapName();
+        InstanceScript const* const instance = player->GetInstanceScript();
+        if (!instance)
+        {
+            handler->PSendSysMessage("%s has no instance script.", mapName);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        if (!instance->_instanceSpawnGroups || instance->_instanceSpawnGroups->empty())
+        {
+            handler->PSendSysMessage("%s's instance script does not manage any spawn groups.", mapName);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        auto const& spawnGroups = *instance->_instanceSpawnGroups;
+        std::unordered_map<uint32, std::set<std::tuple<bool, uint8, uint8>>> store;
+        for (InstanceSpawnGroupInfo const& info : spawnGroups)
+        {
+            if (groupID && info.SpawnGroupId != groupID)
+                continue;
+
+            bool isSpawn;
+            if (info.Flags & InstanceSpawnGroupInfo::FLAG_BLOCK_SPAWN)
+                isSpawn = false;
+            else if (info.Flags & InstanceSpawnGroupInfo::FLAG_ACTIVATE_SPAWN)
+                isSpawn = true;
+            else
+                continue;
+
+            store[info.SpawnGroupId].emplace(isSpawn, info.BossStateId, info.BossStates);
+        }
+
+        if (groupID && store.find(groupID) == store.end())
+        {
+            handler->PSendSysMessage("%s's instance script does not manage group '%s'.", mapName, sObjectMgr->GetSpawnGroupData(groupID)->name.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!groupID)
+            handler->PSendSysMessage("Spawn groups managed by %s (%u):", mapName, map->GetId());
+
+        for (auto const& pair : store)
+        {
+            SpawnGroupTemplateData const* groupData = sObjectMgr->GetSpawnGroupData(pair.first);
+            assert(groupData); // checked by objectmgr on load
+            if (explain)
+            {
+                handler->PSendSysMessage(" |-- '%s' (%u)", groupData->name, pair.first);
+                bool isBlocked = false, isSpawned = false;
+                for (auto const& tuple : pair.second)
+                {
+                    bool const isSpawn = std::get<0>(tuple);
+                    uint8 const bossStateId = std::get<1>(tuple);
+                    EncounterState const actualState = instance->GetBossState(bossStateId);
+                    if (std::get<2>(tuple) & (1 << actualState))
+                    {
+                        if (isSpawn)
+                        {
+                            isSpawned = true;
+                            if (isBlocked)
+                                handler->PSendSysMessage(" | |-- '%s' would be allowed to spawn by boss state %u being %s, but this is overruled", groupData->name, bossStateId, InstanceScript::GetBossStateName(actualState));
+                            else
+                                handler->PSendSysMessage(" | |-- '%s' is allowed to spawn because boss state %u is %s.", groupData->name, bossStateId, InstanceScript::GetBossStateName(bossStateId));
+                        }
+                        else
+                        {
+                            isBlocked = true;
+                            handler->PSendSysMessage(" | |-- '%s' is blocked from spawning because boss state %u is %s.", groupData->name, bossStateId, InstanceScript::GetBossStateName(bossStateId));
+                        }
+                    }
+                    else
+                        handler->PSendSysMessage(" | |-- '%s' could've been %s if boss state %u matched mask %u; but it is %s -> %u, which does not match.",
+                            groupData->name, isSpawn ? "allowed to spawn" : "blocked from spawning", bossStateId, std::get<2>(tuple), InstanceScript::GetBossStateName(actualState), (1 << actualState));
+                }
+                if (isBlocked)
+                    handler->PSendSysMessage(" | |=> '%s' is not active due to a blocking rule being matched", groupData->name);
+                else if (isSpawned)
+                    handler->PSendSysMessage(" | |=> '%s' is active due to a spawn rule being matched", groupData->name);
+                else
+                    handler->PSendSysMessage(" | |=> '%s' is not active due to none of its rules being matched", groupData->name);
+            }
+            else
+                handler->PSendSysMessage(" - '%s' (%u) is %sactive", groupData->name, pair.first, map->IsSpawnGroupActive(pair.first) ? "" : "not ");
+        }
         return true;
     }
 

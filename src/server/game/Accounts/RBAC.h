@@ -776,7 +776,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_MODIFY_POWER                           = 868,
     RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE               = 869,
     RBAC_PERM_COMMAND_DEBUG_THREATINFO                       = 870,
-    RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN                    = 871, // reserved
+    RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN                    = 871,
     RBAC_PERM_COMMAND_SERVER_DEBUG                           = 872,
     RBAC_PERM_COMMAND_RELOAD_CREATURE_MOVEMENT_OVERRIDE      = 873,
     // 874 previously used, do not reuse
