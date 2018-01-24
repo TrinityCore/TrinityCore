@@ -1139,10 +1139,7 @@ public:
                 targets.remove_if(TriggerCheck());
                 targets.remove_if([&caster](WorldObject * u) { return !u->IsWithinLOSInMap(caster); });
                 if (targets.size() > 5)
-                {
-                    uint32 i = urand(3, 5);
                     Trinity::Containers::RandomResize(targets, 5);
-                }
             }
         }
 

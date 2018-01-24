@@ -1946,7 +1946,7 @@ public:
             caster->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
 
             ObjectGuid targetGuid = target->GetGUID();
-            for (uint8 timer = 0; timer <= 800; timer += 200)
+            for (uint16 timer = 0; timer <= 800; timer += 200)
             {
                 caster->GetScheduler().Schedule(Milliseconds(timer), [targetGuid](TaskContext context)
                 {
