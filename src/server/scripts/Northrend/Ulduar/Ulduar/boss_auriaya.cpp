@@ -586,15 +586,20 @@ class spell_auriaya_random_agro_periodic : public AuraScript
         if (!owner || !owner->IsAIEnabled || owner->HasReactState(REACT_PASSIVE))
             return;
 
+        bool farTarget = true;
         Unit* target = owner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, CatsTargetSelector(owner, 15.0f, 25.0f));
         if (!target)
+        {
+            farTarget = false;
             target = owner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
+        }
 
         if (!target)
             return;
 
         owner->GetThreatManager().AddThreat(target, 3000000.0f, nullptr, true);
-        owner->CastSpell(target, SPELL_FERAL_POUNCE, true);
+        if (farTarget)
+            owner->CastSpell(target, SPELL_FERAL_POUNCE, true);
         owner->AI()->AttackStart(target);
     }
 
