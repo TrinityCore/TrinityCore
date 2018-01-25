@@ -50,6 +50,8 @@ EndScriptData */
 #include "WorldSession.h"
 #include <fstream>
 #include <limits>
+#include <map>
+#include <set>
 #include <sstream>
 
 class debug_commandscript : public CommandScript
@@ -1522,7 +1524,7 @@ public:
             return false;
         }
         auto const& spawnGroups = *instance->_instanceSpawnGroups;
-        std::unordered_map<uint32, std::set<std::tuple<bool, uint8, uint8>>> store;
+        std::map<uint32, std::set<std::tuple<bool, uint8, uint8>>> store;
         for (InstanceSpawnGroupInfo const& info : spawnGroups)
         {
             if (groupID && info.SpawnGroupId != groupID)
@@ -1579,7 +1581,7 @@ public:
                         }
                     }
                     else
-                        handler->PSendSysMessage(" | |-- '%s' could've been %s if boss state %u matched mask %u; but it is %s -> %u, which does not match.",
+                        handler->PSendSysMessage(" | |-- '%s' could've been %s if boss state %u matched mask 0x%02x; but it is %s -> 0x%02x, which does not match.",
                             groupData->name, isSpawn ? "allowed to spawn" : "blocked from spawning", bossStateId, std::get<2>(tuple), InstanceScript::GetBossStateName(actualState), (1 << actualState));
                 }
                 if (isBlocked)

@@ -761,7 +761,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         SpawnGroupTemplateData const* GetSpawnGroupData(uint32 groupId) const;
         bool SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn = false, bool force = false, std::vector<WorldObject*>* spawnedObjects = nullptr);
-        bool SpawnGroupDespawn(uint32 groupId, bool deleteRespawnTimes = false);
+        bool SpawnGroupDespawn(uint32 groupId, bool deleteRespawnTimes = false, size_t* count = nullptr);
         void SetSpawnGroupActive(uint32 groupId, bool state);
         bool IsSpawnGroupActive(uint32 groupId) const;
 
