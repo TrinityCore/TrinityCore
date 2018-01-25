@@ -776,6 +776,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_MODIFY_POWER                           = 868, // reserved
     RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE               = 869, // reserved
     RBAC_PERM_COMMAND_DEBUG_THREATINFO                       = 870,
+    RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN                    = 871,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //
