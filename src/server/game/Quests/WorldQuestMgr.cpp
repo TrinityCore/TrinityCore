@@ -20,6 +20,7 @@
 #include "ObjectMgr.h"
 #include "AchievementMgr.h"
 #include "DatabaseEnv.h"
+#include "QuestObjectiveCriteriaMgr.h"
 #include "Log.h"
 #include "Containers.h"
 #include "GridNotifiersImpl.h"
@@ -227,7 +228,10 @@ void WorldQuestMgr::DisableQuest(ActiveWorldQuest* activeWorldQuest, bool delete
             player->RemoveActiveQuest(quest, true);
             player->RemoveRewardedQuest(quest->GetQuestId(), true);
             for (auto criteria : GetCriteriasForQuest(quest->GetQuestId()))
-                player->GetAchievementMgr()->ResetCriteriaId(CRITERIA_TYPE_COMPLETE_QUEST, criteria->ModifierTreeId);
+            {
+                player->GetAchievementMgr()->ResetCriteriaId(CRITERIA_TYPE_COMPLETE_QUEST, criteria->ID);
+                player->GetQuestObjectiveCriteriaMgr()->ResetCriteriaTree(criteria->ModifierTreeId);
+            }
         }
     }
 
@@ -240,6 +244,12 @@ void WorldQuestMgr::DisableQuest(ActiveWorldQuest* activeWorldQuest, bool delete
     CharacterDatabase.PExecute("DELETE FROM character_queststatus WHERE quest = %u", quest->GetQuestId());
     CharacterDatabase.PExecute("DELETE FROM character_queststatus_objectives WHERE quest = %u", quest->GetQuestId());
     CharacterDatabase.PExecute("DELETE FROM character_queststatus_rewarded WHERE quest = %u", quest->GetQuestId());
+
+    for (QuestObjective const& objective : quest->GetObjectives())
+    {
+        CharacterDatabase.PExecute("DELETE FROM character_queststatus_objectives_criteria WHERE questObjectiveId = %u", objective.ID);
+        CharacterDatabase.PExecute("DELETE FROM character_queststatus_objectives_criteria_progress WHERE criteriaId = %u", objective.ObjectID);
+    }
 
     delete activeWorldQuest;
     if (deleteFromMap)
