@@ -196,12 +196,12 @@ class npc_archmage_khadgar_gossip : public CreatureScript
 
             if (player->GetQuestStatus(TanaanQuests::QuestTheHomeStretchHorde) == QUEST_STATUS_REWARDED)
             {
-                player->TeleportTo(1116, 5538.213379f, 5015.2690f, 13.0f, player->GetOrientation());
+                player->TeleportTo(MAP_DRAENOR, 5538.213379f, 5015.2690f, 13.0f, player->GetOrientation());
                 return true;
             }
             else if (player->GetQuestStatus(TanaanQuests::QuestTheHomeStretchAlly) == QUEST_STATUS_REWARDED)
             {
-                player->TeleportTo(1116, 2308.9621f, 454.9409f, 6.0f, player->GetOrientation());
+                player->TeleportTo(MAP_DRAENOR, 2308.9621f, 454.9409f, 6.0f, player->GetOrientation());
                 return true;
             }
 
@@ -255,7 +255,7 @@ class npc_archmage_khadgar_gossip : public CreatureScript
                 teleportPos = { 4055.08f, -2018.38f, 73.20f, 3.14f };
             }
 
-            player->TeleportTo(MAP_DRAENOR, teleportPos);
+            player->TeleportTo(MAP_WOD_TANAAN_JUNGLE_INTRO, teleportPos);
 
             return true;
         }
