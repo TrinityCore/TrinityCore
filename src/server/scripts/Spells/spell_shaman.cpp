@@ -1659,17 +1659,12 @@ public:
         {
             PreventDefaultAction();
 
-            if (Unit* target = eventInfo.GetActionTarget())
-            {
-                CastSpellExtraArgs args(aurEff);
-                args.AddSpellBP0(CalculatePct(target->GetMaxHealth(), aurEff->GetAmount()));
-                target->CastSpell(target, SPELL_SHAMAN_NATURE_GUARDIAN, args);
-
-                // Threat reduction is around 10% confirmed in retail and from wiki
-                Unit* attacker = eventInfo.GetActor();
-                if (attacker->IsAlive())
-                    attacker->GetThreatManager().ModifyThreatByPercent(target, -10);
-            }
+            Unit* target = eventInfo.GetActionTarget();
+            CastSpellExtraArgs args(aurEff);
+            args.AddSpellBP0(CalculatePct(target->GetMaxHealth(), aurEff->GetAmount()));
+            target->CastSpell(target, SPELL_SHAMAN_NATURE_GUARDIAN, args);
+            if (Unit* attacker = eventInfo.GetActor())
+                target->CastSpell(attacker, SPELL_SHAMAN_NATURE_GUARDIAN_THREAT, true);
         }
 
         void Register() override
