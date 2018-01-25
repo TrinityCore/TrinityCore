@@ -60,13 +60,15 @@ public:
 
     void OnPlayerEnter(Player* player) override
     {
-        if (!player->IsInFlight())
+        if (!player->IsInFlight() && player->GetMapId() == MAP_DRAENOR)
             player->SeamlessTeleportToMap(TANAAN_JUNGLE_100_PHASE_MAP);
     }
 
     void OnPlayerExit(Player* player) override
     {
-        player->SeamlessTeleportToMap(MAP_DRAENOR);
+        if (!player->IsBeingTeleportedFar())
+            if (player->GetMapId() == TANAAN_JUNGLE_100_PHASE_MAP)
+                player->SeamlessTeleportToMap(MAP_DRAENOR);
     }
 };
 
