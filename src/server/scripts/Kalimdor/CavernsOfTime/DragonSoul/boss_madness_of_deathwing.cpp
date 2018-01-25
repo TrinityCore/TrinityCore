@@ -2983,7 +2983,7 @@ class npc_madness_of_deathwing_jump_pad : public CreatureScript
                 if (checkTimer <= diff)
                 {
                     std::list<Player*> players;
-                    PlayerCheck check(me, spellIdEx1, spellIdEx2);
+                    PlayerCheck check(me/*, spellIdEx1, spellIdEx2*/);
                     Trinity::PlayerListSearcher<PlayerCheck> searcher(me, players, check);
                     Cell::VisitWorldObjects(me, searcher, 45.0f);
                     if (!players.empty())
@@ -3006,7 +3006,7 @@ class npc_madness_of_deathwing_jump_pad : public CreatureScript
             class PlayerCheck
             {
                 public:
-                    PlayerCheck(WorldObject const* obj, uint32 spellEx1, uint32 spellEx2) : _obj(obj), _spellEx1(spellEx2), _spellEx2(spellEx2) {}
+                    PlayerCheck(WorldObject const* obj/*, uint32 spellEx1, uint32 spellEx2*/) : _obj(obj)/*, _spellEx1(spellEx1), _spellEx2(spellEx2)*/ {}
                     bool operator()(Player* u)
                     {
                         if (!u->IsAlive())
@@ -3030,7 +3030,7 @@ class npc_madness_of_deathwing_jump_pad : public CreatureScript
 
                 private:
                     WorldObject const* _obj;
-                    uint32 _spellEx1, _spellEx2;
+                    //uint32 _spellEx1, _spellEx2;
             };
         };
 };
