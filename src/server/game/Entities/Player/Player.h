@@ -2448,6 +2448,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
         PlayerAchievementMgr* GetAchievementMgr() { return m_achievementMgr; }
+        QuestObjectiveCriteriaMgr* GetQuestObjectiveCriteriaMgr() const { return m_questObjectiveCriteriaMgr; }
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         SceneMgr const& GetSceneMgr() const { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
