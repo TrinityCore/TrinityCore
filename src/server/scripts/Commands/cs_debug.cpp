@@ -1786,7 +1786,7 @@ public:
         for (auto const& pair : store)
         {
             SpawnGroupTemplateData const* groupData = sObjectMgr->GetSpawnGroupData(pair.first);
-            assert(groupData); // checked by objectmgr on load
+            ASSERT(groupData); // checked by objectmgr on load
             if (explain)
             {
                 handler->PSendSysMessage(" |-- '%s' (%u)", groupData->name, pair.first);
