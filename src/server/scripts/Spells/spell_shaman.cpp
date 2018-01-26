@@ -1639,7 +1639,11 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_SHAMAN_NATURE_GUARDIAN });
+            return ValidateSpellInfo(
+                {
+                    SPELL_SHAMAN_NATURE_GUARDIAN,
+                    SPELL_SHAMAN_NATURE_GUARDIAN_THREAT
+                });
         }
 
         bool CheckProc(ProcEventInfo& eventInfo)
