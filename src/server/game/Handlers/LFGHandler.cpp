@@ -371,38 +371,36 @@ void WorldSession::SendLfgPlayerLockInfo()
         }
         data << uint32(0);                                              // completedEncounters
 
-        bool isCallToArmEligible = sLFGMgr->IsCallToArmEligible(level, dungeonId & 0x00FFFFFF);
+        bool isCallToArmsEligible = sLFGMgr->IsCallToArmsEligible(level, dungeonId & 0x00FFFFFF);
 
-        data << uint8(isCallToArmEligible);                                               // Call to Arms eligible
+        data << uint8(isCallToArmsEligible);                                               // Call to Arms eligible
+        Quest const* ctaQuest = sObjectMgr->GetQuestTemplate(lfg::LFG_CALL_TO_ARMS_QUEST);
 
-        if (isCallToArmEligible)
+        if (isCallToArmsEligible && ctaQuest)
         {
-            uint8 roleTank = sLFGMgr->GetRolesForCallToArms() & lfg::PLAYER_ROLE_TANK ? lfg::PLAYER_ROLE_TANK : 0;
-            uint8 roleHeal = sLFGMgr->GetRolesForCallToArms() & lfg::PLAYER_ROLE_HEALER ? lfg::PLAYER_ROLE_HEALER : 0;
-            uint8 roleDPS = sLFGMgr->GetRolesForCallToArms() & lfg::PLAYER_ROLE_DAMAGE ? lfg::PLAYER_ROLE_DAMAGE : 0;
+            uint8 callToArmsRoleMask = sLFGMgr->GetRolesForCallToArms();
+            bool rewardSent = false;
 
-            Quest const* ctaQuest = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST);
-            if (roleTank)
+            for (uint8 i = 0; i < 3; i++)
             {
-                data << uint32(roleTank);
-                BuildQuestReward(data, ctaQuest, GetPlayer());
+                if (callToArmsRoleMask & i * 2)
+                {
+                    data << uint32(callToArmsRoleMask);
+                    if (!rewardSent)
+                    {
+                        BuildQuestReward(data, ctaQuest, GetPlayer());
+                        rewardSent = true;
+                    }
+                    else
+                    {
+                        data << uint32(1);
+                        data << uint32(1);
+                        data << uint8(0);
+                    }
+                }
+                else
+                    data << uint32(0);
             }
-            else
-                data << uint32(0);
-            if (roleHeal)
-            {
-                data << uint32(roleHeal);
-                BuildQuestReward(data, ctaQuest, GetPlayer());
-            }
-            else
-                data << uint32(0);
-            if (roleDPS)
-            {
-                data << uint32(roleDPS);
-                BuildQuestReward(data, ctaQuest, GetPlayer());
-            }
-            else
-                data << uint32(0);
         }
         else
         {

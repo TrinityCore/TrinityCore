@@ -40,7 +40,7 @@ namespace lfg
 
 LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
     m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK)),
-    _isCallToArmEligible(sWorld->getBoolConfig(CONFIG_LFG_CALL_TO_ARMS_ENABLED)),
+    _isCallToArmsEligible(sWorld->getBoolConfig(CONFIG_LFG_CALL_TO_ARMS_ENABLED)),
     _callToArmsRoles(PLAYER_ROLE_TANK | PLAYER_ROLE_HEALER)
 {
 }
@@ -170,7 +170,7 @@ LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
     return NULL;
 }
 
-bool LFGMgr::IsCallToArmEligible(uint32 level, uint32 dungeonId)
+bool LFGMgr::IsCallToArmsEligible(uint32 level, uint32 dungeonId)
 {
     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
         return (level == DEFAULT_MAX_LEVEL && dungeon->type == LFG_TYPE_RANDOM && dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC);
@@ -1499,10 +1499,10 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
         if (Group *group = player->GetGroup())
             tmpRole = group->GetLfgRoles(player->GetGUID());
 
-        if (IsCallToArmEligible(player->getLevel(), rDungeonId & 0x00FFFFFF))
+        if (IsCallToArmsEligible(player->getLevel(), rDungeonId & 0x00FFFFFF))
             if (player->GetCallToArmsTempRoles() & tmpRole)
             {
-                const Quest *q = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST);
+                const Quest* q = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST);
                 player->RewardQuest(q, 0, NULL, false);
             }
         player->SetTempCallToArmsRoles(0);
