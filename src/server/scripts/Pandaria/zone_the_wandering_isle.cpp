@@ -20,11 +20,10 @@
 #include "GameObject.h"
 #include "GridNotifiers.h"
 #include "Map.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "Player.h"
-#include "Log.h"
 
 enum CaveOfMeditationSpells
 {
@@ -127,6 +126,7 @@ public:
                     target->CastSpell(GetTarget(), SPELL_CAVE_OF_SCROLLS_CREDIT, true);
                     target->CastSpell(GetTarget(), SPELL_CAVE_OF_SCROLLS_COMP_TIMER_AURA, true);
                     target->RemoveAura(GetId());
+                    target->ClearInCombat();
                 }
             }
         }
