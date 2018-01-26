@@ -527,6 +527,7 @@ void SmartAI::JustAppeared()
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
 
+    GetScript()->OnReset();
     GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
 
     mFollowGuid.Clear(); // do not reset follower on Reset(), we need it after combat evade
