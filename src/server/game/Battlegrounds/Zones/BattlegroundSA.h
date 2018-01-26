@@ -482,6 +482,15 @@ float const BG_SA_GYOrientation[BG_SA_MAX_GY] =
     6.148f, // defender last GY
 };
 
+enum BG_SA_BroadcastTexts
+{
+    BG_SA_TEXT_ALLIANCE_CAPTURED_TITAN_PORTAL   = 28944,
+    BG_SA_TEXT_HORDE_CAPTURED_TITAN_PORTAL      = 28945,
+
+    BG_SA_TEXT_ROUND_TWO_START_ONE_MINUTE       = 29448,
+    BG_SA_TEXT_ROUND_TWO_START_HALF_MINUTE      = 29449
+};
+
 struct GateInfo
 {
     uint8 GateId;

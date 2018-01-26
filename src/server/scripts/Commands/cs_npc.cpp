@@ -311,7 +311,7 @@ public:
         }
 
         Creature* creature = new Creature();
-        if (!creature->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, chr->GetPhaseMask(), id, x, y, z, o))
+        if (!creature->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, id, x, y, z, o))
         {
             delete creature;
             return false;

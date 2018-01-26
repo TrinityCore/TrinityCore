@@ -406,7 +406,7 @@ class boss_twilight_halion : public CreatureScript
                 DoCast(me, SPELL_DUSK_SHROUD, true);
 
                 me->SetHealth(halion->GetHealth());
-                me->SetPhaseMask(0x20, true);
+                me->SetInPhase(174, false, true);
                 me->SetReactState(REACT_DEFENSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                 events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(12));
@@ -1193,12 +1193,16 @@ class npc_combustion_consumption : public CreatureScript
                     case NPC_COMBUSTION:
                         _explosionSpell = SPELL_FIERY_COMBUSTION_EXPLOSION;
                         _damageSpell = SPELL_COMBUSTION_DAMAGE_AURA;
-                        creature->SetPhaseMask(IsHeroic() ? 0x21 : 0x01, true);
+                        creature->SetInPhase(DEFAULT_PHASE, false, true);
+                        if (IsHeroic())
+                            creature->SetInPhase(174, false, true);
                         break;
                     case NPC_CONSUMPTION:
                         _explosionSpell = SPELL_SOUL_CONSUMPTION_EXPLOSION;
                         _damageSpell = SPELL_CONSUMPTION_DAMAGE_AURA;
-                        creature->SetPhaseMask(IsHeroic() ? 0x21 : 0x20, true);
+                        creature->SetInPhase(174, false, true);
+                        if (IsHeroic())
+                            creature->SetInPhase(DEFAULT_PHASE, false, true);
                         break;
                     default: // Should never happen
                         _explosionSpell = 0;
@@ -1335,12 +1339,12 @@ class go_twilight_portal : public GameObjectScript
                 switch (gameobject->GetEntry())
                 {
                     case GO_HALION_PORTAL_EXIT:
-                        gameobject->SetPhaseMask(0x20, true);
+                        gameobject->SetInPhase(174, false, true);
                         _spellId = gameobject->GetGOInfo()->goober.spell;
                         break;
                     case GO_HALION_PORTAL_1:
                     case GO_HALION_PORTAL_2:
-                        gameobject->SetPhaseMask(0x1, true);
+                        gameobject->SetInPhase(DEFAULT_PHASE, false, true);
                         /// Because WDB template has non-existent spell ID, not seen in sniffs either, meh
                         _spellId = SPELL_TWILIGHT_REALM;
                         break;
