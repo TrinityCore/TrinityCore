@@ -3311,7 +3311,7 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
     return true;
 }
 
-bool Map::SpawnGroupDespawn(uint32 groupId, bool deleteRespawnTimes)
+bool Map::SpawnGroupDespawn(uint32 groupId, bool deleteRespawnTimes, size_t* count)
 {
     SpawnGroupTemplateData const* groupData = GetSpawnGroupData(groupId);
     if (!groupData || groupData->flags & SPAWNGROUP_FLAG_SYSTEM)
@@ -3348,6 +3348,10 @@ bool Map::SpawnGroupDespawn(uint32 groupId, bool deleteRespawnTimes)
                 return false;
         }
     }
+
+    if (count)
+        *count = toUnload.size();
+
     // now do the actual despawning
     for (WorldObject* obj : toUnload)
         obj->AddObjectToRemoveList();
