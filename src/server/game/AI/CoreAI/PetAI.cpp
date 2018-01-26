@@ -253,7 +253,6 @@ void PetAI::UpdateAI(uint32 diff)
     me->UpdateSpeed(MOVE_RUN);
     me->UpdateSpeed(MOVE_WALK);
     me->UpdateSpeed(MOVE_FLIGHT);
-
 }
 
 void PetAI::UpdateAllies()

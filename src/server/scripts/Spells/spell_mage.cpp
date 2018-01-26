@@ -53,6 +53,23 @@ enum MageSpells
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
     SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
+
+    SPELL_MAGE_FLAME_ORB_DUMMY                   = 82731,
+    SPELL_MAGE_FLAME_ORB_SUMMON                  = 84765,
+    SPELL_MAGE_FLAME_ORB_AOE                     = 82734,
+    SPELL_MAGE_FLAME_ORB_BEAM_DUMMY              = 86719,
+    SPELL_MAGE_FLAME_ORB_DAMAGE                  = 82739,
+    SPELL_MAGE_FLAME_ORB_SELF_SNARE              = 82736,
+
+    SPELL_MAGE_FROSTFIRE_ORB_DUMMY               = 92283,
+    SPELL_MAGE_FROSTFIRE_ORB_SUMMON              = 84714,
+    SPELL_MAGE_FROSTFIRE_ORB_AOE                 = 84718,
+
+    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE              = 95969,
+    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_SLOW         = 84721,
+
+    SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT       = 44614,
+
     SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1         = 11210,
     SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1    = 83046,
     SPELL_MAGE_IMPROVED_POLYMORPH_MARKER         = 87515,
@@ -1693,6 +1710,145 @@ public:
     }
 };
 
+// 82731 - Flame Orb
+class spell_mage_flame_orb: public SpellScriptLoader
+{
+    public:
+        spell_mage_flame_orb() : SpellScriptLoader("spell_mage_flame_orb") { }
+
+        class spell_mage_flame_orb_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_flame_orb_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_MAGE_FLAME_ORB_DUMMY,
+                        SPELL_MAGE_FROSTFIRE_ORB_DUMMY,
+                        SPELL_MAGE_FLAME_ORB_SUMMON,
+                        SPELL_MAGE_FROSTFIRE_ORB_SUMMON
+                    });
+            }
+
+            bool Load() override
+            {
+                dummySpellId = GetSpellInfo()->Id;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    switch (dummySpellId)
+                    {
+                        case SPELL_MAGE_FLAME_ORB_DUMMY:
+                            caster->CastSpell(caster, SPELL_MAGE_FLAME_ORB_SUMMON, true);
+                            break;
+                        case SPELL_MAGE_FROSTFIRE_ORB_DUMMY:
+                            caster->CastSpell(caster, SPELL_MAGE_FROSTFIRE_ORB_SUMMON, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mage_flame_orb_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+        private:
+            uint32 dummySpellId;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_mage_flame_orb_SpellScript();
+        }
+};
+
+// 82734 - Flame Orb dummy AOE
+class spell_mage_flame_orb_aoe_dummy: public SpellScriptLoader
+{
+    public:
+        spell_mage_flame_orb_aoe_dummy() : SpellScriptLoader("spell_mage_flame_orb_aoe_dummy") { }
+
+        class spell_mage_flame_orb_aoe_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_flame_orb_aoe_dummy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_MAGE_FLAME_ORB_AOE,
+                        SPELL_MAGE_FROSTFIRE_ORB_AOE,
+                        SPELL_MAGE_FLAME_ORB_BEAM_DUMMY,
+                        SPELL_MAGE_FROSTFIRE_ORB_DAMAGE,
+                        SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_SLOW,
+                        SPELL_MAGE_FLAME_ORB_DAMAGE,
+                        SPELL_MAGE_FLAME_ORB_SELF_SNARE
+                    });
+            }
+
+            bool Load() override
+            {
+                dummySpellId = GetSpellInfo()->Id;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
+                targets.resize(1);
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (TempSummon* caster = GetCaster()->ToTempSummon())
+                    if (Unit* summoner = caster->GetSummoner())
+                        if (Unit* target = GetHitUnit())
+                        {
+                            switch (dummySpellId)
+                            {
+                                case SPELL_MAGE_FLAME_ORB_AOE:
+                                    caster->CastSpell(caster, SPELL_MAGE_FLAME_ORB_SELF_SNARE, true);
+                                    caster->CastSpell(target, SPELL_MAGE_FLAME_ORB_BEAM_DUMMY, true);
+                                    summoner->CastSpell(target, SPELL_MAGE_FLAME_ORB_DAMAGE, true);
+                                    break;
+                                case SPELL_MAGE_FROSTFIRE_ORB_AOE:
+                                    caster->CastSpell(caster, SPELL_MAGE_FLAME_ORB_SELF_SNARE, true);
+                                    caster->CastSpell(caster, SPELL_MAGE_FLAME_ORB_BEAM_DUMMY, true);
+                                    // summoner->CastSpell(target, target->HasAura(SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT) ? SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_SLOW : SPELL_MAGE_FROSTFIRE_ORB_DAMAGE, true);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_flame_orb_aoe_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_flame_orb_aoe_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+        private:
+            uint32 dummySpellId;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_mage_flame_orb_aoe_dummy_SpellScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
@@ -1705,6 +1861,8 @@ void AddSC_mage_spell_scripts()
     RegisterAuraScript(spell_mage_dragon_breath);
     new spell_mage_early_frost();
     new spell_mage_fire_frost_ward();
+    new spell_mage_flame_orb();
+    new spell_mage_flame_orb_aoe_dummy();
     new spell_mage_focus_magic();
     new spell_mage_frostbolt();
     new spell_mage_ice_barrier();

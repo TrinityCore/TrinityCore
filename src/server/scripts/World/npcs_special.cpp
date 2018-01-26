@@ -3011,6 +3011,89 @@ public:
     }
 };
 
+enum MageOrb
+{
+    EVENT_START_MOVING          = 1,
+    EVENT_APPLY_PERIODIC_EFFECT = 2,
+    EVENT_EXPLODE               = 3,
+
+    SPELL_FLAME_ORB_AURA        = 82690,
+    SPELL_FROSTFIRE_ORB_AURA    = 84717,
+
+    NPC_FLAME_ORB               = 44214,
+    NPC_FROSTFIRE_ORB           = 45322,
+
+};
+
+// Frostfire Orb / Flaming Orb
+class npc_mage_orb : public CreatureScript
+{
+    public:
+        npc_mage_orb() : CreatureScript("npc_mage_orb") { }
+
+        struct npc_mage_orbAI : public ScriptedAI
+        {
+            npc_mage_orbAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void IsSummonedBy(Unit* /*summoner*/) override
+            {
+                events.ScheduleEvent(EVENT_START_MOVING, Milliseconds(1));
+                events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECT, Milliseconds(400));
+                me->m_ControlledByPlayer = false;
+            }
+
+            void EnterEvadeMode(EvadeReason why) override
+            {
+                me->Yell("evade mode triggered", LANG_UNIVERSAL, 0);
+            }
+
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            {
+                me->UpdateSpeed(MOVE_RUN);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_START_MOVING:
+                        {
+                            me->GetMotionMaster()->Clear();
+                            pos.SetOrientation(me->GetOrientation());
+                            pos.m_positionX = me->GetPositionX() + cos(pos.GetOrientation()) * 100.0f;
+                            pos.m_positionY = me->GetPositionY() + sin(pos.GetOrientation()) * 100.0f;
+                            float ground;
+                            me->GetMap()->GetWaterOrGroundLevel(me->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), &ground);
+                            pos.m_positionZ = ground;
+                            Movement::MoveSplineInit init(me);
+                            init.SetSmooth();
+                            init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+                            init.Launch();
+                            break;
+                        }
+                        case EVENT_APPLY_PERIODIC_EFFECT:
+                            DoCastSelf(me->GetEntry() == NPC_FLAME_ORB ? SPELL_FLAME_ORB_AURA : SPELL_FROSTFIRE_ORB_AURA, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        private:
+            EventMap events;
+            Position pos;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_mage_orbAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -3038,4 +3121,5 @@ void AddSC_npcs_special()
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
+    new npc_mage_orb();
 }

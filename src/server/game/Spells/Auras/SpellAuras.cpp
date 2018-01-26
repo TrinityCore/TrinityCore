@@ -150,7 +150,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
         _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
 
-    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT))
+    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) || GetBase()->HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS))
         _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
 }
 
@@ -1032,7 +1032,8 @@ bool Aura::CanBeSaved() const
 
 bool Aura::CanBeSentToClient() const
 {
-    return !IsPassive() || GetSpellInfo()->HasAreaAuraEffect() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE) || HasEffectType(SPELL_AURA_CAST_WHILE_WALKING);
+    return !IsPassive() || GetSpellInfo()->HasAreaAuraEffect() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE)
+        || HasEffectType(SPELL_AURA_CAST_WHILE_WALKING) || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
 }
 
 bool Aura::IsSingleTargetWith(Aura const* aura) const

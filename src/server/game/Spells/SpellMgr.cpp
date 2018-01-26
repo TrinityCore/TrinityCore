@@ -2844,6 +2844,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].Effect = 0;
     });
 
+    // Flame Orb / Frostfire Orb
+    ApplySpellFix({ 82690, 84717 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].Amplitude = 1000;
+    });
+
     ApplySpellFix({
         63665, // Charge (Argent Tournament emote on riders)
         31298, // Sleep (needs target selection script)
