@@ -35,16 +35,24 @@ enum Spells
     SPELL_FRENZY                        = 74853,
 
     // Troggs
+    SPELL_CLAW_PUNCTURE                 = 76507,
     SPELL_MODGUDS_MALADY                = 74837,
+    SPELL_MODGUDS_MALICE                = 74699,
+    SPELL_MODGUDS_MALICE_HC             = 90169,
     SPELL_MODGUDS_MALICE_SPREAD         = 90170,
 };
 
 enum Events
 {
+    // General Umbriss
     EVENT_BLEEDING_WOUND = 1,
     EVENT_BLITZ,
     EVENT_GROUND_SIEGE,
-    EVENT_SUMMON_SKARDYN
+    EVENT_SUMMON_SKARDYN,
+
+    // Skardyn
+    EVENT_ATTACK_PLAYER,
+    EVENT_CLAW_PUNCTURE,
 };
 
 enum Texts
@@ -199,13 +207,17 @@ class boss_general_umbriss : public CreatureScript
                             events.Repeat(Seconds(23));
                             break;
                         case EVENT_SUMMON_SKARDYN:
-                            Talk(SAY_SUMMON_SKARDYN);
-                            DoCastAOE(SPELL_SUMMON_SKARDYN); // sends a event but since event_scripts does not support multiple spawns...
-                            if (Creature* malignantTrogg = DoSummon(NPC_MALIGNANT_TROGG, MalignantTroggSummonPosition, 5000))
-                                malignantTrogg->GetMotionMaster()->MovePoint(POINT_SKARDYN_SUMMON, MalignantTroggMovePosition, false);
-                            for (uint8 i = 0; i < 3; i++)
-                                if (Creature* troggDweller = DoSummon(NPC_TROGG_DWELLER, TroggDwellerSummonPositions[i], 5000))
-                                    troggDweller->GetMotionMaster()->MovePoint(POINT_SKARDYN_SUMMON, TroggDwellerMovePositions[i], false);
+                            summons.RemoveNotExisting();
+                            if (!summons.HasEntry(NPC_MALIGNANT_TROGG) && !summons.HasEntry(NPC_TROGG_DWELLER))
+                            {
+                                Talk(SAY_SUMMON_SKARDYN);
+                                DoCastAOE(SPELL_SUMMON_SKARDYN); // sends a event but since event_scripts does not support multiple spawns...
+                                if (Creature* malignantTrogg = DoSummon(NPC_MALIGNANT_TROGG, MalignantTroggSummonPosition, 5000))
+                                    malignantTrogg->GetMotionMaster()->MovePoint(POINT_SKARDYN_SUMMON, MalignantTroggMovePosition, false);
+                                for (uint8 i = 0; i < 3; i++)
+                                    if (Creature* troggDweller = DoSummon(NPC_TROGG_DWELLER, TroggDwellerSummonPositions[i], 5000))
+                                        troggDweller->GetMotionMaster()->MovePoint(POINT_SKARDYN_SUMMON, TroggDwellerMovePositions[i], false);
+                            }
                             events.Repeat(Seconds(23));
                             break;
                         default:
@@ -222,6 +234,85 @@ class boss_general_umbriss : public CreatureScript
         CreatureAI* GetAI(Creature *creature) const override
         {
             return GetGrimBatolAI<boss_general_umbrissAI>(creature);
+        }
+};
+
+class npc_umbriss_skardyn : public CreatureScript
+{
+    public:
+        npc_umbriss_skardyn() : CreatureScript("npc_umbriss_skardyn") { }
+
+        struct npc_umbriss_skardynAI : public ScriptedAI
+        {
+            npc_umbriss_skardynAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _infected = false;
+            }
+
+            void MovementInform(uint32 type, uint32 pointId) override
+            {
+                if (type == POINT_MOTION_TYPE && pointId == POINT_SKARDYN_SUMMON)
+                    _events.ScheduleEvent(EVENT_ATTACK_PLAYER, Milliseconds(1));
+            }
+
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            {
+                if (spell->Id == SPELL_MODGUDS_MALICE || spell->Id == SPELL_MODGUDS_MALICE_HC)
+                    _infected = true;
+            }
+
+            void JustEngagedWith(Unit* /*victim*/) override
+            {
+                _events.ScheduleEvent(EVENT_CLAW_PUNCTURE, Seconds(6), Seconds(7));
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                if (_infected || me->GetEntry() == NPC_MALIGNANT_TROGG)
+                {
+                    DoCastAOE(SPELL_MODGUDS_MALADY, true);
+                    DoCastAOE(SPELL_MODGUDS_MALICE_SPREAD, true);
+                }
+                me->DespawnOrUnsummon(Seconds(5));
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (me->IsInCombat() && !UpdateVictim())
+                    return;
+
+                _events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_ATTACK_PLAYER:
+                            if (Player* player = me->SelectNearestPlayer(100.0f))
+                                me->AI()->AttackStart(player);
+                            break;
+                        case EVENT_CLAW_PUNCTURE:
+                            if (Unit* victim = me->GetVictim())
+                                DoCast(victim, SPELL_CLAW_PUNCTURE);
+                            _events.Repeat(Seconds(6), Seconds(7));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        private:
+            EventMap _events;
+            bool _infected;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetGrimBatolAI<npc_umbriss_skardynAI>(creature);
         }
 };
 
@@ -333,10 +424,10 @@ class spell_umbriss_bleeding_wound : public SpellScriptLoader
         }
 };
 
-
 void AddSC_boss_general_umbriss()
 {
     new boss_general_umbriss();
+    new npc_umbriss_skardyn();
     new spell_umbriss_summon_blitz_trigger();
     new spell_umbriss_summon_ground_siege_trigger();
     new spell_umbriss_bleeding_wound();
