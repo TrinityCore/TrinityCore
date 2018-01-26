@@ -216,8 +216,6 @@ bool HandleNpcSpawnGroup(ChatHandler* handler, char const* args)
     }
 
     handler->PSendSysMessage(LANG_SPAWNGROUP_SPAWNCOUNT, creatureList.size());
-    for (WorldObject* obj : creatureList)
-        handler->PSendSysMessage("%s (%s)", obj->GetName(), obj->GetGUID().ToString().c_str());
 
     return true;
 }
@@ -248,12 +246,14 @@ bool HandleNpcDespawnGroup(ChatHandler* handler, char const* args)
 
     Player* player = handler->GetSession()->GetPlayer();
 
-    if (!player->GetMap()->SpawnGroupDespawn(groupId, deleteRespawnTimes))
+    size_t n = 0;
+    if (!player->GetMap()->SpawnGroupDespawn(groupId, deleteRespawnTimes, &n))
     {
         handler->PSendSysMessage(LANG_SPAWNGROUP_BADGROUP, groupId);
         handler->SetSentErrorMessage(true);
         return false;
     }
+    handler->PSendSysMessage("Despawned a total of %zu objects.", n);
 
     return true;
 }
