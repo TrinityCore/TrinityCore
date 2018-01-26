@@ -143,8 +143,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     case NPC_FROSTSWORN_GENERAL:
                         FrostswornGeneralGUID = creature->GetGUID();
-                        if (GetBossState(DATA_MARWYN) == DONE)
-                            creature->SetPhaseMask(1, true);
+                        creature->SetInPhase(170, true, GetBossState(DATA_MARWYN) != DONE);
                         break;
                     case NPC_JAINA_ESCAPE:
                     case NPC_SYLVANAS_ESCAPE:
@@ -326,7 +325,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             HandleGameObject(ImpenetrableDoorGUID, true);
                             DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
                             if (Creature* general = instance->GetCreature(FrostswornGeneralGUID))
-                                general->SetPhaseMask(1, true);
+                                general->SetInPhase(170, true, false);
 
                             SpawnGunship();
                             SpawnEscapeEvent();

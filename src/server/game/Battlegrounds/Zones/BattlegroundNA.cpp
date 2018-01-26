@@ -19,7 +19,6 @@
 #include "BattlegroundNA.h"
 #include "Log.h"
 #include "Player.h"
-#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
 BattlegroundNA::BattlegroundNA()

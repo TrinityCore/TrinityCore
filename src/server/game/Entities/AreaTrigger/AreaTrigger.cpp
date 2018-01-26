@@ -107,7 +107,6 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     }
 
     Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id, caster->GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
-    SetPhaseMask(caster->GetPhaseMask(), false);
 
     SetEntry(GetTemplate()->Id);
     SetDuration(duration);
