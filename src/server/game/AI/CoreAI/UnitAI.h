@@ -139,7 +139,7 @@ class TC_GAME_API UnitAI
         virtual void AttackStart(Unit* /*target*/);
         virtual void UpdateAI(uint32 diff) = 0;
 
-        virtual void InitializeAI();
+        virtual void InitializeAI() { }
 
         virtual void Reset() { }
 

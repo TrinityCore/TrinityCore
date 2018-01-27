@@ -41,12 +41,6 @@ void UnitAI::AttackStart(Unit* victim)
     }
 }
 
-void UnitAI::InitializeAI()
-{
-    if (!me->isDead())
-        Reset();
-}
-
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
 {
     if (victim && me->Attack(victim, false))
