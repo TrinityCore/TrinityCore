@@ -57,6 +57,7 @@ enum ShamanSpells
     SPELL_SHAMAN_MANA_SPRING_TOTEM_ENERGIZE     = 52032,
     SPELL_SHAMAN_MANA_TIDE_TOTEM                = 39609,
     SPELL_SHAMAN_NATURE_GUARDIAN                = 31616,
+    SPELL_SHAMAN_NATURE_GUARDIAN_THREAT         = 39301, // Serverside
     SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
     SPELL_SHAMAN_TOTEM_EARTHBIND_EARTHGRAB      = 64695,
@@ -1638,36 +1639,42 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_SHAMAN_NATURE_GUARDIAN });
+            return ValidateSpellInfo(
+                {
+                    SPELL_SHAMAN_NATURE_GUARDIAN,
+                    SPELL_SHAMAN_NATURE_GUARDIAN_THREAT
+                });
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+            if (!damageInfo || !damageInfo->GetDamage())
+                return false;
+
+            int32 healthpct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+            if (Unit* target = eventInfo.GetActionTarget())
+                if (target->HealthBelowPctDamaged(healthpct, damageInfo->GetDamage()))
+                    return true;
+
+            return false;
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
-            DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-            if (!damageInfo || !damageInfo->GetDamage())
-                return;
 
-            int32 healthpct = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(); // %s2 - the 30% threshold for health
-
-            if (Unit* target = eventInfo.GetActionTarget())
-            {
-                if (target->HealthBelowPctDamaged(healthpct, damageInfo->GetDamage()))
-                {
-                    CastSpellExtraArgs args(aurEff);
-                    args.AddSpellBP0(CalculatePct(target->GetMaxHealth(), aurEff->GetAmount()));
-                    target->CastSpell(target, SPELL_SHAMAN_NATURE_GUARDIAN, args);
-
-                    // Threat reduction is around 10% confirmed in retail and from wiki
-                    Unit* attacker = eventInfo.GetActor();
-                    if (attacker->IsAlive())
-                        attacker->GetThreatManager().ModifyThreatByPercent(target, -10);
-                }
-            }
+            Unit* target = eventInfo.GetActionTarget();
+            CastSpellExtraArgs args(aurEff);
+            args.AddSpellBP0(CalculatePct(target->GetMaxHealth(), aurEff->GetAmount()));
+            target->CastSpell(target, SPELL_SHAMAN_NATURE_GUARDIAN, args);
+            if (Unit* attacker = eventInfo.GetActor())
+                target->CastSpell(attacker, SPELL_SHAMAN_NATURE_GUARDIAN_THREAT, true);
         }
 
         void Register() override
         {
+            DoCheckProc += AuraCheckProcFn(spell_sha_nature_guardian_AuraScript::CheckProc);
             OnEffectProc += AuraEffectProcFn(spell_sha_nature_guardian_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
         }
     };
