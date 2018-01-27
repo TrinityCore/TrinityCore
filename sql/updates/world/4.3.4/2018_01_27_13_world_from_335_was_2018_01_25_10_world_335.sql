@@ -1,3 +1,4 @@
+/*
 -- Quest "The Key to Freedom"
 -- Wooden Outhouse
 DELETE FROM `smart_scripts` WHERE `entryorguid`=173265 AND `source_type`=1 AND `id` IN (1,2,3);
@@ -20,3 +21,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=9876;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (9876,0,0,"Ach! Thank you so much, $n! I'm free! Finally!",12,0,100,4,0,0,5407,0,"Locheed"),
 (9876,1,0,"You take care of yourself! I'm gettin' out o' here.",12,0,100,5,0,0,5408,0,"Locheed");
+*/

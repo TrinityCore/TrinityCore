@@ -1,3 +1,4 @@
+/*
 -- Quest "Set Them Ablaze!"
 -- Squire Maltrake
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=8509;
@@ -45,3 +46,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (8480,8,0,"The legion of Blackrock comes, dwarflings! We shall scorch the earth and set fire to the heavens. None shall survive...",14,0,100,0,0,0,4465,0,"Kalaran the Deceiver"),
 (8509,0,0,"What will we do with them, master? They are of no use to us anymore.",12,0,100,6,0,0,4459,0,"Squire Maltrake"),
 (8509,1,0,"Right away, master!",12,0,100,2,0,0,4468,0,"Squire Maltrake");
+*/

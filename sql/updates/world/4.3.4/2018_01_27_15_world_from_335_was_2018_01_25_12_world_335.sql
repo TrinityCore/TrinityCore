@@ -1,3 +1,4 @@
+/*
 -- Glassweb Spider
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=5856;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=5856 AND `source_type`=0;
@@ -138,3 +139,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Fix bytes2 for some creatures
 UPDATE `creature_addon` SET `bytes2`=2 WHERE `guid` IN (SELECT `guid` FROM `creature` WHERE `id` IN (8283,8566));
+*/

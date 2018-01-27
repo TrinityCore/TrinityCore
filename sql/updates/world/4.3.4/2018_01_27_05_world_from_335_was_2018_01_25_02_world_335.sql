@@ -1,3 +1,4 @@
+/*
 -- Gavis Greyshield
 DELETE FROM `smart_scripts` WHERE `entryorguid`= 23941 AND `source_type`= 0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`= 2394100 AND `source_type`= 9;
@@ -10,3 +11,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (2394100,9,0,0, 0,0,100,  0, 1000, 1000,0,0,  1,      0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Gavis Greyshield - On Script - Say Line 0"),
 (2394100,9,1,0, 0,0,100,  0, 4000, 4000,0,0,  1,      1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Gavis Greyshield - On Script - Say Line 1"),
 (2394100,9,2,0, 0,0,100,  0,10000,10000,0,0, 41,      0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Gavis Greyshield - On Script - Despawn");
+*/
