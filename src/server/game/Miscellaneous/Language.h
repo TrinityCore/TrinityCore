@@ -942,7 +942,6 @@ enum TrinityStrings
     // Room for more level 3                1196-1198 not used
 
     // Debug commands
-    LANG_DEBUG_AREATRIGGER_LEFT           = 1999,
     LANG_CINEMATIC_NOT_EXIST              = 1200,
     LANG_MOVIE_NOT_EXIST                  = 1201,
     LANG_DEBUG_AREATRIGGER_ON             = 1202,
@@ -950,7 +949,7 @@ enum TrinityStrings
     LANG_DEBUG_AREATRIGGER_ENTERED        = 1204,
 
     // 1205-1999 - free
-
+    LANG_DEBUG_AREATRIGGER_LEFT           = 1999,
     // Ticket Strings 2003-2028
     LANG_COMMAND_TICKETCLOSED             = 2003,
     LANG_COMMAND_TICKETDELETED            = 2004,
