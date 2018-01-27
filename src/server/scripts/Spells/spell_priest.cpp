@@ -920,7 +920,6 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                     // Improved PW: Shield: its weird having a SPELLMOD_ALL_EFFECTS here but its blizzards doing :)
                     // Improved PW: Shield is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
                     bonus = caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), bonus);
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
 
