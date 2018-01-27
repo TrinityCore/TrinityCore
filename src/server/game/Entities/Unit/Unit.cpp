@@ -2354,7 +2354,7 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
 
 float Unit::CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellProto) const
 {
-    if (getLevel() < spellProto->MaxLevel)
+    if (!spellProto->MaxLevel || getLevel() < spellProto->MaxLevel)
         return 1.0f;
 
     return std::max(0.0f, std::min(1.0f, (22.0f + spellProto->MaxLevel - getLevel()) / 20.0f));
