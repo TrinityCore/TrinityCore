@@ -37,6 +37,7 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
 #include "Chat.h"
+#include "Language.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "Player.h"
