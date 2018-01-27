@@ -53,6 +53,11 @@ class instance_grim_batol : public InstanceMapScript
                         if (Creature* umbriss = GetCreature(DATA_GENERAL_UMBRISS))
                             umbriss->AI()->JustSummoned(creature);
                         break;
+                    case NPC_CAVE_IN_STALKER:
+                    case NPC_FIXATE_STALKER:
+                        if (Creature* throngus = GetCreature(DATA_FORGEMASTER_THRONGUS))
+                            throngus->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }

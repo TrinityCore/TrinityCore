@@ -44,7 +44,11 @@ enum GBCreatureIds
     NPC_BLITZ_STALKER           = 40040,
     NPC_GROUND_SIEGE_STALKER    = 40030,
     NPC_MALIGNANT_TROGG         = 39984,
-    NPC_TROGG_DWELLER           = 45467
+    NPC_TROGG_DWELLER           = 45467,
+
+    // Forgemaster Throngus Encounter
+    NPC_CAVE_IN_STALKER         = 40228,
+    NPC_FIXATE_STALKER          = 40255,
 };
 
 template<class AI>
