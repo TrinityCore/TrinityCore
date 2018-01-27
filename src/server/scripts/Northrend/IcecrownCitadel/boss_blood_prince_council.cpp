@@ -442,9 +442,12 @@ struct BloodPrincesBossAI : public BossAI
 
     void InitializeAI() override
     {
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
+            if (controller->AI()->GetData(DATA_INTRO) != DATA_INTRO_DONE)
+                DoCastSelf(SPELL_FEIGN_DEATH);
+
         _spawnHealth = 1;
-        if (!me->isDead())
-            JustAppeared();
+        me->SetHealth(_spawnHealth);
     }
 
     void Reset() override
@@ -490,15 +493,6 @@ struct BloodPrincesBossAI : public BossAI
             default:
                 break;
         }
-    }
-
-    void JustAppeared() override
-    {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
-            if (controller->AI()->GetData(DATA_INTRO) != DATA_INTRO_DONE)
-                DoCastSelf(SPELL_FEIGN_DEATH);
-
-        me->SetHealth(_spawnHealth);
     }
 
     void DamageTaken(Unit* attacker, uint32& damage) override

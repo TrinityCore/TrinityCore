@@ -141,10 +141,14 @@ class boss_tyrannus : public CreatureScript
 
             void InitializeAI() override
             {
-                if (instance->GetBossState(DATA_TYRANNUS) != DONE)
-                    Reset();
-                else
+                if (instance->GetBossState(DATA_TYRANNUS) == DONE)
                     me->DespawnOrUnsummon();
+            }
+
+            void JustAppeared() override
+            {
+                if (instance->GetBossState(DATA_TYRANNUS) != DONE)
+                    BossAI::JustAppeared();
             }
 
             void Reset() override

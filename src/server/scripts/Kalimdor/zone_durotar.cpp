@@ -289,7 +289,7 @@ class npc_troll_volunteer : public CreatureScript
                 _complete = false;
             }
 
-            void InitializeAI() override
+            void JustAppeared() override
             {
                 if (me->isDead() || !me->GetOwner())
                     return;
