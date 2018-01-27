@@ -18759,7 +18759,13 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
 
             AuraLoadEffectInfo& info = effectInfo[key];
             ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
-            if (Aura* aura = Aura::TryCreate(spellInfo, castId, key.EffectMask, this, nullptr, difficulty, info.BaseAmounts.data(), nullptr, casterGuid, itemGuid, castItemId, castItemLevel))
+            AuraCreateInfo createInfo(castId, spellInfo, difficulty, key.EffectMask, this);
+            createInfo
+                .SetCasterGUID(casterGuid)
+                .SetBaseAmount(info.BaseAmounts.data())
+                .SetCastItem(itemGuid, castItemId, castItemLevel);
+
+            if (Aura* aura = Aura::TryCreate(createInfo))
             {
                 if (!aura->CanBeSaved())
                 {

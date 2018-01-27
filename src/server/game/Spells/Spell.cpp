@@ -597,7 +597,8 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     memset(m_misc.Raw.Data, 0, sizeof(m_misc.Raw.Data));
     m_SpellVisual.SpellXSpellVisualID = caster->GetCastSpellXSpellVisualId(m_spellInfo);
     m_triggeredByAuraSpell  = nullptr;
-    m_spellAura = nullptr;
+    _spellAura = nullptr;
+    _dynObjAura = nullptr;
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
@@ -2457,9 +2458,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     uint32 procVictim   = m_procVictim;
     uint32 hitMask = PROC_HIT_NONE;
 
-    m_spellAura = nullptr; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
-
-                            // Spells with this flag cannot trigger if effect is cast on self
+    // Spells with this flag cannot trigger if effect is cast on self
     bool const canEffectTrigger = !m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_PROC) && unitTarget->CanProc() && (CanExecuteTriggersOnHit(mask) || missInfo == SPELL_MISS_IMMUNE || missInfo == SPELL_MISS_IMMUNE2);
     Unit* spellHitTarget = nullptr;
 
@@ -2744,13 +2743,10 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
         }
     }
 
-    uint32 aura_effmask = 0;
-    for (SpellEffectInfo const* effect : m_spellInfo->GetEffects())
-        if (effect && (effectMask & (1 << effect->EffectIndex) && effect->IsUnitOwnedAuraEffect()))
-            aura_effmask |= 1 << effect->EffectIndex;
+    uint32 aura_effmask = Aura::BuildEffectMaskForOwner(m_spellInfo, effectMask, unit);
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-    DiminishingGroup const diminishGroup = m_spellInfo->GetDiminishingReturnsGroupForSpell();
+    DiminishingGroup diminishGroup = m_spellInfo->GetDiminishingReturnsGroupForSpell();
 
     DiminishingLevels diminishLevel = DIMINISHING_LEVEL_1;
     if (diminishGroup && aura_effmask)
@@ -2774,19 +2770,36 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
                         auraSpellEffect->CalcBaseValue(m_originalCaster, unit, m_castItemEntry, m_castItemLevel);
 
             bool refresh = false;
-            bool const resetPeriodicTimer = !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
-            m_spellAura = Aura::TryRefreshStackOrCreate(m_spellInfo, m_castId, effectMask, unit,
-                m_originalCaster, GetCastDifficulty(), basePoints,
-                m_CastItem, ObjectGuid::Empty, &refresh, resetPeriodicTimer, ObjectGuid::Empty, m_castItemEntry, m_castItemLevel);
-            if (m_spellAura)
+
+            if (!_spellAura)
+            {
+                bool const resetPeriodicTimer = !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
+                uint32 const allAuraEffectMask = Aura::BuildEffectMaskForOwner(m_spellInfo, MAX_EFFECT_MASK, unit);
+
+                AuraCreateInfo createInfo(m_castId, m_spellInfo, GetCastDifficulty(), allAuraEffectMask, unit);
+                createInfo
+                    .SetCaster(m_originalCaster)
+                    .SetBaseAmount(basePoints)
+                    .SetCastItem(m_castItemGUID, m_castItemEntry, m_castItemLevel)
+                    .SetPeriodicReset(resetPeriodicTimer)
+                    .SetOwnerEffectMask(aura_effmask)
+                    .IsRefresh = &refresh;
+
+                if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo))
+                    _spellAura = aura->ToUnitAura();
+            }
+            else
+                _spellAura->AddStaticApplication(unit, aura_effmask);
+
+            if (_spellAura)
             {
                 // Set aura stack amount to desired value
                 if (m_spellValue->AuraStackAmount > 1)
                 {
                     if (!refresh)
-                        m_spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
+                        _spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
                     else
-                        m_spellAura->ModStackAmount(m_spellValue->AuraStackAmount);
+                        _spellAura->ModStackAmount(m_spellValue->AuraStackAmount);
                 }
 
                 // Now Reduce spell duration using data received at spell hit
@@ -2805,12 +2818,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
                     }
                 }
 
-                int32 duration = m_spellAura->GetMaxDuration();
+                int32 duration = _spellAura->GetMaxDuration();
 
                 // unit is immune to aura if it was diminished to 0 duration
                 if (!positive && !unit->ApplyDiminishingToDuration(m_spellInfo, duration, m_originalCaster, diminishLevel))
                 {
-                    m_spellAura->Remove();
+                    _spellAura->Remove();
+                    _spellAura = nullptr;
+
                     bool found = false;
                     for (SpellEffectInfo const* effect : m_spellInfo->GetEffects())
                         if (effect && (effectMask & (1 << effect->EffectIndex) && effect->Effect != SPELL_EFFECT_APPLY_AURA))
@@ -2820,7 +2835,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
                 }
                 else
                 {
-                    static_cast<UnitAura*>(m_spellAura)->SetDiminishGroup(diminishGroup);
+                    _spellAura->SetDiminishGroup(diminishGroup);
 
                     duration = m_originalCaster->ModSpellDuration(m_spellInfo, unit, duration, positive, effectMask);
 
@@ -2837,7 +2852,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
                             duration = 0;
                             for (SpellEffectInfo const* effect : m_spellInfo->GetEffects())
                                 if (effect)
-                                    if (AuraEffect const* eff = m_spellAura->GetEffect(effect->EffectIndex))
+                                    if (AuraEffect const* eff = _spellAura->GetEffect(effect->EffectIndex))
                                         if (int32 period = eff->GetPeriod())  // period is hastened by UNIT_MOD_CAST_SPEED
                                             duration = std::max(std::max(origDuration / period, 1) * period, duration);
 
@@ -2847,12 +2862,11 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
                         }
                     }
 
-                    if (duration != m_spellAura->GetMaxDuration())
+                    if (duration != _spellAura->GetMaxDuration())
                     {
-                        m_spellAura->SetMaxDuration(duration);
-                        m_spellAura->SetDuration(duration);
+                        _spellAura->SetMaxDuration(duration);
+                        _spellAura->SetDuration(duration);
                     }
-                    m_spellAura->_RegisterForTargets();
                 }
             }
         }
@@ -3692,8 +3706,6 @@ uint64 Spell::handle_delayed(uint64 t_offset)
 
 void Spell::_handle_immediate_phase()
 {
-    m_spellAura = nullptr;
-
     // handle some immediate features of the spell here
     HandleThreatSpells();
 

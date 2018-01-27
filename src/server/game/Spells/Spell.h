@@ -42,6 +42,7 @@ class AuraEffect;
 class BasicEvent;
 class Corpse;
 class DynamicObject;
+class DynObjAura;
 class GameObject;
 class Item;
 class Object;
@@ -53,6 +54,7 @@ class SpellImplicitTargetInfo;
 class SpellInfo;
 class SpellScript;
 class Unit;
+class UnitAura;
 class WorldObject;
 struct SpellPowerCost;
 struct SummonPropertiesEntry;
@@ -769,7 +771,8 @@ class TC_GAME_API Spell
         SpellEffectHandleMode effectHandleMode;
         SpellEffectInfo const* effectInfo;
         // used in effects handlers
-        Aura* m_spellAura;
+        UnitAura* _spellAura;
+        DynObjAura* _dynObjAura;
 
         // -------------------------------------------
         GameObject* focusObject;
