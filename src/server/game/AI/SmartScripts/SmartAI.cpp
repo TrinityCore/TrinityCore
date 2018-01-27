@@ -664,9 +664,6 @@ void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
 void SmartAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
-
-    if (!me->isDead())
-        GetScript()->OnReset();
 }
 
 void SmartAI::OnCharmed(bool apply)
@@ -985,7 +982,7 @@ void SmartGameObjectAI::UpdateAI(uint32 diff)
 void SmartGameObjectAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
-    //Reset();
+    Reset();
 }
 
 void SmartGameObjectAI::Reset()

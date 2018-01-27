@@ -32,7 +32,14 @@
 #include "Vehicle.h"
 #include "World.h"
 
-//Disable CreatureAI when charmed
+
+void CreatureAI::JustAppeared()
+{
+    if (!me->isDead())
+        Reset();
+}
+
+// Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool apply)
 {
     if (apply)
