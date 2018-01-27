@@ -374,7 +374,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     target->GetThreatManager().PutThreatenedByMeRef(_owner->GetGUID(), ref);
 
     Creature* cOwner = _owner->ToCreature();
-    assert(cOwner); // if we got here the owner can have a threat list, and must be a creature!
+    ASSERT(cOwner); // if we got here the owner can have a threat list, and must be a creature!
     if (!_ownerEngaged && (cOwner->HasReactState(REACT_PASSIVE) || !ref->IsOffline()))
     {
         _ownerEngaged = true;
@@ -412,7 +412,7 @@ void ThreatManager::MatchUnitThreatToHighestThreat(Unit* target)
 
             if ((++it) != end)
             {
-                ThreatReference const* a = *it;
+                a = *it;
                 if (a->IsOnline() && a->GetThreat() > highest->GetThreat())
                     highest = a;
             }

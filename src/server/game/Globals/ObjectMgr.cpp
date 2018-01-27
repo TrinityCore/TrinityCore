@@ -4220,7 +4220,7 @@ void ObjectMgr::LoadQuests()
 
     for (QuestLoaderHelper const& loader : QuestLoaderHelpers)
     {
-        QueryResult result = WorldDatabase.PQuery("SELECT %s FROM %s", loader.QueryFields, loader.TableName);
+        result = WorldDatabase.PQuery("SELECT %s FROM %s", loader.QueryFields, loader.TableName);
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 quest %s. DB table `%s` is empty.", loader.TableDesc, loader.TableName);
         else

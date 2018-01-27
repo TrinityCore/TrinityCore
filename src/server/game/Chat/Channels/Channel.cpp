@@ -838,9 +838,9 @@ void Channel::SetOwner(ObjectGuid guid, bool exclaim)
 
         if (exclaim)
         {
-            OwnerChangedAppend appender(_ownerGuid);
-            ChannelNameBuilder<OwnerChangedAppend> builder(this, appender);
-            SendToAll(builder);
+            OwnerChangedAppend ownerAppender(_ownerGuid);
+            ChannelNameBuilder<OwnerChangedAppend> ownerBuilder(this, ownerAppender);
+            SendToAll(ownerBuilder);
         }
 
         UpdateChannelInDB();

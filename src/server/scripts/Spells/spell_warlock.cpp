@@ -830,7 +830,6 @@ class spell_warl_life_tap : public SpellScriptLoader
                     if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
                         AddPct(mana, aurEff->GetAmount());
 
-                    // @todo castspell refactor note: this is not triggered - intended?
                     CastSpellExtraArgs args;
                     args.AddSpellBP0(mana);
                     caster->CastSpell(target, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
@@ -843,9 +842,9 @@ class spell_warl_life_tap : public SpellScriptLoader
                     if (manaFeedVal > 0)
                     {
                         ApplyPct(manaFeedVal, mana);
-                        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.AddSpellBP0(manaFeedVal);
-                        caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, args);
+                        CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
+                        manaFeedArgs.AddSpellBP0(manaFeedVal);
+                        caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
                     }
                 }
             }
@@ -1231,7 +1230,7 @@ class spell_warl_shadow_ward : public SpellScriptLoader
                     float bonus = 0.8068f;
 
                     bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+                    bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
                 }

@@ -7553,20 +7553,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     if (proto->ArcaneRes)
         HandleStatFlatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(proto->ArcaneRes), apply);
 
-    WeaponAttackType attType = BASE_ATTACK;
-
-    if (slot == EQUIPMENT_SLOT_RANGED && (
-        proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
-        proto->InventoryType == INVTYPE_RANGEDRIGHT))
-    {
-        attType = RANGED_ATTACK;
-    }
-    else if (slot == EQUIPMENT_SLOT_OFFHAND)
-    {
-        attType = OFF_ATTACK;
-    }
-
-    if (CanUseAttackType(attType))
+    WeaponAttackType attType = Player::GetAttackBySlot(slot);
+    if (attType != MAX_ATTACK && CanUseAttackType(attType))
         _ApplyWeaponDamage(slot, proto, ssv, apply);
 
     // Druids get feral AP bonus from weapon dps (also use DPS from ScalingStatValue)
@@ -7588,18 +7576,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
 
 void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingStatValuesEntry const* ssv, bool apply)
 {
-    WeaponAttackType attType = BASE_ATTACK;
-
-    if (slot == EQUIPMENT_SLOT_RANGED && (
-        proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
-        proto->InventoryType == INVTYPE_RANGEDRIGHT))
-    {
-        attType = RANGED_ATTACK;
-    }
-    else if (slot == EQUIPMENT_SLOT_OFFHAND)
-    {
-        attType = OFF_ATTACK;
-    }
+    WeaponAttackType attType = Player::GetAttackBySlot(slot);
+    if (attType == MAX_ATTACK)
+        return;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
     {
@@ -7655,7 +7634,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingSt
         UpdateDamagePhysical(attType);
 }
 
-SpellSchoolMask Player::GetMeleeDamageSchoolMask(WeaponAttackType attackType /*=BASE_ATTACK*/, uint8 damageIndex /*= 0*/) const
+SpellSchoolMask Player::GetMeleeDamageSchoolMask(WeaponAttackType attackType /*= BASE_ATTACK*/, uint8 damageIndex /*= 0*/) const
 {
     if (Item const* weapon = GetWeaponForAttack(attackType, true))
         return SpellSchoolMask(1 << weapon->GetTemplate()->Damage[damageIndex].DamageType);

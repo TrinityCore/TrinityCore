@@ -2360,20 +2360,12 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
     return urand(uint32(minDamage), uint32(maxDamage));
 }
 
-float Unit::CalculateLevelPenalty(SpellInfo const* spellProto) const
+float Unit::CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellProto) const
 {
-    if (spellProto->SpellLevel <= 0 || spellProto->SpellLevel >= spellProto->MaxLevel)
+    if (!spellProto->MaxLevel || getLevel() < spellProto->MaxLevel)
         return 1.0f;
 
-    float LvlPenalty = 0.0f;
-
-    if (spellProto->SpellLevel < 20)
-        LvlPenalty = (20.0f - spellProto->SpellLevel) * 3.75f;
-    float LvlFactor = (float(spellProto->SpellLevel) + 6.0f) / float(getLevel());
-    if (LvlFactor > 1.0f)
-        LvlFactor = 1.0f;
-
-    return AddPct(LvlFactor, -LvlPenalty);
+    return std::max(0.0f, std::min(1.0f, (22.0f + spellProto->MaxLevel - getLevel()) / 20.0f));
 }
 
 void Unit::SendMeleeAttackStart(Unit* victim)
@@ -6929,7 +6921,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     // Default calculation
     if (coeff && DoneAdvertisedBenefit)
     {
-        float factorMod = CalculateLevelPenalty(spellProto) * stack;
+        float factorMod = CalculateSpellpowerCoefficientLevelPenalty(spellProto) * stack;
         if (Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
@@ -7332,7 +7324,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             }
 
             // level penalty still applied on Taken bonus - is it blizzlike?
-            float factorMod = CalculateLevelPenalty(spellProto) * stack;
+            float factorMod = CalculateSpellpowerCoefficientLevelPenalty(spellProto) * stack;
             TakenTotal += int32(TakenAdvertisedBenefit * coeff * factorMod);
         }
     }
@@ -7796,7 +7788,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     // Default calculation
     if (coeff && DoneAdvertisedBenefit)
     {
-        float factorMod = CalculateLevelPenalty(spellProto) * stack;
+        float factorMod = CalculateSpellpowerCoefficientLevelPenalty(spellProto) * stack;
         if (Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
@@ -7978,7 +7970,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         }
 
         // level penalty still applied on Taken bonus - is it blizzlike?
-        float factorMod = CalculateLevelPenalty(spellProto) * int32(stack);
+        float factorMod = CalculateSpellpowerCoefficientLevelPenalty(spellProto) * int32(stack);
         TakenTotal += int32(TakenAdvertisedBenefit * coeff * factorMod);
     }
 
@@ -12089,45 +12081,46 @@ void Unit::SetControlled(bool apply, UnitState state)
                 if (HasAuraType(SPELL_AURA_MOD_STUN))
                     return;
 
+                ClearUnitState(state);
                 SetStunned(false);
                 break;
             case UNIT_STATE_ROOT:
                 if (HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())
                     return;
 
+                ClearUnitState(state);
                 SetRooted(false);
                 break;
             case UNIT_STATE_CONFUSED:
                 if (HasAuraType(SPELL_AURA_MOD_CONFUSE))
                     return;
 
+                ClearUnitState(state);
                 SetConfused(false);
                 break;
             case UNIT_STATE_FLEEING:
                 if (HasAuraType(SPELL_AURA_MOD_FEAR))
                     return;
 
+                ClearUnitState(state);
                 SetFeared(false);
                 break;
             default:
                 return;
         }
 
-        ClearUnitState(state);
-
         // Unit States might have been already cleared but auras still present. I need to check with HasAuraType
         if (HasAuraType(SPELL_AURA_MOD_STUN))
             SetStunned(true);
-        else
-        {
-            if (HasAuraType(SPELL_AURA_MOD_ROOT))
-                SetRooted(true);
 
-            if (HasAuraType(SPELL_AURA_MOD_CONFUSE))
-                SetConfused(true);
-            else if (HasAuraType(SPELL_AURA_MOD_FEAR))
-                SetFeared(true);
-        }
+        if (HasAuraType(SPELL_AURA_MOD_ROOT))
+            SetRooted(true);
+
+        if (HasAuraType(SPELL_AURA_MOD_CONFUSE))
+            SetConfused(true);
+
+        if (HasAuraType(SPELL_AURA_MOD_FEAR))
+            SetFeared(true);
     }
 }
 
@@ -12254,8 +12247,12 @@ void Unit::SetFeared(bool apply)
     }
 
     if (Player* player = ToPlayer())
-        if (!player->HasUnitState(UNIT_STATE_POSSESSED))
-            player->SetClientControl(this, !apply);
+    {
+        if (apply)
+            player->SetClientControl(this, false);
+        else if (!HasUnitState(UNIT_STATE_LOST_CONTROL))
+            player->SetClientControl(this, true);
+    }
 }
 
 void Unit::SetConfused(bool apply)
@@ -12277,8 +12274,12 @@ void Unit::SetConfused(bool apply)
     }
 
     if (Player* player = ToPlayer())
-        if (!player->HasUnitState(UNIT_STATE_POSSESSED))
-            player->SetClientControl(this, !apply);
+    {
+        if (apply)
+            player->SetClientControl(this, false);
+        else if (!HasUnitState(UNIT_STATE_LOST_CONTROL))
+            player->SetClientControl(this, true);
+    }
 }
 
 bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* aurApp)
@@ -12545,7 +12546,9 @@ void Unit::RemoveCharmedBy(Unit* charmer)
             NeedChangeAI = true;
             IsAIEnabled = false;
         }
-        player->SetClientControl(this, true);
+
+        if (!HasUnitState(UNIT_STATE_LOST_CONTROL))
+            player->SetClientControl(this, true);
     }
 
     EngageWithTarget(charmer);

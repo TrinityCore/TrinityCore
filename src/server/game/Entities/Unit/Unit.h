@@ -248,7 +248,7 @@ enum UnitState : uint32
     UNIT_STATE_UNATTACKABLE        = UNIT_STATE_IN_FLIGHT,
     UNIT_STATE_MOVING              = UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE,
     UNIT_STATE_CONTROLLED          = UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING,
-    UNIT_STATE_LOST_CONTROL        = UNIT_STATE_CONTROLLED | UNIT_STATE_JUMPING | UNIT_STATE_CHARGING,
+    UNIT_STATE_LOST_CONTROL        = UNIT_STATE_CONTROLLED | UNIT_STATE_POSSESSED | UNIT_STATE_JUMPING | UNIT_STATE_CHARGING,
     UNIT_STATE_SIGHTLESS           = UNIT_STATE_LOST_CONTROL | UNIT_STATE_EVADE,
     UNIT_STATE_CANNOT_AUTOATTACK   = UNIT_STATE_LOST_CONTROL | UNIT_STATE_CASTING,
     UNIT_STATE_CANNOT_TURN         = UNIT_STATE_LOST_CONTROL | UNIT_STATE_ROTATING,
@@ -1570,7 +1570,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
         void  ModSpellDurationTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
-        float CalculateLevelPenalty(SpellInfo const* spellProto) const;
+        float CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellProto) const;
 
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
         void removeFollower(FollowerReference* /*pRef*/) { /* nothing to do yet */ }
