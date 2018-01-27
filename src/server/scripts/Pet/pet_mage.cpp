@@ -73,13 +73,14 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 if (!owner)
                     return false;
 
-                if (!me->IsInCombat() && !owner->IsInCombat())
+                if (!me->HasUnitState(UNIT_STATE_CASTING) && !me->IsInCombat() && !owner->IsInCombat())
                     return false;
 
                 Unit* currentTarget = me->GetVictim();
                 if (currentTarget && !CanAIAttack(currentTarget))
                 {
                     me->InterruptNonMeleeSpells(true); // do not finish casting on invalid targets
+                    me->AttackStop();
                     currentTarget = nullptr;
                 }
 
@@ -128,11 +129,14 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 }
 
                 if (!selectedTarget)
+                {
                     EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                else if (selectedTarget != me->GetVictim())
-                    AttackStartCaster(selectedTarget, CHASE_DISTANCE);
+                    return false;
+                }
 
-                return me->GetVictim() != nullptr;
+                if (selectedTarget != me->GetVictim())
+                    AttackStartCaster(selectedTarget, CHASE_DISTANCE);
+                return true;
             }
 
             void UpdateAI(uint32 diff) override
