@@ -34,12 +34,16 @@ enum Texts
     SAY_AGGRO                   = 1,
     EMOTE_SLIME_SPRAY           = 2,
     SAY_SLIME_SPRAY             = 3,
-    EMOTE_UNSTABLE_EXPLOSION    = 4,
     SAY_UNSTABLE_EXPLOSION      = 5,
     SAY_KILL                    = 6,
     SAY_BERSERK                 = 7,
     SAY_DEATH                   = 8,
     EMOTE_MUTATED_INFECTION     = 9,
+
+    EMOTE_UNSTABLE_2            = 0,
+    EMOTE_UNSTABLE_3            = 1,
+    EMOTE_UNSTABLE_4            = 2,
+    EMOTE_UNSTABLE_EXPLOSION    = 3,
 
     EMOTE_PRECIOUS_ZOMBIES      = 0,
 };
@@ -63,6 +67,9 @@ enum Spells
     SPELL_UNSTABLE_OOZE_EXPLOSION           = 69839,
     SPELL_STICKY_OOZE                       = 69774,
     SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER   = 69832,
+    SPELL_VERTEX_COLOR_PINK                 = 53213,
+    SPELL_VERTEX_COLOR_BRIGHT_RED           = 69844,
+    SPELL_VERTEX_COLOR_DARK_RED             = 44773,
 
     // Precious
     SPELL_MORTAL_WOUND                      = 71127,
@@ -653,34 +660,55 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rotface_large_ooze_buff_combine_SpellScript);
 
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!(GetHitCreature() && GetHitCreature()->IsAlive()))
                     return;
 
-                if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
+                Creature* caster = GetCaster()->ToCreature();
+                if (Aura* unstable = caster->GetAura(SPELL_UNSTABLE_OOZE))
                 {
                     uint8 newStack = uint8(unstable->GetStackAmount()+1);
                     unstable->SetStackAmount(newStack);
 
-                    // explode!
-                    if (newStack >= 5)
+                    switch (newStack)
                     {
-                        GetCaster()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_BUFF_COMBINE);
-                        GetCaster()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_COMBINE);
-                        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                            if (Creature* rotface = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_ROTFACE)))
-                                if (rotface->IsAlive())
-                                {
-                                    rotface->AI()->Talk(EMOTE_UNSTABLE_EXPLOSION);
-                                    rotface->AI()->Talk(SAY_UNSTABLE_EXPLOSION);
-                                }
+                        case 2:
+                            caster->AI()->Talk(EMOTE_UNSTABLE_2, caster);
+                            caster->CastSpell(caster, SPELL_VERTEX_COLOR_PINK, true);
+                            break;
+                        case 3:
+                            caster->AI()->Talk(EMOTE_UNSTABLE_3, caster);
+                            caster->CastSpell(caster, SPELL_VERTEX_COLOR_BRIGHT_RED, true);
+                            break;
+                        case 4:
+                            caster->AI()->Talk(EMOTE_UNSTABLE_4, caster);
+                            caster->CastSpell(caster, SPELL_VERTEX_COLOR_DARK_RED, true);
+                            break;
+                        case 5:
+                        {
+                            caster->AI()->Talk(EMOTE_UNSTABLE_EXPLOSION);
+                            caster->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_BUFF_COMBINE);
+                            caster->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_COMBINE);
+                            if (InstanceScript* instance = caster->GetInstanceScript())
+                            {
+                                instance->SetData(DATA_OOZE_DANCE_ACHIEVEMENT, uint32(false));
+                                if (Creature* rotface = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_ROTFACE)))
+                                    if (rotface->IsAlive())
+                                        rotface->AI()->Talk(SAY_UNSTABLE_EXPLOSION);
+                            }
 
-                        if (Creature* cre = GetCaster()->ToCreature())
-                            cre->AI()->DoAction(EVENT_STICKY_OOZE);
-                        GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE_EXPLOSION, CastSpellExtraArgs().SetOriginalCaster(GetCaster()->GetGUID()));
-                        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                            instance->SetData(DATA_OOZE_DANCE_ACHIEVEMENT, uint32(false));
+                            caster->AI()->DoAction(EVENT_STICKY_OOZE);
+                            caster->CastSpell(caster, SPELL_UNSTABLE_OOZE_EXPLOSION, CastSpellExtraArgs().SetOriginalCaster(caster->GetGUID()));
+                            break;
+                        }
+                        default:
+                            break;
                     }
                 }
 
