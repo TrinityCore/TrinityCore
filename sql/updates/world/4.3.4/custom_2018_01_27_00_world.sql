@@ -49,7 +49,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID`= 40177;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `Comment`) VALUES
-(40177, 0, 0, 'NEIN! Throngus wieder ausgepeitscht, wenn er nicht fertig wird!', 14, 0, 100, 0, 0, 18943, 47777, 'Forgemaster Throngus - Say Aggro'),
+(40177, 0, 0, 'NO! Throngus get whipped again if he no finish!', 14, 0, 100, 0, 0, 18943, 47777, 'Forgemaster Throngus - Say Aggro'),
 (40177, 1, 0, 'You not get through defenses!', 14, 0, 100, 0, 0, 18947, 47781, 'Forgemaster Throngus - Say Personal Phalanx'),
 (40177, 2, 0, 'Oh, this gonna HURT!', 14, 0, 100, 53, 0, 18949, 47782, 'Forgemaster Throngus - Say Mace'),
 (40177, 3, 0, 'Throngus SLICE you up!', 14, 0, 100, 0, 0, 18948, 47783, 'Forgemaster Throngus - Say Swords'),
