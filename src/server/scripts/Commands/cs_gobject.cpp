@@ -34,6 +34,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "RBAC.h"
@@ -146,7 +147,7 @@ public:
         if (!object)
             return false;
 
-        object->CopyPhaseFrom(player);
+        PhasingHandler::InheritPhaseShift(object, player);
 
         if (spawntimeSecs)
         {
