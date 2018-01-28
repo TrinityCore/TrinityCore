@@ -1228,6 +1228,7 @@ Unit* Creature::SelectVictim()
                 if (!mgr.IsThreatenedBy(newTarget, true))
                 {
                     mgr.AddThreat(newTarget, 0.0f, nullptr, true, true);
+                    ASSERT(mgr.IsThreatenedBy(newTarget, true), "%s tried to add combatant %s to threat list, but this failed - potential infinite loop", GetName().c_str(), newTarget->GetName().c_str()); // prevent potential infinite loop
                     break;
                 }
                 else
