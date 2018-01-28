@@ -16056,9 +16056,9 @@ void Player::SendQuestUpdate(uint32 questId)
     {
         for (SpellAreaForQuestAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         {
-            if (!itr->second->IsFitToRequirements(this, zone, area))
+            if (itr->second->flags & SPELL_AREA_FLAG_AUTOREMOVE && !itr->second->IsFitToRequirements(this, zone, area))
                 RemoveAurasDueToSpell(itr->second->spellId);
-            else if (itr->second->autocast)
+            else if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST)
                 if (!HasAura(itr->second->spellId))
                     CastSpell(this, itr->second->spellId, true);
         }
@@ -24887,7 +24887,7 @@ void Player::UpdateZoneDependentAuras(uint32 newZone)
     // Some spells applied at enter into zone (with subzones), aura removed in UpdateAreaDependentAuras that called always at zone->area update
     SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(newZone);
     for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
-        if (itr->second->autocast && itr->second->IsFitToRequirements(this, newZone, 0))
+        if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && itr->second->IsFitToRequirements(this, newZone, 0))
             if (!HasAura(itr->second->spellId))
                 CastSpell(this, itr->second->spellId, true);
 }
@@ -24907,7 +24907,7 @@ void Player::UpdateAreaDependentAuras(uint32 newArea)
     // some auras applied at subzone enter
     SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(newArea);
     for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
-        if (itr->second->autocast && itr->second->IsFitToRequirements(this, m_zoneUpdateId, newArea))
+        if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && itr->second->IsFitToRequirements(this, m_zoneUpdateId, newArea))
             if (!HasAura(itr->second->spellId))
                 CastSpell(this, itr->second->spellId, true);
 }
