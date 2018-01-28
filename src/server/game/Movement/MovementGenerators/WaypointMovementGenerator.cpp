@@ -109,7 +109,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
     // inform AI
     if (creature->AI())
     {
-        creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
+        creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, creature->GetAIName() == "SmartAI" ? waypoint.id : _currentNode);
         creature->AI()->WaypointReached(waypoint.id, _path->id);
     }
 
