@@ -2407,7 +2407,7 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
 {
     // find raw .map surface under Z coordinates
     float const gridHeight = GetGridMapHeight(x, y);
-    float mapHeight = z > gridHeight ? gridHeight : VMAP_INVALID_HEIGHT_VALUE;
+    float mapHeight = z + collisionHeight > gridHeight ? gridHeight : VMAP_INVALID_HEIGHT_VALUE;
 
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)

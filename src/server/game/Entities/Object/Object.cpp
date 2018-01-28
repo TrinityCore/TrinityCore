@@ -2317,7 +2317,8 @@ float WorldObject::SelectBestZForDestination(float x, float y, float z, bool exc
     float myX, myY, myZ;
     GetPosition(myX, myY, myZ);
 
-    float const myCollisionHeight = excludeCollisionHeight ? 0.0f : GetCollisionHeight();
+    float const myCollisionHeight = GetCollisionHeight();
+    float const destCollisionHeight = excludeCollisionHeight ? 0.0f : myCollisionHeight;
 
     float const myGridHeight = GetMap()->GetGridMapHeight(myX, myY);
     float const myVmapFloor = std::max(GetMap()->GetVMapFloor(myX, myY, myZ, 150.0f, GetCollisionHeight()),
@@ -2325,39 +2326,37 @@ float WorldObject::SelectBestZForDestination(float x, float y, float z, bool exc
 
     // which of these 3 do I want ?
     float const destGridHeight = GetMap()->GetGridMapHeight(x, y);
-    float const destCeil = GetMap()->GetCeil(GetPhaseMask(), x, y, z, 150.0f, myCollisionHeight);
-    float const destVmapFloor = std::max(GetMap()->GetVMapFloor(x, y, z, 150.0f, myCollisionHeight),
-        GetMap()->GetGameObjectFloor(GetPhaseMask(), x, y, z, 150.0f, myCollisionHeight));
+    float const destCeil = GetMap()->GetCeil(GetPhaseMask(), x, y, z, 150.0f, destCollisionHeight);
+    float const destVmapFloor = std::max(GetMap()->GetVMapFloor(x, y, z, 150.0f, destCollisionHeight),
+        GetMap()->GetGameObjectFloor(GetPhaseMask(), x, y, z, 150.0f, destCollisionHeight));
 
     bool const hasVmapFloor = myVmapFloor > INVALID_HEIGHT;
     bool const hasDestGridHeight = destGridHeight > INVALID_HEIGHT;
     bool const hasDestVmapCeil = destCeil < VMAP_INVALID_CEIL && destCeil != destVmapFloor;
     bool const hasDestVmapFloor = destVmapFloor > INVALID_HEIGHT;
     bool const destBetweenVmaps = hasDestVmapCeil && hasDestVmapFloor;
-    bool const underVmap = !hasDestVmapFloor;
-    bool const aboveAllVmap = !hasDestVmapCeil;
+    bool const noVmap = !hasDestVmapFloor && !hasDestVmapCeil;
 
     bool const isOnVmap = hasVmapFloor &&
         ((myZ < myGridHeight && std::fabs(myVmapFloor - myZ) < std::fabs(myGridHeight - myZ)) ||
         (myZ > myGridHeight && myVmapFloor > myGridHeight));
 
-    bool const hasToFollowGridHeight = hasDestGridHeight && ((underVmap && aboveAllVmap) ||
-        (destBetweenVmaps && !isOnVmap && ((destGridHeight > destVmapFloor && destGridHeight < destCeil))) ||
-        (hasDestVmapFloor && !hasDestVmapCeil && !isOnVmap && (destGridHeight > destVmapFloor)) ||
-        (hasDestVmapFloor && !hasDestVmapCeil && isOnVmap && z > destGridHeight && destGridHeight > destVmapFloor) ||
-        (hasDestVmapFloor && !hasDestVmapCeil && isOnVmap && myZ > myGridHeight && destVmapFloor < destGridHeight) ||
-        (hasDestVmapCeil && !hasDestVmapFloor && !isOnVmap && (destCeil < destGridHeight || destCeil - destGridHeight > GetCollisionHeight())));
+    bool const hasToFollowGridHeight = hasDestGridHeight && (noVmap ||
+        (z > destGridHeight && destGridHeight > destVmapFloor) ||
+        (z < destGridHeight && hasDestVmapFloor && !hasDestVmapCeil) ||
+        (z < destGridHeight && !hasDestVmapFloor) ||
+        (destBetweenVmaps && !isOnVmap && ((destGridHeight > destVmapFloor && destGridHeight < destCeil))));
 
     float result = INVALID_HEIGHT;
     if (hasToFollowGridHeight)
     {
         result = destGridHeight;
         if (hasDestVmapFloor)
-            if (std::fabs(destVmapFloor - destGridHeight) < GetCollisionHeight())
+            if (std::fabs(destVmapFloor - destGridHeight) < myCollisionHeight)
                 result = std::max(destVmapFloor, destGridHeight);
 
         if (hasDestVmapCeil)
-            if (std::fabs(destCeil - destGridHeight) < GetCollisionHeight())
+            if (std::fabs(destCeil - destGridHeight) < myCollisionHeight)
                 result = std::max(destCeil, destGridHeight);
     }
     else if (hasDestVmapFloor)
@@ -2370,7 +2369,7 @@ float WorldObject::SelectBestZForDestination(float x, float y, float z, bool exc
             return result;
 
     LiquidData liquidData;
-    ZLiquidStatus const liquidStatus = GetMap()->GetLiquidStatus(x, y, result, MAP_ALL_LIQUIDS, &liquidData, myCollisionHeight);
+    ZLiquidStatus const liquidStatus = GetMap()->GetLiquidStatus(x, y, result, MAP_ALL_LIQUIDS, &liquidData, destCollisionHeight);
     switch (liquidStatus)
     {
         case LIQUID_MAP_ABOVE_WATER:
