@@ -64,6 +64,7 @@ enum Spells
     SPELL_UNSTABLE_OOZE_EXPLOSION           = 69839,
     SPELL_STICKY_OOZE                       = 69774,
     SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER   = 69832,
+    SPELL_OOZE_GROW                         = 74996,
 
     // Precious
     SPELL_MORTAL_WOUND                      = 71127,
@@ -655,13 +656,18 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (!(GetHitCreature() && GetHitCreature()->IsAlive()))
+                Unit* caster = GetCaster();
+
+                if (!(GetHitCreature() && GetHitCreature()->IsAlive() && caster))
                     return;
 
-                if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
+                if (Aura* unstable = caster->GetAura(SPELL_UNSTABLE_OOZE))
                 {
                     uint8 newStack = uint8(unstable->GetStackAmount()+1);
                     unstable->SetStackAmount(newStack);
+
+                    if (unstable->GetStackAmount() > 2)
+                        caster->SetAuraStack(SPELL_OOZE_GROW, caster, unstable->GetStackAmount() - 2);
 
                     // explode!
                     if (newStack >= 5)
