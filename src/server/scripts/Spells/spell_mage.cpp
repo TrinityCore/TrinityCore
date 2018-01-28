@@ -616,7 +616,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
                     float bonus = 0.8068f;
 
                     bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+                    bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
                 }
@@ -935,7 +935,7 @@ class spell_mage_ice_barrier : public SpellScriptLoader
                     // Glyph of Ice Barrier is only applied at the spell damage bonus because it was already applied to the base value in CalculateSpellDamage
                     bonus = caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), bonus);
 
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+                    bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
                 }
@@ -1114,7 +1114,7 @@ class spell_mage_mana_shield : public SpellScriptLoader
                     float bonus = 0.8053f;
 
                     bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+                    bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
                 }

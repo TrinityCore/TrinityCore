@@ -1919,7 +1919,7 @@ class spell_pal_sacred_shield : public SpellScriptLoader
 
                     // Divine Guardian is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
                     bonus = caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), bonus);
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+                    bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
 
