@@ -44,8 +44,12 @@ enum RuulSnowhoof
     NPC_THISTLEFUR_TOTEMIC      = 3922,
     NPC_THISTLEFUR_PATHFINDER   = 3926,
     QUEST_FREEDOM_TO_RUUL       = 6482,
-    GO_CAGE                     = 178147
+    GO_CAGE                     = 178147,
+    RUUL_SHAPECHANGE            = 20514,
+    SAY_FINISH                  = 0
 };
+
+
 
 Position const RuulSnowhoofSummonsCoord[6] =
 {
@@ -111,7 +115,9 @@ public:
                     me->SummonCreature(NPC_THISTLEFUR_URSA, RuulSnowhoofSummonsCoord[4], TEMPSUMMON_DEAD_DESPAWN, 60000);
                     me->SummonCreature(NPC_THISTLEFUR_PATHFINDER, RuulSnowhoofSummonsCoord[5], TEMPSUMMON_DEAD_DESPAWN, 60000);
                     break;
-                case 21:
+                case 27:
+                    me->RemoveAurasDueToSpell(RUUL_SHAPECHANGE);
+                    Talk(SAY_FINISH, player);
                     player->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);
                     break;
             }
