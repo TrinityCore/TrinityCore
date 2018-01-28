@@ -31,7 +31,6 @@
 #include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
 #include <array>
-#include <set>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -908,7 +907,6 @@ class TC_GAME_API WorldSession
         void SendNotification(uint32 stringId, ...);
         void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);
         void SendPartyResult(PartyOperation operation, std::string const& member, PartyResult res, uint32 val = 0);
-        void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaSwaps);
         void SendQueryTimeResponse();
 
         void SendAuthResponse(uint32 code, bool queued, uint32 queuePos = 0);

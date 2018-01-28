@@ -892,15 +892,28 @@ struct DungeonEncounter
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef std::unordered_map<uint64, DungeonEncounterList> DungeonEncounterContainer;
 
+struct TerrainSwapInfo
+{
+    uint32 Id;
+    std::vector<uint32> UiWorldMapAreaIDSwaps;
+};
+
 struct PhaseInfoStruct
 {
     uint32 Id;
-    ConditionContainer Conditions;
+    std::unordered_set<uint32> Areas;
+
+    bool IsAllowedInArea(uint32 areaId) const;
 };
 
-typedef std::unordered_map<uint32, std::vector<uint32 /*id*/>> TerrainPhaseInfo; // terrain swap
-typedef std::unordered_map<uint32, std::vector<uint32>> TerrainUIPhaseInfo; // worldmaparea swap
-typedef std::unordered_map<uint32, std::vector<PhaseInfoStruct>> PhaseInfo; // phase
+struct PhaseAreaInfo
+{
+    PhaseAreaInfo(PhaseInfoStruct const* phaseInfo) : PhaseInfo(phaseInfo) { }
+
+    PhaseInfoStruct const* PhaseInfo;
+    std::unordered_set<uint32> SubAreaExclusions;
+    ConditionContainer Conditions;
+};
 
 struct RaceUnlockRequirement
 {
@@ -1249,7 +1262,9 @@ class TC_GAME_API ObjectMgr
         void LoadTrainers();
         void LoadCreatureDefaultTrainers();
 
-        void LoadTerrainPhaseInfo();
+        void LoadPhases();
+        void UnloadPhaseConditions();
+
         void LoadTerrainSwapDefaults();
         void LoadTerrainWorldMaps();
         void LoadAreaPhases();
@@ -1513,36 +1528,6 @@ class TC_GAME_API ObjectMgr
             return _gossipMenuItemsStore.equal_range(uiMenuId);
         }
 
-        std::vector<uint32> const* GetPhaseTerrainSwaps(uint32 phaseid) const
-        {
-            auto itr = _terrainPhaseInfoStore.find(phaseid);
-            return itr != _terrainPhaseInfoStore.end() ? &itr->second : nullptr;
-        }
-        std::vector<uint32> const* GetDefaultTerrainSwaps(uint32 mapid) const
-        {
-            auto itr = _terrainMapDefaultStore.find(mapid);
-            return itr != _terrainMapDefaultStore.end() ? &itr->second : nullptr;
-        }
-        std::vector<uint32> const* GetTerrainWorldMaps(uint32 terrainId) const
-        {
-            auto itr = _terrainWorldMapStore.find(terrainId);
-            return itr != _terrainWorldMapStore.end() ? &itr->second : nullptr;
-        }
-        std::vector<PhaseInfoStruct> const* GetPhasesForArea(uint32 area) const
-        {
-            auto itr = _phases.find(area);
-            return itr != _phases.end() ? &itr->second : nullptr;
-        }
-        TerrainPhaseInfo const& GetDefaultTerrainSwapStore() const { return _terrainMapDefaultStore; }
-        PhaseInfo const& GetAreaAndZonePhases() const { return _phases; }
-        // condition loading helpers
-        std::vector<PhaseInfoStruct>* GetPhasesForAreaOrZoneForLoading(uint32 areaOrZone)
-        {
-            auto itr = _phases.find(areaOrZone);
-            return itr != _phases.end() ? &itr->second : nullptr;
-        }
-        PhaseInfo& GetAreaAndZonePhasesForLoading() { return _phases; }
-
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
 
@@ -1684,10 +1669,17 @@ class TC_GAME_API ObjectMgr
         PageTextContainer _pageTextStore;
         InstanceTemplateContainer _instanceTemplateStore;
 
-        TerrainPhaseInfo _terrainPhaseInfoStore;
-        TerrainPhaseInfo _terrainMapDefaultStore;
-        TerrainUIPhaseInfo _terrainWorldMapStore;
-        PhaseInfo _phases;
+    public:
+        PhaseInfoStruct const* GetPhaseInfo(uint32 phaseId) const;
+        std::vector<PhaseAreaInfo> const* GetPhasesForArea(uint32 areaId) const;
+        TerrainSwapInfo const* GetTerrainSwapInfo(uint32 terrainSwapId) const;
+        std::vector<TerrainSwapInfo*> const* GetTerrainSwapsForMap(uint32 mapId) const;
+
+    private:
+        std::unordered_map<uint32, PhaseInfoStruct> _phaseInfoById;
+        std::unordered_map<uint32, TerrainSwapInfo> _terrainSwapInfoById;
+        std::unordered_map<uint32, std::vector<PhaseAreaInfo>> _phaseInfoByArea;
+        std::unordered_map<uint32, std::vector<TerrainSwapInfo*>> _terrainSwapInfoByMap;
 
     private:
         void LoadScripts(ScriptsType type);

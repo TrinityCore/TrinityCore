@@ -814,6 +814,23 @@ enum MountFlags
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
 };
 
+enum PhaseEntryFlags : uint16
+{
+    PHASE_FLAG_NORMAL   = 0x08,
+    PHASE_FLAG_COSMETIC = 0x10,
+    PHASE_FLAG_PERSONAL = 0x20
+};
+
+// PhaseUseFlags fields in different db2s
+enum PhaseUseFlagsValues : uint8
+{
+    PHASE_USE_FLAGS_NONE            = 0x0,
+    PHASE_USE_FLAGS_ALWAYS_VISIBLE  = 0x1,
+    PHASE_USE_FLAGS_INVERSE         = 0x2,
+
+    PHASE_USE_FLAGS_ALL             = PHASE_USE_FLAGS_ALWAYS_VISIBLE | PHASE_USE_FLAGS_INVERSE
+};
+
 enum PrestigeLevelInfoFlags : uint8
 {
     PRESTIGE_FLAG_DISABLED  = 0x01                      // Prestige levels with this flag won't be included to calculate max prestigelevel.

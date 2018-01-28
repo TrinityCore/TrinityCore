@@ -41,6 +41,7 @@
 #include "ObjectGridLoader.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
@@ -568,7 +569,7 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
         player->m_clientGUIDs.clear();
 
     player->UpdateObjectVisibility(false);
-    player->SendUpdatePhasing();
+    PhasingHandler::SendToPlayer(player);
 
     if (player->IsAlive())
         ConvertCorpseToBones(player->GetGUID());
@@ -631,8 +632,6 @@ bool Map::AddToMap(T* obj)
     if (obj->isActiveObject())
         AddToActive(obj);
 
-    obj->RebuildTerrainSwaps();
-
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual
     obj->UpdateObjectVisibilityOnCreate();
@@ -665,6 +664,7 @@ bool Map::AddToMap(Transport* obj)
             {
                 UpdateData data(GetId());
                 obj->BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
+                itr->GetSource()->m_visibleTransports.insert(obj->GetGUID());
                 WorldPacket packet;
                 data.BuildPacket(&packet);
                 itr->GetSource()->SendDirectMessage(&packet);
@@ -969,8 +969,13 @@ void Map::RemoveFromMap(Transport* obj, bool remove)
         WorldPacket packet;
         data.BuildPacket(&packet);
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        {
             if (itr->GetSource()->GetTransport() != obj)
+            {
                 itr->GetSource()->SendDirectMessage(&packet);
+                itr->GetSource()->m_visibleTransports.erase(obj->GetGUID());
+            }
+        }
     }
 
     if (_transportsUpdateIter != _transports.end())
@@ -2495,12 +2500,12 @@ inline GridMap* Map::GetGrid(float x, float y)
     return GridMaps[gx][gy];
 }
 
-float Map::GetWaterOrGroundLevel(std::set<uint32> const& phases, float x, float y, float z, float* ground /*= nullptr*/, bool /*swim = false*/) const
+float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground /*= nullptr*/, bool /*swim = false*/) const
 {
     if (const_cast<Map*>(this)->GetGrid(x, y))
     {
         // we need ground level (including grid height version) for proper return water level in point
-        float ground_z = GetHeight(phases, x, y, z, true, 50.0f);
+        float ground_z = GetHeight(phaseShift, x, y, z, true, 50.0f);
         if (ground)
             *ground = ground_z;
 
@@ -2789,19 +2794,19 @@ float Map::GetWaterLevel(float x, float y) const
         return 0;
 }
 
-bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, std::set<uint32> const& phases) const
+bool Map::isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2) const
 {
     return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2)
-        && _dynamicTree.isInLineOfSight({ x1, y1, z1 }, { x2, y2, z2 }, phases);
+        && _dynamicTree.isInLineOfSight({ x1, y1, z1 }, { x2, y2, z2 }, phaseShift);
 }
 
-bool Map::getObjectHitPos(std::set<uint32> const& phases, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
+bool Map::getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
 {
     G3D::Vector3 startPos(x1, y1, z1);
     G3D::Vector3 dstPos(x2, y2, z2);
 
     G3D::Vector3 resultPos;
-    bool result = _dynamicTree.getObjectHitPos(phases, startPos, dstPos, resultPos, modifyDist);
+    bool result = _dynamicTree.getObjectHitPos(startPos, dstPos, resultPos, modifyDist, phaseShift);
 
     rx = resultPos.x;
     ry = resultPos.y;
@@ -2809,9 +2814,9 @@ bool Map::getObjectHitPos(std::set<uint32> const& phases, float x1, float y1, fl
     return result;
 }
 
-float Map::GetHeight(std::set<uint32> const& phases, float x, float y, float z, bool vmap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
+float Map::GetHeight(PhaseShift const& phaseShift, float x, float y, float z, bool vmap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
-    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phases));
+    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phaseShift));
 }
 
 bool Map::IsInWater(float x, float y, float pZ, LiquidData* data) const
@@ -2858,6 +2863,7 @@ void Map::SendInitSelf(Player* player)
     if (Transport* transport = player->GetTransport())
     {
         transport->BuildCreateUpdateBlockForPlayer(&data, player);
+        player->m_visibleTransports.insert(transport->GetGUID());
     }
 
     // build data for self presence in world at own client (one time for map)
@@ -2865,9 +2871,9 @@ void Map::SendInitSelf(Player* player)
 
     // build other passengers at transport also (they always visible and marked as visible and will not send at visibility update at add to map
     if (Transport* transport = player->GetTransport())
-        for (Transport::PassengerSet::const_iterator itr = transport->GetPassengers().begin(); itr != transport->GetPassengers().end(); ++itr)
-            if (player != (*itr) && player->HaveAtClient(*itr))
-                (*itr)->BuildCreateUpdateBlockForPlayer(&data, player);
+        for (WorldObject* passenger : transport->GetPassengers())
+            if (player != passenger && player->HaveAtClient(passenger))
+                passenger->BuildCreateUpdateBlockForPlayer(&data, player);
 
     WorldPacket packet;
     data.BuildPacket(&packet);
@@ -2878,9 +2884,14 @@ void Map::SendInitTransports(Player* player)
 {
     // Hack to send out transports
     UpdateData transData(player->GetMapId());
-    for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
-        if (*i != player->GetTransport() && player->IsInPhase(*i))
-            (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
+    for (Transport* transport : _transports)
+    {
+        if (transport != player->GetTransport() && player->IsInPhase(transport))
+        {
+            transport->BuildCreateUpdateBlockForPlayer(&transData, player);
+            player->m_visibleTransports.insert(transport->GetGUID());
+        }
+    }
 
     WorldPacket packet;
     transData.BuildPacket(&packet);
@@ -2891,28 +2902,40 @@ void Map::SendRemoveTransports(Player* player)
 {
     // Hack to send out transports
     UpdateData transData(player->GetMapId());
-    for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
-        if (*i != player->GetTransport())
-            (*i)->BuildOutOfRangeUpdateBlock(&transData);
+    for (Transport* transport : _transports)
+    {
+        if (transport != player->GetTransport())
+        {
+            transport->BuildOutOfRangeUpdateBlock(&transData);
+            player->m_visibleTransports.erase(transport->GetGUID());
+        }
+    }
 
     WorldPacket packet;
     transData.BuildPacket(&packet);
     player->GetSession()->SendPacket(&packet);
 }
 
-void Map::SendUpdateTransportVisibility(Player* player, std::set<uint32> const& previousPhases)
+void Map::SendUpdateTransportVisibility(Player* player)
 {
     // Hack to send out transports
     UpdateData transData(player->GetMapId());
-    for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
+    for (Transport* transport : _transports)
     {
-        if (*i == player->GetTransport())
-            continue;
-
-        if (player->IsInPhase(*i) && !Trinity::Containers::Intersects(previousPhases.begin(), previousPhases.end(), (*i)->GetPhases().begin(), (*i)->GetPhases().end()))
-            (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
-        else if (!player->IsInPhase(*i))
-            (*i)->BuildOutOfRangeUpdateBlock(&transData);
+        auto transportItr = player->m_visibleTransports.find(transport->GetGUID());
+        if (player->IsInPhase(transport))
+        {
+            if (transportItr == player->m_visibleTransports.end())
+            {
+                transport->BuildCreateUpdateBlockForPlayer(&transData, player);
+                player->m_visibleTransports.insert(transport->GetGUID());
+            }
+        }
+        else if (transportItr != player->m_visibleTransports.end())
+        {
+            transport->BuildOutOfRangeUpdateBlock(&transData);
+            player->m_visibleTransports.erase(transportItr);
+        }
     }
 
     WorldPacket packet;
@@ -4030,8 +4053,8 @@ void Map::LoadCorpseData()
             continue;
         }
 
-        for (auto phaseId : phases[guid])
-            corpse->SetInPhase(phaseId, false, true);
+        for (uint32 phaseId : phases[guid])
+            PhasingHandler::AddPhase(corpse, phaseId, false);
 
         AddCorpse(corpse);
 
@@ -4111,7 +4134,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
 
         bones->SetUInt32Value(CORPSE_FIELD_FLAGS, corpse->GetUInt32Value(CORPSE_FIELD_FLAGS) | CORPSE_FLAG_BONES);
 
-        bones->CopyPhaseFrom(corpse);
+        PhasingHandler::InheritPhaseShift(bones, corpse);
 
         AddCorpse(bones);
 
