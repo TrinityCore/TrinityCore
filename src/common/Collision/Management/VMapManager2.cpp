@@ -242,7 +242,7 @@ namespace VMAP
             if (instanceTree != iInstanceMapTrees.end())
             {
                 Vector3 pos = convertPositionToInternalRep(x, y, z);
-                float height = instanceTree->second->getCeiling(pos, maxSearchDist);
+                float height = instanceTree->second->getCeil(pos, maxSearchDist);
                 if (!(height < G3D::finf()))
                     return height = VMAP_INVALID_CEIL_VALUE; // No height
 

@@ -236,7 +236,7 @@ namespace VMAP
         return(height);
     }
 
-    float StaticMapTree::getCeiling(const G3D::Vector3 & pPos, float maxSearchDist) const
+    float StaticMapTree::getCeil(const G3D::Vector3 & pPos, float maxSearchDist) const
     {
         float height = G3D::finf();
         Vector3 dir = Vector3(0, 0, 1);
