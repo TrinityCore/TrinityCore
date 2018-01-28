@@ -25,6 +25,7 @@
 #include "Map.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "VehicleDefines.h"
 
@@ -235,7 +236,7 @@ bool Garrison::Create(uint32 garrSiteId)
     WorldPackets::Garrison::GarrisonCreateResult garrisonCreateResult;
     garrisonCreateResult.GarrSiteLevelID = _siteLevel->ID;
     _owner->SendDirectMessage(garrisonCreateResult.Write());
-    _owner->SendUpdatePhasing();
+    PhasingHandler::OnConditionChange(_owner);
     SendRemoteInfo();
     return true;
 }

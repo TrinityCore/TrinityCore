@@ -87,6 +87,7 @@
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PetPackets.h"
+#include "PhasingHandler.h"
 #include "QueryHolder.h"
 #include "QuestDef.h"
 #include "QuestObjectiveCriteriaMgr.h"
@@ -2195,10 +2196,13 @@ void Player::SetGameMaster(bool on)
         getHostileRefManager().setOnlineOfflineState(false);
         CombatStopWithPets();
 
+        PhasingHandler::SetAlwaysVisible(GetPhaseShift(), true);
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
     }
     else
     {
+        PhasingHandler::SetAlwaysVisible(GetPhaseShift(), false);
+
         m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
         setFactionForRace(getRace());
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
@@ -6984,7 +6988,7 @@ void Player::UpdateArea(uint32 newArea)
     UpdatePvPState(true);
 
     UpdateAreaDependentAuras(newArea);
-    UpdateAreaAndZonePhase();
+    PhasingHandler::OnAreaChange(this);
 
     if (IsAreaThatActivatesPvpTalents(newArea))
         EnablePvpRules();
@@ -7093,8 +7097,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     UpdateLocalChannels(newZone);
 
     UpdateZoneDependentAuras(newZone);
-
-    UpdateAreaAndZonePhase();
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -16188,7 +16190,7 @@ void Player::SendQuestUpdate(uint32 questId)
     }
 
     UpdateForQuestWorldObjects();
-    SendUpdatePhasing();
+    PhasingHandler::OnConditionChange(this);
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
@@ -23820,6 +23822,8 @@ void Player::SendInitialPacketsAfterAddToMap()
         SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
     }
 
+    PhasingHandler::OnMapChange(this);
+
     if (_garrison)
         _garrison->SendRemoteInfo();
 
@@ -27751,7 +27755,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return nullptr;
     }
 
-    pet->CopyPhaseFrom(this);
+    PhasingHandler::InheritPhaseShift(pet, this);
 
     pet->SetCreatorGUID(GetGUID());
     pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
@@ -27893,16 +27897,6 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
         mi->AddMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
 
     #undef REMOVE_VIOLATING_FLAGS
-}
-
-void Player::SendUpdatePhasing()
-{
-    if (!IsInWorld())
-        return;
-
-    RebuildTerrainSwaps(); // to set default map swaps
-
-    GetSession()->SendSetPhaseShift(GetPhases(), GetTerrainSwaps(), GetWorldMapAreaSwaps());
 }
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const

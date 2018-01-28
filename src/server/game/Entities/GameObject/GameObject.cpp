@@ -35,6 +35,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "PhasingHandler.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
@@ -988,15 +989,8 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
     if (!Create(entry, map, pos, data->rotation, animprogress, go_state, artKit))
         return false;
 
-    if (data->phaseId)
-        SetInPhase(data->phaseId, false, true);
-
-    if (data->phaseGroup)
-    {
-        // Set the gameobject in all the phases of the phasegroup
-        for (auto ph : sDB2Manager.GetPhasesForGroup(data->phaseGroup))
-            SetInPhase(ph, false, true);
-    }
+    PhasingHandler::InitDbPhaseShift(GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
+    PhasingHandler::InitDbVisibleMapId(GetPhaseShift(), data->terrainSwapMap);
 
     if (data->spawntimesecs >= 0)
     {
@@ -2623,7 +2617,7 @@ public:
 
     virtual bool IsSpawned() const override { return _owner->isSpawned(); }
     virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
-    virtual bool IsInPhase(std::set<uint32> const& phases) const override { return _owner->IsInPhase(phases); }
+    virtual bool IsInPhase(PhaseShift const& phaseShift) const override { return _owner->GetPhaseShift().CanSee(phaseShift); }
     virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
     virtual float GetOrientation() const override { return _owner->GetOrientation(); }
     virtual float GetScale() const override { return _owner->GetObjectScale(); }

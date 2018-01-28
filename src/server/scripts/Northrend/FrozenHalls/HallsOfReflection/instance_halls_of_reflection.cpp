@@ -23,6 +23,7 @@
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
@@ -143,7 +144,10 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     case NPC_FROSTSWORN_GENERAL:
                         FrostswornGeneralGUID = creature->GetGUID();
-                        creature->SetInPhase(170, true, GetBossState(DATA_MARWYN) != DONE);
+                        if (GetBossState(DATA_MARWYN) != DONE)
+                            PhasingHandler::AddPhase(creature, 170, true);
+                        else
+                            PhasingHandler::RemovePhase(creature, 170, true);
                         break;
                     case NPC_JAINA_ESCAPE:
                     case NPC_SYLVANAS_ESCAPE:
@@ -325,7 +329,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             HandleGameObject(ImpenetrableDoorGUID, true);
                             DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
                             if (Creature* general = instance->GetCreature(FrostswornGeneralGUID))
-                                general->SetInPhase(170, true, false);
+                                PhasingHandler::RemovePhase(general, 170, true);
 
                             SpawnGunship();
                             SpawnEscapeEvent();

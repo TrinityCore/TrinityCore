@@ -51,6 +51,7 @@
 #include "OutdoorPvPMgr.h"
 #include "PathGenerator.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
@@ -3086,7 +3087,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     if (!go)
         return;
 
-    go->CopyPhaseFrom(m_caster);
+    PhasingHandler::InheritPhaseShift(go, m_caster);
 
     int32 duration = m_spellInfo->CalcDuration(m_caster);
 
@@ -3105,7 +3106,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     if (GameObject* linkedTrap = go->GetLinkedTrap())
     {
-        linkedTrap->CopyPhaseFrom(m_caster);
+        PhasingHandler::InheritPhaseShift(linkedTrap , m_caster);
 
         linkedTrap->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
         linkedTrap->SetSpellId(m_spellInfo->Id);
@@ -3641,7 +3642,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     if (!go)
         return;
 
-    go->CopyPhaseFrom(m_caster);
+    PhasingHandler::InheritPhaseShift(go, m_caster);
 
     go->SetUInt32Value(GAMEOBJECT_FACTION, m_caster->getFaction());
     go->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel()+1);
@@ -3971,7 +3972,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     if (!go)
         return;
 
-    go->CopyPhaseFrom(m_caster);
+    PhasingHandler::InheritPhaseShift(go, m_caster);
 
     //go->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     int32 duration = m_spellInfo->CalcDuration(m_caster);
@@ -4654,7 +4655,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (!go)
         return;
 
-    go->CopyPhaseFrom(m_caster);
+    PhasingHandler::InheritPhaseShift(go, m_caster);
 
     int32 duration = m_spellInfo->CalcDuration(m_caster);
 
@@ -4717,7 +4718,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     if (GameObject* linkedTrap = go->GetLinkedTrap())
     {
-        linkedTrap->CopyPhaseFrom(m_caster);
+        PhasingHandler::InheritPhaseShift(linkedTrap, m_caster);
 
         linkedTrap->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
         //linkedTrap->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
@@ -5713,7 +5714,7 @@ void Spell::EffectUpdatePlayerPhase(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->UpdateAreaAndZonePhase();
+    PhasingHandler::OnConditionChange(unitTarget);
 }
 
 void Spell::EffectUpdateZoneAurasAndPhases(SpellEffIndex /*effIndex*/)

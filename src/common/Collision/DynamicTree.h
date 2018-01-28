@@ -21,7 +21,6 @@
 #define _DYNTREE_H
 
 #include "Define.h"
-#include <set>
 
 namespace G3D
 {
@@ -30,6 +29,7 @@ namespace G3D
 }
 
 class GameObjectModel;
+class PhaseShift;
 struct DynTreeImpl;
 
 class TC_COMMON_API DynamicMapTree
@@ -41,11 +41,11 @@ public:
     DynamicMapTree();
     ~DynamicMapTree();
 
-    bool isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, std::set<uint32> const& phases) const;
-    bool getIntersectionTime(std::set<uint32> const& phases, G3D::Ray const& ray, G3D::Vector3 const& endPos, float& maxDist) const;
-    bool getObjectHitPos(std::set<uint32> const& phases, G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, G3D::Vector3& resultHitPos, float modifyDist) const;
+    bool isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, PhaseShift const& phaseShift) const;
+    bool getIntersectionTime(G3D::Ray const& ray, G3D::Vector3 const& endPos, PhaseShift const& phaseShift, float& maxDist) const;
+    bool getObjectHitPos(G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, G3D::Vector3& resultHitPos, float modifyDist, PhaseShift const& phaseShift) const;
 
-    float getHeight(float x, float y, float z, float maxSearchDist, std::set<uint32> const& phases) const;
+    float getHeight(float x, float y, float z, float maxSearchDist, PhaseShift const& phaseShift) const;
 
     void insert(const GameObjectModel&);
     void remove(const GameObjectModel&);
