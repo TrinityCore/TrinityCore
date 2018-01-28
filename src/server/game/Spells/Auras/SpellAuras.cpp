@@ -1212,10 +1212,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         {
             // some auras remove at aura remove
-            if (!itr->second->IsFitToRequirements(target->ToPlayer(), zone, area))
+            if (itr->second->flags & SPELL_AREA_FLAG_AUTOREMOVE && !itr->second->IsFitToRequirements(target->ToPlayer(), zone, area))
                 target->RemoveAurasDueToSpell(itr->second->spellId);
             // some auras applied at aura apply
-            else if (itr->second->autocast)
+            else if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST)
             {
                 if (!target->HasAura(itr->second->spellId))
                     target->CastSpell(target, itr->second->spellId, true);
