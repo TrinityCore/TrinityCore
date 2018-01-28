@@ -943,6 +943,40 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float
     return true;
 }
 
+Creature* Creature::CreateCreature(uint32 entry, Map* map, Position const& pos, uint32 vehId /*= 0*/)
+{
+    CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry);
+    if (!cInfo)
+        return nullptr;
+
+    ObjectGuid::LowType lowGuid;
+    if (vehId || cInfo->VehicleId)
+        lowGuid = map->GenerateLowGuid<HighGuid::Vehicle>();
+    else
+        lowGuid = map->GenerateLowGuid<HighGuid::Creature>();
+
+    Creature* creature = new Creature();
+    if (!creature->Create(lowGuid, map, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), nullptr, vehId))
+    {
+        delete creature;
+        return nullptr;
+    }
+
+    return creature;
+}
+
+Creature* Creature::CreateCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap /*= true*/, bool allowDuplicate /*= false*/)
+{
+    Creature* creature = new Creature();
+    if (!creature->LoadCreatureFromDB(spawnId, map, addToMap, allowDuplicate))
+    {
+        delete creature;
+        return nullptr;
+    }
+
+    return creature;
+}
+
 void Creature::InitializeReactState()
 {
     if (IsTotem() || IsTrigger() || IsCritter() || IsSpiritService())
@@ -1413,7 +1447,7 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
 
     m_spawnId = spawnId;
     m_creatureData = data;
-    if (!Create(map->GenerateLowGuid<HighGuid::Creature>(), map, data->id, data->posX, data->posY, data->posZ, data->orientation, data))
+    if (!Create(map->GenerateLowGuid<HighGuid::Creature>(), map, data->id, data->posX, data->posY, data->posZ, data->orientation, data, 0))
         return false;
 
     //We should set first home position, because then AI calls home movement
