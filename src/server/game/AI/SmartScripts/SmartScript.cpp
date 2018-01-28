@@ -3027,7 +3027,9 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_MOVEMENTINFORM:
         {
-            if ((e.event.movementInform.type && var0 != e.event.movementInform.type) || (e.event.movementInform.id && var1 != e.event.movementInform.id))
+            if (e.event.movementInform.type != 0 && var0 != e.event.movementInform.type)
+                return;
+            if (var1 != e.event.movementInform.id)
                 return;
             ProcessAction(e, unit, var0, var1);
             break;
