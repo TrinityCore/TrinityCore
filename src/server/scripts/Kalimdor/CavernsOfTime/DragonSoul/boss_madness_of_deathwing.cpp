@@ -3280,7 +3280,6 @@ class spell_madness_of_deathwing_corrupting_parasite_aura : public SpellScriptLo
             {
                 if (Unit* owner = GetUnitOwner())
                 {
-                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                     owner->CastSpell((Unit*)NULL, SPELL_PARASITIC_BACKSLASH, true);
                     if (Creature* pParasite = owner->FindNearestCreature(NPC_CORRUPTING_PARASITE, 10.0f))
                         pParasite->AI()->DoAction(ACTION_PARASITIC_BACKSLASH);
