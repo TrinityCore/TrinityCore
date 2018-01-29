@@ -450,6 +450,12 @@ class TC_GAME_API PetAura
 };
 typedef std::map<uint32, PetAura> SpellPetAuraMap;
 
+enum SpellAreaFlag
+{
+    SPELL_AREA_FLAG_AUTOCAST   = 0x1, // if has autocast, spell is applied on enter
+    SPELL_AREA_FLAG_AUTOREMOVE = 0x2, // if has autoremove, spell is remove automatically inside zone/area (allways removed on leaving area or zone)
+};
+
 struct TC_GAME_API SpellArea
 {
     uint32 spellId;
@@ -461,7 +467,7 @@ struct TC_GAME_API SpellArea
     Gender gender;                                          // can be applied only to gender
     uint32 questStartStatus;                                // QuestStatus that quest_start must have in order to keep the spell
     uint32 questEndStatus;                                  // QuestStatus that the quest_end must have in order to keep the spell (if the quest_end's status is different than this, the spell will be dropped)
-    bool autocast;                                          // if true then auto applied at area enter, in other case just allowed to cast
+    uint8 flags;                                            // if SPELL_AREA_FLAG_AUTOCAST then auto applied at area enter, in other case just allowed to cast || if SPELL_AREA_FLAG_AUTOREMOVE then auto removed inside area (will allways be removed on leaved even without flag)
 
     // helpers
     bool IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const;

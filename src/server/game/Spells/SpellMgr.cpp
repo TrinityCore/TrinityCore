@@ -2008,7 +2008,7 @@ void SpellMgr::LoadSpellAreas()
     mSpellAreaForAuraMap.clear();
 
     //                                                  0     1         2              3               4                 5          6          7       8         9
-    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
+    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, flags FROM spell_area");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell area requirements. DB table `spell_area` is empty.");
@@ -2032,11 +2032,11 @@ void SpellMgr::LoadSpellAreas()
         spellArea.auraSpell           = fields[6].GetInt32();
         spellArea.raceMask            = fields[7].GetUInt32();
         spellArea.gender              = Gender(fields[8].GetUInt8());
-        spellArea.autocast            = fields[9].GetBool();
+        spellArea.flags               = fields[9].GetUInt8();
 
         if (SpellInfo const* spellInfo = GetSpellInfo(spell))
         {
-            if (spellArea.autocast)
+            if (spellArea.flags & SPELL_AREA_FLAG_AUTOCAST)
                 const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_CANT_CANCEL;
         }
         else
@@ -2112,13 +2112,13 @@ void SpellMgr::LoadSpellAreas()
             }
 
             // not allow autocast chains by auraSpell field (but allow use as alternative if not present)
-            if (spellArea.autocast && spellArea.auraSpell > 0)
+            if (spellArea.flags & SPELL_AREA_FLAG_AUTOCAST && spellArea.auraSpell > 0)
             {
                 bool chain = false;
                 SpellAreaForAuraMapBounds saBound = GetSpellAreaForAuraMapBounds(spellArea.spellId);
                 for (SpellAreaForAuraMap::const_iterator itr = saBound.first; itr != saBound.second; ++itr)
                 {
-                    if (itr->second->autocast && itr->second->auraSpell > 0)
+                    if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && itr->second->auraSpell > 0)
                     {
                         chain = true;
                         break;
@@ -2134,7 +2134,7 @@ void SpellMgr::LoadSpellAreas()
                 SpellAreaMapBounds saBound2 = GetSpellAreaMapBounds(spellArea.auraSpell);
                 for (SpellAreaMap::const_iterator itr2 = saBound2.first; itr2 != saBound2.second; ++itr2)
                 {
-                    if (itr2->second.autocast && itr2->second.auraSpell > 0)
+                    if (itr2->second.flags & SPELL_AREA_FLAG_AUTOCAST && itr2->second.auraSpell > 0)
                     {
                         chain = true;
                         break;

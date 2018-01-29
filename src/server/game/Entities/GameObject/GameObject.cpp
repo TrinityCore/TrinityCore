@@ -2619,6 +2619,7 @@ class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
 {
 public:
     explicit GameObjectModelOwnerImpl(GameObject const* owner) : _owner(owner) { }
+    virtual ~GameObjectModelOwnerImpl() = default;
 
     virtual bool IsSpawned() const override { return _owner->isSpawned(); }
     virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
