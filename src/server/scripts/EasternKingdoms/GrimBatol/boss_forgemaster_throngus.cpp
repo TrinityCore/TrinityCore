@@ -214,7 +214,7 @@ class boss_forgemaster_throngus : public CreatureScript
                 }
             }
 
-            void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
             {
                 if (!me->GetVehicleKit())
                     return;
@@ -470,15 +470,6 @@ class spell_throngus_personal_phalanx : public SpellScriptLoader
         class spell_throngus_personal_phalanx_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_throngus_personal_phalanx_AuraScript);
-
-            bool Validate(SpellInfo const* spellInfo) override
-            {
-                return ValidateSpellInfo(
-                    {
-                        static_cast<uint32>(spellInfo->Effects[EFFECT_2].BasePoints),
-                        SPELL_FLAMING_SHIELD
-                    });
-            }
 
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
