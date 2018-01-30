@@ -40,6 +40,10 @@ enum Spells
     SPELL_MODGUDS_MALICE                = 74699,
     SPELL_MODGUDS_MALICE_HC             = 90169,
     SPELL_MODGUDS_MALICE_SPREAD         = 90170,
+
+    // Battered Dragon
+    SPELL_ENGULFING_FLAMES              = 74040,
+    SPELL_ENGULFING_FLAMES_HC           = 90904,
 };
 
 enum Events
@@ -104,6 +108,7 @@ class boss_general_umbriss : public CreatureScript
             {
                 _Reset();
                 Initialize();
+                me->ApplySpellImmune(0, IMMUNITY_ID, !IsHeroic() ? SPELL_ENGULFING_FLAMES : SPELL_ENGULFING_FLAMES_HC, true);
             }
 
             void Initialize()
