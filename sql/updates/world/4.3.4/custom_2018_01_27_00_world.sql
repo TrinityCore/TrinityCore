@@ -81,7 +81,7 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `ProcFlags`, `SpellTypeMask`,
 
 DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (40177, 48702);
 INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCount1`) VALUES
-(40177, 395, 7000),
+(40177, 395, 3500),
 (48702, 395, 7000);
 
 UPDATE `creature_template` SET  `lootid`= 40177 WHERE `entry`= 40177;
