@@ -925,8 +925,20 @@ public:
                 });
 
                 // TEMPFIX - Spells learned in next zone
-                player->LearnSpell(203720, false);
-                player->LearnSpell(204021, false);
+                if (player->GetSpecializationId() == TALENT_SPEC_DEMON_HUNTER_HAVOC)
+                {
+                    player->LearnSpell(188499, false);
+                    player->LearnSpell(198793, false);
+                    player->LearnSpell(198589, false);
+                    player->LearnSpell(179057, false);
+                }
+                else
+                {
+                    player->LearnSpell(204596, false);
+                    player->LearnSpell(203720, false);
+                    player->LearnSpell(204021, false);
+                    player->LearnSpell(185245, false);
+                }
             }
         }
 
