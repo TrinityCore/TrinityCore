@@ -76,6 +76,7 @@ void AddSC_instance_gnomeregan();
 void AddSC_instance_grim_batol();            //Grim Batol
 void AddSC_boss_general_umbriss();
 void AddSC_boss_forgemaster_throngus();
+void AddSC_boss_drahga_shadowburner();
 void AddSC_boss_attumen();                   //Karazhan
 void AddSC_boss_curator();
 void AddSC_boss_maiden_of_virtue();
@@ -276,6 +277,7 @@ void AddEasternKingdomsScripts()
     AddSC_instance_grim_batol();            //Grim Batol
     AddSC_boss_general_umbriss();
     AddSC_boss_forgemaster_throngus();
+    AddSC_boss_drahga_shadowburner();
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();
     AddSC_boss_maiden_of_virtue();

@@ -25,6 +25,7 @@ ObjectData const creatureData[] =
     { BOSS_FORGEMASTER_THRONGUS,    DATA_FORGEMASTER_THRONGUS   },
     { BOSS_DRAHGA_SHADOWBURNER,     DATA_DRAHGA_SHADOWBURNER    },
     { BOSS_ERUDAX,                  DATA_ERUDAX                 },
+    { NPC_VALIONA,                  DATA_VALIONA                },
     { 0,                            0                           } // End
 };
 
@@ -57,6 +58,12 @@ class instance_grim_batol : public InstanceMapScript
                     case NPC_FIXATE_STALKER:
                         if (Creature* throngus = GetCreature(DATA_FORGEMASTER_THRONGUS))
                             throngus->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_INVOKED_FLAMING_SPIRIT:
+                    case NPC_SEEPING_TWILIGHT:
+                    case NPC_DEVOURING_FLAMES:
+                        if (Creature* drahga = GetCreature(DATA_DRAHGA_SHADOWBURNER))
+                            drahga->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;

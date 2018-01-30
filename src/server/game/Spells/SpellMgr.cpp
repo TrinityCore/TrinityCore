@@ -4128,6 +4128,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         // SPELL_ATTR3_ONLY_TARGET_PLAYERS is the only attribute here so we can nullify it
         spellInfo->AttributesEx3 = 0;
     });
+    // Drahga Shadowburner
+    // Flaming Fixate
+    ApplySpellFix({ 82850 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING;
+    });
+
+    // Ride Vehicle
+    ApplySpellFix({ 43671 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
 
     // ENDOF GRIM_BATOL SPELLS
 
