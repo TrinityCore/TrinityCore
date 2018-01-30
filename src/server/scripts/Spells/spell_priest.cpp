@@ -1189,8 +1189,6 @@ public:
                 {
                     // (SP * 5.5) + (1+$versadmg)
                     amount += (player->GetStat(STAT_INTELLECT)*5.5) + (1 + player->GetFloatValue(PLAYER_VERSATILITY));
-
-                    amount *= player->CalculateLevelPenalty(GetSpellInfo());
                 }
             }
         }

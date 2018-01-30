@@ -311,52 +311,6 @@ public:
 };
 
 // Fury of the Illidari - 201467
-class spell_dh_fury_of_the_illidari : public SpellScriptLoader
-{
-public:
-    spell_dh_fury_of_the_illidari() : SpellScriptLoader("spell_dh_fury_of_the_illidari") {}
-
-    class spell_dh_fury_of_the_illidari_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dh_fury_of_the_illidari_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_DH_FURY_OF_THE_ILLIDARI_AT });
-        }
-
-        void SpawnAT()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            Position pos = caster->GetPosition();
-            AreaTrigger* areaTrigger = new AreaTrigger;
-            if (!areaTrigger->CreateAreaTrigger(5758, caster, nullptr, GetSpellInfo(), pos, GetSpellInfo()->GetDuration(), GetSpell()->m_SpellVisual))
-                delete areaTrigger;
-        }
-
-        void Prevent(SpellEffIndex effIndex)
-        {
-            PreventHitEffect(effIndex);
-        }
-
-        void Register() override
-        {
-            OnCast += SpellCastFn(spell_dh_fury_of_the_illidari_SpellScript::SpawnAT);
-            OnEffectLaunch += SpellEffectFn(spell_dh_fury_of_the_illidari_SpellScript::Prevent, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
-            OnEffectHit += SpellEffectFn(spell_dh_fury_of_the_illidari_SpellScript::Prevent, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dh_fury_of_the_illidari_SpellScript();
-    }
-};
-
-// Fury of the Illidari - 201467
 // AreaTriggerID - 5758
 class at_dh_fury_of_the_illidari : public AreaTriggerEntityScript
 {
@@ -707,8 +661,6 @@ void AddSC_artifact_spell_scripts()
     new npc_warl_chaos_tear();
     new npc_warl_shadowy_tear();
     new spell_arti_warl_thalkiels_consumption();
-
-    new spell_dh_fury_of_the_illidari();
 
     /// AreaTrigger scripts
     new at_dh_fury_of_the_illidari();
