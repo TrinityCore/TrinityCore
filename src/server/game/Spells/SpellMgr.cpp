@@ -3479,7 +3479,9 @@ void SpellMgr::LoadSpellInfoCorrections()
         52449, // Summon Skittering Infector (Force Cast)
         53609, // Summon Anub'ar Assassin (Force Cast)
         53457, // Summon Impale Trigger (AoE)
-        45907  // Torch Target Picker
+        45907, // Torch Target Picker
+        52953, // Torch
+        58121  // Torch
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
