@@ -913,8 +913,6 @@ class boss_madness_of_deathwing : public CreatureScript
             uint8 m_destroyed_platform;
             bool m_isFirst;
             bool m_isBerserk;
-            bool isDead;
-            uint8 phase;
 
             void DespawnCreatures(uint32 entry)
             {

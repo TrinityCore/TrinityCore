@@ -563,20 +563,16 @@ GameObject* WodGarrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex f
         return nullptr;
     }
 
-    GameObject* building = new GameObject();
-    if (!building->Create(entry, map, PacketInfo.PlotPos.Pos, QuaternionData(), 255, GO_STATE_READY))
-    {
-        delete building;
+    GameObject* building = GameObject::CreateGameObject(entry, map, PacketInfo.PlotPos.Pos, QuaternionData(), 255, GO_STATE_READY);
+    if (!building)
         return nullptr;
-    }
 
     if (BuildingInfo.CanActivate() && BuildingInfo.PacketInfo && !BuildingInfo.PacketInfo->Active)
     {
         if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID))
         {
             Position const& pos2 = finalizeInfo->FactionInfo[faction].Pos;
-            GameObject* finalizer = new GameObject();
-            if (finalizer->Create(finalizeInfo->FactionInfo[faction].GameObjectId, map, pos2, QuaternionData(), 255, GO_STATE_READY))
+            if (GameObject* finalizer = GameObject::CreateGameObject(finalizeInfo->FactionInfo[faction].GameObjectId, map, pos2, QuaternionData(), 255, GO_STATE_READY))
             {
                 // set some spell id to make the object delete itself after use
                 finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
@@ -587,8 +583,6 @@ GameObject* WodGarrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex f
 
                 map->AddToMap(finalizer);
             }
-            else
-                delete finalizer;
         }
     }
 
