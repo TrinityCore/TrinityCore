@@ -117,7 +117,7 @@ enum HunterSpells
     SPELL_HUNTER_ASPECT_OF_THE_EAGLE                = 186289,
     SPELL_HUNTER_EXPLOSIVE_SHOT                     = 212431,
     SPELL_HUNTER_EXPLOSIVE_SHOT_DETONATE            = 212679,
-    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212679,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
 };
 
 enum AncientHysteriaSpells
