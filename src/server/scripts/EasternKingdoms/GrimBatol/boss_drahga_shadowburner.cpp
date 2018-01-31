@@ -272,7 +272,7 @@ class boss_drahga_shadowburner : public CreatureScript
         private:
             bool _introDone;
         };
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetGrimBatolAI<boss_drahga_shadowburnerAI>(creature);
         }
@@ -394,10 +394,10 @@ class npc_drahga_valiona : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                _events.Update(diff);
-
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
+
+                _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
@@ -457,7 +457,8 @@ class npc_drahga_valiona : public CreatureScript
             SummonList _summons;
             bool _finished;
         };
-        CreatureAI* GetAI(Creature* creature) const
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetGrimBatolAI<npc_drahga_valionaAI>(creature);
         }
@@ -530,7 +531,7 @@ class npc_drahga_invoked_flaming_spirit : public CreatureScript
             EventMap _events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetGrimBatolAI<npc_drahga_invoked_flaming_spiritAI>(creature);
     }
