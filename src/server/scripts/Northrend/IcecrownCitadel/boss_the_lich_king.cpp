@@ -1519,10 +1519,8 @@ class npc_valkyr_shadowguard : public CreatureScript
 
             void ScheduleHeroicEvents()
             {
-                DoZoneInCombat();
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_MOVE_TO_CENTER, 1);
-                _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2000);
                 me->ClearUnitState(UNIT_STATE_EVADE);
             }
 
@@ -1560,11 +1558,14 @@ class npc_valkyr_shadowguard : public CreatureScript
                                 DoCast(target, SPELL_VALKYR_CARRY);
                                 _dropPoint.Relocate(triggers.front());
                                 _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1500);
-
                             }
                         }
                         else
                             me->DespawnOrUnsummon();
+                        break;
+                    case POINT_SIPHON:
+                        DoZoneInCombat();
+                        _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2000);
                         break;
                     default:
                         break;
