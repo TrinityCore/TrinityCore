@@ -1,4 +1,4 @@
-DELETE FROM spell_script_names WHERE scriptname = "spell_hun_explosive_shot_detonate");
+DELETE FROM spell_script_names WHERE scriptname = "spell_hun_explosive_shot_detonate";
 INSERT INTO spell_script_names VALUES
 (212679, "spell_hun_explosive_shot_detonate");
 
