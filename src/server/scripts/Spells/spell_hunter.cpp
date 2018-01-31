@@ -114,7 +114,10 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_FOCUS                       = 193533,
     SPELL_HUNTER_STEADY_FOCUS_PROC                  = 193534,
     SPELL_HUNTER_FLANKING_STRIKE                    = 202800,
-    SPELL_HUNTER_ASPECT_OF_THE_EAGLE                = 186289
+    SPELL_HUNTER_ASPECT_OF_THE_EAGLE                = 186289,
+    SPELL_HUNTER_EXPLOSIVE_SHOT                     = 212431,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_DETONATE            = 212679,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212679,
 };
 
 enum AncientHysteriaSpells
@@ -2299,6 +2302,27 @@ public:
     }
 };
 
+// Explosive Shot - 212679
+class spell_hun_explosive_shot_detonate : public SpellScript
+{
+    PrepareSpellScript(spell_hun_explosive_shot_detonate);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (AreaTrigger* at = GetCaster()->GetAreaTrigger(SPELL_HUNTER_EXPLOSIVE_SHOT))
+        {
+            GetCaster()->RemoveAurasDueToSpell(SPELL_HUNTER_EXPLOSIVE_SHOT);
+            GetCaster()->CastSpell(at->GetPosition(), SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE, true);
+            at->Remove();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_explosive_shot_detonate::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // Last Stand (Pet) - 53478
 class spell_hun_pet_last_stand : public SpellScriptLoader
 {
@@ -3127,6 +3151,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_raptor_strike();
     new spell_hun_carve();
     new spell_hun_true_aim();
+    RegisterSpellScript(spell_hun_explosive_shot_detonate);
 
     // Spell Pet scripts
     new spell_hun_pet_last_stand();
