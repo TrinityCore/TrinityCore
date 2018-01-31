@@ -55,9 +55,13 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AreaTriggerAI* AI() { return _ai.get(); }
 
-        bool LoadFromDB(ObjectGuid::LowType guid, Map* map);
-        bool CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
+    private:
+        bool Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId, AuraEffect const* aurEff);
         bool CreateStaticAreaTrigger(uint32 entry, ObjectGuid::LowType guidLow, Position const& p_Pos, Map* p_Map, uint32 scriptId = 0);
+    public:
+        static AreaTrigger* CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
+        bool LoadFromDB(ObjectGuid::LowType guid, Map* map);
+
         void Update(uint32 p_time) override;
         void Remove();
         bool IsRemoved() const { return _isRemoved; }
