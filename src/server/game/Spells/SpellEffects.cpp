@@ -577,8 +577,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 31789:                                 // Righteous Defense (step 1)
                 {
                     // Clear targets for eff 1
-                    for (std::vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                        ihit->effectMask &= ~(1<<1);
+                    for (auto ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                        ihit->EffectMask &= ~(1 << 1);
 
                     // not empty (checked), copy
                     Unit::AttackerSet attackers = unitTarget->getAttackers();
@@ -1152,7 +1152,7 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
     // add log data before multiplication (need power amount, not damage)
     ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, 0.0f);
 
-    newDamage = int32(newDamage* dmgMultiplier);
+    newDamage = int32(newDamage * dmgMultiplier);
 
     m_damage += newDamage;
 }
@@ -1177,10 +1177,10 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
         if (m_spellInfo->Id == 45064)
         {
             // Amount of heal - depends from stacked Holy Energy
-            int damageAmount = 0;
+            int32 damageAmount = 0;
             if (AuraEffect const* aurEff = m_caster->GetAuraEffect(45062, 0))
             {
-                damageAmount+= aurEff->GetAmount();
+                damageAmount += aurEff->GetAmount();
                 m_caster->RemoveAurasDueToSpell(45062);
             }
 
@@ -1208,7 +1208,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
         if (unitTarget->HasAura(48920) && (unitTarget->GetHealth() + addhealth >= unitTarget->GetMaxHealth()))
             unitTarget->RemoveAura(48920);
 
-        m_damage -= addhealth;
+        m_healing += addhealth;
     }
 }
 

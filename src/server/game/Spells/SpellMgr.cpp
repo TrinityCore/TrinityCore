@@ -3894,20 +3894,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
-    // Boom (XT-002)
-    ApplySpellFix({ 62834 }, [](SpellInfo* spellInfo)
-    {
-        // This hack is here because we suspect our implementation of spell effect execution on targets
-        // is done in the wrong order. We suspect that EFFECT_0 needs to be applied on all targets,
-        // then EFFECT_1, etc - instead of applying each effect on target1, then target2, etc.
-        // The above situation causes the visual for this spell to be bugged, so we remove the instakill
-        // effect and implement a script hack for that.
-        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->Effect = 0;
-        });
-    });
-
     ApplySpellFix({
         64386, // Terrifying Screech (Auriaya)
         64389, // Sentinel Blast (Auriaya)

@@ -567,7 +567,6 @@ class TC_GAME_API Spell
 
         int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const;
 
-        bool HaveTargetsForEffect(uint8 effect) const;
         void Delayed();
         void DelayedChannel();
         uint32 getState() const { return m_spellState; }
@@ -793,38 +792,68 @@ class TC_GAME_API Spell
         // Spell target subsystem
         // *****************************************
         // Targets store structures and data
-        struct TargetInfo
+        struct TargetInfoBase
         {
-            ObjectGuid targetGUID;
-            uint64 timeDelay;
-            int32  damage;
+            virtual void PreprocessTarget(Spell* /*spell*/) { }
+            virtual void DoTargetSpellHit(Spell* spell, uint8 effIndex) = 0;
+            virtual void DoDamageAndTriggers(Spell* /*spell*/) { }
 
-            SpellMissInfo missCondition;
-            SpellMissInfo reflectResult;
+            uint32 EffectMask = 0;
 
-            uint32 effectMask;
-            bool   processed;
-            bool   alive;
-            bool   crit;
+        protected:
+            TargetInfoBase() { }
+            virtual ~TargetInfoBase() { }
+        };
+
+        struct TargetInfo : public TargetInfoBase
+        {
+            void PreprocessTarget(Spell* spell) override;
+            void DoTargetSpellHit(Spell* spell, uint8 effIndex) override;
+            void DoDamageAndTriggers(Spell* spell) override;
+
+            ObjectGuid TargetGUID;
+            uint64 TimeDelay = 0ULL;
+            int32 Damage = 0;
+            int32 Healing = 0;
+
+            SpellMissInfo MissCondition = SPELL_MISS_NONE;
+            SpellMissInfo ReflectResult = SPELL_MISS_NONE;
+
+            bool IsAlive = false;
+            bool IsCrit = false;
+
+            // info set at PreprocessTarget, used by DoTargetSpellHit
+            DiminishingGroup DRGroup = DIMINISHING_NONE;
+            int32 AuraDuration = 0;
+            int32 AuraBasePoints[MAX_SPELL_EFFECTS] = { };
+            bool Positive = true;
+
+        private:
+            Unit* _spellHitTarget = nullptr; // changed for example by reflect
+            bool _enablePVP = false;         // need to enable PVP at DoDamageAndTriggers?
         };
         std::vector<TargetInfo> m_UniqueTargetInfo;
-        uint32 m_channelTargetEffectMask;                        // Mask req. alive targets
+        uint32 m_channelTargetEffectMask;                       // Mask req. alive targets
 
-        struct GOTargetInfo
+        struct GOTargetInfo : public TargetInfoBase
         {
-            ObjectGuid targetGUID;
-            uint64 timeDelay;
-            uint32 effectMask;
-            bool   processed;
+            void DoTargetSpellHit(Spell* spell, uint8 effIndex) override;
+
+            ObjectGuid TargetGUID;
+            uint64 TimeDelay = 0ULL;
         };
         std::vector<GOTargetInfo> m_UniqueGOTargetInfo;
 
-        struct ItemTargetInfo
+        struct ItemTargetInfo : public TargetInfoBase
         {
-            Item  *item;
-            uint32 effectMask;
+            void DoTargetSpellHit(Spell* spell, uint8 effIndex) override;
+
+            Item* TargetItem = nullptr;
         };
         std::vector<ItemTargetInfo> m_UniqueItemInfo;
+
+        template <class Container>
+        void DoProcessTargetContainer(Container& targetContainer);
 
         SpellDestination m_destTargets[MAX_SPELL_EFFECTS];
 
@@ -833,15 +862,14 @@ class TC_GAME_API Spell
         void AddItemTarget(Item* item, uint32 effectMask);
         void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
 
-        void DoAllEffectOnTarget(TargetInfo* target);
-        SpellMissInfo DoSpellHitOnUnit(Unit* unit, uint32 effectMask);
+        SpellMissInfo PreprocessSpellHit(Unit* unit, TargetInfo& targetInfo);
+        void DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& targetInfo);
+
         void DoTriggersOnSpellHit(Unit* unit, uint32 effMask);
-        void DoAllEffectOnTarget(GOTargetInfo* target);
-        void DoAllEffectOnTarget(ItemTargetInfo* target);
         bool UpdateChanneledTargetList();
         bool IsValidDeadOrAliveTarget(Unit const* target) const;
         void HandleLaunchPhase();
-        void DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier);
+        void DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, SpellEffectInfo const* effect);
 
         void PrepareTargetProcessing();
         void FinishTargetProcessing();
@@ -852,7 +880,6 @@ class TC_GAME_API Spell
         void CallScriptOnCastHandlers();
         void CallScriptAfterCastHandlers();
         SpellCastResult CallScriptCheckCastHandlers();
-        void PrepareScriptHitHandlers();
         bool CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMode mode);
         void CallScriptSuccessfulDispel(SpellEffIndex effIndex);
         void CallScriptBeforeHitHandlers(SpellMissInfo missInfo);

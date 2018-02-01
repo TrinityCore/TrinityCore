@@ -24078,7 +24078,7 @@ Player* Player::GetSelectedPlayer() const
 {
     ObjectGuid selectionGUID = GetTarget();
     if (!selectionGUID.IsEmpty())
-        return ObjectAccessor::GetPlayer(*this, selectionGUID);
+        return ObjectAccessor::FindConnectedPlayer(selectionGUID);
     return nullptr;
 }
 
