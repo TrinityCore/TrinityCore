@@ -390,19 +390,6 @@ bool SpellEffectInfo::IsAreaAuraEffect() const
     return false;
 }
 
-bool SpellEffectInfo::IsFarUnitTargetEffect() const
-{
-    return (Effect == SPELL_EFFECT_SUMMON_PLAYER)
-        || (Effect == SPELL_EFFECT_SUMMON_RAF_FRIEND)
-        || (Effect == SPELL_EFFECT_RESURRECT)
-        || (Effect == SPELL_EFFECT_RESURRECT_NEW);
-}
-
-bool SpellEffectInfo::IsFarDestTargetEffect() const
-{
-    return Effect == SPELL_EFFECT_TELEPORT_UNITS;
-}
-
 bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
 {
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
@@ -3071,14 +3058,14 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
 int32 SpellInfo::GetDuration() const
 {
     if (!DurationEntry)
-        return 0;
+        return IsPassive() ? -1 : 0;
     return (DurationEntry->Duration[0] == -1) ? -1 : abs(DurationEntry->Duration[0]);
 }
 
 int32 SpellInfo::GetMaxDuration() const
 {
     if (!DurationEntry)
-        return 0;
+        return IsPassive() ? -1 : 0;
     return (DurationEntry->Duration[2] == -1) ? -1 : abs(DurationEntry->Duration[2]);
 }
 

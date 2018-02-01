@@ -22366,7 +22366,7 @@ Unit* Player::GetSelectedUnit() const
 Player* Player::GetSelectedPlayer() const
 {
     if (ObjectGuid selectionGUID = GetTarget())
-        return ObjectAccessor::GetPlayer(*this, selectionGUID);
+        return ObjectAccessor::FindConnectedPlayer(selectionGUID);
     return nullptr;
 }
 
