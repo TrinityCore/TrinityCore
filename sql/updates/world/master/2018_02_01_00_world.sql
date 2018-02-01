@@ -20,5 +20,5 @@ ALTER TABLE `gossip_menu_option_trainer`
   CHANGE `OptionID` `OptionIndex` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 
 ALTER TABLE `gossip_menu_option_locale`
-  CHANGE `MenuID` `MenuId` INT(10) UNSIGNED NOT NULL DEFAULT '0';
+  CHANGE `MenuID` `MenuId` INT(10) UNSIGNED NOT NULL DEFAULT '0',
   CHANGE `OptionID` `OptionIndex` INT(10) UNSIGNED NOT NULL DEFAULT '0';
