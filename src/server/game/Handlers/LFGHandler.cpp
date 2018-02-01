@@ -296,12 +296,13 @@ void WorldSession::HandleLfgGetLockInfoOpcode(WorldPacket& recvData)
 
 void WorldSession::SendLfgPlayerLockInfo()
 {
-    ObjectGuid guid = GetPlayer()->GetGUID();
+    Player* player = GetPlayer();
+    ObjectGuid guid = player->GetGUID();
 
     // Get Random dungeons that can be done at a certain level and expansion
-    uint8 level = GetPlayer()->getLevel();
+    uint8 level = player->getLevel();
     lfg::LfgDungeonSet const& randomDungeons =
-        sLFGMgr->GetRandomAndSeasonalDungeons(level, GetPlayer()->GetSession()->Expansion());
+        sLFGMgr->GetRandomAndSeasonalDungeons(level, player->GetSession()->Expansion());
 
     // Get player locked Dungeons
     lfg::LfgLockMap const& lock = sLFGMgr->GetLockedDungeons(guid);
@@ -324,7 +325,7 @@ void WorldSession::SendLfgPlayerLockInfo()
             quest = sObjectMgr->GetQuestTemplate(reward->firstQuest);
             if (quest)
             {
-                done = !GetPlayer()->CanRewardQuest(quest, false);
+                done = !player->CanRewardQuest(quest, false);
                 if (done)
                     quest = sObjectMgr->GetQuestTemplate(reward->otherQuest);
             }
@@ -341,18 +342,18 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         if (currency && quest)
         {
-            data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);       // currencyQuantity
-            data << uint32(GetPlayer()->GetCurrencyWeekCap(currency));                                      // some sort of overall cap/weekly cap
-            data << uint32(quest->RewardCurrencyId[0]);                                                     // currencyID
-            data << uint32(GetPlayer()->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // tier1Quantity
-            data << uint32(GetPlayer()->GetCurrencyWeekCap(currency));                                      // tier1Limit
-            data << uint32(0);                                                                              // overallQuantity
-            data << uint32(GetPlayer()->GetCurrencyWeekCap(currency));                                      // overallLimit
-            data << uint32(GetPlayer()->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // periodPurseQuantity
-            data << uint32(GetPlayer()->GetCurrencyWeekCap(currency));                                      // periodPurseLimit
-            data << uint32(GetPlayer()->GetCurrencyTotalCap(currency));                                     // purseQuantity
-            data << uint32(0);                                                                              // purseLimit
-            data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);       // some sort of reward for completion
+            data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);  // currencyQuantity
+            data << uint32(player->GetCurrencyWeekCap(currency));                                      // some sort of overall cap/weekly cap
+            data << uint32(quest->RewardCurrencyId[0]);                                                // currencyID
+            data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // tier1Quantity
+            data << uint32(player->GetCurrencyWeekCap(currency));                                      // tier1Limit
+            data << uint32(0);                                                                         // overallQuantity
+            data << uint32(player->GetCurrencyWeekCap(currency));                                      // overallLimit
+            data << uint32(player->GetCurrencyOnWeek(CURRENCY_TYPE_VALOR_POINTS, false));              // periodPurseQuantity
+            data << uint32(player->GetCurrencyWeekCap(currency));                                      // periodPurseLimit
+            data << uint32(player->GetCurrencyTotalCap(currency));                                     // purseQuantity
+            data << uint32(0);                                                                         // purseLimit
+            data << uint32(valorPointsField >= 0 ? quest->RewardCurrencyCount[valorPointsField] : 0);  // some sort of reward for completion
         }
         else
         {
@@ -381,20 +382,27 @@ void WorldSession::SendLfgPlayerLockInfo()
             uint8 callToArmsRoleMask = sLFGMgr->GetRolesForCallToArms();
             bool rewardSent = false;
 
+            uint8 roleSet[] =
+            {
+                lfg::PLAYER_ROLE_TANK,
+                lfg::PLAYER_ROLE_HEALER,
+                lfg::PLAYER_ROLE_DAMAGE
+            };
+
             for (uint8 i = 0; i < 3; i++)
             {
-                if (callToArmsRoleMask & i * 2)
+                if (callToArmsRoleMask & roleSet[i])
                 {
                     data << uint32(callToArmsRoleMask);
                     if (!rewardSent)
                     {
-                        BuildQuestReward(data, ctaQuest, GetPlayer());
+                        BuildQuestReward(data, ctaQuest, player);
                         rewardSent = true;
                     }
                     else
                     {
-                        data << uint32(1);
-                        data << uint32(1);
+                        data << uint32(0);
+                        data << uint32(0);
                         data << uint8(0);
                     }
                 }
@@ -405,15 +413,11 @@ void WorldSession::SendLfgPlayerLockInfo()
         else
         {
             for (uint32 i = 0; i < 3; ++i)
-            {
-                data << uint32(0);                                      // Call to Arms Role
-                //if (role)
-                //    BuildQuestReward(data, ctaRoleQuest, GetPlayer());
-            }
+                data << uint32(0);
         }
 
         if (quest)
-            BuildQuestReward(data, quest, GetPlayer());
+            BuildQuestReward(data, quest, player);
         else
         {
             data << uint32(0);                                          // Money
