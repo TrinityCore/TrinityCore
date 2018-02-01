@@ -2335,7 +2335,7 @@ void SpellInfo::_LoadAuraState()
         if (GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
             for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
                 for (SpellEffectInfo const* effect : itr->second)
-                    if (effect && (effect->IsAura(SPELL_AURA_MOD_STUN) || effect->IsAura(SPELL_AURA_MOD_ROOT)))
+                    if (effect && (effect->IsAura(SPELL_AURA_MOD_STUN) || effect->IsAura(SPELL_AURA_MOD_ROOT) || effect->IsAura(SPELL_AURA_MOD_ROOT_2)))
                         return AURA_STATE_FROZEN;
 
         switch (Id)
