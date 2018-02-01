@@ -51,7 +51,28 @@ enum SpellIds
     SPELL_WARLOCK_THALKIELS_CONSUMPTION_DAMAGE      = 211715,
     SPELL_WARLOCK_TEAR_CHAOS_BARRAGE                = 187394,
     SPELL_WARLOCK_TEAR_CHAOS_BOLT                   = 215279,
-    SPELL_WARLOCK_TEAR_SHADOW_BOLT                  = 196657
+    SPELL_WARLOCK_TEAR_SHADOW_BOLT                  = 196657,
+    SPELL_MAGE_BRAIN_FREEZE_AURA                    = 190446
+};
+
+// Ebonbolt - 214634
+class spell_arti_mage_ebonbolt : public SpellScript
+{
+    PrepareSpellScript(spell_arti_mage_ebonbolt);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_AURA, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_arti_mage_ebonbolt::HandleDummy, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+    }
 };
 
 // Reap Souls - 216698
@@ -664,4 +685,6 @@ void AddSC_artifact_spell_scripts()
 
     /// AreaTrigger scripts
     new at_dh_fury_of_the_illidari();
+
+    RegisterSpellScript(spell_arti_mage_ebonbolt);
 }
