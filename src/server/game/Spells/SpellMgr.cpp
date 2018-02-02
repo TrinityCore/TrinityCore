@@ -3437,6 +3437,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
+        104012, // Break Gong Credit
         105002, // Summon Hot Air Balloon
         120344, // Summon Aysa
         120345, // Summon Jojo
