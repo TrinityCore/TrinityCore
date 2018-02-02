@@ -126,6 +126,7 @@
 #include <G3D/g3dmath.h>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
+#define SHOP_UPDATE_INTERVAL (30*IN_MILLISECONDS)
 
 // corpse reclaim times
 #define DEATH_EXPIRE_STEP (5*MINUTE)
@@ -360,6 +361,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_areaQuestTimer = 0;
 
     _insideGarrisonType = GARRISON_TYPE_NONE;
+
+    m_shopTimer = 0;
 }
 
 Player::~Player()
@@ -1359,6 +1362,8 @@ void Player::Update(uint32 p_time)
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
         RemovePet(pet, PET_SAVE_DISMISS, true);
+
+    UpdateShop(p_time);
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
@@ -25555,14 +25560,14 @@ void Player::SetMover(Unit* target)
     SendDirectMessage(packet.Write());
 }
 
-void Player::SetPersonnalXpRate(float p_PersonnalXPRate)
+void Player::SetPersonnalXpRate(float personnalXPRate)
 {
-    _PersonnalXpRate = p_PersonnalXPRate;
+    _PersonnalXpRate = personnalXPRate;
 
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
-    l_Statement->setFloat(0, p_PersonnalXPRate);
-    l_Statement->setUInt64(1, GetGUID().GetCounter());
-    CharacterDatabase.Execute(l_Statement);
+    PreparedStatement* statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
+    statement->setFloat(0, personnalXPRate);
+    statement->setUInt64(1, GetGUID().GetCounter());
+    CharacterDatabase.Execute(statement);
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
@@ -29194,4 +29199,88 @@ void Player::ShowNeutralPlayerFactionSelectUI()
 {
     WorldPackets::Misc::FactionSelectUI packet;
     GetSession()->SendPacket(packet.Write());
+}
+
+void Player::UpdateShop(uint32 diff)
+{
+    if (m_shopTimer > diff)
+    {
+        m_shopTimer -= diff;
+        return;
+    }
+
+    m_shopTimer = SHOP_UPDATE_INTERVAL;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SHOP);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+        return;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id       = fields[0].GetUInt32();
+        uint8  type     = fields[1].GetUInt8();
+        uint32 itemId   = fields[2].GetUInt32();
+        uint32 itemCount= fields[3].GetUInt32();
+
+        bool delivered = false;
+
+        switch (type)
+        {
+            case 0: // ITEM
+            {
+                delivered = AddItem(itemId, itemCount);
+
+                if (delivered)
+                {
+                    WorldPackets::Loot::DisplayToast displayToast;
+                    displayToast.EntityId = itemId;
+                    displayToast.Quantity = itemCount;
+                    SendDirectMessage(displayToast.Write());
+                }
+
+                break;
+            }
+            case 1: // SPELL
+            {
+                LearnSpell(itemId, false);
+                delivered = true;
+                break;
+            }
+            case 2: // LEVEL
+            {
+                uint32 newLevel = std::min(uint32(getLevel() + itemCount), uint32(MAX_LEVEL));
+
+                if (newLevel > getLevel())
+                {
+                    GiveLevel(newLevel);
+                    InitTalentForLevel();
+                    SetUInt32Value(PLAYER_XP, 0);
+                    delivered = true;
+                }
+                break;
+            }
+            case 3: // CHARACTER
+                // TODO
+                break;
+            case 4: // APPEARANCE
+                // TODO
+                break;
+        }
+
+        if (delivered)
+        {
+            PreparedStatement* deliveredStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_SHOP_DELIVERED);
+            deliveredStmt->setUInt32(0, id);
+            trans->Append(deliveredStmt);
+        }
+    } while (result->NextRow());
+
+    CharacterDatabase.CommitTransaction(trans);
 }

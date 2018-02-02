@@ -763,6 +763,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
                                                                 "`gm_account_id`, `gm_account_name`, `gm_character_id`, `gm_character_name`, `gm_ip`, "
                                                                 "`target_account_id`, `target_account_name`, `target_character_id`, `target_character_name`, `target_ip`, `command`) "
                                                                 "VALUES (0, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+
+    // Shop
+    PrepareStatement(CHAR_SEL_SHOP, "SELECT id, type, itemId, itemCount FROM character_shop WHERE guid = ? AND delivered = 0", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_SHOP_DELIVERED, "UPDATE character_shop SET delivered = 1 WHERE id = ?", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)
