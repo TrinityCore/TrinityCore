@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -788,13 +788,13 @@ void LoadLootTemplates_Creature()
     uint32 count = LootTemplates_Creature.LoadAndCollectLootIds(lootIdSet);
 
     // Remove real entries and check loot existence
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
+    for (auto const& creatureTemplatePair : ctc)
     {
-        if (uint32 lootid = itr->second.lootid)
+        if (uint32 lootid = creatureTemplatePair.second.lootid)
         {
-            if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", itr->second.Entry);
+            if (!lootIdSet.count(lootid))
+                LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -812,7 +812,7 @@ void LoadLootTemplates_Creature()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u creature loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 creature loot templates. DB table `creature_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 creature loot templates. DB table `creature_loot_template` is empty");
 }
 
 void LoadLootTemplates_Disenchant()
@@ -824,13 +824,13 @@ void LoadLootTemplates_Disenchant()
     LootIdSet lootIdSet, lootIdSetUsed;
     uint32 count = LootTemplates_Disenchant.LoadAndCollectLootIds(lootIdSet);
 
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
+    ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
+    for (auto const& itemTemplatePair : its)
     {
-        if (uint32 lootid = itr->second.DisenchantID)
+        if (uint32 lootid = itemTemplatePair.second.DisenchantID)
         {
-            if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Disenchant.ReportNonExistingId(lootid, "Item", itr->second.ItemId);
+            if (!lootIdSet.count(lootid))
+                LootTemplates_Disenchant.ReportNonExistingId(lootid, "Item", itemTemplatePair.first);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -845,7 +845,7 @@ void LoadLootTemplates_Disenchant()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u disenchanting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 disenchanting loot templates. DB table `disenchant_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 disenchanting loot templates. DB table `disenchant_loot_template` is empty");
 }
 
 void LoadLootTemplates_Fishing()
@@ -868,7 +868,7 @@ void LoadLootTemplates_Fishing()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u fishing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 fishing loot templates. DB table `fishing_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 fishing loot templates. DB table `fishing_loot_template` is empty");
 }
 
 void LoadLootTemplates_Gameobject()
@@ -881,13 +881,13 @@ void LoadLootTemplates_Gameobject()
     uint32 count = LootTemplates_Gameobject.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    GameObjectTemplateContainer const* gotc = sObjectMgr->GetGameObjectTemplates();
-    for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
+    GameObjectTemplateContainer const& gotc = sObjectMgr->GetGameObjectTemplates();
+    for (auto const& gameObjectTemplatePair : gotc)
     {
-        if (uint32 lootid = itr->second.GetLootId())
+        if (uint32 lootid = gameObjectTemplatePair.second.GetLootId())
         {
-            if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Gameobject.ReportNonExistingId(lootid, "Gameobject", itr->second.entry);
+            if (!lootIdSet.count(lootid))
+                LootTemplates_Gameobject.ReportNonExistingId(lootid, "Gameobject", gameObjectTemplatePair.first);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -902,7 +902,7 @@ void LoadLootTemplates_Gameobject()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u gameobject loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 gameobject loot templates. DB table `gameobject_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gameobject loot templates. DB table `gameobject_loot_template` is empty");
 }
 
 void LoadLootTemplates_Item()
@@ -915,10 +915,10 @@ void LoadLootTemplates_Item()
     uint32 count = LootTemplates_Item.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
-        if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end() && itr->second.Flags & ITEM_FLAG_HAS_LOOT)
-            lootIdSet.erase(itr->second.ItemId);
+    ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
+    for (auto const& itemTemplatePair : its)
+        if (lootIdSet.count(itemTemplatePair.first) > 0 && (itemTemplatePair.second.Flags & ITEM_FLAG_HAS_LOOT))
+            lootIdSet.erase(itemTemplatePair.first);
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Item.ReportUnusedIds(lootIdSet);
@@ -926,7 +926,7 @@ void LoadLootTemplates_Item()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u item loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 item loot templates. DB table `item_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 item loot templates. DB table `item_loot_template` is empty");
 }
 
 void LoadLootTemplates_Milling()
@@ -939,14 +939,14 @@ void LoadLootTemplates_Milling()
     uint32 count = LootTemplates_Milling.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
+    ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
+    for (auto const& itemTemplatePair : its)
     {
-        if (!(itr->second.Flags & ITEM_FLAG_IS_MILLABLE))
+        if (!(itemTemplatePair.second.Flags & ITEM_FLAG_IS_MILLABLE))
             continue;
 
-        if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end())
-            lootIdSet.erase(itr->second.ItemId);
+        if (lootIdSet.count(itemTemplatePair.first) > 0)
+            lootIdSet.erase(itemTemplatePair.first);
     }
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -955,7 +955,7 @@ void LoadLootTemplates_Milling()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u milling loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 milling loot templates. DB table `milling_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 milling loot templates. DB table `milling_loot_template` is empty");
 }
 
 void LoadLootTemplates_Pickpocketing()
@@ -968,13 +968,13 @@ void LoadLootTemplates_Pickpocketing()
     uint32 count = LootTemplates_Pickpocketing.LoadAndCollectLootIds(lootIdSet);
 
     // Remove real entries and check loot existence
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
+    for (auto const& creatureTemplatePair : ctc)
     {
-        if (uint32 lootid = itr->second.pickpocketLootId)
+        if (uint32 lootid = creatureTemplatePair.second.pickpocketLootId)
         {
-            if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", itr->second.Entry);
+            if (!lootIdSet.count(lootid))
+                LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -989,7 +989,7 @@ void LoadLootTemplates_Pickpocketing()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u pickpocketing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 pickpocketing loot templates. DB table `pickpocketing_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 pickpocketing loot templates. DB table `pickpocketing_loot_template` is empty");
 }
 
 void LoadLootTemplates_Prospecting()
@@ -1002,14 +1002,14 @@ void LoadLootTemplates_Prospecting()
     uint32 count = LootTemplates_Prospecting.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
+    ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
+    for (auto const& itemTemplatePair : its)
     {
-        if (!(itr->second.Flags & ITEM_FLAG_IS_PROSPECTABLE))
+        if (!(itemTemplatePair.second.Flags & ITEM_FLAG_IS_PROSPECTABLE))
             continue;
 
-        if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end())
-            lootIdSet.erase(itr->second.ItemId);
+        if (lootIdSet.count(itemTemplatePair.first) > 0)
+            lootIdSet.erase(itemTemplatePair.first);
     }
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -1018,7 +1018,7 @@ void LoadLootTemplates_Prospecting()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
 }
 
 void LoadLootTemplates_Mail()
@@ -1042,7 +1042,7 @@ void LoadLootTemplates_Mail()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u mail loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
 }
 
 void LoadLootTemplates_Skinning()
@@ -1055,13 +1055,13 @@ void LoadLootTemplates_Skinning()
     uint32 count = LootTemplates_Skinning.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
+    for (auto const& creatureTemplatePair : ctc)
     {
-        if (uint32 lootid = itr->second.SkinLootId)
+        if (uint32 lootid = creatureTemplatePair.second.SkinLootId)
         {
-            if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", itr->second.Entry);
+            if (!lootIdSet.count(lootid))
+                LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
             else
                 lootIdSetUsed.insert(lootid);
         }
@@ -1076,7 +1076,7 @@ void LoadLootTemplates_Skinning()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u skinning loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 skinning loot templates. DB table `skinning_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 skinning loot templates. DB table `skinning_loot_template` is empty");
 }
 
 void LoadLootTemplates_Spell()
@@ -1116,7 +1116,7 @@ void LoadLootTemplates_Spell()
     if (count)
         TC_LOG_INFO("server.loading", ">> Loaded %u spell loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
 }
 
 void LoadLootTemplates_Reference()

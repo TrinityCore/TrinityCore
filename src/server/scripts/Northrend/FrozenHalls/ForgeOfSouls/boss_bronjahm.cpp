@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -95,9 +95,9 @@ class boss_bronjahm : public CreatureScript
                 DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
             }
@@ -198,7 +198,7 @@ class boss_bronjahm : public CreatureScript
                             me->CastSpell(me, SPELL_SOULSTORM, false);
                             break;
                         case EVENT_FEAR:
-                            me->CastCustomSpell(SPELL_FEAR, SPELLVALUE_MAX_TARGETS, 1, nullptr, false);
+                            me->CastSpell(nullptr, SPELL_FEAR, { SPELLVALUE_MAX_TARGETS, 1 });
                             events.ScheduleEvent(EVENT_FEAR, urand(8000, 12000), 0, PHASE_2);
                             break;
                         default:
@@ -269,20 +269,19 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
         {
             PrepareSpellScript(spell_bronjahm_magic_bane_SpellScript);
 
-            void RecalculateDamage()
+            void RecalculateDamage(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitUnit()->getPowerType() != POWER_MANA)
                     return;
 
                 int32 const maxDamage = GetCaster()->GetMap()->IsHeroic() ? 15000 : 10000;
-                int32 newDamage = GetHitDamage() + (GetHitUnit()->GetMaxPower(POWER_MANA) / 2);
-
-                SetHitDamage(std::min<int32>(maxDamage, newDamage));
+                int32 newDamage = GetEffectValue() + (GetHitUnit()->GetMaxPower(POWER_MANA) / 2);
+                SetEffectValue(std::min<int32>(maxDamage, newDamage));
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_bronjahm_magic_bane_SpellScript::RecalculateDamage);
+                OnEffectLaunchTarget += SpellEffectFn(spell_bronjahm_magic_bane_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

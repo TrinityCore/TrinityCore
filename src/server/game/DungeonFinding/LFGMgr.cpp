@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
@@ -129,7 +130,7 @@ void LFGMgr::LoadRewards()
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
         return;
     }
 
@@ -215,7 +216,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 lfg entrance positions. DB table `lfg_dungeon_template` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 lfg entrance positions. DB table `lfg_dungeon_template` is empty!");
         return;
     }
 
@@ -288,7 +289,7 @@ void LFGMgr::Update(uint32 diff)
     if (!isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
-    time_t currTime = time(nullptr);
+    time_t currTime = GameTime::GetGameTime();
 
     // Remove obsolete role checks
     for (LfgRoleCheckContainer::iterator it = RoleChecksStore.begin(); it != RoleChecksStore.end();)
@@ -540,7 +541,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
     {
         // Create new rolecheck
         LfgRoleCheck& roleCheck = RoleChecksStore[gguid];
-        roleCheck.cancelTime = time_t(time(nullptr)) + LFG_TIME_ROLECHECK;
+        roleCheck.cancelTime = time_t(GameTime::GetGameTime()) + LFG_TIME_ROLECHECK;
         roleCheck.state = LFG_ROLECHECK_INITIALITING;
         roleCheck.leader = guid;
         roleCheck.dungeons = dungeons;
@@ -578,7 +579,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         LfgRolesMap rolesMap;
         rolesMap[guid] = roles;
         LFGQueue& queue = GetQueue(guid);
-        queue.AddQueueData(guid, time(nullptr), dungeons, rolesMap);
+        queue.AddQueueData(guid, GameTime::GetGameTime(), dungeons, rolesMap);
 
         if (!isContinue)
         {
@@ -752,7 +753,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
     {
         SetState(gguid, LFG_STATE_QUEUED);
         LFGQueue& queue = GetQueue(gguid);
-        queue.AddQueueData(gguid, time_t(time(nullptr)), roleCheck.dungeons, roleCheck.roles);
+        queue.AddQueueData(gguid, GameTime::GetGameTime(), roleCheck.dungeons, roleCheck.roles);
         RoleChecksStore.erase(itRoleCheck);
     }
     else if (roleCheck.state != LFG_ROLECHECK_INITIALITING)
@@ -1015,7 +1016,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
 
     bool sendUpdate = proposal.state != LFG_PROPOSAL_SUCCESS;
     proposal.state = LFG_PROPOSAL_SUCCESS;
-    time_t joinTime = time(nullptr);
+    time_t joinTime = GameTime::GetGameTime();
 
     LFGQueue& queue = GetQueue(guid);
     LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND);
@@ -1184,7 +1185,7 @@ void LFGMgr::InitBoot(ObjectGuid gguid, ObjectGuid kicker, ObjectGuid victim, st
 
     LfgPlayerBoot& boot = BootsStore[gguid];
     boot.inProgress = true;
-    boot.cancelTime = time_t(time(nullptr)) + LFG_TIME_BOOT;
+    boot.cancelTime = GameTime::GetGameTime() + LFG_TIME_BOOT;
     boot.reason = reason;
     boot.victim = victim;
 

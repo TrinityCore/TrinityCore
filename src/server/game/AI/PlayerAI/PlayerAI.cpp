@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -690,7 +690,7 @@ void PlayerAI::DoCastAtTarget(TargetedSpell spell)
 {
     SpellCastTargets targets;
     targets.SetUnitTarget(spell.second);
-    spell.first->prepare(&targets);
+    spell.first->prepare(targets);
 }
 
 void PlayerAI::DoRangedAttackIfReady()
@@ -729,7 +729,21 @@ void PlayerAI::DoRangedAttackIfReady()
     if (!rangedAttackSpell)
         return;
 
-    me->CastSpell(victim, rangedAttackSpell, TRIGGERED_CAST_DIRECTLY);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(rangedAttackSpell);
+    if (!spellInfo)
+        return;
+
+    Spell* spell = new Spell(me, spellInfo, TRIGGERED_CAST_DIRECTLY);
+    if (spell->CheckPetCast(victim) != SPELL_CAST_OK)
+    {
+        delete spell;
+        return;
+    }
+
+    SpellCastTargets targets;
+    targets.SetUnitTarget(victim);
+    spell->prepare(targets);
+
     me->resetAttackTimer(RANGED_ATTACK);
 }
 

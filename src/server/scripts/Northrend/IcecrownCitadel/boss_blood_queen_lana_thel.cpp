@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -174,7 +174,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_BLOOD_QUEEN_LANA_THEL, who->ToPlayer()))
                 {
@@ -286,9 +286,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(ObjectGuid guid, int32 type = 0) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
-                switch (type)
+                switch (id)
                 {
                     case GUID_VAMPIRE:
                         _vampires.insert(guid);
@@ -728,8 +728,9 @@ class spell_blood_queen_essence_of_the_blood_queen : public SpellScriptLoader
                 if (!damageInfo || !damageInfo->GetDamage())
                     return;
 
-                int32 heal = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL, SPELLVALUE_BASE_POINT0, heal, GetTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+                GetTarget()->CastSpell(GetTarget(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL, args);
             }
 
             void Register() override
@@ -813,7 +814,10 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
                 int32 damage = damageSpell->Effects[EFFECT_0].CalcValue();
                 float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
                 damage = int32(damage * multiplier);
-                GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
+
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellBP0(damage);
+                GetTarget()->CastSpell(GetTarget(), SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, args);
             }
 
             void Register() override

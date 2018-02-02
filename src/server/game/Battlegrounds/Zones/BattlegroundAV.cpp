@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,6 @@
 #include "CreatureAI.h"
 #include "DBCStores.h"
 #include "GameObject.h"
-#include "Language.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectMgr.h"
@@ -61,10 +60,9 @@ BattlegroundAV::BattlegroundAV()
     for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
         InitNode(i, 0, false);
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AV_START_TWO_MINUTES;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AV_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AV_START_HALF_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AV_HAS_BEGUN;
+    StartMessageIds[BG_STARTING_EVENT_SECOND] = BG_AV_TEXT_START_ONE_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_THIRD]  = BG_AV_TEXT_START_HALF_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_FOURTH] = BG_AV_TEXT_BATTLE_HAS_BEGUN;
 }
 
 BattlegroundAV::~BattlegroundAV() { }
@@ -274,7 +272,10 @@ void BattlegroundAV::UpdateScore(uint16 team, int16 points)
         }
         else if (!m_IsInformedNearVictory[teamindex] && m_Team_Scores[teamindex] < SEND_MSG_NEAR_LOSE)
         {
-            SendMessageToAll(teamindex == TEAM_HORDE?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE, teamindex == TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
+            if (teamindex == TEAM_ALLIANCE)
+                SendBroadcastText(BG_AV_TEXT_ALLIANCE_NEAR_LOSE, CHAT_MSG_BG_SYSTEM_ALLIANCE);
+            else
+                SendBroadcastText(BG_AV_TEXT_HORDE_NEAR_LOSE, CHAT_MSG_BG_SYSTEM_HORDE);
             PlaySoundToAll(AV_SOUND_NEAR_VICTORY);
             m_IsInformedNearVictory[teamindex] = true;
         }
@@ -285,7 +286,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
 {
     bool isStatic = false;
     Creature* creature = nullptr;
-    ASSERT(type <= AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
+    ASSERT(type < AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
     if (type >= AV_CPLACE_MAX) //static
     {
         type -= AV_CPLACE_MAX;
@@ -307,13 +308,12 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN] || creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN])
         creature->SetRespawnDelay(RESPAWN_ONE_DAY); /// @todo look if this can be done by database + also add this for the wingcommanders
 
-    if ((isStatic && cinfoid >= 10 && cinfoid <= 14) || (!isStatic && ((cinfoid >= AV_NPC_A_GRAVEDEFENSE0 && cinfoid <= AV_NPC_A_GRAVEDEFENSE3) ||
-        (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3))))
+    if ((isStatic && cinfoid >= 10 && cinfoid <= 14) || (!isStatic && (cinfoid <= AV_NPC_A_GRAVEDEFENSE3 || (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3))))
     {
-        if (!isStatic && ((cinfoid >= AV_NPC_A_GRAVEDEFENSE0 && cinfoid <= AV_NPC_A_GRAVEDEFENSE3)
-            || (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3)))
+        if (!isStatic && (cinfoid <= AV_NPC_A_GRAVEDEFENSE3 || (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3)))
         {
             CreatureData &data = sObjectMgr->NewOrExistCreatureData(creature->GetSpawnId());
+            data.spawnGroupData = sObjectMgr->GetDefaultSpawnGroup();
             data.spawndist = 5;
         }
         //else spawndist will be 15, so creatures move maximum=10

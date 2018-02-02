@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -205,7 +205,7 @@ public:
 
         void BeginEvent(Player* target)
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
             Talk(SAY_GAMESBEGIN_2);
 
@@ -425,7 +425,7 @@ public:
             canDespawn = true;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_SHADOWFLAME, 12000);
             events.ScheduleEvent(EVENT_FEAR, urand(25000, 35000));
@@ -457,7 +457,7 @@ public:
 
             if (id == 1)
             {
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
                 if (me->GetVictim())
                     AttackStart(me->GetVictim());
             }
@@ -576,7 +576,7 @@ public:
                     if ((*itr) && !(*itr)->IsAlive())
                     {
                         (*itr)->Respawn();
-                        (*itr)->SetInCombatWithZone();
+                        DoZoneInCombat((*itr));
                         (*itr)->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         (*itr)->SetReactState(REACT_AGGRESSIVE);
                         (*itr)->SetStandState(UNIT_STAND_STATE_STAND);

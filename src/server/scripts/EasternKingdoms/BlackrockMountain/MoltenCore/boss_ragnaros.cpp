@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -107,9 +107,9 @@ class boss_ragnaros : public CreatureScript
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_ERUPTION, 15000);
                 events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30000);
                 events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 25000);
@@ -158,7 +158,7 @@ class boss_ragnaros : public CreatureScript
                         case EVENT_INTRO_4:
                             Talk(SAY_ARRIVAL5_RAG);
                             if (Creature* executus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MAJORDOMO_EXECUTUS)))
-                                me->Kill(executus);
+                                Unit::Kill(me, executus);
                             break;
                         case EVENT_INTRO_5:
                             me->SetReactState(REACT_AGGRESSIVE);

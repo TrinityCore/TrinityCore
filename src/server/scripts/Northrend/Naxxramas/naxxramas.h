@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,9 +47,6 @@ enum NAXEncounter
 enum NAXData
 {
     DATA_GOTHIK_GATE,
-    DATA_HAD_ANUBREKHAN_GREET,
-    DATA_HAD_FAERLINA_GREET,
-    DATA_HAD_THADDIUS_GREET,
     DATA_HAD_SAPPHIRON_BIRTH,
 
     DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,

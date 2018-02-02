@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2228,6 +2228,21 @@ AreaTriggerScript::AreaTriggerScript(char const* name)
 {
     ScriptRegistry<AreaTriggerScript>::Instance()->AddScript(this);
 }
+
+bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+{
+    uint32 const triggerId = trigger->id;
+    if (InstanceScript* instance = player->GetInstanceScript())
+    {
+        if (instance->IsAreaTriggerDone(triggerId))
+            return true;
+        else
+            instance->MarkAreaTriggerDone(triggerId);
+    }
+    return _OnTrigger(player, trigger);
+}
+void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(InstanceScript* script, uint32 triggerId) { script->ResetAreaTriggerDone(triggerId); }
+void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger) { if (InstanceScript* instance = player->GetInstanceScript()) ResetAreaTriggerDone(instance, trigger->id); }
 
 BattlegroundScript::BattlegroundScript(char const* name)
     : ScriptObject(name)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1369,7 +1369,8 @@ bool SpellInfo::CanDispelAura(SpellInfo const* auraSpellInfo) const
         return true;
 
     // These auras (Cyclone for example) are not dispelable
-    if (auraSpellInfo->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) || auraSpellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
+    if ((auraSpellInfo->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && auraSpellInfo->Mechanic != MECHANIC_NONE)
+        || auraSpellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
         return false;
 
     return true;
@@ -1644,8 +1645,8 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     // creature/player specific target checks
     if (unitTarget)
     {
-        // spells cannot be cast if player is in fake combat also
-        if (HasAttribute(SPELL_ATTR1_CANT_TARGET_IN_COMBAT) && (unitTarget->IsInCombat() || unitTarget->IsPetInCombat()))
+        // spells cannot be cast if target has a pet in combat either
+        if (HasAttribute(SPELL_ATTR1_CANT_TARGET_IN_COMBAT) && (unitTarget->IsInCombat() || unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT)))
             return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
 
         // only spells with SPELL_ATTR3_ONLY_TARGET_GHOSTS can target ghosts
@@ -2876,13 +2877,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
                 target->ApplySpellImmune(Id, IMMUNITY_MECHANIC, i, apply);
 
         if (apply && HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-        {
-            // exception for purely snare mechanic (eg. hands of freedom)!
-            if (mechanicImmunity == (1 << MECHANIC_SNARE))
-                target->RemoveMovementImpairingAuras(false);
-            else
-                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
-        }
+            target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
     }
 
     if (uint32 dispelImmunity = immuneInfo->DispelImmune)
@@ -3105,17 +3100,13 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
 
 uint32 SpellInfo::GetMaxTicks() const
 {
+    uint32 totalTicks = 0;
     int32 DotDuration = GetDuration();
-    if (DotDuration == 0)
-        return 1;
 
-    // 200% limit
-    if (DotDuration > 30000)
-        DotDuration = 30000;
-
-    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
+    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; ++x)
     {
         if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
+        {
             switch (Effects[x].ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
@@ -3132,13 +3123,20 @@ uint32 SpellInfo::GetMaxTicks() const
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
                 case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                    if (Effects[x].Amplitude != 0)
-                        return DotDuration / Effects[x].Amplitude;
+                case SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR:
+                    // skip infinite periodics
+                    if (Effects[x].Amplitude > 0 && DotDuration > 0)
+                    {
+                        totalTicks = static_cast<uint32>(DotDuration) / Effects[x].Amplitude;
+                        if (HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+                            ++totalTicks;
+                    }
                     break;
             }
+        }
     }
 
-    return 6;
+    return totalTicks;
 }
 
 uint32 SpellInfo::GetRecoveryTime() const
@@ -3371,6 +3369,8 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             {
                 case 29214: // Wrath of the Plaguebringer
                 case 34700: // Allergic Reaction
+                case 41914: // Parasitic Shadowfiend (Illidan)
+                case 41917: // Parasitic Shadowfiend (Illidan)
                 case 54836: // Wrath of the Plaguebringer
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura

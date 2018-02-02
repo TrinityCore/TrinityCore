@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,7 +37,6 @@ go_soulwell
 go_bashir_crystalforge
 go_soulwell
 go_dragonflayer_cage
-go_tadpole_cage
 go_amberpine_outhouse
 go_hive_pod
 go_veil_skith_cage
@@ -1232,49 +1231,6 @@ public:
 };
 
 /*######
-## Quest 11560: Oh Noes, the Tadpoles!
-## go_tadpole_cage
-######*/
-
-enum Tadpoles
-{
-    QUEST_OH_NOES_THE_TADPOLES                    = 11560,
-    NPC_WINTERFIN_TADPOLE                         = 25201
-};
-
-class go_tadpole_cage : public GameObjectScript
-{
-public:
-    go_tadpole_cage() : GameObjectScript("go_tadpole_cage") { }
-
-    struct go_tadpole_cageAI : public GameObjectAI
-    {
-        go_tadpole_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
-            {
-                Creature* pTadpole = me->FindNearestCreature(NPC_WINTERFIN_TADPOLE, 1.0f);
-                if (pTadpole)
-                {
-                    pTadpole->DisappearAndDie();
-                    player->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE);
-                    //FIX: Summon minion tadpole
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_tadpole_cageAI(go);
-    }
-};
-
-/*######
 ## go_amberpine_outhouse
 ######*/
 
@@ -1528,10 +1484,18 @@ public:
 
 enum MidsummerPoleRibbon
 {
-    SPELL_POLE_DANCE      = 29726,
-    SPELL_BLUE_FIRE_RING  = 46842,
-    NPC_POLE_RIBBON_BUNNY = 17066,
-    ACTION_COSMETIC_FIRES = 0
+    SPELL_TEST_RIBBON_POLE_1 = 29705,
+    SPELL_TEST_RIBBON_POLE_2 = 29726,
+    SPELL_TEST_RIBBON_POLE_3 = 29727,
+    NPC_POLE_RIBBON_BUNNY    = 17066,
+    ACTION_COSMETIC_FIRES    = 0
+};
+
+uint32 const RibbonPoleSpells[3] =
+{
+    SPELL_TEST_RIBBON_POLE_1,
+    SPELL_TEST_RIBBON_POLE_2,
+    SPELL_TEST_RIBBON_POLE_3
 };
 
 class go_midsummer_ribbon_pole : public GameObjectScript
@@ -1548,7 +1512,7 @@ public:
             if (Creature* creature = me->FindNearestCreature(NPC_POLE_RIBBON_BUNNY, 10.0f))
             {
                 creature->GetAI()->DoAction(ACTION_COSMETIC_FIRES);
-                player->CastSpell(creature, SPELL_POLE_DANCE, true);
+                player->CastSpell(player, RibbonPoleSpells[urand(0, 2)], true);
             }
             return true;
         }
@@ -1679,43 +1643,99 @@ public:
                 case EVENT_BM_START_MUSIC:
                     if (!IsHolidayActive(HOLIDAY_BREWFEST)) // Check if Brewfest is active
                         break;
-                    // Check if gob is correct area, play music, set time of music
-                    if (me->GetAreaId() == SILVERMOON || me->GetAreaId() == UNDERCITY || me->GetAreaId() == ORGRIMMAR_1 || me->GetAreaId() == ORGRIMMAR_2 || me->GetAreaId() == THUNDERBLUFF || me->GetAreaId() == SHATTRATH)
+
+                    switch (me->GetAreaId())
                     {
-                        if (rnd == 0)
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTGOBLIN01);
-                            musicTime = EVENT_BREWFESTGOBLIN01_TIME;
-                        }
-                        else if (rnd == 1)
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTGOBLIN02);
-                            musicTime = EVENT_BREWFESTGOBLIN02_TIME;
-                        }
-                        else
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTGOBLIN03);
-                            musicTime = EVENT_BREWFESTGOBLIN03_TIME;
-                        }
+                        // Horde
+                        case SILVERMOON:
+                        case UNDERCITY:
+                        case ORGRIMMAR_1:
+                        case ORGRIMMAR_2:
+                        case THUNDERBLUFF:
+                            if (rnd == 0)
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTGOBLIN01);
+                                musicTime = EVENT_BREWFESTGOBLIN01_TIME;
+                            }
+                            else if (rnd == 1)
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTGOBLIN02);
+                                musicTime = EVENT_BREWFESTGOBLIN02_TIME;
+                            }
+                            else
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTGOBLIN03);
+                                musicTime = EVENT_BREWFESTGOBLIN03_TIME;
+                            }
+                            break;
+                        // Alliance
+                        case IRONFORGE_1:
+                        case IRONFORGE_2:
+                        case STORMWIND:
+                        case EXODAR:
+                        case DARNASSUS:
+                            if (rnd == 0)
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTDWARF01);
+                                musicTime = EVENT_BREWFESTDWARF01_TIME;
+                            }
+                            else if (rnd == 1)
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTDWARF02);
+                                musicTime = EVENT_BREWFESTDWARF02_TIME;
+                            }
+                            else
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTDWARF03);
+                                musicTime = EVENT_BREWFESTDWARF03_TIME;
+                            }
+                            break;
+                        // Neurtal
+                        case SHATTRATH:
+                            std::vector<Player*> playersNearby;
+                            me->GetPlayerListInGrid(playersNearby, me->GetVisibilityRange());
+                            for (Player* player : playersNearby)
+                            {
+                                if (player->GetTeamId() == TEAM_HORDE)
+                                {
+                                    if (rnd == 0)
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTGOBLIN01);
+                                        musicTime = EVENT_BREWFESTGOBLIN01_TIME;
+                                    }
+                                    else if (rnd == 1)
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTGOBLIN02);
+                                        musicTime = EVENT_BREWFESTGOBLIN02_TIME;
+                                    }
+                                    else
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTGOBLIN03);
+                                        musicTime = EVENT_BREWFESTGOBLIN03_TIME;
+                                    }
+                                }
+                                else
+                                {
+                                    if (rnd == 0)
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTDWARF01);
+                                        musicTime = EVENT_BREWFESTDWARF01_TIME;
+                                    }
+                                    else if (rnd == 1)
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTDWARF02);
+                                        musicTime = EVENT_BREWFESTDWARF02_TIME;
+                                    }
+                                    else
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTDWARF03);
+                                        musicTime = EVENT_BREWFESTDWARF03_TIME;
+                                    }
+                                }
+                            }
+                            break;
                     }
-                    if (me->GetAreaId() == IRONFORGE_1 || me->GetAreaId() == IRONFORGE_2 || me->GetAreaId() == STORMWIND || me->GetAreaId() == EXODAR || me->GetAreaId() == DARNASSUS || me->GetAreaId() == SHATTRATH)
-                    {
-                        if (rnd == 0)
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTDWARF01);
-                            musicTime = EVENT_BREWFESTDWARF01_TIME;
-                        }
-                        else if (rnd == 1)
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTDWARF02);
-                            musicTime = EVENT_BREWFESTDWARF02_TIME;
-                        }
-                        else
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTDWARF03);
-                            musicTime = EVENT_BREWFESTDWARF03_TIME;
-                        }
-                    }
+
                     _events.ScheduleEvent(EVENT_BM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client
                     break;
                 default:
@@ -2045,7 +2065,6 @@ void AddSC_go_scripts()
     new go_table_theka();
     new go_inconspicuous_landmark();
     new go_soulwell();
-    new go_tadpole_cage();
     new go_dragonflayer_cage();
     new go_amberpine_outhouse();
     new go_hive_pod();

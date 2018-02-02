@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -229,7 +229,7 @@ enum ProcFlagsHit
     PROC_HIT_DEFLECT             = 0x0000200,
     PROC_HIT_ABSORB              = 0x0000400, // partial or full absorb
     PROC_HIT_REFLECT             = 0x0000800,
-    PROC_HIT_INTERRUPT           = 0x0001000, // (not used atm)
+    PROC_HIT_INTERRUPT           = 0x0001000,
     PROC_HIT_FULL_BLOCK          = 0x0002000,
     PROC_HIT_MASK_ALL            = 0x0002FFF
 };

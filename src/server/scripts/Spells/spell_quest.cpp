@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -157,7 +157,7 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 uint32 spellId = roll_chance_i(50) ? SPELL_CREATE_RESONATING_SKULL : SPELL_CREATE_BONE_DUST;
-                caster->CastSpell(caster, spellId, true, nullptr);
+                caster->CastSpell(caster, spellId, true);
             }
 
             void Register() override
@@ -317,11 +317,11 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetExplTargetUnit())
+                if (Unit* target = GetHitUnit())
                     if (target->GetTypeId() == TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                         // Make sure nobody else is channeling the same target
                         if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
-                            GetCaster()->CastSpell(target, SPELL_SCOURGING_CRYSTAL_CONTROLLER, true, GetCastItem());
+                            GetCaster()->CastSpell(target, SPELL_SCOURGING_CRYSTAL_CONTROLLER, GetCastItem());
             }
 
             void Register() override
@@ -498,7 +498,7 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
                         default:
                             return;
                     }
-                    caster->CastSpell(caster, spellId, true, castItem);
+                    caster->CastSpell(caster, spellId, castItem);
                     caster->CastSpell(caster, SPELL_ROBOT_KILL_CREDIT, true);
                     target->DespawnOrUnsummon();
                 }
@@ -608,7 +608,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
                 // sometimes, if you're lucky, you get a dwarf
                 if (roll_chance_i(5))
                     spellId = SPELL_SUMMON_ADVENTUROUS_DWARF;
-                GetCaster()->CastSpell(GetCaster(), spellId, true, nullptr);
+                GetCaster()->CastSpell(GetCaster(), spellId, true);
             }
 
             void Register() override
@@ -642,7 +642,7 @@ class spell_q12683_take_sputum_sample : public SpellScriptLoader
                 if (caster->HasAuraEffect(reqAuraId, 0))
                 {
                     uint32 spellId = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                    caster->CastSpell(caster, spellId, true, nullptr);
+                    caster->CastSpell(caster, spellId, true);
                 }
             }
 
@@ -752,7 +752,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
                 {
-                    caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, nullptr);
+                    caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true);
                     caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER);
                     target->DespawnOrUnsummon();
                 }
@@ -924,7 +924,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
-                    if (target && !target->HasAura(SPELL_FLAMES))
+                    if (!target->HasAura(SPELL_FLAMES))
                     {
                         caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
                         target->CastSpell(target, SPELL_FLAMES, true);
@@ -1922,7 +1922,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)
             {
                 if (WorldLocation const* pos = GetExplTargetDest())
-                    GetCaster()->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), GetEffectValue(), true);
+                    GetCaster()->CastSpell(pos->GetPosition(), GetEffectValue(), true);
             }
 
             void Register() override
@@ -1934,6 +1934,92 @@ class spell_q13086_cannons_target : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q13086_cannons_target_SpellScript();
+        }
+};
+
+enum ThatsAbominable
+{
+    QUEST_THATS_ABOMINABLE                = 13264,
+
+    NPC_ICY_GHOUL                         = 31142,
+    NPC_RISEN_ALLIANCE_SOLDIERS           = 31205,
+    NPC_VICIOUS_GEIST                     = 31147,
+    NPC_RENIMATED_ABOMINATION             = 31692,
+
+    SPELL_ICY_GHOUL_CREDIT                = 59591, // Credit for Icy Ghoul
+    SPELL_VICIOUS_GEISTS_CREDIT           = 60042, // Credit for Vicious Geists
+    SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT  = 60040, // Credit for Risen Alliance Soldiers
+};
+
+class spell_q13264_thats_abominable : public SpellScriptLoader
+{
+    public:
+        spell_q13264_thats_abominable() : SpellScriptLoader("spell_q13264_thats_abominable") { }
+
+        class spell_q13264_thats_abominable_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13264_thats_abominable_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                {
+                    SPELL_ICY_GHOUL_CREDIT,
+                    SPELL_VICIOUS_GEISTS_CREDIT,
+                    SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT,
+                });
+            }
+
+            void HandleKnockBack(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (Creature* creature = GetHitCreature())
+                    if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
+                        if (Player* player = charmer->ToPlayer())
+                            if (player->GetQuestStatus(QUEST_THATS_ABOMINABLE) == QUEST_STATUS_INCOMPLETE)
+                                if (GiveCreditIfValid(player, creature))
+                                    creature->KillSelf();
+            }
+
+            bool GiveCreditIfValid(Player* player, Creature* creature)
+            {
+                uint32 entry = creature->GetEntry();
+
+                switch(entry)
+                {
+                    case NPC_ICY_GHOUL:
+                        player->CastSpell(player, SPELL_ICY_GHOUL_CREDIT, true);
+                        return true;
+                    case NPC_VICIOUS_GEIST:
+                        player->CastSpell(player, SPELL_VICIOUS_GEISTS_CREDIT, true);
+                        return true;
+                    case NPC_RISEN_ALLIANCE_SOLDIERS:
+                        player->CastSpell(player, SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT, true);
+                        return true;
+                }
+
+                return false;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* creature = GetCaster()->ToCreature()) {
+                    creature->KillSelf();
+                    creature->DespawnOrUnsummon();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13264_thats_abominable_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
+                OnEffectHitTarget += SpellEffectFn(spell_q13264_thats_abominable_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q13264_thats_abominable_SpellScript();
         }
 };
 
@@ -2215,7 +2301,7 @@ class spell_q12619_emblazon_runeblade : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, nullptr, aurEff);
+                    caster->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, aurEff);
             }
 
             void Register() override
@@ -2279,10 +2365,11 @@ class spell_q12919_gymers_grab : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                int8 seatId = 2;
                 if (!GetHitCreature())
                     return;
-                GetHitCreature()->CastCustomSpell(SPELL_RIDE_GYMER, SPELLVALUE_BASE_POINT0, seatId, GetCaster(), true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellBP0(2);
+                GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE_GYMER, args);
                 GetHitCreature()->CastSpell(GetHitCreature(), SPELL_GRABBED, true);
             }
 
@@ -2728,6 +2815,7 @@ void AddSC_quest_spell_scripts()
     new spell_q12847_summon_soul_moveto_bunny();
     new spell_q13011_bear_flank_master();
     new spell_q13086_cannons_target();
+    new spell_q13264_thats_abominable();
     new spell_q12690_burst_at_the_seams();
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -242,9 +242,9 @@ public:
                 switch (eventId)
                 {
                     case EVENT_RAZOR_SPAWN:
-                        for (uint8 i = urand(2, 5); i > 0 ; --i)
-                            if (Creature* summon =  instance->SummonCreature(Entry[urand(0, 4)], SummonPosition[urand(0, 7)]))
-                                summon->SetInCombatWithZone();
+                        for (uint8 i = urand(2, 5); i > 0; --i)
+                            if (Creature* summon = instance->SummonCreature(Entry[urand(0, 4)], SummonPosition[urand(0, 7)]))
+                                summon->AI()->DoZoneInCombat();
                         _events.ScheduleEvent(EVENT_RAZOR_SPAWN, urand(12, 17) * IN_MILLISECONDS);
                         break;
                     case EVENT_RAZOR_PHASE_TWO:

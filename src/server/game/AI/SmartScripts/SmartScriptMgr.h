@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -432,6 +432,7 @@ struct SmartEvent
             uint32 param2;
             uint32 param3;
             uint32 param4;
+            uint32 param5;
         } raw;
     };
 };
@@ -610,6 +611,7 @@ struct SmartAction
         {
             uint32 sound;
             uint32 onlySelf;
+            uint32 distance;
         } sound;
 
         struct
@@ -1070,8 +1072,9 @@ struct SmartAction
 
         struct
         {
-            uint32 sounds[SMART_ACTION_PARAM_COUNT - 1];
+            uint32 sounds[SMART_ACTION_PARAM_COUNT - 2];
             uint32 onlySelf;
+            uint32 distance;
         } randomSound;
 
         struct
@@ -1184,7 +1187,7 @@ enum SMARTAI_TARGETS
     SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist, playerOnly
     SMART_TARGET_LOOT_RECIPIENTS                = 27,   // all players that have tagged this creature (for kill credit)
     SMART_TARGET_FARTHEST                       = 28,   // maxDist, playerOnly, isInLos
-    SMART_TARGET_VEHICLE_ACCESSORY              = 29,   // seat number (vehicle can target it's own accessory)
+    SMART_TARGET_VEHICLE_PASSENGER              = 29,   // seatMask (0 - all seats)
 
     SMART_TARGET_END                            = 30
 };
@@ -1312,7 +1315,7 @@ struct SmartTarget
 
         struct
         {
-            uint32 seat;
+            uint32 seatMask;
         } vehicle;
     };
 };

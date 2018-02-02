@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,8 +68,10 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StopFollow(bool complete);
         bool IsEscortInvokerInRange();
 
+        void WaypointPathStarted(uint32 pathId) override;
         void WaypointStarted(uint32 nodeId, uint32 pathId) override;
         void WaypointReached(uint32 nodeId, uint32 pathId) override;
+        void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         SmartScript* GetScript() { return &mScript; }
@@ -81,7 +83,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void JustReachedHome() override;
 
         // Called for reaction at enter to combat if not in combat yet (enemy can be nullptr)
-        void EnterCombat(Unit* enemy) override;
+        void JustEngagedWith(Unit* enemy) override;
 
         // Called for reaction at stopping attack at no attackers or targets
         void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
@@ -156,7 +158,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void SetData(uint32 id, uint32 value) override;
 
         // Used in scripts to share variables
-        void SetGUID(ObjectGuid guid, int32 id = 0) override;
+        void SetGUID(ObjectGuid const& guid, int32 id = 0) override;
 
         // Used in scripts to share variables
         ObjectGuid GetGUID(int32 id = 0) const override;
@@ -181,8 +183,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
         void OnGameEvent(bool start, uint16 eventId) override;
 
-        uint32 mEscortQuestID;
-
         void SetDespawnTime (uint32 t)
         {
             mDespawnTime = t;
@@ -196,13 +196,15 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
 
+        void SetEscortQuest(uint32 questID) { mEscortQuestID = questID; }
+
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);
         void ReturnToLastOOCPos();
-        void UpdatePath(const uint32 diff);
-        void UpdateDespawn(uint32 diff);
-        // Vehicle conditions
         void CheckConditions(uint32 diff);
+        void UpdatePath(uint32 diff);
+        void UpdateFollow(uint32 diff);
+        void UpdateDespawn(uint32 diff);
 
         SmartScript mScript;
 
@@ -235,7 +237,6 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         uint32 mDespawnTime;
         uint32 mDespawnState;
-        bool mJustReset;
 
         // Vehicle conditions
         bool mHasConditions;
@@ -243,6 +244,8 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Gossip
         bool _gossipReturn;
+
+        uint32 mEscortQuestID;
 };
 
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI

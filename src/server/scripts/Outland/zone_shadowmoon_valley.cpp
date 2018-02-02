@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -553,7 +553,7 @@ public:
                             player->KilledMonsterCredit(23209);
                     }
                     PoisonTimer = 0;
-                    me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    me->KillSelf();
                 } else PoisonTimer -= diff;
             }
             if (!UpdateVictim())
@@ -687,7 +687,7 @@ public:
             DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             //don't always use
             if (rand32() % 5)
@@ -879,7 +879,7 @@ public:
             me->SetTarget(ObjectGuid::Empty);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void HandleAnimation()
         {
@@ -1048,7 +1048,7 @@ public:
             me->SetVisible(false);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
@@ -1183,14 +1183,13 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void JustDied(Unit* /*killer*/) override
         {
             me->DespawnOrUnsummon();
             if (Creature* LordIllidan = (ObjectAccessor::GetCreature(*me, LordIllidanGUID)))
-                if (LordIllidan)
-                    ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();
+                ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1376,7 +1375,7 @@ public:
 
 enum Enraged_Dpirits
 {
-// QUESTS
+    // QUESTS
     QUEST_ENRAGED_SPIRITS_FIRE_EARTH        = 10458,
     QUEST_ENRAGED_SPIRITS_AIR               = 10481,
     QUEST_ENRAGED_SPIRITS_WATER             = 10480,
@@ -1390,6 +1389,22 @@ enum Enraged_Dpirits
     NPC_ENRAGED_FIRE_SPIRIT                 = 21061,
     NPC_ENRAGED_AIR_SPIRIT                  = 21060,
     NPC_ENRAGED_WATER_SPIRIT                = 21059,
+
+    // ENRAGED WATER SPIRIT SPELLS
+    SPELL_STORMBOLT                         = 38032,
+
+    // ENRAGED AIR SPIRIT SPELLS
+    SPELL_AIR_SPIRIT_CHAIN_LIGHTNING        = 12058,
+    SPELL_HURRICANE                         = 32717,
+    SPELL_ENRAGE                            = 8599,
+
+    // ENRAGED FIRE SPIRIT SPELLS - Will be using the enrage spell from Air Spirit
+    SPELL_FEL_FIREBALL                      = 36247,
+    SPELL_FEL_FIRE_AURA                     = 36006, // Earth spirit uses this one
+
+    // ENRAGED EARTH SPIRIT SPELLS
+    SPELL_FIERY_BOULDER                     = 38498,
+    SPELL_SUMMON_ENRAGED_EARTH_SHARD        = 38365,
 
     // SOULS
     NPC_EARTHEN_SOUL                        = 21073,
@@ -1413,6 +1428,15 @@ enum Enraged_Dpirits
     SPELL_SOUL_CAPTURED                     = 36115
 };
 
+enum Enraged_Spirits_Events
+{
+    EVENT_ENRAGED_WATER_SPIRIT                  = 1,
+    EVENT_ENRAGED_FIRE_SPIRIT                   = 2,
+    EVENT_ENRAGED_EARTH_SPIRIT                  = 3,
+    EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING    = 4,
+    EVENT_ENRAGED_AIR_SPIRIT_HURRICANE          = 5
+};
+
 class npc_enraged_spirit : public CreatureScript
 {
 public:
@@ -1420,7 +1444,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-    return new npc_enraged_spiritAI(creature);
+        return new npc_enraged_spiritAI(creature);
     }
 
     struct npc_enraged_spiritAI : public ScriptedAI
@@ -1429,7 +1453,77 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            switch (me->GetEntry())
+            {
+                case NPC_ENRAGED_WATER_SPIRIT:
+                    _events.ScheduleEvent(EVENT_ENRAGED_WATER_SPIRIT, Seconds(0), Seconds(1));
+                    break;
+                case NPC_ENRAGED_FIRE_SPIRIT:
+                    if (!me->GetAura(SPELL_FEL_FIRE_AURA))
+                        DoCastSelf(SPELL_FEL_FIRE_AURA);
+                    _events.ScheduleEvent(EVENT_ENRAGED_FIRE_SPIRIT, Seconds(2), Seconds(10));
+                    break;
+                case NPC_ENRAGED_EARTH_SPIRIT:
+                    if (!me->GetAura(SPELL_FEL_FIRE_AURA))
+                        DoCastSelf(SPELL_FEL_FIRE_AURA);
+                    _events.ScheduleEvent(EVENT_ENRAGED_EARTH_SPIRIT, Seconds(3), Seconds(4));
+                    break;
+                case NPC_ENRAGED_AIR_SPIRIT:
+                    _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(10));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_ENRAGED_WATER_SPIRIT:
+                        if (UpdateVictim())
+                            DoCastVictim(SPELL_STORMBOLT);
+                        _events.Repeat(Seconds(17), Seconds(23));
+                        break;
+                    case EVENT_ENRAGED_FIRE_SPIRIT:
+                        if (UpdateVictim())
+                            DoCastVictim(SPELL_FEL_FIREBALL);
+                        _events.Repeat(Seconds(6), Seconds(12));
+                        break;
+                    case EVENT_ENRAGED_EARTH_SPIRIT:
+                        if (UpdateVictim())
+                            DoCastVictim(SPELL_FIERY_BOULDER);
+                        _events.Repeat(Seconds(6), Seconds(9));
+                        break;
+                    case EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING:
+                        if (UpdateVictim())
+                            DoCastVictim(SPELL_CHAIN_LIGHTNING);
+                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_HURRICANE, Seconds(3), Seconds(5));
+                        break;
+                    case EVENT_ENRAGED_AIR_SPIRIT_HURRICANE:
+                        if (UpdateVictim())
+                            DoCastVictim(SPELL_HURRICANE);
+                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(15), Seconds(20));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+        if (me->GetEntry() == NPC_ENRAGED_FIRE_SPIRIT || me->GetEntry() == NPC_ENRAGED_AIR_SPIRIT)
+            if (HealthBelowPct(35) && !me->GetAura(SPELL_ENRAGE))
+                DoCastSelf(SPELL_ENRAGE);
+
+        DoMeleeAttackIfReady();
+        }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -1450,6 +1544,7 @@ public:
                     entry  = NPC_EARTHEN_SOUL;
                     //credit = SPELL_EARTHEN_SOUL_CAPTURED_CREDIT;
                     credit = NPC_CREDIT_EARTH;
+                    DoCastSelf(SPELL_SUMMON_ENRAGED_EARTH_SHARD);
                     break;
                   case NPC_ENRAGED_AIR_SPIRIT:
                     entry  = NPC_ENRAGED_AIRY_SOUL;
@@ -1488,6 +1583,9 @@ public:
                  }
             }
         }
+
+    private:
+        EventMap _events;
     };
 };
 

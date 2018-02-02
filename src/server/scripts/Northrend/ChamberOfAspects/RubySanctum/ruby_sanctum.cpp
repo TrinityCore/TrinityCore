@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -152,12 +152,12 @@ class npc_xerestrasza : public CreatureScript
         }
 };
 
-class at_baltharus_plateau : public AreaTriggerScript
+class at_baltharus_plateau : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_baltharus_plateau() : AreaTriggerScript("at_baltharus_plateau") { }
+        at_baltharus_plateau() : OnlyOnceAreaTriggerScript("at_baltharus_plateau") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())
@@ -196,7 +196,11 @@ class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (_targetCount && !GetCaster()->HasAura(SPELL_RALLY))
-                    GetCaster()->CastCustomSpell(SPELL_RALLY, SPELLVALUE_AURA_STACK, _targetCount, GetCaster(), TRIGGERED_FULL_MASK);
+                {
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount);
+                    GetCaster()->CastSpell(GetCaster(), SPELL_RALLY, args);
+                }
             }
 
             void Register() override

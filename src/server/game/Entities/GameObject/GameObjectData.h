@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -318,6 +318,7 @@ struct GameObjectTemplate
         {
             uint32 gameType;                                //0
         } miniGame;
+        //28 GAMEOBJECT_TYPE_DO_NOT_USE_2 - empty
         //29 GAMEOBJECT_TYPE_CAPTURE_POINT
         struct
         {
@@ -434,6 +435,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
+            case GAMEOBJECT_TYPE_MAILBOX: return true;
+            case GAMEOBJECT_TYPE_BARBER_CHAIR: return false;
             case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted != 0;
             case GAMEOBJECT_TYPE_TEXT: return text.allowMounted != 0;
             case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted != 0;

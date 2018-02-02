@@ -13,10 +13,16 @@
 #include "format.h"
 #include <ctime>
 
+#ifdef _MSC_VER
+# pragma warning(push)
+# pragma warning(disable: 4702)  // unreachable code
+# pragma warning(disable: 4996)  // "deprecated" functions
+#endif
+
 namespace fmt {
 template <typename ArgFormatter>
-void format(BasicFormatter<char, ArgFormatter> &f,
-            const char *&format_str, const std::tm &tm) {
+void format_arg(BasicFormatter<char, ArgFormatter> &f,
+                const char *&format_str, const std::tm &tm) {
   if (*format_str == ':')
     ++format_str;
   const char *end = format_str;
@@ -48,6 +54,90 @@ void format(BasicFormatter<char, ArgFormatter> &f,
   }
   format_str = end + 1;
 }
+
+namespace internal{
+inline Null<> localtime_r(...) { return Null<>(); }
+inline Null<> localtime_s(...) { return Null<>(); }
+inline Null<> gmtime_r(...) { return Null<>(); }
+inline Null<> gmtime_s(...) { return Null<>(); }
 }
+
+// Thread-safe replacement for std::localtime
+inline std::tm localtime(std::time_t time) {
+  struct LocalTime {
+    std::time_t time_;
+    std::tm tm_;
+
+    LocalTime(std::time_t t): time_(t) {}
+
+    bool run() {
+      using namespace fmt::internal;
+      return handle(localtime_r(&time_, &tm_));
+    }
+
+    bool handle(std::tm *tm) { return tm != FMT_NULL; }
+
+    bool handle(internal::Null<>) {
+      using namespace fmt::internal;
+      return fallback(localtime_s(&tm_, &time_));
+    }
+
+    bool fallback(int res) { return res == 0; }
+
+    bool fallback(internal::Null<>) {
+      using namespace fmt::internal;
+      std::tm *tm = std::localtime(&time_);
+      if (tm) tm_ = *tm;
+      return tm != FMT_NULL;
+    }
+  };
+  LocalTime lt(time);
+  if (lt.run())
+    return lt.tm_;
+  // Too big time values may be unsupported.
+  FMT_THROW(fmt::FormatError("time_t value out of range"));
+  return std::tm();
+}
+
+// Thread-safe replacement for std::gmtime
+inline std::tm gmtime(std::time_t time) {
+  struct GMTime {
+    std::time_t time_;
+    std::tm tm_;
+
+    GMTime(std::time_t t): time_(t) {}
+
+    bool run() {
+      using namespace fmt::internal;
+      return handle(gmtime_r(&time_, &tm_));
+    }
+
+    bool handle(std::tm *tm) { return tm != FMT_NULL; }
+
+    bool handle(internal::Null<>) {
+      using namespace fmt::internal;
+      return fallback(gmtime_s(&tm_, &time_));
+    }
+
+    bool fallback(int res) { return res == 0; }
+
+    bool fallback(internal::Null<>) {
+      std::tm *tm = std::gmtime(&time_);
+      if (tm != FMT_NULL) tm_ = *tm;
+      return tm != FMT_NULL;
+    }
+  };
+  GMTime gt(time);
+  if (gt.run())
+    return gt.tm_;
+  // Too big time values may be unsupported.
+  FMT_THROW(fmt::FormatError("time_t value out of range"));
+  return std::tm();
+}
+} //namespace fmt
+
+#ifdef _MSC_VER
+# pragma warning(pop)
+#endif
 
 #endif  // FMT_TIME_H_

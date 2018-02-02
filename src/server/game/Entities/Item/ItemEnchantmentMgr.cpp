@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -76,7 +76,7 @@ void LoadRandomEnchantmentsTable()
         TC_LOG_INFO("server.loading", ">> Loaded %u Item Enchantment definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
 }
 
 uint32 GetItemEnchantMod(int32 entry)
@@ -244,4 +244,3 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
     }
     return 0;
 }
-

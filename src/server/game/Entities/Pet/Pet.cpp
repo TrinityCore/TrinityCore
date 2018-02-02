@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -237,7 +237,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             break;
     }
 
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped here
+    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(GameTime::GetGameTime())); // cast can't be helped here
     SetCreatorGUID(owner->GetGUID());
 
     InitStatsForLevel(petlevel);
@@ -318,7 +318,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     InitTalentForLevel();                                   // set original talents points before spell loading
 
-    uint32 timediff = uint32(time(nullptr) - fields[14].GetUInt32());
+    uint32 timediff = uint32(GameTime::GetGameTime() - fields[14].GetUInt32());
     _LoadAuras(timediff);
 
     // load action bar, if data broken will fill later by default spells.
@@ -372,7 +372,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         owner->ToPlayer()->SetLastPetNumber(petId);
 
     // must be after SetMinion (owner guid check)
-    LoadMechanicTemplateImmunity();
+    LoadTemplateImmunities();
     m_loading = false;
 
     return true;
@@ -467,7 +467,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setUInt32(11, curmana);
         stmt->setUInt32(12, GetPower(POWER_HAPPINESS));
         stmt->setString(13, GenerateActionBarData());
-        stmt->setUInt32(14, time(nullptr));
+        stmt->setUInt32(14, GameTime::GetGameTime());
         stmt->setUInt32(15, GetUInt32Value(UNIT_CREATED_BY_SPELL));
         stmt->setUInt8(16, getPetType());
         trans->Append(stmt);
@@ -546,7 +546,7 @@ void Pet::Update(uint32 diff)
     {
         case CORPSE:
         {
-            if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= time(nullptr))
+            if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= GameTime::GetGameTime())
             {
                 Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
                 return;
@@ -1177,6 +1177,8 @@ void Pet::_LoadAuras(uint32 timediff)
             int32 maxduration = fields[11].GetInt32();
             int32 remaintime = fields[12].GetInt32();
             uint8 remaincharges = fields[13].GetUInt8();
+            float critChance = fields[14].GetFloat();
+            bool applyResilience = fields[15].GetBool();
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
             if (!spellInfo)
@@ -1186,7 +1188,7 @@ void Pet::_LoadAuras(uint32 timediff)
             }
 
             // negative effects should continue counting down after logout
-            if (remaintime != -1 && !spellInfo->IsPositive())
+            if (remaintime != -1 && (!spellInfo->IsPositive() || spellInfo->HasAttribute(SPELL_ATTR4_FADES_WHILE_LOGGED_OUT)))
             {
                 if (remaintime/IN_MILLISECONDS <= int32(timediff))
                     continue;
@@ -1210,7 +1212,7 @@ void Pet::_LoadAuras(uint32 timediff)
                     aura->Remove();
                     continue;
                 }
-                aura->SetLoadedState(maxduration, remaintime, remaincharges, stackcount, recalculatemask, &damage[0]);
+                aura->SetLoadedState(maxduration, remaintime, remaincharges, stackcount, recalculatemask, critChance, applyResilience, &damage[0]);
                 aura->ApplyForTargets();
                 TC_LOG_DEBUG("entities.pet", "Added aura spellid %u, effectmask %u", spellInfo->Id, effmask);
             }
@@ -1275,6 +1277,8 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         stmt->setInt32(index++, itr->second->GetMaxDuration());
         stmt->setInt32(index++, itr->second->GetDuration());
         stmt->setUInt8(index++, itr->second->GetCharges());
+        stmt->setFloat(index++, itr->second->GetCritChance());
+        stmt->setBool (index++, itr->second->CanApplyResilience());
 
         trans->Append(stmt);
     }
@@ -1814,6 +1818,8 @@ bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32
     SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     SetSheath(SHEATH_STATE_MELEE);
 
+    GetThreatManager().Initialize();
+
     return true;
 }
 
@@ -1870,13 +1876,13 @@ void Pet::CastPetAura(PetAura const* aura)
     if (!auraId)
         return;
 
+    CastSpellExtraArgs args;
+    args.TriggerFlags = TRIGGERED_FULL_MASK;
+
     if (auraId == 35696)                                      // Demonic Knowledge
-    {
-        int32 basePoints = CalculatePct(aura->GetDamage(), GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT));
-        CastCustomSpell(this, auraId, &basePoints, nullptr, nullptr, true);
-    }
-    else
-        CastSpell(this, auraId, true);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(aura->GetDamage(), GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT)));
+
+    CastSpell(this, auraId, args);
 }
 
 bool Pet::IsPetAura(Aura const* aura)

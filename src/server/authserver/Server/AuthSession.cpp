@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -576,7 +576,7 @@ bool AuthSession::HandleLogonProof()
 
         PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         stmt->setString(0, K.AsHexStr());
-        stmt->setString(1, GetRemoteIpAddress().to_string().c_str());
+        stmt->setString(1, GetRemoteIpAddress().to_string());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
         stmt->setString(4, _accountInfo.Login);

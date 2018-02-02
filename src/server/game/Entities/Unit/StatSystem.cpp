@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,25 +62,31 @@ void Unit::UpdateAllResistances()
 
 void Unit::UpdateDamagePhysical(WeaponAttackType attType)
 {
-    float minDamage = 0.0f;
-    float maxDamage = 0.0f;
+    float totalMin = 0.f;
+    float totalMax = 0.f;
 
-    CalculateMinMaxDamage(attType, false, true, minDamage, maxDamage);
+    float tmpMin, tmpMax;
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+    {
+        CalculateMinMaxDamage(attType, false, true, tmpMin, tmpMax, i);
+        totalMin += tmpMin;
+        totalMax += tmpMax;
+    }
 
     switch (attType)
     {
         case BASE_ATTACK:
         default:
-            SetStatFloatValue(UNIT_FIELD_MINDAMAGE, minDamage);
-            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxDamage);
+            SetStatFloatValue(UNIT_FIELD_MINDAMAGE, totalMin);
+            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, totalMax);
             break;
         case OFF_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, minDamage);
-            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxDamage);
+            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, totalMin);
+            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, totalMax);
             break;
         case RANGED_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, minDamage);
-            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxDamage);
+            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, totalMin);
+            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, totalMax);
             break;
     }
 }
@@ -209,7 +215,7 @@ bool Player::UpdateAllStats()
     }
 
     UpdateArmor();
-    // calls UpdateAttackPowerAndDamage() in UpdateArmor for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
+    UpdateAttackPowerAndDamage(false);
     UpdateAttackPowerAndDamage(true);
     UpdateMaxHealth();
 
@@ -276,8 +282,6 @@ void Player::UpdateArmor()
     Pet* pet = GetPet();
     if (pet)
         pet->UpdateArmor();
-
-    UpdateAttackPowerAndDamage();                           // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
 }
 
 float Player::GetHealthBonusFromStamina()
@@ -461,21 +465,19 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         if ((getClassMask() & CLASSMASK_WAND_USERS) == 0)
         {
             AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
-            for (AuraEffectList::const_iterator i = mRAPbyStat.begin(); i != mRAPbyStat.end(); ++i)
-                attPowerMod += CalculatePct(GetStat(Stats((*i)->GetMiscValue())), (*i)->GetAmount());
+            for (AuraEffect const* aurEff : mRAPbyStat)
+                attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
         }
     }
     else
     {
         AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
-        for (AuraEffectList::const_iterator i = mAPbyStat.begin(); i != mAPbyStat.end(); ++i)
-            attPowerMod += CalculatePct(GetStat(Stats((*i)->GetMiscValue())), (*i)->GetAmount());
-
-        AuraEffectList const& mAPbyArmor = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
-        for (AuraEffectList::const_iterator iter = mAPbyArmor.begin(); iter != mAPbyArmor.end(); ++iter)
-            // always: ((*i)->GetModifier()->m_miscvalue == 1 == SPELL_SCHOOL_MASK_NORMAL)
-            attPowerMod += int32(GetArmor() / (*iter)->GetAmount());
+        for (AuraEffect const* aurEff : mAPbyStat)
+            attPowerMod += CalculatePct(GetStat(Stats(aurEff->GetMiscValue())), aurEff->GetAmount());
     }
+
+    // applies to both, amount updated in PeriodicTick each 30 seconds
+    attPowerMod += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
 
     float attPowerMultiplier = GetPctModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
@@ -513,7 +515,7 @@ void Player::UpdateShieldBlockValue()
     SetUInt32Value(PLAYER_SHIELD_BLOCK, GetShieldBlockValue());
 }
 
-void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) const
+void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage, uint8 damageIndex) const
 {
     UnitMods unitMod;
 
@@ -533,16 +535,27 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     float const attackPowerMod = std::max(GetAPMultiplier(attType, normalized), 0.25f);
 
-    float baseValue  = GetFlatModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType) / 14.0f * attackPowerMod;
+    float baseValue  = GetFlatModifierValue(unitMod, BASE_VALUE);
+    if (damageIndex == 0) // apply AP bonus only to primary weapon damage
+        baseValue += GetTotalAttackPowerValue(attType) / 14.0f * attackPowerMod;
+
     float basePct    = GetPctModifierValue(unitMod, BASE_PCT);
     float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float totalPct   = addTotalPct ? GetPctModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
-    float weaponMinDamage = GetWeaponDamageRange(attType, MINDAMAGE);
-    float weaponMaxDamage = GetWeaponDamageRange(attType, MAXDAMAGE);
+    float weaponMinDamage = GetWeaponDamageRange(attType, MINDAMAGE, damageIndex);
+    float weaponMaxDamage = GetWeaponDamageRange(attType, MAXDAMAGE, damageIndex);
 
-    if (IsInFeralForm()) // check if player is druid and in cat or bear forms
+    // check if player is druid and in cat or bear forms (only primary damage)
+    if (IsInFeralForm())
     {
+        if (damageIndex != 0)
+        {
+            minDamage = 0.f;
+            maxDamage = 0.f;
+            return;
+        }
+
         uint8 lvl = getLevel();
         if (lvl > 60)
             lvl = 60;
@@ -553,16 +566,18 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     else if (!CanUseAttackType(attType)) // check if player not in form but still can't use (disarm case)
     {
         // cannot use ranged/off attack, set values to 0
-        if (attType != BASE_ATTACK)
+        // set secondary damages to 0 by default
+        if (damageIndex != 0 || attType != BASE_ATTACK)
         {
-            minDamage = 0;
-            maxDamage = 0;
+            minDamage = 0.f;
+            maxDamage = 0.f;
             return;
         }
+
         weaponMinDamage = BASE_MINDAMAGE;
         weaponMaxDamage = BASE_MAXDAMAGE;
     }
-    else if (attType == RANGED_ATTACK) // add ammo DPS to ranged damage
+    else if (damageIndex == 0 && attType == RANGED_ATTACK) // add ammo DPS to ranged primary damage
     {
         weaponMinDamage += GetAmmoDPS() * attackPowerMod;
         weaponMaxDamage += GetAmmoDPS() * attackPowerMod;
@@ -1051,8 +1066,16 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) const
+void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage, uint8 damageIndex /*= 0*/) const
 {
+    // creatures only have one damage
+    if (damageIndex != 0)
+    {
+        minDamage = 0.f;
+        maxDamage = 0.f;
+        return;
+    }
+
     float variance = 1.0f;
     UnitMods unitMod;
     switch (attType)

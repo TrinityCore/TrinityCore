@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -131,9 +131,9 @@ class boss_general_vezax : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_AURA_OF_DESPAIR);
@@ -465,7 +465,11 @@ class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
                 if (Unit* caster = GetCaster())
-                    caster->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), GetTarget(), true);
+                {
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetAmount());
+                    caster->CastSpell(GetTarget(), SPELL_MARK_OF_THE_FACELESS_DAMAGE, args);
+                }
             }
 
             void Register() override
@@ -528,9 +532,11 @@ class spell_general_vezax_saronite_vapors : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     int32 mana = int32(aurEff->GetAmount() * std::pow(2.0f, GetStackAmount())); // mana restore - bp * 2^stackamount
-                    int32 damage = mana * 2;
-                    caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_ENERGIZE, &mana, nullptr, nullptr, true);
-                    caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_DAMAGE, &damage, nullptr, nullptr, true);
+                    CastSpellExtraArgs args1(TRIGGERED_FULL_MASK), args2(TRIGGERED_FULL_MASK);
+                    args1.AddSpellBP0(mana);
+                    args2.AddSpellBP0(mana * 2);
+                    caster->CastSpell(GetTarget(), SPELL_SARONITE_VAPORS_ENERGIZE, args1);
+                    caster->CastSpell(GetTarget(), SPELL_SARONITE_VAPORS_DAMAGE, args2);
                 }
             }
 

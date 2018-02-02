@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,104 +23,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
-
-/*######
-## npc_spitelashes
-######*/
-
-enum Spitelashes
-{
-    SPELL_POLYMORPH_RANK1       = 118,
-    SPELL_POLYMORPH_RANK2       = 12824,
-    SPELL_POLYMORPH_RANK3       = 12825,
-    SPELL_POLYMORPH_RANK4       = 12826,
-    SPELL_POLYMORPH             = 29124,
-    SPELL_POLYMORPH_BACKFIRE    = 28406,
-    SPELL_REMOVE_POLYMORPH      = 6924
-};
-
-class npc_spitelashes : public CreatureScript
-{
-public:
-    npc_spitelashes() : CreatureScript("npc_spitelashes") { }
-
-    struct npc_spitelashesAI : public ScriptedAI
-    {
-        npc_spitelashesAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            morphtimer = 0;
-            spellhit = false;
-        }
-
-        uint32 morphtimer;
-        bool spellhit;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void SpellHit(Unit* unit, SpellInfo const* spell) override
-        {
-            if (spellhit)
-                return;
-
-            switch (spell->Id)
-            {
-                case SPELL_POLYMORPH_RANK1:
-                case SPELL_POLYMORPH_RANK2:
-                case SPELL_POLYMORPH_RANK3:
-                case SPELL_POLYMORPH_RANK4:
-                    if (Player* player = unit->ToPlayer())
-                        if (player->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            spellhit = true;
-                            DoCast(me, SPELL_POLYMORPH);
-                        }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
-            if (spellhit && morphtimer >= 5000)
-            {
-                me->DespawnOrUnsummon();
-                return;
-            }
-            // walk 5 seconds before summoning
-            if (spellhit && morphtimer < 5000)
-            {
-                morphtimer += diff;
-                if (morphtimer >= 5000)
-                {
-                    DoCast(me, SPELL_POLYMORPH_BACKFIRE); // summon copies
-                    DoCast(me, SPELL_REMOVE_POLYMORPH);   // visual explosion
-                }
-            }
-            if (!UpdateVictim())
-                return;
-
-            /// @todo add abilities for the different creatures
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_spitelashesAI(creature);
-    }
-};
 
 /*####
 # npc_rizzle_sprysprocket
@@ -243,7 +145,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void AttackStart(Unit* who) override
         {
@@ -430,7 +332,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
 
@@ -468,7 +370,6 @@ public:
 
 void AddSC_azshara()
 {
-    new npc_spitelashes();
     new npc_rizzle_sprysprocket();
     new npc_depth_charge();
 }

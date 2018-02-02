@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -184,7 +184,7 @@ struct dummy_dragonAI : public ScriptedAI
         Initialize();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(SAY_AGGRO);
         DoZoneInCombat();
@@ -217,7 +217,7 @@ struct dummy_dragonAI : public ScriptedAI
         if (pointId == POINT_ID_LAND)
         {
             me->GetMotionMaster()->Clear();
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
             {
                 AddThreat(target, 1.0f);
@@ -426,9 +426,9 @@ public:
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            dummy_dragonAI::EnterCombat(who);
+            dummy_dragonAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
         }
@@ -494,9 +494,9 @@ public:
             instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            dummy_dragonAI::EnterCombat(who);
+            dummy_dragonAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60000);
         }
@@ -565,9 +565,9 @@ public:
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            dummy_dragonAI::EnterCombat(who);
+            dummy_dragonAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60000);
         }
@@ -816,12 +816,12 @@ public:
                 me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             else
                 me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-            me->DealDamage(me, me->GetHealth());
+            me->KillSelf();
         }
 
         void JustSummoned(Creature* who) override
         {
-            who->SetInCombatWithZone();
+            DoZoneInCombat(who);
         }
 
         void UpdateAI(uint32 diff) override
@@ -988,7 +988,7 @@ public:
         void Reset() override
         {
             me->RemoveAllAuras();
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
             events.ScheduleEvent(EVENT_FADE_ARMOR, 1000);
         }
 
@@ -1067,4 +1067,3 @@ void AddSC_obsidian_sanctum()
     new achievement_twilight_duo();
     new achievement_twilight_zone();
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "Errors.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include <vector>
@@ -110,8 +111,8 @@ class TC_GAME_API MotionMaster
         void MovementExpired(bool reset = true);
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
-        MovementGeneratorType GetMotionSlotType(int slot) const;
-        MovementGenerator* GetMotionSlot(int slot) const;
+        MovementGeneratorType GetMotionSlotType(MovementSlot slot) const;
+        MovementGenerator* GetMotionSlot(MovementSlot slot) const;
 
         void PropagateSpeedChange();
 
@@ -124,11 +125,11 @@ class TC_GAME_API MotionMaster
         void MoveChase(Unit* target, float dist = 0.0f, float angle = 0.0f);
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
-        void MovePoint(uint32 id, Position const& pos, bool generatePath = true)
+        void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {})
         {
-            MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath);
+            MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath, finalOrient);
         }
-        void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true);
+        void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, Optional<float> finalOrient = {});
 
         /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
             Only works in 2D.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "Spell.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "ulduar.h"
@@ -271,9 +272,9 @@ class boss_flame_leviathan : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->SetReactState(REACT_PASSIVE);
                 events.ScheduleEvent(EVENT_PURSUE, 1);
                 events.ScheduleEvent(EVENT_MISSILE, urand(1500, 4*IN_MILLISECONDS));
@@ -712,7 +713,7 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
 
             bool CanAIAttack(Unit const* who) const override
             {
-                if (who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() != NPC_SEAT)
+                if (!who || who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() != NPC_SEAT)
                     return false;
                 return true;
             }
@@ -1007,7 +1008,7 @@ public:
                 {
                     if (Creature* trigger = DoSummonFlyer(NPC_MIMIRON_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
                     {
-                        trigger->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_MIMIRON_S_INFERNO, true);
+                        trigger->CastSpell(me->GetPosition(), SPELL_MIMIRON_S_INFERNO, true);
                         infernoTimer = 2000;
                     }
                 }
@@ -1464,6 +1465,54 @@ class achievement_orbit_uary : public AchievementCriteriaScript
         }
 };
 
+// 62399 Overload Circuit
+class spell_overload_circuit : public AuraScript
+{
+    PrepareAuraScript(spell_overload_circuit);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SYSTEMS_SHUTDOWN });
+    }
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        if (!GetTarget()->GetMap()->IsDungeon() || int32(GetTarget()->GetAppliedAuras().count(GetId())) < (GetTarget()->GetMap()->Is25ManRaid() ? 4 : 2))
+            return;
+
+        GetTarget()->CastSpell(nullptr, SPELL_SYSTEMS_SHUTDOWN, true);
+        if (Unit* veh = GetTarget()->GetVehicleBase())
+            veh->CastSpell(nullptr, SPELL_SYSTEMS_SHUTDOWN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_overload_circuit::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 62292 Blaze
+class spell_tar_blaze : public AuraScript
+{
+    PrepareAuraScript(spell_tar_blaze);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        // should we use custom damage?
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_tar_blaze::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 class spell_load_into_catapult : public SpellScriptLoader
 {
     enum Spells
@@ -1626,7 +1675,7 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
-        explicit FlameLeviathanPursuedTargetSelector(Unit* unit) : _me(unit) { };
+        explicit FlameLeviathanPursuedTargetSelector() { };
 
         bool operator()(WorldObject* target) const
         {
@@ -1656,9 +1705,6 @@ class FlameLeviathanPursuedTargetSelector
 
             return !playerFound;
         }
-
-    private:
-        Unit const* _me;
 };
 
 class spell_pursue : public SpellScriptLoader
@@ -1679,7 +1725,7 @@ class spell_pursue : public SpellScriptLoader
         private:
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(FlameLeviathanPursuedTargetSelector(GetCaster()));
+                targets.remove_if(FlameLeviathanPursuedTargetSelector());
                 if (!targets.empty())
                 {
                     //! In the end, only one target should be selected
@@ -1822,6 +1868,8 @@ void AddSC_boss_flame_leviathan()
     new achievement_nuked_from_orbit();
     new achievement_orbit_uary();
 
+    RegisterAuraScript(spell_overload_circuit);
+    RegisterAuraScript(spell_tar_blaze);
     new spell_load_into_catapult();
     new spell_auto_repair();
     new spell_systems_shutdown();

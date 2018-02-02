@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -153,7 +153,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_KILL : SOUND_VN_KILL);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         DoZoneInCombat();
         Creature* pOtherBoss = GetOtherBoss();
@@ -558,9 +558,7 @@ public:
             //Blizzard_Timer
             if (Blizzard_Timer <= diff)
             {
-                Unit* target = nullptr;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true))
                     DoCast(target, SPELL_BLIZZARD);
                 Blizzard_Timer = 15000 + rand32() % 15000;
             } else Blizzard_Timer -= diff;

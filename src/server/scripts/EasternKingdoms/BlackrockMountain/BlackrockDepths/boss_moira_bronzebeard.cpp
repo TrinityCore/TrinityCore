@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,7 +51,7 @@ class boss_moira_bronzebeard : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 //_events.ScheduleEvent(EVENT_HEAL, 12000); // not used atm // These times are probably wrong
                 _events.ScheduleEvent(EVENT_MINDBLAST, 16000);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -253,6 +253,11 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         uint32 GetEncounterCount() const { return bosses.size(); }
 
+        // Only used by areatriggers that inherit from OnlyOnceAreaTriggerScript
+        void MarkAreaTriggerDone(uint32 id) { _activatedAreaTriggers.insert(id); }
+        void ResetAreaTriggerDone(uint32 id) { _activatedAreaTriggers.erase(id); }
+        bool IsAreaTriggerDone(uint32 id) const { return _activatedAreaTriggers.find(id) != _activatedAreaTriggers.end(); }
+
     protected:
         void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 number) { bosses.resize(number); }
@@ -300,11 +305,14 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
         std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
+        std::unordered_set<uint32> _activatedAreaTriggers;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module
         std::shared_ptr<ModuleReference> module_reference;
     #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
+
+        friend class debug_commandscript;
 };
 
 #endif // TRINITY_INSTANCE_DATA_H

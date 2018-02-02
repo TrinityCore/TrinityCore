@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -118,7 +118,7 @@ class boss_kologarn : public CreatureScript
             bool left, right;
             ObjectGuid eyebeamTarget;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -132,9 +132,9 @@ class boss_kologarn : public CreatureScript
                 if (Vehicle* vehicle = me->GetVehicleKit())
                     for (uint8 i = 0; i < 2; ++i)
                         if (Unit* arm = vehicle->GetPassenger(i))
-                            arm->ToCreature()->SetInCombatWithZone();
+                            DoZoneInCombat(arm->ToCreature());
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void Reset() override
@@ -205,7 +205,7 @@ class boss_kologarn : public CreatureScript
                 else
                 {
                     events.CancelEvent(EVENT_STONE_SHOUT);
-                    who->ToCreature()->SetInCombatWithZone();
+                    DoZoneInCombat(who->ToCreature());
                 }
             }
 
@@ -344,7 +344,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 ObjectGuid originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(BOSS_KOLOGARN) : ObjectGuid::Empty;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
-                    caster->CastSpell(caster, spellId, true, nullptr, nullptr, originalCaster);
+                    caster->CastSpell(caster, spellId, originalCaster);
             }
 
             void Register() override

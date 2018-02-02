@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -120,7 +120,9 @@ enum ICDataTypes
     DATA_TERENAS_MENETHIL              = 39,
     DATA_ENEMY_GUNSHIP                 = 40,
     DATA_UPPERSPIRE_TELE_ACT           = 41, /// also used by conditions
-    DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42
+    DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42,
+    DATA_BLOOD_PRINCE_COUNCIL_INTRO    = 43,
+    DATA_SINDRAGOSA_INTRO              = 44
 };
 
 enum ICCreaturesIds

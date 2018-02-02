@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,6 +41,11 @@ enum CairneBloodhoof
     SPELL_UPPERCUT          = 22916
 };
 
+enum Sounds
+{
+    SOUND_AGGRO             = 5884
+};
+
 #define GOSSIP_HCB "I know this is rather silly but a young ward who is a bit shy would like your hoofprint."
 /// @todo verify abilities/timers
 class npc_cairne_bloodhoof : public CreatureScript
@@ -75,7 +80,10 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            DoPlaySoundToSet(me, SOUND_AGGRO);
+        }
 
         void UpdateAI(uint32 diff) override
         {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,6 +57,17 @@ enum BattlegroundCriteriaId
     BG_CRITERIA_CHECK_AV_PERFECTION,
     BG_CRITERIA_CHECK_DEFENSE_OF_THE_ANCIENTS,
     BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH,
+};
+
+enum BattlegroundBroadcastTexts
+{
+    BG_TEXT_ALLIANCE_WINS       = 10633,
+    BG_TEXT_HORDE_WINS          = 10634,
+
+    BG_TEXT_START_TWO_MINUTES   = 18193,
+    BG_TEXT_START_ONE_MINUTE    = 18194,
+    BG_TEXT_START_HALF_MINUTE   = 18195,
+    BG_TEXT_BATTLE_HAS_BEGUN    = 18196,
 };
 
 enum BattlegroundSounds
@@ -356,6 +367,7 @@ class TC_GAME_API Battleground
         void SendPacketToAll(WorldPacket* packet);
 
         void SendChatMessage(Creature* source, uint8 textId, WorldObject* target = nullptr);
+        void SendBroadcastText(uint32 id, ChatMsg msgType, WorldObject const* target = nullptr);
 
         template<class Do>
         void BroadcastWorker(Do& _do);
@@ -374,9 +386,6 @@ class TC_GAME_API Battleground
         void SendWarningToAll(uint32 entry, ...);
         void SendMessageToAll(uint32 entry, ChatMsg type, Player const* source = nullptr);
         void PSendMessageToAll(uint32 entry, ChatMsg type, Player const* source, ...);
-
-        // specialized version with 2 string id args
-        void SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* source, uint32 strId1 = 0, uint32 strId2 = 0);
 
         // Raid Group
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }

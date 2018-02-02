@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -215,7 +215,7 @@ class boss_apothecary_hummel : public CreatureScript
                         case EVENT_START_FIGHT:
                         {
                             me->SetImmuneToAll(false);
-                            me->SetInCombatWithZone();
+                            DoZoneInCombat();
                             events.ScheduleEvent(EVENT_CALL_BAXTER, Seconds(6));
                             events.ScheduleEvent(EVENT_CALL_FRYE, Seconds(14));
                             events.ScheduleEvent(EVENT_PERFUME_SPRAY, Milliseconds(3640));
@@ -296,7 +296,7 @@ struct npc_apothecary_genericAI : public ScriptedAI
         else if (action == ACTION_START_FIGHT)
         {
             me->SetImmuneToAll(false);
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
         }
     }
 

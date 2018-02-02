@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,6 +53,16 @@
 enum SharedActions
 {
     ACTION_BUFF_YELL    = -30001
+};
+
+enum BG_AV_BroadcastTexts
+{
+    BG_AV_TEXT_START_ONE_MINUTE     = 10638,
+    BG_AV_TEXT_START_HALF_MINUTE    = 10639,
+    BG_AV_TEXT_BATTLE_HAS_BEGUN     = 10640,
+
+    BG_AV_TEXT_ALLIANCE_NEAR_LOSE   = 23210,
+    BG_AV_TEXT_HORDE_NEAR_LOSE      = 23211
 };
 
 enum BG_AV_Sounds
@@ -987,19 +997,19 @@ Position const BG_AV_CreaturePos[AV_CPLACE_MAX] =
 
 enum BG_AV_CreatureIds
 {
-    AV_NPC_A_TOWERDEFENSE  = 0,     // stormpike bowman
-    AV_NPC_A_GRAVEDEFENSE0 = 1,     // stormpike Defender
-    AV_NPC_A_GRAVEDEFENSE1 = 2,     // seasoned defender
-    AV_NPC_A_GRAVEDEFENSE2 = 3,     // veteran defender
-    AV_NPC_A_GRAVEDEFENSE3 = 4,     // champion defender
+    AV_NPC_A_GRAVEDEFENSE0 = 0,     // stormpike Defender
+    AV_NPC_A_GRAVEDEFENSE1 = 1,     // seasoned defender
+    AV_NPC_A_GRAVEDEFENSE2 = 2,     // veteran defender
+    AV_NPC_A_GRAVEDEFENSE3 = 3,     // champion defender
+    AV_NPC_A_TOWERDEFENSE  = 4,     // stormpike bowman
     AV_NPC_A_CAPTAIN       = 5,     // balinda
     AV_NPC_A_BOSS          = 6,     // vanndar
 
-    AV_NPC_H_TOWERDEFENSE  = 7,     // frostwolf bowman
-    AV_NPC_H_GRAVEDEFENSE0 = 8,     // frostwolf guardian
-    AV_NPC_H_GRAVEDEFENSE1 = 9,     // seasoned guardian
-    AV_NPC_H_GRAVEDEFENSE2 = 10,    // veteran guardian
-    AV_NPC_H_GRAVEDEFENSE3 = 11,    // champion guardian
+    AV_NPC_H_GRAVEDEFENSE0 = 7,     // frostwolf guardian
+    AV_NPC_H_GRAVEDEFENSE1 = 8,     // seasoned guardian
+    AV_NPC_H_GRAVEDEFENSE2 = 9,     // veteran guardian
+    AV_NPC_H_GRAVEDEFENSE3 = 10,    // champion guardian
+    AV_NPC_H_TOWERDEFENSE  = 11,    // frostwolf bowman
     AV_NPC_H_CAPTAIN       = 12,    // galvangar
     AV_NPC_H_BOSS          = 13,    // drek thar
 
