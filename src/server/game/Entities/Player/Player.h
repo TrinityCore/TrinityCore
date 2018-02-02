@@ -2472,6 +2472,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         }
 
         void SendPlayerChoice(ObjectGuid sender, int32 choiceId);
+        void UpdateShop(uint32 diff);
 
         PlayerPetData* GetPlayerPetDataById(uint32 petId);
         PlayerPetData* GetPlayerPetDataBySlot(uint8 slot);
@@ -2838,6 +2839,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unique_ptr<RestMgr> _restMgr;
 
         std::vector<PlayerPetData*> PlayerPetDataStore;
+
+        uint32 m_shopTimer;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

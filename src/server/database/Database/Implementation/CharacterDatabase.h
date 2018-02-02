@@ -645,6 +645,9 @@ enum CharacterDatabaseStatements : uint32
 
     CHAR_LOG_GM_COMMAND,
 
+    CHAR_SEL_SHOP,
+    CHAR_UPD_SHOP_DELIVERED,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 
