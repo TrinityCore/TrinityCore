@@ -310,6 +310,7 @@ public:
             player->CastSpell(player, SPELL_DESPAWN_FIRE_SPIRIT, true);
             player->RemoveAura(SPELL_SUMMON_FIRE_SPIRIT);
             player->RemoveAura(SPELL_SUMMON_FIRE_SPIRIT_AFTER_RELOG);
+            player->UpdateAreaAndZonePhase();
         }
     }
 };
@@ -320,6 +321,7 @@ enum SingingPoolsATSpells
     SPELL_CURSE_OF_THE_SKUNK            = 102939,
     SPELL_CURSE_OF_THE_TURTLE           = 102940,
     SPELL_CURSE_OF_THE_CRANE            = 102941,
+    SPELL_CURSE_OF_THE_CROCODILE        = 102942,
     SPELL_RIDE_VEHICLE_POLE             = 102717,
     SPELL_RIDE_VEHICLE_BELL_POLE        = 107049,
     SPELL_TRAINING_BELL_EXCLUSION_AURA  = 133381
@@ -350,6 +352,10 @@ public:
                         if (!player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
                             player->CastSpell(player, SPELL_CURSE_OF_THE_SKUNK, true);
                         break;
+                    case 6990:
+                        if (!player->HasAura(SPELL_CURSE_OF_THE_CROCODILE))
+                            player->CastSpell(player, SPELL_CURSE_OF_THE_CROCODILE, true);
+                        break;
                     case 6991:
                     case 6992:
                         if (!player->HasAura(SPELL_CURSE_OF_THE_CRANE))
@@ -375,6 +381,10 @@ public:
                     case 6989:
                         if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK) && player->GetPositionZ() > 114.8f && !player->HasUnitState(UNIT_STATE_JUMPING))
                             player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
+                        break;
+                    case 6990:
+                        if (player->HasAura(SPELL_CURSE_OF_THE_CROCODILE) && !player->HasUnitState(UNIT_STATE_JUMPING))
+                            player->RemoveAura(SPELL_CURSE_OF_THE_CROCODILE);
                         break;
                     case 6991:
                     case 6992:
@@ -536,6 +546,7 @@ public:
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_PC);
                 me->AttackStop();
+                attacker->AttackStop();
                 me->_ExitVehicle();
                 attacker->ToPlayer()->KilledMonsterCredit(NPC_MONK_ON_POLE_1);
                 _events.ScheduleEvent(EVENT_DESPAWN, 1000);
@@ -677,126 +688,6 @@ public:
     }
 };
 
-class spell_jump_to_front_right : public SpellScriptLoader
-{
-public:
-    spell_jump_to_front_right() : SpellScriptLoader("spell_jump_to_front_right") { }
-
-    class spell_jump_to_front_right_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_jump_to_front_right_SpellScript);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                Position const jumpPos = { 1111.13f, 2850.21f, 94.6873f };
-                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_jump_to_front_right_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_jump_to_front_right_SpellScript();
-    }
-};
-
-class spell_jump_to_front_left : public SpellScriptLoader
-{
-public:
-    spell_jump_to_front_left() : SpellScriptLoader("spell_jump_to_front_left") { }
-
-    class spell_jump_to_front_left_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_jump_to_front_left_SpellScript);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                Position const jumpPos = { 1100.83f, 2881.36f, 94.0386f };
-                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_jump_to_front_left_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_jump_to_front_left_SpellScript();
-    }
-};
-
-class spell_jump_to_back_right : public SpellScriptLoader
-{
-public:
-    spell_jump_to_back_right() : SpellScriptLoader("spell_jump_to_back_right") { }
-
-    class spell_jump_to_back_right_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_jump_to_back_right_SpellScript);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                Position const jumpPos = { 1127.26f, 2859.8f, 97.2817f };
-                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_jump_to_back_right_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_jump_to_back_right_SpellScript();
-    }
-};
-
-class spell_jump_to_back_left : public SpellScriptLoader
-{
-public:
-    spell_jump_to_back_left() : SpellScriptLoader("spell_jump_to_back_left") { }
-
-    class spell_jump_to_back_left_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_jump_to_back_left_SpellScript);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                Position const jumpPos = { 1120.16f, 2882.66f, 96.345f };
-                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_jump_to_back_left_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_jump_to_back_left_SpellScript();
-    }
-};
-
 enum ShuSpells
 {
     SPELL_JUMP_FRONT_RIGHT      = 117033,
@@ -918,6 +809,53 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_shu_playingAI(creature);
+    }
+};
+
+class spell_shu_jump_to_rock : public SpellScriptLoader
+{
+public:
+    spell_shu_jump_to_rock() : SpellScriptLoader("spell_shu_jump_to_rock") { }
+
+    class spell_shu_jump_to_rock_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_shu_jump_to_rock_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                Position jumpPos;
+
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_JUMP_FRONT_RIGHT:
+                        jumpPos = { 1111.13f, 2850.21f, 94.6873f };
+                        break;
+                    case SPELL_JUMP_FRONT_LEFT:
+                        jumpPos = { 1100.83f, 2881.36f, 94.0386f };
+                        break;
+                    case SPELL_JUMP_BACK_RIGHT:
+                        jumpPos = { 1127.26f, 2859.8f, 97.2817f };
+                        break;
+                    case SPELL_JUMP_BACK_LEFT:
+                        jumpPos = { 1120.16f, 2882.66f, 96.345f };
+                        break;
+                }
+
+                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_shu_jump_to_rock_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_shu_jump_to_rock_SpellScript();
     }
 };
 
@@ -2575,11 +2513,8 @@ void AddSC_the_wandering_isle()
     new npc_tushui_monk_on_pole();
     new at_singing_pools_training_bell();
     new spell_rock_jump_a();
-    new spell_jump_to_front_right();
-    new spell_jump_to_front_left();
-    new spell_jump_to_back_right();
-    new spell_jump_to_back_left();
     new npc_shu_playing();
+    new spell_shu_jump_to_rock();
     new spell_summon_water_spout();
     new spell_water_spout_quest_credit();
     new spell_aysa_congrats_timer();
