@@ -821,6 +821,11 @@ void WorldPackets::Spells::UnlearnSkill::Read()
     _worldPacket >> SkillLine;
 }
 
+void WorldPackets::Spells::SelfRes::Read()
+{
+    _worldPacket >> SpellID;
+}
+
 void WorldPackets::Spells::GetMirrorImageData::Read()
 {
     _worldPacket >> UnitGUID;
