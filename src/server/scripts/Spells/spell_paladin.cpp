@@ -427,7 +427,9 @@ class spell_pal_shield_of_vengeance : public AuraScript
 
         std::list<Unit*> targets;
         caster->GetAttackableUnitListInRange(targets, 8.0f);
-        absorb /= targets.size();
+
+        if (uint32 targetSize = targets.size())
+            absorb /= targetSize;
 
         caster->CastCustomSpell(SPELL_PALADIN_SHIELD_OF_VENGEANCE_DAMAGE, SPELLVALUE_BASE_POINT0, absorb, caster, true);
     }
