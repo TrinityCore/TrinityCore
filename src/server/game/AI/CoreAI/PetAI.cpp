@@ -45,6 +45,8 @@ int32 PetAI::Permissible(Creature const* creature)
 
 PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
+    if (!me->GetCharmInfo())
+        throw std::exception("Creature doesn't have a valid charm info");
     UpdateAllies();
 }
 

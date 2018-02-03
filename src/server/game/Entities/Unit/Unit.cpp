@@ -10450,7 +10450,7 @@ void Unit::UpdateCharmAI()
                     if (isPossessed() || IsVehicle())
                         i_AI = new PossessedAI(ToCreature());
                     else
-                        i_AI = new PetAI(ToCreature());
+                        i_AI = new PetAI(ToCreature()); // <-- is there always a valid charm info at this point ?
                 }
             }
             break;
