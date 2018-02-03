@@ -348,6 +348,7 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE | UF_FLAG_OWNER | UF_FLAG_UNIT_ALL,     // UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER+5
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_LEVEL
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_EFFECTIVE_LEVEL
+    UF_FLAG_PUBLIC,                                         // UNIT_FIELD_SANDBOX_SCALING_ID
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_SCALING_LEVEL_MIN
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_SCALING_LEVEL_MAX
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_SCALING_LEVEL_DELTA
@@ -2095,6 +2096,38 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+745
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+746
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+747
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+748
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+749
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+750
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+751
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+752
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+753
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+754
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+755
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+756
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+757
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+758
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+759
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+760
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+761
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+762
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+763
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+764
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+765
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+766
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+767
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+768
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+769
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+770
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+771
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+772
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+773
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+774
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+775
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+776
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+777
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+778
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_INV_SLOT_HEAD+779
     UF_FLAG_PRIVATE,                                        // PLAYER_FARSIGHT
     UF_FLAG_PRIVATE,                                        // PLAYER_FARSIGHT+1
     UF_FLAG_PRIVATE,                                        // PLAYER_FARSIGHT+2
@@ -2119,6 +2152,7 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_COINAGE+1
     UF_FLAG_PRIVATE,                                        // PLAYER_XP
     UF_FLAG_PRIVATE,                                        // PLAYER_NEXT_LEVEL_XP
+    UF_FLAG_PRIVATE,                                        // PLAYER_TRIAL_XP
     UF_FLAG_PRIVATE,                                        // PLAYER_SKILL_LINEID
     UF_FLAG_PRIVATE,                                        // PLAYER_SKILL_LINEID+1
     UF_FLAG_PRIVATE,                                        // PLAYER_SKILL_LINEID+2
@@ -2958,7 +2992,6 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_MOD_TARGET_PHYSICAL_RESISTANCE
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_LOCAL_FLAGS
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_BYTES
-    UF_FLAG_PRIVATE,                                        // PLAYER_SELF_RES_SPELL
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_PVP_MEDALS
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_BUYBACK_PRICE_1
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_BUYBACK_PRICE_1+1
@@ -4870,6 +4903,7 @@ uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_TOYS
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_TRANSMOG
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG
+    UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_CHARACTER_RESTRICTIONS
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_SPELL_PCT_MOD_BY_LABEL
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_SPELL_FLAT_MOD_BY_LABEL
