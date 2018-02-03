@@ -31,7 +31,6 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
-#include "PetAI.h"
 #include "Player.h"
 #include "ScriptReloadMgr.h"
 #include "ScriptSystem.h"
@@ -1600,19 +1599,7 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
     ASSERT(creature);
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, nullptr);
-    CreatureAI* ai = tmpscript->GetAI(creature);
-
-    // Don't allow PetAI if there's no charm info in the creature
-    if (dynamic_cast<PetAI*>(ai))
-        if (!creature->GetCharmInfo())
-        {
-            TC_LOG_ERROR("entities.unit", "Trying to spawn Creature (Entry: %u) with script '%s' inheriting from not allowed AI 'PetAI', this Creature will have a default AI",
-                creature->GetEntry(), creature->GetScriptName().c_str());
-            delete ai;
-            return nullptr;
-        }
-
-    return ai;
+    return tmpscript->GetAI(creature);
 }
 
 GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
