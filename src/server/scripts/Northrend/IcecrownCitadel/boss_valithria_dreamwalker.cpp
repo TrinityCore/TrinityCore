@@ -230,9 +230,25 @@ class ValithriaDespawner : public BasicEvent
 
         void operator()(Creature* creature) const
         {
-            if (creature->GetEntry() == NPC_VALITHRIA_DREAMWALKER)
-                if (InstanceScript* instance = creature->GetInstanceScript())
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, creature);
+            switch (creature->GetEntry())
+            {
+                case NPC_VALITHRIA_DREAMWALKER:
+                    if (InstanceScript* instance = creature->GetInstanceScript())
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, creature);
+                    // no break
+                case NPC_BLAZING_SKELETON:
+                case NPC_SUPPRESSER:
+                case NPC_BLISTERING_ZOMBIE:
+                case NPC_GLUTTONOUS_ABOMINATION:
+                case NPC_MANA_VOID:
+                case NPC_COLUMN_OF_FROST:
+                case NPC_ROT_WORM:
+                case NPC_RISEN_ARCHMAGE:
+                    break;
+                default:
+                    return;
+            }
+                
             creature->DespawnOrUnsummon(0, 10s);
         }
 
