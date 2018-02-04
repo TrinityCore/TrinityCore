@@ -82,12 +82,21 @@ void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet
     if (InstanceTemplate const* instanceTemplate = sObjectMgr->GetInstanceTemplate(GetPlayer()->GetMapId()))
         if (instanceTemplate->InsideResurrection)
             if (InstanceScript* instanceScript = GetPlayer()->GetInstanceScript())
+            {
+                Position resurectPosition;
+
                 if (WorldSafeLocsEntry const* entranceLocation = sWorldSafeLocsStore.LookupEntry(instanceScript->GetEntranceLocation()))
+                    resurectPosition.Relocate(entranceLocation->Loc.X, entranceLocation->Loc.Y, entranceLocation->Loc.Z, entranceLocation->Facing);
+                else if (AreaTriggerTeleportStruct const* areaTrigger = sObjectMgr->GetMapEntranceTrigger(GetPlayer()->GetMapId()))
+                    resurectPosition.Relocate(areaTrigger->target_X, areaTrigger->target_Y, areaTrigger->target_Z, areaTrigger->target_Orientation);
+
+                if (!resurectPosition.IsPositionEmpty())
                 {
-                    GetPlayer()->NearTeleportTo(Position(entranceLocation->Loc.X, entranceLocation->Loc.Y, entranceLocation->Loc.Z, entranceLocation->Facing));
-                    GetPlayer()->ResurrectPlayer(1.0f);
+                    GetPlayer()->NearTeleportTo(resurectPosition);
+                    GetPlayer()->ResurrectPlayer(75.0f);
                     return;
                 }
+            }
 
     //this is spirit release confirm?
     GetPlayer()->BuildPlayerRepop();

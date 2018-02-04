@@ -6661,10 +6661,11 @@ AreaTriggerTeleportStruct const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) co
         if (itr->second.target_mapId == Map)
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
-            if (atEntry)
+            if (itr->first < 0 || atEntry)
                 return &itr->second;
         }
     }
+
     return nullptr;
 }
 
