@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AIException.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "CreatureAIFactory.h"
@@ -89,9 +90,9 @@ namespace FactorySelector
             if (CreatureAI* scriptedAI = sScriptMgr->GetCreatureAI(creature))
                 return scriptedAI;
         }
-        catch (const std::exception& e)
+        catch (const InvalidAIException& e)
         {
-            TC_LOG_ERROR("entities.unit", "Exception trying assign script '%s' to Creature (Entry: %u), this Creature will have a default AI. Exception message: %s",
+            TC_LOG_ERROR("entities.unit", "Exception trying to assign script '%s' to Creature (Entry: %u), this Creature will have a default AI. Exception message: %s",
                 creature->GetScriptName().c_str(), creature->GetEntry(), e.what());
         }
 
