@@ -187,40 +187,7 @@ class boss_vexallus : public CreatureScript
         };
 };
 
-enum NpcPureEnergy
-{
-    SPELL_ENERGY_BOLT               = 46156,
-    SPELL_ENERGY_FEEDBACK           = 44335,
-    SPELL_PURE_ENERGY_PASSIVE       = 44326
-};
-
-class npc_pure_energy : public CreatureScript
-{
-    public:
-        npc_pure_energy() : CreatureScript("npc_pure_energy") { }
-
-        struct npc_pure_energyAI : public ScriptedAI
-        {
-            npc_pure_energyAI(Creature* creature) : ScriptedAI(creature)
-            {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-            }
-
-            void JustDied(Unit* killer) override
-            {
-                killer->CastSpell(killer, SPELL_ENERGY_FEEDBACK, true);
-                me->RemoveAurasDueToSpell(SPELL_PURE_ENERGY_PASSIVE);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetMagistersTerraceAI<npc_pure_energyAI>(creature);
-        };
-};
-
 void AddSC_boss_vexallus()
 {
     new boss_vexallus();
-    new npc_pure_energy();
 }
