@@ -81,7 +81,7 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
 
     SpellCastTargets targets(_player, packet.Cast);
 
-    Spell* spell = new Spell(_player, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
+    Spell* spell = new Spell(_player, spellInfo, TRIGGERED_NONE);
 
     WorldPackets::Spells::SpellPrepare spellPrepare;
     spellPrepare.ClientCastID = packet.Cast.CastID;
