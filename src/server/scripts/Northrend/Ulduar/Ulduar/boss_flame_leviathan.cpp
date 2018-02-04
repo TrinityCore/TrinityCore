@@ -372,8 +372,14 @@ class boss_flame_leviathan : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim())
+                if (!me->IsEngaged())
                     return;
+
+                if (!me->IsInCombat())
+                {
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                    return;
+                }
 
                 events.Update(diff);
 
@@ -474,8 +480,21 @@ class boss_flame_leviathan : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
-                if (spell->Id == SPELL_PURSUED)
-                    _pursueTarget = target->GetGUID();
+                if (spell->Id != SPELL_PURSUED)
+                    return;
+
+                _pursueTarget = target->GetGUID();
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveChase(target);
+
+                for (SeatMap::const_iterator itr = target->GetVehicleKit()->Seats.begin(); itr != target->GetVehicleKit()->Seats.end(); ++itr)
+                {
+                    if (Player* passenger = ObjectAccessor::GetPlayer(*me, itr->second.Passenger.Guid))
+                    {
+                        Talk(EMOTE_PURSUE, passenger);
+                        return;
+                    }
+                }
             }
 
             void DoAction(int32 action) override
@@ -534,18 +553,23 @@ class boss_flame_leviathan : public CreatureScript
                         me->SetLootMode(LOOT_MODE_DEFAULT | LOOT_MODE_HARD_MODE_1 | LOOT_MODE_HARD_MODE_2 | LOOT_MODE_HARD_MODE_3 | LOOT_MODE_HARD_MODE_4);
                         break;
                     case ACTION_MOVE_TO_CENTER_POSITION: // Triggered by 2 Collossus near door
-                        if (!me->isDead())
+                        if (!me->isDead() && me->HasReactState(REACT_PASSIVE))
                         {
                             me->SetHomePosition(Center);
-                            me->GetMotionMaster()->MoveCharge(Center.GetPositionX(), Center.GetPositionY(), Center.GetPositionZ()); // position center
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED));
-                            return;
+                            me->GetMotionMaster()->MoveCharge(Center.GetPositionX(), Center.GetPositionY(), Center.GetPositionZ(), 42.0f, ACTION_MOVE_TO_CENTER_POSITION); // position center
                         }
                         break;
                     default:
                         break;
                 }
+            }
+
+            void MovementInform(uint32 /*type*/, uint32 id) override
+            {
+                if (id != ACTION_MOVE_TO_CENTER_POSITION)
+                    return;
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED));
             }
 
             private:
@@ -557,9 +581,11 @@ class boss_flame_leviathan : public CreatureScript
                     {
                         Unit* target = ObjectAccessor::GetUnit(*me, _pursueTarget);
 
-                        // Pursue was unable to acquire a valid target, so get the current victim as target.
-                        if (!target && me->GetVictim())
-                            target = me->GetVictim();
+                        if (!target)
+                        {
+                            events.RescheduleEvent(EVENT_PURSUE, 0);
+                            return;
+                        }
 
                         if (me->IsWithinCombatRange(target, 30.0f))
                         {
@@ -1687,28 +1713,27 @@ class FlameLeviathanPursuedTargetSelector
             //! No players, only vehicles. Pursue is never cast on players.
             Creature* creatureTarget = target->ToCreature();
             if (!creatureTarget)
-                return true;
+                return false;
 
             //! NPC entries must match
             if (creatureTarget->GetEntry() != NPC_SALVAGED_DEMOLISHER && creatureTarget->GetEntry() != NPC_SALVAGED_SIEGE_ENGINE)
-                return true;
+                return false;
 
             //! NPC must be a valid vehicle installation
             Vehicle* vehicle = creatureTarget->GetVehicleKit();
             if (!vehicle)
-                return true;
+                return false;
 
             //! Entity needs to be in appropriate area
             if (target->GetAreaId() != AREA_FORMATION_GROUNDS)
-                return true;
+                return false;
 
             //! Vehicle must be in use by player
-            bool playerFound = false;
-            for (SeatMap::const_iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end() && !playerFound; ++itr)
+            for (SeatMap::const_iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end(); ++itr)
                 if (itr->second.Passenger.Guid.IsPlayer())
-                    playerFound = true;
+                    return true;
 
-            return !playerFound;
+            return false;
         }
 };
 
@@ -1721,24 +1746,22 @@ class spell_pursue : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pursue_SpellScript);
 
-        public:
-            spell_pursue_SpellScript()
-            {
-                _target = nullptr;
-            }
-
         private:
+            // EFFECT #0 - select target
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(FlameLeviathanPursuedTargetSelector());
-                if (!targets.empty())
+                Trinity::Containers::RandomResize(targets, FlameLeviathanPursuedTargetSelector(), 1);
+                if (targets.empty())
                 {
-                    //! In the end, only one target should be selected
-                    _target = Trinity::Containers::SelectRandomContainerElement(targets);
-                    FilterTargetsSubsequently(targets);
+                    if (Unit* caster = GetCaster())
+                        if (Creature* cCaster = caster->ToCreature())
+                            cCaster->AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_HOSTILES);
                 }
+                else
+                    _target = targets.front();
             }
 
+            // EFFECT #1 - copy target from effect #0
             void FilterTargetsSubsequently(std::list<WorldObject*>& targets)
             {
                 targets.clear();
@@ -1746,32 +1769,13 @@ class spell_pursue : public SpellScriptLoader
                     targets.push_back(_target);
             }
 
-            void HandleScript(SpellEffIndex /*eff*/)
-            {
-                Creature* caster = GetCaster()->ToCreature();
-                if (!caster)
-                    return;
-
-                caster->AI()->AttackStart(GetHitUnit());    // Chase target
-
-                for (SeatMap::const_iterator itr = caster->GetVehicleKit()->Seats.begin(); itr != caster->GetVehicleKit()->Seats.end(); ++itr)
-                {
-                    if (Player* passenger = ObjectAccessor::GetPlayer(*caster, itr->second.Passenger.Guid))
-                    {
-                        caster->AI()->Talk(EMOTE_PURSUE, passenger);
-                        return;
-                    }
-                }
-            }
-
             void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pursue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pursue_SpellScript::FilterTargetsSubsequently, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_pursue_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
 
-            WorldObject* _target;
+            WorldObject* _target = nullptr;
         };
 
         SpellScript* GetSpellScript() const override
