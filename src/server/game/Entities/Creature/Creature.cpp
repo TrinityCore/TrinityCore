@@ -1295,8 +1295,8 @@ void Creature::UpdateLevelDependantStats()
 
     float basedamage = stats->GenerateBaseDamage(cInfo);
 
-    float weaponBaseMinDamage = basedamage;
-    float weaponBaseMaxDamage = basedamage * 1.5f;
+    float weaponBaseMinDamage = basedamage / 1.5f;
+    float weaponBaseMaxDamage = basedamage;
 
     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
