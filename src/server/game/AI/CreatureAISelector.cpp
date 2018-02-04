@@ -26,6 +26,7 @@
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
 
+#include "Log.h"
 #include "ScriptMgr.h"
 
 namespace FactorySelector
