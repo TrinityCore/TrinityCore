@@ -17,7 +17,7 @@
 
 #include "AIException.h"
 
-InvalidAIException::InvalidAIException(char const* const _message)
+InvalidAIException::InvalidAIException(char const* _message)
 {
     message().assign(_message);
 }
