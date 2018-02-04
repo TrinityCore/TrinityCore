@@ -19,6 +19,8 @@
 #define TRINITY_AIEXCEPTION_H
 
 #include "Define.h"
+#include <exception>
+#include <string>
 
 class TC_GAME_API InvalidAIException : public std::exception
 {
