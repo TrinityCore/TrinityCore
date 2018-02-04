@@ -19,6 +19,7 @@
 #define DBC_FILE_LOADER_H
 
 #include "Define.h"
+#include "Errors.h"
 #include "Utilities/ByteConverter.h"
 
 class TC_COMMON_API DBCFileLoader
