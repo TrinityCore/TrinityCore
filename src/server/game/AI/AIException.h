@@ -1,6 +1,5 @@
 /*
 * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,10 +23,10 @@
 class TC_GAME_API InvalidAIException : public std::exception
 {
 public:
-    InvalidAIException(char const* const _message);
+    InvalidAIException(char const* _message);
     ~InvalidAIException() throw() { }
 
-    char const* what() const throw() override { return msg_.c_str(); }
+    char const* what() const noexcept override { return msg_.c_str(); }
 
 protected:
     std::string & message() throw() { return msg_; }

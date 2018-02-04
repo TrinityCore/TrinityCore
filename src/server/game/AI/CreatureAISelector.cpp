@@ -90,7 +90,7 @@ namespace FactorySelector
             if (CreatureAI* scriptedAI = sScriptMgr->GetCreatureAI(creature))
                 return scriptedAI;
         }
-        catch (const InvalidAIException& e)
+        catch (InvalidAIException const& e)
         {
             TC_LOG_ERROR("entities.unit", "Exception trying to assign script '%s' to Creature (Entry: %u), this Creature will have a default AI. Exception message: %s",
                 creature->GetScriptName().c_str(), creature->GetEntry(), e.what());
