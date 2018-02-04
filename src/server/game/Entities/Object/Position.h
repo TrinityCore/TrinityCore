@@ -141,6 +141,7 @@ public:
     Streamer<PackedXYZ> PositionPackedXYZStream() { return Streamer<PackedXYZ>(*this); }
     ConstStreamer<PackedXYZ> PositionPackedXYZStream() const { return ConstStreamer<PackedXYZ>(*this); }
 
+    bool IsPositionEmpty() const { return !m_positionX && !m_positionY && !m_positionZ && !m_orientation; }
     bool IsPositionValid() const;
 
     float GetExactDist2dSq(const float x, const float y) const
