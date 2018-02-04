@@ -26,12 +26,15 @@ uint32 const EncounterCount = 5;
 enum GBDataTypes
 {
     // Encounter States
-    DATA_GENERAL_UMBRISS        = 0,
-    DATA_FORGEMASTER_THRONGUS   = 1,
-    DATA_DRAHGA_SHADOWBURNER    = 2,
-    DATA_ERUDAX                 = 3,
+    DATA_GENERAL_UMBRISS            = 0,
+    DATA_FORGEMASTER_THRONGUS       = 1,
+    DATA_DRAHGA_SHADOWBURNER        = 2,
+    DATA_ERUDAX                     = 3,
 
-    DATA_VALIONA                = 4
+    // Encounter Data
+    DATA_VALIONA                    = 4,
+    DATA_FACELESS_PORTAL_STALKER    = 5,
+    DATA_SHADOW_GALE_STALKER        = 6
 };
 
 enum GBCreatureIds
@@ -58,6 +61,17 @@ enum GBCreatureIds
     NPC_SEEPING_TWILIGHT            = 40365,
     NPC_DEVOURING_FLAMES            = 48798,
     NPC_VALIONA                     = 40320,
+
+    // Erudax Encounter
+    NPC_FACELESS_PORTAL_STALKER     = 44314,
+    NPC_ALEXSTRASZAS_EGG            = 40486,
+    NPC_SHADOW_GALE_STALKER         = 40567,
+
+};
+
+enum GBSpells
+{
+    SPELL_PORTAL_VISUAL = 82847
 };
 
 template<class AI>

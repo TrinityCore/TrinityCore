@@ -394,10 +394,10 @@ class npc_drahga_valiona : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
+                _events.Update(diff);
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
-                _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {

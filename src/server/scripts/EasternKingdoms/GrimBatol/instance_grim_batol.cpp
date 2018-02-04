@@ -21,12 +21,14 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_GENERAL_UMBRISS,         DATA_GENERAL_UMBRISS        },
-    { BOSS_FORGEMASTER_THRONGUS,    DATA_FORGEMASTER_THRONGUS   },
-    { BOSS_DRAHGA_SHADOWBURNER,     DATA_DRAHGA_SHADOWBURNER    },
-    { BOSS_ERUDAX,                  DATA_ERUDAX                 },
-    { NPC_VALIONA,                  DATA_VALIONA                },
-    { 0,                            0                           } // End
+    { BOSS_GENERAL_UMBRISS,         DATA_GENERAL_UMBRISS            },
+    { BOSS_FORGEMASTER_THRONGUS,    DATA_FORGEMASTER_THRONGUS       },
+    { BOSS_DRAHGA_SHADOWBURNER,     DATA_DRAHGA_SHADOWBURNER        },
+    { BOSS_ERUDAX,                  DATA_ERUDAX                     },
+    { NPC_VALIONA,                  DATA_VALIONA                    },
+    { NPC_FACELESS_PORTAL_STALKER,  DATA_FACELESS_PORTAL_STALKER    },
+    { NPC_SHADOW_GALE_STALKER,      DATA_SHADOW_GALE_STALKER        },
+    { 0,                            0                               } // End
 };
 
 class instance_grim_batol : public InstanceMapScript
@@ -65,6 +67,13 @@ class instance_grim_batol : public InstanceMapScript
                         if (Creature* drahga = GetCreature(DATA_DRAHGA_SHADOWBURNER))
                             drahga->AI()->JustSummoned(creature);
                         break;
+                    case NPC_SHADOW_GALE_STALKER:
+                        if (Creature* erudax = GetCreature(DATA_ERUDAX))
+                            erudax->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_ALEXSTRASZAS_EGG:
+                        alexstraszasEggGuidList.insert(creature->GetGUID());
+                        break;
                     default:
                         break;
                 }
@@ -75,12 +84,34 @@ class instance_grim_batol : public InstanceMapScript
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
 
+                switch (type)
+                {
+                    case DATA_ERUDAX:
+                        if (Creature* portal = GetCreature(DATA_FACELESS_PORTAL_STALKER))
+                        {
+                            if (state == IN_PROGRESS)
+                                portal->CastSpell(portal, SPELL_PORTAL_VISUAL, true);
+                            else
+                                portal->RemoveAurasDueToSpell(SPELL_PORTAL_VISUAL);
+                        }
+                        if (state == FAIL)
+                            for (auto itr = alexstraszasEggGuidList.begin(); itr != alexstraszasEggGuidList.end(); itr++)
+                                if (Creature* egg = instance->GetCreature((*itr)))
+                                    egg->Respawn();
+                        break;
+                    default:
+                        break;
+                }
+
                 return true;
             }
 
             void SetData(uint32 data, uint32 value) override
             {
             }
+
+        private:
+            GuidSet alexstraszasEggGuidList;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
