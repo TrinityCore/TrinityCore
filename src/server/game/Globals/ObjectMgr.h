@@ -153,6 +153,7 @@ struct InstanceTemplate
     uint32 Parent;
     uint32 ScriptId;
     bool AllowMount;
+    bool InsideResurrection;
 };
 
 typedef std::unordered_map<uint16, InstanceTemplate> InstanceTemplateContainer;
