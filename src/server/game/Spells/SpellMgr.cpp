@@ -1801,6 +1801,7 @@ void SpellMgr::LoadSpellProcs()
         procEntry.SchoolMask      = 0;
         procEntry.ProcFlags = spellInfo->ProcFlags;
         procEntry.SpellFamilyName = 0;
+        procEntry.SpellFamilyMask = 0;
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (spellInfo->Effects[i].IsEffect() && isTriggerAura[spellInfo->Effects[i].ApplyAuraName])
                 procEntry.SpellFamilyMask |= spellInfo->Effects[i].SpellClassMask;
