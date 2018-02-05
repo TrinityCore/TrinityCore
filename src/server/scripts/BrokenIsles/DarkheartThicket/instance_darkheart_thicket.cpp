@@ -127,7 +127,7 @@ class instance_darkheart_thicket : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit)
+            void OnUnitDeath(Unit* unit) override
             {
                 if (unit->IsCreature() && !_introDone)
                 {
