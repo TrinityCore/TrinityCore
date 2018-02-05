@@ -436,6 +436,22 @@ bool SpellScript::IsInTargetHook() const
     }
     return false;
 }
+
+bool SpellScript::IsInModifiableHook() const
+{
+    // after hit hook executed after damage/healing is already done
+    // modifying it at this point has no effect
+    switch (m_currentScriptState)
+    {
+        case SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET:
+        case SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET:
+        case SPELL_SCRIPT_HOOK_BEFORE_HIT:
+        case SPELL_SCRIPT_HOOK_HIT:
+            return true;
+    }
+    return false;
+}
+
 bool SpellScript::IsInHitPhase() const
 {
     return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END);
@@ -603,7 +619,7 @@ int32 SpellScript::GetHitDamage() const
 
 void SpellScript::SetHitDamage(int32 damage)
 {
-    if (!IsInTargetHook())
+    if (!IsInModifiableHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::SetHitDamage was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
@@ -623,7 +639,7 @@ int32 SpellScript::GetHitHeal() const
 
 void SpellScript::SetHitHeal(int32 heal)
 {
-    if (!IsInTargetHook())
+    if (!IsInModifiableHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::SetHitHeal was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
