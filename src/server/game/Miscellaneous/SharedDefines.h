@@ -4693,7 +4693,11 @@ enum SummonType
     SUMMON_TYPE_VEHICLE2    = 10,   // Oculus and Argent Tournament vehicles (3.3.5a)
     SUMMON_TYPE_LIGHTWELL   = 11,
     SUMMON_TYPE_JEEVES      = 12,
-    SUMMON_TYPE_UNK13       = 13
+    SUMMON_TYPE_UNK13       = 13,
+    SUMMON_TYPE_UNK14       = 14,
+    SUMMON_TYPE_UNK15       = 15,
+    SUMMON_TYPE_UNK16       = 16,
+    SUMMON_TYPE_UNK17       = 17,
 };
 
 enum EventId

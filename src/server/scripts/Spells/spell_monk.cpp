@@ -143,6 +143,24 @@ enum MonkSpells
     SPELL_MONK_PURIFYING_BREW                           = 119582
 };
 
+enum SEFSpells
+{
+    SEF_MIRROR      = 60352,
+    SEF_CLONE       = 119051,
+    SEF_MEDIT       = 124416, //This must be removed
+    SEF_VISU        = 119053, //This must be removed
+    SEF_STORM_VISU  = 138080,
+    SEF_FIRE_VISU   = 138081,
+    SEF_EARTH_VISU  = 138083,
+
+    SEF_SUMM_EARTH  = 138121,
+    SEF_SUMM_FIRE   = 138123,
+
+    SEF_STATS       = 138130  //Stats reducer for the pets
+};
+
+#define MONK_TRANSCENDENCE_GUID "MONK_TRANSCENDENCE_GUID"
+
 // 109132 - Roll
 class spell_monk_roll : public SpellScriptLoader
 {
@@ -2026,92 +2044,123 @@ public:
     }
 };
 
-// 119051 - Transcendence clone visual
-class spell_monk_transcendence_clone_visual : public SpellScriptLoader
+// 101643
+class spell_monk_transcendence : public SpellScript
 {
 public:
-    spell_monk_transcendence_clone_visual() : SpellScriptLoader("spell_monk_transcendence_clone_visual") {}
+    PrepareSpellScript(spell_monk_transcendence);
 
-    class spell_monk_transcendence_clone_visual_SpellScript : public SpellScript
+    void HandleSummon(Creature* creature)
     {
-        PrepareSpellScript(spell_monk_transcendence_clone_visual_SpellScript);
+        DespawnSpirit(GetCaster());
+        GetCaster()->CastSpell(creature, SEF_CLONE, true);
+        GetCaster()->Variables.Set(MONK_TRANSCENDENCE_GUID, creature->GetGUID());
+    }
 
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            Unit* target = GetHitUnit();
-            if (!target)
-                return;
-
-            target->AddAura(119053, target);
-            target->AddAura(124416, target);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_monk_transcendence_clone_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    static Creature* GetSpirit(Unit* caster)
     {
-        return new spell_monk_transcendence_clone_visual_SpellScript();
+        ObjectGuid spiritGuid = caster->Variables.GetValue<ObjectGuid>(MONK_TRANSCENDENCE_GUID, ObjectGuid());
+
+        if (spiritGuid.IsEmpty())
+            return nullptr;
+
+        return ObjectAccessor::GetCreature(*caster, spiritGuid);
+    }
+
+    static void DespawnSpirit(Unit* caster)
+    {
+        // Remove previous one if any
+        if (Creature* spirit = GetSpirit(caster))
+            spirit->DespawnOrUnsummon();
+
+        caster->Variables.Remove(MONK_TRANSCENDENCE_GUID);
+    }
+
+    void Register() override
+    {
+        OnEffectSummon += SpellOnEffectSummonFn(spell_monk_transcendence::HandleSummon);
+    }
+};
+
+// 101643
+class aura_monk_transcendence : public AuraScript
+{
+    PrepareAuraScript(aura_monk_transcendence);
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        spell_monk_transcendence::DespawnSpirit(GetTarget());
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(aura_monk_transcendence::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 119051 - Transcendence clone visual
+class spell_monk_transcendence_clone_visual : public SpellScript
+{
+    PrepareSpellScript(spell_monk_transcendence_clone_visual);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (!target)
+            return;
+
+        target->AddAura(SEF_VISU, target);
+        target->AddAura(SEF_MEDIT, target);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_monk_transcendence_clone_visual::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
 // 119996 - Transcendence: Transfer
-/*class spell_monk_transcendence_transfer : public SpellScriptLoader
+class spell_monk_transcendence_transfer : public SpellScript
 {
-public:
-    spell_monk_transcendence_transfer() : SpellScriptLoader("spell_monk_transcendence_transfer") {}
+    PrepareSpellScript(spell_monk_transcendence_transfer);
 
-    class spell_monk_transcendence_transfer_SpellScript : public SpellScript
+    SpellCastResult CheckCast()
     {
-        PrepareSpellScript(spell_monk_transcendence_transfer_SpellScript);
+        Unit* caster = GetCaster();
 
-        SpellCastResult CheckCast()
-        {
-            Unit* caster = GetCaster();
+        if (!caster)
+            return SPELL_FAILED_ERROR;
 
-            if (!caster)
-                return SPELL_FAILED_ERROR;
+        Unit* spirit = spell_monk_transcendence::GetSpirit(caster);
+        if (!spirit)
+            return SPELL_FAILED_NO_PET;
 
-            Unit* spirit = caster->GetSpirit();
-            if (!spirit)
-                return SPELL_FAILED_NO_PET;
+        if (!spirit->IsWithinDist(caster, GetSpellInfo()->GetMaxRange(true, caster, GetSpell())))
+            return SPELL_FAILED_OUT_OF_RANGE;
 
-            if (!spirit->IsWithinDist(caster, GetSpellInfo()->GetMaxRange(true, caster, GetSpell())))
-                return SPELL_FAILED_OUT_OF_RANGE;
-
-            return SPELL_CAST_OK;
-        }
-
-        void HandleOnCast()
-        {
-            Unit* target = GetCaster();
-            if (!target)
-                return;
-
-            Unit* spirit = target->GetSpirit();
-            if (!spirit)
-                return;
-
-            Position tmpPosition = *static_cast<Position*>(target);
-            target->NearTeleportTo(spirit->m_positionX, spirit->m_positionY, spirit->m_positionZ, spirit->GetOrientation(), true);
-            spirit->NearTeleportTo(tmpPosition.m_positionX, tmpPosition.m_positionY, tmpPosition.m_positionZ, tmpPosition.GetOrientation(), true);
-        }
-
-        void Register() override
-        {
-            OnCheckCast += SpellCheckCastFn(spell_monk_transcendence_transfer_SpellScript::CheckCast);
-            OnCast += SpellCastFn(spell_monk_transcendence_transfer_SpellScript::HandleOnCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_monk_transcendence_transfer_SpellScript();
+        return SPELL_CAST_OK;
     }
-};*/
+
+    void HandleOnCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* spirit = spell_monk_transcendence::GetSpirit(caster);
+        if (!spirit)
+            return;
+
+        caster->NearTeleportTo(*spirit, true);
+        spirit->NearTeleportTo(*caster, true);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_monk_transcendence_transfer::CheckCast);
+        OnCast += SpellCastFn(spell_monk_transcendence_transfer::HandleOnCast);
+    }
+};
 
 class spell_monk_jab : public SpellScriptLoader
 {
@@ -3560,22 +3609,6 @@ public:
     }
 };
 
-enum SEFSpells
-{
-    SEF_MIRROR      = 60352,
-    SEF_CLONE       = 119051,
-    SEF_MEDIT       = 124416, //This must be removed
-    SEF_VISU        = 119053, //This must be removed
-    SEF_STORM_VISU  = 138080,
-    SEF_FIRE_VISU   = 138081,
-    SEF_EARTH_VISU  = 138083,
-
-    SEF_SUMM_EARTH  = 138121,
-    SEF_SUMM_FIRE   = 138123,
-
-    SEF_STATS       = 138130  //Stats reducer for the pets
-};
-
 //137639
 class spell_monk_storm_earth_and_fire : public SpellScriptLoader
 {
@@ -3871,8 +3904,9 @@ void AddSC_monk_spell_scripts()
     new spell_monk_tigereye_brew_stacks();
     new spell_monk_touch_of_death();
     new spell_monk_touch_of_karma();
-    new spell_monk_transcendence_clone_visual();
-    //new spell_monk_transcendence_transfer();
+    RegisterSpellAndAuraScriptPair(spell_monk_transcendence, aura_monk_transcendence);
+    RegisterSpellScript(spell_monk_transcendence_clone_visual);
+    RegisterSpellScript(spell_monk_transcendence_transfer);
     new spell_monk_zen_flight_check();
     new spell_monk_zen_pilgrimage();
     new spell_monk_zen_pulse();
