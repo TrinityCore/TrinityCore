@@ -342,7 +342,7 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
                 // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
                 // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(absorbAmount, 20));
+                args.AddSpellBP0(CalculatePct(absorbAmount, 20));
                 GetTarget()->CastSpell(GetTarget(), SPELL_DK_RUNIC_POWER_ENERGIZE, args);
             }
 
@@ -527,7 +527,7 @@ class spell_dk_blood_gorged : public SpellScriptLoader
                     return;
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(damageInfo->GetDamage() * 1.5f);
+                args.AddSpellBP0(damageInfo->GetDamage() * 1.5f);
                 GetTarget()->CastSpell(_procTarget, SPELL_DK_BLOOD_GORGED_HEAL, args);
             }
 
@@ -593,7 +593,7 @@ class spell_dk_butchery : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+                args.AddSpellBP0(aurEff->GetAmount());
                 eventInfo.GetActor()->CastSpell(nullptr, SPELL_DK_BUTCHERY_RUNIC_POWER, args);
             }
 
@@ -686,12 +686,12 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 if (effIndex == EFFECT_0)
                 {
-                    args.SpellValueOverrides.AddBP0(GetEffectValue());
+                    args.AddSpellBP0(GetEffectValue());
                     GetCaster()->CastSpell(target, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), args);
                 }
                 else if (effIndex == EFFECT_1)
                 {
-                    args.SpellValueOverrides.AddBP0(GetSpell()->CalculateDamage(EFFECT_0, nullptr));
+                    args.AddSpellBP0(GetSpell()->CalculateDamage(EFFECT_0, nullptr));
                     GetCaster()->CastSpell(target, GetEffectValue(), args);
                 }
             }
@@ -781,7 +781,7 @@ class spell_dk_dancing_rune_weapon : public SpellScriptLoader
 
                 int32 amount = static_cast<int32>(damageInfo->GetDamage()) / 2;
                 drw->SendSpellNonMeleeDamageLog(drw->GetVictim(), spellInfo->Id, amount, spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
-                drw->DealDamage(drw->GetVictim(), amount, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
+                Unit::DealDamage(drw, drw->GetVictim(), amount, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
             }
 
             void Register() override
@@ -811,7 +811,7 @@ class spell_dk_death_and_decay : public SpellScriptLoader
                 if (!caster)
                     return;
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+                args.AddSpellBP0(aurEff->GetAmount());
                 caster->CastSpell(GetTarget(), SPELL_DK_DEATH_AND_DECAY_DAMAGE, args);
             }
 
@@ -850,7 +850,7 @@ class spell_dk_death_coil : public SpellScriptLoader
                     if (caster->IsFriendlyTo(target))
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddBP0(GetEffectValue() * 1.5f);
+                        args.AddSpellBP0(GetEffectValue() * 1.5f);
                         caster->CastSpell(target, SPELL_DK_DEATH_COIL_HEAL, args);
                     }
                     else
@@ -859,7 +859,7 @@ class spell_dk_death_coil : public SpellScriptLoader
                         if (AuraEffect const* auraEffect = caster->GetAuraEffect(SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART, EFFECT_1))
                             damage += auraEffect->GetBaseAmount();
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddBP0(damage);
+                        args.AddSpellBP0(damage);
                         caster->CastSpell(target, SPELL_DK_DEATH_COIL_DAMAGE, args);
                     }
                 }
@@ -1140,7 +1140,7 @@ class spell_dk_death_strike : public SpellScriptLoader
 
                     // @todo castspell refactor note: this is not triggered - is this intended??
                     CastSpellExtraArgs args;
-                    args.SpellValueOverrides.AddBP0(bp);
+                    args.AddSpellBP0(bp);
                     caster->CastSpell(caster, SPELL_DK_DEATH_STRIKE_HEAL, args);
                 }
             }
@@ -1278,7 +1278,7 @@ class spell_dk_hysteria : public AuraScript
     void PeriodicTick(AuraEffect const* aurEff)
     {
         uint32 const damage = GetTarget()->CountPctFromMaxHealth(GetTarget()->CalculateSpellDamage(nullptr, GetSpellInfo(), aurEff->GetEffIndex()));
-        GetTarget()->DealDamage(GetTarget(), damage, nullptr, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+        Unit::DealDamage(GetTarget(), GetTarget(), damage, nullptr, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
     }
 
     void Register() override
@@ -1394,7 +1394,7 @@ class spell_dk_improved_blood_presence : public SpellScriptLoader
                 if ((target->HasAura(SPELL_DK_FROST_PRESENCE) || target->HasAura(SPELL_DK_UNHOLY_PRESENCE)) && !target->HasAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT1, aurEff->GetAmount());
+                    args.AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetAmount());
                     target->CastSpell(target, SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, args);
                 }
             }
@@ -1448,7 +1448,7 @@ public:
             if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
             {
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(dmgInfo->GetDamage(), aurEff->GetAmount()));
+                args.AddSpellBP0(CalculatePct(dmgInfo->GetDamage(), aurEff->GetAmount()));
                 eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DK_IMPROVED_BLOOD_PRESENCE_HEAL, args);
             }
         }
@@ -1493,7 +1493,7 @@ class spell_dk_improved_frost_presence : public SpellScriptLoader
                 if ((target->HasAura(SPELL_DK_BLOOD_PRESENCE) || target->HasAura(SPELL_DK_UNHOLY_PRESENCE)) && !target->HasAura(SPELL_DK_FROST_PRESENCE_TRIGGERED))
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+                    args.AddSpellBP0(aurEff->GetAmount());
                     target->CastSpell(target, SPELL_DK_FROST_PRESENCE_TRIGGERED, args);
                 }
             }
@@ -1549,14 +1549,14 @@ class spell_dk_improved_unholy_presence : public SpellScriptLoader
                     int32 basePoints = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                     CastSpellExtraArgs args(aurEff);
                     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), basePoints);
+                        args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), basePoints);
                     target->CastSpell(target, SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, args);
                 }
 
                 if ((target->HasAura(SPELL_DK_BLOOD_PRESENCE) || target->HasAura(SPELL_DK_FROST_PRESENCE)) && !target->HasAura(SPELL_DK_UNHOLY_PRESENCE_TRIGGERED))
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+                    args.AddSpellBP0(aurEff->GetAmount());
                     target->CastSpell(target, SPELL_DK_UNHOLY_PRESENCE_TRIGGERED, args);
                 }
             }
@@ -1684,7 +1684,7 @@ class spell_dk_necrosis : public SpellScriptLoader
                     return;
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
                 eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_NECROSIS_DAMAGE, args);
             }
 
@@ -1733,40 +1733,36 @@ class spell_dk_pestilence : public SpellScriptLoader
                 {
                     if (Aura* aurOld = victim->GetAura(SPELL_DK_BLOOD_PLAGUE, caster->GetGUID())) // Check Blood Plague application on victim.
                     {
-                        if (AuraEffect* aurEffOld = aurOld->GetEffect(EFFECT_0))
-                        {
-                            float donePct = aurEffOld->GetDonePct();
-                            float critChance = aurEffOld->GetCritChance();
+                        float donePct = aurOld->GetDonePct();
+                        float critChance = aurOld->GetCritChance();
 
+                        if (aurOld->GetEffect(EFFECT_0))
+                        {
                             caster->CastSpell(hitUnit, SPELL_DK_BLOOD_PLAGUE, true); // Spread the disease to hitUnit.
 
                             if (Aura* aurNew = hitUnit->GetAura(SPELL_DK_BLOOD_PLAGUE, caster->GetGUID())) // Check Blood Plague application on hitUnit.
                             {
+                                aurNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
+                                aurNew->SetDonePct(donePct);
                                 if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
-                                {
-                                    aurEffNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
-                                    aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
-                                }
+                                    aurEffNew->ChangeAmount(aurEffNew->CalculateAmount(aurEffNew->GetCaster()), false);
                             }
                         }
                     }
 
                     if (Aura* aurOld = victim->GetAura(SPELL_DK_FROST_FEVER, caster->GetGUID())) // Check Frost Fever application on victim.
                     {
-                        if (AuraEffect* aurEffOld = aurOld->GetEffect(EFFECT_0))
-                        {
-                            float donePct = aurEffOld->GetDonePct();
+                        float donePct = aurOld->GetDonePct();
 
+                        if (aurOld->GetEffect(EFFECT_0))
+                        {
                             caster->CastSpell(hitUnit, SPELL_DK_FROST_FEVER, true); // Spread the disease to hitUnit.
 
                             if (Aura* aurNew = hitUnit->GetAura(SPELL_DK_FROST_FEVER, caster->GetGUID())) // Check Frost Fever application on hitUnit.
                             {
+                                aurNew->SetDonePct(donePct);
                                 if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
-                                {
-                                    aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
-                                }
+                                    aurEffNew->ChangeAmount(aurEffNew->CalculateAmount(aurEffNew->GetCaster()), false);
                             }
                         }
                     }
@@ -1825,7 +1821,7 @@ class spell_dk_presence : public SpellScriptLoader
                     if (!target->HasAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
                     {
                         CastSpellExtraArgs args(aurEff);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT1, impAurEff->GetAmount());
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT1, impAurEff->GetAmount());
                         target->CastSpell(target, SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, args);
                     }
             }
@@ -1840,7 +1836,7 @@ class spell_dk_presence : public SpellScriptLoader
                     if (!target->HasAura(SPELL_DK_FROST_PRESENCE_TRIGGERED))
                     {
                         CastSpellExtraArgs args(aurEff);
-                        args.SpellValueOverrides.AddBP0(impAurEff->GetAmount());
+                        args.AddSpellBP0(impAurEff->GetAmount());
                         target->CastSpell(target, SPELL_DK_FROST_PRESENCE_TRIGGERED, args);
                     }
             }
@@ -1860,13 +1856,13 @@ class spell_dk_presence : public SpellScriptLoader
                         int32 bp = impAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                         CastSpellExtraArgs args(aurEff);
                         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                            args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), bp);
+                            args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), bp);
                         target->CastSpell(target, SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, args);
                     }
                     else if (!target->HasAura(SPELL_DK_UNHOLY_PRESENCE_TRIGGERED))
                     {
                         CastSpellExtraArgs args(aurEff);
-                        args.SpellValueOverrides.AddBP0(impAurEff->GetAmount());
+                        args.AddSpellBP0(impAurEff->GetAmount());
                         target->CastSpell(target, SPELL_DK_UNHOLY_PRESENCE_TRIGGERED, args);
                     }
                 }
@@ -2232,7 +2228,7 @@ class spell_dk_scourge_strike : public SpellScriptLoader
                         AddPct(bp, aurEff->GetAmount());
 
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.SpellValueOverrides.AddBP0(bp);
+                    args.AddSpellBP0(bp);
                     caster->CastSpell(unitTarget, SPELL_DK_SCOURGE_STRIKE_TRIGGERED, args);
                 }
             }
@@ -2471,7 +2467,7 @@ class spell_dk_unholy_blight : public SpellScriptLoader
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DK_UNHOLY_BLIGHT_DAMAGE, SPELL_AURA_PERIODIC_DAMAGE);
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 caster->CastSpell(target, SPELL_DK_UNHOLY_BLIGHT_DAMAGE, args);
             }
 
@@ -2533,7 +2529,7 @@ class spell_dk_vendetta : public SpellScriptLoader
                 PreventDefaultAction();
                 Unit* const caster = eventInfo.GetActor();
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
+                args.AddSpellBP0(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
                 caster->CastSpell(nullptr, SPELL_DK_VENDETTA_HEAL, args);
             }
 
@@ -2569,7 +2565,7 @@ class spell_dk_wandering_plague : public SpellScriptLoader
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
-                if (!roll_chance_f(caster->GetUnitCriticalChance(BASE_ATTACK, target)))
+                if (!roll_chance_f(caster->GetUnitCriticalChanceAgainst(BASE_ATTACK, target)))
                     return;
 
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -2578,7 +2574,7 @@ class spell_dk_wandering_plague : public SpellScriptLoader
 
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 caster->CastSpell(target, SPELL_DK_WANDERING_PLAGUE_DAMAGE, args);
             }
 
@@ -2979,14 +2975,25 @@ public:
             return ValidateSpellInfo({ SPELL_GHOUL_FRENZY });
         }
 
-        void CalcDamage()
+        void CalcDamage(SpellEffIndex /*effIndex*/)
         {
-            if (Aura* aur = GetCaster()->GetAura(SPELL_GHOUL_FRENZY))
+            /*
+            Causes more damage per frenzy point:
+               1 point   : ${$AP*$m1*0.01+$AP*0.05}-${$AP*$m1*0.01+$AP*0.10} damage
+               2 points  : ${$AP*$m1*0.01+$AP*0.10}-${$AP*$m1*0.01+$AP*0.20} damage
+               3 points  : ${$AP*$m1*0.01+$AP*0.15}-${$AP*$m1*0.01+$AP*0.30} damage
+               4 points  : ${$AP*$m1*0.01+$AP*0.20}-${$AP*$m1*0.01+$AP*0.40} damage
+               5 points  : ${$AP*$m1*0.01+$AP*0.25}-${$AP*$m1*0.01+$AP*0.50} damage
+            */
+
+            if (Aura* frenzy = GetCaster()->GetAura(SPELL_GHOUL_FRENZY))
             {
-                int32 damage = GetHitDamage();
-                damage += int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.05f * aur->GetStackAmount());
-                aur->Remove();
-                SetHitDamage(damage);
+                float APBonus = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+                float fixedDamageBonus = APBonus * GetEffectValue() * 0.01f;
+                APBonus *= 0.05f * frenzy->GetStackAmount();
+
+                frenzy->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+                SetEffectValue(fixedDamageBonus + irand(int32(APBonus), int32(APBonus * 2.f)));
             }
 
             /*
@@ -2999,7 +3006,7 @@ public:
 
         void Register() override
         {
-            OnHit += SpellHitFn(spell_dk_ghoul_thrash_SpellScript::CalcDamage);
+            OnEffectLaunchTarget += SpellEffectFn(spell_dk_ghoul_thrash_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 

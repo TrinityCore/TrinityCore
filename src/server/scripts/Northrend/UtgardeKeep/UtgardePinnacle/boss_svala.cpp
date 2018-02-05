@@ -559,7 +559,7 @@ class npc_scourge_hulk : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32 &damage) override
             {
-                if (damage >= me->GetHealth() && attacker->GetEntry() == NPC_SVALA_SORROWGRAVE)
+                if (damage >= me->GetHealth() && attacker && attacker->GetEntry() == NPC_SVALA_SORROWGRAVE)
                     killedByRitualStrike = true;
             }
 

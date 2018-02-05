@@ -24,7 +24,7 @@
 class Item;
 class AuraEffect;
 
-enum SpellInterruptFlags
+enum SpellInterruptFlags : uint32
 {
     SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01, // why need this for instant?
     SPELL_INTERRUPT_FLAG_PUSH_BACK    = 0x02, // push back
@@ -35,13 +35,13 @@ enum SpellInterruptFlags
 };
 
 // See SpellAuraInterruptFlags for other values definitions
-enum SpellChannelInterruptFlags
+enum SpellChannelInterruptFlags : uint32
 {
     CHANNEL_INTERRUPT_FLAG_INTERRUPT = 0x0008,  // interrupt
     CHANNEL_FLAG_DELAY               = 0x4000
 };
 
-enum SpellAuraInterruptFlags
+enum SpellAuraInterruptFlags : uint32
 {
     AURA_INTERRUPT_FLAG_HITBYSPELL                  = 0x00000001,   // 0    removed when getting hit by a negative spell?
     AURA_INTERRUPT_FLAG_TAKE_DAMAGE                 = 0x00000002,   // 1    removed by any damage
@@ -171,7 +171,7 @@ struct TC_GAME_API CastSpellExtraArgs
     CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura) { TriggeringAura = triggeringAura; return *this; }
     CastSpellExtraArgs& SetOriginalCaster(ObjectGuid const& guid) { OriginalCaster = guid; return *this; }
     CastSpellExtraArgs& AddSpellMod(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); return *this; }
-    CastSpellExtraArgs& AddSpellBP0(int32 val) { SpellValueOverrides.AddBP0(val); return *this; }
+    CastSpellExtraArgs& AddSpellBP0(int32 val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
 
     TriggerCastFlags TriggerFlags = TRIGGERED_NONE;
     Item* CastItem = nullptr;
@@ -179,17 +179,16 @@ struct TC_GAME_API CastSpellExtraArgs
     ObjectGuid OriginalCaster = ObjectGuid::Empty;
     struct
     {
-        public:
-        void AddMod(SpellValueMod mod, int32 val) { data.push_back({ mod, val }); }
-        void AddBP0(int32 bp0) { AddMod(SPELLVALUE_BASE_POINT0, bp0); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
+        friend struct CastSpellExtraArgs;
+        friend class Unit;
 
         private:
-        auto begin() const { return data.cbegin(); }
-        auto end() const { return data.cend(); }
+            void AddMod(SpellValueMod mod, int32 val) { data.push_back({ mod, val }); }
 
-        std::vector<std::pair<SpellValueMod, int32>> data;
+            auto begin() const { return data.cbegin(); }
+            auto end() const { return data.cend(); }
 
-        friend class Unit;
+            std::vector<std::pair<SpellValueMod, int32>> data;
     } SpellValueOverrides;
 };
 

@@ -881,14 +881,14 @@ class boss_sister_svalna : public CreatureScript
                 switch (spell->Id)
                 {
                     case SPELL_IMPALING_SPEAR_KILL:
-                        me->Kill(target);
+                        Unit::Kill(me, target);
                         break;
                     case SPELL_IMPALING_SPEAR:
                         if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))
                         {
                             Talk(EMOTE_SVALNA_IMPALE, target);
                             CastSpellExtraArgs args;
-                            args.SpellValueOverrides.AddBP0(1);
+                            args.AddSpellBP0(1);
                             summon->CastSpell(target, VEHICLE_SPELL_RIDE_HARDCODED, args);
                             summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1 | UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                         }

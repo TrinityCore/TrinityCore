@@ -756,7 +756,7 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case DATA_COLOSSUS:
                         ColossusData = data;
-                        if (data == 2 && GetBossState(BOSS_LEVIATHAN) == NOT_STARTED)
+                        if (data >= 2 && GetBossState(BOSS_LEVIATHAN) == NOT_STARTED)
                         {
                             _events.ScheduleEvent(EVENT_LEVIATHAN_BREAK_DOOR, 5 * IN_MILLISECONDS);
                             SaveToDB();
@@ -963,7 +963,7 @@ class instance_ulduar : public InstanceMapScript
 
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << GetData(DATA_COLOSSUS) << ' ' << _algalonTimer << ' ' << uint32(_algalonSummoned ? 1 : 0);
+                data << ColossusData << ' ' << _algalonTimer << ' ' << uint32(_algalonSummoned ? 1 : 0);
 
                 for (uint8 i = 0; i < 4; ++i)
                     data << ' ' << uint32(KeeperGUIDs[i] ? 1 : 0);
@@ -975,8 +975,6 @@ class instance_ulduar : public InstanceMapScript
             {
                 uint32 tempState;
                 data >> tempState;
-                if (tempState == IN_PROGRESS || tempState > SPECIAL)
-                    tempState = NOT_STARTED;
                 SetData(DATA_COLOSSUS, tempState);
 
                 data >> _algalonTimer;

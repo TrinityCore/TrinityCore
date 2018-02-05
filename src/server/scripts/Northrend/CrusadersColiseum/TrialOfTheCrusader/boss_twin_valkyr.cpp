@@ -265,11 +265,11 @@ struct boss_twin_baseAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetInCombatWithZone();
+        DoZoneInCombat();
         if (Creature* pSister = GetSister())
         {
             me->AddAura(MyEmphatySpellId, pSister);
-            pSister->SetInCombatWithZone();
+            DoZoneInCombat(pSister);
         }
         instance->SetBossState(DATA_TWIN_VALKIRIES, IN_PROGRESS);
 
@@ -323,7 +323,7 @@ struct boss_twin_baseAI : public BossAI
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true, OtherEssenceSpellId))
                 {
                     CastSpellExtraArgs args;
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, 1); // @todo spellmgr correction instead?
+                    args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1); // @todo spellmgr correction instead?
                     me->CastSpell(target, TouchSpellId, args);
                 }
                 events.ScheduleEvent(EVENT_TOUCH, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
@@ -731,8 +731,8 @@ class spell_bullet_controller : public AuraScript
             return;
 
         CastSpellExtraArgs args1(TRIGGERED_FULL_MASK), args2(TRIGGERED_FULL_MASK);
-        args1.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
-        args2.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
+        args1.AddSpellMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
+        args2.AddSpellMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
         caster->CastSpell(GetTarget(), SPELL_SUMMON_PERIODIC_LIGHT, args1);
         caster->CastSpell(GetTarget(), SPELL_SUMMON_PERIODIC_DARK, args2);
     }

@@ -460,11 +460,10 @@ class boss_voice_of_yogg_saron : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 // TODO: MoveInLineOfSight doesn't work for such a big distance
                 if (who->GetTypeId() == TYPEID_PLAYER && me->GetDistance2d(who) < 99.0f && !me->IsInCombat())
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -624,7 +623,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                         events.SetPhase(PHASE_TWO);
                         me->SummonCreature(NPC_YOGG_SARON, YoggSaronSpawnPos);
                         if (Creature* brain = instance->GetCreature(DATA_BRAIN_OF_YOGG_SARON))
-                            brain->SetInCombatWithZone();
+                            DoZoneInCombat(brain);
                         events.ScheduleEvent(EVENT_SUMMON_CORRUPTOR_TENTACLE, 1, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
                         events.ScheduleEvent(EVENT_SUMMON_CONSTRICTOR_TENTACLE, 1, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
                         events.ScheduleEvent(EVENT_SUMMON_CRUSHER_TENTACLE, 1, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
@@ -949,7 +948,7 @@ class boss_yogg_saron : public CreatureScript
                 Talk(SAY_YOGG_SARON_DEATH);
 
                 if (Creature* creature = _instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))
-                    me->Kill(creature);
+                    Unit::Kill(me, creature);
 
                 for (uint8 i = DATA_SARA; i <= DATA_BRAIN_OF_YOGG_SARON; ++i)
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(i)))
@@ -2498,7 +2497,7 @@ class spell_yogg_saron_empowered : public SpellScriptLoader     // 64161
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, 9);
+                args.AddSpellMod(SPELLVALUE_AURA_STACK, 9);
                 GetTarget()->CastSpell(GetTarget(), SPELL_EMPOWERED_BUFF, args);
             }
 
@@ -2512,7 +2511,7 @@ class spell_yogg_saron_empowered : public SpellScriptLoader     // 64161
                 {
                     target->RemoveAurasDueToSpell(SPELL_WEAKENED);
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, stack);
+                    args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
                     target->CastSpell(target, SPELL_EMPOWERED_BUFF, args);
                 }
                 else if (!target->HealthAbovePct(1) && !target->HasAura(SPELL_WEAKENED))
@@ -2742,7 +2741,7 @@ class spell_yogg_saron_grim_reprisal : public SpellScriptLoader     // 63305
                     return;
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), 60));
+                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), 60));
                 GetTarget()->CastSpell(damageInfo->GetAttacker(), SPELL_GRIM_REPRISAL_DAMAGE, args);
             }
 
@@ -3101,7 +3100,7 @@ class spell_yogg_saron_titanic_storm : public SpellScriptLoader    // 64172
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    GetCaster()->Kill(target);
+                    Unit::Kill(GetCaster(), target);
             }
 
             void Register() override

@@ -487,17 +487,17 @@ void AuctionHouseMgr::PendingAuctionProcess(Player* player)
     }
 
     uint32 totaldeposit = 0;
-    auto itr = (*thisAH->begin());
 
-    if (Item* item = GetAItem(itr->itemGUIDLow))
-         totaldeposit = GetAuctionDeposit(itr->auctionHouseEntry, itr->etime, item, totalItems);
+    AuctionEntry const* entry = thisAH->front();
+    if (Item* item = GetAItem(entry->itemGUIDLow))
+         totaldeposit = GetAuctionDeposit(entry->auctionHouseEntry, entry->etime, item, totalItems);
 
     uint32 depositremain = totaldeposit;
     for (auto itr = thisAH->begin(); itr != thisAH->end(); ++itr)
     {
         AuctionEntry* AH = (*itr);
 
-        if (next(itr) == thisAH->end())
+        if (std::next(itr) == thisAH->end())
             AH->deposit = depositremain;
         else
         {
@@ -506,7 +506,6 @@ void AuctionHouseMgr::PendingAuctionProcess(Player* player)
         }
 
         AH->DeleteFromDB(trans);
-
         AH->SaveToDB(trans);
     }
 
@@ -710,14 +709,14 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
     time_t curTime = GameTime::GetGameTime();
 
-    PlayerGetAllThrottleMap::const_iterator itr = GetAllThrottleMap.find(player->GetGUID());
+    auto itr = GetAllThrottleMap.find(player->GetGUID());
     time_t throttleTime = itr != GetAllThrottleMap.end() ? itr->second : curTime;
 
     if (getall && throttleTime <= curTime)
     {
-        for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+        for (AuctionEntryMap::const_iterator it = AuctionsMap.begin(); it != AuctionsMap.end(); ++it)
         {
-            AuctionEntry* Aentry = itr->second;
+            AuctionEntry* Aentry = it->second;
             // Skip expired auctions
             if (Aentry->expire_time < curTime)
                 continue;
@@ -737,9 +736,9 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         return;
     }
 
-    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+    for (AuctionEntryMap::const_iterator it = AuctionsMap.begin(); it != AuctionsMap.end(); ++it)
     {
-        AuctionEntry* Aentry = itr->second;
+        AuctionEntry* Aentry = it->second;
         // Skip expired auctions
         if (Aentry->expire_time < curTime)
             continue;
