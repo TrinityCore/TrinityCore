@@ -185,6 +185,45 @@ public:
     }
 
     /**
+    * @name ScheduleNextEvent
+    * @brief Schedule the next event (_lastEvent + 1).
+    * @param time Time until in milliseconds as std::chrono::duration the event occurs.
+    */
+    void ScheduleNextEvent(Milliseconds const& time)
+    {
+        Repeat(uint32(time.count()));
+    }
+
+    /**
+    * @name ScheduleNextEvent
+    * @brief Schedule the next event (_lastEvent + 1).
+    * @param time Time until the event occurs.
+    */
+    void ScheduleNextEvent(uint32 time)
+    {
+        _eventMap.insert(EventStore::value_type(_time + time, _lastEvent + 1));
+    }
+
+    /**
+    * @name ScheduleNextEvent
+    * @briefSchedule the next event (_lastEvent + 1).
+    * @param minTime Minimum time as std::chrono::duration until the event occurs.
+    * @param maxTime Maximum time as std::chrono::duration until the event occurs.
+    */
+    void ScheduleNextEvent(Milliseconds const& minTime, Milliseconds const& maxTime)
+    {
+        Repeat(uint32(minTime.count()), uint32(maxTime.count()));
+    }
+
+    /**
+    * @name ScheduleNextEvent
+    * @brief Schedule the next event (_lastEvent + 1), Equivalent to ScheduleNextEvent(urand(minTime, maxTime).
+    * @param minTime Minimum time until the event occurs.
+    * @param maxTime Maximum time until the event occurs.
+    */
+    void ScheduleNextEvent(uint32 minTime, uint32 maxTime);
+
+    /**
     * @name RepeatEvent
     * @brief Repeats the mostly recently executed event.
     * @param time Time until in milliseconds as std::chrono::duration the event occurs.

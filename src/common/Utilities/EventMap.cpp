@@ -54,6 +54,11 @@ void EventMap::RescheduleEvent(uint32 eventId, Milliseconds const& minTime, Mill
     RescheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
 }
 
+void EventMap::ScheduleNextEvent(uint32 minTime, uint32 maxTime)
+{
+    ScheduleNextEvent(urand(minTime, maxTime));
+}
+
 void EventMap::Repeat(uint32 minTime, uint32 maxTime)
 {
     Repeat(urand(minTime, maxTime));
