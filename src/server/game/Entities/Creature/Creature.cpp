@@ -995,6 +995,7 @@ bool Creature::AIM_Create(CreatureAI* ai /*= nullptr*/)
     Motion_Initialize();
 
     i_AI = ai ? ai : FactorySelector::SelectAI(this);
+    return true;
 }
 
 void Creature::AI_InitializeAndEnable()
