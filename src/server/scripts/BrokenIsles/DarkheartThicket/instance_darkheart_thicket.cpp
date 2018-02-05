@@ -53,7 +53,7 @@ class instance_darkheart_thicket : public InstanceMapScript
 
         struct instance_darkheart_thicket_InstanceMapScript : public InstanceScript
         {
-            instance_darkheart_thicket_InstanceMapScript(Map* map) : InstanceScript(map) { }
+            instance_darkheart_thicket_InstanceMapScript(Map* map) : InstanceScript(map), _introDone(false) { }
 
             void Initialize() override
             {
@@ -127,6 +127,15 @@ class instance_darkheart_thicket : public InstanceMapScript
                 }
             }
 
+            void OnUnitDeath(Unit* unit)
+            {
+                if (unit->IsCreature() && !_introDone)
+                {
+                    DoCastSpellOnPlayers(SPELL_CONVERSATION_INTRO);
+                    _introDone = true;
+                }
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
@@ -134,6 +143,13 @@ class instance_darkheart_thicket : public InstanceMapScript
 
                 switch (type)
                 {
+                    case DATA_ARCHDRUID_GLAIDALIS:
+                    {
+                        if (state == DONE)
+                            DoCastSpellOnPlayers(SPELL_CONVERSATION_AFTER_FIRST_BOSS);
+
+                        break;
+                    }
                     case DATA_SHADE_OF_XAVIUS:
                     {
                         if (state == DONE)
@@ -147,6 +163,8 @@ class instance_darkheart_thicket : public InstanceMapScript
 
                 return true;
             }
+
+            bool _introDone;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
