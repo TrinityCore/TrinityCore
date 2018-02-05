@@ -900,25 +900,24 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     }
 
     // Init dest coordinates
-    uint32 mapid = destTarget->GetMapId();
-    if (mapid == MAPID_INVALID)
-        mapid = unitTarget->GetMapId();
-    float x, y, z, orientation;
-    destTarget->GetPosition(x, y, z, orientation);
-    if (!orientation && m_targets.GetUnitTarget())
-        orientation = m_targets.GetUnitTarget()->GetOrientation();
-    TC_LOG_DEBUG("spells", "Spell::EffectTeleportUnits - teleport unit to %u %f %f %f %f\n", mapid, x, y, z, orientation);
+    WorldLocation targetDest(*destTarget);
+    if (targetDest.GetMapId() == MAPID_INVALID)
+        targetDest.m_mapId = unitTarget->GetMapId();
 
-    if (Player* player = unitTarget->ToPlayer())
-    {
-        // Custom loading screen
+    if (!targetDest.GetOrientation() && m_targets.GetUnitTarget())
+        targetDest.SetOrientation(m_targets.GetUnitTarget()->GetOrientation());
+
+    Player* player = unitTarget->ToPlayer();
+
+    // Custom loading screen
+    if (player)
         if (uint32 customLoadingScreenId = effectInfo->MiscValue)
             player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
 
-        player->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
-    }
-    else if (mapid == unitTarget->GetMapId())
-        unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
+    if (targetDest.GetMapId() == unitTarget->GetMapId())
+        unitTarget->NearTeleportTo(targetDest, unitTarget == m_caster);
+    else if (player)
+        player->TeleportTo(targetDest, unitTarget == m_caster ? TELE_TO_SPELL : 0);
     else
     {
         TC_LOG_ERROR("spells", "Spell::EffectTeleportUnits - spellId %u attempted to teleport creature to a different map.", m_spellInfo->Id);
@@ -926,6 +925,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     }
 
     // post effects for TARGET_DEST_DB
+    /// @todo: awful hacks, move this to spellscripts
     switch (m_spellInfo->Id)
     {
         // Dimensional Ripper - Everlook
