@@ -1825,7 +1825,8 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
             {
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
-                    for (ThreatReference const* ref : caster->GetThreatManager().GetUnsortedThreatList())
+                    // we need modifiable threat list here - SPELL_VORTEX_6 is a TELEPORT effect, which may stop combat
+                    for (ThreatReference const* ref : caster->GetThreatManager().GetModifiableThreatList())
                     {
                         if (Player* targetPlayer = ref->GetVictim()->ToPlayer())
                         {
