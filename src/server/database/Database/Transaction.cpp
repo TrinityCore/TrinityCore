@@ -101,8 +101,7 @@ bool TransactionTask::Execute()
         
         for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= STATEMENT_DURATION; loopDuration = GetMSTimeDiffToNow(startMSTime))
         {
-            if (!m_conn->ExecuteTransaction(m_trans))
-                
+            if (!m_conn->ExecuteTransaction(m_trans))                
                 return true;
 
             TC_LOG_INFO("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u, SQL: %s", loopDuration, transString.c_str());
