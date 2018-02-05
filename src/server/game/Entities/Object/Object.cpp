@@ -2337,6 +2337,8 @@ float WorldObject::SelectBestZForDestination(float x, float y, float z, bool exc
     bool const destBetweenVmaps = hasDestVmapCeil && hasDestVmapFloor;
     bool const noVmap = !hasDestVmapFloor && !hasDestVmapCeil;
 
+    // It is possible that while moving, our feet are slightly moving under the ground. Jumping / reconnecting fixes this issue but we don't want to rely on that.
+    myZ += myCollisionHeight;
     bool const isOnVmap = hasVmapFloor &&
         ((myZ < myGridHeight && std::fabs(myVmapFloor - myZ) < std::fabs(myGridHeight - myZ)) ||
         (myZ > myGridHeight && myVmapFloor > myGridHeight));
@@ -2415,6 +2417,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     Trinity::NormalizeMapCoord(destx);
     Trinity::NormalizeMapCoord(desty);
+    // We might want to loop until there is no more collision with a better z position. (And/or until a fixed #attemps have been made).
+    ComputeCollisionPosition(pos, { destx, desty, destz }, destx, desty, destz);
     pos.Relocate(destx, desty, destz);
     pos.SetOrientation(GetOrientation());
 }
