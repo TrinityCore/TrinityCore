@@ -164,12 +164,12 @@ public:
                 {
                     case EVENT_OUTRO_1:
                         me->RemoveAurasDueToSpell(SPELL_MALFURION_ROOT);
-                        events.ScheduleEvent(EVENT_OUTRO_2, 1000);
+                        events.ScheduleNextEvent(1s);
                         break;
 
                     case EVENT_OUTRO_2:
                         Talk(SAY_MALFURION_OUTRO);
-                        events.ScheduleEvent(EVENT_OUTRO_3, 2000);
+                        events.ScheduleNextEvent(2s);
                         break;
 
                     case EVENT_OUTRO_3:

@@ -75,4 +75,10 @@ enum GameObjectIds
     GO_DOOR_ROOM_XAVIUS          = 254855
 };
 
+enum ConversationSpells
+{
+    SPELL_CONVERSATION_INTRO            = 202867,
+    SPELL_CONVERSATION_AFTER_FIRST_BOSS = 202882,
+};
+
 #endif
