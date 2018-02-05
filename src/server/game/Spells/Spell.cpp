@@ -538,13 +538,12 @@ class TC_GAME_API SpellEvent : public BasicEvent
         Spell* m_Spell;
 };
 
-Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID, bool skipCheck) :
+Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID) :
 m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, caster)),
 m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster)
 , m_spellValue(new SpellValue(m_spellInfo)), _spellEvent(nullptr)
 {
     m_customError = SPELL_CUSTOM_ERROR_NONE;
-    m_skipCheck = skipCheck;
     m_selfContainer = nullptr;
     m_referencedFromCurrentSpell = false;
     m_executedCurrently = false;
@@ -2084,11 +2083,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
     // Calculate hit result
     if (m_originalCaster)
-    {
         targetInfo.missCondition = m_originalCaster->SpellHitResult(target, m_spellInfo, m_canReflect && !(IsPositive() && m_caster->IsFriendlyTo(target)));
-        if (m_skipCheck && targetInfo.missCondition != SPELL_MISS_IMMUNE)
-            targetInfo.missCondition = SPELL_MISS_NONE;
-    }
     else
         targetInfo.missCondition = SPELL_MISS_EVADE; //SPELL_MISS_NONE;
 
@@ -2304,11 +2299,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     else if (missInfo == SPELL_MISS_REFLECT)                // In case spell reflect from target, do all effect on caster (if hit)
     {
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
-        {
             spellHitTarget = m_caster;
-            if (m_caster->GetTypeId() == TYPEID_UNIT)
-                m_caster->ToCreature()->LowerPlayerDamageReq(target->damage);
-        }
     }
 
     bool enablePvP = false; // need to check PvP state before spell effects, but act on it afterwards
