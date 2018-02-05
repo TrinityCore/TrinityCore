@@ -24,7 +24,7 @@
 
 std::mutex TransactionTask::_deadlockLock;
 
-#define STATEMENT_DURATION 60000;
+#define STATEMENT_DURATION 60000
 
 //- Append a raw ad-hoc query to the transaction
 void Transaction::Append(char const* sql)
@@ -90,28 +90,25 @@ bool TransactionTask::Execute()
 {
     int errorCode = m_conn->ExecuteTransaction(m_trans);
     if (!errorCode)
-    {
-        m_trans->Cleanup();
         return true;
-    }
 
     if (errorCode == ER_LOCK_DEADLOCK)
     {
+        std::string transString = m_trans->ToString();
+
         // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
         std::lock_guard<std::mutex> lock(_deadlockLock);
-        uint32 oldMSTime = getMSTime();
-        uint32 loopDuration = 0;
-        uint32 loopExpireTime = STATEMENT_DURATION;
-        for (; loopDuration <= loopExpireTime; loopDuration = GetMSTimeDiffToNow(oldMSTime))
+        
+        for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= STATEMENT_DURATION; loopDuration = GetMSTimeDiffToNow(startMSTime))
         {
             if (!m_conn->ExecuteTransaction(m_trans))
-            {
-                TC_LOG_INFO("sql.sql", "Deadlock SQL Transaction: delay:%d, SQL:%s", loopDuration, m_trans->ToString().c_str());
-                m_trans->Cleanup();
+                
                 return true;
-            }
+
+            TC_LOG_INFO("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u, SQL: %s", loopDuration, transString.c_str());
         }
-        TC_LOG_ERROR("sql.sql", "Deadlock SQL Transaction: delay:%d, SQL:%s", loopDuration, m_trans->ToString().c_str());
+
+        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. SQL: %s", transString.c_str());
     }
 
     // Clean up now.

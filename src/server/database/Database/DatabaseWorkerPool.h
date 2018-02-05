@@ -221,8 +221,6 @@ class DatabaseWorkerPool
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
         std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
-
-        static std::mutex _deadlockLock;
 };
 
 #endif
