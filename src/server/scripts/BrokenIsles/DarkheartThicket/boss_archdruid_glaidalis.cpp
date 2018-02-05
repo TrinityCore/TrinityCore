@@ -208,33 +208,38 @@ public:
                     case EVENT_INTRO_GLAIDALIS_1:
                         for (uint8 i = 0; i < 4; ++i)
                             if (Creature* druid = me->SummonCreature(NPC_DRUIDIC_PRESERVER, SummonPositions[i], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                                druidGUID[i] = druid->GetGUID();
+                                if (Creature* triggerSum = me->SummonCreature(NPC_TRIGGER_PERSERVER, SummonPositions[4 + i], TEMPSUMMON_TIMED_DESPAWN, 25000))
+                                {
+                                    druidGUID[i] = druid->GetGUID();
+                                    ObjectGuid triggerSumGuid = triggerSum->GetGUID();
+
+                                    druid->GetScheduler().Schedule(1s, 2s, [triggerSumGuid](TaskContext context)
+                                    {
+                                        if (Creature* triggerSum = ObjectAccessor::GetCreature(*context.GetContextUnit(), triggerSumGuid))
+                                            context.GetContextUnit()->CastSpell(triggerSum, SPELL_RAY_PRESERVATION, false);
+
+                                        context.Repeat(5s);
+                                    });
+                                }
 
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                         me->GetMotionMaster()->MovePoint(0, 2876.5976f, 1958.9278f, 189.7037f);
                         break;
                     case EVENT_INTRO_GLAIDALIS_2:
                         Talk(SAY_EVENT);
-                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_3, 1000);
+                        events.ScheduleNextEvent(1000);
                         break;
                     case EVENT_INTRO_GLAIDALIS_3:
-                        for (uint8 i = 0; i < 4; ++i)
-                            if (Creature* druid = ObjectAccessor::GetCreature(*me, druidGUID[i]))
-                                if (Creature* triggerSum1 = me->SummonCreature(NPC_TRIGGER_PERSERVER, SummonPositions[4 + i], TEMPSUMMON_TIMED_DESPAWN, 25000))
-                                {
-                                    druid->CastSpell(triggerSum1, SPELL_RAY_PRESERVATION, false);
+                        if (Creature* druid = ObjectAccessor::GetCreature(*me, druidGUID[3]))
+                            druid->AI()->Talk(SAY_DRUID);
 
-                                    if (i == 3)
-                                        druid->AI()->Talk(SAY_DRUID);
-                                }
-
-                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_4, 5000);
+                        events.ScheduleNextEvent(5000);
                         break;
 
                     case EVENT_INTRO_GLAIDALIS_4:
                         me->CastSpell(me, SPELL_CAT_FORM, false);
                         me->SetObjectScale(1.8f);
-                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_5, 100);
+                        events.ScheduleNextEvent(100);
                         break;
                     case EVENT_INTRO_GLAIDALIS_5:
                     case EVENT_INTRO_GLAIDALIS_6:
@@ -248,7 +253,7 @@ public:
 
                             me->GetMotionMaster()->MoveJump(druid->GetPosition(), 20.0f, 10.0f, 1004, false, &args);
                         }
-                        events.ScheduleEvent(eventId + 1, 1800);
+                        events.ScheduleNextEvent(1800);
                         break;
 
                     case EVENT_INTRO_GLAIDALIS_9:
@@ -257,7 +262,7 @@ public:
                         if (GameObject* collisionEvent = instance->GetGameObject(GO_GLAIDALIS_EVENT))
                             collisionEvent->SetGoState(GO_STATE_ACTIVE);
                         me->GetMotionMaster()->MoveJump(2876.5976f, 1958.9278f, 189.7037f, 0.441398f, 20.0f, 20.0f);
-                        events.ScheduleEvent(EVENT_INTRO_GLAIDALIS_10, 2000);
+                        events.ScheduleNextEvent(2000);
                         break;
 
                     case EVENT_INTRO_GLAIDALIS_10:
