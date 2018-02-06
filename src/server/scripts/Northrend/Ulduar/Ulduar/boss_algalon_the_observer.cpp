@@ -990,7 +990,7 @@ class go_celestial_planetarium_access : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnReportUse(Player* player) override
             {
                 if (me->HasFlag(GO_FLAG_IN_USE))
                     return true;
