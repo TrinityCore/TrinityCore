@@ -2087,7 +2087,7 @@ class aura_monk_transcendence : public AuraScript
 {
     PrepareAuraScript(aura_monk_transcendence);
 
-    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         spell_monk_transcendence::DespawnSpirit(GetTarget());
     }
