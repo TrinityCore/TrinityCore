@@ -356,7 +356,6 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
     {
         Initialize();
         instance = creature->GetInstanceScript();
-        AcquireGUIDs();
     }
 
     void Initialize()
@@ -380,6 +379,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
     void Reset() override
     {
         Initialize();
+        AcquireGUIDs();
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
         if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
