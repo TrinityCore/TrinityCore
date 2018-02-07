@@ -6477,23 +6477,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         if (Unit* owner = GetOwner())
             return owner->SpellDamageBonusDone(victim, spellProto, pdamage, damagetype);
 
-    float DoneTotalMod = 1.0f;
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
-
-    // bonus against aurastate
-    AuraEffectList const& mDamageDoneVersusAurastate = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS_AURASTATE);
-    for (AuraEffectList::const_iterator i = mDamageDoneVersusAurastate.begin(); i != mDamageDoneVersusAurastate.end(); ++i)
-        if (victim->HasAuraState(AuraStateType((*i)->GetMiscValue())))
-            AddPct(DoneTotalMod, (*i)->GetAmount());
-
-    uint32 creatureTypeMask = victim->GetCreatureTypeMask();
-    // Add flat bonus from spell damage versus
-    DoneTotal += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS, creatureTypeMask);
-    AuraEffectList const& mDamageDoneVersus = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
-    for (AuraEffectList::const_iterator i = mDamageDoneVersus.begin(); i != mDamageDoneVersus.end(); ++i)
-        if (creatureTypeMask & uint32((*i)->GetMiscValue()))
-            AddPct(DoneTotalMod, (*i)->GetAmount());
 
     // done scripted mod (take it from owner)
     Unit const* owner = GetOwner() ? GetOwner() : this;
@@ -6594,7 +6579,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         DoneTotal += int32(DoneAdvertisedBenefit * coeff * stack);
     }
 
-    float tmpDamage = (int32(pdamage) + DoneTotal) * DoneTotalMod;
+    float tmpDamage = (int32(pdamage) + DoneTotal);
 
     // DOTs calculated in AuraEffect::PeriodicDamageAurasTick
     // Done Percentage for DOT is already calculated, no need to do it again. The percentage mod is applied in Aura::HandleAuraSpecificMods.
