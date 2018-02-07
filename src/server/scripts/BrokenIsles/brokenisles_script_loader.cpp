@@ -140,6 +140,19 @@ void AddSC_xavius();
 void AddSC_emerald_nightmare();
 void AddSC_instance_emerald_nightmare();
 
+// Tomb of Sargeras
+void AddSC_boss_demonic_inquisition();
+void AddSC_boss_desolate_host();
+void AddSC_boss_fallen_avatar();
+void AddSC_boss_goroth();
+void AddSC_boss_harjatan();
+void AddSC_boss_tos_kiljaeden();
+void AddSC_boss_maiden_of_vigilance();
+void AddSC_boss_sasszine();
+void AddSC_boss_sisters_of_moon();
+void AddSC_tomb_of_sargeras();
+void AddSC_instance_tomb_of_sargeras();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBrokenIslesScripts()
@@ -265,4 +278,17 @@ void AddBrokenIslesScripts()
     AddSC_xavius();
     AddSC_emerald_nightmare();
     AddSC_instance_emerald_nightmare();
+
+    // Tomb of Sargeras
+    AddSC_boss_demonic_inquisition();
+    AddSC_boss_desolate_host();
+    AddSC_boss_fallen_avatar();
+    AddSC_boss_goroth();
+    AddSC_boss_harjatan();
+    AddSC_boss_tos_kiljaeden();
+    AddSC_boss_maiden_of_vigilance();
+    AddSC_boss_sasszine();
+    AddSC_boss_sisters_of_moon();
+    AddSC_tomb_of_sargeras();
+    AddSC_instance_tomb_of_sargeras();
 }

@@ -540,6 +540,8 @@ public:
 
         handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
 
+        TC_LOG_DEBUG("sql.dev", "DELETE FROM creature WHERE guid = %s;", std::to_string(unit->GetSpawnId()).c_str());
+
         return true;
     }
 
