@@ -41,10 +41,9 @@ enum Spells
     SPELL_BURST_OF_CORRUPTION       = 203646,
 };
 
-class boss_nythendra : public CreatureScript
+struct boss_nythendra : public BossAI
 {
-public:
-    boss_nythendra() : CreatureScript("boss_nythendra") { }
+    boss_nythendra(Creature* creature) : BossAI(creature, DATA_NYTHENDRA) { }
 
     enum Events
     {
@@ -54,54 +53,44 @@ public:
         EVENT_TAIL_LASH         = 4,
     };
 
-    struct boss_nythendraAI : public BossAI
+    void EnterCombat(Unit* /*attacker*/) override
     {
-        boss_nythendraAI(Creature* creature) : BossAI(creature, DATA_NYTHENDRA) { }
+        events.ScheduleEvent(EVENT_ROT, Seconds(15));
+        events.ScheduleEvent(EVENT_VOLATILE_ROT, Seconds(1));
+        events.ScheduleEvent(EVENT_INFESTED_BREATH, Seconds(1));
+        events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(6));
+    }
 
-        void EnterCombat(Unit* /*attacker*/) override
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
         {
-            events.ScheduleEvent(EVENT_ROT, Seconds(15));
-            events.ScheduleEvent(EVENT_VOLATILE_ROT, Seconds(1));
-            events.ScheduleEvent(EVENT_INFESTED_BREATH, Seconds(1));
-            events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(6));
-        }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
+            case EVENT_ROT:
             {
-                case EVENT_ROT:
-                {
-                    for (uint8 i = 0; i < 2; ++i)
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 2))
-                            me->CastSpell(target, SPELL_ROT, true);
+                for (uint8 i = 0; i < 2; ++i)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 2))
+                        me->CastSpell(target, SPELL_ROT, true);
 
-                    events.ScheduleEvent(EVENT_ROT, Seconds(15));
-                    break;
-                }
-                case EVENT_VOLATILE_ROT:
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                        me->CastSpell(target, SPELL_VOLATILE_ROT, true);
-
-                    events.ScheduleEvent(EVENT_VOLATILE_ROT, Seconds(15));
-                    break;
-                }
-                case EVENT_TAIL_LASH:
-                {
-                    DoCast(SPELL_TAIL_LASH);
-                    events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(6));
-                    break;
-                }
-                default:
-                    break;
+                events.ScheduleEvent(EVENT_ROT, Seconds(15));
+                break;
             }
-        }
-    };
+            case EVENT_VOLATILE_ROT:
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(target, SPELL_VOLATILE_ROT, true);
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_nythendraAI(creature);
+                events.ScheduleEvent(EVENT_VOLATILE_ROT, Seconds(15));
+                break;
+            }
+            case EVENT_TAIL_LASH:
+            {
+                DoCast(SPELL_TAIL_LASH);
+                events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(6));
+                break;
+            }
+            default:
+                break;
+        }
     }
 };
 
@@ -158,41 +147,30 @@ class spell_nythendra_volatile_rot_damage : public SpellScript
 };
 
 //Spell : 203044
-class at_nythendra_infested_ground : public AreaTriggerEntityScript
+struct at_nythendra_infested_ground : AreaTriggerAI
 {
-public:
-    at_nythendra_infested_ground() : AreaTriggerEntityScript("at_nythendra_infested_ground") { }
+    at_nythendra_infested_ground(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_nythendra_infested_groundAI : AreaTriggerAI
+    void OnUnitEnter(Unit* unit) override
     {
-        at_nythendra_infested_groundAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
+        if (caster && unit)
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_INFESTED_GROUND_DAMAGE, true);
+    }
 
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-            if (caster && unit)
-                if (caster->IsValidAttackTarget(unit))
-                    caster->CastSpell(unit, SPELL_INFESTED_GROUND_DAMAGE, true);
-        }
-
-        void OnUnitExit(Unit* unit) override
-        {
-            unit->RemoveAurasDueToSpell(SPELL_INFESTED_GROUND_DAMAGE);
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUnitExit(Unit* unit) override
     {
-        return new at_nythendra_infested_groundAI(areatrigger);
+        unit->RemoveAurasDueToSpell(SPELL_INFESTED_GROUND_DAMAGE);
     }
 };
 
 void AddSC_nythendra()
 {
-    new boss_nythendra();
+    RegisterCreatureAI(boss_nythendra);
 
     RegisterAuraScript(spell_nythendra_rot);
     RegisterSpellScript(spell_nythendra_volatile_rot_damage);
 
-    new at_nythendra_infested_ground();
+    RegisterAreaTriggerAI(at_nythendra_infested_ground);
 }
