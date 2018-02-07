@@ -46,37 +46,40 @@ struct boss_goroth : public BossAI
 
     void EnterCombat(Unit* /*attacker*/) override
     {
-        events.ScheduleEvent(SPELL_BURNING_ARMOR, Seconds(15));
-        events.ScheduleEvent(SPELL_CRASHING_COMET, Seconds(1));
-        events.ScheduleEvent(SPELL_SHATTERING_STAR, Seconds(1));
-        events.ScheduleEvent(SPELL_INFERNAL_BURNING, Seconds(6));
+        events.ScheduleEvent(SPELL_BURNING_ARMOR, 15s);
+        events.ScheduleEvent(SPELL_CRASHING_COMET, 15s);
+        events.ScheduleEvent(SPELL_SHATTERING_STAR, 15s);
+        events.ScheduleEvent(SPELL_INFERNAL_BURNING, 15s);
     }
 
     void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
-            case EVENT_ROT:
+            case SPELL_BURNING_ARMOR:
             {
-                for (uint8 i = 0; i < 2; ++i)
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 2))
-                        me->CastSpell(target, SPELL_ROT, true);
-
-                events.ScheduleEvent(EVENT_ROT, Seconds(15));
+                DoCast(SPELL_BURNING_ARMOR);
+                events.Repeat(15s);
                 break;
             }
-            case EVENT_VOLATILE_ROT:
+            case SPELL_CRASHING_COMET:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                    me->CastSpell(target, SPELL_VOLATILE_ROT, true);
-
-                events.ScheduleEvent(EVENT_VOLATILE_ROT, Seconds(15));
+                DoCast(SPELL_CRASHING_COMET);
+                events.Repeat(15s);
                 break;
             }
-            case EVENT_TAIL_LASH:
+            case SPELL_SHATTERING_STAR:
             {
-                DoCast(SPELL_TAIL_LASH);
-                events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(6));
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 2))
+                    DoCast(target, SPELL_SHATTERING_STAR);
+
+                events.Repeat(15s);
+                break;
+            }
+            case SPELL_INFERNAL_BURNING:
+            {
+                DoCast(SPELL_INFERNAL_BURNING);
+                events.Repeat(15s);
                 break;
             }
             default:
