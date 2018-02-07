@@ -38,6 +38,7 @@ enum Spells
     SPELL_BURNING_FLAMES                            = 90759,
     SPELL_ENCUMBERED                                = 75007,
     SPELL_IMPALING_SLAM                             = 75056,
+    SPELL_GLANCING_BLOWS                            = 74909,
 
     // Cave In Stalker
     SPELL_CAVE_IN_VISUAL                            = 74987
@@ -151,6 +152,12 @@ class boss_forgemaster_throngus : public CreatureScript
                 summons.DespawnAll();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _DespawnAtEvade();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage) override
+            {
+                if (Aura* glancingBlowsAura = attacker->GetAura(SPELL_GLANCING_BLOWS))
+                    damage += CalculatePct(damage, glancingBlowsAura->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
             }
 
             void DoAction(int32 action) override
