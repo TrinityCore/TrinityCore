@@ -3072,17 +3072,17 @@ int32 Unit::GetCurrentSpellCastTime(uint32 spell_id) const
 bool Unit::IsMovementPreventedByCasting() const
 {
     // can always move when not casting
-    if (!HasUnitState(UNIT_STATE_CASTING))
-        return false;
+    if (HasUnitState(UNIT_STATE_CASTING))
+        return true;
 
     // channeled spells during channel stage (after the initial cast timer) allow movement with a specific spell attribute
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
-            if (spell->GetSpellInfo()->IsMoveAllowedChannel())
-                return false;
+            if (!spell->GetSpellInfo()->IsMoveAllowedChannel())
+                return true;
 
     // prohibit movement for all other spell casts
-    return true;
+    return false;
 }
 
 bool Unit::isInFrontInMap(Unit const* target, float distance,  float arc) const
