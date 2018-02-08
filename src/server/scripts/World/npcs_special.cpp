@@ -3042,16 +3042,6 @@ class npc_mage_orb : public CreatureScript
                 me->m_ControlledByPlayer = false;
             }
 
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                me->Yell("evade mode triggered", LANG_UNIVERSAL, 0);
-            }
-
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
-            {
-                me->UpdateSpeed(MOVE_RUN);
-            }
-
             void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
