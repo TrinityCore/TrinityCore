@@ -787,7 +787,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             if (e.action.fleeAssist.withEmote)
             {
-                Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST);
+                Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST, me->getGender());
                 sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
             }
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_FLEE_FOR_ASSIST: Creature %u DoFleeToGetAssistance", me->GetGUID().GetCounter());
@@ -1074,7 +1074,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     (*itr)->ToCreature()->CallForHelp((float)e.action.callHelp.range);
                     if (e.action.callHelp.withEmote)
                     {
-                        Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP);
+                        Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP, me->getGender());
                         sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
                     }
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_FOR_HELP: Creature %u, target: %u", me->GetGUID().GetCounter(), (*itr)->GetGUID().GetCounter());
@@ -3135,13 +3135,13 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
             }
             break;
         }
-        case SMART_TARGET_VEHICLE_ACCESSORY:
+        case SMART_TARGET_VEHICLE_PASSENGER:
         {
             if (me && me->IsVehicle())
-            {
-                if (Unit* target = me->GetVehicleKit()->GetPassenger(e.target.vehicle.seat))
-                    l->push_back(target);
-            }
+                for (auto seatItr = me->GetVehicleKit()->Seats.begin(); seatItr != me->GetVehicleKit()->Seats.end(); ++seatItr)
+                    if (!e.target.vehicle.seatMask || (e.target.vehicle.seatMask & (1 << seatItr->first)))
+                        if (Unit* u = ObjectAccessor::GetUnit(*me, seatItr->second.Passenger.Guid))
+                            l->push_back(u);
             break;
         }
         case SMART_TARGET_POSITION:

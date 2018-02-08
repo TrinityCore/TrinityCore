@@ -24,6 +24,7 @@
 #include "Battleground.h"
 #include "BattlegroundScore.h"
 #include "CellImpl.h"
+#include "Chat.h"
 #include "ChatTextBuilder.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -4510,7 +4511,7 @@ bool Unit::HasStrongerAuraWithDR(SpellInfo const* auraSpellInfo, Unit* caster, b
         if (spellInfo->GetDiminishingReturnsGroupForSpell(triggered) != diminishGroup)
             continue;
 
-        int32 existingDuration = itr->second->GetBase()->GetMaxDuration();
+        int32 existingDuration = itr->second->GetBase()->GetDuration();
         int32 newDuration = auraSpellInfo->GetMaxDuration();
         ApplyDiminishingToDuration(auraSpellInfo, triggered, newDuration, caster, level);
         if (newDuration > 0 && newDuration < existingDuration)
@@ -11554,31 +11555,22 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     if (Player* killerPlayer = GetCharmerOrOwnerPlayerOrPlayerItself())
         killerPlayer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, 0, victim);
 
-    // if talent known but not triggered (check priest class for speedup check)
+    // if talent known but not triggered
     bool spiritOfRedemption = false;
-    if (victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_PRIEST)
+    if (AuraEffect const* aurEff = victim->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 0, 0, 0x200))
     {
-        AuraEffectList const& dummyAuras = victim->GetAuraEffectsByType(SPELL_AURA_DUMMY);
-        for (AuraEffectList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
-        {
-            if ((*itr)->GetSpellInfo()->SpellIconID == 1654)
-            {
-                AuraEffect const* aurEff = *itr;
-                // save value before aura remove
-                uint32 ressSpellId = victim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
-                if (!ressSpellId)
-                    ressSpellId = victim->ToPlayer()->GetResurrectionSpellId();
-                // Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
-                victim->RemoveAllAurasOnDeath();
-                // restore for use at real death
-                victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
+        // save value before aura remove
+        uint32 ressSpellId = victim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
+        if (!ressSpellId)
+            ressSpellId = victim->ToPlayer()->GetResurrectionSpellId();
+        // Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
+        victim->RemoveAllAurasOnDeath();
+        // restore for use at real death
+        victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
 
-                // FORM_SPIRITOFREDEMPTION and related auras
-                victim->CastSpell(victim, 27827, true, NULL, aurEff);
-                spiritOfRedemption = true;
-                break;
-            }
-        }
+        // FORM_SPIRITOFREDEMPTION and related auras
+        victim->CastSpell(victim, 27827, aurEff);
+        spiritOfRedemption = true;
     }
 
     if (!spiritOfRedemption)
@@ -14594,11 +14586,11 @@ void Unit::Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject con
 {
     if (!sObjectMgr->GetBroadcastText(textId))
     {
-        TC_LOG_ERROR("entities.unit", "WorldObject::MonsterText: `broadcast_text` was not %u found", textId);
+        TC_LOG_ERROR("entities.unit", "WorldObject::MonsterText: `broadcast_text` (ID: %u) was not found", textId);
         return;
     }
 
-    Trinity::BroadcastTextBuilder builder(this, msgType, textId, target);
+    Trinity::BroadcastTextBuilder builder(this, msgType, textId, getGender(), target);
     Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> localizer(builder);
     Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> > worker(this, textRange, localizer);
     Cell::VisitWorldObjects(this, worker, textRange);

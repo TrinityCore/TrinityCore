@@ -19,7 +19,6 @@
 #include "BattlegroundSA.h"
 #include "GameObject.h"
 #include "GameTime.h"
-#include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -27,10 +26,7 @@
 
 BattlegroundSA::BattlegroundSA()
 {
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_SA_START_TWO_MINUTES;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_SA_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_SA_START_HALF_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = 0;
+    StartMessageIds[BG_STARTING_EVENT_FOURTH] = 0; // handle by Kanrethad
 
     BgObjects.resize(BG_SA_MAXOBJ);
     BgCreatures.resize(BG_SA_MAXNPC + BG_SA_MAX_GY);
@@ -320,7 +316,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             {
                 SignaledRoundTwo = true;
                 InitSecondRound = false;
-                SendMessageToAll(LANG_BG_SA_ROUND_TWO_ONE_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                SendBroadcastText(BG_SA_TEXT_ROUND_TWO_START_ONE_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
             }
         }
         else
@@ -377,7 +373,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             if (!SignaledRoundTwoHalfMin)
             {
                 SignaledRoundTwoHalfMin = true;
-                SendMessageToAll(LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                SendBroadcastText(BG_SA_TEXT_ROUND_TWO_START_HALF_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
             }
         }
         StartShips();
@@ -894,9 +890,9 @@ void BattlegroundSA::TitanRelicActivated(Player* clicker)
         if (clicker->GetTeamId() == Attackers)
         {
             if (clicker->GetTeamId() == TEAM_ALLIANCE)
-                SendMessageToAll(LANG_BG_SA_ALLIANCE_CAPTURED_RELIC, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                SendBroadcastText(BG_SA_TEXT_ALLIANCE_CAPTURED_TITAN_PORTAL, CHAT_MSG_BG_SYSTEM_ALLIANCE);
             else
-                SendMessageToAll(LANG_BG_SA_HORDE_CAPTURED_RELIC, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                SendBroadcastText(BG_SA_TEXT_HORDE_CAPTURED_TITAN_PORTAL, CHAT_MSG_BG_SYSTEM_HORDE);
 
             if (Status == BG_SA_ROUND_ONE)
             {
