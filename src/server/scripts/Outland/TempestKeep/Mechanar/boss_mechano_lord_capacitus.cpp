@@ -93,7 +93,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
                 Talk(YELL_KILL);
             }
 
-            void JustDied(Unit* /*victim*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(YELL_DEATH);

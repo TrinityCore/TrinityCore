@@ -202,6 +202,10 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     DoCastAOE(SPELL_BLOOD_INFUSION_CREDIT, true);
 
                 CleanAuras();
+				
+				if (!killer)
+					return;
+				
                 // Blah, credit the quest
                 if (_creditBloodQuickening)
                 {

@@ -321,7 +321,7 @@ class npc_apothecary_frye : public CreatureScript
         {
             npc_apothecary_fryeAI(Creature* creature) : npc_apothecary_genericAI(creature, FryeMovePos) { }
 
-            void JustDied(Unit* /*who*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_FRYE_DEATH);
             }
@@ -349,7 +349,7 @@ class npc_apothecary_baxter : public CreatureScript
                 _events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(12));
             }
 
-            void JustDied(Unit* /*who*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _events.Reset();
                 Talk(SAY_BAXTER_DEATH);
