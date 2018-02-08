@@ -4125,9 +4125,9 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Ground Siege
     ApplySpellFix({ 74634, 90249 }, [](SpellInfo* spellInfo)
     {
-        // SPELL_ATTR3_ONLY_TARGET_PLAYERS is the only attribute here so we can nullify it
-        spellInfo->AttributesEx3 = 0;
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
     });
+
     // Drahga Shadowburner
     // Flaming Fixate
     ApplySpellFix({ 82850 }, [](SpellInfo* spellInfo)
@@ -4139,6 +4139,20 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 43671 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
+
+    // Erudax
+    // Twilight Blast
+    ApplySpellFix({ 76194, 91042 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
+    // Shadow Gale
+    ApplySpellFix({ 75664, 91086 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 &= ~SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING;
     });
 
     // ENDOF GRIM_BATOL SPELLS

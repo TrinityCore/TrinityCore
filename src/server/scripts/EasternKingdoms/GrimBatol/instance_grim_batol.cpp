@@ -21,14 +21,17 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_GENERAL_UMBRISS,         DATA_GENERAL_UMBRISS            },
-    { BOSS_FORGEMASTER_THRONGUS,    DATA_FORGEMASTER_THRONGUS       },
-    { BOSS_DRAHGA_SHADOWBURNER,     DATA_DRAHGA_SHADOWBURNER        },
-    { BOSS_ERUDAX,                  DATA_ERUDAX                     },
-    { NPC_VALIONA,                  DATA_VALIONA                    },
-    { NPC_FACELESS_PORTAL_STALKER,  DATA_FACELESS_PORTAL_STALKER    },
-    { NPC_SHADOW_GALE_STALKER,      DATA_SHADOW_GALE_STALKER        },
-    { 0,                            0                               } // End
+    { BOSS_GENERAL_UMBRISS,                 DATA_GENERAL_UMBRISS                },
+    { BOSS_FORGEMASTER_THRONGUS,            DATA_FORGEMASTER_THRONGUS           },
+    { BOSS_DRAHGA_SHADOWBURNER,             DATA_DRAHGA_SHADOWBURNER            },
+    { BOSS_ERUDAX,                          DATA_ERUDAX                         },
+    { NPC_VALIONA,                          DATA_VALIONA                        },
+    { NPC_FACELESS_PORTAL_STALKER,          DATA_FACELESS_PORTAL_STALKER        },
+    { NPC_SHADOW_GALE_STALKER,              DATA_SHADOW_GALE_STALKER            },
+    { NPC_SHADOW_GALE_CONTROLLER_STALKER,   DATA_SHADOW_GALE_CONTROLLER_STALKER },
+    { NPC_FACELESS_CORRUPTOR_1,             DATA_FACELESS_CORRUPTOR_1           },
+    { NPC_FACELESS_CORRUPTOR_2,             DATA_FACELESS_CORRUPTOR_2           },
+    { 0,                                    0                                   } // End
 };
 
 class instance_grim_batol : public InstanceMapScript
@@ -68,10 +71,23 @@ class instance_grim_batol : public InstanceMapScript
                             drahga->AI()->JustSummoned(creature);
                         break;
                     case NPC_SHADOW_GALE_STALKER:
+                    case NPC_HATCHED_TWILIGHT_EGG:
                         if (Creature* erudax = GetCreature(DATA_ERUDAX))
                             erudax->AI()->JustSummoned(creature);
                         break;
+                    case NPC_TWILIGHT_HATCHLING:
+                        creature->SetReactState(REACT_PASSIVE);
+                        if (Creature* erudax = GetCreature(DATA_ERUDAX))
+                            erudax->AI()->JustSummoned(creature);
+
+                        if (Creature* stalker = GetCreature(DATA_SHADOW_GALE_CONTROLLER_STALKER))
+                        {
+                            creature->SetSpeed(MOVE_FLIGHT, 4.5f);
+                            creature->GetMotionMaster()->MoveCirclePath(stalker->GetPositionX(), stalker->GetPositionY(), 253.845f, 30.0f, true, 8);
+                        }
+                        break;
                     case NPC_ALEXSTRASZAS_EGG:
+                        creature->SetHealth(creature->GetMaxHealth());
                         alexstraszasEggGuidList.insert(creature->GetGUID());
                         break;
                     default:
@@ -95,19 +111,21 @@ class instance_grim_batol : public InstanceMapScript
                                 portal->RemoveAurasDueToSpell(SPELL_PORTAL_VISUAL);
                         }
                         if (state == FAIL)
+                        {
                             for (auto itr = alexstraszasEggGuidList.begin(); itr != alexstraszasEggGuidList.end(); itr++)
+                            {
                                 if (Creature* egg = instance->GetCreature((*itr)))
+                                {
                                     egg->Respawn();
+                                    egg->SetHealth(egg->GetMaxHealth());
+                                }
+                            }
+                        }
                         break;
                     default:
                         break;
                 }
-
                 return true;
-            }
-
-            void SetData(uint32 data, uint32 value) override
-            {
             }
 
         private:
