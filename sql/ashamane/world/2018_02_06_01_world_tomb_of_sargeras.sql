@@ -1419,3 +1419,7 @@ UPDATE `gameobject_template` SET `type`=10, `displayId`=41975, `Data10`=241742, 
 UPDATE `gameobject_template` SET `type`=10, `displayId`=41975, `Data10`=241742, `Data23`=1, `VerifiedBuild`=25961 WHERE `entry`=269256; -- Rune orque
 UPDATE `gameobject_template` SET `VerifiedBuild`=25961 WHERE `entry`=253126; -- Instance Portal
 UPDATE `gameobject_template` SET `Data1`=-1, `VerifiedBuild`=25961 WHERE `entry`=181621; -- Soulwell
+
+UPDATE creature SET spawndist = 0, MovementType = 0 WHERE guid IN (21003364, 21003350);
+UPDATE creature_template SET inhabitType = 4 WHERE entry = 121605;
+
