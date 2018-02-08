@@ -638,10 +638,10 @@ public:
 
         void JustDied(Unit* killer) override
         {
-            Player* player = killer->ToPlayer();
-
-            if (!player)
+            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
                 return;
+
+            Player* player = killer->ToPlayer();
 
             if (roll_chance_i(20))
             {
