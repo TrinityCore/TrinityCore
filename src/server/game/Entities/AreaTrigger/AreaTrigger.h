@@ -41,6 +41,8 @@ namespace Movement
     class Spline;
 }
 
+typedef std::list<AreaTrigger*> AreaTriggerList;
+
 class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>, public MapObject
 {
     public:

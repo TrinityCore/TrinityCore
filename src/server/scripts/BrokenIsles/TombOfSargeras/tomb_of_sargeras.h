@@ -61,8 +61,11 @@ enum Creatures
 
 enum Gameobjects
 {
+    GO_MOON_CHAMBER_WINDOW          = 269842,
+    GO_MOON_CHAMBER_MISSILE         = 269839,
+    GO_MOON_CHAMBER_HOLE            = 269838,
+
     GO_DOOR_ROOM_GOROTH_S           = 269974,
-    GO_DOOR_ROOM_GOROTH_W           = 269383,
     GO_DOOR_ROOM_GOROTH_N           = 269975,
     GO_DOOR_ROOM_GOROTH_E           = 269973,
 };

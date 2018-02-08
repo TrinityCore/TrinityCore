@@ -27,7 +27,6 @@
 DoorData const doorData[] =
 {
     { GO_DOOR_ROOM_GOROTH_S,    DATA_GOROTH,   DOOR_TYPE_ROOM       },
-    { GO_DOOR_ROOM_GOROTH_W,    DATA_GOROTH,   DOOR_TYPE_PASSAGE    },
     { GO_DOOR_ROOM_GOROTH_N,    DATA_GOROTH,   DOOR_TYPE_PASSAGE    },
     { GO_DOOR_ROOM_GOROTH_E,    DATA_GOROTH,   DOOR_TYPE_PASSAGE    },
 };
@@ -77,7 +76,6 @@ class instance_tomb_of_sargeras : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_DOOR_ROOM_GOROTH_S:
-                    case GO_DOOR_ROOM_GOROTH_W:
                     case GO_DOOR_ROOM_GOROTH_N:
                     case GO_DOOR_ROOM_GOROTH_E:
                         AddDoor(go, true);
