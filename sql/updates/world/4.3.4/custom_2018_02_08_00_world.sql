@@ -26,7 +26,7 @@ INSERT INTO `conditions` (SourceTypeOrReferenceId, SourceGroup, SourceEntry, Sou
 (13, 1, 75763, 0, 0, 31, 0, 3, 40484, 0, 0, 0, '', 'Umbral Mending - Target Erduax'),
 (13, 1, 91040, 0, 0, 31, 0, 3, 40484, 0, 0, 0, '', 'Umbral Mending - Target Erduax'),
 (13, 1, 75809, 0, 0, 31, 0, 3, 40600, 0, 0, 0, '', 'Shield of Nightmares - Target Faceless Corruptor'),
-(13, 1, 75809, 0, 0, 31, 0, 3, 48844, 0, 0, 0, '', 'Shield of Nightmares - Target Faceless Corruptor');
+(13, 1, 75809, 0, 1, 31, 0, 3, 48844, 0, 0, 0, '', 'Shield of Nightmares - Target Faceless Corruptor');
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (39388, 48832);
 INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
