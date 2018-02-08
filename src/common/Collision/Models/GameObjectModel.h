@@ -39,6 +39,8 @@ struct GameObjectDisplayInfoEntry;
 class TC_COMMON_API GameObjectModelOwnerBase
 {
 public:
+    virtual ~GameObjectModelOwnerBase() = default;
+
     virtual bool IsSpawned() const { return false; }
     virtual uint32 GetDisplayId() const { return 0; }
     virtual bool IsInPhase(std::set<uint32> const& /*phases*/) const { return false; }
