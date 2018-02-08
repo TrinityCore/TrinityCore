@@ -118,7 +118,7 @@ class boss_xevozz : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
-				_JustDied();
+                _JustDied();
             }
 
             void SpellHit(Unit* /*who*/, SpellInfo const* spell) override

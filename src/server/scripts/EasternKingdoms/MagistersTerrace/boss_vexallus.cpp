@@ -83,11 +83,6 @@ class boss_vexallus : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
             void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);

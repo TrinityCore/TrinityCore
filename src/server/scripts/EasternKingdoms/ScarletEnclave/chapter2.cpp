@@ -550,7 +550,7 @@ public:
         void JustDied(Unit* killer) override
         {
             Talk(SAY_VALROTH_DEATH);
-			if (killer)
+            if (killer)
                 killer->CastSpell(me, SPELL_SUMMON_VALROTH_REMAINS, true);
         }
     };

@@ -972,9 +972,9 @@ public:
 
         void JustDied(Unit* killer) override
         {
-			if (!killer)
-				return;
-			
+            if (!killer)
+                return;
+
             switch (killer->GetTypeId())
             {
                 case TYPEID_UNIT:
