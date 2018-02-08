@@ -312,6 +312,9 @@ class npc_shadowmoon_channeler : public CreatureScript
 
             void JustDied(Unit* killer) override
             {
+			   if (!killer)
+				   return;
+			   
                if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                    ENSURE_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerDied(killer);
             }
