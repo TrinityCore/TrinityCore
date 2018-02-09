@@ -406,7 +406,7 @@ class player_overlord_brandAI : public PlayerAI
                 if (Unit* victim = tyrannus->GetVictim())
                 {
                     CastSpellExtraArgs args(tyrannus->GetGUID());
-                    args.SpellValueOverrides.AddBP0(damage);
+                    args.AddSpellBP0(damage);
                     me->CastSpell(victim, SPELL_OVERLORD_BRAND_DAMAGE, args);
                 }
         }
@@ -416,7 +416,7 @@ class player_overlord_brandAI : public PlayerAI
             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
             {
                 CastSpellExtraArgs args(tyrannus->GetGUID());
-                args.SpellValueOverrides.AddBP0(addHealth * 5.5f);
+                args.AddSpellBP0(addHealth * 5.5f);
                 me->CastSpell(tyrannus, SPELL_OVERLORD_BRAND_HEAL, args);
             }
         }
@@ -547,18 +547,18 @@ class spell_tyrannus_rimefang_icy_blast : public SpellScriptLoader
         }
 };
 
-class at_tyrannus_event_starter : public OnlyOnceAreaTriggerScript
+class at_tyrannus_event_starter : public AreaTriggerScript
 {
     public:
-        at_tyrannus_event_starter() : OnlyOnceAreaTriggerScript("at_tyrannus_event_starter") { }
+        at_tyrannus_event_starter() : AreaTriggerScript("at_tyrannus_event_starter") { }
 
-        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (player->IsGameMaster() || !instance)
                 return false;
 
-            if (instance->GetBossState(DATA_TYRANNUS) != DONE)
+            if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
                 if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
                 {
                     tyrannus->AI()->DoAction(ACTION_START_INTRO);

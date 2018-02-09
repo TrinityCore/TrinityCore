@@ -149,7 +149,7 @@ public:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         if (Unit* worm = me->FindNearestCreature(NPC_SCOURGED_BURROWER, 3.0f))
                         {
-                            me->Kill(worm);
+                            Unit::Kill(me, worm);
                             worm->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                         }
                         phaseTimer = 2000;
@@ -370,9 +370,10 @@ public:
 
         void JustDied(Unit* killer) override
         {
+			if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
+				return;
+			
             Player* player = killer->ToPlayer();
-            if (!player)
-                return;
 
             if (player->GetQuestStatus(QUEST_TAKEN_BY_THE_SCOURGE) == QUEST_STATUS_INCOMPLETE)
             {
@@ -1273,9 +1274,9 @@ public:
             leryssa->ClearUnitState(UNIT_STATE_STUNNED);
             leryssa->SetWalk(false);
             leryssa->GetMotionMaster()->MovePoint(0, 3722.114502f, 3564.201660f, 477.441437f);
-
-            if (Player* player = killer->ToPlayer())
-                player->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
+			
+			if (killer && killer->GetTypeId() == TYPEID_PLAYER)
+                killer->ToPlayer()->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
         }
     };
 
@@ -1944,9 +1945,10 @@ public:
 
         void JustDied(Unit* killer) override
         {
+			if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
+				return;
+			
             Player* player = killer->ToPlayer();
-            if (!player)
-                return;
 
             if (player->GetQuestStatus(QUEST_YOU_RE_NOT_SO_BIG_NOW) == QUEST_STATUS_INCOMPLETE &&
                 (me->HasAura(SPELL_AURA_NOTSOBIG_1) || me->HasAura(SPELL_AURA_NOTSOBIG_2) ||

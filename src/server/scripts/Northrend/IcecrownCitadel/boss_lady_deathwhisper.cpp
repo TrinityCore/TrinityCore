@@ -368,6 +368,10 @@ class boss_lady_deathwhisper : public CreatureScript
                         darnavan->SetReactState(REACT_PASSIVE);
                         darnavan->m_Events.AddEvent(new DaranavanMoveEvent(*darnavan), darnavan->m_Events.CalculateTime(10000));
                         darnavan->AI()->Talk(SAY_DARNAVAN_RESCUED);
+						
+						if (!killer)
+							return;
+						
                         if (Player* owner = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                         {
                             if (Group* group = owner->GetGroup())
@@ -437,7 +441,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         .Schedule(Seconds(12), GROUP_TWO, [this](TaskContext summonShade)
                         {
                             CastSpellExtraArgs args;
-                            args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, Is25ManRaid() ? 2 : 1);
+                            args.AddSpellMod(SPELLVALUE_MAX_TARGETS, Is25ManRaid() ? 2 : 1);
                             me->CastSpell(nullptr, SPELL_SUMMON_SPIRITS, args);
                             summonShade.Repeat();
                         });
@@ -890,6 +894,10 @@ class npc_darnavan : public CreatureScript
             void JustDied(Unit* killer) override
             {
                 _events.Reset();
+				
+				if (!killer)
+					return;
+				
                 if (Player* owner = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                 {
                     if (Group* group = owner->GetGroup())

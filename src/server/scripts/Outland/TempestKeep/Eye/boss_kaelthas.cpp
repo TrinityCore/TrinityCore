@@ -573,7 +573,9 @@ class boss_kaelthas : public CreatureScript
                 if (_phase == PHASE_NONE)
                 {
                     DoAction(ACTION_START_ENCOUNTER);
-                    me->SetTarget(attacker->GetGUID());
+
+                    if (attacker)
+                        me->SetTarget(attacker->GetGUID());
                 }
 
                 if (!_hasFullPower && me->HealthBelowPctDamaged(50, damage))
@@ -652,10 +654,10 @@ class boss_kaelthas : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
-                BossAI::JustDied(killer);
+                _JustDied();
             }
 
             void UpdateAI(uint32 diff) override

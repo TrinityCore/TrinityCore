@@ -99,7 +99,7 @@ class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
             {
                 int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(bp);
+                args.AddSpellBP0(bp);
                 target->CastSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, args);
             }
         }
@@ -288,7 +288,7 @@ class spell_mage_burnout : public SpellScriptLoader
                 mana = CalculatePct(mana, aurEff->GetAmount());
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(mana);
+                args.AddSpellBP0(mana);
                 GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_BURNOUT, args);
             }
 
@@ -531,7 +531,7 @@ class spell_mage_empowered_fire : public SpellScriptLoader
 
                 Unit* target = GetTarget();
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(target->GetCreateMana(), aurEff->GetAmount()));
+                args.AddSpellBP0(CalculatePct(target->GetCreateMana(), aurEff->GetAmount()));
                 target->CastSpell(target, SPELL_MAGE_EMPOWERED_FIRE_PROC, args);
             }
 
@@ -616,7 +616,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
                     float bonus = 0.8068f;
 
                     bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+                    bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
                 }
@@ -634,7 +634,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
                         int32 bp = dmgInfo.GetDamage();
                         dmgInfo.AbsorbDamage(bp);
                         CastSpellExtraArgs args(aurEff);
-                        args.SpellValueOverrides.AddBP0(bp);
+                        args.AddSpellBP0(bp);
                         target->CastSpell(target, SPELL_MAGE_FROST_WARDING_TRIGGERED, args);
                         absorbAmount = 0;
                         PreventDefaultAction();
@@ -935,7 +935,7 @@ class spell_mage_ice_barrier : public SpellScriptLoader
                     // Glyph of Ice Barrier is only applied at the spell damage bonus because it was already applied to the base value in CalculateSpellDamage
                     bonus = caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), bonus);
 
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+                    bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
                 }
@@ -998,7 +998,7 @@ class spell_mage_ignite : public SpellScriptLoader
                 amount += eventInfo.GetProcTarget()->GetRemainingPeriodicAmount(eventInfo.GetActor()->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
 
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_IGNITE, args);
             }
 
@@ -1073,7 +1073,7 @@ class spell_mage_magic_absorption : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActionTarget();
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(CalculatePct(caster->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
+                args.AddSpellBP0(CalculatePct(caster->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
                 caster->CastSpell(caster, SPELL_MAGE_MAGIC_ABSORPTION_MANA, args);
             }
 
@@ -1114,7 +1114,7 @@ class spell_mage_mana_shield : public SpellScriptLoader
                     float bonus = 0.8053f;
 
                     bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+                    bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
                 }
@@ -1175,7 +1175,7 @@ class spell_mage_master_of_elements : public SpellScriptLoader
                 if (mana > 0)
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.SpellValueOverrides.AddBP0(mana);
+                    args.AddSpellBP0(mana);
                     GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE, args);
                 }
             }

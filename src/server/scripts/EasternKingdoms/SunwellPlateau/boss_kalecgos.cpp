@@ -204,7 +204,7 @@ struct boss_kalecgos : public BossAI
 
     void DamageTaken(Unit* who, uint32 &damage) override
     {
-        if (damage >= me->GetHealth() && who->GetGUID() != me->GetGUID())
+        if (damage >= me->GetHealth() && (!who || who->GetGUID() != me->GetGUID()))
             damage = 0;
     }
 
@@ -372,7 +372,7 @@ struct boss_kalecgos_human : public ScriptedAI
 
     void DamageTaken(Unit* who, uint32 &damage) override
     {
-        if (who->GetGUID() != _sathGUID)
+        if (!who || who->GetGUID() != _sathGUID)
             damage = 0;
 
         if (HealthBelowPct(75) && _events.IsInPhase(PHASE_SAY_ONE))
@@ -440,8 +440,9 @@ public:
     {
         if (Unit* unitTarget = target->ToUnit())
             return !NonTankTargetSelector::operator()(unitTarget)
-            || unitTarget->HasAura(SPELL_AGONY_CURSE) || unitTarget->HasAura(SPELL_AGONY_CURSE_ALLY)
-            || !unitTarget->HasAura(SPELL_SPECTRAL_REALM_AURA);
+            && !unitTarget->HasAura(SPELL_AGONY_CURSE)
+            && !unitTarget->HasAura(SPELL_AGONY_CURSE_ALLY)
+            && unitTarget->HasAura(SPELL_SPECTRAL_REALM_AURA);
         return false;
     }
 };
@@ -478,13 +479,13 @@ struct boss_sathrovarr : public BossAI
         if (spell->Id == SPELL_TAP_CHECK_DAMAGE)
         {
             DoCastSelf(SPELL_TELEPORT_BACK, true);
-            caster->Kill(me);
+            Unit::Kill(caster, me);
         }
     }
 
     void DamageTaken(Unit* who, uint32 &damage) override
     {
-        if (damage >= me->GetHealth() && who->GetGUID() != me->GetGUID())
+        if (damage >= me->GetHealth() && (!who || who->GetGUID() != me->GetGUID()))
             damage = 0;
     }
 
@@ -520,10 +521,12 @@ struct boss_sathrovarr : public BossAI
                 break;
             case EVENT_AGONY_CURSE:
             {
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, CurseAgonySelector(me)))
-                    DoCast(target, SPELL_AGONY_CURSE);
+                    DoCast(target, SPELL_AGONY_CURSE, args);
                 else
-                    DoCastVictim(SPELL_AGONY_CURSE);
+                    DoCastVictim(SPELL_AGONY_CURSE, args);
                 events.Repeat(Seconds(20));
                 break;
             }
@@ -623,8 +626,9 @@ class SpectralBlastSelector : NonTankTargetSelector
         bool operator()(WorldObject* target) const
         {
             if (Unit* unitTarget = target->ToUnit())
-                return !NonTankTargetSelector::operator()(unitTarget) ||
-                unitTarget->HasAura(SPELL_SPECTRAL_EXHAUSTION) || unitTarget->HasAura(SPELL_SPECTRAL_REALM_AURA);
+                return !NonTankTargetSelector::operator()(unitTarget)
+                && !unitTarget->HasAura(SPELL_SPECTRAL_EXHAUSTION)
+                && !unitTarget->HasAura(SPELL_SPECTRAL_REALM_AURA);
             return false;
         }
 };
@@ -769,8 +773,12 @@ class spell_kalecgos_curse_of_boundless_agony : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_CANCEL)
-            GetTarget()->CastSpell(GetTarget(), SPELL_AGONY_CURSE_ALLY, true);
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
+            return;
+
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
+        GetTarget()->CastSpell(GetTarget(), SPELL_AGONY_CURSE_ALLY, args);
     }
 
     void Register() override

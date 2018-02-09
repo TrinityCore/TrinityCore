@@ -196,7 +196,7 @@ class npc_tiger_matriarch : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                if (!attacker->IsSummon())
+                if (!attacker || !attacker->IsSummon())
                     return;
 
                 if (HealthBelowPct(20))

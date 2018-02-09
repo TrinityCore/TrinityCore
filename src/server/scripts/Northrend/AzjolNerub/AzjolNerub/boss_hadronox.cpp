@@ -360,7 +360,7 @@ public:
         // Safeguard to prevent Hadronox dying to NPCs
         void DamageTaken(Unit* who, uint32& damage) override
         {
-            if (!who->IsControlledByPlayer() && me->HealthBelowPct(70))
+            if ((!who || !who->IsControlledByPlayer()) && me->HealthBelowPct(70))
             {
                 if (me->HealthBelowPctDamaged(5, damage))
                     damage = 0;

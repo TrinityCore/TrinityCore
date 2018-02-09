@@ -20,8 +20,8 @@
 #define DBC_FILE_LOADER_H
 
 #include "Define.h"
+#include "Errors.h"
 #include "Utilities/ByteConverter.h"
-#include <cassert>
 
 enum DbcFieldFormat
 {
@@ -51,29 +51,29 @@ class TC_COMMON_API DBCFileLoader
             public:
                 float getFloat(size_t field) const
                 {
-                    assert(field < file.fieldCount);
+                    ASSERT(field < file.fieldCount);
                     float val = *reinterpret_cast<float*>(offset+file.GetOffset(field));
                     EndianConvert(val);
                     return val;
                 }
                 uint32 getUInt(size_t field) const
                 {
-                    assert(field < file.fieldCount);
+                    ASSERT(field < file.fieldCount);
                     uint32 val = *reinterpret_cast<uint32*>(offset+file.GetOffset(field));
                     EndianConvert(val);
                     return val;
                 }
                 uint8 getUInt8(size_t field) const
                 {
-                    assert(field < file.fieldCount);
+                    ASSERT(field < file.fieldCount);
                     return *reinterpret_cast<uint8*>(offset+file.GetOffset(field));
                 }
 
                 const char *getString(size_t field) const
                 {
-                    assert(field < file.fieldCount);
+                    ASSERT(field < file.fieldCount);
                     size_t stringOffset = getUInt(field);
-                    assert(stringOffset < file.stringSize);
+                    ASSERT(stringOffset < file.stringSize);
                     return reinterpret_cast<char*>(file.stringTable + stringOffset);
                 }
 

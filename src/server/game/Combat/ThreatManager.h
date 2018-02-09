@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
  #ifndef TRINITY_THREATMANAGER_H
  #define TRINITY_THREATMANAGER_H
 
@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include <boost/heap/fibonacci_heap.hpp>
+#include <array>
 #include <unordered_map>
 #include <vector>
 
@@ -68,8 +69,9 @@ class SpellInfo;
  * The current (= last selected) victim can be accessed using GetCurrentVictim. SelectVictim selects a (potentially new) victim.                        *
  * Beyond that, ThreatManager has a variety of helpers and notifiers, which are documented inline below.                                                *
  *                                                                                                                                                      *
- * SPECIAL NOTE: Please be aware that any heap iterator may be invalidated if you modify a ThreatReference. The heap holds const pointers for a reason. *
- *               If you need to modify multiple ThreatReference objects, then use GetModifiableThreatList(), which is safe to modify!                   *
+ * SPECIAL NOTE: Please be aware that any iterator may be invalidated if you modify a ThreatReference. The heap holds const pointers for a reason, but  *
+ *                 that doesn't mean you're scot free. A variety of actions (casting spells, teleporting units, and so forth) can cause changes to      *
+ *                 the threat list. Use with care - or default to GetModifiableThreatList(), which inherently copies entries.                           *
 \********************************************************************************************************************************************************/
 
 class ThreatReference;
@@ -84,6 +86,7 @@ class TC_GAME_API ThreatManager
 {
     public:
         typedef boost::heap::fibonacci_heap<ThreatReference const*, boost::heap::compare<CompareThreatLessThan>> threat_list_heap;
+        class ThreatListIterator;
         static const uint32 CLIENT_THREAT_UPDATE_INTERVAL = 1000u;
 
         static bool CanHaveThreatList(Unit const* who);
@@ -120,11 +123,13 @@ class TC_GAME_API ThreatManager
         float GetThreat(Unit const* who, bool includeOffline = false) const;
         size_t GetThreatListSize() const { return _sortedThreatList.size(); }
         // fastest of the three threat list getters - gets the threat list in "arbitrary" order
-        Trinity::IteratorPair<threat_list_heap::const_iterator> GetUnsortedThreatList() const { return { _sortedThreatList.begin(), _sortedThreatList.end() }; }
+        // iterators will invalidate on adding/removing entries from the threat list; slightly less finicky than GetSorted.
+        Trinity::IteratorPair<ThreatListIterator> GetUnsortedThreatList() const { return { _myThreatListEntries.begin(), _myThreatListEntries.end() }; }
         // slightly slower than GetUnsorted, but, well...sorted - only use it if you need the sorted property, of course
+        // this iterator pair will invalidate on any modification (even indirect) of the threat list; spell casts and similar can all induce this!
         // note: current tank is NOT guaranteed to be the first entry in this list - check GetCurrentVictim separately if you want that!
         Trinity::IteratorPair<threat_list_heap::ordered_iterator> GetSortedThreatList() const { return { _sortedThreatList.ordered_begin(), _sortedThreatList.ordered_end() }; }
-        // slowest of the three threat list getters (by far), but lets you modify the threat references
+        // slowest of the three threat list getters (by far), but lets you modify the threat references - this is also sorted
         std::vector<ThreatReference*> GetModifiableThreatList() const;
 
         // does any unit have a threat list entry with victim == this.owner?
@@ -204,7 +209,7 @@ class TC_GAME_API ThreatManager
         void PutThreatenedByMeRef(ObjectGuid const& guid, ThreatReference* ref);
         void PurgeThreatenedByMeRef(ObjectGuid const& guid);
         std::unordered_map<ObjectGuid, ThreatReference*> _threatenedByMe; // these refs are entries for myself on other units' threat lists
-        float _singleSchoolModifiers[MAX_SPELL_SCHOOL]; // most spells are single school - we pre-calculate these and store them
+        std::array<float, MAX_SPELL_SCHOOL> _singleSchoolModifiers; // most spells are single school - we pre-calculate these and store them
         mutable std::unordered_map<std::underlying_type<SpellSchoolMask>::type, float> _multiSchoolModifiers; // these are calculated on demand
 
         // redirect system (is kind of dumb, but that's because none of the redirection spells actually have any aura effect associated with them, so spellscript needs to deal with it)
@@ -216,8 +221,23 @@ class TC_GAME_API ThreatManager
         ThreatManager(ThreatManager const&) = delete;
         ThreatManager& operator=(ThreatManager const&) = delete;
 
+        class ThreatListIterator
+        {
+            private:
+                decltype(_myThreatListEntries)::const_iterator _it;
+
+            public:
+                ThreatReference const* operator*() const { return _it->second; }
+                ThreatReference const* operator->() const { return _it->second; }
+                ThreatListIterator& operator++() { ++_it; return *this; }
+                bool operator==(ThreatListIterator const& o) const { return _it == o._it; }
+                bool operator!=(ThreatListIterator const& o) const { return _it != o._it; }
+                ThreatListIterator(decltype(_it) it) : _it(it) {}
+        };
+
     friend class ThreatReference;
     friend struct CompareThreatLessThan;
+    friend class debug_commandscript;
 };
 
 // Please check Game/Combat/ThreatManager.h for documentation on how this class works!
@@ -272,5 +292,5 @@ class TC_GAME_API ThreatReference
 };
 
 inline bool CompareThreatLessThan::operator()(ThreatReference const* a, ThreatReference const* b) const { return ThreatManager::CompareReferencesLT(a, b, 1.0f); }
- 
+
  #endif

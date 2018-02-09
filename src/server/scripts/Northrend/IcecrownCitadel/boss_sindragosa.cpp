@@ -370,7 +370,7 @@ class boss_sindragosa : public CreatureScript
                     case POINT_AIR_PHASE:
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6));
+                        args.AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6));
                         me->CastSpell(nullptr, SPELL_ICE_TOMB_TARGET, args);
                         me->SetFacingTo(float(M_PI), true);
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
@@ -513,7 +513,7 @@ class boss_sindragosa : public CreatureScript
                         case EVENT_ICE_TOMB:
                         {
                             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                            args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, 1);
+                            args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
                             me->CastSpell(nullptr, SPELL_ICE_TOMB_TARGET, args);
                             events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
                             break;
@@ -1253,7 +1253,7 @@ class spell_sindragosa_instability : public SpellScriptLoader
                 {
                     CastSpellExtraArgs args(aurEff);
                     args.OriginalCaster = GetCasterGUID();
-                    args.SpellValueOverrides.AddBP0(aurEff->GetAmount());
+                    args.AddSpellBP0(aurEff->GetAmount());
                     GetTarget()->CastSpell(GetTarget(), SPELL_BACKLASH, args);
                 }
             }
@@ -1626,12 +1626,12 @@ public:
     }
 };
 
-class at_sindragosa_lair : public OnlyOnceAreaTriggerScript
+class at_sindragosa_lair : public AreaTriggerScript
 {
     public:
-        at_sindragosa_lair() : OnlyOnceAreaTriggerScript("at_sindragosa_lair") { }
+        at_sindragosa_lair() : AreaTriggerScript("at_sindragosa_lair") { }
 
-        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {

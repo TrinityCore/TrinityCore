@@ -310,8 +310,7 @@ public:
 
         void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
-            if (!prisonerGUID)
-                prisonerGUID = guid;
+            prisonerGUID = guid;
         }
 
         ObjectGuid GetGUID(int32 /*id*/) const override
@@ -527,7 +526,7 @@ public:
 
        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
         {
-            if (m_bIsDuelInProgress && pDoneBy->IsControlledByPlayer())
+            if (m_bIsDuelInProgress && pDoneBy && pDoneBy->IsControlledByPlayer())
             {
                 if (pDoneBy->GetGUID() != m_uiDuelerGUID && pDoneBy->GetOwnerGUID() != m_uiDuelerGUID) // other players cannot help
                     uiDamage = 0;
@@ -867,7 +866,7 @@ public:
         void JustDied(Unit* killer) override
         {
             Creature* deathcharger = me->FindNearestCreature(28782, 30);
-            if (!deathcharger)
+            if (!deathcharger || !killer)
                 return;
 
             if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())

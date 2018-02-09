@@ -55,7 +55,8 @@ enum RogueSpells
     SPELL_ROGUE_QUICK_RECOVERY_ENERGY           = 31663,
     SPELL_ROGUE_CRIPPLING_POISON                =  3409,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_BUFF         = 31665,
-    SPELL_ROGUE_OVERKILL_BUFF                   = 58427
+    SPELL_ROGUE_OVERKILL_BUFF                   = 58427,
+    SPELL_ROGUE_STEALTH                         =  1784
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -85,7 +86,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
                 if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.SpellValueOverrides.AddBP0(damageInfo->GetDamage());
+                    args.AddSpellBP0(damageInfo->GetDamage());
                     GetTarget()->CastSpell(_procTarget, SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, args);
                 }
             }
@@ -593,7 +594,7 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
                     if (!target->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK))
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddBP0(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+                        args.AddSpellBP0(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
                         target->CastSpell(target, SPELL_ROGUE_PREY_ON_THE_WEAK, args);
                     }
                 }
@@ -638,7 +639,7 @@ class spell_rog_quick_recovery : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 int32 amount = CalculatePct(spellInfo->CalcPowerCost(caster, spellInfo->GetSchoolMask()), aurEff->GetAmount());
                 CastSpellExtraArgs args(aurEff);
-                args.SpellValueOverrides.AddBP0(amount);
+                args.AddSpellBP0(amount);
                 caster->CastSpell(nullptr, SPELL_ROGUE_QUICK_RECOVERY_ENERGY, args);
             }
 
@@ -1116,6 +1117,38 @@ class spell_rog_turn_the_tables : public SpellScriptLoader
         }
 };
 
+// -11327 - Vanish
+class spell_rog_vanish : public AuraScript
+{
+    PrepareAuraScript(spell_rog_vanish);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_STEALTH });
+    }
+
+    void ApplyStealth(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* unitTarget = GetTarget();
+        unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+
+        // See if we already are stealthed. If so, we're done.
+        if (unitTarget->HasAura(SPELL_ROGUE_STEALTH))
+            return;
+
+        // Reset cooldown on stealth if needed
+        if (unitTarget->GetSpellHistory()->HasCooldown(SPELL_ROGUE_STEALTH))
+            unitTarget->GetSpellHistory()->ResetCooldown(SPELL_ROGUE_STEALTH);
+
+        unitTarget->CastSpell(nullptr, SPELL_ROGUE_STEALTH, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_vanish::ApplyStealth, EFFECT_1, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1140,4 +1173,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_honor_among_thieves();
     new spell_rog_honor_among_thieves_proc();
     new spell_rog_turn_the_tables();
+    RegisterAuraScript(spell_rog_vanish);
 }
