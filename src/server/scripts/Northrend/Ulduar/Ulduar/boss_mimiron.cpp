@@ -437,7 +437,7 @@ class boss_mimiron : public CreatureScript
                 events.ScheduleEvent(EVENT_INTRO_1, 1500);
             }
 
-            void JustDied(Unit* /*who*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 instance->SetBossState(BOSS_MIMIRON, DONE);
                 events.Reset();
