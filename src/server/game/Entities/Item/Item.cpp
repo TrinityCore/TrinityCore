@@ -696,6 +696,15 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
         UpdateItemSuffixFactor();
     }
 
+    // We had a bug where randomEnchantment wasn't stored, check if it require a fix
+    if (m_randomEnchantment.Type == ItemRandomEnchantmentType(0) && m_randomEnchantment.Id == 0)
+    {
+        SetItemRandomProperties(GenerateItemRandomPropertyId(entry));
+
+        if (m_randomEnchantment.Id != 0)
+            need_save = true;
+    }
+
     uint32 durability = fields[11].GetUInt16();
     SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
     // update max durability (and durability) if need
@@ -784,6 +793,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_ON_LOAD);
         stmt->setUInt32(index++, GetUInt32Value(ITEM_FIELD_DURATION));
         stmt->setUInt32(index++, GetUInt32Value(ITEM_FIELD_FLAGS));
+        stmt->setUInt8(index++, uint8(GetItemRandomEnchantmentId().Type));
+        stmt->setUInt32(index++, GetItemRandomEnchantmentId().Id);
         stmt->setUInt32(index++, GetUInt32Value(ITEM_FIELD_DURABILITY));
         stmt->setUInt32(index++, GetModifier(ITEM_MODIFIER_UPGRADE_ID));
         stmt->setUInt64(index++, guid);
@@ -908,6 +919,8 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
 {
     if (!randomPropId.Id)
         return;
+
+    m_randomEnchantment = randomPropId;
 
     switch (randomPropId.Type)
     {
