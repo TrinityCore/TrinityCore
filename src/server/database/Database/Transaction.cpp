@@ -104,7 +104,7 @@ bool TransactionTask::Execute()
             if (!m_conn->ExecuteTransaction(m_trans))                
                 return true;
 
-            TC_LOG_INFO("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u, SQL: %s", loopDuration, transString.c_str());
+            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u, SQL: %s", loopDuration, transString.c_str());
         }
 
         TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. SQL: %s", transString.c_str());
