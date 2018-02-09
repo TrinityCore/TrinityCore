@@ -635,13 +635,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
         // special cases
         switch (triggered_spell_id)
         {
-            // Vanish (not exist)
-            case 18461:
-            {
-                unitTarget->RemoveMovementImpairingAuras(true);
-                unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-                return;
-            }
             // Demonic Empowerment -- succubus
             case 54437:
             {
