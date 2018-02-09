@@ -1628,12 +1628,12 @@ public:
     }
 };
 
-class at_sindragosa_lair : public OnlyOnceAreaTriggerScript
+class at_sindragosa_lair : public AreaTriggerScript
 {
     public:
-        at_sindragosa_lair() : OnlyOnceAreaTriggerScript("at_sindragosa_lair") { }
+        at_sindragosa_lair() : AreaTriggerScript("at_sindragosa_lair") { }
 
-        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {
