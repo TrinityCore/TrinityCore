@@ -64,10 +64,10 @@ class boss_cyanigosa : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+				_JustDied();
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }

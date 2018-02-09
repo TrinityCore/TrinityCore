@@ -169,10 +169,10 @@ class boss_krik_thir : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 summons.clear();
-                BossAI::JustDied(killer);
+                _JustDied();
                 Talk(SAY_DEATH);
             }
 

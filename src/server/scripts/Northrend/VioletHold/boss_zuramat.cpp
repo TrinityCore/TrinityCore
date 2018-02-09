@@ -104,10 +104,10 @@ class boss_zuramat : public CreatureScript
                 return 0;
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+				_JustDied();
             }
 
             void KilledUnit(Unit* victim) override
