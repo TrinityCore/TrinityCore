@@ -423,7 +423,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
 
         //per-map script storage
-        void ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo> > const& scripts, uint32 id, Object* source, Object* target);
+        void ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo>> const& scripts, uint32 id, Object* source, Object* target);
         void ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* source, Object* target);
 
         // must called with AddToWorld

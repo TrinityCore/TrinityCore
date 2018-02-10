@@ -296,7 +296,7 @@ bool CriteriaData::IsValid(Criteria const* criteria)
     }
 }
 
-bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
+bool CriteriaData::Meets(uint32 criteriaId, Player const* source, WorldObject const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
 {
     switch (DataType)
     {
@@ -325,11 +325,18 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
         case CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH:
             if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            return !target->HealthAbovePct(Health.Percent);
+            return !target->ToPlayer()->HealthAbovePct(Health.Percent);
         case CRITERIA_DATA_TYPE_S_AURA:
             return source->HasAuraEffect(Aura.SpellId, uint8(Aura.EffectIndex));
         case CRITERIA_DATA_TYPE_T_AURA:
-            return target && target->HasAuraEffect(Aura.SpellId, uint8(Aura.EffectIndex));
+        {
+            if (!target)
+                return false;
+            Unit const* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return false;
+            return unitTarget->HasAuraEffect(Aura.SpellId, uint8(Aura.EffectIndex));
+        }
         case CRITERIA_DATA_TYPE_VALUE:
             return CompareValues(ComparisionType(Value.ComparisonType), miscValue1, Value.Value);
         case CRITERIA_DATA_TYPE_T_LEVEL:
@@ -337,11 +344,21 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
                 return false;
             return target->GetLevelForTarget(source) >= Level.Min;
         case CRITERIA_DATA_TYPE_T_GENDER:
+        {
             if (!target)
                 return false;
-            return target->getGender() == Gender.Gender;
+            Unit const* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return false;
+            return unitTarget->getGender() == Gender.Gender;
+        }
         case CRITERIA_DATA_TYPE_SCRIPT:
-            return sScriptMgr->OnCriteriaCheck(ScriptId, const_cast<Player*>(source), const_cast<Unit*>(target));
+        {
+            Unit const* unitTarget = nullptr;
+            if (target)
+                unitTarget = target->ToUnit();
+            return sScriptMgr->OnCriteriaCheck(ScriptId, const_cast<Player*>(source), const_cast<Unit*>(unitTarget));
+        }
         case CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:
             return source->GetMap()->GetPlayersCountExceptGMs() <= MapPlayers.MaxCount;
         case CRITERIA_DATA_TYPE_T_TEAM:
@@ -381,7 +398,11 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
                     DataType, criteriaId, map->GetId());
                 return false;
             }
-            return instance->CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue1);
+
+            Unit const* unitTarget = nullptr;
+            if (target)
+                unitTarget = target->ToUnit();
+            return instance->CheckAchievementCriteriaMeet(criteriaId, source, unitTarget, miscValue1);
         }
         case CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
@@ -415,7 +436,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
     return false;
 }
 
-bool CriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
+bool CriteriaDataSet::Meets(Player const* source, WorldObject const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
 {
     for (CriteriaData const& data : _storage)
         if (!data.Meets(_criteriaId, source, target, miscValue1, miscValue2))
@@ -439,7 +460,7 @@ void CriteriaHandler::Reset()
 /**
  * this function will be called whenever the user might have done a criteria relevant action
  */
-void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, Unit const* unit /*= nullptr*/, Player* referencePlayer /*= nullptr*/)
+void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, WorldObject const* ref /*= nullptr*/, Player* referencePlayer /*= nullptr*/)
 {
     if (type >= CRITERIA_TYPE_TOTAL)
     {
@@ -468,12 +489,12 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
     for (Criteria const* criteria : criteriaList)
     {
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
-        if (!CanUpdateCriteria(criteria, trees, miscValue1, miscValue2, miscValue3, unit, referencePlayer))
+        if (!CanUpdateCriteria(criteria, trees, miscValue1, miscValue2, miscValue3, ref, referencePlayer))
             continue;
 
         // requirements not found in the dbc
         if (CriteriaDataSet const* data = sCriteriaMgr->GetCriteriaDataSet(criteria))
-            if (!data->Meets(referencePlayer, unit, uint32(miscValue1), uint32(miscValue2)))
+            if (!data->Meets(referencePlayer, ref, uint32(miscValue1), uint32(miscValue2)))
                 continue;
 
         switch (type)
@@ -1253,7 +1274,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
     return false;
 }
 
-bool CriteriaHandler::CanUpdateCriteria(Criteria const* criteria, CriteriaTreeList const* trees, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer)
+bool CriteriaHandler::CanUpdateCriteria(Criteria const* criteria, CriteriaTreeList const* trees, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* referencePlayer)
 {
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_CRITERIA, criteria->ID, nullptr))
     {
@@ -1274,13 +1295,13 @@ bool CriteriaHandler::CanUpdateCriteria(Criteria const* criteria, CriteriaTreeLi
     if (!treeRequirementPassed)
         return false;
 
-    if (!RequirementsSatisfied(criteria, miscValue1, miscValue2, miscValue3, unit, referencePlayer))
+    if (!RequirementsSatisfied(criteria, miscValue1, miscValue2, miscValue3, ref, referencePlayer))
     {
         TC_LOG_TRACE("criteria", "CriteriaHandler::CanUpdateCriteria: (Id: %u Type %s) Requirements not satisfied", criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type));
         return false;
     }
 
-    if (criteria->Modifier && !ModifierTreeSatisfied(criteria->Modifier, miscValue1, miscValue2, unit, referencePlayer))
+    if (criteria->Modifier && !ModifierTreeSatisfied(criteria->Modifier, miscValue1, miscValue2, ref, referencePlayer))
     {
         TC_LOG_TRACE("criteria", "CriteriaHandler::CanUpdateCriteria: (Id: %u Type %s) Requirements have not been satisfied", criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type));
         return false;
@@ -1317,7 +1338,7 @@ bool CriteriaHandler::ConditionsSatisfied(Criteria const* criteria, Player* refe
     return true;
 }
 
-bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer) const
+bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* referencePlayer) const
 {
     switch (CriteriaTypes(criteria->Entry->Type))
     {
@@ -1428,7 +1449,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         }
         case CRITERIA_TYPE_KILLED_BY_PLAYER:
-            if (!miscValue1 || !unit || unit->GetTypeId() != TYPEID_PLAYER)
+            if (!miscValue1 || !ref || ref->GetTypeId() != TYPEID_PLAYER)
                 return false;
             break;
         case CRITERIA_TYPE_DEATHS_FROM:
@@ -1451,7 +1472,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             }
 
             if (CriteriaDataSet const* data = sCriteriaMgr->GetCriteriaDataSet(criteria))
-                if (!data->Meets(referencePlayer, unit))
+                if (!data->Meets(referencePlayer, ref))
                     return false;
             break;
         }
@@ -1554,7 +1575,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                     return false;
 
                 // map specific case (BG in fact) expected player targeted damage/heal
-                if (!unit || unit->GetTypeId() != TYPEID_PLAYER)
+                if (!ref || ref->GetTypeId() != TYPEID_PLAYER)
                     return false;
             }
             break;
@@ -1618,24 +1639,24 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
     return true;
 }
 
-bool CriteriaHandler::ModifierTreeSatisfied(ModifierTreeNode const* tree, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const
+bool CriteriaHandler::ModifierTreeSatisfied(ModifierTreeNode const* tree, uint64 miscValue1, uint64 miscValue2, WorldObject const* ref, Player* referencePlayer) const
 {
     switch (ModifierTreeOperator(tree->Entry->Operator))
     {
         case ModifierTreeOperator::SingleTrue:
-            return tree->Entry->Type && ModifierSatisfied(tree->Entry, miscValue1, miscValue2, unit, referencePlayer);
+            return tree->Entry->Type && ModifierSatisfied(tree->Entry, miscValue1, miscValue2, ref, referencePlayer);
         case ModifierTreeOperator::SingleFalse:
-            return tree->Entry->Type && !ModifierSatisfied(tree->Entry, miscValue1, miscValue2, unit, referencePlayer);
+            return tree->Entry->Type && !ModifierSatisfied(tree->Entry, miscValue1, miscValue2, ref, referencePlayer);
         case ModifierTreeOperator::All:
             for (ModifierTreeNode const* node : tree->Children)
-                if (!ModifierTreeSatisfied(node, miscValue1, miscValue2, unit, referencePlayer))
+                if (!ModifierTreeSatisfied(node, miscValue1, miscValue2, ref, referencePlayer))
                     return false;
             return true;
         case ModifierTreeOperator::Some:
         {
             int8 requiredAmount = std::max<int8>(tree->Entry->Amount, 1);
             for (ModifierTreeNode const* node : tree->Children)
-                if (ModifierTreeSatisfied(node, miscValue1, miscValue2, unit, referencePlayer))
+                if (ModifierTreeSatisfied(node, miscValue1, miscValue2, ref, referencePlayer))
                     if (!--requiredAmount)
                         return true;
 
@@ -1648,7 +1669,7 @@ bool CriteriaHandler::ModifierTreeSatisfied(ModifierTreeNode const* tree, uint64
     return false;
 }
 
-bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const
+bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint64 miscValue1, uint64 miscValue2, WorldObject const* ref, Player* referencePlayer) const
 {
     uint32 reqValue = modifier->Asset;
     uint32 secondaryAsset = modifier->SecondaryAsset;
@@ -1679,19 +1700,19 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::TargetCreatureId: // 4
-            if (!unit || unit->GetEntry() != reqValue)
+            if (!ref || ref->GetEntry() != reqValue)
                 return false;
             break;
         case ModifierTreeType::TargetIsPlayer: // 5
-            if (!unit || unit->GetTypeId() != TYPEID_PLAYER)
+            if (!ref || ref->GetTypeId() != TYPEID_PLAYER)
                 return false;
             break;
         case ModifierTreeType::TargetIsDead: // 6
-            if (!unit || unit->IsAlive())
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->IsAlive())
                 return false;
             break;
         case ModifierTreeType::TargetIsOppositeFaction: // 7
-            if (!unit || !referencePlayer->IsHostileTo(unit))
+            if (!ref || !referencePlayer->IsHostileTo(ref))
                 return false;
             break;
         case ModifierTreeType::PlayerHasAura: // 8
@@ -1703,15 +1724,15 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetHasAura: // 10
-            if (!unit || !unit->HasAura(reqValue))
+            if (!ref || !ref->IsUnit() || !ref->ToUnit()->HasAura(reqValue))
                 return false;
             break;
         case ModifierTreeType::TargetHasAuraEffect: // 11
-            if (!unit || !unit->HasAuraType(AuraType(reqValue)))
+            if (!ref || !ref->IsUnit() || !ref->ToUnit()->HasAuraType(AuraType(reqValue)))
                 return false;
             break;
         case ModifierTreeType::TargetHasAuraState: // 12
-            if (!unit || !unit->HasAuraState(AuraStateType(reqValue)))
+            if (!ref || !ref->IsUnit() || !ref->ToUnit()->HasAuraState(AuraStateType(reqValue)))
                 return false;
             break;
         case ModifierTreeType::PlayerHasAuraState: // 13
@@ -1748,10 +1769,10 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::TargetIsInArea: // 18
         {
-            if (!unit)
+            if (!ref)
                 return false;
             uint32 zoneId, areaId;
-            unit->GetZoneAndAreaId(zoneId, areaId);
+            ref->GetZoneAndAreaId(zoneId, areaId);
             if (zoneId != reqValue && areaId != reqValue)
                 return false;
             break;
@@ -1768,15 +1789,15 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerToTargetLevelDeltaGreaterThan: // 21
-            if (!unit || referencePlayer->getLevel() < unit->getLevel() + reqValue)
+            if (!ref || !ref->IsUnit() || referencePlayer->getLevel() < ref->ToUnit()->getLevel() + reqValue)
                 return false;
             break;
         case ModifierTreeType::TargetToPlayerLevelDeltaGreaterThan: // 22
-            if (!unit || referencePlayer->getLevel() + reqValue < unit->getLevel())
+            if (!ref || !ref->IsUnit() || referencePlayer->getLevel() + reqValue < ref->ToUnit()->getLevel())
                 return false;
             break;
         case ModifierTreeType::PlayerLevelEqualTargetLevel: // 23
-            if (!unit || referencePlayer->getLevel() != unit->getLevel())
+            if (!ref || !ref->IsUnit() || referencePlayer->getLevel() != ref->ToUnit()->getLevel())
                 return false;
             break;
         case ModifierTreeType::PlayerInArenaWithTeamSize: // 24
@@ -1795,11 +1816,11 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetRace: // 27
-            if (!unit || unit->GetTypeId() != TYPEID_PLAYER || unit->getRace() != reqValue)
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->getRace() != reqValue)
                 return false;
             break;
         case ModifierTreeType::TargetClass: // 28
-            if (!unit || unit->GetTypeId() != TYPEID_PLAYER || unit->getClass() != reqValue)
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->getClass() != reqValue)
                 return false;
             break;
         case ModifierTreeType::LessThanTappers: // 29
@@ -1808,17 +1829,17 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::CreatureType: // 30
         {
-            if (!unit)
+            if (!ref)
                 return false;
-            if (unit->GetTypeId() != TYPEID_UNIT || unit->GetCreatureType() != reqValue)
+            if (!ref->IsUnit() || ref->ToUnit()->GetCreatureType() != reqValue)
                 return false;
             break;
         }
         case ModifierTreeType::CreatureFamily: // 31
         {
-            if (!unit)
+            if (!ref)
                 return false;
-            if (unit->GetTypeId() != TYPEID_UNIT || unit->ToCreature()->GetCreatureTemplate()->family != CreatureFamily(reqValue))
+            if (!ref->IsCreature() || ref->ToCreature()->GetCreatureTemplate()->family != CreatureFamily(reqValue))
                 return false;
             break;
         }
@@ -1856,7 +1877,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetLevelEqual: // 40
-            if (!unit || unit->GetLevelForTarget(referencePlayer) != reqValue)
+            if (!ref || ref->GetLevelForTarget(referencePlayer) != reqValue)
                 return false;
             break;
         case ModifierTreeType::PlayerIsInZone: // 41
@@ -1871,9 +1892,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::TargetIsInZone: // 42
         {
-            if (!unit)
+            if (!ref)
                 return false;
-            uint32 zoneId = unit->GetAreaId();
+            uint32 zoneId = ref->GetAreaId();
             if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId))
                 if (areaEntry->Flags[0] & AREA_FLAG_UNK9)
                     zoneId = areaEntry->ParentAreaID;
@@ -1894,15 +1915,15 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetHealthBelowPercent: // 46
-            if (!unit || unit->GetHealthPct() > float(reqValue))
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->GetHealthPct() > float(reqValue))
                 return false;
             break;
         case ModifierTreeType::TargetHealthAbovePercent: // 47
-            if (!unit || unit->GetHealthPct() < float(reqValue))
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->GetHealthPct() < float(reqValue))
                 return false;
             break;
         case ModifierTreeType::TargetHealthEqualsPercent: // 48
-            if (!unit || unit->GetHealthPct() != float(reqValue))
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->GetHealthPct() != float(reqValue))
                 return false;
             break;
         case ModifierTreeType::PlayerHealthBelowValue: // 49
@@ -1918,24 +1939,24 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetHealthBelowValue: // 52
-            if (!unit || unit->GetHealth() > reqValue)
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->GetHealth() > reqValue)
                 return false;
             break;
         case ModifierTreeType::TargetHealthAboveValue: // 53
-            if (!unit || unit->GetHealth() < reqValue)
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->GetHealth() < reqValue)
                 return false;
             break;
         case ModifierTreeType::TargetHealthEqualsValue: // 54
-            if (!unit || unit->GetHealth() != reqValue)
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->GetHealth() != reqValue)
                 return false;
             break;
         case ModifierTreeType::TargetIsPlayerAndMeetsCondition: // 55
         {
-            if (!unit || !unit->IsPlayer())
+            if (!ref || !ref->IsPlayer())
                 return false;
 
             PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(reqValue);
-            if (!playerCondition || !ConditionMgr::IsPlayerMeetingCondition(unit->ToPlayer(), playerCondition))
+            if (!playerCondition || !ConditionMgr::IsPlayerMeetingCondition(ref->ToPlayer(), playerCondition))
                 return false;
             break;
         }
@@ -1995,7 +2016,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetLevelEqualOrGreaterThan: // 70
-            if (!unit || unit->getLevel() < reqValue)
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->getLevel() < reqValue)
                 return false;
             break;
         case ModifierTreeType::PlayerLevelEqualOrLessThan: // 71
@@ -2003,12 +2024,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetLevelEqualOrLessThan: // 72
-            if (!unit || unit->getLevel() > reqValue)
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->getLevel() > reqValue)
                 return false;
             break;
         case ModifierTreeType::ModifierTree: // 73
             if (ModifierTreeNode const* nextModifierTree = sCriteriaMgr->GetModifierTree(reqValue))
-                return ModifierTreeSatisfied(nextModifierTree, miscValue1, miscValue2, unit, referencePlayer);
+                return ModifierTreeSatisfied(nextModifierTree, miscValue1, miscValue2, ref, referencePlayer);
             return false;
         case ModifierTreeType::PlayerScenario: // 74
         {
@@ -2288,9 +2309,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::TargetThreatListSizeLessThan: // 120
         {
-            if (!unit || !unit->CanHaveThreatList())
+            if (!ref)
                 return false;
-            if (unit->GetThreatManager().GetThreatListSize() >= reqValue)
+            Unit const* unitRef = ref->ToUnit();
+            if (!unitRef || !unitRef->CanHaveThreatList())
+                return false;
+            if (unitRef->GetThreatManager().GetThreatListSize() >= reqValue)
                 return false;
             break;
         }
@@ -3301,9 +3325,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::TargetVisibleRace: // 253
         {
-            if (!unit)
+            if (!ref || !ref->IsUnit())
                 return false;
-            CreatureDisplayInfoEntry const* creatureDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(unit->GetDisplayId());
+            CreatureDisplayInfoEntry const* creatureDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(ref->ToUnit()->GetDisplayId());
             if (!creatureDisplayInfo)
                 return false;
             CreatureDisplayInfoExtraEntry const* creatureDisplayInfoExtra = sCreatureDisplayInfoExtraStore.LookupEntry(creatureDisplayInfo->ExtendedDisplayInfoID);
@@ -3338,7 +3362,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetAuraStackCountEqual: // 256
-            if (!unit || unit->GetAuraCount(secondaryAsset) != reqValue)
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->GetAuraCount(secondaryAsset) != reqValue)
                 return false;
             break;
         case ModifierTreeType::PlayerAuraStackCountEqualOrGreaterThan: // 257
@@ -3346,7 +3370,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetAuraStackCountEqualOrGreaterThan: // 258
-            if (!unit || unit->GetAuraCount(secondaryAsset) < reqValue)
+            if (!ref || !ref->IsUnit() || ref->ToUnit()->GetAuraCount(secondaryAsset) < reqValue)
                 return false;
             break;
         case ModifierTreeType::PlayerHasAzeriteEssenceRankLessThan: // 259
@@ -3429,9 +3453,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::TargetLevelWithinContentTuning: // 269
         {
-            if (!unit)
+            if (!ref || !ref->IsUnit())
                 return false;
-            uint8 level = unit->getLevel();
+            uint8 level = ref->ToUnit()->getLevel();
             if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
             {
                 if (secondaryAsset)
@@ -3458,9 +3482,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::TargetLevelWithinOrAboveContentTuning: // 273
         {
-            if (!unit)
+            if (!ref || !ref->IsUnit())
                 return false;
-            uint8 level = unit->getLevel();
+            uint8 level = ref->ToUnit()->getLevel();
             if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
                 return secondaryAsset ? level >= levels->MinLevelWithDelta : level >= levels->MinLevel;
             return false;
@@ -3570,10 +3594,10 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::TargetIsInAreaGroup: // 299
         {
-            if (!unit)
+            if (!ref)
                 return false;
             std::vector<uint32> areas = sDB2Manager.GetAreasForGroup(reqValue);
-            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(unit->GetAreaId()))
+            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(ref->GetAreaId()))
                 for (uint32 areaInGroup : areas)
                     if (areaInGroup == area->ID || areaInGroup == area->ParentAreaID)
                         return true;
@@ -3660,9 +3684,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::TargetCovenant: // 314
-            if (!unit || !unit->IsPlayer())
+            if (!ref || !ref->IsPlayer())
                 return false;
-            if (unit->ToPlayer()->m_playerData->CovenantID != int32(reqValue))
+            if (ref->ToPlayer()->m_playerData->CovenantID != int32(reqValue))
                 return false;
             break;
         case ModifierTreeType::PlayerHasTBCCollectorsEdition: // 315

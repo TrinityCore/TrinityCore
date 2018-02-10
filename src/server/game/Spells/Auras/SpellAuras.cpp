@@ -362,8 +362,6 @@ Aura* Aura::TryRefreshStackOrCreate(AuraCreateInfo& createInfo)
 
 Aura* Aura::TryCreate(AuraCreateInfo& createInfo)
 {
-    ASSERT(createInfo.Caster || !createInfo.CasterGUID.IsEmpty());
-
     uint32 effMask = createInfo._auraEffectMask;
     if (createInfo._targetEffectMask)
         effMask = createInfo._targetEffectMask;
@@ -377,17 +375,25 @@ Aura* Aura::TryCreate(AuraCreateInfo& createInfo)
 
 Aura* Aura::Create(AuraCreateInfo& createInfo)
 {
-    ASSERT(createInfo.Caster || !createInfo.CasterGUID.IsEmpty());
-
     // try to get caster of aura
     if (!createInfo.CasterGUID.IsEmpty())
     {
-        if (createInfo._owner->GetGUID() == createInfo.CasterGUID)
-            createInfo.Caster = createInfo._owner->ToUnit();
+        // world gameobjects can't own auras and they send empty casterguid
+        // checked on sniffs with spell 22247
+        if (createInfo.CasterGUID.IsGameObject())
+        {
+            createInfo.Caster = nullptr;
+            createInfo.CasterGUID.Clear();
+        }
         else
-            createInfo.Caster = ObjectAccessor::GetUnit(*createInfo._owner, createInfo.CasterGUID);
+        {
+            if (createInfo._owner->GetGUID() == createInfo.CasterGUID)
+                createInfo.Caster = createInfo._owner->ToUnit();
+            else
+                createInfo.Caster = ObjectAccessor::GetUnit(*createInfo._owner, createInfo.CasterGUID);
+        }
     }
-    else
+    else if (createInfo.Caster)
         createInfo.CasterGUID = createInfo.Caster->GetGUID();
 
     // check if aura can be owned by owner
@@ -440,7 +446,7 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
 }
 
 Aura::Aura(AuraCreateInfo const& createInfo) :
-m_spellInfo(createInfo._spellInfo), m_castDifficulty(createInfo._castDifficulty), m_castGuid(createInfo._castId), m_casterGuid(createInfo.CasterGUID.IsEmpty() ? createInfo.Caster->GetGUID() : createInfo.CasterGUID),
+m_spellInfo(createInfo._spellInfo), m_castDifficulty(createInfo._castDifficulty), m_castGuid(createInfo._castId), m_casterGuid(createInfo.CasterGUID),
 m_castItemGuid(createInfo.CastItemGUID), m_castItemId(createInfo.CastItemId),
 m_castItemLevel(createInfo.CastItemLevel), m_spellVisual({ createInfo.Caster ? createInfo.Caster->GetCastSpellXSpellVisualId(createInfo._spellInfo) : createInfo._spellInfo->GetSpellXSpellVisualId(), 0 }),
 m_applyTime(GameTime::GetGameTime()), m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),

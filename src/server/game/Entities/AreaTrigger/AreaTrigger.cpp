@@ -500,6 +500,14 @@ Unit* AreaTrigger::GetTarget() const
     return ObjectAccessor::GetUnit(*this, _targetGuid);
 }
 
+uint32 AreaTrigger::GetFaction() const
+{
+    if (Unit const* caster = GetCaster())
+        return caster->GetFaction();
+
+    return 0;
+}
+
 void AreaTrigger::UpdatePolygonOrientation()
 {
     float newOrientation = GetOrientation();

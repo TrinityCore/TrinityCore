@@ -28,6 +28,7 @@ class Player;
 class Quest;
 class SpellInfo;
 class Unit;
+class WorldObject;
 enum class QuestGiverStatus : uint32;
 
 class TC_GAME_API GameObjectAI
@@ -73,8 +74,8 @@ class TC_GAME_API GameObjectAI
         // prevents achievement tracking if returning true
         virtual bool OnReportUse(Player* /*player*/) { return false; }
 
-        virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) { }
-        virtual void Damaged(Player* /*player*/, uint32 /*eventId*/) { }
+        virtual void Destroyed(WorldObject* /*attacker*/, uint32 /*eventId*/) { }
+        virtual void Damaged(WorldObject* /*attacker*/, uint32 /*eventId*/) { }
 
         virtual uint32 GetData(uint32 /*id*/) const { return 0; }
         virtual void SetData64(uint32 /*id*/, uint64 /*value*/) { }
@@ -85,7 +86,14 @@ class TC_GAME_API GameObjectAI
         virtual void OnLootStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
         virtual void OnStateChanged(uint32 /*state*/) { }
         virtual void EventInform(uint32 /*eventId*/) { }
-        virtual void SpellHit(Unit* /*unit*/, SpellInfo const* /*spellInfo*/) { }
+
+        // Called when hit by a spell
+        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHit(GameObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
+
+        // Called when spell hits a target
+        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitTarget(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI

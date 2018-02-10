@@ -670,29 +670,26 @@ namespace Trinity
     class TC_GAME_API AnyDeadUnitObjectInRangeCheck
     {
         public:
-            AnyDeadUnitObjectInRangeCheck(Unit* searchObj, float range) : i_searchObj(searchObj), i_range(range) { }
+            AnyDeadUnitObjectInRangeCheck(WorldObject* searchObj, float range) : i_searchObj(searchObj), i_range(range) { }
             bool operator()(Player* u);
             bool operator()(Corpse* u);
             bool operator()(Creature* u);
             template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
         protected:
-            Unit const* const i_searchObj;
+            WorldObject const* const i_searchObj;
             float i_range;
     };
 
-    class TC_GAME_API AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck
+    class TC_GAME_API AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck, public WorldObjectSpellTargetCheck
     {
         public:
-            AnyDeadUnitSpellTargetInRangeCheck(Unit* searchObj, float range, SpellInfo const* spellInfo, SpellTargetCheckTypes check, SpellTargetObjectTypes objectType)
-                : AnyDeadUnitObjectInRangeCheck(searchObj, range), i_spellInfo(spellInfo), i_check(searchObj, searchObj, spellInfo, check, nullptr, objectType)
+            AnyDeadUnitSpellTargetInRangeCheck(WorldObject* searchObj, float range, SpellInfo const* spellInfo, SpellTargetCheckTypes check, SpellTargetObjectTypes objectType)
+                : AnyDeadUnitObjectInRangeCheck(searchObj, range), WorldObjectSpellTargetCheck(searchObj, searchObj, spellInfo, check, nullptr, objectType)
             { }
             bool operator()(Player* u);
             bool operator()(Corpse* u);
             bool operator()(Creature* u);
             template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
-        protected:
-            SpellInfo const* i_spellInfo;
-            WorldObjectSpellTargetCheck i_check;
     };
 
     // WorldObject do classes
@@ -712,24 +709,23 @@ namespace Trinity
     class GameObjectFocusCheck
     {
         public:
-            GameObjectFocusCheck(Unit const* unit, uint32 focusId) : i_unit(unit), i_focusId(focusId) { }
+            GameObjectFocusCheck(WorldObject const* caster, uint32 focusId) : _caster(caster), _focusId(focusId) { }
 
             bool operator()(GameObject* go) const
             {
-                if (go->GetGOInfo()->GetSpellFocusType() != i_focusId)
+                if (go->GetGOInfo()->GetSpellFocusType() != _focusId)
                     return false;
 
                 if (!go->isSpawned())
                     return false;
 
-                float dist = go->GetGOInfo()->GetSpellFocusRadius() / 2.f;
-
-                return go->IsWithinDistInMap(i_unit, dist);
+                float const dist = go->GetGOInfo()->GetSpellFocusRadius() / 2.f;
+                return go->IsWithinDistInMap(_caster, dist);
             }
 
         private:
-            Unit const* i_unit;
-            uint32 i_focusId;
+            WorldObject const* _caster;
+            uint32 _focusId;
     };
 
     // Find the nearest Fishing hole and return true only if source object is in range of hole

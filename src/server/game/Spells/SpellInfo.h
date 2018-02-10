@@ -314,14 +314,14 @@ public:
     bool IsAreaAuraEffect() const;
     bool IsUnitOwnedAuraEffect() const;
 
-    int32 CalcValue(Unit const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr, uint32 castItemId = 0, int32 itemLevel = -1) const;
-    int32 CalcBaseValue(Unit const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const;
-    float CalcValueMultiplier(Unit* caster, Spell* spell = nullptr) const;
-    float CalcDamageMultiplier(Unit* caster, Spell* spell = nullptr) const;
+    int32 CalcValue(WorldObject const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr, uint32 castItemId = 0, int32 itemLevel = -1) const;
+    int32 CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const;
+    float CalcValueMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
+    float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
     bool HasRadius() const;
     bool HasMaxRadius() const;
-    float CalcRadius(Unit* caster = nullptr, Spell* = nullptr) const;
+    float CalcRadius(WorldObject* caster = nullptr, Spell* = nullptr) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
@@ -500,7 +500,7 @@ class TC_GAME_API SpellInfo
         bool HasAttribute(SpellAttr14 attribute) const { return !!(AttributesEx14 & attribute); }
         bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
-        bool CanBeInterrupted(Unit* interruptCaster, Unit* interruptTarget) const;
+        bool CanBeInterrupted(WorldObject const* interruptCaster, Unit const* interruptTarget) const;
 
         bool HasAnyAuraInterruptFlag() const;
         bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return AuraInterruptFlags.HasFlag(flag); }
@@ -564,8 +564,8 @@ class TC_GAME_API SpellInfo
 
         SpellCastResult CheckShapeshift(uint32 form) const;
         SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = nullptr) const;
-        SpellCastResult CheckTarget(Unit const* caster, WorldObject const* target, bool implicit = true) const;
-        SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = nullptr) const;
+        SpellCastResult CheckTarget(WorldObject const* caster, WorldObject const* target, bool implicit = true) const;
+        SpellCastResult CheckExplicitTarget(WorldObject const* caster, WorldObject const* target, Item const* itemTarget = nullptr) const;
         SpellCastResult CheckVehicle(Unit const* caster) const;
         bool CheckTargetCreatureType(Unit const* target) const;
 
@@ -583,9 +583,9 @@ class TC_GAME_API SpellInfo
         SpellSpecificType GetSpellSpecific() const;
 
         float GetMinRange(bool positive = false) const;
-        float GetMaxRange(bool positive = false, Unit* caster = nullptr, Spell* spell = nullptr) const;
+        float GetMaxRange(bool positive = false, WorldObject* caster = nullptr, Spell* spell = nullptr) const;
 
-        int32 CalcDuration(Unit* caster = nullptr) const;
+        int32 CalcDuration(WorldObject const* caster = nullptr) const;
         int32 GetDuration() const;
         int32 GetMaxDuration() const;
 
@@ -594,9 +594,9 @@ class TC_GAME_API SpellInfo
         uint32 CalcCastTime(Spell* spell = nullptr) const;
         uint32 GetRecoveryTime() const;
 
-        Optional<SpellPowerCost> CalcPowerCost(Powers powerType, bool optionalCost, Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
-        Optional<SpellPowerCost> CalcPowerCost(SpellPowerEntry const* power, bool optionalCost, Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
-        std::vector<SpellPowerCost> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
+        Optional<SpellPowerCost> CalcPowerCost(Powers powerType, bool optionalCost, WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
+        Optional<SpellPowerCost> CalcPowerCost(SpellPowerEntry const* power, bool optionalCost, WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
+        std::vector<SpellPowerCost> CalcPowerCost(WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
 
         float CalcProcPPM(Unit* caster, int32 itemLevel) const;
 
@@ -611,8 +611,8 @@ class TC_GAME_API SpellInfo
         bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
         bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
-        uint32 GetSpellXSpellVisualId(Unit const* caster = nullptr) const;
-        uint32 GetSpellVisual(Unit const* caster = nullptr) const;
+        uint32 GetSpellXSpellVisualId(WorldObject const* caster = nullptr) const;
+        uint32 GetSpellVisual(WorldObject const* caster = nullptr) const;
 
         SpellEffectInfoVector const& GetEffects() const { return _effects; }
         SpellEffectInfo const* GetEffect(uint32 index) const { return index < _effects.size() ? _effects[index] : nullptr; }

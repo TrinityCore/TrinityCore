@@ -452,13 +452,17 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
+int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     // TODO: this needs to be a float, not rounded
     int32 basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
     float value = bp ? *bp : basePoints;
     float comboDamage = PointsPerResource;
+
+    Unit const* casterUnit = nullptr;
+    if (caster)
+        casterUnit = caster->ToUnit();
 
     if (Scaling.Variance)
     {
@@ -478,9 +482,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
     }
     else if (GetScalingExpectedStat() == ExpectedStatType::None)
     {
-        if (caster && basePointsPerLevel != 0.0f)
+        if (casterUnit && basePointsPerLevel != 0.0f)
         {
-            int32 level = int32(caster->getLevel());
+            int32 level = int32(casterUnit->getLevel());
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
                 level = int32(_spellInfo->MaxLevel);
 
@@ -493,28 +497,29 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
     }
 
     // random damage
-    if (caster)
+    if (casterUnit)
     {
         // bonus amount from combo points
-        if (caster->m_playerMovingMe && comboDamage)
-            if (uint32 comboPoints = caster->m_playerMovingMe->GetComboPoints())
+        if (comboDamage)
+            if (uint32 comboPoints = casterUnit->GetComboPoints())
                 value += comboDamage * comboPoints;
-
-        value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
     }
+
+    if (caster)
+        value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
 
     return int32(round(value));
 }
 
-int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
+int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
 {
     if (Scaling.Coefficient != 0.0f)
     {
         uint32 level = _spellInfo->SpellLevel;
         if (target && _spellInfo->IsPositiveEffect(EffectIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
             level = target->getLevel();
-        else if (caster)
-            level = caster->getLevel();
+        else if (caster && caster->IsUnit())
+            level = caster->ToUnit()->getLevel();
 
         if (_spellInfo->BaseLevel && !_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL) && _spellInfo->HasAttribute(SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING))
             level = _spellInfo->BaseLevel;
@@ -591,7 +596,7 @@ int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, uin
             if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
                 expansion = contentTuning->ExpansionID;
 
-            int32 level = caster ? int32(caster->getLevel()) : 1;
+            int32 level = caster && caster->IsUnit() ? int32(caster->ToUnit()->getLevel()) : 1;
             value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE) * BasePoints / 100.0f;
         }
 
@@ -599,7 +604,7 @@ int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, uin
     }
 }
 
-float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
+float SpellEffectInfo::CalcValueMultiplier(WorldObject* caster, Spell* spell /*= nullptr*/) const
 {
     float multiplier = Amplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
@@ -607,7 +612,7 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
     return multiplier;
 }
 
-float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
+float SpellEffectInfo::CalcDamageMultiplier(WorldObject* caster, Spell* spell /*= nullptr*/) const
 {
     float multiplierPercent = ChainAmplitude * 100.0f;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
@@ -625,7 +630,7 @@ bool SpellEffectInfo::HasMaxRadius() const
     return MaxRadiusEntry != nullptr;
 }
 
-float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
+float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, Spell* spell /*= nullptr*/) const
 {
     const SpellRadiusEntry* entry = RadiusEntry;
     if (!HasRadius() && HasMaxRadius())
@@ -642,8 +647,11 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 
     if (caster)
     {
-        radius += entry->RadiusPerLevel * caster->getLevel();
+        if (Unit* casterUnit = caster->ToUnit())
+            radius += entry->RadiusPerLevel * casterUnit->getLevel();
+
         radius = std::min(radius, entry->RadiusMax);
+
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, radius, spell);
     }
@@ -1354,13 +1362,13 @@ bool SpellInfo::HasTargetType(::Targets target) const
     return false;
 }
 
-bool SpellInfo::CanBeInterrupted(Unit* interruptCaster, Unit* interruptTarget) const
+bool SpellInfo::CanBeInterrupted(WorldObject const* interruptCaster, Unit const* interruptTarget) const
 {
     return HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED)
         || HasChannelInterruptFlag(SpellAuraInterruptFlags::Damage | SpellAuraInterruptFlags::EnteringCombat)
         || (interruptTarget->IsPlayer() && InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
         || InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancels)
-        || interruptCaster->HasAuraTypeWithMiscvalue(SPELL_AURA_ALLOW_INTERRUPT_SPELL, Id)
+        || (interruptCaster->IsUnit() && interruptCaster->ToUnit()->HasAuraTypeWithMiscvalue(SPELL_AURA_ALLOW_INTERRUPT_SPELL, Id))
         || (!(interruptTarget->GetMechanicImmunityMask() & (1 << MECHANIC_INTERRUPT))
             && !interruptTarget->HasAuraTypeWithAffectMask(SPELL_AURA_PREVENT_INTERRUPT, this)
             && PreventionType & SPELL_PREVENTION_TYPE_SILENCE);
@@ -2086,7 +2094,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     return SPELL_CAST_OK;
 }
 
-SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* target, bool implicit) const
+SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject const* target, bool implicit /*= true*/) const
 {
     if (HasAttribute(SPELL_ATTR1_CANT_TARGET_SELF) && caster == target)
         return SPELL_FAILED_BAD_TARGETS;
@@ -2188,7 +2196,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     }
 
     // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
-    if (unitTarget != caster && (caster->IsControlledByPlayer() || !IsPositive()) && unitTarget->GetTypeId() == TYPEID_PLAYER)
+    if (unitTarget != caster && (caster->GetAffectingPlayer() || !IsPositive()) && unitTarget->GetTypeId() == TYPEID_PLAYER)
     {
         if (!unitTarget->ToPlayer()->IsVisible())
             return SPELL_FAILED_BM_OR_INVISGOD;
@@ -2208,13 +2216,16 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     him, because it would be it's passenger, there's no such case where this gets to fail legitimacy, this problem
     cannot be solved from within the check in other way since target type cannot be called for the spell currently
     Spell examples: [ID - 52864 Devour Water, ID - 52862 Devour Wind, ID - 49370 Wyrmrest Defender: Destabilize Azure Dragonshrine Effect] */
-    if (!caster->IsVehicle() && !(caster->GetCharmerOrOwner() == target))
+    if (Unit const* unitCaster = caster->ToUnit())
     {
-        if (TargetAuraState && !unitTarget->HasAuraState(AuraStateType(TargetAuraState), this, caster))
-            return SPELL_FAILED_TARGET_AURASTATE;
+        if (!unitCaster->IsVehicle() && !(unitCaster->GetCharmerOrOwner() == target))
+        {
+            if (TargetAuraState && !unitTarget->HasAuraState(AuraStateType(TargetAuraState), this, unitCaster))
+                return SPELL_FAILED_TARGET_AURASTATE;
 
-        if (ExcludeTargetAuraState && unitTarget->HasAuraState(AuraStateType(ExcludeTargetAuraState), this, caster))
-            return SPELL_FAILED_TARGET_AURASTATE;
+            if (ExcludeTargetAuraState && unitTarget->HasAuraState(AuraStateType(ExcludeTargetAuraState), this, unitCaster))
+                return SPELL_FAILED_TARGET_AURASTATE;
+        }
     }
 
     if (TargetAuraSpell && !unitTarget->HasAura(TargetAuraSpell))
@@ -2237,7 +2248,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     return SPELL_CAST_OK;
 }
 
-SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget) const
+SpellCastResult SpellInfo::CheckExplicitTarget(WorldObject const* caster, WorldObject const* target, Item const* itemTarget /*= nullptr*/) const
 {
     uint32 neededTargets = GetExplicitTargetMask();
     if (!target)
@@ -2252,19 +2263,20 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
     {
         if (neededTargets & (TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER))
         {
+            Unit const* unitCaster = caster->ToUnit();
             if (neededTargets & TARGET_FLAG_UNIT_ENEMY)
                 if (caster->IsValidAttackTarget(unitTarget, this))
                     return SPELL_CAST_OK;
-            if (neededTargets & TARGET_FLAG_UNIT_ALLY
-                || (neededTargets & TARGET_FLAG_UNIT_PARTY && caster->IsInPartyWith(unitTarget))
-                || (neededTargets & TARGET_FLAG_UNIT_RAID && caster->IsInRaidWith(unitTarget)))
+            if ((neededTargets & TARGET_FLAG_UNIT_ALLY)
+                || ((neededTargets & TARGET_FLAG_UNIT_PARTY) && unitCaster && unitCaster->IsInPartyWith(unitTarget))
+                || ((neededTargets & TARGET_FLAG_UNIT_RAID) && unitCaster && unitCaster->IsInRaidWith(unitTarget)))
                     if (caster->IsValidAssistTarget(unitTarget, this))
                         return SPELL_CAST_OK;
-            if (neededTargets & TARGET_FLAG_UNIT_MINIPET)
-                if (unitTarget->GetGUID() == caster->GetCritterGUID())
+            if ((neededTargets & TARGET_FLAG_UNIT_MINIPET) && unitCaster)
+                if (unitTarget->GetGUID() == unitCaster->GetCritterGUID())
                     return SPELL_CAST_OK;
-            if (neededTargets & TARGET_FLAG_UNIT_PASSENGER)
-                if (unitTarget->IsOnVehicle(caster))
+            if ((neededTargets & TARGET_FLAG_UNIT_PASSENGER) && unitCaster)
+                if (unitTarget->IsOnVehicle(unitCaster))
                     return SPELL_CAST_OK;
             return SPELL_FAILED_BAD_TARGETS;
         }
@@ -3695,14 +3707,14 @@ uint32 SpellInfo::GetAllowedMechanicMask() const
     return _allowedMechanicMask;
 }
 
-float SpellInfo::GetMinRange(bool positive) const
+float SpellInfo::GetMinRange(bool positive /*= false*/) const
 {
     if (!RangeEntry)
         return 0.0f;
     return RangeEntry->RangeMin[positive ? 1 : 0];
 }
 
-float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
+float SpellInfo::GetMaxRange(bool positive /*= false*/, WorldObject* caster /*= nullptr*/, Spell* spell /*= nullptr*/) const
 {
     if (!RangeEntry)
         return 0.0f;
@@ -3714,7 +3726,7 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
     return range;
 }
 
-int32 SpellInfo::CalcDuration(Unit* caster /*= nullptr*/) const
+int32 SpellInfo::CalcDuration(WorldObject const* caster /*= nullptr*/) const
 {
     int32 duration = GetDuration();
 
@@ -3802,8 +3814,13 @@ uint32 SpellInfo::GetRecoveryTime() const
     return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
 }
 
-Optional<SpellPowerCost> SpellInfo::CalcPowerCost(Powers powerType, bool optionalCost, Unit const* caster, SpellSchoolMask schoolMask, Spell* spell /*= nullptr*/) const
+Optional<SpellPowerCost> SpellInfo::CalcPowerCost(Powers powerType, bool optionalCost, WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell /*= nullptr*/) const
 {
+    // gameobject casts don't use power
+    Unit const* unitCaster = caster->ToUnit();
+    if (!unitCaster)
+        return {};
+
     auto itr = std::find_if(PowerCosts.cbegin(), PowerCosts.cend(), [powerType](SpellPowerEntry const* spellPowerEntry)
     {
         return spellPowerEntry && spellPowerEntry->PowerType == powerType;
@@ -3814,9 +3831,14 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(Powers powerType, bool optiona
     return CalcPowerCost(*itr, optionalCost, caster, schoolMask, spell);
 }
 
-Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, bool optionalCost, Unit const* caster, SpellSchoolMask schoolMask, Spell* spell /*= nullptr*/) const
+Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, bool optionalCost, WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell /*= nullptr*/) const
 {
-    if (power->RequiredAuraSpellID && !caster->HasAura(power->RequiredAuraSpellID))
+    // gameobject casts don't use power
+    Unit const* unitCaster = caster->ToUnit();
+    if (!unitCaster)
+        return {};
+
+    if (power->RequiredAuraSpellID && !unitCaster->HasAura(power->RequiredAuraSpellID))
         return {};
 
     // Spell drain all exist power on cast (Only paladin lay of Hands)
@@ -3827,7 +3849,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
         {
             SpellPowerCost cost;
             cost.Power = POWER_HEALTH;
-            cost.Amount = caster->GetHealth();
+            cost.Amount = unitCaster->GetHealth();
             return cost;
         }
         // Else drain all power
@@ -3835,7 +3857,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
         {
             SpellPowerCost cost;
             cost.Power = Powers(power->PowerType);
-            cost.Amount = caster->GetPower(cost.Power);
+            cost.Amount = unitCaster->GetPower(cost.Power);
             return cost;
         }
 
@@ -3856,12 +3878,12 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
                 // health as power used
                 case POWER_HEALTH:
                     if (G3D::fuzzyEq(power->PowerCostPct, 0.0f))
-                        powerCost += int32(CalculatePct(caster->GetMaxHealth(), power->PowerCostMaxPct));
+                        powerCost += int32(CalculatePct(unitCaster->GetMaxHealth(), power->PowerCostMaxPct));
                     else
-                        powerCost += int32(CalculatePct(caster->GetMaxHealth(), power->PowerCostPct));
+                        powerCost += int32(CalculatePct(unitCaster->GetMaxHealth(), power->PowerCostPct));
                     break;
                 case POWER_MANA:
-                    powerCost += int32(CalculatePct(caster->GetCreateMana(), power->PowerCostPct));
+                    powerCost += int32(CalculatePct(unitCaster->GetCreateMana(), power->PowerCostPct));
                     break;
                 case POWER_ALTERNATE_POWER:
                     TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", power->PowerType, Id);
@@ -3883,7 +3905,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     else
     {
         powerCost = int32(power->OptionalCost);
-        powerCost += caster->GetTotalAuraModifier(SPELL_AURA_MOD_ADDITIONAL_POWER_COST, [this, power](AuraEffect const* aurEff) -> bool
+        powerCost += unitCaster->GetTotalAuraModifier(SPELL_AURA_MOD_ADDITIONAL_POWER_COST, [this, power](AuraEffect const* aurEff) -> bool
         {
             return aurEff->GetMiscValue() == power->PowerType
                 && aurEff->IsAffectingSpell(this);
@@ -3896,7 +3918,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     if (HasAttribute(SPELL_ATTR4_SPELL_VS_EXTEND_COST))
     {
         uint32 speed = 0;
-        if (SpellShapeshiftFormEntry const* ss = sSpellShapeshiftFormStore.LookupEntry(caster->GetShapeshiftForm()))
+        if (SpellShapeshiftFormEntry const* ss = sSpellShapeshiftFormStore.LookupEntry(unitCaster->GetShapeshiftForm()))
             speed = ss->CombatRoundTime;
         else
         {
@@ -3904,7 +3926,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
             if (!HasAttribute(SPELL_ATTR3_MAIN_HAND) && HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
                 slot = OFF_ATTACK;
 
-            speed = caster->GetBaseAttackTime(slot);
+            speed = unitCaster->GetBaseAttackTime(slot);
         }
 
         powerCost += speed / 100;
@@ -3915,7 +3937,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
         if (!optionalCost)
         {
             // Flat mod from caster auras by spell school and power type
-            for (AuraEffect const* aura : caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL))
+            for (AuraEffect const* aura : unitCaster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL))
             {
                 if (!(aura->GetMiscValue() & schoolMask))
                     continue;
@@ -3928,7 +3950,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
         }
 
         // PCT mod from user auras by spell school and power type
-        for (auto schoolCostPct : caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT))
+        for (auto schoolCostPct : unitCaster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT))
         {
             if (!(schoolCostPct->GetMiscValue() & schoolMask))
                 continue;
@@ -3941,7 +3963,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     }
 
     // Apply cost mod by spell
-    if (Player* modOwner = caster->GetSpellModOwner())
+    if (Player* modOwner = unitCaster->GetSpellModOwner())
     {
         Optional<SpellModOp> mod;
         switch (power->OrderIndex)
@@ -3974,19 +3996,19 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
         }
     }
 
-    if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power->PowerCostPct, 0.0f) && SpellLevel && power->PowerType == POWER_MANA)
+    if (!unitCaster->IsControlledByPlayer() && G3D::fuzzyEq(power->PowerCostPct, 0.0f) && SpellLevel && power->PowerType == POWER_MANA)
     {
         if (HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
         {
             GtNpcManaCostScalerEntry const* spellScaler = sNpcManaCostScalerGameTable.GetRow(SpellLevel);
-            GtNpcManaCostScalerEntry const* casterScaler = sNpcManaCostScalerGameTable.GetRow(caster->getLevel());
+            GtNpcManaCostScalerEntry const* casterScaler = sNpcManaCostScalerGameTable.GetRow(unitCaster->getLevel());
             if (spellScaler && casterScaler)
                 powerCost *= casterScaler->Scaler / spellScaler->Scaler;
         }
     }
 
     if (power->PowerType == POWER_MANA)
-        powerCost = float(powerCost) * (1.0f + caster->m_unitData->ManaCostMultiplier);
+        powerCost = float(powerCost) * (1.0f + unitCaster->m_unitData->ManaCostMultiplier);
 
     // power cost cannot become negative if initially positive
     if (initiallyNegative != (powerCost < 0))
@@ -3998,41 +4020,44 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     return cost;
 }
 
-std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, Spell* spell) const
+std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell) const
 {
     std::vector<SpellPowerCost> costs;
-    costs.reserve(MAX_POWERS_PER_SPELL);
-
-    auto getOrCreatePowerCost = [&](Powers powerType) -> SpellPowerCost&
+    if (caster->IsUnit())
     {
-        auto itr = std::find_if(costs.begin(), costs.end(), [powerType](SpellPowerCost const& cost)
+        costs.reserve(MAX_POWERS_PER_SPELL);
+
+        auto getOrCreatePowerCost = [&](Powers powerType) -> SpellPowerCost&
         {
-            return cost.Power == powerType;
-        });
-        if (itr != costs.end())
-            return *itr;
+            auto itr = std::find_if(costs.begin(), costs.end(), [powerType](SpellPowerCost const& cost)
+            {
+                return cost.Power == powerType;
+            });
+            if (itr != costs.end())
+                return *itr;
 
-        SpellPowerCost cost;
-        cost.Power = powerType;
-        cost.Amount = 0;
-        costs.push_back(cost);
-        return costs.back();
-    };
+            SpellPowerCost cost;
+            cost.Power = powerType;
+            cost.Amount = 0;
+            costs.push_back(cost);
+            return costs.back();
+        };
 
-    for (SpellPowerEntry const* power : PowerCosts)
-    {
-        if (!power)
-            continue;
-
-        if (Optional<SpellPowerCost> cost = CalcPowerCost(power, false, caster, schoolMask, spell))
-            getOrCreatePowerCost(cost->Power).Amount += cost->Amount;
-
-        if (Optional<SpellPowerCost> optionalCost = CalcPowerCost(power, true, caster, schoolMask, spell))
+        for (SpellPowerEntry const* power : PowerCosts)
         {
-            SpellPowerCost& cost = getOrCreatePowerCost(optionalCost->Power);
-            int32 remainingPower = caster->GetPower(optionalCost->Power) - cost.Amount;
-            if (remainingPower > 0)
-                cost.Amount += std::min(optionalCost->Amount, remainingPower);
+            if (!power)
+                continue;
+
+            if (Optional<SpellPowerCost> cost = CalcPowerCost(power, false, caster, schoolMask, spell))
+                getOrCreatePowerCost(cost->Power).Amount += cost->Amount;
+
+            if (Optional<SpellPowerCost> optionalCost = CalcPowerCost(power, true, caster, schoolMask, spell))
+            {
+                SpellPowerCost& cost = getOrCreatePowerCost(optionalCost->Power);
+                int32 remainingPower = caster->ToUnit()->GetPower(optionalCost->Power) - cost.Amount;
+                if (remainingPower > 0)
+                    cost.Amount += std::min(optionalCost->Amount, remainingPower);
+            }
         }
     }
 
@@ -4266,7 +4291,7 @@ bool SpellInfo::IsHighRankOf(SpellInfo const* spellInfo) const
     return false;
 }
 
-uint32 SpellInfo::GetSpellXSpellVisualId(Unit const* caster /*= nullptr*/) const
+uint32 SpellInfo::GetSpellXSpellVisualId(WorldObject const* caster /*= nullptr*/) const
 {
     for (SpellXSpellVisualEntry const* visual : _visuals)
     {
@@ -4278,7 +4303,7 @@ uint32 SpellInfo::GetSpellXSpellVisualId(Unit const* caster /*= nullptr*/) const
     return 0;
 }
 
-uint32 SpellInfo::GetSpellVisual(Unit const* caster /*= nullptr*/) const
+uint32 SpellInfo::GetSpellVisual(WorldObject const* caster /*= nullptr*/) const
 {
     if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(GetSpellXSpellVisualId(caster)))
     {
