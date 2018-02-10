@@ -25,16 +25,11 @@
 class TC_GAME_API InvalidAIException : public std::exception
 {
 public:
-    InvalidAIException(char const* _message);
-    ~InvalidAIException() throw() { }
-
+    InvalidAIException(char const* msg) : msg_(msg) {}
     char const* what() const noexcept override { return msg_.c_str(); }
 
-protected:
-    std::string & message() throw() { return msg_; }
-
 private:
-    std::string msg_;
+    std::string const msg_;
 };
 
 #endif
