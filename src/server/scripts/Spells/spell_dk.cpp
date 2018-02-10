@@ -691,7 +691,7 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                 }
                 else if (effIndex == EFFECT_1)
                 {
-                    args.AddSpellBP0(GetSpell()->CalculateDamage(EFFECT_0, nullptr));
+                    args.AddSpellBP0(GetSpell()->CalculateDamage(EFFECT_0));
                     GetCaster()->CastSpell(target, GetEffectValue(), args);
                 }
             }
@@ -1136,7 +1136,7 @@ class spell_dk_death_strike : public SpellScriptLoader
                     int32 bp = int32(count * caster->CountPctFromMaxHealth(int32(GetSpellInfo()->Effects[EFFECT_0].DamageMultiplier)));
                     // Improved Death Strike
                     if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_IMPROVED_DEATH_STRIKE, 0))
-                        AddPct(bp, caster->CalculateSpellDamage(caster, aurEff->GetSpellInfo(), 2));
+                        AddPct(bp, caster->CalculateSpellDamage(aurEff->GetSpellInfo(), EFFECT_2));
 
                     // @todo castspell refactor note: this is not triggered - is this intended??
                     CastSpellExtraArgs args;
@@ -1277,7 +1277,7 @@ class spell_dk_hysteria : public AuraScript
 
     void PeriodicTick(AuraEffect const* aurEff)
     {
-        uint32 const damage = GetTarget()->CountPctFromMaxHealth(GetTarget()->CalculateSpellDamage(nullptr, GetSpellInfo(), aurEff->GetEffIndex()));
+        uint32 const damage = GetTarget()->CountPctFromMaxHealth(GetTarget()->CalculateSpellDamage(GetSpellInfo(), aurEff->GetEffIndex()));
         Unit::DealDamage(GetTarget(), GetTarget(), damage, nullptr, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
     }
 

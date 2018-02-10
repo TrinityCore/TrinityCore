@@ -425,7 +425,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
                             case CREATURE_FAMILY_VOIDWALKER:
                             {
                                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
-                                int32 hp = targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(targetCreature, spellInfo, 0));
+                                int32 hp = targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(spellInfo, EFFECT_0));
                                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                                 args.AddSpellBP0(hp);
                                 targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, args);
@@ -1475,15 +1475,17 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
                 {
                     if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
                     {
-                        Unit* target = dispelInfo->GetDispeller();
-                        int32 bp = aurEff->GetAmount();
-                        bp = target->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), bp, DOT);
-                        bp *= 9;
+                        if (Unit* target = dispelInfo->GetDispeller()->ToUnit())
+                        {
+                            int32 bp = aurEff->GetAmount();
+                            bp = target->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), bp, DOT);
+                            bp *= 9;
 
-                        // backfire damage and silence
-                        CastSpellExtraArgs args(aurEff);
-                        args.AddSpellBP0(bp);
-                        caster->CastSpell(target, SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, args);
+                            // backfire damage and silence
+                            CastSpellExtraArgs args(aurEff);
+                            args.AddSpellBP0(bp);
+                            caster->CastSpell(target, SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, args);
+                        }
                     }
                 }
             }

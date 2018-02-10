@@ -1369,7 +1369,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
                     if (Player* playerTarget = GetUnitOwner()->ToPlayer())
                     {
                         int32 baseAmount = aurEff->GetBaseAmount();
-                        int32 amount = playerTarget->CalculateSpellDamage(playerTarget, GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount);
+                        int32 amount = playerTarget->CalculateSpellDamage(GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount);
                         GetEffect(EFFECT_0)->SetAmount(amount);
                     }
                 }
@@ -1381,7 +1381,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
                 {
                     int32 baseAmount = aurEff->GetBaseAmount();
                     int32 amount = playerTarget->isMoving() ?
-                    playerTarget->CalculateSpellDamage(playerTarget, GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount) :
+                    playerTarget->CalculateSpellDamage(GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount) :
                     aurEff->GetAmount() - 1;
                     aurEff->SetAmount(amount);
                 }
