@@ -774,27 +774,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
                 break;
             }
-            // Vanish (not exist)
-            case 18461:
-            {
-                unitTarget->RemoveMovementImpairingAuras(true);
-                unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-
-                // If this spell is given to an NPC, it must handle the rest using its own AI
-                if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                // See if we already are stealthed. If so, we're done.
-                if (unitTarget->HasAura(1784))
-                    return;
-
-                // Reset cooldown on stealth if needed
-                if (unitTarget->GetSpellHistory()->HasCooldown(1784))
-                    unitTarget->GetSpellHistory()->ResetCooldown(1784);
-
-                unitTarget->CastSpell(unitTarget, 1784, true);
-                return;
-            }
             // Demonic Empowerment -- succubus
             case 54437:
             {
