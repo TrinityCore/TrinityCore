@@ -1,3 +1,4 @@
+/*
 -- Witch Doctor Uzer'i
 DELETE FROM `creature_text` WHERE `CreatureID`=8115 AND `GroupID` IN (2,3);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -29,3 +30,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (8115,4,-4378.28,255.898,26.3856,""),
 (8115,5,-4375.1,259.339,26.584,""),
 (8115,6,-4375.68,269.717,25.4947,"");
+*/

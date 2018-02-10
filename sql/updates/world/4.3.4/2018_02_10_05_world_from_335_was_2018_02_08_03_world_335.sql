@@ -1,3 +1,4 @@
+/*
 -- Create new reference loot template for Shadowfang Keep
 SET @ENTRY := 1055;  -- need a new id
 
@@ -37,3 +38,4 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `C
 (3873, @ENTRY, @ENTRY, 0.1, "Tormented Officer - SFK Rares"),
 (3875, @ENTRY, @ENTRY, 0.1, "Haunted Servitor - SFK Rares"),
 (3877, @ENTRY, @ENTRY, 0.1, "Wailing Guardsman - SFK Rares");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Remove unique items from reference table 24078
 DELETE FROM `reference_loot_template` WHERE `Entry`=24078 AND `Item` IN (899, 1391, 1440, 1446, 1469, 1473, 1929, 1930, 1936, 1943, 1944, 1945, 1951, 2020, 4290, 10400, 10401, 10402);
 
@@ -27,3 +28,4 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `GroupId`, `Com
 (634, 10401, 0.5, 2, "Defias Overseer - Blackened Defias Gloves"),
 (4417, 10401, 0.5, 2, "Defias Taskmaster - Blackened Defias Gloves"),
 (4416, 10402, 0.5, 0, "Defias Strip Miner - Blackened Defias Boots");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Remove unique items from reference table 24062
 DELETE FROM `reference_loot_template` WHERE `Entry`=24062 AND `Item` IN (880, 1299, 1457, 1458, 2175, 1462, 1461, 1459, 3018, 3227);
 
@@ -12,3 +13,4 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `GroupId`, `Com
 (429, 1462, 0.1, 0, "Shadowhide Darkweaver - Ring of the  Shadow"),
 (431, 1461, 0.1, 0, "Shadowhide Slayer - Slayer's Battle Axe"),
 (579, 1459, 0.1, 0, "Shadowhide Assassin - Shadowhide Scalper");
+*/

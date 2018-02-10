@@ -1,3 +1,4 @@
+/*
 -- Remove unique items from reference table 24060, as well as removing Agile Boots (4788) which is sold only and does not drop
 DELETE FROM `reference_loot_template` WHERE `Entry`=24060 AND `Item` IN (1218, 1220, 1296, 1300, 1448, 1460, 1934, 2021, 2166, 2167, 2168, 3018, 3227, 4788, 4949, 5182, 5183);
 
@@ -21,3 +22,4 @@ INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Chance`,`GroupId`,`Comment
 (7170, 4949, 100, 0, "Thragomm - Orcish Cleaver"),
 (3398, 5182,   2, 2, "Gesharahan - Shiver Blade"),
 (3398, 5183,   2, 2, "Gesharahan - Pulsating Hydra Heart");
+*/

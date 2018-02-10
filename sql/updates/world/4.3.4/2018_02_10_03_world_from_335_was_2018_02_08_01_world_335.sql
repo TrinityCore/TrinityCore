@@ -1,3 +1,4 @@
+/*
 -- Ragged Timber Wolf
 DELETE FROM `creature_loot_template` WHERE `Entry`=704;
 INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`QuestRequired`,`LootMode`,`GroupId`,`MinCount`,`MaxCount`,`Comment`) VALUES
@@ -83,3 +84,4 @@ INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`Quest
 (1718,  2054,     0,   1, 0, 1, 0, 1, 1, "Trogg Hand Axe (unique)"),
 (1718, 24073, 24073,   5, 0, 1, 0, 1, 1, "Junk"),
 (1718, 11111, 11111, 0.1, 0, 1, 0, 1, 1, "Bags");
+*/
