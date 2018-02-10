@@ -134,6 +134,15 @@ void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans)
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
+uint32 Corpse::GetFaction() const
+{
+    // inherit faction from player race
+    uint32 const race = GetByteValue(CORPSE_FIELD_BYTES_1, 1);
+
+    ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
+    return rEntry ? rEntry->FactionID : 0;
+}
+
 void Corpse::ResetGhostTime()
 {
     m_time = GameTime::GetGameTime();

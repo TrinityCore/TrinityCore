@@ -293,7 +293,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     }
 }
 
-bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscvalue1 /*= 0*/, uint32 miscvalue2 /* = 0*/) const
+bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, WorldObject const* target, uint32 miscvalue1 /*= 0*/, uint32 miscvalue2 /* = 0*/) const
 {
     switch (dataType)
     {
@@ -322,13 +322,14 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH:
             if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            return !target->HealthAbovePct(health.percent);
+            return !target->ToPlayer()->HealthAbovePct(health.percent);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
-            if (target && !target->IsAlive())
-                if (Player const* player = target->ToPlayer())
-                    if (player->GetDeathTimer() != 0)
-                        // flag set == must be same team, not set == different team
-                        return (player->GetTeam() == source->GetTeam()) == (player_dead.own_team_flag != 0);
+            if (!target || target->GetTypeId() != TYPEID_PLAYER)
+                return false;
+            if (Player const* player = target->ToPlayer())
+                if (!player->IsAlive() && player->GetDeathTimer() != 0)
+                    // flag set == must be same team, not set == different team
+                    return (player->GetTeam() == source->GetTeam()) == (player_dead.own_team_flag != 0);
             return false;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA:
             return source->HasAuraEffect(aura.spell_id, aura.effect_idx);
@@ -339,19 +340,41 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             return area.id == zone_id || area.id == area_id;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA:
-            return target && target->HasAuraEffect(aura.spell_id, aura.effect_idx);
+        {
+            if (!target)
+                return false;
+            Unit const* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return false;
+            return unitTarget->HasAuraEffect(aura.spell_id, aura.effect_idx);
+        }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
             return CompareValues(ComparisionType(value.compType), miscvalue1, value.value);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL:
+        {
             if (!target)
                 return false;
-            return target->getLevel() >= level.minlevel;
+            Unit const* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return false;
+            return unitTarget->getLevel() >= level.minlevel;
+        }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER:
+        {
             if (!target)
                 return false;
-            return target->getGender() == gender.gender;
+            Unit const* unitTarget = target->ToUnit();
+            if (!unitTarget)
+                return false;
+            return unitTarget->getGender() == gender.gender;
+        }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT:
-            return sScriptMgr->OnCriteriaCheck(ScriptId, const_cast<Player*>(source), const_cast<Unit*>(target));
+        {
+            Unit const* unitTarget = nullptr;
+            if (target)
+                unitTarget = target->ToUnit();
+            return sScriptMgr->OnCriteriaCheck(ScriptId, const_cast<Player*>(source), const_cast<Unit*>(unitTarget));
+        }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
             if (source->GetMap()->IsRaid())
                 if (source->GetMap()->Is25ManRaid() != ((difficulty.difficulty & RAID_DIFFICULTY_MASK_25MAN) != 0))
@@ -394,7 +417,11 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                     dataType, criteria_id, map->GetId());
                 return false;
             }
-            return instance->CheckAchievementCriteriaMeet(criteria_id, source, target, miscvalue1);
+
+            Unit const* unitTarget = nullptr;
+            if (target)
+                unitTarget = target->ToUnit();
+            return instance->CheckAchievementCriteriaMeet(criteria_id, source, unitTarget, miscvalue1);
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
@@ -440,7 +467,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
     return false;
 }
 
-bool AchievementCriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscvalue1 /*= 0*/, uint32 miscvalue2 /* = 0*/) const
+bool AchievementCriteriaDataSet::Meets(Player const* source, WorldObject const* target, uint32 miscvalue1 /*= 0*/, uint32 miscvalue2 /* = 0*/) const
 {
     for (Storage::const_iterator itr = storage.begin(); itr != storage.end(); ++itr)
         if (!itr->Meets(criteria_id, source, target, miscvalue1, miscvalue2))
@@ -714,7 +741,7 @@ void AchievementMgr::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, C
 void AchievementMgr::CheckAllAchievementCriteria()
 {
     // suppress sending packets
-    for (uint32 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
+    for (uint32 i = 0; i < ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
         UpdateAchievementCriteria(AchievementCriteriaTypes(i));
 }
 
@@ -723,7 +750,7 @@ static const uint32 achievIdByArenaSlot[MAX_ARENA_SLOT] = { 1057, 1107, 1108 };
 /**
  * this function will be called whenever the user might have done a criteria relevant action
  */
-void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= nullptr*/)
+void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, WorldObject* ref /*= nullptr*/)
 {
     if (type >= ACHIEVEMENT_CRITERIA_TYPE_TOTAL)
     {
@@ -749,7 +776,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         if (!achievement)
             continue;
 
-        if (!CanUpdateCriteria(achievementCriteria, achievement, miscValue1, miscValue2, unit))
+        if (!CanUpdateCriteria(achievementCriteria, achievement, miscValue1, miscValue2, ref))
             continue;
 
         switch (type)
@@ -761,7 +788,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             default:
                 if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
-                    if (!data->Meets(GetPlayer(), unit, miscValue1, miscValue2))
+                    if (!data->Meets(GetPlayer(), ref, miscValue1, miscValue2))
                         continue;
                 break;
         }
@@ -925,7 +952,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 {
                     // those requirements couldn't be found in the dbc
                     AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(), unit, miscValue1))
+                    if (!data || !data->Meets(GetPlayer(), ref, miscValue1))
                     {
                         // reset the progress as we have a win without the requirement.
                         SetCriteriaProgress(achievementCriteria, 0);
@@ -1613,7 +1640,7 @@ bool AchievementMgr::HasAchieved(uint32 achievementId) const
     return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
 }
 
-bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, Unit const* unit)
+bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, WorldObject const* ref)
 {
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, nullptr))
     {
@@ -1637,7 +1664,7 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
         return false;
     }
 
-    if (!RequirementsSatisfied(criteria, achievement, miscValue1, miscValue2, unit))
+    if (!RequirementsSatisfied(criteria, achievement, miscValue1, miscValue2, ref))
     {
         TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s) Requirements have not been satisfied",
             criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->Type));
@@ -1683,7 +1710,7 @@ bool AchievementMgr::ConditionsSatisfied(AchievementCriteriaEntry const* criteri
     return true;
 }
 
-bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, Unit const* unit) const
+bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, WorldObject const* ref) const
 {
     switch (AchievementCriteriaTypes(achievementCriteria->Type))
     {
@@ -1923,7 +1950,7 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                     return false;
 
                 // map specific case (BG in fact) expected player targeted damage/heal
-                if (!unit || unit->GetTypeId() != TYPEID_PLAYER)
+                if (!ref || ref->GetTypeId() != TYPEID_PLAYER)
                     return false;
             }
             break;

@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef TRINITY_SPELLDEFINES_H
 #define TRINITY_SPELLDEFINES_H
 
@@ -181,7 +182,7 @@ struct TC_GAME_API CastSpellExtraArgs
     struct
     {
         friend struct CastSpellExtraArgs;
-        friend class Unit;
+        friend class WorldObject;
 
         private:
             void AddMod(SpellValueMod mod, int32 val) { data.push_back({ mod, val }); }

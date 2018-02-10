@@ -334,8 +334,6 @@ Aura* Aura::TryRefreshStackOrCreate(AuraCreateInfo& createInfo)
 
 Aura* Aura::TryCreate(AuraCreateInfo& createInfo)
 {
-    ASSERT(createInfo.Caster || createInfo.CasterGUID);
-
     uint8 effMask = createInfo._auraEffectMask;
     if (createInfo._targetEffectMask)
         effMask = createInfo._targetEffectMask;
@@ -349,17 +347,25 @@ Aura* Aura::TryCreate(AuraCreateInfo& createInfo)
 
 Aura* Aura::Create(AuraCreateInfo& createInfo)
 {
-    ASSERT(createInfo.Caster || createInfo.CasterGUID);
-
     // try to get caster of aura
     if (createInfo.CasterGUID)
     {
-        if (createInfo._owner->GetGUID() == createInfo.CasterGUID)
-            createInfo.Caster = createInfo._owner->ToUnit();
+        // world gameobjects can't own auras and they send empty casterguid
+        // checked on sniffs with spell 22247
+        if (createInfo.CasterGUID.IsGameObject())
+        {
+            createInfo.Caster = nullptr;
+            createInfo.CasterGUID.Clear();
+        }
         else
-            createInfo.Caster = ObjectAccessor::GetUnit(*createInfo._owner, createInfo.CasterGUID);
+        {
+            if (createInfo._owner->GetGUID() == createInfo.CasterGUID)
+                createInfo.Caster = createInfo._owner->ToUnit();
+            else
+                createInfo.Caster = ObjectAccessor::GetUnit(*createInfo._owner, createInfo.CasterGUID);
+        }
     }
-    else
+    else if (createInfo.Caster)
         createInfo.CasterGUID = createInfo.Caster->GetGUID();
 
     // check if aura can be owned by owner
@@ -412,7 +418,7 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
 }
 
 Aura::Aura(AuraCreateInfo const& createInfo) :
-m_spellInfo(createInfo._spellInfo), m_casterGuid(createInfo.CasterGUID.IsEmpty() ? createInfo.Caster->GetGUID() : createInfo.CasterGUID),
+m_spellInfo(createInfo._spellInfo), m_casterGuid(createInfo.CasterGUID),
 m_castItemGuid(createInfo.CastItem ? createInfo.CastItem->GetGUID() : ObjectGuid::Empty), m_applyTime(GameTime::GetGameTime()),
 m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),
 _casterInfo(), m_procCharges(0), m_stackAmount(1),
