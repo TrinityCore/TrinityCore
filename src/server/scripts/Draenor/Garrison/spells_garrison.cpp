@@ -25,6 +25,16 @@ class spell_garrison_hearthstone : public SpellScript
 {
     PrepareSpellScript(spell_garrison_hearthstone);
 
+    SpellCastResult CheckCast()
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+            if (Garrison* garr = caster->GetGarrison(GARRISON_TYPE_GARRISON))
+                if (garr->GetSiteLevel())
+                    return SPELL_CAST_OK;
+
+        return SPELL_FAILED_GARRISON_NOT_OWNED;
+    }
+
     void SetDest(SpellDestination& dest)
     {
         if (Player* caster = GetCaster()->ToPlayer())
@@ -43,11 +53,12 @@ class spell_garrison_hearthstone : public SpellScript
 
     void Register() override
     {
+        OnCheckCast += SpellCheckCastFn(spell_garrison_hearthstone::CheckCast);
         OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_garrison_hearthstone::SetDest, EFFECT_0, TARGET_DEST_DB);
     }
 };
 
 void AddSC_spells_garrison()
 {
-    new spell_garrison_hearthstone();
+    RegisterSpellScript(spell_garrison_hearthstone);
 }
