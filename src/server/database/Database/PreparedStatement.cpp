@@ -190,11 +190,6 @@ void PreparedStatement::setNull(const uint8 index)
     statement_data[index].type = TYPE_NULL;
 }
 
-std::string PreparedStatement::getQueryString()
-{
-    return m_stmt->getQueryString();
-}
-
 MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt, std::string queryString) :
 m_stmt(nullptr), m_Mstmt(stmt), m_bind(nullptr), m_queryString(std::move(queryString))
 {
