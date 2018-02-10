@@ -172,7 +172,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
             continue;
 
         // check if race matches racemask
-        if (request.RaceFilter >= 0 && !(request.RaceFilter & (1 << target->getRace())))
+        if (request.RaceFilter >= 0 && !(request.RaceFilter & (UI64LIT(1) << target->getRace())))
             continue;
 
         if (!whoRequest.Areas.empty())
