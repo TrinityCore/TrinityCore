@@ -301,8 +301,9 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     {
         do
         {
-            Field* fields = result->Fetch();
-            WorldPackets::Character::EnumCharactersResult::CharacterInfo charInfo(fields);
+            charEnum.Characters.emplace_back(result->Fetch());
+
+            WorldPackets::Character::EnumCharactersResult::CharacterInfo& charInfo = charEnum.Characters.back();
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
@@ -338,15 +339,21 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             else
                 charEnum.HasDemonHunterOnRealm = false;
 
-            if (charInfo.Level >= sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER) || canAlwaysCreateDemonHunter)
-                charEnum.HasLevel70OnRealm = true;
-
-            charEnum.Characters.emplace_back(charInfo);
+            charEnum.MaxCharacterLevel = std::max<int32>(charEnum.MaxCharacterLevel, charInfo.Level);
         }
         while (result->NextRow());
     }
 
-    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm && charEnum.HasLevel70OnRealm) || canAlwaysCreateDemonHunter;
+    charEnum.IsDemonHunterCreationAllowed = GetAccountExpansion() >= EXPANSION_LEGION || canAlwaysCreateDemonHunter;
+    charEnum.IsAlliedRacesCreationAllowed = GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
+
+    for (std::pair<uint8 const, RaceUnlockRequirement> const& requirement : sObjectMgr->GetRaceUnlockRequirements())
+    {
+        WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
+        raceUnlock.RaceID = requirement.first;
+        raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
+        charEnum.RaceUnlockData.push_back(raceUnlock);
+    }
 
     SendPacket(charEnum.Write());
 }
@@ -458,19 +465,36 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     }
 
     // prevent character creating Expansion race without Expansion account
-    uint8 raceExpansionRequirement = sObjectMgr->GetRaceExpansionRequirement(charCreate.CreateInfo->Race);
-    if (raceExpansionRequirement > GetExpansion())
+    RaceUnlockRequirement const* raceExpansionRequirement = sObjectMgr->GetRaceUnlockRequirement(charCreate.CreateInfo->Race);
+    if (!raceExpansionRequirement)
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", GetExpansion(), GetAccountId(), raceExpansionRequirement, charCreate.CreateInfo->Race);
+        TC_LOG_ERROR("entities.player.cheat", "Account %u tried to create character with unavailable race %u", GetAccountId(), charCreate.CreateInfo->Race);
+        SendCharCreate(CHAR_CREATE_FAILED);
+        return;
+    }
+
+    if (raceExpansionRequirement->Expansion > GetAccountExpansion())
+    {
+        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)",
+            GetAccountExpansion(), GetAccountId(), raceExpansionRequirement->Expansion, charCreate.CreateInfo->Race);
         SendCharCreate(CHAR_CREATE_EXPANSION);
         return;
     }
 
+    //if (raceExpansionRequirement->AchievementId && !)
+    //{
+    //    TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character without achievement %u race (%u)",
+    //        GetAccountExpansion(), GetAccountId(), raceExpansionRequirement->AchievementId, charCreate.CreateInfo->Race);
+    //    SendCharCreate(CHAR_CREATE_ALLIED_RACE_ACHIEVEMENT);
+    //    return;
+    //}
+
     // prevent character creating Expansion class without Expansion account
     uint8 classExpansionRequirement = sObjectMgr->GetClassExpansionRequirement(charCreate.CreateInfo->Class);
-    if (classExpansionRequirement > GetExpansion())
+    if (classExpansionRequirement > GetAccountExpansion())
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", GetExpansion(), GetAccountId(), classExpansionRequirement, charCreate.CreateInfo->Class);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)",
+            GetAccountExpansion(), GetAccountId(), classExpansionRequirement, charCreate.CreateInfo->Class);
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }
@@ -665,7 +689,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
             if (checkDemonHunterReqs && !hasDemonHunterReqLevel)
             {
-                SendCharCreate(CHAR_CREATE_FAILED);
+                SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT_DEMON_HUNTER);
                 return;
             }
 
@@ -2112,8 +2136,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 for (ObjectMgr::QuestMap::const_iterator iter = questTemplates.begin(); iter != questTemplates.end(); ++iter)
                 {
                     Quest const* quest = iter->second;
-                    uint32 newRaceMask = (newTeamId == TEAM_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE;
-                    if (quest->GetAllowableRaces() != -1 && !(quest->GetAllowableRaces() & newRaceMask))
+                    uint64 newRaceMask = (newTeamId == TEAM_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE;
+                    if (quest->GetAllowableRaces() != uint64(-1) && !(quest->GetAllowableRaces() & newRaceMask))
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST);
                         stmt->setUInt64(0, lowGuid);

@@ -2354,7 +2354,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     packet.Reason = victim ? LOG_XP_REASON_KILL : LOG_XP_REASON_NO_KILL;
     packet.Amount = xp;
     packet.GroupBonus = group_rate;
-    packet.ReferAFriend = recruitAFriend;
+    packet.ReferAFriendBonusType = recruitAFriend ? 1 : 0;
     GetSession()->SendPacket(packet.Write());
 
     uint32 curXP = GetUInt32Value(PLAYER_XP);
@@ -9846,6 +9846,42 @@ bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const
 void Player::SetInventorySlotCount(uint8 slots)
 {
     ASSERT(slots <= (INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START));
+
+    if (slots < GetInventorySlotCount())
+    {
+        std::vector<Item*> unstorableItems;
+
+        for (uint8 slot = INVENTORY_SLOT_ITEM_START + slots; slot < INVENTORY_SLOT_ITEM_END; ++slot)
+            if (Item* unstorableItem = GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                unstorableItems.push_back(unstorableItem);
+
+        if (!unstorableItems.empty())
+        {
+            std::size_t fullBatches = unstorableItems.size() / MAX_MAIL_ITEMS;
+            std::size_t remainder = unstorableItems.size() % MAX_MAIL_ITEMS;
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+            auto sendItemsBatch = [this, &trans, &unstorableItems](std::size_t batchNumber, std::size_t batchSize)
+            {
+                MailDraft draft(GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM), "There were problems with equipping item(s).");
+                for (std::size_t j = 0; j < batchSize; ++j)
+                    draft.AddItem(unstorableItems[batchNumber * MAX_MAIL_ITEMS + j]);
+
+                draft.SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
+            };
+
+            for (std::size_t batch = 0; batch < fullBatches; ++batch)
+                sendItemsBatch(batch, MAX_MAIL_ITEMS);
+
+            if (remainder)
+                sendItemsBatch(fullBatches, remainder);
+
+            CharacterDatabase.CommitTransaction(trans);
+
+            SendDirectMessage(WorldPackets::Item::CharacterInventoryOverflowWarning().Write());
+        }
+    }
+
     SetByteValue(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_NUM_BACKPACK_SLOTS, slots);
 }
 
@@ -15620,8 +15656,8 @@ bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
 
 bool Player::SatisfyQuestRace(Quest const* qInfo, bool msg) const
 {
-    int32 reqraces = qInfo->GetAllowableRaces();
-    if (reqraces == -1)
+    uint64 reqraces = qInfo->GetAllowableRaces();
+    if (reqraces == uint64(-1))
         return true;
     if ((reqraces & getRaceMask()) == 0)
     {
@@ -19893,6 +19929,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
         stmt->setUInt32(index++, m_grantableLevels);
+        stmt->setUInt32(index++, realm.Build);
     }
     else
     {
@@ -20043,6 +20080,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetPrestigeLevel());
         stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_HONOR)));
         stmt->setFloat(index++, finiteAlways(_restMgr->GetRestBonus(REST_TYPE_HONOR)));
+        stmt->setUInt32(index++, realm.Build);
 
         // Index
         stmt->setUInt64(index, GetGUID().GetCounter());
@@ -27174,12 +27212,14 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
     WorldPackets::Quest::DisplayPlayerChoice displayPlayerChoice;
     displayPlayerChoice.SenderGUID = sender;
     displayPlayerChoice.ChoiceID = choiceId;
+    displayPlayerChoice.UiTextureKitID = playerChoice->UiTextureKitId;
     displayPlayerChoice.Question = playerChoice->Question;
     if (playerChoiceLocale)
         ObjectMgr::GetLocaleString(playerChoiceLocale->Question, locale, displayPlayerChoice.Question);
 
     displayPlayerChoice.Responses.resize(playerChoice->Responses.size());
     displayPlayerChoice.CloseChoiceFrame = false;
+    displayPlayerChoice.HideWarboardHeader = playerChoice->HideWarboardHeader;
 
     for (std::size_t i = 0; i < playerChoice->Responses.size(); ++i)
     {

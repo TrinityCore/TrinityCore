@@ -109,6 +109,7 @@ namespace WorldPackets
             int32 QuestID                   = 0;
             int32 QuestType                 = 0; // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
             int32 QuestLevel                = 0; // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
+            int32 QuestMaxScalingLevel      = 255;
             int32 QuestPackageID            = 0;
             int32 QuestMinLevel             = 0;
             int32 QuestSortID               = 0; // zone or sort to display in quest log
@@ -135,7 +136,7 @@ namespace WorldPackets
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
             int32 POIPriority               = 0;
-            int32 AllowableRaces            = -1;
+            uint64 AllowableRaces           = UI64LIT(0xFFFFFFFFFFFFFFFF);
             std::string LogTitle;
             std::string LogDescription;
             std::string QuestDescription;
@@ -462,11 +463,13 @@ namespace WorldPackets
 
         struct GossipText
         {
-            GossipText(uint32 questID, uint32 questType, int32 questLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, std::string questTitle) :
-                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestFlags(questFlags), QuestFlagsEx(questFlagsEx), Repeatable(repeatable), QuestTitle(questTitle) { }
+            GossipText(uint32 questID, uint32 questType, int32 questLevel, int32 questMaxScalingLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, std::string questTitle) :
+                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestMaxScalingLevel(questMaxScalingLevel), QuestFlags(questFlags),
+                QuestFlagsEx(questFlagsEx), Repeatable(repeatable), QuestTitle(std::move(questTitle)) { }
             uint32 QuestID;
             uint32 QuestType;
             int32 QuestLevel;
+            int32 QuestMaxScalingLevel;
             uint32 QuestFlags;
             uint32 QuestFlagsEx;
             bool Repeatable;
@@ -676,9 +679,11 @@ namespace WorldPackets
 
             ObjectGuid SenderGUID;
             int32 ChoiceID = 0;
+            int32 UiTextureKitID = 0;
             std::string Question;
             std::vector<PlayerChoiceResponse> Responses;
             bool CloseChoiceFrame = false;
+            bool HideWarboardHeader = false;
         };
 
         class ChoiceResponse final : public ClientPacket
