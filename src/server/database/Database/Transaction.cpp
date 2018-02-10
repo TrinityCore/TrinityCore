@@ -26,7 +26,7 @@
 
 std::mutex TransactionTask::_deadlockLock;
 
-#define STATEMENT_DURATION 60000
+#define DEADLOCK_MAX_RETRY_TIME_MS 60000
 
 //- Append a raw ad-hoc query to the transaction
 void Transaction::Append(char const* sql)
@@ -84,7 +84,7 @@ bool TransactionTask::Execute()
         // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
         std::lock_guard<std::mutex> lock(_deadlockLock);
         
-        for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= STATEMENT_DURATION; loopDuration = GetMSTimeDiffToNow(startMSTime))
+        for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
         {
             if (!m_conn->ExecuteTransaction(m_trans))                
                 return true;
