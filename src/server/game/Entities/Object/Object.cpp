@@ -2311,7 +2311,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
 float WorldObject::SelectBestZForDestination(float x, float y, float z, bool excludeCollisionHeight) const
 {
     if (Unit const* unit = ToUnit())
-        if (unit->CanFly())
+        if (unit->IsFlying()) // Also check if in air ?
             return z;
 
     float myX, myY, myZ;
