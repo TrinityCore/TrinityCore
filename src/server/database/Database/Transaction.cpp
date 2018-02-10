@@ -19,8 +19,10 @@
 #include "Transaction.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
+#include "Timer.h"
 #include <mysqld_error.h>
-#include <Timer.h>
+#include <sstream>
+#include <thread>
 
 std::mutex TransactionTask::_deadlockLock;
 
@@ -67,25 +69,6 @@ void Transaction::Cleanup()
     _cleanedUp = true;
 }
 
-std::string Transaction::ToString()
-{
-    std::string msg;
-    for (SQLElementData const& data : m_queries)
-    {
-        switch (data.type)
-        {
-            case SQL_ELEMENT_PREPARED:
-                msg += data.element.stmt->getQueryString();
-                break;
-            case SQL_ELEMENT_RAW:
-                msg += data.element.query;
-                break;
-        }
-        msg += ";";
-    }
-    return msg;
-}
-
 bool TransactionTask::Execute()
 {
     int errorCode = m_conn->ExecuteTransaction(m_trans);
@@ -94,7 +77,9 @@ bool TransactionTask::Execute()
 
     if (errorCode == ER_LOCK_DEADLOCK)
     {
-        std::string transString = m_trans->ToString();
+        std::ostringstream threadIdStream;
+        threadIdStream << std::this_thread::get_id();
+        std::string threadId = threadIdStream.str();
 
         // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
         std::lock_guard<std::mutex> lock(_deadlockLock);
@@ -104,10 +89,10 @@ bool TransactionTask::Execute()
             if (!m_conn->ExecuteTransaction(m_trans))                
                 return true;
 
-            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u, SQL: %s", loopDuration, transString.c_str());
+            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u ms, Thread Id: %s", loopDuration, threadId.c_str());
         }
 
-        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. SQL: %s", transString.c_str());
+        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: %s", threadId.c_str());
     }
 
     // Clean up now.
