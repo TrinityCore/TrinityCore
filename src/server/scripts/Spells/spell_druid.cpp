@@ -27,6 +27,13 @@
 #include "Containers.h"
 #include "SpellPackets.h"
 
+enum DruidSpells
+{
+    //7.3.2.25549
+    SPELL_DRUID_THRASH_PERIODIC_DAMAGE                 = 192090
+    //7.3.2.25549 END
+};
+
 enum ShapeshiftFormSpells
 {
     SPELL_DRUID_BEAR_FORM                           = 5487,
@@ -47,6 +54,56 @@ enum EfflorescenceSpells
     SPELL_DRUID_EFFLORESCENCE_HEAL   = 81269,
     SPELL_DRUID_EFFLORESCENCE_DUMMY  = 81262
 };
+
+//7.3.2.25549
+// 77758 - Thrash
+class spell_dru_thrash : public SpellScript
+{
+    PrepareSpellScript(spell_dru_thrash);
+
+    void OnHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        caster->CastSpell(target, SPELL_DRUID_THRASH_PERIODIC_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_thrash::OnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// Thrash periodic damage - 192090
+class spell_dru_thrash_periodic_damage : public AuraScript
+{
+    PrepareAuraScript(spell_dru_thrash_periodic_damage);
+
+    void OnTick(AuraEffect const* auraEff)
+    {
+        if (Unit* caster = auraEff->GetCaster())
+        {
+            if (Player* player = caster->ToPlayer())
+            {
+                if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_0))
+                {
+                    int32 dmg = player->GetUInt32Value(UNIT_FIELD_ATTACK_POWER) * 0.605f;
+                    dmg = (dmg * GetStackAmount()) / 5;
+                    aurEff->SetDamage(dmg);
+                } 
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_thrash_periodic_damage::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+//7.3.2.25549 END
 
 // Efflorescence - 145205
 // @Version : 7.1.0.22908
@@ -2076,6 +2133,12 @@ void AddSC_druid_spell_scripts()
     new spell_dru_bloodtalons();
     new spell_dru_travel_form();
     new spell_dru_travel_form_aura();
+
+    //7.3.2.25549
+    RegisterSpellScript(spell_dru_thrash);
+    
+    RegisterAuraScript(spell_dru_thrash_periodic_damage);
+    //7.3.2.25549 END
 
     // AreaTrigger Scripts
     new at_dru_solar_beam();

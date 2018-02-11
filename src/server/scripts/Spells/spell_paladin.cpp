@@ -95,6 +95,7 @@ enum PaladinSpells
     SPELL_PALADIN_BEACON_OF_LIGHT                = 53563,
     SPELL_PALADIN_BEACON_OF_LIGHT_PROC_AURA      = 53651,
     SPELL_PALADIN_BEACON_OF_LIGHT_HEAL           = 53652,
+    SPELL_PALADIN_BEACON_OF_VIRTUE               = 200025,
     SPELL_PALADIN_HOLY_LIGHT                     = 82326,
     SPELL_PALADIN_LIGHT_OF_THE_MARTYR            = 183998,
     //7.3.2.25549 END
@@ -137,6 +138,36 @@ enum PaladinSpellVisualKit
 };
 
 //7.3.2.25549
+// Beacon of Virtue - 200025
+class spell_pal_beacon_of_virtue : public SpellScript
+{
+    PrepareSpellScript(spell_pal_beacon_of_virtue);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        uint8 maxTargets = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints + 1;
+        if (!maxTargets)
+            return;
+
+        if (targets.size() > maxTargets)
+        {
+            targets.sort(Trinity::HealthPctOrderPred());
+            targets.resize(maxTargets);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_beacon_of_virtue::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_beacon_of_virtue::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_beacon_of_virtue::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
 // Beacon of Faith - 156910
 class spell_pal_beacon_of_faith : public SpellScript
 {
@@ -185,7 +216,7 @@ class spell_pal_beacon_of_light : public SpellScript
     }
 };
 
-// 53563 - Beacon of Light / Beacon of Faith - 156910
+// 53563 - Beacon of Light / Beacon of Faith - 156910 / Beacon of Virtue 200025
 class spell_pal_beacon_of_light_aura : public AuraScript
 {
     PrepareAuraScript(spell_pal_beacon_of_light_aura);
@@ -198,7 +229,7 @@ class spell_pal_beacon_of_light_aura : public AuraScript
         if (!caster)
             return;
 
-        if (GetSpellInfo()->Id == SPELL_PALADIN_BEACON_OF_LIGHT)
+        if (GetSpellInfo()->Id == SPELL_PALADIN_BEACON_OF_LIGHT || GetSpellInfo()->Id == SPELL_PALADIN_BEACON_OF_VIRTUE)
             caster->CastSpell(target, SPELL_PALADIN_BEACON_OF_LIGHT_PROC_AURA, true);
         else
             caster->CastSpell(target, SPELL_PALADIN_BEACON_OF_FAITH_PROC_AURA, true);
@@ -211,7 +242,7 @@ class spell_pal_beacon_of_light_aura : public AuraScript
         if (!caster)
             return;
 
-        if (GetSpellInfo()->Id == SPELL_PALADIN_BEACON_OF_LIGHT)
+        if (GetSpellInfo()->Id == SPELL_PALADIN_BEACON_OF_LIGHT || GetSpellInfo()->Id == SPELL_PALADIN_BEACON_OF_VIRTUE)
             caster->RemoveAura(SPELL_PALADIN_BEACON_OF_LIGHT_PROC_AURA);
         else
             caster->RemoveAura(SPELL_PALADIN_BEACON_OF_FAITH_PROC_AURA);
@@ -241,7 +272,7 @@ class spell_pal_beacon_of_light_proc : public AuraScript
                 pct = 15; // 15% heal from these spells
                 break;
             default:
-                pct = 40; // 50% heal from all other heals
+                pct = 40; // 40% heal from all other heals
                 break;
         }
 
@@ -277,7 +308,7 @@ class spell_pal_beacon_of_light_proc : public AuraScript
 
         int32 bp = CalculatePct(healInfo->GetHeal(), GetPctBySpell(GetSpellInfo()->Id));
 
-        if (GetSpellInfo()->Id == SPELL_PALADIN_BEACON_OF_LIGHT_PROC_AURA && targetOfBeacon->HasAura(SPELL_PALADIN_BEACON_OF_LIGHT))
+        if (GetSpellInfo()->Id == SPELL_PALADIN_BEACON_OF_LIGHT_PROC_AURA && (targetOfBeacon->HasAura(SPELL_PALADIN_BEACON_OF_LIGHT) || targetOfBeacon->HasAura(SPELL_PALADIN_BEACON_OF_VIRTUE)))
         {
             ownerOfBeacon->CastCustomSpell(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, bp, targetOfBeacon, true);
             auraCheck = true;
@@ -2364,6 +2395,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_crusader_strike);
     RegisterSpellScript(spell_pal_beacon_of_faith);
     RegisterSpellScript(spell_pal_beacon_of_light);
+    RegisterSpellScript(spell_pal_beacon_of_virtue);
     
     RegisterAuraScript(spell_pal_beacon_of_light_aura);
     RegisterAuraScript(spell_pal_beacon_of_light_proc);
