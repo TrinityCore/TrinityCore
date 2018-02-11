@@ -14416,6 +14416,7 @@ UPDATE `creature_template` SET `minlevel`=110, `maxlevel`=110, `faction`=35, `Ba
 UPDATE `creature_template` SET `minlevel`=110, `maxlevel`=110, `faction`=2916, `npcflag`=2, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_class`=2, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=123668; -- Captain Fareeya
 UPDATE `creature_template` SET `minlevel`=110, `maxlevel`=110, `faction`=35, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_class`=2, `unit_flags`=33536, `unit_flags2`=2048 WHERE `entry`=125524; -- Lightsworn Anchorite
 
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (125032, 127528, 123074, 128135, 122794, 122794, 125265, 126499, 128193, 123629, 126593, 125926, 127271, 125738, 125532, 124398, 121676, 127023, 126944, 127811, 126547, 127722, 128151);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (125032, 253054, 0, 0),
 (127528, 247069, 0, 0),
