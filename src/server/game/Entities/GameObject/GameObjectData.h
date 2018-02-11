@@ -872,6 +872,7 @@ struct GameObjectData
     uint32 phaseGroup;
     uint32 ScriptId;
     bool dbData;
+    bool isActive;
 };
 
 #endif // GameObjectData_h__

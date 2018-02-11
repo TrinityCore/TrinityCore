@@ -927,6 +927,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     data.go_state = GetGoState();
     data.spawnMask = spawnMask;
     data.artKit = GetGoArtKit();
+    data.isActive = isActiveObject();
 
     data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
     data.phaseGroup = GetDBPhase() < 0 ? -GetDBPhase() : data.phaseGroup;
@@ -958,6 +959,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     stmt->setInt32(index++, int32(m_respawnDelayTime));
     stmt->setUInt8(index++, GetGoAnimProgress());
     stmt->setUInt8(index++, uint8(GetGoState()));
+    stmt->setUInt32(index++, uint8(isActiveObject()));
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -1025,6 +1027,8 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
     }
 
     m_goData = data;
+
+    setActive(data->isActive);
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
