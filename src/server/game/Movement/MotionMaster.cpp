@@ -482,7 +482,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
-void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
+void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount, bool enterCycle)
 {
     float step = 2 * float(M_PI) / stepCount * (clockwise ? -1.0f : 1.0f);
     Position const& pos = { x, y, z, 0.0f };
@@ -490,7 +490,8 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
 
     Movement::MoveSplineInit init(_owner);
 
-    for (uint8 i = 0; i < stepCount; angle += step, ++i)
+    uint32 totalStepCount = enterCycle ? stepCount + 1 : stepCount;
+    for (uint8 i = 0; i < totalStepCount; angle += step, ++i)
     {
         G3D::Vector3 point;
         point.x = x + radius * cosf(angle);
@@ -508,12 +509,14 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     {
         init.SetFly();
         init.SetCyclic();
+        init.SetEnterCycle(enterCycle);
         init.SetAnimation(Movement::ToFly);
     }
     else
     {
         init.SetWalk(true);
         init.SetCyclic();
+        init.SetEnterCycle(enterCycle);
     }
 
     init.Launch();

@@ -122,10 +122,7 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
     static SplineBase::EvaluationMode const modes[2] = { SplineBase::ModeLinear, SplineBase::ModeCatmullrom };
     if (args.flags.cyclic)
     {
-        uint32 cyclic_point = 0;
-        // MoveSplineFlag::Enter_Cycle support dropped
-        //if (splineflags & SPLINEFLAG_ENTER_CYCLE)
-        //cyclic_point = 1;   // shouldn't be modified, came from client
+        uint32 cyclic_point = args.flags.enter_cycle ? 1 : 0;
         spline.init_cyclic_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], cyclic_point);
     }
     else
