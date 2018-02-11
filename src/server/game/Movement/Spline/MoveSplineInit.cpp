@@ -102,6 +102,9 @@ namespace Movement
         if (moveFlags & MOVEMENTFLAG_ROOT)
             moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
 
+        if (args.flags.cyclic)
+            args.flags.EnableCatmullRom();
+
         if (!args.HasVelocity)
         {
             // If spline is initialized with SetWalk method it only means we need to select
