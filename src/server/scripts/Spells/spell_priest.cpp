@@ -33,12 +33,30 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
+#include "SpellHistory.h"
 
 enum PriestSpells
 {
-    SPELL_PRIEST_ABSOLUTION                         = 33167,
-    SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
+    //7.3.2.25549
+    SPELL_PRIEST_TWIST_OF_FATE                      = 109142,
+    SPELL_PRIEST_MIND_BOMB                          = 205369,
+    SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
+    SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
+    SPELL_PRIEST_HOLY_WORD_CHASTISE_STUN            = 200200,
+    SPELL_PRIEST_CENSURE                            = 200199,
+    SPELL_PRIEST_HOLY_WORD_SERENITY                 = 2050,
+    SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
+    SPELL_PRIEST_PIETY                              = 197034,
+    SPELL_PRIEST_BODY_AND_SOUL_AURA                 = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_PRAYER_OF_MENDING_BUFF             = 41635,
+    SPELL_PRIEST_PRAYER_OF_MENDING                  = 33076,
+    //7.3.2.25549 END
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_IMMUNITY      = 62371,
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_UNTRANS_HERO  = 25100,
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_FORM          = 27795,
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_SHAPESHIFT    = 27827,
+    SPELL_PRIEST_ABSOLUTION                         = 33167,
     SPELL_PRIEST_CURE_DISEASE                       = 528,
     SPELL_PRIEST_DISPEL_MAGIC_FRIENDLY              = 97690,
     SPELL_PRIEST_DISPEL_MAGIC_HOSTILE               = 97691,
@@ -77,7 +95,6 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT                          = 81749,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
     SPELL_PRIEST_ATONEMENT_AURA                     = 194384,
-    SPELL_PRIEST_BODY_AND_SOUL_AURA                 = 64129,
     SPELL_PRIEST_DEVOURING_PLAGUE                   = 2944,
     SPELL_PRIEST_DEVOURING_PLAGUE_HEAL              = 127626,
     SPELL_PRIEST_DISPERSION_SPRINT                  = 129960,
@@ -94,7 +111,6 @@ enum PriestSpells
     SPELL_PRIEST_HALO_HEAL_HOLY                     = 120692,
     SPELL_PRIEST_HALO_HEAL_SHADOW                   = 120696,
     SPELL_PRIEST_HOLY_SPARK                         = 131567,
-    SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
     SPELL_PRIEST_HOLY_WORD_SANCTUARY_AREA           = 88685,
     SPELL_PRIEST_HOLY_WORD_SANCTUARY_HEAL           = 88686,
     SPELL_PRIEST_INNER_FIRE                         = 588,
@@ -118,7 +134,6 @@ enum PriestSpells
     SPELL_PRIEST_PHANTASM_PROC                      = 114239,
     SPELL_PRIEST_POWER_WORD_FORTITUDE               = 21562,
     SPELL_PRIEST_POWER_WORD_SHIELD                  = 17,
-    SPELL_PRIEST_PRAYER_OF_MENDING                  = 33076,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_RADIUS           = 123262,
     SPELL_PRIEST_RAPID_RENEWAL_AURA                 = 95649,
@@ -128,14 +143,8 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_WORD_INSANITY_DAMAGE        = 129249,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SIN_AND_PUNISHMENT                 = 87204,
-    SPELL_PRIEST_SMITE                              = 585,
     SPELL_PRIEST_SOUL_OF_DIAMOND                    = 96219,
     SPELL_PRIEST_SPECTRAL_GUISE_CHARGES             = 119030,
-    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_FORM          = 27795,
-    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_IMMUNITY      = 62371,
-    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_ROOT          = 27792,
-    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_SHAPESHIFT    = 27827,
-    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_TALENT        = 20711,
     SPELL_PRIEST_SPIRIT_SHELL_ABSORPTION            = 114908,
     SPELL_PRIEST_SPIRIT_SHELL_AURA                  = 109964,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 89488,
@@ -186,6 +195,293 @@ enum MiscSpells
 {
     SPELL_GEN_REPLENISHMENT                         = 57669
 };
+
+//7.3.2.25549
+// 17 - Power Word: Shield
+class spell_pri_power_word_shield : public SpellScript
+{
+    PrepareSpellScript(spell_pri_power_word_shield);
+
+    void OnHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
+            caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_AURA, true);
+
+        if (caster->HasAura(SPELL_PRIEST_BODY_AND_SOUL_AURA))
+            caster->CastSpell(target, SPELL_PRIEST_BODY_AND_SOUL_SPEED, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_shield::OnHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+class spell_pri_power_word_shield_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_POWER_WORD_SHIELD });
+    }
+
+    void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        if (Unit* caster = aurEff->GetCaster())
+        {
+            if (Player* player = caster->ToPlayer())
+            {
+                int32 absorbamount = int32(5.5f * player->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()));
+                amount += absorbamount;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
+};
+
+// Clarity of Will - 152118
+class spell_pri_clarity_of_will : public AuraScript
+{
+    PrepareAuraScript(spell_pri_clarity_of_will);
+
+    void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        if (Unit* caster = aurEff->GetCaster())
+        {
+            if (Player* player = caster->ToPlayer())
+            {
+                int32 absorbamount = int32(9.0f * player->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()));
+                amount += absorbamount;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_clarity_of_will::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
+};
+
+// 109142 - Twist of Fate
+class spell_pri_twist_of_fate : public AuraScript
+{
+    PrepareAuraScript(spell_pri_twist_of_fate);
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        Unit* target = GetTarget();
+        int32 targetPct = target->GetHealthPct();
+
+        if (targetPct < 35)
+            return true;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_twist_of_fate::CheckProc);
+    }
+};
+
+// 205369 - Mind Bomb
+class spell_pri_mind_bomb : public AuraScript
+{
+    PrepareAuraScript(spell_pri_mind_bomb);
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster || !target)
+            return;
+
+        std::list<Unit*> targets;
+        target->GetAttackableUnitListInRange(targets, 8.0f);
+
+        for (auto itr : targets)
+        {
+            caster->CastSpell(itr, SPELL_PRIEST_MIND_BOMB_STUN, true);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_mind_bomb::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// Holy Word: Chastise - 88625
+class spell_pri_holy_word_chastise : public SpellScript
+{
+    PrepareSpellScript(spell_pri_holy_word_chastise);
+
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        if (caster->HasAura(SPELL_PRIEST_CENSURE))
+            caster->CastSpell(target, SPELL_PRIEST_HOLY_WORD_CHASTISE_STUN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_holy_word_chastise::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// Flash Heal - 2061 / Heal - 2060
+class spell_pri_heal_flash_heal : public SpellScript
+{
+    PrepareSpellScript(spell_pri_heal_flash_heal);
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->GetSpellHistory()->HasCooldown(SPELL_PRIEST_HOLY_WORD_SERENITY))
+            caster->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_HOLY_WORD_SERENITY, -6 * IN_MILLISECONDS);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pri_heal_flash_heal::HandleAfterCast);
+    }
+};
+
+// Binding Heal - 32546
+class spell_pri_binding_heal : public SpellScript
+{
+    PrepareSpellScript(spell_pri_binding_heal);
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->GetSpellHistory()->HasCooldown(SPELL_PRIEST_HOLY_WORD_SANCTIFY))
+            caster->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_HOLY_WORD_SANCTIFY, -3 * IN_MILLISECONDS);
+
+        if (caster->GetSpellHistory()->HasCooldown(SPELL_PRIEST_HOLY_WORD_SERENITY))
+            caster->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_HOLY_WORD_SERENITY, -3 * IN_MILLISECONDS);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pri_binding_heal::HandleAfterCast);
+    }
+};
+
+// Prayer of Mending - 33076
+class spell_pri_prayer_of_mending : public SpellScript
+{
+    PrepareSpellScript(spell_pri_prayer_of_mending);
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->HasAura(SPELL_PRIEST_PIETY))
+        {
+            if (caster->GetSpellHistory()->HasCooldown(SPELL_PRIEST_HOLY_WORD_SANCTIFY))
+                caster->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_HOLY_WORD_SANCTIFY, -6 * IN_MILLISECONDS);
+        }
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pri_prayer_of_mending::HandleAfterCast);
+    }
+};
+
+// Prayer of Healing - 596
+class spell_pri_prayer_of_healing : public SpellScript
+{
+    PrepareSpellScript(spell_pri_prayer_of_healing);
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->GetSpellHistory()->HasCooldown(SPELL_PRIEST_HOLY_WORD_SANCTIFY))
+            caster->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_HOLY_WORD_SANCTIFY, -6 * IN_MILLISECONDS);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pri_prayer_of_healing::HandleAfterCast);
+    }
+};
+
+// Smite - 585
+class spell_pri_smite : public SpellScript
+{
+    PrepareSpellScript(spell_pri_smite);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SMITE_ABSORB });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        if (!caster->ToPlayer())
+            return;
+
+        int32 dmg = GetHitDamage();
+
+        if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_PRIEST_DISCIPLINE)
+        {
+            caster->CastCustomSpell(SPELL_PRIEST_SMITE_AURA, SPELLVALUE_BASE_POINT0, dmg, target, TRIGGERED_FULL_MASK);
+            caster->CastCustomSpell(SPELL_PRIEST_SMITE_ABSORB, SPELLVALUE_BASE_POINT0, dmg, caster, TRIGGERED_FULL_MASK);
+        }
+    }
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_PRIEST_HOLY)
+        {
+            if (caster->GetSpellHistory()->HasCooldown(SPELL_PRIEST_HOLY_WORD_CHASTISE))
+                caster->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_HOLY_WORD_CHASTISE, -6 * IN_MILLISECONDS);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_smite::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        AfterCast += SpellCastFn(spell_pri_smite::HandleAfterCast);
+    }
+};
+//7.3.2.25549 END
 
 // Void Bolt - 205448
 class spell_pri_void_bolt : public SpellScriptLoader
@@ -420,33 +716,6 @@ class RaidCheck
 
     private:
         Unit const* _caster;
-};
-
-class spell_pri_body_and_soul : public SpellScriptLoader
-{
-    public:
-        spell_pri_body_and_soul() : SpellScriptLoader("spell_pri_body_and_soul") { }
-
-        class spell_pri_body_and_soul_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_body_and_soul_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return true;
-            }
-
-
-            void Register() override
-            {
-                // TODO
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pri_body_and_soul_AuraScript();
-        }
 };
 
 // 34861 - Circle of Healing
@@ -1164,73 +1433,6 @@ class spell_pri_phantasm : public SpellScriptLoader
         }
 };
 
-// 17 - Power Word: Shield
-class spell_pri_power_word_shield : public SpellScriptLoader
-{
-public:
-    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
-
-    class spell_pri_power_word_shield_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_POWER_WORD_SHIELD))
-                return false;
-            return true;
-        }
-
-        void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
-        {
-            if (Unit* caster = aurEff->GetCaster())
-            {
-                if (Player* player = caster->ToPlayer())
-                {
-                    // (SP * 5.5) + (1+$versadmg)
-                    amount += (player->GetStat(STAT_INTELLECT)*5.5) + (1 + player->GetFloatValue(PLAYER_VERSATILITY));
-                }
-            }
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-        }
-    };
-
-    class spell_pri_power_word_shield_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_power_word_shield_SpellScript);
-
-        void ApplyAtonement(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
-                caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_AURA, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_shield_SpellScript::ApplyAtonement, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_pri_power_word_shield_SpellScript();
-    }
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_pri_power_word_shield_AuraScript();
-    }
-};
-
 // 33110 - Prayer of Mending Heal
 class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 {
@@ -1783,100 +1985,6 @@ public:
     }
 };
 
-// Spirit of Redemption - 20711
-class spell_pri_spirit_of_redemption : public SpellScriptLoader
-{
-public:
-    spell_pri_spirit_of_redemption() : SpellScriptLoader("spell_pri_spirit_of_redemption") { }
-
-    class spell_pri_spirit_of_redemption_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_spirit_of_redemption_AuraScript);
-
-        enum eSpells
-        {
-            SpiritOfRedemptionImmunity = 62371,
-            UntransformHero = 25100,
-            SpiritOfRedemptionForm = 27795,
-            SpiritOfRedemptionShapeshift = 27827
-        };
-
-        void CalculateAmount(AuraEffect const* /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
-        {
-            p_Amount = -1;
-        }
-
-        void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
-        {
-            p_AbsorbAmount = 0; //This is set at 0 unless conditions are met (last line)
-            Unit* l_Caster = GetCaster();
-            if (!l_Caster)
-                return;
-
-            if (p_DmgInfo.GetDamage() < l_Caster->GetHealth())
-                return;
-
-            if (l_Caster->HasAura(eSpells::SpiritOfRedemptionShapeshift))
-                return;
-
-            l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionShapeshift, true);
-            l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionForm, true);
-            l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionImmunity, true);
-            l_Caster->CastSpell(l_Caster, eSpells::UntransformHero, true); ///< Visual
-
-            p_AbsorbAmount = p_DmgInfo.GetDamage();
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_spirit_of_redemption_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_spirit_of_redemption_AuraScript::Absorb, EFFECT_0);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_pri_spirit_of_redemption_AuraScript();
-    }
-};
-
-// Last Update 6.2.3
-// Spirit of Redemption (Shapeshift) - 27827
-class spell_pri_spirit_of_redemption_form : public SpellScriptLoader
-{
-public:
-    spell_pri_spirit_of_redemption_form() : SpellScriptLoader("spell_pri_spirit_of_redemption_form") { }
-
-    class spell_pri_spirit_of_redemption_form_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_spirit_of_redemption_form_AuraScript);
-
-        enum eSpells
-        {
-            SpiritOfRedemptionImmunity = 62371,
-            SpiritOfRedemptionForm = 27795
-        };
-
-        void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-        {
-            Unit* l_Target = GetTarget();
-
-            l_Target->RemoveAura(eSpells::SpiritOfRedemptionForm);
-            l_Target->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
-        }
-
-        void Register() override
-        {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_pri_spirit_of_redemption_form_AuraScript();
-    }
-};
-
 class spell_pri_spirit_shell : public SpellScriptLoader
 {
 public:
@@ -2335,6 +2443,100 @@ public:
     }
 };
 
+// Spirit of Redemption - 20711
+class spell_pri_spirit_of_redemption : public SpellScriptLoader
+{
+public:
+    spell_pri_spirit_of_redemption() : SpellScriptLoader("spell_pri_spirit_of_redemption") { }
+
+    class spell_pri_spirit_of_redemption_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_spirit_of_redemption_AuraScript);
+
+        enum eSpells
+        {
+            SpiritOfRedemptionImmunity = 62371,
+            UntransformHero = 25100,
+            SpiritOfRedemptionForm = 27795,
+            SpiritOfRedemptionShapeshift = 27827
+        };
+
+        void CalculateAmount(AuraEffect const* /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+        {
+            p_Amount = -1;
+        }
+
+        void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+        {
+            p_AbsorbAmount = 0; //This is set at 0 unless conditions are met (last line)
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            if (p_DmgInfo.GetDamage() < l_Caster->GetHealth())
+                return;
+
+            if (l_Caster->HasAura(eSpells::SpiritOfRedemptionShapeshift))
+                return;
+
+            l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionShapeshift, true);
+            l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionForm, true);
+            l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionImmunity, true);
+            l_Caster->CastSpell(l_Caster, eSpells::UntransformHero, true); ///< Visual
+
+            p_AbsorbAmount = p_DmgInfo.GetDamage();
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_spirit_of_redemption_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_spirit_of_redemption_AuraScript::Absorb, EFFECT_0);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_spirit_of_redemption_AuraScript();
+    }
+};
+
+// Last Update 6.2.3
+// Spirit of Redemption (Shapeshift) - 27827
+class spell_pri_spirit_of_redemption_form : public SpellScriptLoader
+{
+public:
+    spell_pri_spirit_of_redemption_form() : SpellScriptLoader("spell_pri_spirit_of_redemption_form") { }
+
+    class spell_pri_spirit_of_redemption_form_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_spirit_of_redemption_form_AuraScript);
+
+        enum eSpells
+        {
+            SpiritOfRedemptionImmunity = 62371,
+            SpiritOfRedemptionForm = 27795
+        };
+
+        void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            Unit* l_Target = GetTarget();
+
+            l_Target->RemoveAura(eSpells::SpiritOfRedemptionForm);
+            l_Target->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
+        }
+
+        void Register() override
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_spirit_of_redemption_form_AuraScript();
+    }
+};
+
 // Atonement - 81749
 class spell_pri_atonement : public SpellScriptLoader
 {
@@ -2480,54 +2682,6 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_pri_angelic_feather_SpellScript();
-    }
-};
-
-// Smite - 585
-class spell_pri_smite : public SpellScriptLoader
-{
-public:
-    spell_pri_smite() : SpellScriptLoader("spell_pri_smite") {}
-
-    class spell_pri_smite_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_smite_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SMITE_ABSORB))
-                return false;
-            return true;
-        }
-
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            if (!caster->ToPlayer())
-                return;
-
-            int32 dmg = GetHitDamage();
-
-            if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_PRIEST_DISCIPLINE)
-            {
-                caster->CastCustomSpell(SPELL_PRIEST_SMITE_AURA, SPELLVALUE_BASE_POINT0, dmg, target, TRIGGERED_FULL_MASK);
-                caster->CastCustomSpell(SPELL_PRIEST_SMITE_ABSORB, SPELLVALUE_BASE_POINT0, dmg, caster, TRIGGERED_FULL_MASK);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_pri_smite_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_pri_smite_SpellScript();
     }
 };
 
@@ -2720,8 +2874,8 @@ public:
 
 void AddSC_priest_spell_scripts()
 {
-    new at_pri_power_word_barrier();
     new at_pri_angelic_feather();
+    new at_pri_power_word_barrier();
 
     new spell_pri_shadow_mend();
     new spell_pri_shadow_mend_aura();
@@ -2730,11 +2884,9 @@ void AddSC_priest_spell_scripts()
     new spell_pri_atonement();
     new spell_pri_atonement_aura();
     new spell_pri_psychic_scream();
-    new spell_pri_smite();
     new spell_pri_smite_absorb();
     new spell_pri_focused_will();
     new spell_pri_angelic_feather();
-    new spell_pri_body_and_soul();
     new spell_pri_circle_of_healing();
     new spell_pri_dispel_magic();
     new spell_pri_divine_aegis();
@@ -2753,7 +2905,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_pain_and_suffering_proc();
     new spell_pri_penance();
     new spell_pri_phantasm();
-    new spell_pri_power_word_shield();
     new spell_pri_power_word_solace();
     new spell_pri_prayer_of_mending_divine_insight();
     new spell_pri_prayer_of_mending_heal();
@@ -2762,8 +2913,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_shadowfiend();
     new spell_pri_shadowform();
     new spell_pri_spirit_shell();
-    new spell_pri_spirit_of_redemption();
-    new spell_pri_spirit_of_redemption_form();
     new spell_pri_strength_of_soul();
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();
@@ -2774,4 +2923,19 @@ void AddSC_priest_spell_scripts()
     new spell_pri_void_tendrils();
     new spell_pri_voidform();
     new spell_priest_angelic_bulwark();
+
+    //7.3.2.25549
+    RegisterSpellScript(spell_pri_holy_word_chastise);
+    RegisterSpellScript(spell_pri_smite);
+    RegisterSpellScript(spell_pri_heal_flash_heal);
+    RegisterSpellScript(spell_pri_prayer_of_mending);
+    RegisterSpellScript(spell_pri_prayer_of_healing);
+    RegisterSpellScript(spell_pri_binding_heal);
+
+    RegisterAuraScript(spell_pri_clarity_of_will);
+    RegisterAuraScript(spell_pri_twist_of_fate);
+    RegisterAuraScript(spell_pri_mind_bomb);
+
+    RegisterSpellAndAuraScriptPair(spell_pri_power_word_shield, spell_pri_power_word_shield_AuraScript);
+    //7.3.2.25549 END
 }
