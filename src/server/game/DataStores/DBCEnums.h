@@ -973,7 +973,8 @@ enum TaxiNodeFlags
 {
     TAXI_NODE_FLAG_ALLIANCE             = 0x01,
     TAXI_NODE_FLAG_HORDE                = 0x02,
-    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10
+    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10,
+    TAXI_NODE_FLAG_ARGUS                = 0x20
 };
 
 enum TaxiPathNodeFlags
