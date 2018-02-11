@@ -980,7 +980,6 @@ public:
     {
         npc_twilight_whelpAI(Creature* creature) : ScriptedAI(creature)
         {
-            Reset();
         }
 
         void Reset() override
