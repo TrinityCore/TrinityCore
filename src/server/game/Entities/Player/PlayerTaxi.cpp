@@ -93,6 +93,19 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     // level dependent taxi hubs
     if (level >= 68)
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
+
+    // Argus temp fix
+    if (level >= 110)
+    {
+        SetTaximaskNode(1944); // Vindicaar Krokuun
+        SetTaximaskNode(1928);
+
+        SetTaximaskNode(1977); // Vindicaar Mac'Aree
+        SetTaximaskNode(1982);
+
+        SetTaximaskNode(1994); // Vindicaar Antoran Wastes
+        SetTaximaskNode(1988);
+    }
 }
 
 void PlayerTaxi::LoadTaxiMask(std::string const &data)
