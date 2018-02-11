@@ -149,9 +149,6 @@ void BlackMarketMgr::Update(bool updateTime)
 
         if (entry->IsCompleted() && entry->GetBidder())
             SendAuctionWonMail(entry, trans);
-
-        if (updateTime)
-            entry->Update(now);
     }
 
     if (updateTime)
@@ -392,11 +389,6 @@ bool BlackMarketTemplate::LoadFromDB(Field* fields)
     return true;
 }
 
-void BlackMarketEntry::Update(time_t newTimeOfUpdate)
-{
-    _secondsRemaining = _secondsRemaining - (newTimeOfUpdate - sBlackMarketMgr->GetLastUpdate());
-}
-
 BlackMarketTemplate const* BlackMarketEntry::GetTemplate() const
 {
     return sBlackMarketMgr->GetTemplateByID(_marketId);
@@ -404,12 +396,12 @@ BlackMarketTemplate const* BlackMarketEntry::GetTemplate() const
 
 uint32 BlackMarketEntry::GetSecondsRemaining() const
 {
-    return _secondsRemaining - (time(nullptr) - sBlackMarketMgr->GetLastUpdate());
+    return std::max(0, int32(GetExpirationTime()) - int32(time(nullptr)));
 }
 
 time_t BlackMarketEntry::GetExpirationTime() const
 {
-    return time(nullptr) + GetSecondsRemaining();
+    return _startTime + GetTemplate()->Duration;
 }
 
 bool BlackMarketEntry::IsCompleted() const
@@ -430,7 +422,7 @@ bool BlackMarketEntry::LoadFromDB(Field* fields)
     }
 
     _currentBid = fields[1].GetUInt64();
-    _secondsRemaining =  static_cast<time_t>(fields[2].GetInt32()) - sBlackMarketMgr->GetLastUpdate();
+    _startTime =  static_cast<time_t>(fields[2].GetInt32());
     _numBids = fields[3].GetInt32();
     _bidder = fields[4].GetUInt64();
 
@@ -485,9 +477,6 @@ void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, SQLTransaction& tran
 
     _currentBid = bid;
     ++_numBids;
-
-    if (GetSecondsRemaining() < 30 * MINUTE)
-        _secondsRemaining += 30 * MINUTE;
 
     _bidder = player->GetGUID().GetCounter();
 
