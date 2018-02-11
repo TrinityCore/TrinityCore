@@ -71,11 +71,10 @@ class BlackMarketEntry
 {
 public:
 
-    void Update(time_t newTimeOfUpdate);
     void Initialize(int32 marketId, uint32 duration)
     {
         _marketId = marketId;
-        _secondsRemaining = duration;
+        _startTime = time(nullptr);
     }
 
     BlackMarketTemplate const* GetTemplate() const;
@@ -113,7 +112,7 @@ private:
     uint64 _currentBid = 0;
     int32 _numBids = 0;
     ObjectGuid::LowType _bidder = 0;
-    uint32 _secondsRemaining = 0;
+    uint32 _startTime = 0;
     bool _mailSent = false;
 };
 
