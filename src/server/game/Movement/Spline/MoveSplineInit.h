@@ -113,6 +113,9 @@ namespace Movement
         /* Makes movement cyclic. Disabled by default
          */
         void SetCyclic();
+        /* Makes cyclic movement skip the first vertex after first loop. Disabled by default
+        */
+        void SetEnterCycle(bool enable);
         /* Enables falling mode. Disabled by default
          */
         void SetFall();
@@ -151,6 +154,7 @@ namespace Movement
     inline void MoveSplineInit::SetWalk(bool enable) { args.walk = enable; }
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
+    inline void MoveSplineInit::SetEnterCycle(bool enable) { args.flags.enter_cycle = enable; }
     inline void MoveSplineInit::SetFall() { args.flags.EnableFalling(); }
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
     inline void MoveSplineInit::SetBackward() { args.flags.backward = true; }
