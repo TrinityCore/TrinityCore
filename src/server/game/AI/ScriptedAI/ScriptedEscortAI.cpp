@@ -74,8 +74,6 @@ void EscortAI::JustDied(Unit* /*killer*/)
 
 void EscortAI::InitializeAI()
 {
-    _escortState = STATE_ESCORT_NONE;
-
     if (!IsCombatMovementAllowed())
         SetCombatMovement(true);
 
