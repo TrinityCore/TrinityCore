@@ -395,19 +395,6 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
             _effects[effect->EffectIndex] = new AuraEffect(this, effect, baseAmount ? baseAmount + effect->EffectIndex : nullptr, caster);
 }
 
-float Aura::CalcPeriodicCritChance(Unit const* caster) const
-{
-    if (!caster)
-        return 0.0f;
-
-    Player* modOwner = caster->GetSpellModOwner();
-    if (!modOwner)
-        return 0.0f;
-
-    float critChance = modOwner->SpellCritChanceDone(GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
-    return std::max(0.0f, critChance);
-}
-
 Aura::~Aura()
 {
     // unload scripts

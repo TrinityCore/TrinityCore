@@ -2977,6 +2977,23 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             switch (effect->Effect)
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_HEALTH_LEECH:
+                case SPELL_EFFECT_HEAL:
+                case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                case SPELL_EFFECT_WEAPON_DAMAGE:
+                case SPELL_EFFECT_POWER_BURN:
+                case SPELL_EFFECT_HEAL_MECHANICAL:
+                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                case SPELL_EFFECT_HEAL_PCT:
+                case SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT:
+                    spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_CAN_CRIT;
+                    break;
+            }
+
+            switch (effect->Effect)
+            {
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
                 case SPELL_EFFECT_WEAPON_DAMAGE:
                 case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
                 case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
@@ -3159,37 +3176,43 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
     for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
         SpellInfo* spellInfoMutable = const_cast<SpellInfo*>(&spellInfo);
-        if (spellInfoMutable->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
-            continue;
-
-        bool allNonBinary = true;
-        bool overrideAttr = false;
-        for (SpellEffectInfo const* effect : spellInfoMutable->GetEffects())
+        if (!spellInfoMutable->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
         {
-            if (!effect)
-                continue;
-
-            if (effect->IsAura() && effect->TriggerSpell)
+            bool allNonBinary = true;
+            bool overrideAttr = false;
+            for (SpellEffectInfo const* effect : spellInfoMutable->GetEffects())
             {
-                switch (effect->ApplyAuraName)
+                if (!effect)
+                    continue;
+
+                if (effect->IsAura() && effect->TriggerSpell)
                 {
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                    if (SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(effect->TriggerSpell, DIFFICULTY_NONE))
+                    switch (effect->ApplyAuraName)
                     {
-                        overrideAttr = true;
-                        if (triggerSpell->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
-                            allNonBinary = false;
+                        case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                        case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                            if (SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(effect->TriggerSpell, DIFFICULTY_NONE))
+                            {
+                                overrideAttr = true;
+                                if (triggerSpell->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
+                                    allNonBinary = false;
+                            }
+                            break;
+                        default:
+                            break;
                     }
-                    break;
-                default:
-                    break;
                 }
             }
+
+            if (overrideAttr && allNonBinary)
+                spellInfoMutable->AttributesCu &= ~SPELL_ATTR0_CU_BINARY_SPELL;
         }
 
-        if (overrideAttr && allNonBinary)
-            spellInfoMutable->AttributesCu &= ~SPELL_ATTR0_CU_BINARY_SPELL;
+        // remove attribute from spells that can't crit
+        if (spellInfo.HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
+            if (spellInfo.HasAttribute(SPELL_ATTR2_CANT_CRIT))
+                spellInfoMutable->AttributesCu &= ~SPELL_ATTR0_CU_CAN_CRIT;
+
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));

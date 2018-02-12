@@ -335,6 +335,9 @@ class TC_GAME_API AuraEffect
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
 
+        bool CanPeriodicTickCrit() const;
+        float CalcPeriodicCritChance(Unit const* caster) const;
+
         // aura effect proc handlers
         void HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);

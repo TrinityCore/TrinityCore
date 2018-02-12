@@ -995,7 +995,7 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
 
 float AuraEffect::GetCritChanceFor(Unit const* caster, Unit const* target) const
 {
-    return target->SpellCritChanceTaken(caster, nullptr, this, GetSpellInfo()->GetSchoolMask(), GetBase()->CalcPeriodicCritChance(caster), GetSpellInfo()->GetAttackType());
+    return target->SpellCritChanceTaken(caster, nullptr, this, GetSpellInfo()->GetSchoolMask(), CalcPeriodicCritChance(caster), GetSpellInfo()->GetAttackType());
 }
 
 bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
@@ -1143,6 +1143,11 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
                     return false;
             break;
         }
+        case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
+            // skip spells that can't crit
+            if (!spellInfo || !spellInfo->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
+                return false;
+            break;
         default:
             break;
     }
@@ -5658,6 +5663,27 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
     Unit::ProcSkillsAndAuras(caster, target, procAttacker, procVictim, spellTypeMask, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &dotDamageInfo, nullptr);
 
     caster->SendSpellNonMeleeDamageLog(&damageInfo);
+}
+
+bool AuraEffect::CanPeriodicTickCrit() const
+{
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR2_CANT_CRIT))
+        return false;
+
+    return true;
+}
+
+float AuraEffect::CalcPeriodicCritChance(Unit const* caster) const
+{
+    if (!caster || !CanPeriodicTickCrit())
+        return 0.0f;
+
+    Player* modOwner = caster->GetSpellModOwner();
+    if (!modOwner)
+        return 0.0f;
+
+    float critChance = modOwner->SpellCritChanceDone(nullptr, this, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
+    return std::max(0.0f, critChance);
 }
 
 void AuraEffect::HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
