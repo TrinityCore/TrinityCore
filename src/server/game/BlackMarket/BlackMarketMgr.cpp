@@ -194,7 +194,7 @@ void BlackMarketMgr::RefreshAuctions()
     for (BlackMarketTemplate const* templat : templates)
     {
         BlackMarketEntry* entry = new BlackMarketEntry();
-        entry->Initialize(templat->MarketID, templat->Duration);
+        entry->Initialize(templat->MarketID);
         entry->SaveToDB(trans);
         AddAuction(entry);
     }
