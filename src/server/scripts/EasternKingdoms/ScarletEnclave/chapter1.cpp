@@ -1056,6 +1056,11 @@ class npc_scarlet_miner_cart : public CreatureScript
                 if (Creature* miner = ObjectAccessor::GetCreature(*me, _minerGUID))
                 {
                     me->SetWalk(false);
+
+                    // Not 100% correct, but movement is smooth. Sometimes miner walks faster
+                    // than normal, this speed is fast enough to keep up at those times.
+                    me->SetSpeedRate(MOVE_RUN, 1.25f);
+
                     me->GetMotionMaster()->MoveFollow(miner, 1.0f, 0);
                 }
             }
@@ -1105,21 +1110,25 @@ class npc_scarlet_miner : public CreatureScript
         {
             npc_scarlet_minerAI(Creature* creature) : EscortAI(creature)
             {
+                Initialize();
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void InitializeAI() override
+            void Initialize()
             {
+                carGUID.Clear();
                 IntroTimer = 0;
                 IntroPhase = 0;
-                carGUID.Clear();
-                playerGUID.Clear();
             }
 
             uint32 IntroTimer;
             uint32 IntroPhase;
             ObjectGuid carGUID;
-            ObjectGuid playerGUID;
+
+            void Reset() override
+            {
+                Initialize();
+            }
 
             void IsSummonedBy(Unit* summoner) override
             {
@@ -1161,12 +1170,9 @@ class npc_scarlet_miner : public CreatureScript
 
             void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
             {
-                playerGUID = guid;
-            }
-
-            void Reset() override
-            {
-                EscortAI::Reset();
+                InitWaypoint();
+                Start(false, false, guid);
+                SetDespawnAtFar(false);
             }
 
             void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1192,16 +1198,6 @@ class npc_scarlet_miner : public CreatureScript
                     default:
                         break;
                 }
-            }
-
-            void JustAppeared() override
-            {
-                EscortAI::JustAppeared();
-                if (!playerGUID)
-                    return;
-                InitWaypoint();
-                Start(false, false, playerGUID);
-                SetDespawnAtFar(false);
             }
 
             void UpdateAI(uint32 diff) override
