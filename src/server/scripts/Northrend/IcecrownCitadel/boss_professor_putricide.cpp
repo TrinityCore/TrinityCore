@@ -851,7 +851,7 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
                 Unit* target = GetTarget();
                 if (Unit* caster = GetCaster())
                 {
-                    target->RemoveAuraFromStack(GetSpellInfo()->Id, GetCasterGUID());
+                    target->RemoveAuraFromStack(GetSpellInfo()->Id, GetCaster());
                     if (!target->HasAura(GetId()))
                     {
                         CastSpellExtraArgs args;
@@ -1332,7 +1332,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
                 damage = int32(damage * 1.5f);
 
                 CastSpellExtraArgs args(aurEff);
-                args.OriginalCaster = GetCasterGUID();
+                args.OriginalCaster = GetCaster();
                 args.AddSpellBP0(damage);
                 GetTarget()->CastSpell(GetTarget(), triggerSpell, args);
             }
@@ -1346,7 +1346,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
                     return;
 
                 int32 heal = healSpellInfo->Effects[0].CalcValue() * GetStackAmount();
-                CastSpellExtraArgs args(GetCasterGUID());
+                CastSpellExtraArgs args(GetCaster());
                 args.AddSpellBP0(heal);
                 GetTarget()->CastSpell(GetTarget(), healSpell, args);
             }

@@ -1252,7 +1252,7 @@ class spell_sindragosa_instability : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.OriginalCaster = GetCasterGUID();
+                    args.OriginalCaster = GetCaster();
                     args.AddSpellBP0(aurEff->GetAmount());
                     GetTarget()->CastSpell(GetTarget(), SPELL_BACKLASH, args);
                 }

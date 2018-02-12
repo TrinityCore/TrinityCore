@@ -110,8 +110,7 @@ class TC_GAME_API Aura
         uint32 GetId() const{ return GetSpellInfo()->Id; }
 
         ObjectGuid GetCastItemGUID() const { return m_castItemGuid; }
-        ObjectGuid GetCasterGUID() const { return m_casterGuid; }
-        Unit* GetCaster() const;
+        MemoryOf<Unit> const& GetCaster() const { return m_caster; }
         WorldObject* GetOwner() const { return m_owner; }
         Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
         DynamicObject* GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return (DynamicObject*)m_owner; }
@@ -130,8 +129,7 @@ class TC_GAME_API Aura
         void ApplyForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, true);}
         void _ApplyEffectForTargets(uint8 effIndex);
 
-        void UpdateOwner(uint32 diff, WorldObject* owner);
-        void Update(uint32 diff, Unit* caster);
+        void Update(uint32 diff);
 
         time_t GetApplyTime() const { return m_applyTime; }
         int32 GetMaxDuration() const { return m_maxDuration; }
@@ -173,7 +171,7 @@ class TC_GAME_API Aura
 
         bool IsRemovedOnShapeLost(Unit* target) const
         {
-            return GetCasterGUID() == target->GetGUID()
+            return GetCaster() == target->GetGUID()
                     && m_spellInfo->Stances
                     && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_NEED_SHAPESHIFT)
                     && !m_spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT);
@@ -266,7 +264,7 @@ class TC_GAME_API Aura
 
     protected:
         SpellInfo const* const m_spellInfo;
-        ObjectGuid const m_casterGuid;
+        MemoryOf<Unit> m_caster;
         ObjectGuid const m_castItemGuid;                    // it is NOT safe to keep a pointer to the item because it may get deleted
         time_t const m_applyTime;
         WorldObject* const m_owner;

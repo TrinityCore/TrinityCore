@@ -514,8 +514,8 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str().c_str() : name),
                 aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
                 aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
-                (talent ? talentStr : ""), aura->GetCasterGUID().IsPlayer() ? "player" : "creature",
-                aura->GetCasterGUID().GetCounter());
+                (talent ? talentStr : ""), aura->GetCaster().IsPlayer() ? "player" : "creature",
+                aura->GetCaster().GetCounter());
         }
 
         for (uint16 i = 0; i < TOTAL_AURAS; ++i)

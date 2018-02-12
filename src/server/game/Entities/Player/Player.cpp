@@ -7214,7 +7214,7 @@ void Player::DuelComplete(DuelCompleteType type)
     for (AuraApplicationMap::iterator i = itsAuras.begin(); i != itsAuras.end();)
     {
         Aura const* aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == GetGUID() && aura->GetApplyTime() >= duel->startTime)
+        if (!i->second->IsPositive() && aura->GetCaster() == GetGUID() && aura->GetApplyTime() >= duel->startTime)
             duel->opponent->RemoveAura(i);
         else
             ++i;
@@ -7224,7 +7224,7 @@ void Player::DuelComplete(DuelCompleteType type)
     for (AuraApplicationMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         Aura const* aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == duel->opponent->GetGUID() && aura->GetApplyTime() >= duel->startTime)
+        if (!i->second->IsPositive() && aura->GetCaster() == duel->opponent->GetGUID() && aura->GetApplyTime() >= duel->startTime)
             RemoveAura(i);
         else
             ++i;
@@ -19501,7 +19501,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
         uint8 index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
         stmt->setUInt32(index++, GetGUID().GetCounter());
-        stmt->setUInt64(index++, itr->second->GetCasterGUID().GetRawValue());
+        stmt->setUInt64(index++, itr->second->GetCaster().GetRawValue());
         stmt->setUInt32(index++, itr->second->GetId());
         stmt->setUInt8(index++, effMask);
         stmt->setUInt8(index++, recalculateMask);
@@ -23509,7 +23509,7 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
 
         // skip not self applied auras
         SpellInfo const* spellInfo = aura->GetSpellInfo();
-        if (aura->GetCasterGUID() != GetGUID())
+        if (aura->GetCaster() != GetGUID())
         {
             ++itr;
             continue;

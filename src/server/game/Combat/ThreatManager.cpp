@@ -119,7 +119,7 @@ void ThreatReference::UpdateTauntState(bool victimIsTaunting)
 
     // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
     for (AuraEffect const* eff : _victim->GetAuraEffectsByType(SPELL_AURA_MOD_DETAUNT))
-        if (eff->GetCasterGUID() == _owner->GetGUID())
+        if (eff->GetCaster() == _owner)
         {
             _taunted = TAUNT_STATE_DETAUNT;
             HeapNotifyDecreased();
@@ -429,7 +429,7 @@ void ThreatManager::TauntUpdate()
     // Only the last taunt effect applied by something still on our threat list is considered
     for (auto it = tauntEffects.rbegin(), end = tauntEffects.rend(); it != end; ++it)
     {
-        auto threatIt = _myThreatListEntries.find((*it)->GetCasterGUID());
+        auto threatIt = _myThreatListEntries.find((*it)->GetCaster());
         if (threatIt == threatEnd)
             continue;
         if (!threatIt->second->IsOnline())

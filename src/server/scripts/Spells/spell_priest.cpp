@@ -1018,7 +1018,7 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                     amount += int32(bonus);
 
                     // Twin Disciplines
-                    if (AuraEffect const* twinDisciplines = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, GetCasterGUID()))
+                    if (AuraEffect const* twinDisciplines = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, GetCaster()))
                         AddPct(amount, twinDisciplines->GetAmount());
 
                     // Focused Power

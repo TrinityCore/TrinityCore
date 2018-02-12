@@ -411,7 +411,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     {
                         // for caster applied auras only
                         if ((*i)->GetSpellInfo()->SpellFamilyName != SPELLFAMILY_WARLOCK ||
-                            (*i)->GetCasterGUID() != m_caster->GetGUID())
+                            (*i)->GetCaster() != m_caster->GetGUID())
                             continue;
 
                         // Immolate
@@ -1377,7 +1377,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
 
             // Glyph of Swiftmend
             if (!caster->HasAura(54824))
-                unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCasterGUID());
+                unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCaster());
 
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth, HEAL, unitTarget);
@@ -1394,7 +1394,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
                 Unit::AuraEffectList const& periodicHeals = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
                 for (AuraEffect const* hot : periodicHeals)
                 {
-                    if (m_caster->GetGUID() == hot->GetCasterGUID())
+                    if (m_caster->GetGUID() == hot->GetCaster())
                         ++auraCount;
                 }
 
@@ -2400,7 +2400,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         // Send dispelled spell info
         dataSuccess << uint32(itr->GetAura()->GetId());         // Spell Id
         dataSuccess << uint8(0);                                // 0 - dispelled !=0 cleansed
-        unitTarget->RemoveAurasDueToSpellByDispel(itr->GetAura()->GetId(), m_spellInfo->Id, itr->GetAura()->GetCasterGUID(), m_caster, itr->GetDispelCharges());
+        unitTarget->RemoveAurasDueToSpellByDispel(itr->GetAura()->GetId(), m_spellInfo->Id, itr->GetAura()->GetCaster(), m_caster, itr->GetDispelCharges());
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
 
@@ -3478,7 +3478,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         SpellInfo const* spellInfo = aurEff->GetSpellInfo();
                         // search our Blood Plague and Frost Fever on target
                         if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&
-                            aurEff->GetCasterGUID() == m_caster->GetGUID())
+                            aurEff->GetCaster() == m_caster->GetGUID())
                         {
                             uint32 countMin = aurEff->GetBase()->GetMaxDuration();
                             uint32 countMax = spellInfo->GetMaxDuration();
@@ -4786,7 +4786,7 @@ void Spell::EffectDispelMechanic(SpellEffIndex effIndex)
             continue;
         if (roll_chance_i(aura->CalcDispelChance(unitTarget, !unitTarget->IsFriendlyTo(m_caster))))
             if ((aura->GetSpellInfo()->GetAllEffectsMechanicMask() & (1 << mechanic)))
-                dispel_list.emplace_back(aura->GetId(), aura->GetCasterGUID());
+                dispel_list.emplace_back(aura->GetId(), aura->GetCaster());
     }
 
     for (auto itr = dispel_list.begin(); itr != dispel_list.end(); ++itr)
@@ -5233,7 +5233,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
 
         if (itr->RollDispel())
         {
-            successList.emplace_back(itr->GetAura()->GetId(), itr->GetAura()->GetCasterGUID());
+            successList.emplace_back(itr->GetAura()->GetId(), itr->GetAura()->GetCaster());
             if (!itr->DecrementCharge())
             {
                 --remaining;

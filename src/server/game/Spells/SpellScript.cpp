@@ -1033,12 +1033,7 @@ uint32 AuraScript::GetId() const
     return m_aura->GetId();
 }
 
-ObjectGuid AuraScript::GetCasterGUID() const
-{
-    return m_aura->GetCasterGUID();
-}
-
-Unit* AuraScript::GetCaster() const
+MemoryOf<Unit> const& AuraScript::GetCaster() const
 {
     return m_aura->GetCaster();
 }

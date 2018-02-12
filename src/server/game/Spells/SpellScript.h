@@ -18,6 +18,7 @@
 #ifndef __SPELL_SCRIPT_H
 #define __SPELL_SCRIPT_H
 
+#include "MemoryOf.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
@@ -851,10 +852,8 @@ class TC_GAME_API AuraScript : public _SpellScript
         // returns spellid of the spell
         uint32 GetId() const;
 
-        // returns guid of object which cast the aura (m_originalCaster of the Spell class)
-        ObjectGuid GetCasterGUID() const;
-        // returns unit which cast the aura or NULL if not avalible (caster logged out for example)
-        Unit* GetCaster() const;
+        // returns unit which cast the aura
+        MemoryOf<Unit> const& GetCaster() const;
         // returns object on which aura was cast, target for non-area auras, area aura source for area auras
         WorldObject* GetOwner() const;
         // returns owner if it's unit or unit derived object, NULL otherwise (only for persistent area auras NULL is returned)

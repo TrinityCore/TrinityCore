@@ -36,8 +36,7 @@ class TC_GAME_API AuraEffect
         ~AuraEffect();
         explicit AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster);
     public:
-        Unit* GetCaster() const { return GetBase()->GetCaster(); }
-        ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
+        MemoryOf<Unit> const& GetCaster() const { return GetBase()->GetCaster(); }
         Aura* GetBase() const { return m_base; }
 
         template <typename Container>
@@ -73,7 +72,7 @@ class TC_GAME_API AuraEffect
         void HandleEffect(Unit* target, uint8 mode, bool apply);
         void ApplySpellMod(Unit* target, bool apply);
 
-        void Update(uint32 diff, Unit* caster);
+        void Update(uint32 diff, MemoryOf<Unit> const& caster);
 
         uint32 GetTickNumber() const { return _ticksDone; }
         uint32 GetRemainingTicks() const { return GetTotalTicks() - _ticksDone; }
@@ -292,7 +291,7 @@ class TC_GAME_API AuraEffect
         // aura effect periodic tick handlers
         void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicDamageAurasTick(Unit* target, MemoryOf<Unit> const& caster) const;
         void HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const;

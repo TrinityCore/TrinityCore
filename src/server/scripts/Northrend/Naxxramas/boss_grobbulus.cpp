@@ -163,7 +163,7 @@ class spell_grobbulus_mutating_injection : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     caster->CastSpell(GetTarget(), SPELL_MUTATING_EXPLOSION, true);
-                    GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, { aurEff, GetCasterGUID() });
+                    GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, { aurEff, GetCaster() });
                 }
             }
 

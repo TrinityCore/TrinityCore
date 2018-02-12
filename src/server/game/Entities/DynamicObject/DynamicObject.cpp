@@ -146,7 +146,7 @@ void DynamicObject::Update(uint32 p_time)
     if (_aura)
     {
         if (!_aura->IsRemoved())
-            _aura->UpdateOwner(p_time, this);
+            _aura->Update(p_time);
 
         // _aura may be set to null in Aura::UpdateOwner call
         if (_aura && (_aura->IsRemoved() || _aura->IsExpired()))

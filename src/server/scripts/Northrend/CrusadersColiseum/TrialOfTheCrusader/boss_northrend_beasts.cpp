@@ -1152,7 +1152,7 @@ class spell_jormungars_paralytic_toxin : public AuraScript
             slowEff->ChangeAmount(newAmount);
 
             if (newAmount == -100 && !GetTarget()->HasAura(SPELL_PARALYSIS))
-                GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, CastSpellExtraArgs(slowEff).SetOriginalCaster(GetCasterGUID()));
+                GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, CastSpellExtraArgs(slowEff).SetOriginalCaster(GetCaster()));
         }
     }
 

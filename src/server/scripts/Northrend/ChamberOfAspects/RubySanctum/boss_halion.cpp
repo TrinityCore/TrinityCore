@@ -1567,7 +1567,7 @@ class spell_halion_marks : public SpellScriptLoader
                     return;
 
                 // Stacks marker
-                CastSpellExtraArgs args(GetCasterGUID());
+                CastSpellExtraArgs args(GetCaster());
                 args.AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount());
                 GetTarget()->CastSpell(GetTarget(), _summonSpellId, args);
             }
