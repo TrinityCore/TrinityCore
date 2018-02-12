@@ -42,8 +42,10 @@ WaypointMovementGenerator<Creature>::~WaypointMovementGenerator()
     _path = nullptr;
 }
 
-void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
+void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
 {
+    _done = false;
+
     if (_loadedFromDB)
     {
         if (!_pathId)
@@ -55,7 +57,7 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
     if (!_path)
     {
         // No path id found for entry
-        TC_LOG_ERROR("sql.sql", "WaypointMovementGenerator::LoadPath: creature %s (%s DB GUID: " UI64FMTD ") doesn't have waypoint path id: %u", creature->GetName().c_str(), creature->GetGUID().ToString().c_str(), creature->GetSpawnId(), _pathId);
+        TC_LOG_ERROR("sql.sql", "WaypointMovementGenerator::DoInitialize: creature %s (%s DB GUID: " UI64FMTD ") doesn't have waypoint path id: %u", creature->GetName().c_str(), creature->GetGUID().ToString().c_str(), creature->GetSpawnId(), _pathId);
         return;
     }
 
@@ -66,12 +68,6 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
         creature->AI()->WaypointPathStarted(_path->id);
 }
 
-void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
-{
-    _done = false;
-    LoadPath(creature);
-}
-
 void WaypointMovementGenerator<Creature>::DoFinalize(Creature* creature)
 {
     creature->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
@@ -80,8 +76,8 @@ void WaypointMovementGenerator<Creature>::DoFinalize(Creature* creature)
 
 void WaypointMovementGenerator<Creature>::DoReset(Creature* creature)
 {
-    if (!_done && CanMove(creature))
-        StartMoveNow(creature);
+    if (!_done && _nextMoveTime.Passed() && CanMove(creature))
+        StartMove(creature);
     else if (_done)
     {
         // mimic IdleMovementGenerator
@@ -120,19 +116,19 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
     creature->UpdateCurrentWaypointInfo(waypoint.id, _path->id);
 }
 
-bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
+void WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 {
     if (!creature || !creature->IsAlive())
-        return true;
+        return;
 
     if (_done || !_path || _path->nodes.empty())
-        return true;
+        return;
 
     // if the owner is the leader of its formation, check members status
-    if (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed())
+    if (!CanMove(creature) || (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed()))
     {
         _nextMoveTime.Reset(1000);
-        return true;
+        return;
     }
 
     bool transportPath = creature->GetTransport() != nullptr;
@@ -170,7 +166,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
             // inform AI
             if (creature->IsAIEnabled)
                 creature->AI()->WaypointPathEnded(waypoint.id, _path->id);
-            return true;
+            return;
         }
 
         _currentNode = (_currentNode + 1) % _path->nodes.size();
@@ -181,7 +177,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     }
 
     ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
-    WaypointNode const &waypoint = _path->nodes.at(_currentNode);
+    WaypointNode const &waypoint = _path->nodes[_currentNode];
     Position formationDest(waypoint.x, waypoint.y, waypoint.z, (waypoint.orientation && waypoint.delay) ? waypoint.orientation : 0.0f);
 
     _isArrivalDone = false;
@@ -234,7 +230,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     // inform formation
     creature->SignalFormationMovement(formationDest, waypoint.id, waypoint.moveType, (waypoint.orientation && waypoint.delay) ? true : false);
 
-    return true;
+    return;
 }
 
 bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 diff)
@@ -243,46 +239,31 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
         return true;
 
     if (_done || !_path || _path->nodes.empty())
-        return true;
+        return false;
 
     if (_stalled || creature->HasUnitState(UNIT_STATE_NOT_MOVE) || creature->IsMovementPreventedByCasting())
     {
+        creature->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         creature->StopMoving();
         return true;
     }
 
     if (!_nextMoveTime.Passed())
-    {
-        if (creature->movespline->Finalized())
-        {
-            _nextMoveTime.Update(diff);
-            if (_nextMoveTime.Passed())
-                return StartMoveNow(creature);
-        }
-    }
-    else
-    {
-        if (creature->movespline->Finalized())
-        {
-            OnArrived(creature);
-            _isArrivalDone = true;
+        _nextMoveTime.Update(diff);
 
-            if (_nextMoveTime.Passed())
-                return StartMove(creature);
-        }
-        else
-        {
-            // Set home position at place on waypoint movement.
-            if (creature->GetTransGUID().IsEmpty())
-                creature->SetHomePosition(creature->GetPosition());
-
-            if (_recalculateSpeed)
-            {
-                if (_nextMoveTime.Passed())
-                    StartMove(creature);
-            }
-        }
+    if (creature->HasUnitState(UNIT_STATE_ROAMING_MOVE) && creature->movespline->Finalized() && !_isArrivalDone)
+    {
+        OnArrived(creature);
+        _isArrivalDone = true;
     }
+
+    // Set home position at place on waypoint movement.
+    if (creature->GetTransGUID().IsEmpty())
+        creature->SetHomePosition(creature->GetPosition());
+
+    if (_recalculateSpeed || (_nextMoveTime.Passed() && (!creature->HasUnitState(UNIT_STATE_ROAMING_MOVE) || creature->movespline->Finalized())))
+        StartMove(creature);
+
     return true;
 }
 
@@ -320,7 +301,7 @@ void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
         _nextMoveTime.Reset(overrideTimer);
 }
 
-bool WaypointMovementGenerator<Creature>::CanMove(Creature* creature)
+/*static*/ bool WaypointMovementGenerator<Creature>::CanMove(Creature* creature)
 {
-    return _nextMoveTime.Passed() && !creature->HasUnitState(UNIT_STATE_NOT_MOVE) && !creature->IsMovementPreventedByCasting();
+    return !creature->HasUnitState(UNIT_STATE_NOT_MOVE) && !creature->IsMovementPreventedByCasting();
 }
