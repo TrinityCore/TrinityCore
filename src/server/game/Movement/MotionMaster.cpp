@@ -482,26 +482,15 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         G3D::Vector3 point;
         point.x = x + radius * cosf(angle);
         point.y = y + radius * sinf(angle);
-
-        if (_owner->IsFlying())
-            point.z = z;
-        else
-            point.z = _owner->GetMap()->GetHeight(_owner->GetPhases(), point.x, point.y, z);
+        point.z = z;
 
         init.Path().push_back(point);
     }
 
-    if (_owner->IsFlying())
-    {
-        init.SetFly();
-        init.SetCyclic();
-        init.SetAnimation(Movement::ToFly);
-    }
-    else
-    {
-        init.SetWalk(true);
-        init.SetCyclic();
-    }
+    init.SetFly(); // Cyclic movement is always flying
+    init.SetCyclic();
+    init.SetUncompressed();
+    init.SetAnimation(Movement::ToFly);
 
     init.Launch();
 }

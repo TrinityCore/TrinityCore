@@ -85,7 +85,18 @@ namespace Movement
             return 0;
 
         // correct first vertex
-        args.path[0] = real_position;
+        if (!args.flags.cyclic)
+            args.path[0] = real_position;
+        else
+            args.path.insert(args.path.begin(), real_position);
+
+        // Cyclic movement always uses catmullrom and enter_cycle movement flag
+        if (args.flags.cyclic)
+        {
+            args.flags.EnableCatmullRom();
+            args.flags.enter_cycle = true;
+        }
+
         args.initialOrientation = real_position.orientation;
         move_spline.onTransport = (unit->GetTransGUID() != 0);
 

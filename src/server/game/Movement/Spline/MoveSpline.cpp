@@ -122,10 +122,10 @@ void MoveSpline::init_spline(const MoveSplineInitArgs& args)
     const SplineBase::EvaluationMode modes[2] = {SplineBase::ModeLinear, SplineBase::ModeCatmullrom};
     if (args.flags.cyclic)
     {
-        uint32 cyclic_point = 0;
-        // MoveSplineFlag::Enter_Cycle support dropped
-        //if (splineflags & SPLINEFLAG_ENTER_CYCLE)
-        //cyclic_point = 1;   // shouldn't be modified, came from client
+        // Cyclic movement always starts with Enter_Cycle flag.
+        // The first vertex is a fake circle point and needs to get
+        // removed once the first cycle is complete
+        uint32 cyclic_point = 1;
         spline.init_cyclic_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], cyclic_point);
     }
     else
@@ -172,6 +172,10 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
         spline.clear();
         return;
     }
+
+    // Copy arguments for cyclic paths to recalculate the cycle after first loop
+    if (args.flags.cyclic)
+        initCycleArgs = args;
 
     init_spline(args);
 
@@ -265,6 +269,19 @@ MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
         {
             if (spline.isCyclic())
             {
+                // Recalculate new cycle without first vertex
+                if (!initCycleArgs.path.empty())
+                {
+                    // First we remove the vertex from the path...
+                    initCycleArgs.path.erase(initCycleArgs.path.begin());
+
+                    // ...now we recalculate a new path...
+                    const SplineBase::EvaluationMode modes[2] = { SplineBase::ModeLinear, SplineBase::ModeCatmullrom };
+                    spline.init_cyclic_spline(&initCycleArgs.path[0], initCycleArgs.path.size(), modes[initCycleArgs.flags.isSmooth()], 0);
+
+                    // ... and clear the path to avoid endless loops
+                    initCycleArgs.path.clear();
+                }
                 point_Idx = spline.first();
                 time_passed = time_passed % Duration();
                 result = Result_NextCycle;

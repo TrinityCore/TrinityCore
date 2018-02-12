@@ -127,8 +127,7 @@ namespace Movement
     void WriteUncompressedCyclicPath(Spline<int32> const& spline, ByteBuffer& data)
     {
         uint32 count = spline.getPointCount() - 3;
-        data << uint32(count + 1);
-        data << spline.getPoint(1); // fake point, client will erase it from the spline after first cycle done
+        data << uint32(count);
         data.append<Vector3>(&spline.getPoint(1), count);
     }
 
