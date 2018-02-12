@@ -33,6 +33,7 @@ enum DisableType
     DISABLE_TYPE_OUTDOORPVP             = 5,
     DISABLE_TYPE_VMAP                   = 6,
     DISABLE_TYPE_MMAP                   = 7,
+    DISABLE_TYPE_LFG_MAP                = 8,
 
     MAX_DISABLE_TYPES
 };
