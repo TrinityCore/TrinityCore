@@ -3172,7 +3172,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         spellInfoMutable->_InitializeExplicitTargetMask();
     }
 
-    // addition for binary spells, ommit spells triggering other spells
+    // addition for binary spells, omit spells triggering other spells
     for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
         SpellInfo* spellInfoMutable = const_cast<SpellInfo*>(&spellInfo);
