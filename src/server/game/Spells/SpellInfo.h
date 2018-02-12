@@ -182,6 +182,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
     SPELL_ATTR0_CU_AURA_CC                       = 0x00000020,
     SPELL_ATTR0_CU_DONT_BREAK_STEALTH            = 0x00000040,
+    SPELL_ATTR0_CU_CAN_CRIT                      = 0x00000080,
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
@@ -385,6 +386,7 @@ class TC_GAME_API SpellInfo
         uint32 SpellVisual[2];
         uint32 SpellIconID;
         uint32 ActiveIconID;
+        uint32 Priority;
         char* SpellName[16];
         char* Rank[16];
         uint32 MaxTargetLevel;

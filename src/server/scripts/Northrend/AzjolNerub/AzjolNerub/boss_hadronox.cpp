@@ -219,7 +219,7 @@ public:
         bool CanAIAttack(Unit const* target) const override
         {
             // Prevent Hadronox from going too far from her current home position
-            if (!target->IsControlledByPlayer() && target->GetDistance(me->GetHomePosition()) > 20.0f)
+            if (!target->IsControlledByPlayer() && target->GetDistance(me->GetHomePosition()) > 70.0f)
                 return false;
             return BossAI::CanAIAttack(target);
         }
