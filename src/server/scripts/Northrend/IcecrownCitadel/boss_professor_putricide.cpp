@@ -348,7 +348,7 @@ class boss_professor_putricide : public CreatureScript
                     DoZoneInCombat(summon);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;

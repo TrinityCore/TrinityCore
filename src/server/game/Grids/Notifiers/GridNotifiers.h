@@ -291,7 +291,7 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_GAMEOBJECT))
                 return;
             for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                if (itr->GetSource()->IsInAnyPhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
 
@@ -300,7 +300,7 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_PLAYER))
                 return;
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                if (itr->GetSource()->IsInAnyPhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
         void Visit(CreatureMapType &m)
@@ -308,7 +308,7 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CREATURE))
                 return;
             for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                if (itr->GetSource()->IsInAnyPhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
 
@@ -317,7 +317,7 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CORPSE))
                 return;
             for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                if (itr->GetSource()->IsInAnyPhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
 
@@ -326,7 +326,7 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_DYNAMICOBJECT))
                 return;
             for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                if (itr->GetSource()->IsInAnyPhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
 
@@ -391,7 +391,7 @@ namespace Trinity
         void Visit(GameObjectMapType& m)
         {
             for (GameObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(_phaseMask))
+                if (itr->GetSource()->IsInAnyPhase(_phaseMask))
                     _func(itr->GetSource());
         }
 
@@ -517,7 +517,7 @@ namespace Trinity
         void Visit(CreatureMapType &m)
         {
             for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                if (itr->GetSource()->IsInAnyPhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
 
@@ -590,7 +590,7 @@ namespace Trinity
         void Visit(PlayerMapType &m)
         {
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                if (itr->GetSource()->IsInAnyPhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
 

@@ -63,7 +63,7 @@ class boss_azshir_the_sleepless : public CreatureScript
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (!_siphon && me->HealthBelowPctDamaged(50, damage))
                 {

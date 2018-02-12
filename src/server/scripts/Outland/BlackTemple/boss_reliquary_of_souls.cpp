@@ -321,7 +321,7 @@ struct boss_essence_of_suffering : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
     {
         if (damage >= me->GetHealth())
         {
@@ -440,7 +440,7 @@ struct boss_essence_of_desire : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
     {
         if (damage >= me->GetHealth())
         {

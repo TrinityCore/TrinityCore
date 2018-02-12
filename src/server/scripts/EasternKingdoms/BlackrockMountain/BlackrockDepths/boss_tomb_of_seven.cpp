@@ -169,7 +169,7 @@ class boss_doomrel : public CreatureScript
                 _events.ScheduleEvent(EVENT_DEMONARMOR, 16000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (!_voidwalkers && !HealthAbovePct(50))
                 {

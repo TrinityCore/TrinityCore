@@ -88,7 +88,7 @@ class boss_thorngrin_the_tender : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*killer*/, uint32 &damage) override
             {
                 if (me->HealthBelowPctDamaged(50, damage) && _phase1)
                 {

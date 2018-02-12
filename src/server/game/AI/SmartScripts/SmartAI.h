@@ -110,10 +110,10 @@ class TC_GAME_API SmartAI : public CreatureAI
         void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override;
 
         // Called at any Damage from any attacker (before damage apply)
-        void DamageTaken(Unit* doneBy, uint32& damage) override;
+        void DamageTaken(MemoryOf<Unit> const& doneBy, uint32& damage) override;
 
         // Called when the creature receives heal
-        void HealReceived(Unit* doneBy, uint32& addhealth) override;
+        void HealReceived(MemoryOf<Unit> const& doneBy, uint32& amt) override;
 
         // Called at World update tick
         void UpdateAI(uint32 diff) override;

@@ -45,7 +45,7 @@ struct MemoryOf : public ObjectGuid
     void Set(OBJ* obj)
     {
         if (obj)
-            ObjectGuid::Set(obj->GetGUID());
+            ObjectGuid::Set(obj->GetGUID().GetRawValue());
         else
             ObjectGuid::Clear();
         _obj = obj;

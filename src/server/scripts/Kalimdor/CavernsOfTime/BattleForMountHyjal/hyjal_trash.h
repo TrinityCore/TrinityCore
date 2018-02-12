@@ -29,7 +29,7 @@ struct hyjal_trashAI : public EscortAI
 
     void JustDied(Unit* /*killer*/) override;
 
-    void DamageTaken(Unit* done_by, uint32 &damage) override;
+    void DamageTaken(MemoryOf<Unit> const& done_by, uint32 &damage) override;
 
     public:
         InstanceScript* instance;

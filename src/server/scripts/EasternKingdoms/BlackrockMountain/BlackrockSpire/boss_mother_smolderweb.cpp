@@ -64,7 +64,7 @@ public:
             _JustDied();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
         {
             if (me->GetHealth() <= damage)
                 DoCast(me, SPELL_SUMMON_SPIRE_SPIDERLING, true);

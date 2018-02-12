@@ -98,7 +98,7 @@ public:
             UnkorUnfriendly_Timer = 60000;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& done_by, uint32 &damage) override
         {
             if (!done_by || !me->HealthBelowPctDamaged(30, damage))
                 return;

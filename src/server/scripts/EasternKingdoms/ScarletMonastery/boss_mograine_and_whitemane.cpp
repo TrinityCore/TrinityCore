@@ -129,7 +129,7 @@ public:
             Talk(SAY_MO_KILL);
         }
 
-        void DamageTaken(Unit* /*doneBy*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*doneBy*/, uint32 &damage) override
         {
             if (damage < me->GetHealth() || _bHasDied || _bFakeDeath)
                 return;
@@ -289,7 +289,7 @@ public:
             Talk(SAY_WH_KILL);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
         {
             if (!_bCanResurrectCheck && damage >= me->GetHealth())
                 damage = me->GetHealth() - 1;

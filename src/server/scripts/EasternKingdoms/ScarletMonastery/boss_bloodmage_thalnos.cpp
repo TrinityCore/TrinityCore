@@ -80,7 +80,7 @@ class boss_bloodmage_thalnos : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (!_hpYell && me->HealthBelowPctDamaged(35, damage))
                 {

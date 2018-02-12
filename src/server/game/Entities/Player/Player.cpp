@@ -11858,7 +11858,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             // save data
             std::ostringstream ss;
             GuidSet::const_iterator itr = allowedLooters.begin();
-            ss << *itr;
+            ss << itr->GetCounter();
             for (++itr; itr != allowedLooters.end(); ++itr)
                 ss << ' ' << itr->GetCounter();
 
@@ -25453,7 +25453,7 @@ void Player::SendEquipmentSetList()
             if (eqSet.second.Data.IgnoreMask & (1 << i))
                 data.appendPackGUID(uint64(1));
             else
-                data.appendPackGUID(eqSet.second.Data.Pieces[i]);
+                data.appendPackGUID(eqSet.second.Data.Pieces[i].GetRawValue());
         }
 
         ++count;                                            // client have limit but it checked at loading and set

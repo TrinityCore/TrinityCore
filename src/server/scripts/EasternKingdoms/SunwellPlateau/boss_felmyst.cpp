@@ -237,7 +237,7 @@ public:
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
         }
 
-        void DamageTaken(Unit*, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const&, uint32 &damage) override
         {
             if (phase != PHASE_GROUND && damage >= me->GetHealth())
                 damage = 0;

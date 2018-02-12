@@ -205,7 +205,7 @@ public:
             summons.Summon(summon);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
         {
             if (me->HealthBelowPctDamaged(100 - HealthAmountMultipler * HealthAmountModifier, damage) && !(damage >= me->GetHealth()))
             {

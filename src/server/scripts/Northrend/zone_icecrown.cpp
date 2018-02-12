@@ -73,7 +73,7 @@ public:
             me->SetFaction(FACTION_MONSTER);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
+        void DamageTaken(MemoryOf<Unit> const& pDoneBy, uint32& uiDamage) override
         {
             if (uiDamage > me->GetHealth() && pDoneBy && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
@@ -229,7 +229,7 @@ class npc_tournament_training_dummy : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 damage = 0;
                 events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);

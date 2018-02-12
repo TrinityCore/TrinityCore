@@ -166,7 +166,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& done_by, uint32 &damage) override
         {
             if (!done_by || done_by->GetGUID() != malchezaar)
                 damage = 0;

@@ -142,7 +142,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     void AttackStartNoMove(Unit* target);
 
     // Called at any Damage from any attacker (before damage apply)
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override { }
+    void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override { }
 
     //Called at World update tick
     virtual void UpdateAI(uint32 diff) override;

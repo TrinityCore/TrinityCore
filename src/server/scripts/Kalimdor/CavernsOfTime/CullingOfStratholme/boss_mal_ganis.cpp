@@ -118,7 +118,7 @@ public:
             instance->SetBossState(DATA_MAL_GANIS, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& done_by, uint32 &damage) override
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = me->GetHealth()-1;

@@ -221,7 +221,7 @@ uint32 DamageInfo::GetHitMask() const
     return m_hitMask;
 }
 
-HealInfo::HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask)
+HealInfo::HealInfo(MemoryOf<Unit> const& healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask)
     : _healer(healer), _target(target), _heal(heal), _effectiveHeal(0), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask), _hitMask(0)
 {
 }
@@ -4181,7 +4181,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
             else
             {
                 Unit* caster = aura->GetCaster();
-                if (!caster || !caster->InSamePhase(newPhase))
+                if (!caster || !caster->IsInAnyPhase(newPhase))
                     RemoveOwnedAura(iter);
                 else
                     ++iter;
@@ -4196,7 +4196,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
     for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
         Aura* aura = *iter;
-        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
+        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->IsInAnyPhase(newPhase))
         {
             aura->Remove();
             iter = scAuras.begin();
@@ -6496,18 +6496,15 @@ void Unit::SetCharm(Unit* charm, bool apply)
 /*static*/ void Unit::DealHeal(HealInfo& healInfo)
 {
     int32 gain = 0;
-    Unit* healer = healInfo.GetHealer();
+    MemoryOf<Unit> const& healer = healInfo.GetHealer();
     Unit* victim = healInfo.GetTarget();
     uint32 addhealth = healInfo.GetHeal();
 
-    if (healer)
-    {
-        if (victim->IsAIEnabled)
-            victim->GetAI()->HealReceived(healer, addhealth);
+    if (victim->IsAIEnabled)
+        victim->GetAI()->HealReceived(healer, addhealth);
 
-        if (healer->IsAIEnabled)
-            healer->GetAI()->HealDone(victim, addhealth);
-    }
+    if (healer && healer->IsAIEnabled)
+        healer->GetAI()->HealDone(victim, addhealth);
 
     if (addhealth)
         gain = victim->ModifyHealth(int32(addhealth));
@@ -6526,7 +6523,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
             if (Battleground* bg = player->GetBattleground())
                 bg->UpdatePlayerScore(player, SCORE_HEALING_DONE, gain);
 
-            // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
+            // use the actual gain, as the overheal should not be counted, skip gain 0 (it ignored anyway in to criteria)
             if (gain)
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, gain, 0, victim);
 

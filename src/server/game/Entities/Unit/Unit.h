@@ -436,7 +436,7 @@ class TC_GAME_API DamageInfo
 class TC_GAME_API HealInfo
 {
     private:
-        Unit* const _healer;
+        MemoryOf<Unit> const _healer;
         Unit* const _target;
         uint32 _heal;
         uint32 _effectiveHeal;
@@ -446,12 +446,12 @@ class TC_GAME_API HealInfo
         uint32 _hitMask;
 
     public:
-        HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
+        HealInfo(MemoryOf<Unit> const& healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
 
         void AbsorbHeal(uint32 amount);
         void SetEffectiveHeal(uint32 amount) { _effectiveHeal = amount; }
 
-        Unit* GetHealer() const { return _healer; }
+        MemoryOf<Unit> const& GetHealer() const { return _healer; }
         Unit* GetTarget() const { return _target; }
         uint32 GetHeal() const { return _heal; }
         uint32 GetEffectiveHeal() const { return _effectiveHeal; }

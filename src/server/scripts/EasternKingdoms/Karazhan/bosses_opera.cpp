@@ -1146,7 +1146,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override;
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override;
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -1224,7 +1224,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
         {
             if (damage < me->GetHealth())
                 return;
@@ -1487,7 +1487,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
     DoMeleeAttackIfReady();
 }
 
-void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &damage)
+void boss_julianne::boss_julianneAI::DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage)
 {
     if (damage < me->GetHealth())
         return;

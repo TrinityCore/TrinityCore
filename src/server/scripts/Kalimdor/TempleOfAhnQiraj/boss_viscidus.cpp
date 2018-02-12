@@ -112,7 +112,7 @@ class boss_viscidus : public CreatureScript
                 Initialize();
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& attacker, uint32& /*damage*/) override
             {
                 if (_phase != PHASE_MELEE)
                     return;

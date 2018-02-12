@@ -74,7 +74,7 @@ class boss_eck : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, urand(60 * IN_MILLISECONDS, 90 * IN_MILLISECONDS)); // 60-90 secs according to wowwiki
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (!_berserk && me->HealthBelowPctDamaged(20, damage))
                 {

@@ -139,7 +139,7 @@ class boss_venoxis : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 // check if venoxis is ready to transform
                 if (!_transformed && !HealthAbovePct(50))

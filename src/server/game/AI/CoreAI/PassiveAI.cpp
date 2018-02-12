@@ -75,7 +75,7 @@ void PossessedAI::OnCharmed(bool /*apply*/)
     me->IsAIEnabled = false;
 }
 
-void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
+void CritterAI::DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32&)
 {
     if (!me->HasUnitState(UNIT_STATE_FLEEING))
         me->SetControlled(true, UNIT_STATE_FLEEING);

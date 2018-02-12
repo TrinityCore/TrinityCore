@@ -139,7 +139,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMONS_ATTACK, Seconds(2));
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                 {
@@ -262,7 +262,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override { }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 // Setting DATA_BALTHARUS_SHARED_HEALTH to 0 when killed would bug the boss.
                 if (me->GetHealth() > damage)

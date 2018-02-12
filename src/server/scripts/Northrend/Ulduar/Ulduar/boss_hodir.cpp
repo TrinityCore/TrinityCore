@@ -287,7 +287,7 @@ class npc_ice_block : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& who, uint32& /*damage*/) override
             {
                 if (Creature* helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
@@ -382,7 +382,7 @@ class boss_hodir : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* who, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& who, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {

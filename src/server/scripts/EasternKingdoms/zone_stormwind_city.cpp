@@ -68,7 +68,7 @@ public:
                 me->SetFaction(m_uiNormalFaction);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
+        void DamageTaken(MemoryOf<Unit> const& pDoneBy, uint32 &uiDamage) override
         {
             if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
             {

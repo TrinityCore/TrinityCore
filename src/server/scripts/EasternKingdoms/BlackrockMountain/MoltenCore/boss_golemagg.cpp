@@ -77,7 +77,7 @@ class boss_golemagg : public CreatureScript
                 events.ScheduleEvent(EVENT_PYROBLAST, 7000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (!HealthBelowPct(10) || me->HasAura(SPELL_ENRAGE))
                     return;
@@ -150,7 +150,7 @@ class npc_core_rager : public CreatureScript
                 Initialize();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (HealthAbovePct(50) || !instance)
                     return;

@@ -964,7 +964,7 @@ public:
             me->SetImmuneToPC(true);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32 &damage) override
         {
             if (damage > me->GetHealth() || me->HealthBelowPctDamaged(20, damage))
             {

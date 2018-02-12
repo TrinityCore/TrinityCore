@@ -501,7 +501,7 @@ struct BloodPrincesBossAI : public BossAI
         me->SetHealth(_spawnHealth);
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(MemoryOf<Unit> const& attacker, uint32& damage) override
     {
         if (!_isEmpowered)
         {
@@ -1147,7 +1147,7 @@ class npc_dark_nucleus : public CreatureScript
                 DoCast(who, SPELL_SHADOW_RESONANCE_RESIST);
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& attacker, uint32& /*damage*/) override
             {
                 if (attacker == me)
                     return;

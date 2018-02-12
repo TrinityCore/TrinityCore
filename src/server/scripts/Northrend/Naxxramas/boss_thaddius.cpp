@@ -575,7 +575,7 @@ public:
                         AddThreat(who, 0.0f, feugen);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& damage) override
             {
                 if (damage < me->GetHealth())
                     return;
@@ -833,7 +833,7 @@ public:
                         AddThreat(who, 0.0f, stalagg);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& damage) override
             {
                 if (damage < me->GetHealth())
                     return;
@@ -982,7 +982,7 @@ public:
         void EnterEvadeMode(EvadeReason /*why*/) override { } // never stop casting due to evade
         void UpdateAI(uint32 /*diff*/) override { } // never do anything unless told
         void JustEngagedWith(Unit* /*who*/) override { }
-        void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
+        void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
     };
 };
 

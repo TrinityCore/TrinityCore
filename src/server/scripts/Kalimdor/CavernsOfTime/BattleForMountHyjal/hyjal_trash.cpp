@@ -192,7 +192,7 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : EscortAI(creature)
     Reset();
 }
 
-void hyjal_trashAI::DamageTaken(Unit* done_by, uint32 &damage)
+void hyjal_trashAI::DamageTaken(MemoryOf<Unit> const& done_by, uint32 &damage)
 {
     if (!done_by || done_by->GetTypeId() == TYPEID_PLAYER || done_by->IsPet())
     {

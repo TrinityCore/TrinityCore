@@ -191,7 +191,7 @@ class boss_magtheridon : public CreatureScript
                     Talk(SAY_BANISHED);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(30, damage) && !events.IsInPhase(PHASE_3))
                 {

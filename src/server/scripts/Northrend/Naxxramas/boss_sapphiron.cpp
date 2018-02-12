@@ -168,7 +168,7 @@ class boss_sapphiron : public CreatureScript
                 Initialize();
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& damage) override
             {
                 if (damage < me->GetHealth() || !events.IsInPhase(PHASE_FLIGHT))
                     return;

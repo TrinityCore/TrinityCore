@@ -119,7 +119,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 _Reset();
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*doneBy*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth() && events.IsInPhase(PHASE_HUMAN))
                 {

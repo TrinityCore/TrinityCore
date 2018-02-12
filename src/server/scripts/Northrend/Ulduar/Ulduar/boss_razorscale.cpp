@@ -548,7 +548,7 @@ struct boss_razorscale : public BossAI
         me->SummonCreature(NPC_RAZORSCALE_SPAWNER, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
     {
         if (!_permaGround && me->HealthBelowPctDamaged(50, damage) && events.IsInPhase(PHASE_GROUND))
         {

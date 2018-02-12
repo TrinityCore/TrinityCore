@@ -114,7 +114,7 @@ class boss_bronjahm : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (events.IsInPhase(PHASE_1) && !HealthAbovePct(30))
                 {

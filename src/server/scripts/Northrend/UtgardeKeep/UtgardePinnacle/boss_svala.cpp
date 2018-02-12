@@ -557,7 +557,7 @@ class npc_scourge_hulk : public CreatureScript
                 return type == DATA_INCREDIBLE_HULK ? killedByRitualStrike : 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage) override
+            void DamageTaken(MemoryOf<Unit> const& attacker, uint32 &damage) override
             {
                 if (damage >= me->GetHealth() && attacker && attacker->GetEntry() == NPC_SVALA_SORROWGRAVE)
                     killedByRitualStrike = true;

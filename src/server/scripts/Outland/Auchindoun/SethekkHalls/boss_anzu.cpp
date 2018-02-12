@@ -97,7 +97,7 @@ class boss_anzu : public CreatureScript
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*killer*/, uint32 &damage) override
             {
                 if (me->HealthBelowPctDamaged(33, damage) && !_under33Percent)
                 {

@@ -273,7 +273,7 @@ public:
                 Talk(SAY_DEATH);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (events.IsInPhase(PHASE_ONE))
                     damage = 0;

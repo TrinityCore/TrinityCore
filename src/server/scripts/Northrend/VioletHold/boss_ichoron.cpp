@@ -272,7 +272,7 @@ class npc_ichor_globule : public CreatureScript
 
             // on retail spell casted on a creature's death are not casted after death but keeping mob at 1 health, casting it and then letting the mob die.
             // this feature should be still implemented
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (_splashTriggered)
                     return;

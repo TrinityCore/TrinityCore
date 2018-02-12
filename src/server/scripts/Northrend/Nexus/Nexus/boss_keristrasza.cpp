@@ -157,7 +157,7 @@ class boss_keristrasza : public CreatureScript
                     _intenseColdList.push_back(guid);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (!_enrage && me->HealthBelowPctDamaged(25, damage))
                 {

@@ -292,12 +292,12 @@ class TC_GAME_API AuraEffect
         void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicDamageAurasTick(Unit* target, MemoryOf<Unit> const& caster) const;
-        void HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicHealthLeechAuraTick(Unit* target, MemoryOf<Unit> const& caster) const;
         void HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicHealAurasTick(Unit* target, MemoryOf<Unit> const& caster) const;
         void HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const;
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicEnergizeAuraTick(Unit* target, MemoryOf<Unit> const& caster) const;
         void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
         void HandleModAttackPowerOfArmorAuraTick(Unit* target, Unit* caster) const;
 

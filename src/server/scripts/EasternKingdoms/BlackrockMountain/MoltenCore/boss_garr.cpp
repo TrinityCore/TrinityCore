@@ -128,7 +128,7 @@ class npc_firesworn : public CreatureScript
                 Initialize();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 uint32 const health10pct = me->CountPctFromMaxHealth(10);
                 uint32 health = me->GetHealth();

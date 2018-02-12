@@ -116,7 +116,7 @@ public:
                 DoChangePhase();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& damage) override
         {
             // @todo this is wrong - razorgore should still take damage, he should just nuke the whole room and respawn if he dies during P1
             if (!secondPhase)

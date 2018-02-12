@@ -129,7 +129,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& damage) override
         {
             if (!ManaShield && me->HealthBelowPctDamaged(20, damage))
             {

@@ -202,7 +202,7 @@ struct boss_kalecgos : public BossAI
         }
     }
 
-    void DamageTaken(Unit* who, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& who, uint32 &damage) override
     {
         if (damage >= me->GetHealth() && (!who || who->GetGUID() != me->GetGUID()))
             damage = 0;
@@ -370,7 +370,7 @@ struct boss_kalecgos_human : public ScriptedAI
         Talk(SAY_GOOD_DEATH);
     }
 
-    void DamageTaken(Unit* who, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& who, uint32 &damage) override
     {
         if (!who || who->GetGUID() != _sathGUID)
             damage = 0;
@@ -483,7 +483,7 @@ struct boss_sathrovarr : public BossAI
         }
     }
 
-    void DamageTaken(Unit* who, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& who, uint32 &damage) override
     {
         if (damage >= me->GetHealth() && (!who || who->GetGUID() != me->GetGUID()))
             damage = 0;

@@ -129,7 +129,7 @@ class boss_garfrost : public CreatureScript
                     tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(66))
                 {
