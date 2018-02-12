@@ -30,7 +30,7 @@
 template<>
 void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
 {
-    if (creature->HasUnitState(UNIT_STATE_CASTING) && !creature->CanMoveDuringChannel())
+    if (creature->IsMovementPreventedByCasting())
     {
         creature->CastStop();
         return;

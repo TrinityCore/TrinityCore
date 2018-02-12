@@ -36,7 +36,10 @@ enum Spells
     SPELL_MOLTEN_FLAME        = 40980,
     SPELL_VOLCANIC_ERUPTION   = 40117,
     SPELL_VOLCANIC_SUMMON     = 40276,
-    SPELL_BERSERK             = 45078
+    SPELL_VOLCANIC_GEYSER     = 42055,
+    SPELL_BERSERK             = 45078,
+    SPELL_SNARE_SELF          = 41922,
+    SPELL_CHARGE              = 41581
 };
 
 enum Events
@@ -51,38 +54,14 @@ enum Events
 
 enum Phases
 {
-    PHASE_STRIKE = 1,
-    PHASE_CHASE  = 2
+    PHASE_INITIAL =  1,
+    PHASE_STRIKE  =  2,
+    PHASE_CHASE   =  3
 };
 
-enum EventGroups
+enum Actions
 {
-    GCD_CAST = 1
-};
-
-class molten_flame : public CreatureScript
-{
-public:
-    molten_flame() : CreatureScript("molten_flame") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackTempleAI<molten_flameAI>(creature);
-    }
-
-    struct molten_flameAI : public NullCreatureAI
-    {
-        molten_flameAI(Creature* creature) : NullCreatureAI(creature) { }
-
-        void InitializeAI() override
-        {
-            float x, y, z;
-            me->GetNearPoint(me, x, y, z, 1, 100, float(M_PI*2*rand_norm()));
-            me->GetMotionMaster()->MovePoint(0, x, y, z);
-            me->SetVisible(false);
-            me->CastSpell(me, SPELL_MOLTEN_FLAME, true);
-        }
-    };
+    ACTION_DISABLE_VULCANO = 1
 };
 
 class boss_supremus : public CreatureScript
@@ -92,62 +71,65 @@ public:
 
     struct boss_supremusAI : public BossAI
     {
-        boss_supremusAI(Creature* creature) : BossAI(creature, DATA_SUPREMUS)
-        {
-            phase = 0;
-        }
+        boss_supremusAI(Creature* creature) : BossAI(creature, DATA_SUPREMUS) { }
 
         void Reset() override
         {
             _Reset();
-            phase = 0;
+            events.SetPhase(PHASE_INITIAL);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
+        }
+
+        void EnterEvadeMode(EvadeReason /*why*/) override
+        {
+            summons.DespawnAll();
+            _DespawnAtEvade();
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             ChangePhase();
-            events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
-            events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
+            events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
+            events.ScheduleEvent(EVENT_FLAME, Seconds(20));
         }
 
         void ChangePhase()
         {
-            if (!phase || phase == PHASE_CHASE)
+            if (events.IsInPhase(PHASE_INITIAL) || events.IsInPhase(PHASE_CHASE))
             {
-                phase = PHASE_STRIKE;
+                events.SetPhase(PHASE_STRIKE);
                 DummyEntryCheckPredicate pred;
-                summons.DoAction(EVENT_VOLCANO, pred);
-                events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
-                me->SetSpeedRate(MOVE_RUN, 1.2f);
+                summons.DoAction(ACTION_DISABLE_VULCANO, pred);
+                events.ScheduleEvent(EVENT_HATEFUL_STRIKE, Seconds(2), 0, PHASE_STRIKE);
+                me->RemoveAurasDueToSpell(SPELL_SNARE_SELF);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }
             else
             {
-                phase = PHASE_CHASE;
-                events.ScheduleEvent(EVENT_VOLCANO, 5000, GCD_CAST, PHASE_CHASE);
-                events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
-                me->SetSpeedRate(MOVE_RUN, 0.9f);
+                events.SetPhase(PHASE_CHASE);
+                events.ScheduleEvent(EVENT_VOLCANO, Seconds(5), 0, PHASE_CHASE);
+                events.ScheduleEvent(EVENT_SWITCH_TARGET, Seconds(10), 0, PHASE_CHASE);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+                DoCast(SPELL_SNARE_SELF);
             }
             DoResetThreat();
             DoZoneInCombat();
-            events.SetPhase(phase);
-            events.ScheduleEvent(EVENT_SWITCH_PHASE, 60000, GCD_CAST);
+            events.ScheduleEvent(EVENT_SWITCH_PHASE, Seconds(60));
         }
 
         Unit* CalculateHatefulStrikeTarget()
         {
-            uint32 health = 0;
-            Unit* target = NULL;
+            uint64 health = 0;
+            Unit* target = nullptr;
 
-            ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            ThreatContainer::StorageType threatList = me->getThreatManager().getThreatList();
+            for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
             {
-                Unit* unit = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid());
+                Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && me->IsWithinMeleeRange(unit))
                 {
                     if (unit->GetHealth() > health)
@@ -166,38 +148,32 @@ public:
             switch (eventId)
             {
                 case EVENT_BERSERK:
-                    DoCast(me, SPELL_BERSERK, true);
+                    DoCastSelf(SPELL_BERSERK, true);
                     break;
                 case EVENT_FLAME:
-                    DoCast(me, SPELL_MOLTEN_PUNCH);
-                    events.DelayEvents(1500, GCD_CAST);
-                    events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
+                    DoCast(SPELL_MOLTEN_PUNCH);
+                    events.Repeat(Seconds(15), Seconds(20));
                     break;
                 case EVENT_HATEFUL_STRIKE:
                     if (Unit* target = CalculateHatefulStrikeTarget())
                         DoCast(target, SPELL_HATEFUL_STRIKE);
-                    events.DelayEvents(1000, GCD_CAST);
-                    events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
+                    events.Repeat(Seconds(5));
                     break;
                 case EVENT_SWITCH_TARGET:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 5000000.0f);
+                        me->AddThreat(target, 1000000.0f);
+                        DoCast(target, SPELL_CHARGE);
                         Talk(EMOTE_NEW_TARGET);
                     }
-                    events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
+                    events.Repeat(Seconds(10));
                     break;
                 case EVENT_VOLCANO:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
-                    {
-                        //DoCast(target, SPELL_VOLCANIC_SUMMON);//movement bugged
-                        me->SummonCreature(NPC_SUPREMUS_VOLCANO, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
-                        Talk(EMOTE_GROUND_CRACK);
-                        events.DelayEvents(1500, GCD_CAST);
-                    }
-                    events.ScheduleEvent(EVENT_VOLCANO, 10000, GCD_CAST, PHASE_CHASE);
-                    return;
+                    DoCastAOE(SPELL_VOLCANIC_SUMMON, true);
+                    Talk(EMOTE_GROUND_CRACK);
+                    events.Repeat(Seconds(10));
+                    break;
                 case EVENT_SWITCH_PHASE:
                     ChangePhase();
                     break;
@@ -206,8 +182,6 @@ public:
             }
         }
 
-    private:
-        uint32 phase;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -216,52 +190,63 @@ public:
     }
 };
 
+class npc_molten_flame : public CreatureScript
+{
+public:
+    npc_molten_flame() : CreatureScript("npc_molten_flame") { }
+
+    struct npc_molten_flameAI : public NullCreatureAI
+    {
+        npc_molten_flameAI(Creature* creature) : NullCreatureAI(creature) { }
+
+        void InitializeAI() override
+        {
+            float x, y, z;
+            me->GetNearPoint(me, x, y, z, 1, 100.0f, float(M_PI * 2 * rand_norm()));
+            me->GetMotionMaster()->MovePoint(0, x, y, z);
+            DoCastSelf(SPELL_MOLTEN_FLAME, true);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_molten_flameAI(creature);
+    }
+};
+
 class npc_volcano : public CreatureScript
 {
 public:
     npc_volcano() : CreatureScript("npc_volcano") { }
 
-    struct npc_volcanoAI : public ScriptedAI
+    struct npc_volcanoAI : public NullCreatureAI
     {
-        npc_volcanoAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            SetCombatMovement(false);
-        }
-
-        void Initialize()
-        {
-            wait = 3000;
-        }
+        npc_volcanoAI(Creature* creature) : NullCreatureAI(creature) { }
 
         void Reset() override
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            //DoCast(me, SPELL_VOLCANIC_ERUPTION);
-            me->SetReactState(REACT_PASSIVE);
-            Initialize();
+            _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+            {
+                DoCastSelf(SPELL_VOLCANIC_ERUPTION);
+            });
         }
-        uint32 wait;
 
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        void DoAction(int32 /*info*/) override
+        void DoAction(int32 action) override
         {
-            me->RemoveAura(SPELL_VOLCANIC_ERUPTION);
+            if (action == ACTION_DISABLE_VULCANO)
+            {
+                me->RemoveAurasDueToSpell(SPELL_VOLCANIC_ERUPTION);
+                me->RemoveAurasDueToSpell(SPELL_VOLCANIC_GEYSER);
+            }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (wait <= diff)//wait 3secs before casting
-            {
-                DoCast(me, SPELL_VOLCANIC_ERUPTION);
-                wait = 60000;
-            }
-            else wait -= diff;
+            _scheduler.Update(diff);
         }
+
+    private:
+        TaskScheduler _scheduler;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -273,6 +258,6 @@ public:
 void AddSC_boss_supremus()
 {
     new boss_supremus();
-    new molten_flame();
+    new npc_molten_flame();
     new npc_volcano();
 }
