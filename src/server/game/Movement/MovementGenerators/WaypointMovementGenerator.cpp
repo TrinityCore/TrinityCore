@@ -116,19 +116,19 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
     creature->UpdateCurrentWaypointInfo(waypoint.id, _path->id);
 }
 
-void WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
+void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool relaunch/* = false*/)
 {
-    if (!creature || !creature->IsAlive())
+    // sanity checks
+    if (!creature || !creature->IsAlive() || _done || !_path || _path->nodes.empty() || (relaunch && _isArrivalDone))
         return;
 
-    if (_done || !_path || _path->nodes.empty())
-        return;
-
-    // if the owner is the leader of its formation, check members status
-    if (!CanMove(creature) || (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed()))
+    if (!relaunch)  // on relaunch, can avoid this since its only called on valid movement
     {
-        _nextMoveTime.Reset(1000);
-        return;
+        if (!CanMove(creature) || (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed())) // if cannot move OR cannot move because of formation
+        {
+            _nextMoveTime.Reset(1000); // delay 1s
+            return;
+        }
     }
 
     bool transportPath = creature->GetTransport() != nullptr;
@@ -229,8 +229,6 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     // inform formation
     creature->SignalFormationMovement(formationDest, waypoint.id, waypoint.moveType, (waypoint.orientation && waypoint.delay) ? true : false);
-
-    return;
 }
 
 bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 diff)
@@ -239,30 +237,47 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
         return true;
 
     if (_done || !_path || _path->nodes.empty())
-        return false;
+        return true;
 
     if (_stalled || creature->HasUnitState(UNIT_STATE_NOT_MOVE) || creature->IsMovementPreventedByCasting())
     {
-        creature->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         creature->StopMoving();
         return true;
     }
 
-    if (!_nextMoveTime.Passed())
-        _nextMoveTime.Update(diff);
-
-    if (creature->HasUnitState(UNIT_STATE_ROAMING_MOVE) && creature->movespline->Finalized() && !_isArrivalDone)
+    // if it's moving
+    if (!creature->movespline->Finalized())
     {
-        OnArrived(creature);
-        _isArrivalDone = true;
+        // set home position at place (every MotionMaster::UpdateMotion)
+        if (creature->GetTransGUID().IsEmpty())
+            creature->SetHomePosition(creature->GetPosition());
+
+        // relaunch movement if its speed has changed
+        if (_recalculateSpeed)
+            StartMove(creature, true);
     }
+    else
+    {
+        // check if there is a wait time for the next movement
+        if (!_nextMoveTime.Passed())
+        {
+            // dont update wait timer while moving
+            _nextMoveTime.Update(diff);
+            if (_nextMoveTime.Passed())
+            {
+                _nextMoveTime.Reset(0);
+                StartMove(creature); // check path status, get next point and move if necessary & can
+            }
+        }
+        else // if it's not moving and there is no timer, assume node is reached
+        {
+            OnArrived(creature); // hooks and wait timer reset (if necessary)
+            _isArrivalDone = true; // signals that the next move will happen after reaching a node
 
-    // Set home position at place on waypoint movement.
-    if (creature->GetTransGUID().IsEmpty())
-        creature->SetHomePosition(creature->GetPosition());
-
-    if (_recalculateSpeed || (_nextMoveTime.Passed() && (!creature->HasUnitState(UNIT_STATE_ROAMING_MOVE) || creature->movespline->Finalized())))
-        StartMove(creature);
+            if (_nextMoveTime.Passed())
+                StartMove(creature); // check path status, get next point and move if necessary & can
+        }
+    }
 
     return true;
 }
