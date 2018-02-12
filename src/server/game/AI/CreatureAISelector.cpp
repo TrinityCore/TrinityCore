@@ -101,8 +101,9 @@ namespace FactorySelector
     MovementGenerator* SelectMovementGenerator(Unit* unit)
     {
         MovementGeneratorType type = IDLE_MOTION_TYPE;
-        if (unit->GetTypeId() == TYPEID_UNIT)
-            type = unit->ToCreature()->GetDefaultMovementType();
+        if (Creature* creature = unit->ToCreature())
+            if (!creature->GetPlayerMovingMe())
+                type = unit->ToCreature()->GetDefaultMovementType();
 
         MovementGeneratorCreator const* mv_factory = sMovementGeneratorRegistry->GetRegistryItem(type);
         return ASSERT_NOTNULL(mv_factory)->Create(unit);
