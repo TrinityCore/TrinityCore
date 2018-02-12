@@ -112,9 +112,6 @@ void SpellDestination::RelocateOffset(Position const& offset)
 
 SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
 {
-    m_objectTarget = nullptr;
-    m_itemTarget = nullptr;
-
     m_itemTargetEntry  = 0;
 
     m_targetMask = 0;
@@ -130,10 +127,10 @@ void SpellCastTargets::Read(ByteBuffer& data, Unit* caster)
         return;
 
     if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_CORPSE_ALLY))
-        data >> m_objectTargetGUID.ReadAsPacked();
+        data >> m_objectTarget.ReadAsPacked();
 
     if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
-        data >> m_itemTargetGUID.ReadAsPacked();
+        data >> m_itemTarget.ReadAsPacked();
 
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
     {
@@ -180,7 +177,7 @@ void SpellCastTargets::Write(ByteBuffer& data)
     data << uint32(m_targetMask);
 
     if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_MINIPET))
-        data << m_objectTargetGUID.WriteAsPacked();
+        data << m_objectTarget.WriteAsPacked();
 
     if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
     {
@@ -236,8 +233,8 @@ void SpellCastTargets::SetOrigUnitTarget(Unit* target)
 
 ObjectGuid SpellCastTargets::GetUnitTargetGUID() const
 {
-    if (m_objectTargetGUID.IsUnit())
-        return m_objectTargetGUID;
+    if (m_objectTarget.IsUnit())
+        return m_objectTarget;
 
     return ObjectGuid::Empty;
 }
@@ -255,15 +252,14 @@ void SpellCastTargets::SetUnitTarget(Unit* target)
     if (!target)
         return;
 
-    m_objectTarget = target;
-    m_objectTargetGUID = target->GetGUID();
+    m_objectTarget.Set(target);
     m_targetMask |= TARGET_FLAG_UNIT;
 }
 
 ObjectGuid SpellCastTargets::GetGOTargetGUID() const
 {
-    if (m_objectTargetGUID.IsAnyTypeGameObject())
-        return m_objectTargetGUID;
+    if (m_objectTarget.IsAnyTypeGameObject())
+        return m_objectTarget;
 
     return ObjectGuid::Empty;
 }
@@ -281,15 +277,14 @@ void SpellCastTargets::SetGOTarget(GameObject* target)
     if (!target)
         return;
 
-    m_objectTarget = target;
-    m_objectTargetGUID = target->GetGUID();
+    m_objectTarget.Set(target);
     m_targetMask |= TARGET_FLAG_GAMEOBJECT;
 }
 
 ObjectGuid SpellCastTargets::GetCorpseTargetGUID() const
 {
-    if (m_objectTargetGUID.IsCorpse())
-        return m_objectTargetGUID;
+    if (m_objectTarget.IsCorpse())
+        return m_objectTarget;
 
     return ObjectGuid::Empty;
 }
@@ -302,20 +297,9 @@ Corpse* SpellCastTargets::GetCorpseTarget() const
     return nullptr;
 }
 
-WorldObject* SpellCastTargets::GetObjectTarget() const
-{
-    return m_objectTarget;
-}
-
-ObjectGuid SpellCastTargets::GetObjectTargetGUID() const
-{
-    return m_objectTargetGUID;
-}
-
 void SpellCastTargets::RemoveObjectTarget()
 {
-    m_objectTarget = nullptr;
-    m_objectTargetGUID.Clear();
+    m_objectTarget.Set(nullptr);
     m_targetMask &= ~(TARGET_FLAG_UNIT_MASK | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_GAMEOBJECT_MASK);
 }
 
@@ -324,28 +308,18 @@ void SpellCastTargets::SetItemTarget(Item* item)
     if (!item)
         return;
 
-    m_itemTarget = item;
-    m_itemTargetGUID = item->GetGUID();
+    m_itemTarget.Set(item);
     m_itemTargetEntry = item->GetEntry();
     m_targetMask |= TARGET_FLAG_ITEM;
 }
 
 void SpellCastTargets::SetTradeItemTarget(Player* caster)
 {
-    m_itemTargetGUID.Set(uint64(TRADE_SLOT_NONTRADED));
+    m_itemTarget.Set(nullptr);
     m_itemTargetEntry = 0;
     m_targetMask |= TARGET_FLAG_TRADE_ITEM;
 
     Update(caster);
-}
-
-void SpellCastTargets::UpdateTradeSlotItem()
-{
-    if (m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
-    {
-        m_itemTargetGUID = m_itemTarget->GetGUID();
-        m_itemTargetEntry = m_itemTarget->GetEntry();
-    }
 }
 
 SpellDestination const* SpellCastTargets::GetSrc() const
@@ -456,18 +430,17 @@ bool SpellCastTargets::HasDst() const
 
 void SpellCastTargets::Update(Unit* caster)
 {
-    m_objectTarget = m_objectTargetGUID ? ((m_objectTargetGUID == caster->GetGUID()) ? caster : ObjectAccessor::GetWorldObject(*caster, m_objectTargetGUID)) : nullptr;
+    m_objectTarget = (m_objectTarget == caster->GetGUID()) ? caster : ObjectAccessor::GetWorldObject(*caster, m_objectTarget);
 
     m_itemTarget = nullptr;
     if (caster->GetTypeId() == TYPEID_PLAYER)
     {
         Player* player = caster->ToPlayer();
         if (m_targetMask & TARGET_FLAG_ITEM)
-            m_itemTarget = player->GetItemByGuid(m_itemTargetGUID);
+            m_itemTarget = player->GetItemByGuid(m_itemTarget);
         else if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
-            if (m_itemTargetGUID.GetRawValue() == TRADE_SLOT_NONTRADED) // here it is not guid but slot. Also prevents hacking slots
-                if (TradeData* pTrade = player->GetTradeData())
-                    m_itemTarget = pTrade->GetTraderData()->GetItem(TRADE_SLOT_NONTRADED);
+            if (TradeData* pTrade = player->GetTradeData())
+                m_itemTarget.Set(pTrade->GetTraderData()->GetItem(TRADE_SLOT_NONTRADED));
 
         if (m_itemTarget)
             m_itemTargetEntry = m_itemTarget->GetEntry();
@@ -500,11 +473,11 @@ void SpellCastTargets::OutDebug() const
 
     TC_LOG_DEBUG("spells", "target mask: %u", m_targetMask);
     if (m_targetMask & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_GAMEOBJECT_MASK))
-        TC_LOG_DEBUG("spells", "Object target: %s", m_objectTargetGUID.ToString().c_str());
+        TC_LOG_DEBUG("spells", "Object target: %s", m_objectTarget.ToString().c_str());
     if (m_targetMask & TARGET_FLAG_ITEM)
-        TC_LOG_DEBUG("spells", "Item target: %s", m_itemTargetGUID.ToString().c_str());
+        TC_LOG_DEBUG("spells", "Item target: %s", m_itemTarget.ToString().c_str());
     if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
-        TC_LOG_DEBUG("spells", "Trade item target: %s", m_itemTargetGUID.ToString().c_str());
+        TC_LOG_DEBUG("spells", "Trade item target: %s", m_itemTarget.ToString().c_str());
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
         TC_LOG_DEBUG("spells", "Source location: transport guid:%s trans offset: %s position: %s", m_src._transportGUID.ToString().c_str(), m_src._transportOffset.ToString().c_str(), m_src._position.ToString().c_str());
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
@@ -569,19 +542,15 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->Damage[0].DamageType);
 
-    if (originalCasterGUID)
-        m_originalCasterGUID = originalCasterGUID;
-    else
-        m_originalCasterGUID = m_caster->GetGUID();
-
-    if (m_originalCasterGUID == m_caster->GetGUID())
-        m_originalCaster = m_caster;
-    else
+    if (originalCasterGUID && originalCasterGUID != m_caster->GetGUID())
     {
-        m_originalCaster = ObjectAccessor::GetUnit(*m_caster, m_originalCasterGUID);
-        if (m_originalCaster && !m_originalCaster->IsInWorld())
-            m_originalCaster = nullptr;
+        Unit* originalCaster = ObjectAccessor::GetUnit(*m_caster, originalCasterGUID);
+        if (originalCaster && !originalCaster->IsInWorld())
+            originalCaster = nullptr;
+        m_originalCaster.Set(originalCaster);
     }
+    else
+        m_originalCaster.Set(m_caster);
 
     m_spellState = SPELL_STATE_NULL;
     _triggeredCastFlags = triggerFlags;
@@ -2114,7 +2083,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         targetInfo.reflectResult = m_caster->SpellHitResult(m_caster, m_spellInfo, false); // can't reflect twice
 
         // Proc spell reflect aura when missile hits the original target
-        target->m_Events.AddEvent(new ProcReflectDelayed(target, m_originalCasterGUID), target->m_Events.CalculateTime(targetInfo.timeDelay));
+        target->m_Events.AddEvent(new ProcReflectDelayed(target, m_originalCaster), target->m_Events.CalculateTime(targetInfo.timeDelay));
 
         // Increase time interval for reflected spells by 1.5
         targetInfo.timeDelay += targetInfo.timeDelay >> 1;
@@ -2853,7 +2822,7 @@ bool Spell::UpdateChanneledTargetList()
             {
                 if (channelAuraMask & ihit->effectMask)
                 {
-                    if (AuraApplication * aurApp = unit->GetAuraApplication(m_spellInfo->Id, m_originalCasterGUID))
+                    if (AuraApplication * aurApp = unit->GetAuraApplication(m_spellInfo->Id, m_originalCaster))
                     {
                         if (m_caster != unit && !m_caster->IsWithinDistInMap(unit, range))
                         {
@@ -3072,7 +3041,7 @@ void Spell::cancel()
             for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                 if ((*ihit).missCondition == SPELL_MISS_NONE)
                     if (Unit* unit = m_caster->GetGUID() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
-                        unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
+                        unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCaster, 0, AURA_REMOVE_BY_CANCEL);
 
             SendChannelUpdate(0);
             SendInterrupted(0);
@@ -3126,8 +3095,8 @@ void Spell::_cast(bool skipCheck)
         return;
     }
 
-    // cancel at lost explicit target during cast
-    if (m_targets.GetObjectTargetGUID() && !m_targets.GetObjectTarget())
+    // cancel at lost explicit target during cast (explicit target guid is not null, but pointer is)
+    if (!m_targets.GetObjectTarget().IsEmpty() && !m_targets.GetObjectTarget())
     {
         cancel();
         return;
@@ -3266,10 +3235,6 @@ void Spell::_cast(bool skipCheck)
     PrepareTriggersExecutedOnHit();
 
     CallScriptOnCastHandlers();
-
-    // traded items have trade slot instead of guid in m_itemTargetGUID
-    // set to real guid to be sent later to the client
-    m_targets.UpdateTradeSlotItem();
 
     if (Player* player = m_caster->ToPlayer())
     {
@@ -3638,7 +3603,7 @@ void Spell::update(uint32 difftime)
                     // Also remove applied auras
                     for (TargetInfo const& target : m_UniqueTargetInfo)
                         if (Unit* unit = m_caster->GetGUID() == target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID))
-                            unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
+                            unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCaster, 0, AURA_REMOVE_BY_CANCEL);
                 }
 
                 if (m_timer > 0)
@@ -4392,7 +4357,7 @@ void Spell::SendChannelUpdate(uint32 time)
 
 void Spell::SendChannelStart(uint32 duration)
 {
-    ObjectGuid channelTarget = m_targets.GetObjectTargetGUID();
+    ObjectGuid channelTarget = m_targets.GetObjectTarget();
     if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
         if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   // this is for TARGET_SELECT_CATEGORY_NEARBY
             channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
@@ -5391,10 +5356,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (m_targets.GetTargetMask() & TARGET_FLAG_TRADE_ITEM)
                 {
                     if (TradeData* pTrade = m_caster->ToPlayer()->GetTradeData())
-                        pTempItem = pTrade->GetTraderData()->GetItem(TradeSlots(m_targets.GetItemTargetGUID().GetRawValue()));  // at this point item target guid contains the trade slot
+                        pTempItem = pTrade->GetTraderData()->GetItem(TRADE_SLOT_NONTRADED);  // at this point item target guid contains the trade slot
                 }
                 else if (m_targets.GetTargetMask() & TARGET_FLAG_ITEM)
-                    pTempItem = m_caster->ToPlayer()->GetItemByGuid(m_targets.GetItemTargetGUID());
+                    pTempItem = m_caster->ToPlayer()->GetItemByGuid(m_targets.GetItemTarget());
 
                 // we need a go target, or an openable item target in case of TARGET_GAMEOBJECT_ITEM_TARGET
                 if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET &&
@@ -5751,11 +5716,6 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
         if (!my_trade)
             return SPELL_FAILED_NOT_TRADING;
-
-        // Item target guid contains trade slot until m_targets.UpdateTradeSlotItem() is called
-        TradeSlots slot = TradeSlots(m_targets.GetItemTargetGUID().GetRawValue());
-        if (slot != TRADE_SLOT_NONTRADED)
-            return SPELL_FAILED_BAD_TARGETS;
 
         if (!IsTriggered())
             if (my_trade->GetSpell())
@@ -6296,8 +6256,8 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
         }
     }
 
-    // check target item
-    if (m_targets.GetItemTargetGUID())
+    // if had item target, check target item state
+    if (!m_targets.GetItemTarget().IsEmpty())
     {
         Item* item = m_targets.GetItemTarget();
         if (!item)
@@ -6840,7 +6800,7 @@ void Spell::DelayedChannel()
     for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
         if ((*ihit).missCondition == SPELL_MISS_NONE)
             if (Unit* unit = (m_caster->GetGUID() == ihit->targetGUID) ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
-                unit->DelayOwnedAuras(m_spellInfo->Id, m_originalCasterGUID, delaytime);
+                unit->DelayOwnedAuras(m_spellInfo->Id, m_originalCaster, delaytime);
 
     // partially interrupt persistent area auras
     if (DynamicObject* dynObj = m_caster->GetDynObject(m_spellInfo->Id))
@@ -6851,11 +6811,11 @@ void Spell::DelayedChannel()
 
 bool Spell::UpdatePointers()
 {
-    if (m_originalCasterGUID == m_caster->GetGUID())
+    if (m_originalCaster == m_caster->GetGUID())
         m_originalCaster = m_caster;
     else
     {
-        m_originalCaster = ObjectAccessor::GetUnit(*m_caster, m_originalCasterGUID);
+        m_originalCaster = ObjectAccessor::GetUnit(*m_caster, m_originalCaster);
         if (m_originalCaster && !m_originalCaster->IsInWorld())
             m_originalCaster = nullptr;
     }
@@ -7000,8 +6960,8 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
             {
                 // Get GO cast coordinates if original caster -> GO
                 WorldObject* caster = nullptr;
-                if (m_originalCasterGUID.IsGameObject())
-                    caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
+                if (m_originalCaster.IsGameObject())
+                    caster = m_caster->GetMap()->GetGameObject(m_originalCaster);
                 if (!caster)
                     caster = m_caster;
                 if (target != m_caster && !target->IsWithinLOSInMap(caster, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))

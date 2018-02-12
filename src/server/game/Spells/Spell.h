@@ -21,6 +21,7 @@
 
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
+#include "MemoryOf.h"
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
@@ -144,16 +145,13 @@ class TC_GAME_API SpellCastTargets
         ObjectGuid GetCorpseTargetGUID() const;
         Corpse* GetCorpseTarget() const;
 
-        WorldObject* GetObjectTarget() const;
-        ObjectGuid GetObjectTargetGUID() const;
+        MemoryOf<WorldObject> const& GetObjectTarget() const { return m_objectTarget; }
         void RemoveObjectTarget();
 
-        ObjectGuid GetItemTargetGUID() const { return m_itemTargetGUID; }
-        Item* GetItemTarget() const { return m_itemTarget; }
+        MemoryOf<Item> const& GetItemTarget() const { return m_itemTarget; }
         uint32 GetItemTargetEntry() const { return m_itemTargetEntry; }
         void SetItemTarget(Item* item);
         void SetTradeItemTarget(Player* caster);
-        void UpdateTradeSlotItem();
 
         SpellDestination const* GetSrc() const;
         Position const* GetSrcPos() const;
@@ -194,13 +192,11 @@ class TC_GAME_API SpellCastTargets
         uint32 m_targetMask;
 
         // objects (can be used at spell creating and after Update at casting)
-        WorldObject* m_objectTarget;
-        Item* m_itemTarget;
+        MemoryOf<WorldObject> m_objectTarget;
+        MemoryOf<Item> m_itemTarget;
 
         // object GUID/etc, can be used always
         ObjectGuid m_origObjectTargetGUID;
-        ObjectGuid m_objectTargetGUID;
-        ObjectGuid m_itemTargetGUID;
         uint32 m_itemTargetEntry;
 
         SpellDestination m_src;
@@ -538,7 +534,7 @@ class TC_GAME_API Spell
         CurrentSpellTypes GetCurrentContainer() const;
 
         Unit* GetCaster() const { return m_caster; }
-        Unit* GetOriginalCaster() const { return m_originalCaster; }
+        MemoryOf<Unit> const& GetOriginalCaster() const { return m_originalCaster; }
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         int32 GetPowerCost() const { return m_powerCost; }
 
@@ -563,9 +559,8 @@ class TC_GAME_API Spell
 
         SpellValue* const m_spellValue;
 
-        ObjectGuid m_originalCasterGUID;                    // real source of cast (aura caster/etc), used for spell targets selection
-                                                            // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
-        Unit* m_originalCaster;                             // cached pointer for m_originalCaster, updated at Spell::UpdatePointers()
+        MemoryOf<Unit> m_originalCaster;                // real source of cast (aura caster/etc), used for spell targets selection
+                                                        // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
 
         //Spell data
         SpellSchoolMask m_spellSchoolMask;                  // Spell school (can be overwrite for some spells (wand shoot for example)
