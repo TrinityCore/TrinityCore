@@ -22,6 +22,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "SpellScript.h"
 
 DoorData const doorData[] =
 {
