@@ -202,7 +202,9 @@ Position const BrokenWP[18] =
     { 478.8986f, 370.1895f, 112.7839f }
 };
 
-static float const MIDDLE_OF_ROOM = 400.0f;
+static float const MIDDLE_OF_ROOM    = 400.0f;
+static float const FACE_THE_DOOR     = 0.08726646f;
+static float const FACE_THE_PLATFORM = 3.118662f;
 
 class boss_shade_of_akama : public CreatureScript
 {
@@ -224,8 +226,9 @@ public:
 
         void Reset() override
         {
+            _Reset();
             Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
             me->SetWalk(true);
@@ -235,7 +238,8 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override
         {
-            _Reset();
+            events.Reset();
+            summons.DespawnAll();
 
             for (ObjectGuid const& spawnerGuid : _spawners)
                 if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
@@ -265,6 +269,7 @@ public:
             {
                 _isInPhaseOne = false;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 
@@ -449,7 +454,6 @@ public:
             else if (pointId == AKAMA_INTRO_WAYPOINT)
             {
                 me->SetWalk(false);
-                me->SetFacingTo(0.08726646f, true);
                 _events.ScheduleEvent(EVENT_START_SOUL_RETRIEVE, Seconds(1));
             }
         }
@@ -484,7 +488,7 @@ public:
                         me->GetMotionMaster()->MovePoint(AKAMA_CHANNEL_WAYPOINT, AkamaWP[0], false);
                         break;
                     case EVENT_SHADE_CHANNEL:
-                        me->SetFacingTo(3.118662f);
+                        me->SetFacingTo(FACE_THE_PLATFORM);
                         DoCastSelf(SPELL_AKAMA_SOUL_CHANNEL);
                         me->setFaction(FACTION_COMBAT);
                         _events.ScheduleEvent(EVENT_FIXATE, Seconds(5));
@@ -501,6 +505,7 @@ public:
                         _events.Repeat(Seconds(3), Seconds(7));
                         break;
                     case EVENT_START_SOUL_RETRIEVE:
+                        me->SetFacingTo(FACE_THE_DOOR, true);
                         DoCast(SPELL_AKAMA_SOUL_RETRIEVE);
                         _events.ScheduleEvent(EVENT_START_BROKEN_FREE, Seconds(15));
                         break;
