@@ -1099,7 +1099,7 @@ class spell_warr_vigilance : public SpellScriptLoader
                     target->RemoveAurasDueToSpell(SPELL_GEN_DAMAGE_REDUCTION_AURA);
                 }
 
-                target->GetThreatManager().UnregisterRedirectThreat(SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT, GetCasterGUID());
+                target->GetThreatManager().UnregisterRedirectThreat(SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT, GetCaster());
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)

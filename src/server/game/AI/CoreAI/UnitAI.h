@@ -22,6 +22,7 @@
 #include "Containers.h"
 #include "Errors.h"
 #include "EventMap.h"
+#include "MemoryOf.h"
 #include "ObjectGuid.h"
 #include "SpellDefines.h"
 #include "ThreatManager.h"
@@ -288,13 +289,13 @@ class TC_GAME_API UnitAI
 
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
-        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) { }
+        virtual void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) { }
 
         // Called when the creature receives heal
-        virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) { }
+        virtual void HealReceived(MemoryOf<Unit> const& /*done_by*/, uint32& /*amount*/) { }
 
         // Called when the unit heals
-        virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) { }
+        virtual void HealDone(Unit* /*done_to*/, uint32& /*amt*/) { }
 
         /// Called when a spell is interrupted by Spell::EffectInterruptCast
         /// Use to reschedule next planned cast of spell.

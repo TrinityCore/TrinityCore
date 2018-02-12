@@ -256,7 +256,7 @@ class npc_vrykul_skeleton : public CreatureScript
                 events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*doneBy*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {

@@ -111,7 +111,7 @@ class boss_jeklik : public CreatureScript
                 DoCast(me, SPELL_BAT_FORM);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(50))
                 {

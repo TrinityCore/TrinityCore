@@ -63,7 +63,7 @@ class boss_general_angerforge : public CreatureScript
                 _events.ScheduleEvent(EVENT_CLEAVE, 16000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(20, damage) && _events.IsInPhase(PHASE_ONE))
                 {

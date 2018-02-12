@@ -321,9 +321,9 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _events.ScheduleEvent(EVENT_BERSERK, 420000);
             }
 
-            void HealReceived(Unit* healer, uint32& heal) override
+            void HealReceived(MemoryOf<Unit> const& healer, uint32& heal) override
             {
-                if (!me->hasLootRecipient())
+                if (healer && !me->hasLootRecipient())
                     me->SetLootRecipient(healer);
 
                 me->LowerPlayerDamageReq(heal);
@@ -346,12 +346,12 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _over75PercentTalkDone = true;
                     Talk(SAY_VALITHRIA_75_PERCENT);
                 }
-                else if (_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == NOT_STARTED)
+                else if (healer && _instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == NOT_STARTED)
                     if (Creature* archmage = me->FindNearestCreature(NPC_RISEN_ARCHMAGE, 30.0f))
                         archmage->EngageWithTarget(healer);   // call JustEngagedWith on one of them, that will make it all start
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(25, damage))
                 {

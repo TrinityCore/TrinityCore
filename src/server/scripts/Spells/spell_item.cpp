@@ -1550,7 +1550,7 @@ class spell_item_power_circle : public AuraScript
 
     bool CheckCaster(Unit* target)
     {
-        return target->GetGUID() == GetCasterGUID();
+        return target->GetGUID() == GetCaster();
     }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

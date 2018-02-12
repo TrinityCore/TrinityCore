@@ -226,7 +226,7 @@ class boss_prince_taldaram : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*doneBy*/, uint32& damage) override
             {
                 Unit* embraceTarget = GetEmbraceTarget();
 

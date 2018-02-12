@@ -278,7 +278,7 @@ class boss_halion : public CreatureScript
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& attacker, uint32& damage) override
             {
                 if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_THREE))
                     damage = me->GetHealth() - 1;
@@ -300,7 +300,7 @@ class boss_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
-                    if (!me->InSamePhase(attacker))
+                    if (!WorldObject::InSamePhase(attacker, me))
                         return;
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -461,7 +461,7 @@ class boss_twilight_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& attacker, uint32& damage) override
             {
                 if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_THREE))
                     damage = me->GetHealth() - 1;
@@ -481,7 +481,7 @@ class boss_twilight_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
-                    if (!me->InSamePhase(attacker))
+                    if (!WorldObject::InSamePhase(me, attacker))
                         return;
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -1567,7 +1567,7 @@ class spell_halion_marks : public SpellScriptLoader
                     return;
 
                 // Stacks marker
-                CastSpellExtraArgs args(GetCasterGUID());
+                CastSpellExtraArgs args(GetCaster());
                 args.AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount());
                 GetTarget()->CastSpell(GetTarget(), _summonSpellId, args);
             }

@@ -920,7 +920,7 @@ class boss_thorim : public CreatureScript
                 return runicColossus && !runicColossus->IsAlive() && runeGiant && !runeGiant->IsAlive();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& attacker, uint32& damage) override
             {
                 if (events.IsInPhase(PHASE_1) && CanStartPhase2(attacker))
                 {
@@ -1168,7 +1168,7 @@ class npc_thorim_pre_phase : public CreatureScript
                 return !target->GetAffectingPlayer();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& attacker, uint32& damage) override
             {
                 // nullify spell damage
                 if (!attacker || !attacker->GetAffectingPlayer())

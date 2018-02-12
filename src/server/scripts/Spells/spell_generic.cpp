@@ -722,7 +722,7 @@ class spell_gen_burning_depths_necrolyte_image : public AuraScript
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveAurasDueToSpell(uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue()), GetCasterGUID());
+        GetTarget()->RemoveAurasDueToSpell(uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue()), GetCaster());
     }
 
     void Register() override
@@ -1645,7 +1645,7 @@ class spell_gen_lifebloom : public SpellScriptLoader
                     return;
 
                 // final heal
-                GetTarget()->CastSpell(GetTarget(), _spellId, { aurEff, GetCasterGUID() });
+                GetTarget()->CastSpell(GetTarget(), _spellId, { aurEff, GetCaster() });
             }
 
             void Register() override
@@ -3101,7 +3101,7 @@ class spell_gen_turkey_marker : public AuraScript
 
         // on stack 15 cast the achievement crediting spell
         if (GetStackAmount() >= 15)
-            target->CastSpell(target, SPELL_TURKEY_VENGEANCE, { aurEff, GetCasterGUID() });
+            target->CastSpell(target, SPELL_TURKEY_VENGEANCE, { aurEff, GetCaster() });
     }
 
     void OnPeriodic(AuraEffect const* /*aurEff*/)

@@ -189,7 +189,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
+        void DamageTaken(MemoryOf<Unit> const& /*pDoneBy*/, uint32 &uiDamage) override
         {
             if (!me->IsVisible())
                 uiDamage = 0;
@@ -337,7 +337,7 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
+        void DamageTaken(MemoryOf<Unit> const& /*pDoneBy*/, uint32 &uiDamage) override
         {
             uiDamage = 0;
         }

@@ -83,7 +83,7 @@ class boss_interrogator_vishas : public CreatureScript
                     vorrel->AI()->Talk(SAY_TRIGGER_VORREL);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32 &damage) override
             {
                 if (me->HealthBelowPctDamaged(60, damage) && _yellCount < 1)
                 {

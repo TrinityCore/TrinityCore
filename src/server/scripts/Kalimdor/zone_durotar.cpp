@@ -194,7 +194,7 @@ class npc_tiger_matriarch : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& attacker, uint32& damage) override
             {
                 if (!attacker || !attacker->IsSummon())
                     return;

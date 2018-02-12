@@ -178,7 +178,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
         {
             if (me->HealthBelowPctDamaged(100 - 25 * _healthAmountModifier, damage))
             {

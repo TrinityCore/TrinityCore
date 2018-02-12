@@ -273,7 +273,7 @@ struct IllidariCouncilBossAI : public BossAI
             illidari->AI()->EnterEvadeMode(why);
     }
 
-    void DamageTaken(Unit* who, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& who, uint32 &damage) override
     {
         if (damage >= me->GetHealth() && (!who || who->GetGUID() != me->GetGUID()))
             damage = me->GetHealth() - 1;
@@ -457,10 +457,10 @@ struct boss_lady_malande : public IllidariCouncilBossAI
         events.ScheduleEvent(EVENT_DIVINE_WRATH, Seconds(32));
     }
 
-    void HealReceived(Unit* /*who*/, uint32& addhealth) override
+    void HealReceived(MemoryOf<Unit> const& /*who*/, uint32& amount) override
     {
         // Need be negative to heal trigger
-        me->CastSpell(nullptr, SPELL_SHARED_RULE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(-int32(addhealth)));
+        me->CastSpell(nullptr, SPELL_SHARED_RULE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(-int32(amount)));
     }
 
     void ExecuteEvent(uint32 eventId) override

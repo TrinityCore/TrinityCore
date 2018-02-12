@@ -966,10 +966,10 @@ class spell_dru_leader_of_the_pack : public SpellScriptLoader
                 caster->GetSpellHistory()->AddCooldown(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_HEAL, 0, Seconds(6));
 
                 // only proc on self
-                if (aurEff->GetCasterGUID() != caster->GetGUID())
+                if (aurEff->GetCaster() != caster->GetGUID())
                     return;
 
-                AuraEffect const* impLotpMana = caster->GetAuraEffectOfRankedSpell(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_R1, EFFECT_0, aurEff->GetCasterGUID());
+                AuraEffect const* impLotpMana = caster->GetAuraEffectOfRankedSpell(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_R1, EFFECT_0, aurEff->GetCaster());
                 ASSERT(impLotpMana);
 
                 CastSpellExtraArgs args2(aurEff);
@@ -1015,13 +1015,13 @@ class spell_dru_lifebloom : public SpellScriptLoader
                 {
                     // restore mana
                     CastSpellExtraArgs args(aurEff);
-                    args.OriginalCaster = GetCasterGUID();
+                    args.OriginalCaster = GetCaster();
                     args.AddSpellBP0(CalculatePct(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * stack / 2);
                     caster->CastSpell(caster, SPELL_DRUID_LIFEBLOOM_ENERGIZE, args);
                 }
 
                 CastSpellExtraArgs args(aurEff);
-                args.OriginalCaster = GetCasterGUID();
+                args.OriginalCaster = GetCaster();
                 args.AddSpellBP0(healAmount);
                 target->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, args);
             }
@@ -1511,7 +1511,7 @@ class spell_dru_savage_roar : public SpellScriptLoader
             void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, { aurEff, GetCasterGUID() });
+                target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, { aurEff, GetCaster() });
             }
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

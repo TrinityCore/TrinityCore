@@ -238,7 +238,7 @@ class spell_pal_aura_mastery : public SpellScriptLoader
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->RemoveOwnedAura(SPELL_PALADIN_AURA_MASTERY_IMMUNE, GetCasterGUID());
+                GetTarget()->RemoveOwnedAura(SPELL_PALADIN_AURA_MASTERY_IMMUNE, GetCaster());
             }
 
             void Register() override
@@ -271,7 +271,7 @@ class spell_pal_aura_mastery_immune : public SpellScriptLoader
 
             bool CheckAreaTarget(Unit* target)
             {
-                return target->HasAura(SPELL_PALADIN_CONCENTRACTION_AURA, GetCasterGUID());
+                return target->HasAura(SPELL_PALADIN_CONCENTRACTION_AURA, GetCaster());
             }
 
             void Register() override
@@ -449,7 +449,7 @@ class spell_pal_blessing_of_sanctuary : public SpellScriptLoader
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->RemoveAura(SPELL_PALADIN_BLESSING_OF_SANCTUARY_BUFF, GetCasterGUID());
+                target->RemoveAura(SPELL_PALADIN_BLESSING_OF_SANCTUARY_BUFF, GetCaster());
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -1140,7 +1140,7 @@ class spell_pal_improved_aura : public SpellScriptLoader
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                GetTarget()->RemoveOwnedAura(_spellId, GetCasterGUID()); // need to remove to reapply spellmods
+                GetTarget()->RemoveOwnedAura(_spellId, GetCaster()); // need to remove to reapply spellmods
                 target->CastSpell(target, _spellId, true);
             }
 
@@ -1152,7 +1152,7 @@ class spell_pal_improved_aura : public SpellScriptLoader
                     || (spellId == SPELL_PALADIN_SWIFT_RETRIBUTION_R1 && GetTarget()->GetAuraOfRankedSpell(SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1)))
                     return;
 
-                GetTarget()->RemoveOwnedAura(_spellId, GetCasterGUID());
+                GetTarget()->RemoveOwnedAura(_spellId, GetCaster());
             }
 
             void Register() override
@@ -1192,7 +1192,7 @@ class spell_pal_improved_aura_effect : public SpellScriptLoader
                 for (Unit::AuraApplicationMap::iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
                 {
                     Aura const* aura = itr->second->GetBase();
-                    if (aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && aura->GetCasterGUID() == GetCasterGUID())
+                    if (aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && aura->GetCaster() == GetCaster())
                     {
                         // Not allow for Retribution Aura (prevent stacking) - Retribution Aura Overflow and Retribution Aura has same spell effects
                         if (GetSpellInfo()->Id == SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA && aura->GetSpellInfo()->SpellIconID == PALADIN_ICON_ID_RETRIBUTION_AURA)
@@ -1526,7 +1526,7 @@ class spell_pal_judgement_of_light_heal : public SpellScriptLoader
                 Unit* caster = eventInfo.GetProcTarget();
 
                 CastSpellExtraArgs args(aurEff);
-                args.OriginalCaster = GetCasterGUID();
+                args.OriginalCaster = GetCaster();
                 args.AddSpellBP0(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
                 caster->CastSpell(nullptr, SPELL_PALADIN_JUDGEMENT_OF_LIGHT_HEAL, args);
             }
@@ -1572,7 +1572,7 @@ class spell_pal_judgement_of_wisdom_mana : public SpellScriptLoader
                 Unit* caster = eventInfo.GetProcTarget();
                 int32 const amount = CalculatePct(static_cast<int32>(caster->GetCreateMana()), spellInfo->Effects[EFFECT_0].CalcValue());
                 CastSpellExtraArgs args(aurEff);
-                args.OriginalCaster = GetCasterGUID();
+                args.OriginalCaster = GetCaster();
                 args.AddSpellBP0(amount);
                 caster->CastSpell(nullptr, spellInfo->Id, args);
             }

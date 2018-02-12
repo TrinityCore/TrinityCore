@@ -438,7 +438,7 @@ class spell_sha_earth_shield : public SpellScriptLoader
                 PreventDefaultAction();
 
                 CastSpellExtraArgs args(aurEff);
-                args.OriginalCaster = GetCasterGUID();
+                args.OriginalCaster = GetCaster();
                 args.AddSpellBP0(aurEff->GetAmount());
                 GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_EARTH_SHIELD_HEAL, args);
             }

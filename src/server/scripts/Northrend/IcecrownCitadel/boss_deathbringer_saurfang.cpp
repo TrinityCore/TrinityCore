@@ -352,7 +352,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;

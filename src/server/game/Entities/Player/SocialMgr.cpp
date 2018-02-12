@@ -97,8 +97,8 @@ void PlayerSocial::RemoveFromSocialList(ObjectGuid const& friendGuid, SocialFlag
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_FLAGS);
 
         stmt->setUInt8(0, itr->second.Flags);
-        stmt->setUInt32(1, GetPlayerGUID());
-        stmt->setUInt32(2, friendGuid);
+        stmt->setUInt32(1, GetPlayerGUID().GetCounter());
+        stmt->setUInt32(2, friendGuid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
     }

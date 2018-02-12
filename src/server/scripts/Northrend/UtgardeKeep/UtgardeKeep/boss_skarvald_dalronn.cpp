@@ -217,7 +217,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (!Enraged && !IsInGhostForm && me->HealthBelowPctDamaged(15, damage))
                 {

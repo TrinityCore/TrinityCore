@@ -100,7 +100,7 @@ class boss_vexallus : public CreatureScript
                 summons.Summon(summoned);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& /*damage*/) override
             {
                 if (_enraged)
                     return;

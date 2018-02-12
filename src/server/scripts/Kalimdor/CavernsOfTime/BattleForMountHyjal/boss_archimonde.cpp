@@ -134,7 +134,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
         {
             damage = 0;
         }
@@ -178,7 +178,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
         {
             damage = 0;
         }
@@ -228,7 +228,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
         {
             damage = 0;
         }
@@ -400,7 +400,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32 &damage) override
         {
             if (me->HealthBelowPctDamaged(10, damage))
             {

@@ -651,8 +651,9 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                         {
                             if (Aura* aura = target->GetAura(SPELL_IMPALED))
                             {
-                                if (Creature* spike = ObjectAccessor::GetCreature(*target, aura->GetCasterGUID()))
-                                    spike->DespawnOrUnsummon();
+                                if (auto const& spike = aura->GetCaster())
+                                    if (Creature* cSpike = spike->ToCreature())
+                                        cSpike->DespawnOrUnsummon();
                                 aura->Remove();
                             }
                         }

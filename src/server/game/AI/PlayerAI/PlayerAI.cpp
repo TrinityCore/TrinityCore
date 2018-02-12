@@ -1331,7 +1331,7 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
         Player::AuraEffectList const& auras = me->GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
         for (Player::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
         {
-            if ((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
+            if ((*iter)->GetCaster() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
             {
                 me->KillSelf();
                 return;

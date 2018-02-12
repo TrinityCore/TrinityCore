@@ -58,7 +58,7 @@ class boss_magmus : public CreatureScript
                 _events.ScheduleEvent(EVENT_FIERY_BURST, 5000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(50, damage) && _events.IsInPhase(PHASE_ONE))
                 {

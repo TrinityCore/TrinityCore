@@ -634,7 +634,7 @@ class npc_frost_sphere : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(20.0f);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& damage) override
             {
                 if (me->GetHealth() <= damage)
                 {
@@ -728,7 +728,7 @@ class npc_anubarak_spike : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& uiDamage) override
+            void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& uiDamage) override
             {
                 uiDamage = 0;
             }

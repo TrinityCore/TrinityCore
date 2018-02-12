@@ -250,7 +250,7 @@ class boss_xt002 : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (!_hardMode && _phase == 1 && !HealthAbovePct(100 - 25 * (_heartExposed+1)))
                     ExposeHeart();
@@ -687,7 +687,7 @@ class npc_boombot : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32& damage) override
             {
                 if (damage >= (me->GetHealth() - me->GetMaxHealth() * 0.5f) && !_boomed)
                 {

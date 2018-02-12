@@ -419,7 +419,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
+        void DamageTaken(MemoryOf<Unit> const& /*pDoneBy*/, uint32 &uiDamage) override
         {
             if (uiDamage > me->GetHealth())
             {

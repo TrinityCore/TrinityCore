@@ -70,7 +70,7 @@ class TC_GAME_API CritterAI : public PassiveAI
     public:
         explicit CritterAI(Creature* c) : PassiveAI(c) { }
 
-        void DamageTaken(Unit* done_by, uint32& /*damage*/) override;
+        void DamageTaken(MemoryOf<Unit> const& done_by, uint32& /*damage*/) override;
         void EnterEvadeMode(EvadeReason why) override;
 
         static int32 Permissible(Creature const* creature);

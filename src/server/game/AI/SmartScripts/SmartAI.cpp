@@ -610,7 +610,7 @@ void SmartAI::SpellHitTarget(Unit* target, SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, spellInfo);
 }
 
-void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
+void SmartAI::DamageTaken(MemoryOf<Unit> const& doneBy, uint32& damage)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
 
@@ -621,9 +621,9 @@ void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
         damage = me->GetHealth() - mInvincibilityHpLevel; // damage should not be nullified, because of player damage req.
 }
 
-void SmartAI::HealReceived(Unit* doneBy, uint32& addhealth)
+void SmartAI::HealReceived(MemoryOf<Unit> const& doneBy, uint32& amt)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_RECEIVE_HEAL, doneBy, addhealth);
+    GetScript()->ProcessEventsFor(SMART_EVENT_RECEIVE_HEAL, doneBy, amt);
 }
 
 void SmartAI::ReceiveEmote(Player* player, uint32 textEmote)

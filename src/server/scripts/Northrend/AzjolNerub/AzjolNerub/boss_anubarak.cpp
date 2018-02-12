@@ -348,7 +348,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*source*/, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*source*/, uint32& damage) override
         {
             if (me->HasAura(SPELL_SUBMERGE))
                 damage = 0;

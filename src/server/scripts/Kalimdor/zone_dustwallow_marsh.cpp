@@ -123,7 +123,7 @@ public:
             me->RestoreFaction();
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32 &Damage) override
+        void DamageTaken(MemoryOf<Unit> const& pDoneBy, uint32 &Damage) override
         {
             if (Damage > me->GetHealth() || me->HealthBelowPctDamaged(20, Damage))
             {

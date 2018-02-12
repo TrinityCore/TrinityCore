@@ -123,7 +123,7 @@ public:
             });
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32 &damage) override
         {
             // Attumen does not die until he mounts Midnight, let health fall to 1 and prevent further damage.
             if (damage >= me->GetHealth() && _phase != PHASE_MOUNTED)
@@ -306,7 +306,7 @@ public:
             me->SetReactState(REACT_DEFENSIVE);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32 &damage) override
         {
             // Midnight never dies, let health fall to 1 and prevent further damage.
             if (damage >= me->GetHealth())

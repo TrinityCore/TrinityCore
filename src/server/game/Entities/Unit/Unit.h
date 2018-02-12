@@ -19,11 +19,12 @@
 #ifndef __UNIT_H
 #define __UNIT_H
 
-#include "Object.h"
+#include "CombatManager.h"
 #include "EventProcessor.h"
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
-#include "CombatManager.h"
+#include "MemoryOf.h"
+#include "Object.h"
 #include "OptionalFwd.h"
 #include "SpellAuraDefines.h"
 #include "SpellDefines.h"
@@ -435,7 +436,7 @@ class TC_GAME_API DamageInfo
 class TC_GAME_API HealInfo
 {
     private:
-        Unit* const _healer;
+        MemoryOf<Unit> const _healer;
         Unit* const _target;
         uint32 _heal;
         uint32 _effectiveHeal;
@@ -445,12 +446,12 @@ class TC_GAME_API HealInfo
         uint32 _hitMask;
 
     public:
-        HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
+        HealInfo(MemoryOf<Unit> const& healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
 
         void AbsorbHeal(uint32 amount);
         void SetEffectiveHeal(uint32 amount) { _effectiveHeal = amount; }
 
-        Unit* GetHealer() const { return _healer; }
+        MemoryOf<Unit> const& GetHealer() const { return _healer; }
         Unit* GetTarget() const { return _target; }
         uint32 GetHeal() const { return _heal; }
         uint32 GetEffectiveHeal() const { return _effectiveHeal; }
@@ -933,7 +934,7 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 GetMaxSkillValueForLevel(Unit const* target = nullptr) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         static void DealDamageMods(Unit const* victim, uint32& damage, uint32* absorb);
-        static uint32 DealDamage(Unit* attacker, Unit* victim, uint32 damage, CleanDamage const* cleanDamage = nullptr, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = nullptr, bool durabilityLoss = true);
+        static uint32 DealDamage(MemoryOf<Unit> const& attacker, Unit* victim, uint32 damage, CleanDamage const* cleanDamage = nullptr, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = nullptr, bool durabilityLoss = true);
         static void Kill(Unit* attacker, Unit* victim, bool durabilityLoss = true);
         void KillSelf(bool durabilityLoss = true) { Unit::Kill(this, this, durabilityLoss); }
         static void DealHeal(HealInfo& healInfo);

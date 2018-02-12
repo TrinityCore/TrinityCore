@@ -112,7 +112,7 @@ public:
                 Talk(SAY_AGGRO);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
         {
             if (me->HealthBelowPctDamaged(40, damage) && !HasCastIceblock)
             {

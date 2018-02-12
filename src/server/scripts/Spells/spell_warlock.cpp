@@ -729,7 +729,7 @@ class spell_warl_haunt : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.OriginalCaster = GetCasterGUID();
+                    args.OriginalCaster = GetCaster();
                     args.AddSpellBP0(aurEff->GetAmount());
                     GetTarget()->CastSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, args);
                 }
@@ -1343,7 +1343,7 @@ class spell_warl_soul_leech : public SpellScriptLoader
                 caster->CastSpell(caster, SPELL_WARLOCK_SOUL_LEECH_HEAL, args);
 
                 // Improved Soul Leech code below
-                AuraEffect const* impSoulLeech = GetTarget()->GetAuraEffectOfRankedSpell(SPELL_WARLOCK_IMP_SOUL_LEECH_R1, EFFECT_1, aurEff->GetCasterGUID());
+                AuraEffect const* impSoulLeech = GetTarget()->GetAuraEffectOfRankedSpell(SPELL_WARLOCK_IMP_SOUL_LEECH_R1, EFFECT_1, aurEff->GetCaster());
                 if (!impSoulLeech)
                     return;
 

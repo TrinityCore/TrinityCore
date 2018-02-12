@@ -84,7 +84,7 @@ class boss_falric : public CreatureScript
                 events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(21000, 39000));
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if ((_hopelessnessCount < 1 && me->HealthBelowPctDamaged(66, damage))
                     || (_hopelessnessCount < 2 && me->HealthBelowPctDamaged(33, damage))

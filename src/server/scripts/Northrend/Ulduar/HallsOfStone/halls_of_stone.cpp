@@ -402,7 +402,7 @@ public:
             Start();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) override
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32& /*damage*/) override
         {
             if (instance->GetBossState(DATA_TRIBUNAL_OF_AGES) == IN_PROGRESS)
                 brannSparklinNews = false;

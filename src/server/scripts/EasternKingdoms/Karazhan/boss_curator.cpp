@@ -87,7 +87,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, Minutes(12));
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
         {
             if (!HealthAbovePct(15) && !_infused)
             {

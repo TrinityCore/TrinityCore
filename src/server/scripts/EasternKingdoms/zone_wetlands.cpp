@@ -106,7 +106,7 @@ public:
                 summoned->AI()->AttackStart(player);
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
+        void DamageTaken(MemoryOf<Unit> const& /*pDoneBy*/, uint32& uiDamage) override
         {
             if (HealthBelowPct(20))
             {

@@ -60,7 +60,7 @@ public:
             events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
         }
 
-        void DamageTaken(Unit* /*atacker*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*atacker*/, uint32 &damage) override
         {
             if (!IsEnraged && me->HealthBelowPctDamaged(30, damage))
             {

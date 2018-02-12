@@ -1278,7 +1278,7 @@ void Creature::SetLootRecipient(Unit* unit, bool withGroup)
             m_lootRecipientGroup = group->GetLowGUID();
     }
     else
-        m_lootRecipientGroup = ObjectGuid::Empty;
+        m_lootRecipientGroup = ObjectGuid::Empty.GetCounter();
 
     SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED);
 }

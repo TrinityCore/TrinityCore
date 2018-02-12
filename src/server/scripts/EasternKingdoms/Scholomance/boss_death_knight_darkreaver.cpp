@@ -45,7 +45,7 @@ public:
         {
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
         {
             if (me->GetHealth() <= damage)
                 DoCast(me, 23261, true);   //Summon Darkreaver's Fallen Charger

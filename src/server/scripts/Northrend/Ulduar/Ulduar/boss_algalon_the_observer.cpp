@@ -509,7 +509,7 @@ class boss_algalon_the_observer : public CreatureScript
                 me->SetSheath(SHEATH_STATE_UNARMED);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (_fightWon)
                 {
@@ -848,7 +848,7 @@ class npc_collapsing_star : public CreatureScript
                 me->DespawnOrUnsummon(1);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (_dying)
                 {

@@ -1779,7 +1779,7 @@ public:
             Reset();
         }
 
-        void DamageTaken(Unit* doneBy, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& doneBy, uint32& damage) override
         {
             if (doneBy)
                 _damageTimes[doneBy->GetGUID()] = GameTime::GetGameTime();

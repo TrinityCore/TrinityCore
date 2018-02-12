@@ -424,7 +424,7 @@ struct npc_feral_defender : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
     {
         if (damage >= me->GetHealth() && me->HasAura(SPELL_FERAL_ESSENCE))
         {

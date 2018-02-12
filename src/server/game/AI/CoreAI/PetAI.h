@@ -42,7 +42,7 @@ class TC_GAME_API PetAI : public CreatureAI
         void MovementInform(uint32 moveType, uint32 data) override;
         void OwnerAttackedBy(Unit* attacker) override;
         void OwnerAttacked(Unit* target) override;
-        void DamageTaken(Unit* attacker, uint32& /*damage*/) override { AttackStart(attacker); }
+        void DamageTaken(MemoryOf<Unit> const& attacker, uint32& /*damage*/) override { AttackStart(attacker); }
         void ReceiveEmote(Player* player, uint32 textEmote) override;
 
         // The following aren't used by the PetAI but need to be defined to override

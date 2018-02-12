@@ -96,7 +96,7 @@ public:
             return 100*(me->GetHealth()-damage)/me->GetMaxHealth();
         }
 
-        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*pAttacker*/, uint32 &damage) override
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                 damage = 0;

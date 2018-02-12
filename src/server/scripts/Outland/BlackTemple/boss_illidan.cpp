@@ -701,7 +701,7 @@ struct boss_illidan_stormrage : public BossAI
         }
     }
 
-    void DamageTaken(Unit* who, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& who, uint32 &damage) override
     {
         if (damage >= me->GetHealth() && (!who || who->GetGUID() != me->GetGUID()))
         {
@@ -1193,7 +1193,7 @@ struct npc_akama_illidan : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*who*/, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32 &damage) override
     {
         if (damage >= me->GetHealth())
             damage = me->GetHealth() - 1;
@@ -1649,7 +1649,7 @@ struct npc_maiev : public ScriptedAI
             _canDown = true;
     }
 
-    void DamageTaken(Unit* /*who*/, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& /*who*/, uint32 &damage) override
     {
         if (damage >= me->GetHealth() && _canDown)
         {

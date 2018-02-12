@@ -681,7 +681,7 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(70))
                 {
@@ -1328,7 +1328,7 @@ class npc_shambling_horror_icc : public CreatureScript
                 _events.ScheduleEvent(EVENT_ENRAGE, urand(11000, 14000));
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (!_frenzied && IsHeroic() && me->HealthBelowPctDamaged(20, damage))
                 {
@@ -1502,7 +1502,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                 _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2500);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (!IsHeroic())
                     return;
@@ -1795,7 +1795,7 @@ class npc_terenas_menethil : public CreatureScript
                 me->CombatStop(false);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -2141,7 +2141,7 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
                         return;
                 }
 
-                CastSpellExtraArgs args(GetCasterGUID());
+                CastSpellExtraArgs args(GetCaster());
                 args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
                 GetTarget()->CastSpell(nullptr, SPELL_NECROTIC_PLAGUE_JUMP, args);
                 if (Unit* caster = GetCaster())
@@ -2237,7 +2237,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
                         return;
                 }
 
-                CastSpellExtraArgs args(GetCasterGUID());
+                CastSpellExtraArgs args(GetCaster());
                 args.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
                 GetTarget()->CastSpell(nullptr, SPELL_NECROTIC_PLAGUE_JUMP, args);
                 if (Unit* caster = GetCaster())
@@ -2255,7 +2255,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
                 if (aurEff->GetAmount() > _lastAmount)
                     return;
 
-                CastSpellExtraArgs args(GetCasterGUID());
+                CastSpellExtraArgs args(GetCaster());
                 args.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
                 args.AddSpellMod(SPELLVALUE_BASE_POINT1, AURA_REMOVE_BY_ENEMY_SPELL); // add as marker (spell has no effect 1)
                 GetTarget()->CastSpell(nullptr, SPELL_NECROTIC_PLAGUE_JUMP, args);
@@ -2713,7 +2713,7 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 if (_is25Man || ((aurEff->GetTickNumber() - 1) % 5))
-                    GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, { aurEff, GetCasterGUID() });
+                    GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, { aurEff, GetCaster() });
             }
 
             void Register() override
@@ -2939,7 +2939,7 @@ class spell_the_lich_king_soul_rip : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     CastSpellExtraArgs args(aurEff);
-                    args.OriginalCaster = GetCasterGUID();
+                    args.OriginalCaster = GetCaster();
                     args.AddSpellBP0(5000 * aurEff->GetTickNumber());
                     caster->CastSpell(GetTarget(), SPELL_SOUL_RIP_DAMAGE, args);
                 }

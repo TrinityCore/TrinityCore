@@ -142,7 +142,7 @@ class boss_apothecary_hummel : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                     if (_deadCount < 2)

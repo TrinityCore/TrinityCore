@@ -59,7 +59,7 @@ public:
             events.ScheduleEvent(EVENT_BLAST_WAVE, 14000);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
         {
             if (me->HealthBelowPctDamaged(25, damage))
             {

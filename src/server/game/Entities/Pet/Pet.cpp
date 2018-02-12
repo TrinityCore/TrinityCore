@@ -1257,7 +1257,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         }
 
         // don't save guid of caster in case we are caster of the spell - guid for pet is generated every pet load, so it won't match saved guid anyways
-        ObjectGuid casterGUID = (itr->second->GetCasterGUID() == GetGUID()) ? ObjectGuid::Empty : itr->second->GetCasterGUID();
+        ObjectGuid casterGUID = (itr->second->GetCaster() == GetGUID()) ? ObjectGuid::Empty : itr->second->GetCaster();
 
         uint8 index = 0;
 

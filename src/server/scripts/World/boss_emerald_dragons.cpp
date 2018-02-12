@@ -281,7 +281,7 @@ class boss_ysondre : public CreatureScript
             }
 
             // Summon druid spirits on 75%, 50% and 25% health
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
@@ -374,7 +374,7 @@ class boss_lethon : public CreatureScript
                 WorldBossAI::JustEngagedWith(who);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
@@ -509,7 +509,7 @@ class boss_emeriss : public CreatureScript
                 WorldBossAI::JustEngagedWith(who);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
@@ -612,7 +612,7 @@ class boss_taerar : public CreatureScript
                 --_shades;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& /*damage*/) override
             {
                 // At 75, 50 or 25 percent health, we need to activate the shades and go "banished"
                 // Note: _stage holds the amount of times they have been summoned

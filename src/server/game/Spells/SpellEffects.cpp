@@ -411,7 +411,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     {
                         // for caster applied auras only
                         if ((*i)->GetSpellInfo()->SpellFamilyName != SPELLFAMILY_WARLOCK ||
-                            (*i)->GetCasterGUID() != m_caster->GetGUID())
+                            (*i)->GetCaster() != m_caster->GetGUID())
                             continue;
 
                         // Immolate
@@ -845,7 +845,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
             targets.SetUnitTarget(m_caster);
     }
 
-    CastSpellExtraArgs args(m_originalCasterGUID);
+    CastSpellExtraArgs args(GetOriginalCaster());
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -889,7 +889,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
         targets.SetUnitTarget(m_caster);
     }
 
-    CastSpellExtraArgs args(m_originalCasterGUID);
+    CastSpellExtraArgs args(GetOriginalCaster());
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -929,7 +929,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
             case 52463: // Hide In Mine Car
             case 52349: // Overtake
             {
-                CastSpellExtraArgs args(m_originalCasterGUID);
+                CastSpellExtraArgs args(GetOriginalCaster());
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
                 unitTarget->CastSpell(unitTarget, spellInfo->Id, args);
                 return;
@@ -940,7 +940,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
     switch (spellInfo->Id)
     {
         case 72298: // Malleable Goo Summon
-            unitTarget->CastSpell(unitTarget, spellInfo->Id, m_originalCasterGUID);
+            unitTarget->CastSpell(unitTarget, spellInfo->Id, GetOriginalCaster());
             return;
     }
 
@@ -1000,7 +1000,7 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(destTarget), speedXY, speedZ);
-    m_caster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, !m_targets.GetObjectTargetGUID().IsEmpty());
+    m_caster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, !m_targets.GetObjectTarget().IsEmpty());
 }
 
 void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & speedZ)
@@ -1309,7 +1309,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
     if (unitTarget && unitTarget->IsAlive() && damage >= 0)
     {
         // Try to get original caster
-        Unit* caster = m_originalCasterGUID ? m_originalCaster : m_caster;
+        MemoryOf<Unit> caster = GetOriginalCaster();
 
         // Skip if m_originalCaster not available
         if (!caster)
@@ -1377,7 +1377,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
 
             // Glyph of Swiftmend
             if (!caster->HasAura(54824))
-                unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCasterGUID());
+                unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCaster());
 
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth, HEAL, unitTarget);
@@ -1394,7 +1394,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
                 Unit::AuraEffectList const& periodicHeals = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
                 for (AuraEffect const* hot : periodicHeals)
                 {
-                    if (m_caster->GetGUID() == hot->GetCasterGUID())
+                    if (m_caster->GetGUID() == hot->GetCaster())
                         ++auraCount;
                 }
 
@@ -2400,7 +2400,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         // Send dispelled spell info
         dataSuccess << uint32(itr->GetAura()->GetId());         // Spell Id
         dataSuccess << uint8(0);                                // 0 - dispelled !=0 cleansed
-        unitTarget->RemoveAurasDueToSpellByDispel(itr->GetAura()->GetId(), m_spellInfo->Id, itr->GetAura()->GetCasterGUID(), m_caster, itr->GetDispelCharges());
+        unitTarget->RemoveAurasDueToSpellByDispel(itr->GetAura()->GetId(), m_spellInfo->Id, itr->GetAura()->GetCaster(), m_caster, itr->GetDispelCharges());
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
 
@@ -3478,7 +3478,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         SpellInfo const* spellInfo = aurEff->GetSpellInfo();
                         // search our Blood Plague and Frost Fever on target
                         if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&
-                            aurEff->GetCasterGUID() == m_caster->GetGUID())
+                            aurEff->GetCaster() == m_caster->GetGUID())
                         {
                             uint32 countMin = aurEff->GetBase()->GetMaxDuration();
                             uint32 countMax = spellInfo->GetMaxDuration();
@@ -4786,7 +4786,7 @@ void Spell::EffectDispelMechanic(SpellEffIndex effIndex)
             continue;
         if (roll_chance_i(aura->CalcDispelChance(unitTarget, !unitTarget->IsFriendlyTo(m_caster))))
             if ((aura->GetSpellInfo()->GetAllEffectsMechanicMask() & (1 << mechanic)))
-                dispel_list.emplace_back(aura->GetId(), aura->GetCasterGUID());
+                dispel_list.emplace_back(aura->GetId(), aura->GetCaster());
     }
 
     for (auto itr = dispel_list.begin(); itr != dispel_list.end(); ++itr)
@@ -5233,7 +5233,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
 
         if (itr->RollDispel())
         {
-            successList.emplace_back(itr->GetAura()->GetId(), itr->GetAura()->GetCasterGUID());
+            successList.emplace_back(itr->GetAura()->GetId(), itr->GetAura()->GetCaster());
             if (!itr->DecrementCharge())
             {
                 --remaining;

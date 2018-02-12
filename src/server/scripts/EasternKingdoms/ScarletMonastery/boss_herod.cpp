@@ -100,7 +100,7 @@ class boss_herod : public CreatureScript
                     me->SummonCreature(NPC_SCARLET_TRAINEE, ScarletTraineePos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*attacker*/, uint32& damage) override
             {
                 if (!_enrage && me->HealthBelowPctDamaged(30, damage))
                 {

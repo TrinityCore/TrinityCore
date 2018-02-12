@@ -358,7 +358,7 @@ public:
         }
 
         // Safeguard to prevent Hadronox dying to NPCs
-        void DamageTaken(Unit* who, uint32& damage) override
+        void DamageTaken(MemoryOf<Unit> const& who, uint32& damage) override
         {
             if ((!who || !who->IsControlledByPlayer()) && me->HealthBelowPct(70))
             {
@@ -530,7 +530,7 @@ class npc_anub_ar_crusher : public CreatureScript
                 Talk(CRUSHER_SAY_AGGRO);
             }
 
-            void DamageTaken(Unit* /*source*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*source*/, uint32& damage) override
             {
                 if (_hadFrenzy || !me->HealthBelowPctDamaged(25, damage))
                     return;

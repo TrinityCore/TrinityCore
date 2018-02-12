@@ -406,7 +406,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*damageDealer*/, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& /*damageDealer*/, uint32& damage) override
             {
                 // phase transition
                 if (_phase == PHASE_ONE && damage > me->GetPower(POWER_MANA))

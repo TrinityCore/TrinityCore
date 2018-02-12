@@ -273,7 +273,7 @@ public:
             laugh += 3000;
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
         {
             if (withbody)
                 return;
@@ -609,7 +609,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(MemoryOf<Unit> const& /*done_by*/, uint32 &damage) override
         {
             if (damage >= me->GetHealth() && withhead)
             {

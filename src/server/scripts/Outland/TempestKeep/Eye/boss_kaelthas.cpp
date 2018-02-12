@@ -370,7 +370,7 @@ struct advisorbase_ai : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* killer, uint32 &damage) override
+    void DamageTaken(MemoryOf<Unit> const& killer, uint32 &damage) override
     {
         if (damage >= me->GetHealth() && !_inFakeDeath && !_hasRessurrected)
         {
@@ -568,7 +568,7 @@ class boss_kaelthas : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(MemoryOf<Unit> const& attacker, uint32& damage) override
             {
                 if (_phase == PHASE_NONE)
                 {

@@ -50,7 +50,7 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false)
         // Try find slot for aura
         uint8 slot = MAX_AURAS;
         // Lookup for auras already applied from spell
-        if (AuraApplication * foundAura = GetTarget()->GetAuraApplication(GetBase()->GetId(), GetBase()->GetCasterGUID(), GetBase()->GetCastItemGUID()))
+        if (AuraApplication * foundAura = GetTarget()->GetAuraApplication(GetBase()->GetId(), GetBase()->GetCaster(), GetBase()->GetCastItemGUID()))
         {
             // allow use single slot only by auras from same caster
             slot = foundAura->GetSlot();
@@ -92,7 +92,7 @@ void AuraApplication::_Remove()
     if (slot >= MAX_AURAS)
         return;
 
-    if (AuraApplication * foundAura = _target->GetAuraApplication(GetBase()->GetId(), GetBase()->GetCasterGUID(), GetBase()->GetCastItemGUID()))
+    if (AuraApplication * foundAura = _target->GetAuraApplication(GetBase()->GetId(), GetBase()->GetCaster(), GetBase()->GetCastItemGUID()))
     {
         // Reuse visible aura slot by aura which is still applied - prevent storing dead pointers
         if (slot == foundAura->GetSlot())
@@ -118,7 +118,7 @@ void AuraApplication::_Remove()
 void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
 {
     // mark as selfcast if needed
-    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE;
+    _flags |= (GetBase()->GetCaster() == GetTarget()->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE;
 
     // aura is cast by self or an enemy
     // one negative effect and we know aura is negative
@@ -202,7 +202,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
     data << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
 
     if (!(flags & AFLAG_CASTER))
-        data << aura->GetCasterGUID().WriteAsPacked();
+        data << aura->GetCaster().WriteAsPacked();
 
     if (flags & AFLAG_DURATION)
     {
@@ -341,7 +341,7 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint8 effMask, WorldObject* owne
 }
 
 Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID) :
-m_spellInfo(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()),
+m_spellInfo(spellproto), m_caster(casterGUID ? ObjectAccessor::GetUnit(*caster, casterGUID) : caster),
 m_castItemGuid(castItem ? castItem->GetGUID() : ObjectGuid::Empty), m_applyTime(GameTime::GetGameTime()),
 m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 _casterInfo(), m_procCharges(0), m_stackAmount(1),
@@ -461,16 +461,6 @@ Aura::~Aura()
 
     ASSERT(m_applications.empty());
     _DeleteRemovedApplications();
-}
-
-Unit* Aura::GetCaster() const
-{
-    if (GetOwner()->GetGUID() == GetCasterGUID())
-        return GetUnitOwner();
-    if (AuraApplication const* aurApp = GetApplicationOfTarget(GetCasterGUID()))
-        return aurApp->GetTarget();
-
-    return ObjectAccessor::GetUnit(*GetOwner(), GetCasterGUID());
 }
 
 AuraObjectType Aura::GetType() const
@@ -708,18 +698,22 @@ void Aura::_ApplyEffectForTargets(uint8 effIndex)
         }
     }
 }
-void Aura::UpdateOwner(uint32 diff, WorldObject* owner)
+void Aura::Update(uint32 diff)
 {
-    ASSERT(owner == m_owner);
-
-    Unit* caster = GetCaster();
+    if (m_owner->GetGUID() == m_caster)
+        m_caster = GetOwner()->ToUnit();
+    else if (AuraApplication const* aurApp = GetApplicationOfTarget(m_caster))
+        m_caster = aurApp->GetTarget();
+    else
+        m_caster = ObjectAccessor::GetUnit(*m_owner, m_caster);
+    
     // Apply spellmods for channeled auras
     // used for example when triggered spell of spell:10 is modded
     Spell* modSpell = nullptr;
     Player* modOwner = nullptr;
-    if (caster)
+    if (m_caster)
     {
-        modOwner = caster->GetSpellModOwner();
+        modOwner = m_caster->GetSpellModOwner();
         if (modOwner)
         {
             modSpell = modOwner->FindCurrentSpellBySpellId(GetId());
@@ -728,27 +722,6 @@ void Aura::UpdateOwner(uint32 diff, WorldObject* owner)
         }
     }
 
-    Update(diff, caster);
-
-    if (m_updateTargetMapInterval <= int32(diff))
-        UpdateTargetMap(caster);
-    else
-        m_updateTargetMapInterval -= diff;
-
-    // update aura effects
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_effects[i])
-            m_effects[i]->Update(diff, caster);
-
-    // remove spellmods after effects update
-    if (modSpell)
-        modOwner->SetSpellModTakingSpell(modSpell, false);
-
-    _DeleteRemovedApplications();
-}
-
-void Aura::Update(uint32 diff, Unit* caster)
-{
     if (m_duration > 0)
     {
         m_duration -= diff;
@@ -760,7 +733,7 @@ void Aura::Update(uint32 diff, Unit* caster)
         {
             if (m_timeCla > int32(diff))
                 m_timeCla -= diff;
-            else if (caster)
+            else if (Unit* caster = GetCaster())
             {
                 if (int32 manaPerSecond = m_spellInfo->ManaPerSecond + m_spellInfo->ManaPerSecondPerLevel * caster->getLevel())
                 {
@@ -782,6 +755,22 @@ void Aura::Update(uint32 diff, Unit* caster)
             }
         }
     }
+
+    if (m_updateTargetMapInterval <= int32(diff))
+        UpdateTargetMap(m_caster);
+    else
+        m_updateTargetMapInterval -= diff;
+
+    // update aura effects
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (m_effects[i])
+            m_effects[i]->Update(diff, m_caster);
+
+    // remove spellmods after effects update
+    if (modSpell)
+        modOwner->SetSpellModTakingSpell(modSpell, false);
+
+    _DeleteRemovedApplications();
 }
 
 int32 Aura::CalcMaxDuration(Unit* caster) const
@@ -1018,7 +1007,7 @@ bool Aura::CanBeSaved() const
         return false;
 
     // Check if aura is single target, not only spell info
-    if (GetCasterGUID() != GetOwner()->GetGUID())
+    if (GetCaster() != GetOwner()->GetGUID())
         if (GetSpellInfo()->IsSingleTarget() || IsSingleTarget())
             return false;
 
@@ -1247,7 +1236,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (*itr < 0)
                         target->RemoveAurasDueToSpell(-(*itr));
                     else if (removeMode != AURA_REMOVE_BY_DEATH)
-                        target->CastSpell(target, *itr, GetCasterGUID());
+                        target->CastSpell(target, *itr, GetCaster());
                 }
             }
             if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
@@ -1257,7 +1246,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (*itr < 0)
                         target->ApplySpellImmune(GetId(), IMMUNITY_ID, -(*itr), false);
                     else
-                        target->RemoveAura(*itr, GetCasterGUID(), 0, removeMode);
+                        target->RemoveAura(*itr, GetCaster(), 0, removeMode);
                 }
             }
         }
@@ -1269,7 +1258,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         {
             for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
                 if (*itr > 0)
-                    if (Aura* triggeredAura = target->GetAura(*itr, GetCasterGUID()))
+                    if (Aura* triggeredAura = target->GetAura(*itr, GetCaster()))
                         triggeredAura->ModStackAmount(GetStackAmount() - triggeredAura->GetStackAmount());
         }
     }
@@ -1410,7 +1399,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (GetSpellInfo()->SpellFamilyFlags[2] & 0x2)
                 {
                     // Can't proc on self
-                    if (GetCasterGUID() == target->GetGUID())
+                    if (GetCaster() == target->GetGUID())
                         break;
 
                     AuraEffect* aurEff = nullptr;
@@ -1495,7 +1484,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             for (std::list<Unit*>::iterator itr = PartyMembers.begin(); itr != PartyMembers.end(); ++itr)
                             {
                                 if ((*itr)!= target)
-                                    (*itr)->RemoveAurasWithFamily(SPELLFAMILY_WARRIOR, 0, 0x2, 0, GetCasterGUID());
+                                    (*itr)->RemoveAurasWithFamily(SPELLFAMILY_WARRIOR, 0, 0x2, 0, GetCaster());
                             }
                         }
                     }
@@ -1742,7 +1731,7 @@ bool Aura::CanBeAppliedOn(Unit* target)
         if (GetOwner() != target)
             return false;
         // do not apply non-selfcast single target auras
-        if (GetCasterGUID() != GetOwner()->GetGUID() && GetSpellInfo()->IsSingleTarget())
+        if (GetCaster() != GetOwner()->GetGUID() && GetSpellInfo()->IsSingleTarget())
             return false;
         return true;
     }
@@ -1766,7 +1755,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         return true;
 
     SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();
-    bool sameCaster = GetCasterGUID() == existingAura->GetCasterGUID();
+    bool sameCaster = GetCaster() == existingAura->GetCaster();
 
     // passive auras don't stack with another rank of the spell cast by same caster
     if (IsPassive() && sameCaster && (m_spellInfo->IsDifferentRankOf(existingSpellInfo) || (m_spellInfo->Id == existingSpellInfo->Id && m_castItemGuid.IsEmpty())))
