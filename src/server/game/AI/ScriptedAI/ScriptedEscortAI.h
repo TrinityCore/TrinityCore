@@ -40,10 +40,10 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         explicit EscortAI(Creature* creature);
         ~EscortAI() { }
 
+        void InitializeAI() override;
         void UpdateAI(uint32 diff) override; // the "internal" update, calls UpdateEscortAI()
         void MoveInLineOfSight(Unit* who) override;
         void JustDied(Unit*) override;
-        void JustAppeared() override;
         void ReturnToLastPoint();
         void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER) override;
         void MovementInform(uint32, uint32) override;
