@@ -424,6 +424,7 @@ bool BattlefieldWG::SetupBattlefield()
     m_StartGroupingTimer = 15 * MINUTE * IN_MILLISECONDS;
     m_StartGrouping = false;
 
+    m_tenacityTeam = TEAM_NEUTRAL;
     m_tenacityStack = 0;
 
     KickPosition.Relocate(5728.117f, 2714.346f, 697.733f, 0);
@@ -1089,6 +1090,7 @@ void BattlefieldWG::OnPlayerLeaveWar(Player* player)
     player->RemoveAurasDueToSpell(SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_HORDE_CONTROL_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_ALLIANCE_CONTROL_PHASE_SHIFT);
+    UpdateTenacity();
 }
 
 void BattlefieldWG::OnPlayerLeaveZone(Player* player)
@@ -1289,7 +1291,6 @@ void BattlefieldWG::UpdateVehicleCountWG()
 
 void BattlefieldWG::UpdateTenacity()
 {
-    TeamId team = TEAM_NEUTRAL;
     uint32 alliancePlayers = m_PlayersInWar[TEAM_ALLIANCE].size();
     uint32 hordePlayers = m_PlayersInWar[TEAM_HORDE].size();
     int32 newStack = 0;
@@ -1305,21 +1306,16 @@ void BattlefieldWG::UpdateTenacity()
     if (newStack == int32(m_tenacityStack))
         return;
 
-    if (m_tenacityStack > 0 && newStack <= 0)               // old buff was on alliance
-        team = TEAM_ALLIANCE;
-    else if (newStack >= 0)                                 // old buff was on horde
-        team = TEAM_HORDE;
-
     m_tenacityStack = newStack;
     // Remove old buff
-    if (team != TEAM_NEUTRAL)
+    if (m_tenacityTeam != TEAM_NEUTRAL)
     {
-        for (auto itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+        for (auto itr = m_players[m_tenacityTeam].begin(); itr != m_players[m_tenacityTeam].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 if (player->getLevel() >= m_MinLevel)
                     player->RemoveAurasDueToSpell(SPELL_TENACITY);
 
-        for (auto itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
+        for (auto itr = m_vehicles[m_tenacityTeam].begin(); itr != m_vehicles[m_tenacityTeam].end(); ++itr)
             if (Creature* creature = GetCreature(*itr))
                 creature->RemoveAurasDueToSpell(SPELL_TENACITY_VEHICLE);
     }
@@ -1327,7 +1323,7 @@ void BattlefieldWG::UpdateTenacity()
     // Apply new buff
     if (newStack)
     {
-        team = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
+        m_tenacityTeam = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
 
         if (newStack < 0)
             newStack = -newStack;
@@ -1342,25 +1338,27 @@ void BattlefieldWG::UpdateTenacity()
         if (newStack < 5)
             buff_honor = 0;
 
-        for (auto itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
+        for (auto itr = m_PlayersInWar[m_tenacityTeam].begin(); itr != m_PlayersInWar[m_tenacityTeam].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 player->SetAuraStack(SPELL_TENACITY, player, newStack);
 
-        for (auto itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
+        for (auto itr = m_vehicles[m_tenacityTeam].begin(); itr != m_vehicles[m_tenacityTeam].end(); ++itr)
             if (Creature* creature = GetCreature(*itr))
                 creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, newStack);
 
         if (buff_honor != 0)
         {
-            for (auto itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
+            for (auto itr = m_PlayersInWar[m_tenacityTeam].begin(); itr != m_PlayersInWar[m_tenacityTeam].end(); ++itr)
                 if (Player* player = ObjectAccessor::FindPlayer(*itr))
                     player->CastSpell(player, buff_honor, true);
 
-            for (auto itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
+            for (auto itr = m_vehicles[m_tenacityTeam].begin(); itr != m_vehicles[m_tenacityTeam].end(); ++itr)
                 if (Creature* creature = GetCreature(*itr))
                     creature->CastSpell(creature, buff_honor, true);
         }
     }
+    else
+        m_tenacityTeam = TEAM_NEUTRAL;
 }
 
 WintergraspCapturePoint::WintergraspCapturePoint(BattlefieldWG* battlefield, TeamId teamInControl) : BfCapturePoint(battlefield)
