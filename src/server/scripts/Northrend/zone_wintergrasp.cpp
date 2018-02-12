@@ -29,6 +29,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptSystem.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
@@ -587,14 +588,43 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
 {
     PrepareAuraScript(spell_wintergrasp_tenacity_refresh);
 
-    void Refresh(AuraEffect* /*aurEff*/)
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        GetAura()->RefreshDuration();
+        SpellEffectInfo const* effect2 = spellInfo->GetEffect(EFFECT_2);
+        if (!effect2)
+            return false;
+        uint32 triggeredSpellId = effect2->CalcValue();
+        return !triggeredSpellId || ValidateSpellInfo({ triggeredSpellId });
+    }
+
+    void Refresh(AuraEffect* aurEff)
+    {
+        if (uint32 triggeredSpellId = aurEff->GetAmount())
+        {
+            int32 bp = 0;
+            if (AuraEffect const* healEffect = GetEffect(EFFECT_0))
+                bp = healEffect->GetAmount();
+
+            CastSpellExtraArgs args(aurEff);
+            args
+                .AddSpellMod(SPELLVALUE_BASE_POINT0, bp)
+                .AddSpellMod(SPELLVALUE_BASE_POINT1, bp);
+            GetTarget()->CastSpell(nullptr, triggeredSpellId, args);
+        }
+
+        RefreshDuration();
+    }
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (uint32 triggeredSpellId = aurEff->GetAmount())
+            GetTarget()->RemoveAurasDueToSpell(triggeredSpellId);
     }
 
     void Register() override
     {
         OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_wintergrasp_tenacity_refresh::Refresh, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_wintergrasp_tenacity_refresh::OnRemove, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

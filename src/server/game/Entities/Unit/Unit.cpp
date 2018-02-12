@@ -7429,10 +7429,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (maxval)
         AddPct(TakenTotalMod, maxval);
 
-    // Tenacity increase healing % taken
-    if (AuraEffect const* Tenacity = GetAuraEffect(58549, 0))
-        AddPct(TakenTotalMod, Tenacity->GetAmount());
-
     // Nourish cast
     if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[1] & 0x2000000)
     {
