@@ -14190,7 +14190,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                         canTalk = false;
                     break;
                 default:
-                    TC_LOG_ERROR("sql.sql", "Creature entry %u has unknown gossip option %u for menu %u.", creature->GetEntry(), itr->second.OptionType, itr->second.MenuID);
+                    TC_LOG_ERROR("sql.sql", "Creature entry %u has unknown gossip option %u for menu %u.", creature->GetEntry(), itr->second.OptionType, itr->second.MenuId);
                     canTalk = false;
                     break;
             }
@@ -14212,8 +14212,8 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         if (canTalk)
         {
             std::string strOptionText, strBoxText;
-            BroadcastTextEntry const* optionBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.OptionBroadcastTextID);
-            BroadcastTextEntry const* boxBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.BoxBroadcastTextID);
+            BroadcastTextEntry const* optionBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.OptionBroadcastTextId);
+            BroadcastTextEntry const* boxBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.BoxBroadcastTextId);
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
@@ -14231,20 +14231,20 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 if (!optionBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(menuId, itr->second.OptionIndex))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
                 }
 
                 if (!boxBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(menuId, itr->second.OptionIndex))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
                 }
             }
 
-            menu->GetGossipMenu().AddMenuItem(itr->second.OptionID, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
-            menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionID, itr->second.ActionMenuID, itr->second.ActionPoiID, itr->second.TrainerId);
+            menu->GetGossipMenu().AddMenuItem(itr->second.OptionIndex, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+            menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionIndex, itr->second.ActionMenuId, itr->second.ActionPoiId, itr->second.TrainerId);
         }
     }
 }
@@ -14274,7 +14274,7 @@ void Player::SendPreparedGossip(WorldObject* source)
     PlayerTalkClass->SendGossipMenu(textId, source->GetGUID());
 }
 
-void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 menuId)
+void Player::OnGossipSelect(WorldObject* source, uint32 optionIndex, uint32 menuId)
 {
     GossipMenu& gossipMenu = PlayerTalkClass->GetGossipMenu();
 
@@ -14282,16 +14282,16 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
     if (menuId != gossipMenu.GetMenuId())
         return;
 
-    GossipMenuItem const* item = gossipMenu.GetItem(gossipListId);
+    GossipMenuItem const* item = gossipMenu.GetItem(optionIndex);
     if (!item)
         return;
 
-    uint32 gossipOptionId = item->OptionType;
+    uint32 gossipOptionType = item->OptionType;
     ObjectGuid guid = source->GetGUID();
 
     if (source->GetTypeId() == TYPEID_GAMEOBJECT)
     {
-        if (gossipOptionId > GOSSIP_OPTION_QUESTGIVER)
+        if (gossipOptionType > GOSSIP_OPTION_QUESTGIVER)
         {
             TC_LOG_ERROR("entities.player", "Player '%s' (%s) requests invalid gossip option for GameObject (Entry: %u)",
                 GetName().c_str(), GetGUID().ToString().c_str(), source->GetEntry());
@@ -14299,19 +14299,19 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         }
     }
 
-    GossipMenuItemData const* menuItemData = gossipMenu.GetItemData(gossipListId);
+    GossipMenuItemData const* menuItemData = gossipMenu.GetItemData(optionIndex);
     if (!menuItemData)
         return;
 
-    int32 cost = int32(item->BoxMoney);
-    if (!HasEnoughMoney(int64(cost)))
+    int64 cost = int64(item->BoxMoney);
+    if (!HasEnoughMoney(cost))
     {
         SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, nullptr, 0, 0);
         PlayerTalkClass->SendCloseGossip();
         return;
     }
 
-    switch (gossipOptionId)
+    switch (gossipOptionType)
     {
         case GOSSIP_OPTION_GOSSIP:
         {
@@ -14327,7 +14327,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         }
         case GOSSIP_OPTION_OUTDOORPVP:
-            sOutdoorPvPMgr->HandleGossipOption(this, source->ToCreature(), gossipListId);
+            sOutdoorPvPMgr->HandleGossipOption(this, source->ToCreature(), optionIndex);
             break;
         case GOSSIP_OPTION_SPIRITHEALER:
             if (isDead())
@@ -14417,7 +14417,7 @@ uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
     for (GossipMenusContainer::const_iterator itr = menuBounds.first; itr != menuBounds.second; ++itr)
     {
         if (sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
-            textId = itr->second.TextID;
+            textId = itr->second.TextId;
     }
 
     return textId;
@@ -16056,9 +16056,9 @@ void Player::SendQuestUpdate(uint32 questId)
     {
         for (SpellAreaForQuestAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         {
-            if (!itr->second->IsFitToRequirements(this, zone, area))
+            if (itr->second->flags & SPELL_AREA_FLAG_AUTOREMOVE && !itr->second->IsFitToRequirements(this, zone, area))
                 RemoveAurasDueToSpell(itr->second->spellId);
-            else if (itr->second->autocast)
+            else if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST)
                 if (!HasAura(itr->second->spellId))
                     CastSpell(this, itr->second->spellId, true);
         }
@@ -24887,7 +24887,7 @@ void Player::UpdateZoneDependentAuras(uint32 newZone)
     // Some spells applied at enter into zone (with subzones), aura removed in UpdateAreaDependentAuras that called always at zone->area update
     SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(newZone);
     for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
-        if (itr->second->autocast && itr->second->IsFitToRequirements(this, newZone, 0))
+        if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && itr->second->IsFitToRequirements(this, newZone, 0))
             if (!HasAura(itr->second->spellId))
                 CastSpell(this, itr->second->spellId, true);
 }
@@ -24907,7 +24907,7 @@ void Player::UpdateAreaDependentAuras(uint32 newArea)
     // some auras applied at subzone enter
     SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(newArea);
     for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
-        if (itr->second->autocast && itr->second->IsFitToRequirements(this, m_zoneUpdateId, newArea))
+        if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && itr->second->IsFitToRequirements(this, m_zoneUpdateId, newArea))
             if (!HasAura(itr->second->spellId))
                 CastSpell(this, itr->second->spellId, true);
 }

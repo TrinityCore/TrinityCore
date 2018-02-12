@@ -507,7 +507,7 @@ struct GossipMenuItemsLocale
     std::vector<std::string> BoxText;
 };
 
-typedef std::unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
+typedef std::unordered_map<std::pair<uint32, uint32>, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 
 struct PointOfInterestLocale
 {
@@ -536,7 +536,6 @@ typedef std::multimap<uint32, uint32> QuestRelations; // unit/go -> quest
 typedef std::multimap<uint32, uint32> QuestRelationsReverse; // quest -> unit/go
 typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> QuestRelationBounds;
 typedef std::pair<QuestRelationsReverse::const_iterator, QuestRelationsReverse::const_iterator> QuestRelationReverseBounds;
-
 
 struct PlayerCreateInfoItem
 {
@@ -664,27 +663,27 @@ struct PointOfInterest
 
 struct GossipMenuItems
 {
-    uint32               MenuID;
-    uint32               OptionID;
+    uint32               MenuId;
+    uint32               OptionIndex;
     uint8                OptionIcon;
     std::string          OptionText;
-    uint32               OptionBroadcastTextID;
+    uint32               OptionBroadcastTextId;
     uint32               OptionType;
     uint64               OptionNpcFlag;
-    uint32               ActionMenuID;
-    uint32               ActionPoiID;
+    uint32               ActionMenuId;
+    uint32               ActionPoiId;
     bool                 BoxCoded;
     uint32               BoxMoney;
     std::string          BoxText;
-    uint32               BoxBroadcastTextID;
+    uint32               BoxBroadcastTextId;
     uint32               TrainerId;
     ConditionContainer   Conditions;
 };
 
 struct GossipMenus
 {
-    uint32               MenuID;
-    uint32               TextID;
+    uint32               MenuId;
+    uint32               TextId;
     ConditionContainer   Conditions;
 };
 
@@ -1390,9 +1389,9 @@ class TC_GAME_API ObjectMgr
             if (itr == _pageTextLocaleStore.end()) return nullptr;
             return &itr->second;
         }
-        GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint32 entry) const
+        GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint32 menuId, uint32 optionIndex) const
         {
-            GossipMenuItemsLocaleContainer::const_iterator itr = _gossipMenuItemsLocaleStore.find(entry);
+            auto itr = _gossipMenuItemsLocaleStore.find(std::make_pair(menuId, optionIndex));
             if (itr == _gossipMenuItemsLocaleStore.end()) return nullptr;
             return &itr->second;
         }

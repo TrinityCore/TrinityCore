@@ -167,8 +167,8 @@ class TC_GAME_API GossipMenu
         GossipMenu();
         ~GossipMenu();
 
-        uint32 AddMenuItem(int32 menuItemId, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
-        void AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, uint32 action);
+        uint32 AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
+        void AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action);
 
         void SetMenuId(uint32 menu_id) { _menuId = menu_id; }
         uint32 GetMenuId() const { return _menuId; }
