@@ -597,9 +597,11 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
         return !triggeredSpellId || ValidateSpellInfo({ triggeredSpellId });
     }
 
-    void Refresh(AuraEffect* aurEff)
+    void Refresh(AuraEffect const* aurEff)
     {
-        if (uint32 triggeredSpellId = aurEff->GetAmount())
+        PreventDefaultAction();
+
+        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo()->CalcValue())
         {
             int32 bp = 0;
             if (AuraEffect const* healEffect = GetEffect(EFFECT_0))
@@ -617,13 +619,13 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        if (uint32 triggeredSpellId = aurEff->GetAmount())
+        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo()->CalcValue())
             GetTarget()->RemoveAurasDueToSpell(triggeredSpellId);
     }
 
     void Register() override
     {
-        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_wintergrasp_tenacity_refresh::Refresh, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_wintergrasp_tenacity_refresh::Refresh, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
         AfterEffectRemove += AuraEffectRemoveFn(spell_wintergrasp_tenacity_refresh::OnRemove, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
