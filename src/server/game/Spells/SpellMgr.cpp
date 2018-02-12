@@ -2648,6 +2648,22 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             switch (spellInfo->Effects[j].Effect)
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_HEALTH_LEECH:
+                case SPELL_EFFECT_HEAL:
+                case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                case SPELL_EFFECT_WEAPON_DAMAGE:
+                case SPELL_EFFECT_POWER_BURN:
+                case SPELL_EFFECT_HEAL_MECHANICAL:
+                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                case SPELL_EFFECT_HEAL_PCT:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_CAN_CRIT;
+                    break;
+            }
+
+            switch (spellInfo->Effects[j].Effect)
+            {
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
                 case SPELL_EFFECT_WEAPON_DAMAGE:
                 case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
                 case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
@@ -2860,6 +2876,20 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         if (overrideAttr && allNonBinary)
             spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_BINARY_SPELL;
+    }
+
+    // remove attribute from spells that can't crit
+    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    {
+        spellInfo = mSpellInfoMap[i];
+        if (!spellInfo)
+            continue;
+
+        if (!spellInfo->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
+            continue;
+
+        if (spellInfo->HasAttribute(SPELL_ATTR2_CANT_CRIT))
+            spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_CAN_CRIT;
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -3184,14 +3214,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         // Target entry seems to be wrong for this spell :/
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS);
-    });
-
-    // Arcane Potency
-    ApplySpellFix({ 57529, 57531 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].SpellClassMask = flag96();
-        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-        spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_CRITICAL_CHANCE;
     });
 
     ApplySpellFix({
