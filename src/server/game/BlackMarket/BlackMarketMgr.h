@@ -71,7 +71,7 @@ class BlackMarketEntry
 {
 public:
 
-    void Initialize(int32 marketId, uint32 duration)
+    void Initialize(int32 marketId)
     {
         _marketId = marketId;
         _startTime = time(nullptr);
