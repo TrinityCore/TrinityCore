@@ -113,12 +113,9 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     pos.m_positionY = y;
     pos.m_positionZ = z;
     pos.SetOrientation(o);
-    GameObject* object = new GameObject;
-    if (!object->Create(objectInfo->entry, map, pos, quat, 255, GO_STATE_READY))
-    {
-        delete object;
+    GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, pos, quat, 255, GO_STATE_READY);
+    if (!object)
         return nullptr;
-    }
 
     // copy paste from WorldObject::CopyPhaseFrom(object, update)
     bool update = false;
@@ -135,13 +132,9 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     // this is required to avoid weird behavior and memory leaks
     delete object;
 
-    object = new GameObject();
-    // this will generate a new guid if the object is in an instance
-    if (!object->LoadGameObjectFromDB(spawnId, map))
-    {
-        delete object;
+    object = GameObject::CreateGameObjectFromDB(spawnId, map);
+    if (!object)
         return nullptr;
-    }
 
     /// @todo is it really necessary to add both the real and DB table guid here ?
     sObjectMgr->AddGameobjectToGrid(spawnId, ASSERT_NOTNULL(sObjectMgr->GetGOData(spawnId)));
