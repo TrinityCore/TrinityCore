@@ -3,7 +3,7 @@ DELETE FROM `reference_loot_template` WHERE `Entry`=24064 AND `Item` IN (911, 92
 
 -- Add former items from reference table 24064 to their proper NPCs
 DELETE FROM `creature_loot_template` WHERE `Item` IN (911, 920, 1076, 1406, 1455, 2034, 2232, 3429);
-INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `GroupId`) VALUES
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `GroupId`, `Comment`) VALUES
 (889,  911,  0.1, 0, "Splinter Fist Ogre - Ironwood Treebranch"),
 (215,  920,  0.1, 0, "Defias Night Runner - Wicked Spiked Mace"),
 (909,  920,  0.1, 0, "Defias Night Blade - Wicked Spiked Mace"),
