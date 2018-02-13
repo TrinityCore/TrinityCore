@@ -492,7 +492,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK24                            = 0x01000000, // 24 some shoot spell
     SPELL_ATTR4_IS_PET_SCALING                   = 0x02000000, // 25 pet scaling auras
     SPELL_ATTR4_CAST_ONLY_IN_OUTLAND             = 0x04000000, // 26 Can only be used in Outland.
-    SPELL_ATTR4_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR4_INHERIT_CRIT_FROM_AURA           = 0x08000000, // 27 Volley, Arcane Missiles, Penance -> related to critical on channeled periodical damage spell
     SPELL_ATTR4_UNK28                            = 0x10000000, // 28 Aimed Shot
     SPELL_ATTR4_UNK29                            = 0x20000000, // 29
     SPELL_ATTR4_UNK30                            = 0x40000000, // 30

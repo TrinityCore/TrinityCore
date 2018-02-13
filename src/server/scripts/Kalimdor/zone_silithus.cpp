@@ -698,7 +698,7 @@ public:
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
-        void JustDied(Unit* /*slayer*/) override;
+        void JustDied(Unit* /*killer*/) override;
 
         void UpdateAI(uint32 diff) override
         {
@@ -934,7 +934,7 @@ public:
 
 };
 
-void npc_qiraj_war_spawn::npc_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
+void npc_qiraj_war_spawn::npc_qiraj_war_spawnAI::JustDied(Unit* /*killer*/)
 {
     me->DespawnOrUnsummon();
 

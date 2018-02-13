@@ -841,6 +841,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
 
     SpellIconID = spellEntry->SpellIconID;
     ActiveIconID = spellEntry->activeIconID;
+    Priority = spellEntry->SpellPriority;
     for (uint8 i = 0; i < 16; ++i)
         SpellName[i] = spellEntry->SpellName[i];
 
