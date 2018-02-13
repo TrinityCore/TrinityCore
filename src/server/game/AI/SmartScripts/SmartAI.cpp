@@ -513,7 +513,7 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
     return false;
 }
 
-void SmartAI::JustAppeared()
+void SmartAI::InitializeAI()
 {
     mDespawnTime = 0;
     mRespawnTime = 0;
@@ -839,9 +839,7 @@ void SmartAI::StopFollow(bool complete)
 
 void SmartAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker)
 {
-    if (invoker)
-        GetScript()->mLastInvoker = invoker->GetGUID();
-    GetScript()->SetScript9(e, entry);
+    GetScript()->SetScript9(e, entry, invoker);
 }
 
 void SmartAI::OnGameEvent(bool start, uint16 eventId)
@@ -989,9 +987,6 @@ void SmartGameObjectAI::InitializeAI()
 
 void SmartGameObjectAI::Reset()
 {
-    // call respawn event on reset
-    GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-
     GetScript()->OnReset();
 }
 
@@ -1049,9 +1044,7 @@ void SmartGameObjectAI::SetData(uint32 id, uint32 value)
 
 void SmartGameObjectAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker)
 {
-    if (invoker)
-        GetScript()->mLastInvoker = invoker->GetGUID();
-    GetScript()->SetScript9(e, entry);
+    GetScript()->SetScript9(e, entry, invoker);
 }
 
 void SmartGameObjectAI::OnGameEvent(bool start, uint16 eventId)
@@ -1110,9 +1103,7 @@ void SmartAreaTriggerAI::OnUnitEnter(Unit* unit)
 
 void SmartAreaTriggerAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker)
 {
-    if (invoker)
-        GetScript()->mLastInvoker = invoker->GetGUID();
-    GetScript()->SetScript9(e, entry);
+    GetScript()->SetScript9(e, entry, invoker);
 }
 
 class SmartAreaTriggerEntityScript : public AreaTriggerEntityScript
