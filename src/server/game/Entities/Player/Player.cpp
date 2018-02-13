@@ -20874,6 +20874,10 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
     if (mod->op == SPELLMOD_DURATION && spellInfo->GetDuration() == -1)
         return false;
 
+    // mod crit to spells that can't crit
+    if (mod->op == SPELLMOD_CRITICAL_CHANCE && !spellInfo->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
+        return false;
+
     return spellInfo->IsAffectedBySpellMod(mod);
 }
 
@@ -20887,102 +20891,47 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
     float totalmul = 1.0f;
     int32 totalflat = 0;
 
-    // Drop charges for triggering spells instead of triggered ones
-    if (m_spellModTakingSpell)
-        spell = m_spellModTakingSpell;
-
-    switch (op)
+    auto calculateSpellMod = [&](SpellModifier* mod)
     {
-        // special case, if a mod makes spell instant, only consume that mod
-        case SPELLMOD_CASTING_TIME:
-        {
-            SpellModifier* modInstantSpell = nullptr;
-            for (SpellModifier* mod : m_spellMods[op])
-            {
-                if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                    continue;
-
-                if (mod->type == SPELLMOD_PCT && basevalue < T(10000) && mod->value <= -100)
-                {
-                    modInstantSpell = mod;
-                    break;
-                }
-            }
-
-            if (modInstantSpell)
-            {
-                Player::ApplyModToSpell(modInstantSpell, spell);
-                basevalue = T(0);
-                return;
-            }
-            break;
-        }
-        // special case if two mods apply 100% critical chance, only consume one
-        case SPELLMOD_CRITICAL_CHANCE:
-        {
-            SpellModifier* modCritical = nullptr;
-            for (SpellModifier* mod : m_spellMods[op])
-            {
-                if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                    continue;
-
-                if (mod->type == SPELLMOD_FLAT && mod->value >= 100)
-                {
-                    modCritical = mod;
-                    break;
-                }
-            }
-
-            if (modCritical)
-            {
-                Player::ApplyModToSpell(modCritical, spell);
-                basevalue = T(100);
-                return;
-            }
-            break;
-        }
-        default:
-            break;
-    }
-
-    for (SpellModifier* mod : m_spellMods[op])
-    {
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-            continue;
-
         switch (mod->type)
         {
             case SPELLMOD_FLAT:
                 totalflat += mod->value;
                 break;
             case SPELLMOD_PCT:
-            {
-                // skip percent mods with null basevalue (most important for spell mods with charges)
-                if (basevalue == T(0))
-                    continue;
-
                 // special case (skip > 10sec spell casts for instant cast setting)
                 if (op == SPELLMOD_CASTING_TIME && mod->value <= -100 && basevalue >= T(10000))
-                    continue;
-                else if (!Player::HasSpellModApplied(mod, spell))
-                {
-                    // special case for Surge of Light, don't apply critical chance reduction if other mods not applied (ie procs while casting another spell)
-                    // (Surge of Light is the only PCT_MOD on critical chance)
-                    if (op == SPELLMOD_CRITICAL_CHANCE)
-                        continue;
-                    // special case for Backdraft, dont' apply GCD reduction if cast time reduction wasn't applied (ie when Backlash is consumed first)
-                    // (Backdraft is the only PCT_MOD on global cooldown)
-                    else if (op == SPELLMOD_GLOBAL_COOLDOWN)
-                        continue;
-                }
+                    return;
 
                 totalmul += CalculatePct(1.0f, mod->value);
                 break;
-            }
         }
 
         Player::ApplyModToSpell(mod, spell);
+    };
+
+    // Drop charges for triggering spells instead of triggered ones
+    if (m_spellModTakingSpell)
+        spell = m_spellModTakingSpell;
+
+    SpellModifier* chargedMod = nullptr;
+    for (SpellModifier* mod : m_spellMods[op])
+    {
+        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+            continue;
+
+        if (mod->ownerAura->IsUsingCharges())
+        {
+            if (!chargedMod || (chargedMod->ownerAura->GetSpellInfo()->Priority < mod->ownerAura->GetSpellInfo()->Priority))
+                chargedMod = mod;
+            continue;
+        }
+
+        calculateSpellMod(mod);
     }
+
+    if (chargedMod)
+        calculateSpellMod(chargedMod);
 
     basevalue = T(float(basevalue + totalflat) * totalmul);
 }
@@ -21026,14 +20975,6 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
         m_spellMods[mod->op].insert(mod);
     else
         m_spellMods[mod->op].erase(mod);
-}
-
-bool Player::HasSpellModApplied(SpellModifier* mod, Spell* spell)
-{
-    if (!spell)
-        return false;
-
-    return spell->m_appliedMods.count(mod->ownerAura) != 0;
 }
 
 void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
@@ -22158,6 +22099,7 @@ void Player::ReportedAfkBy(Player* reporter)
 WorldLocation Player::GetStartPosition() const
 {
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+    ASSERT(info);
     uint32 mapId = info->mapId;
     if (getClass() == CLASS_DEATH_KNIGHT && HasSpell(50977))
         mapId = 0;
@@ -22777,6 +22719,7 @@ void Player::LearnCustomSpells()
 
     // learn default race/class spells
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+    ASSERT(info);
     for (PlayerCreateInfoSpells::const_iterator itr = info->customSpells.begin(); itr != info->customSpells.end(); ++itr)
     {
         uint32 tspell = *itr;
@@ -22793,6 +22736,7 @@ void Player::LearnDefaultSkills()
 {
     // learn default race/class skills
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+    ASSERT(info);
     for (PlayerCreateInfoSkills::const_iterator itr = info->skills.begin(); itr != info->skills.end(); ++itr)
     {
         uint32 skillId = itr->SkillId;
@@ -23832,8 +23776,13 @@ void Player::SetClientControl(Unit* target, bool allowMove)
 void Player::SetMovedUnit(Unit* target)
 {
     m_unitMovedByMe->m_playerMovingMe = nullptr;
+    if (m_unitMovedByMe->GetTypeId() == TYPEID_UNIT)
+        m_unitMovedByMe->GetMotionMaster()->Initialize();
+
     m_unitMovedByMe = target;
     m_unitMovedByMe->m_playerMovingMe = this;
+    if (m_unitMovedByMe->GetTypeId() == TYPEID_UNIT)
+        m_unitMovedByMe->GetMotionMaster()->Initialize();
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)

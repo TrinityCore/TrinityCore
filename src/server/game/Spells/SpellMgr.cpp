@@ -543,7 +543,7 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
         return false;
 
     // check spell family name/flags (if set) for spells
-    if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK))
+    if (eventInfo.GetTypeMask() & SPELL_PROC_FLAG_MASK)
     {
         if (SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo())
             if (!eventSpellInfo->IsAffected(procEntry.SpellFamilyName, procEntry.SpellFamilyMask))
@@ -1621,7 +1621,7 @@ void SpellMgr::LoadSpellProcs()
                     TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `ProcFlags` value defined, proc will not be triggered.", spellInfo->Id);
                 if (procEntry.SpellTypeMask & ~PROC_SPELL_TYPE_MASK_ALL)
                     TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SpellTypeMask` set: %u", spellInfo->Id, procEntry.SpellTypeMask);
-                if (procEntry.SpellTypeMask && !(procEntry.ProcFlags & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK)))
+                if (procEntry.SpellTypeMask && !(procEntry.ProcFlags & SPELL_PROC_FLAG_MASK))
                     TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has `SpellTypeMask` value defined, but it will not be used for the defined `ProcFlags` value.", spellInfo->Id);
                 if (!procEntry.SpellPhaseMask && procEntry.ProcFlags & REQ_SPELL_PHASE_PROC_FLAG_MASK)
                     TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `SpellPhaseMask` value defined, but it is required for the defined `ProcFlags` value. Proc will not be triggered.", spellInfo->Id);
@@ -1636,6 +1636,24 @@ void SpellMgr::LoadSpellProcs()
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     if ((procEntry.AttributesMask & (PROC_ATTR_DISABLE_EFF_0 << i)) && !spellInfo->Effects[i].IsAura())
                         TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has Attribute PROC_ATTR_DISABLE_EFF_%u, but effect %u is not an aura effect", spellInfo->Id, static_cast<uint32>(i), static_cast<uint32>(i));
+                if (procEntry.AttributesMask & PROC_ATTR_REQ_SPELLMOD)
+                {
+                    bool found = false;
+                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    {
+                        if (!spellInfo->Effects[i].IsAura())
+                            continue;
+
+                        if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_ADD_PCT_MODIFIER || spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_ADD_FLAT_MODIFIER)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                        TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has Attribute PROC_ATTR_REQ_SPELLMOD, but spell has no spell mods. Proc will not be triggered", spellInfo->Id);
+                }
 
                 mSpellProcMap[spellInfo->Id] = procEntry;
 
@@ -2648,6 +2666,22 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             switch (spellInfo->Effects[j].Effect)
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_HEALTH_LEECH:
+                case SPELL_EFFECT_HEAL:
+                case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                case SPELL_EFFECT_WEAPON_DAMAGE:
+                case SPELL_EFFECT_POWER_BURN:
+                case SPELL_EFFECT_HEAL_MECHANICAL:
+                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                case SPELL_EFFECT_HEAL_PCT:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_CAN_CRIT;
+                    break;
+            }
+
+            switch (spellInfo->Effects[j].Effect)
+            {
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
                 case SPELL_EFFECT_WEAPON_DAMAGE:
                 case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
                 case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
@@ -2825,7 +2859,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         spellInfo->_InitializeExplicitTargetMask();
     }
 
-    // addition for binary spells, ommit spells triggering other spells
+    // addition for binary spells, omit spells triggering other spells
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         spellInfo = mSpellInfoMap[i];
@@ -2860,6 +2894,39 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         if (overrideAttr && allNonBinary)
             spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_BINARY_SPELL;
+    }
+
+    // remove attribute from spells that can't crit
+    // and mark triggering spell (instead of triggered spell) for spells with SPELL_ATTR4_INHERIT_CRIT_FROM_AURA
+    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    {
+        spellInfo = mSpellInfoMap[i];
+        if (!spellInfo)
+            continue;
+
+        if (spellInfo->HasAttribute(SPELL_ATTR2_CANT_CRIT))
+            spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_CAN_CRIT;
+        else if (spellInfo->HasAttribute(SPELL_ATTR4_INHERIT_CRIT_FROM_AURA))
+        {
+            bool found = false;
+            for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            {
+                switch (spellInfo->Effects[j].ApplyAuraName)
+                {
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                        if (SpellInfo* triggerSpell = const_cast<SpellInfo*>(sSpellMgr->GetSpellInfo(spellInfo->Effects[j].TriggerSpell)))
+                            if (triggerSpell->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
+                                found = true;
+                        break;
+                    default:
+                        continue;
+                }
+            }
+
+            if (found)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_CAN_CRIT;
+        }
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -3184,14 +3251,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         // Target entry seems to be wrong for this spell :/
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS);
-    });
-
-    // Arcane Potency
-    ApplySpellFix({ 57529, 57531 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].SpellClassMask = flag96();
-        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-        spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_CRITICAL_CHANCE;
     });
 
     ApplySpellFix({
@@ -3538,6 +3597,14 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
+    // Vampiric Touch (dispel effect)
+    ApplySpellFix({ 64085 }, [](SpellInfo* spellInfo)
+    {
+        // copy from similar effect of Unstable Affliction (31117)
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
     });
 
     // Improved Devouring Plague
@@ -4742,6 +4809,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->SpellFamilyFlags[0] |= 0x40;
                 break;
         }
+
+        // allows those to calculate proper crit chance, that needs to be passed on to triggered spell
+        if (spellInfo->HasAttribute(SPELL_ATTR4_INHERIT_CRIT_FROM_AURA) && spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE)
+            spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
     }
 
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121)))

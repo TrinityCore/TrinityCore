@@ -93,10 +93,10 @@ class boss_erekem : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+				_JustDied();
             }
 
             bool CheckGuardAuras(Creature* guard) const
