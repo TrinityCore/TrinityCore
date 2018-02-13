@@ -174,10 +174,10 @@ public:
                 return;
 
             _step = step;
+            me->SetReactState(REACT_PASSIVE);
             me->SetHomePosition(hadronoxStep[step]);
             me->GetMotionMaster()->Clear();
             me->AttackStop();
-            SetCombatMovement(false);
             me->GetMotionMaster()->MovePoint(0, hadronoxStep[step]);
         }
 
@@ -196,8 +196,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE)
                 return;
-            SetCombatMovement(true);
-            AttackStart(me->GetVictim());
+            me->SetReactState(REACT_AGGRESSIVE);
             if (_step < NUM_STEPS-1)
                 return;
             DoCastAOE(SPELL_WEB_FRONT_DOORS);
@@ -277,6 +276,7 @@ public:
         void InitializeAI() override
         {
             BossAI::InitializeAI();
+            me->SetReactState(REACT_AGGRESSIVE);
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
             _enteredCombat = false;
@@ -294,6 +294,9 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            if (!_lastPlayerCombatState && me->IsEngaged())
+                me->GetThreatManager().UpdateOnlineStates(false, true);
+
             if (!UpdateVictim())
                 return;
 
