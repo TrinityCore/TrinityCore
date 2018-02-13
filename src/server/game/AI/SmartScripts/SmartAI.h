@@ -74,11 +74,8 @@ class TC_GAME_API SmartAI : public CreatureAI
         void WaypointReached(uint32 nodeId, uint32 pathId) override;
         void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
-        void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         SmartScript* GetScript() { return &mScript; }
-
-        // Called when creature is spawned or respawned
-        void JustAppeared() override;
 
         // Called at reaching home after evade, InitializeAI(), EnterEvadeMode() for resetting variables
         void JustReachedHome() override;
@@ -269,7 +266,7 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void QuestReward(Player* player, Quest const* quest, LootItemType type, uint32 opt) override;
         void Destroyed(Player* player, uint32 eventId) override;
         void SetData(uint32 id, uint32 value) override;
-        void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         void OnGameEvent(bool start, uint16 eventId) override;
         void OnLootStateChanged(uint32 state, Unit* unit) override;
         void EventInform(uint32 eventId) override;
@@ -294,7 +291,7 @@ public:
     void OnUnitEnter(Unit* unit) override;
 
     SmartScript* GetScript() { return &mScript; }
-    void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+    void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
 
 private:
     SmartScript mScript;
