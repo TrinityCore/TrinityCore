@@ -90,7 +90,7 @@ INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCou
 
 -- Loot
 UPDATE creature_template SET `lootid`= 47162 WHERE `entry`= 47162;
-DELETE FROM creature_loot_template WHERE `entry` IN (47162, 48936);
+DELETE FROM `creature_loot_template` WHERE `entry` IN (47162, 48936);
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
 (47162, 5195, 0, 1, 1, 1, 1),
 (47162, 2169, 0, 1, 1, 1, 1),
