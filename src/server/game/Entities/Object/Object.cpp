@@ -2321,8 +2321,8 @@ float WorldObject::SelectBestZForDestination(float x, float y, float z, bool exc
     float const destCollisionHeight = excludeCollisionHeight ? 0.0f : myCollisionHeight;
 
     float const myGridHeight = GetMap()->GetGridMapHeight(myX, myY);
-    float const myVmapFloor = std::max(GetMap()->GetVMapFloor(myX, myY, myZ, 150.0f, GetCollisionHeight()),
-        GetMap()->GetGameObjectFloor(GetPhaseMask(), myX, myY, myZ, 150.0f, GetCollisionHeight()));
+    float const myVmapFloor = std::max(GetMap()->GetVMapFloor(myX, myY, myZ, 150.0f, myCollisionHeight),
+        GetMap()->GetGameObjectFloor(GetPhaseMask(), myX, myY, myZ, 150.0f, myCollisionHeight));
 
     // which of these 3 do I want ?
     float const destGridHeight = GetMap()->GetGridMapHeight(x, y);
