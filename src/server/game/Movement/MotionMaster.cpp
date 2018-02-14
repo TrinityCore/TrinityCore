@@ -503,6 +503,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         init.SetCyclic();
     }
 
+    init.SetSmooth();
     init.Launch();
 }
 
