@@ -486,38 +486,20 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool gen
     init.Launch();
 }
 
-void Unit::UpdateSplineMovement(uint32 p_diff)
+void Unit::UpdateSplineMovement(uint32 t_diff)
 {
-    uint32 const flightSplineSyncDelay = 5 * TimeConstants::IN_MILLISECONDS;
-
-    bool arrived = movespline->Finalized();
     if (movespline->Finalized())
         return;
 
-    movespline->updateState(p_diff);
-    arrived = movespline->Finalized();
+    movespline->updateState(t_diff);
+    bool arrived = movespline->Finalized();
 
     if (arrived)
         DisableSpline();
 
-    m_movesplineTimer.Update(p_diff);
+    m_movesplineTimer.Update(t_diff);
     if (m_movesplineTimer.Passed() || arrived)
         UpdateSplinePosition();
-
-    m_FlightSplineSyncTimer.Update(p_diff);
-    if (m_FlightSplineSyncTimer.Passed())
-    {
-        float percent = 1.0f;
-        float totalTime = movespline->Duration();
-        if (totalTime > 0.0f)
-            percent = (float)movespline->timePassed() / totalTime;
-
-        // Synch flight movement for cylic movement
-        if (movespline->isCyclic() && IsFlying())
-            SendFlightSplineSync(percent);
-
-        m_FlightSplineSyncTimer.Reset(flightSplineSyncDelay);
-    }
 }
 
 void Unit::UpdateSplinePosition()
@@ -9000,14 +8982,6 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
     extra.Data.floatData = GetSpeed(mtype);
 
     Movement::PacketSender(this, moveTypeToOpcode[mtype][0], moveTypeToOpcode[mtype][1], moveTypeToOpcode[mtype][2], &extra).Send();
-}
-
-void Unit::SendFlightSplineSync(float splineDist)
-{
-    WorldPacket data(SMSG_FLIGHT_SPLINE_SYNC, 11);
-    data << float(splineDist);
-    data.appendPackGUID(GetGUID());
-    SendMessageToSet(&data, false);
 }
 
 void Unit::setDeathState(DeathState s)

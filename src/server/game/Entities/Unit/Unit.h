@@ -1676,8 +1676,6 @@ class TC_GAME_API Unit : public WorldObject
 
         void SendClearTarget();
 
-        void SendFlightSplineSync(float splineDist);
-
         bool IsAlive() const { return (m_deathState == ALIVE); }
         bool isDying() const { return (m_deathState == JUST_DIED); }
         bool isDead() const { return (m_deathState == DEAD || m_deathState == CORPSE); }
@@ -2340,7 +2338,6 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_CombatTimer;
         TimeTrackerSmall m_movesplineTimer;
-        TimeTrackerSmall m_FlightSplineSyncTimer;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us
