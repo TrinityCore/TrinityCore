@@ -323,7 +323,7 @@ WorldQuestTemplate* WorldQuestMgr::GetWorldQuestTemplate(uint32 questId)
 
 uint8 WorldQuestMgr::GetActiveEmissaryQuestsCount()
 {
-    return std::count_if(_activeWorldQuests.begin(), _activeWorldQuests.end(), [](const std::pair<uint32, ActiveWorldQuest*> pair) -> bool
+    return std::count_if(_activeWorldQuests.begin(), _activeWorldQuests.end(), [](auto pair) -> bool
     {
         return pair.second->IsEmissaryQuest();
     });
