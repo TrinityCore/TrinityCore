@@ -62,7 +62,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
 
     private:
         void OnArrived(Creature*);
-        void StartMove(Creature*);
+        void StartMove(Creature*, bool relaunch = false);
         static bool CanMove(Creature*);
 
         TimeTrackerSmall _nextMoveTime;
