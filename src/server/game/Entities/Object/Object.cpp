@@ -2311,8 +2311,12 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
 float WorldObject::SelectBestZForDestination(float x, float y, float z, bool excludeCollisionHeight) const
 {
     if (Unit const* unit = ToUnit())
-        if (unit->IsFlying()) // Also check if in air ?
+    {
+        float const ground = GetFloorZ();
+        bool const isInAir = (G3D::fuzzyGt(unit->GetPositionZMinusOffset(), ground + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(unit->GetPositionZMinusOffset(), ground - GROUND_HEIGHT_TOLERANCE));
+        if (unit->IsFlying() && isInAir)
             return z;
+    }
 
     float myX, myY, myZ;
     GetPosition(myX, myY, myZ);
