@@ -511,19 +511,21 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
     return false;
 }
 
-void SmartAI::JustAppeared()
+void SmartAI::InitializeAI()
 {
+    GetScript()->OnInitialize(me);
+
     mDespawnTime = 0;
     mDespawnState = 0;
     _escortState = SMART_ESCORT_NONE;
 
     me->SetVisible(true);
 
-    if (me->GetFaction() != me->GetCreatureTemplate()->faction)
-        me->RestoreFaction();
-
-    GetScript()->OnReset();
-    GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
+    if (!me->isDead())
+    {
+        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
+        GetScript()->OnReset();
+    }
 
     mFollowGuid.Clear(); // do not reset follower on Reset(), we need it after combat evade
     mFollowDist = 0;
@@ -654,14 +656,6 @@ void SmartAI::CorpseRemoved(uint32& respawnDelay)
 void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
 {
     GetScript()->ProcessEventsFor(apply ? SMART_EVENT_PASSENGER_BOARDED : SMART_EVENT_PASSENGER_REMOVED, who, uint32(seatId), 0, apply);
-}
-
-void SmartAI::InitializeAI()
-{
-    GetScript()->OnInitialize(me);
-
-    if (!me->isDead())
-        GetScript()->OnReset();
 }
 
 void SmartAI::OnCharmed(bool apply)
@@ -820,7 +814,8 @@ void SmartAI::StopFollow(bool complete)
     if (!complete)
         return;
 
-    if (Player* player = ObjectAccessor::GetPlayer(*me, mFollowGuid))
+    Player* player = ObjectAccessor::GetPlayer(*me, mFollowGuid);
+    if (player)
     {
         if (!mFollowCreditType)
             player->RewardPlayerAndGroupAtEvent(mFollowCredit, me);
@@ -830,14 +825,12 @@ void SmartAI::StopFollow(bool complete)
 
     SetDespawnTime(5000);
     StartDespawn();
-    GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED);
+    GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED, player);
 }
 
-void SmartAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker)
+void SmartAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)
 {
-    if (invoker)
-        GetScript()->mLastInvoker = invoker->GetGUID();
-    GetScript()->SetScript9(e, entry);
+    GetScript()->SetTimedActionList(e, entry, invoker);
 }
 
 void SmartAI::OnGameEvent(bool start, uint16 eventId)
@@ -985,9 +978,6 @@ void SmartGameObjectAI::InitializeAI()
 
 void SmartGameObjectAI::Reset()
 {
-    // call respawn event on reset
-    GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-
     GetScript()->OnReset();
 }
 
@@ -1043,11 +1033,9 @@ void SmartGameObjectAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, nullptr, id, value);
 }
 
-void SmartGameObjectAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker)
+void SmartGameObjectAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)
 {
-    if (invoker)
-        GetScript()->mLastInvoker = invoker->GetGUID();
-    GetScript()->SetScript9(e, entry);
+    GetScript()->SetTimedActionList(e, entry, invoker);
 }
 
 void SmartGameObjectAI::OnGameEvent(bool start, uint16 eventId)

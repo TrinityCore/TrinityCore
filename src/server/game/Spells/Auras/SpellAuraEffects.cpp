@@ -818,7 +818,7 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
 
 float AuraEffect::GetCritChanceFor(Unit const* caster, Unit const* target) const
 {
-    return target->SpellCritChanceTaken(caster, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), GetBase()->GetCritChance(), GetSpellInfo()->GetAttackType());
+    return target->SpellCritChanceTaken(caster, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), GetBase()->GetCritChance(), GetSpellInfo()->GetAttackType(), true);
 }
 
 bool AuraEffect::IsAffectedOnSpell(SpellInfo const* spell) const
@@ -959,6 +959,11 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
                     return false;
             break;
         }
+        case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
+            // skip spells that can't crit
+            if (!spellInfo || !spellInfo->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
+                return false;
+            break;
         default:
             break;
     }
@@ -5038,7 +5043,11 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
     {
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
-            triggerCaster->CastSpell(target, triggerSpellId, this);
+            CastSpellExtraArgs args(this);
+            if (GetSpellInfo()->HasAttribute(SPELL_ATTR4_INHERIT_CRIT_FROM_AURA))
+                args.AddSpellMod(SPELLVALUE_CRIT_CHANCE, int32(GetBase()->GetCritChance() * 100.0f)); // @todo: ugly x100 remove when basepoints are double
+
+            triggerCaster->CastSpell(target, triggerSpellId, args);
             TC_LOG_DEBUG("spells", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell %u Trigger %u", GetId(), triggeredSpellInfo->Id);
         }
     }
@@ -5056,6 +5065,9 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
             CastSpellExtraArgs args(this);
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), GetAmount());
+            if (GetSpellInfo()->HasAttribute(SPELL_ATTR4_INHERIT_CRIT_FROM_AURA))
+                args.AddSpellMod(SPELLVALUE_CRIT_CHANCE, int32(GetBase()->GetCritChance() * 100.0f)); // @todo: ugly x100 remove when basepoints are double
+
             triggerCaster->CastSpell(target, triggerSpellId, args);
             TC_LOG_DEBUG("spells", "AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell %u Trigger %u", GetId(), triggeredSpellInfo->Id);
         }
@@ -5150,7 +5162,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     else // ceil obtained value, it may happen that 10 ticks for 10% damage may not kill owner
         damage = uint32(ceil(CalculatePct<float, float>(target->GetMaxHealth(), damage)));
 
-    damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
+    damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
     bool crit = roll_chance_f(GetCritChanceFor(caster, target));
     if (crit)
@@ -5235,7 +5247,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     // dynobj auras must always have a caster
     if (GetBase()->GetType() == DYNOBJ_AURA_TYPE)
         damage = ASSERT_NOTNULL(caster)->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, { }, GetBase()->GetStackAmount());
-    damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
+    damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
     bool crit = roll_chance_f(GetCritChanceFor(caster, target));
     if (crit)
@@ -5293,7 +5305,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     float gainMultiplier = GetSpellInfo()->Effects[GetEffIndex()].CalcValueMultiplier(caster);
 
     uint32 heal = caster->SpellHealingBonusDone(caster, GetSpellInfo(), uint32(new_damage * gainMultiplier), DOT, { }, GetBase()->GetStackAmount());
-    heal = caster->SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DOT, GetBase()->GetStackAmount());
+    heal = caster->SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DOT);
 
     HealInfo healInfo(caster, caster, heal, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
     caster->HealBySpell(healInfo);
@@ -5366,7 +5378,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
             damage = ASSERT_NOTNULL(caster)->SpellHealingBonusDone(target, GetSpellInfo(), damage, DOT, { }, GetBase()->GetStackAmount());
     }
 
-    damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
+    damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
     bool crit = roll_chance_f(GetCritChanceFor(caster, target));
     if (crit)
