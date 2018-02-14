@@ -11835,8 +11835,8 @@ void Unit::SetStunned(bool apply)
         SetTarget(ObjectGuid::Empty);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
-        // Stop movement if unit is affected by point motion master
-        if (GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+        // Stop movement if unit is affected by parabolic splines (eg. knockbacks, pulls, etc.)
+        if (!movespline->isParabolic())
             StopMoving();
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -11871,8 +11871,8 @@ void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
             // setting MOVEMENTFLAG_ROOT
             RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
             AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-            // Stop movement if unit is affected by point motion master
-            if (GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+            // Stop movement if unit is affected by parabolic splines (eg. knockbacks, pulls, etc.)
+            if (!movespline->isParabolic())
                 StopMoving();
         }
         else

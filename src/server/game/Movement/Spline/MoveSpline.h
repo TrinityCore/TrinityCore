@@ -117,6 +117,7 @@ namespace Movement
         bool Finalized() const { return splineflags.done; }
         bool isCyclic() const { return splineflags.cyclic; }
         bool isFalling() const { return splineflags.falling; }
+        bool isParabolic() const { return splineflags.parabolic; }
         Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3(); }
         Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3(); }
         int32 currentPathIdx() const;
