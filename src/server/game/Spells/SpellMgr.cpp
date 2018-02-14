@@ -4119,6 +4119,34 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF THE VORTEX PINNACLE SPELLS
 
     //
+    // DEADMINES SPELLS
+    //
+    // Glubtok
+    // Fists of Flame
+    ApplySpellFix({
+        87874,
+        91268,
+        87896,
+        91269
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
+    });
+
+    // Fists of Frost
+    ApplySpellFix({
+        87899,
+        91272,
+        87901,
+        91273,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
+    });
+
+    // END OF DEADMINES SPELLS
+
+    //
     // GRIM BATOL SPELLS
     //
     // General Umbriss
