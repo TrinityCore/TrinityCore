@@ -124,13 +124,6 @@ void BlackMarketMgr::LoadAuctions()
             continue;
         }
 
-        if (auction->IsCompleted())
-        {
-            auction->DeleteFromDB(trans);
-            delete auction;
-            continue;
-        }
-
         AddAuction(auction);
     } while (result->NextRow());
 
@@ -143,12 +136,22 @@ void BlackMarketMgr::Update(bool updateTime)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     time_t now = time(nullptr);
-    for (BlackMarketEntryMap::iterator itr = _auctions.begin(); itr != _auctions.end(); ++itr)
+    for (BlackMarketEntryMap::iterator itr = _auctions.begin(); itr != _auctions.end();)
     {
-        BlackMarketEntry* entry = itr->second;
+        BlackMarketEntry* auction = itr->second;
 
-        if (entry->IsCompleted() && entry->GetBidder())
-            SendAuctionWonMail(entry, trans);
+        if (!auction->IsCompleted())
+        {
+            ++itr;
+            continue;
+        }
+
+        if (auction->GetBidder())
+            SendAuctionWonMail(auction, trans);
+
+        auction->DeleteFromDB(trans);
+        itr = _auctions.erase(itr);
+        delete auction;
     }
 
     if (updateTime)
@@ -159,24 +162,13 @@ void BlackMarketMgr::Update(bool updateTime)
 
 void BlackMarketMgr::RefreshAuctions()
 {
+    int32 const auctionDiff = sWorld->getIntConfig(CONFIG_BLACKMARKET_MAXAUCTIONS) - _auctions.size();
+
+    // We are already at max auctions, do nothing
+    if (auctionDiff <= 0)
+        return;
+
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    // Delete completed auctions
-    for (BlackMarketEntryMap::iterator itr = _auctions.begin(); itr != _auctions.end();)
-    {
-        BlackMarketEntry* entry = itr->second;
-        if (!entry->IsCompleted())
-        {
-            ++itr;
-            continue;
-        }
-
-        entry->DeleteFromDB(trans);
-        itr = _auctions.erase(itr);
-        delete entry;
-    }
-
-    CharacterDatabase.CommitTransaction(trans);
-    trans = CharacterDatabase.BeginTransaction();
 
     std::list<BlackMarketTemplate const*> templates;
     for (auto const& pair : _templates)
@@ -189,7 +181,7 @@ void BlackMarketMgr::RefreshAuctions()
         templates.push_back(pair.second);
     }
 
-    Trinity::Containers::RandomResize(templates, sWorld->getIntConfig(CONFIG_BLACKMARKET_MAXAUCTIONS));
+    Trinity::Containers::RandomResize(templates, auctionDiff);
 
     for (BlackMarketTemplate const* templat : templates)
     {
