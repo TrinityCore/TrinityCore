@@ -79,10 +79,10 @@ public:
             if (!UpdateVictim())
                 return;
 
+            _events.Update(diff);
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            _events.Update(diff);
 
             while (uint32 eventId = _events.ExecuteEvent())
             {
