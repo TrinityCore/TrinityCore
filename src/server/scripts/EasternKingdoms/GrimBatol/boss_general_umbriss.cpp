@@ -429,6 +429,36 @@ class spell_umbriss_bleeding_wound : public SpellScriptLoader
         }
 };
 
+class spell_umbriss_blitz : public SpellScriptLoader
+{
+    public:
+        spell_umbriss_blitz() : SpellScriptLoader("spell_umbriss_blitz") { }
+
+        class spell_umbriss_blitz_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_umbriss_blitz_SpellScript);
+
+            void HandleCharge(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->ClearUnitState(UNIT_STATE_CANNOT_TURN);
+                    caster->ClearUnitState(UNIT_STATE_CASTING);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectLaunch += SpellEffectFn(spell_umbriss_blitz_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE_DEST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_umbriss_blitz_SpellScript();
+        }
+};
+
 void AddSC_boss_general_umbriss()
 {
     new boss_general_umbriss();
@@ -436,4 +466,5 @@ void AddSC_boss_general_umbriss()
     new spell_umbriss_summon_blitz_trigger();
     new spell_umbriss_summon_ground_siege_trigger();
     new spell_umbriss_bleeding_wound();
+    new spell_umbriss_blitz();
 }

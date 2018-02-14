@@ -4479,6 +4479,7 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
     if (m_targets.HasDst())
     {
         Position pos = destTarget->GetPosition();
+        float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
 
         if (!m_caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
         {
@@ -4487,7 +4488,7 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
             pos = m_caster->GetFirstCollisionPosition(dist, angle);
         }
 
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed);
     }
 }
 
