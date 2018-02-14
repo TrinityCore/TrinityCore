@@ -511,6 +511,15 @@ class spell_warl_seed_of_corruption_dummy : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE });
             }
 
+            void CalculateBuffer(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                amount = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * ASSERT_NOTNULL(GetSpellInfo()->GetEffect(EFFECT_0))->CalcValue(caster) / 100;
+            }
+
             void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
@@ -537,7 +546,8 @@ class spell_warl_seed_of_corruption_dummy : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_warl_seed_of_corruption_dummy_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_seed_of_corruption_dummy_AuraScript::CalculateBuffer, EFFECT_2, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_warl_seed_of_corruption_dummy_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
             }
         };
 
