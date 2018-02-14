@@ -496,6 +496,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         init.SetFly();
         init.SetCyclic();
         init.SetAnimation(Movement::ToFly);
+        init.SetUncompressed();
     }
     else
     {
