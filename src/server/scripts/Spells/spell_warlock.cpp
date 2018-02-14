@@ -26,6 +26,7 @@
 #include "GameObject.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "Optional.h"
 #include "Player.h"
 #include "Random.h"
 #include "SpellAuraEffects.h"
