@@ -518,7 +518,6 @@ void SmartAI::InitializeAI()
     GetScript()->OnInitialize(me);
 
     mDespawnTime = 0;
-    mRespawnTime = 0;
     mDespawnState = 0;
     _escortState = SMART_ESCORT_NONE;
 
@@ -962,7 +961,7 @@ void SmartAI::UpdateDespawn(uint32 diff)
             mDespawnState++;
         }
         else
-            me->DespawnOrUnsummon(0, Seconds(mRespawnTime));
+            me->DespawnOrUnsummon();
     }
     else
         mDespawnTime -= diff;

@@ -178,13 +178,11 @@ class TC_GAME_API SmartAI : public CreatureAI
         void QuestReward(Player* player, Quest const* quest, LootItemType type, uint32 opt) override;
         void OnGameEvent(bool start, uint16 eventId) override;
 
-        void SetDespawnTime (uint32 t, uint32 r = 0)
+        void SetDespawnTime (uint32 t)
         {
             mDespawnTime = t;
-            mRespawnTime = r;
             mDespawnState = t ? 1 : 0;
         }
-
         void StartDespawn() { mDespawnState = 2; }
 
         void OnSpellClick(Unit* clicker, bool& result) override;
@@ -233,7 +231,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 mInvincibilityHpLevel;
 
         uint32 mDespawnTime;
-        uint32 mRespawnTime;
         uint32 mDespawnState;
 
         // Vehicle conditions
