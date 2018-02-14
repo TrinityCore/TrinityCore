@@ -253,6 +253,24 @@ void Object::SendUpdateToPlayer(Player* player)
     player->GetSession()->SendPacket(&packet);
 }
 
+void Object::SendUpdateToSet()
+{
+    if (Unit* unit = ToUnit())
+    {
+        std::list<Player*> players;
+        unit->GetPlayerListInGrid(players, unit->GetVisibilityRange());
+        for (auto itr = players.begin(); itr != players.end(); itr++)
+        {
+            UpdateData upd((*itr)->GetMapId());
+            WorldPacket packet;
+            if ((*itr)->HaveAtClient(this))
+                BuildValuesUpdateBlockForPlayer(&upd, (*itr));
+            upd.BuildPacket(&packet);
+            (*itr)->GetSession()->SendPacket(&packet);
+        }
+    }
+}
+
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
     ByteBuffer buf(500);
