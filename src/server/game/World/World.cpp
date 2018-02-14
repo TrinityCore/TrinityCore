@@ -2366,6 +2366,8 @@ void World::Update(uint32 diff)
     {
         m_timers[WUPDATE_BLACKMARKET].Reset();
 
+        sBlackMarketMgr->Update();
+
         ///- Update blackmarket, refresh auctions if necessary
         if ((blackmarket_timer *  m_timers[WUPDATE_BLACKMARKET].GetInterval() >=
             getIntConfig(CONFIG_BLACKMARKET_UPDATE_PERIOD) * HOUR * IN_MILLISECONDS)
@@ -2375,10 +2377,7 @@ void World::Update(uint32 diff)
             blackmarket_timer = 1; // timer is 0 on startup
         }
         else
-        {
             ++blackmarket_timer;
-            sBlackMarketMgr->Update();
-        }
     }
 
     /// <li> Handle AHBot operations
