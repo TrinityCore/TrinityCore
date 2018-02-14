@@ -522,6 +522,7 @@ SpellValue::SpellValue(SpellInfo const* proto)
     MaxAffectedTargets = proto->MaxAffectedTargets;
     RadiusMod = 1.0f;
     AuraStackAmount = 1;
+    CriticalChance = 0.0f;
 }
 
 class TC_GAME_API SpellEvent : public BasicEvent
@@ -7316,7 +7317,9 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         }
     }
 
-    float critChance = m_caster->SpellCritChanceDone(m_spellInfo, m_spellSchoolMask, m_attackType);
+    float critChance = m_spellValue->CriticalChance;
+    if (!critChance)
+        critChance = m_caster->SpellCritChanceDone(m_spellInfo, m_spellSchoolMask, m_attackType);
     targetInfo.crit = roll_chance_f(unit->SpellCritChanceTaken(m_caster, m_spellInfo, m_spellSchoolMask, critChance, m_attackType));
 }
 
@@ -7403,6 +7406,9 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
             break;
         case SPELLVALUE_AURA_STACK:
             m_spellValue->AuraStackAmount = uint8(value);
+            break;
+        case SPELLVALUE_CRIT_CHANCE:
+            m_spellValue->CriticalChance = value / 100.0f; // @todo ugly /100 remove when basepoints are double
             break;
     }
 }
