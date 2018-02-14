@@ -13860,8 +13860,8 @@ INSERT INTO `gossip_menu` (`MenuID`, `TextID`) VALUES
 (21686, 33042), -- 128244 (Lady Liadrin)
 (21689, 33040); -- 128241 (Silgryn)
 
-DELETE FROM `gossip_menu_option` WHERE (`MenuId`=83 AND `OptionID`=0) OR (`MenuId`=21509 AND `OptionID`=0) OR (`MenuId`=9821 AND `OptionID`=2) OR (`MenuId`=9821 AND `OptionID`=1) OR (`MenuId`=21462 AND `OptionID`=2) OR (`MenuId`=21462 AND `OptionID`=0);
-INSERT INTO `gossip_menu_option` (`MenuId`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId`) VALUES
+DELETE FROM `gossip_menu_option` WHERE (`MenuId`=83 AND `OptionIndex`=0) OR (`MenuId`=21509 AND `OptionIndex`=0) OR (`MenuId`=9821 AND `OptionIndex`=2) OR (`MenuId`=9821 AND `OptionIndex`=1) OR (`MenuId`=21462 AND `OptionIndex`=2) OR (`MenuId`=21462 AND `OptionIndex`=0);
+INSERT INTO `gossip_menu_option` (`MenuId`, `OptionIndex`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId`) VALUES
 (83, 0, 4, 'Return me to life.', 2547),
 (21509, 0, 1, 'I want to browse your goods.', 3370),
 (9821, 2, 0, 'I''d like to heal and revive my battle pets.', 64115),
