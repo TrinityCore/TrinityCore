@@ -136,6 +136,8 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         if (state == IN_PROGRESS && !CheckSiamatsPlatform())
                             if (Creature* siamat = GetCreature(DATA_SIAMAT))
                                 siamat->AI()->EnterEvadeMode();
+                        if (state == DONE)
+                            instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_FOG, 1.0f);
                         break;
                     default:
                         break;
