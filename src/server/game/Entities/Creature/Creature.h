@@ -226,6 +226,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         Player* SelectNearestPlayer(float distance = 0) const;
         Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
 
+        CreatureSparring const* GetSparringData(uint32 attackerEntry, uint32 victimEntry) const;
+        bool CanSparWith(Creature* victim) const;
+        float GetSparringHealthLimitPctFor(Creature* victim) const;
+
         void DoFleeToGetAssistance();
         void CallForHelp(float fRadius);
         void CallAssistance();

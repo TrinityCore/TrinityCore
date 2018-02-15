@@ -703,6 +703,17 @@ void Unit::DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) co
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
+    // Sparring Checks
+    if (Creature* me = ToCreature())
+        if (Creature* target = victim->ToCreature())
+            if (me->CanSparWith(target))
+            {
+                if (damage >= victim->GetHealth()) // safety check to prevent creatures getting accidentally killed when the percentage is very small
+                    damage = victim->GetHealth() - 1;
+                else if (target->GetHealthPct() <= me->GetSparringHealthLimitPctFor(target))
+                    damage = 0;
+            }
+
     if (victim->IsAIEnabled)
         victim->GetAI()->DamageTaken(this, damage);
 
@@ -1878,6 +1889,14 @@ void Unit::CalcAbsorbResist(DamageInfo& damageInfo)
             DealDamage(caster, splitDamage, &cleanDamage, DIRECT_DAMAGE, damageInfo.GetSchoolMask(), (*itr)->GetSpellInfo(), false);
             log.damage = splitDamage;
             log.absorb = split_absorb;
+
+            // Sparring Checks
+            if (Creature* me = caster->ToCreature())
+                if (Creature* target = damageInfo.GetVictim()->ToCreature())
+                    if (me->CanSparWith(target))
+                        if (target->GetHealthPct() <= me->GetSparringHealthLimitPctFor(target))
+                            log.damage = 0;
+
             SendSpellNonMeleeDamageLog(&log);
 
             // break 'Fear' and similar auras
@@ -1974,6 +1993,14 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         CalculateMeleeDamage(victim, 0, &damageInfo, attType);
         // Send log damage message to client
         DealDamageMods(victim, damageInfo.damage, &damageInfo.absorb);
+
+        // Sparring Checks
+        if (Creature* me = ToCreature())
+            if (Creature* target = victim->ToCreature())
+                if (me->CanSparWith(target))
+                    if (target->GetHealthPct() <= me->GetSparringHealthLimitPctFor(target))
+                        damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
+
         SendAttackStateUpdate(&damageInfo);
 
         DamageInfo dmgInfo(damageInfo);

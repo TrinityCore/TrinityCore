@@ -2531,6 +2531,13 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
             caster->DealSpellDamage(&damageInfo, true);
 
+            // Sparring Checks
+            if (Creature* me = caster->ToCreature())
+                if (Creature* target = damageInfo.target->ToCreature())
+                    if (me->CanSparWith(target))
+                        if (target->GetHealthPct() <= me->GetSparringHealthLimitPctFor(target))
+                            damageInfo.damage = 0;
+
             // Send log damage message to client
             caster->SendSpellNonMeleeDamageLog(&damageInfo);
         }
