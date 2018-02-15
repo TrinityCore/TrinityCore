@@ -496,6 +496,10 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
 
     m_updateTargetMapInterval = UPDATE_TARGET_MAP_INTERVAL;
 
+    // skip update if owner is not in world!
+    if (!GetOwner()->IsInWorld())
+        return;
+
     // fill up to date target list
     //                 target, effMask
     std::unordered_map<Unit*, uint8> targets;
