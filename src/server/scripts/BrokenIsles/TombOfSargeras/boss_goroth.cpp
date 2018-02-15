@@ -60,6 +60,8 @@ struct boss_goroth : public BossAI
 
     void EnterCombat(Unit* /*attacker*/) override
     {
+        _EnterCombat();
+
         events.ScheduleEvent(SPELL_BURNING_ARMOR, 16s);
         events.ScheduleEvent(SPELL_CRASHING_COMET, 10s, 20s);
         events.ScheduleEvent(SPELL_INFERNAL_SPIKE_SUMMON, 12s);
