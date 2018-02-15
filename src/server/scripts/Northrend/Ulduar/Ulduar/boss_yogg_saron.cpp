@@ -461,7 +461,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
             void MoveInLineOfSight(Unit* who) override
             {
                 // TODO: MoveInLineOfSight doesn't work for such a big distance
-                if (who->GetTypeId() == TYPEID_PLAYER && me->GetDistance2d(who) < 99.0f && !me->IsInCombat())
+                if (who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->IsGameMaster() && me->GetDistance2d(who) < 99.0f && !me->IsInCombat())
                     DoZoneInCombat();
             }
 
@@ -623,9 +623,9 @@ class boss_voice_of_yogg_saron : public CreatureScript
                         me->SummonCreature(NPC_YOGG_SARON, YoggSaronSpawnPos);
                         if (Creature* brain = instance->GetCreature(DATA_BRAIN_OF_YOGG_SARON))
                             DoZoneInCombat(brain);
-                        events.ScheduleEvent(EVENT_SUMMON_CORRUPTOR_TENTACLE, 1, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
-                        events.ScheduleEvent(EVENT_SUMMON_CONSTRICTOR_TENTACLE, 1, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
-                        events.ScheduleEvent(EVENT_SUMMON_CRUSHER_TENTACLE, 1, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SUMMON_CORRUPTOR_TENTACLE, 5s, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SUMMON_CONSTRICTOR_TENTACLE, 7s, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SUMMON_CRUSHER_TENTACLE, 5s, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
                         events.ScheduleEvent(EVENT_ILLUSION, 60000, 0, PHASE_TWO);
                         break;
                     case ACTION_TOGGLE_SHATTERED_ILLUSION:
@@ -938,6 +938,7 @@ class boss_yogg_saron : public CreatureScript
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
+                // Val'anyr
                 if (spell->Id == SPELL_IN_THE_MAWS_OF_THE_OLD_GOD)
                     me->AddLootMode(32);
             }
