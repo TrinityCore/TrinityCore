@@ -98,7 +98,7 @@ enum Data
 
 Position const firewallPlatterPos = { -193.4054f, -441.5011f, 54.57029f, 1.833041f };
 Position const firewallPlatterSplineEndpoint = { -193.4514f, -441.0169f, 55.70924f };
-Position const leftSideDistanceCheck = { -206.59f, -444.86f, 53.95f };
+Position const leftSideDistanceCheck = { -214.413f, -441.664f, 54.547f };
 
 class boss_glubtok : public CreatureScript
 {
@@ -206,7 +206,7 @@ public:
                     {
                         for (auto itr = units.begin(); itr != units.end(); ++itr)
                         {
-                            if ((*itr)->GetHomePosition().GetExactDist2d(leftSideDistanceCheck) <= 14.0f)
+                            if ((*itr)->GetHomePosition().GetExactDist2d(leftSideDistanceCheck) <= 20.0f)
                                 (*itr)->CastSpell((*itr), SPELL_ARCANE_FROST_BEAM);
                             else
                                 (*itr)->CastSpell((*itr), SPELL_ARCANE_FIRE_BEAM);
@@ -300,7 +300,7 @@ public:
                         {
                             for (auto itr = units.begin(); itr != units.end(); ++itr)
                             {
-                                if ((*itr)->GetHomePosition().GetExactDist2d(leftSideDistanceCheck) <= 14.0f)
+                                if ((*itr)->GetHomePosition().GetExactDist2d(leftSideDistanceCheck) <= 20.0f)
                                     (*itr)->CastSpell((*itr), SPELL_ARCANE_FROST_BEAM);
                                 else
                                     (*itr)->CastSpell((*itr), SPELL_ARCANE_FIRE_BEAM);
