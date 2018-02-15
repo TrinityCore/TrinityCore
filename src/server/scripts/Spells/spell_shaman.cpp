@@ -990,19 +990,22 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     Unit* caster = GetCaster();
-                    if (caster->GetTypeId() == TYPEID_UNIT && caster->IsTotem())
-                        if (Unit* owner = caster->GetOwner())
-                            caster = owner;
+                    ObjectGuid originalCasterGuid = caster->GetGUID();
 
-                    // Restorative Totems
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_RESTORATIVE_TOTEMS, EFFECT_1))
-                        AddPct(damage, aurEff->GetAmount());
+                    if (Player* player = caster->GetAffectingPlayer())
+                    {
+                        originalCasterGuid = player->GetGUID();
 
-                    // Glyph of Healing Stream Totem
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
-                        AddPct(damage, aurEff->GetAmount());
+                        // Restorative Totems
+                        if (AuraEffect const* aurEff = player->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_RESTORATIVE_TOTEMS, EFFECT_1))
+                            AddPct(damage, aurEff->GetAmount());
 
-                    CastSpellExtraArgs args(GetOriginalCaster()->GetGUID());
+                        // Glyph of Healing Stream Totem
+                        if (AuraEffect const* aurEff = player->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
+                            AddPct(damage, aurEff->GetAmount());
+                    }
+
+                    CastSpellExtraArgs args(originalCasterGuid);
                     args.AddSpellBP0(damage);
                     caster->CastSpell(target, SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, args);
                 }
