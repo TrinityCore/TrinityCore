@@ -159,6 +159,23 @@ class spell_burning_armor : public AuraScript
     }
 };
 
+// 232249
+class aura_crashing_comet : public AuraScript
+{
+    PrepareAuraScript(aura_crashing_comet);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_CRASHING_COMET_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(aura_crashing_comet::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 230345
 class spell_crashing_comet_damage : public SpellScript
 {
@@ -273,13 +290,17 @@ struct at_goroth_shattering_star : AreaTriggerAI
             if (Creature* creCaster = caster->ToCreature())
                 if (creCaster->IsAIEnabled)
                     if (Unit* target = ObjectAccessor::GetUnit(*creCaster, creCaster->AI()->GetGUID()))
-                        at->SetDestination(*target, 2000);
+                        at->SetDestination(*target, 1000);
     }
 
     void OnUnitEnter(Unit* unit) override
     {
         if (unit->GetEntry() == NPC_INFERNAL_SPIKE)
+        {
             ++_infernalSpikeTouched;
+            unit->SendPlaySpellVisual(unit->GetGUID(), SPELLVISUAL_INFERNAL_SPIKE_DESTROY);
+            unit->ToCreature()->DespawnOrUnsummon();
+        }
         else if (Unit* caster = at->GetCaster())
         {
             if (caster->IsValidAttackTarget(unit))
@@ -295,6 +316,7 @@ struct at_goroth_shattering_star : AreaTriggerAI
                     caster->CastCustomSpell(SPELL_SHATTERING_STAR_FINAL_DAMAGE, SPELLVALUE_BASE_POINT0, spellEffectInfo->BasePoints / std::max(_infernalSpikeTouched, uint8(1)), nullptr, TRIGGERED_FULL_MASK);
 
         // TODO : Deal damage to target if _infernalSpikeTouched == 0
+        at->Remove();
     }
 
     uint8 _infernalSpikeTouched = 0;
@@ -305,6 +327,7 @@ void AddSC_boss_goroth()
     RegisterCreatureAI(boss_goroth);
 
     RegisterAuraScript(spell_burning_armor);
+    RegisterAuraScript(aura_crashing_comet);
     RegisterSpellScript(spell_crashing_comet_damage);
     RegisterSpellScript(spell_infernal_burning);
     RegisterSpellScript(spell_infernal_burning_remove_spikes);
