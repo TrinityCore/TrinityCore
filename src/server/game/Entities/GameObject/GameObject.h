@@ -261,8 +261,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectAI* AI() const { return m_AI; }
 
         std::string const& GetAIName() const;
-        std::string const& GetScriptName() const;
-
         void SetDisplayId(uint32 displayid);
         uint32 GetDisplayId() const { return GetUInt32Value(GAMEOBJECT_DISPLAYID); }
 

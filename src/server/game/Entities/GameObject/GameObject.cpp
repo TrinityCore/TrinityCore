@@ -166,11 +166,6 @@ std::string const& GameObject::GetAIName() const
     return sObjectMgr->GetGameObjectTemplate(GetEntry())->AIName;
 }
 
-std::string const& GameObject::GetScriptName() const
-{
-    return sObjectMgr->GetScriptName(GetScriptId());
-}
-
 void GameObject::CleanupsBeforeDelete(bool finalCleanup)
 {
     WorldObject::CleanupsBeforeDelete(finalCleanup);
