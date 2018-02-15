@@ -35,6 +35,7 @@ enum Spells
 
     SPELL_INFERNAL_SPIKE_SUMMON         = 233055,
     SPELL_INFERNAL_SPIKE                = 233019,
+    SPELL_INFERNAL_SPIKE_PROTECTION     = 234475,
 
     SPELL_SHATTERING_STAR               = 233272,
     SPELL_SHATTERING_STAR_AT            = 233279,
@@ -144,6 +145,11 @@ struct boss_goroth : public BossAI
         }
     }
 
+    ObjectGuid GetGUID(int32 /*id*/ = 0) const override
+    {
+        return _shatteringStarTargetGUID;
+    }
+
 private:
     ObjectGuid _shatteringStarTargetGUID;
 };
@@ -196,25 +202,32 @@ class spell_infernal_burning : public SpellScript
 {
     PrepareSpellScript(spell_infernal_burning);
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void BeforeCastHandler()
     {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
+
         CreatureList infernalSpikes;
-        GetCaster()->GetCreatureListWithEntryInGrid(infernalSpikes, NPC_INFERNAL_SPIKE, GetSpellInfo()->GetMaxRange());
+        caster->GetCreatureListWithEntryInGrid(infernalSpikes, NPC_INFERNAL_SPIKE, 200.0f);
 
-        targets.remove_if([this, infernalSpikes] (WorldObject* worldObject)
-        {
+        for (auto reference : caster->getThreatManager().getThreatList())
             for (Creature* spike : infernalSpikes)
-                if (spike->IsInBetween(GetCaster(), worldObject))
-                    return true;
+                if (spike->IsInBetween(GetCaster(), reference->getTarget(), 2.0f))
+                    reference->getTarget()->AddAura(SPELL_INFERNAL_SPIKE_PROTECTION);
+    }
 
-            return false;
-        });
+    void AfterCastHandler()
+    {
+        if (Creature* caster = GetCaster()->ToCreature())
+            for (auto reference : caster->getThreatManager().getThreatList())
+                reference->getTarget()->RemoveAurasDueToSpell(SPELL_INFERNAL_SPIKE_PROTECTION);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_infernal_burning::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_infernal_burning::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+        BeforeCast  += SpellCastFn(spell_infernal_burning::BeforeCastHandler);
+        AfterCast   += SpellCastFn(spell_infernal_burning::AfterCastHandler);
     }
 };
 
@@ -241,6 +254,25 @@ class spell_infernal_burning_remove_spikes : public SpellScript
     }
 };
 
+// 233274
+class spell_shattering_star_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_shattering_star_dummy);
+
+    void HandleLaunch(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* cCaster = GetCaster()->ToCreature())
+            if (cCaster->AI())
+                if (Unit* shatteringStarTarget = ObjectAccessor::GetUnit(*cCaster, cCaster->AI()->GetGUID()))
+                    cCaster->CastSpell(shatteringStarTarget, SPELL_SHATTERING_STAR_AT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_shattering_star_dummy::HandleLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 //AT : 13412
 //Spell : 233279
 struct at_goroth_shattering_star : AreaTriggerAI
@@ -252,7 +284,10 @@ struct at_goroth_shattering_star : AreaTriggerAI
         if (unit->GetEntry() == NPC_INFERNAL_SPIKE)
             ++_infernalSpikeTouched;
         else if (Unit* caster = at->GetCaster())
-            caster->CastSpell(unit, SPELL_SHATTERING_STAR_DAMAGE, true);
+        {
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_SHATTERING_STAR_DAMAGE, true);
+        }
     }
 
     void OnDestinationReached() override
@@ -276,6 +311,7 @@ void AddSC_boss_goroth()
     RegisterSpellScript(spell_crashing_comet_damage);
     RegisterSpellScript(spell_infernal_burning);
     RegisterSpellScript(spell_infernal_burning_remove_spikes);
+    RegisterSpellScript(spell_shattering_star_dummy);
 
     RegisterAreaTriggerAI(at_goroth_shattering_star);
 }
