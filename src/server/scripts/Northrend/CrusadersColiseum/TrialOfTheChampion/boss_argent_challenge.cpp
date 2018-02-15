@@ -405,15 +405,16 @@ class boss_paletress : public CreatureScript
                 argent_challenge_baseAI::OnReset();
             }
 
-            void DoAction(int32 action) override
+            void DoAction(int32 /*action*/) override
             {
+				/*
                 if (action != ACTION_MEMORY_DEATH)
                     return;
 
                 me->InterruptNonMeleeSpells(true);
                 Talk(SAY_MEMORY_DEATH);
                 me->GetMotionMaster()->Clear();
-                me->RemoveAura(SPELL_SHIELD);
+                me->RemoveAura(SPELL_SHIELD);*/
             }
 
             uint32 GetData(uint32 type) const override
@@ -465,7 +466,15 @@ class boss_paletress : public CreatureScript
                 _memoryGuid = summon->GetGUID();
                 me->GetMotionMaster()->MoveFollow(summon, 30.0f, 0.0f);
             }
-
+			
+			void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override
+			{
+				me->InterruptNonMeleeSpells(true);
+                Talk(SAY_MEMORY_DEATH);
+                me->GetMotionMaster()->Clear();
+                me->RemoveAura(SPELL_SHIELD);
+			}
+			
             void JustEngagedWith(Unit* who) override
             {
                 if (instance->GetBossState(DATA_ARGENT_CHALLENGE) == SPECIAL)
@@ -900,12 +909,12 @@ class npc_memory : public CreatureScript
                     summoner->GetAI()->DoAction(ACTION_MEMORY_DEATH);*/
                 /*if (Creature* pale = instance->GetCreature(NPC_PALETRESS)) {
                     pale->AI()->DoAction(ACTION_MEMORY_DEATH);
-                }*/
+                }
 				if (Unit* summoner = me->ToTempSummon()->GetSummoner()) {
                     if (Creature* pale = summoner->ToCreature()) {
 						pale->AI()->DoAction(ACTION_MEMORY_DEATH);
 					}
-				}
+				}*/
 				
                 me->DespawnOrUnsummon();
             }
@@ -1174,7 +1183,7 @@ class spell_paletress_reflective_shield : public SpellScriptLoader
                 return true;
             }
 
-            void HandleScript(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void HandleScript(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
             {
                 // Reflecting 25% of absorbed damage back to attacker
                 if (dmgInfo.GetAttacker() == GetTarget())
