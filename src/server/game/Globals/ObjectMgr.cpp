@@ -5594,6 +5594,16 @@ void ObjectMgr::LoadInstanceEncounters()
                     continue;
                 }
                 const_cast<CreatureTemplate*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+
+                if (dungeonEncounter->difficulty == -1)
+                {
+                    for (uint8 i = 0; i < 3; i++)
+                    {
+                        if (CreatureTemplate const* creatureBaseInfo = GetCreatureTemplate(creditEntry))
+                            if (CreatureTemplate const* creatureInfo = GetCreatureTemplate(creatureBaseInfo->DifficultyEntry[i]))
+                                const_cast<CreatureTemplate*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                    }
+                }
                 break;
             }
             case ENCOUNTER_CREDIT_CAST_SPELL:
