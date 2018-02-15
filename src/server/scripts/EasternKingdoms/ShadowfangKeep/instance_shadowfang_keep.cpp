@@ -88,10 +88,6 @@ public:
                 SetupInstance();
                 _instanceSpawned = true;
             }
-
-            if (GetData(DATA_GODFREY_INTRO) != DONE)
-                if (GameObject* door = GetGameObject(DATA_ARUGAL_DOOR))
-                    door->SetGoState(GO_STATE_READY);
         }
 
         void SetupInstance() // set up instance state depending on the progression within the instance after unloading the instance for some reason (eg. crash)
@@ -282,6 +278,15 @@ public:
                 default:
                     break;
             }
+        }
+
+        void OnGameObjectCreate(GameObject* go) override
+        {
+            InstanceScript::OnGameObjectCreate(go);
+
+            if (go->GetEntry() == GO_ARUGAL_DOOR)
+                if (GetData(DATA_GODFREY_INTRO) != DONE)
+                    go->SetGoState(GO_STATE_READY);
         }
 
         bool SetBossState(uint32 type, EncounterState state) override
