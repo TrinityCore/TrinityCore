@@ -3792,6 +3792,45 @@ void SpellMgr::LoadSpellInfoCorrections()
         //! HACK: This spell break quest complete for alliance and on retail not used
         spellInfo->Effects[EFFECT_0].Effect = 0;
     });
+	
+	 //
+    // TRIAL OF THE CHAMPION SPELLS
+    //
+	ApplySpellFix({
+		67546,                  // Warrior Grand Champion - Rolling Throw
+    }, [](SpellInfo* spellInfo) // Should hit both caster and target
+    {
+        spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
+    });
+
+    ApplySpellFix({
+        66797, // The Black Knight - Death's Push (casted on announcer)
+    }, [](SpellInfo* spellInfo)
+    // The duration is correct otherwise, but announcer currently dies in mid-air
+    // this happens because blizzard has 100-200ms delay before applying an aura
+    // so in retail announcer makes it on the ground before dying
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2 seconds instead of 1.7 seconds
+    });
+
+    ApplySpellFix({
+        67779, // The Black Knight - Desecration
+    }, [](SpellInfo* spellInfo)
+    // According to several videos the desecration players lose the desecration debuff in 12 seconds of cast
+    // There is an invisible stalker triggering every 2 seconds a desecration debuff so setting 10 second duration is correct
+    // besides the visual desecration on the ground disappears in 10 seconds of cast
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); // 10 seconds instead of 15 seconds
+    });
+
+    ApplySpellFix({
+        67802, // The Black Knight - Desecration Arm
+    }, [](SpellInfo* spellInfo)
+    // in 3.3.5 there is only one radius in dbc which is 0 yards in this case
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS); // use max radius from 4.3.4
+    });
+    // END OF TRIAL OF THE CHAMPION SPELLS
 
     ApplySpellFix({
         47476, // Deathknight - Strangulate

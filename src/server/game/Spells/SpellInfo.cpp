@@ -2268,6 +2268,15 @@ void SpellInfo::_LoadSpellDiminishInfo()
                 // Screams of the Dead (King Ymiron)
                 else if (Id == 51750)
                     return DIMINISHING_NONE;
+				// Triggered trample aura (ToC 5)
+				else if (Id == 67868)
+					return DIMINISHING_NONE;
+				// The Black Knight's Death's Respite (ToC 5)
+				else if (Id == 67745)
+					return DIMINISHING_NONE;
+				// The Black Knight's Death's Respite (Heroic ToC 5)
+				else if (Id == 68306)
+					return DIMINISHING_NONE;
                 break;
             }
             // Event spells
