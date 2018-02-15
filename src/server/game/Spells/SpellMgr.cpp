@@ -1874,7 +1874,7 @@ void SpellMgr::LoadSpellProcs()
     TC_LOG_INFO("server.loading", ">> Generated spell proc data for %u spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void SpellMgr::LoadSpellBonusess()
+void SpellMgr::LoadSpellBonuses()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -3070,6 +3070,25 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+    });
+
+    // Immolate
+    ApplySpellFix({
+        348,
+        707,
+        1094,
+        2941,
+        11665,
+        11667,
+        11668,
+        25309,
+        27215,
+        47810,
+        47811
+        }, [](SpellInfo* spellInfo)
+    {
+        // copy SP scaling data from direct damage to DoT
+        spellInfo->Effects[EFFECT_0].BonusMultiplier = spellInfo->Effects[EFFECT_1].BonusMultiplier;
     });
 
     // Detect Undead
