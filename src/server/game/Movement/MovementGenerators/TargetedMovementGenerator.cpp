@@ -110,7 +110,7 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
             // Exceptions:
             // Combatreach bigger than 10 yards, Dungeon/Raid bosses, flying creatures and vehicle passengers
             if (me->GetCombatReach() <= 10.0f && !me->IsDungeonBoss() && !me->IsFlying() && !me->GetVehicle()
-                && GetMovementGeneratorType() == CHASE_MOTION_TYPE && !me->IsMovementPreventedByCasting())
+                && GetMovementGeneratorType() == CHASE_MOTION_TYPE && !me->IsMovementPreventedByCasting() && me->CanFreeMove())
             {
                 if (me->GetCombatReach() > me->GetPosition().GetExactDist(GetTarget()->GetPosition()))
                 {
