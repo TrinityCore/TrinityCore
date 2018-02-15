@@ -3055,7 +3055,7 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
     // focus if not controlled creature
     if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
     {
-        if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat() || (_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING)))
+        if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat()))
         {
             if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
                 m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
@@ -7216,6 +7216,11 @@ bool Spell::IsTriggered() const
 bool Spell::IsIgnoringCooldowns() const
 {
     return (_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) != 0;
+}
+
+bool Spell::IsFocusDisabled() const
+{
+    return ((_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING) || (m_spellInfo->IsChanneled() && !m_spellInfo->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET)));
 }
 
 bool Spell::IsProcDisabled() const

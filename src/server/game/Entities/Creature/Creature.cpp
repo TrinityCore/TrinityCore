@@ -3171,6 +3171,10 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     if (m_focusSpell)
         return;
 
+    // some spells shouldn't track targets
+    if (focusSpell->IsFocusDisabled())
+        return;
+
     SpellInfo const* spellInfo = focusSpell->GetSpellInfo();
 
     // don't use spell focus for vehicle spells
