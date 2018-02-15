@@ -2280,10 +2280,12 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
             continue;
 
         std::deque<Unit*> units;
+        ConditionContainer* condList = effect->ImplicitTargetConditions;
         // non-area aura
         if (effect->Effect == SPELL_EFFECT_APPLY_AURA)
         {
-            units.push_back(GetUnitOwner());
+            if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), GetUnitOwner(), *condList))
+                units.push_back(GetUnitOwner());
         }
         else
         {
@@ -2291,59 +2293,59 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
 
             if (!GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
             {
+                SpellTargetCheckTypes selectionType = TARGET_CHECK_DEFAULT;
                 switch (effect->Effect)
                 {
                     case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
-                    case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
                     case SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM:
-                    {
-                        units.push_back(GetUnitOwner());
-                        Trinity::AnyGroupedUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius, effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID, m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS), false, true);
-                        Trinity::UnitListSearcher<Trinity::AnyGroupedUnitInObjectRangeCheck> searcher(GetUnitOwner(), units, u_check);
-                        Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
+                        selectionType = TARGET_CHECK_PARTY;
                         break;
-                    }
+                    case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+                        selectionType = TARGET_CHECK_RAID;
+                        break;
                     case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
-                    {
-                        units.push_back(GetUnitOwner());
-                        Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius, m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS), false, true);
-                        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(GetUnitOwner(), units, u_check);
-                        Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
+                        selectionType = TARGET_CHECK_ALLY;
                         break;
-                    }
                     case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
-                    {
-                        Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius, m_spellInfo, false, true); // No GetCharmer in searcher
-                        Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetUnitOwner(), units, u_check);
-                        Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
+                        selectionType = TARGET_CHECK_ENEMY;
                         break;
-                    }
                     case SPELL_EFFECT_APPLY_AREA_AURA_PET:
-                        units.push_back(GetUnitOwner());
+                        if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), GetUnitOwner(), *condList))
+                            units.push_back(GetUnitOwner());
                         /* fallthrough */
                     case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                     {
                         if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
                             if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
-                                units.push_back(owner);
+                                if (!condList || sConditionMgr->IsObjectMeetToConditions(owner, GetUnitOwner(), *condList))
+                                    units.push_back(owner);
                         break;
                     }
                     case SPELL_EFFECT_APPLY_AURA_ON_PET:
                     {
                         if (Unit* pet = ObjectAccessor::GetUnit(*GetUnitOwner(), GetUnitOwner()->GetPetGUID()))
-                            units.push_back(pet);
+                            if (!condList || sConditionMgr->IsObjectMeetToConditions(pet, GetUnitOwner(), *condList))
+                                units.push_back(pet);
                         break;
                     }
                     case SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS:
                     {
-                        units.push_back(GetUnitOwner());
-                        Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), caster, GetUnitOwner(), m_spellInfo, TARGET_CHECK_SUMMONED, effect->ImplicitTargetConditions, TARGET_OBJECT_TYPE_UNIT);
-                        Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
-                        Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
-                        // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-                        units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); }), units.end());
+                        if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), GetUnitOwner(), *condList))
+                            units.push_back(GetUnitOwner());
+
+                        selectionType = TARGET_CHECK_SUMMONED;
                         break;
                     }
+                }
+
+                if (selectionType != TARGET_CHECK_DEFAULT)
+                {
+                    Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), caster, GetUnitOwner(), m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
+                    Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
+                    Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
+
+                    // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
+                    units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); }), units.end());
                 }
             }
         }
@@ -2395,20 +2397,20 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit*
         if (!effect || !HasEffect(effect->EffectIndex))
             continue;
 
+        // we can't use effect type like area auras to determine check type, check targets
+        SpellTargetCheckTypes selectionType = effect->TargetA.GetCheckType();
+        if (effect->TargetB.GetReferenceType() == TARGET_REFERENCE_TYPE_DEST)
+            selectionType = effect->TargetB.GetCheckType();
+
         std::deque<Unit*> units;
-        if (effect->TargetB.GetTarget() == TARGET_DEST_DYNOBJ_ALLY
-            || effect->TargetB.GetTarget() == TARGET_UNIT_DEST_AREA_ALLY)
-        {
-            Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius, m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS), false, true);
-            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(GetDynobjOwner(), units, u_check);
-            Cell::VisitAllObjects(GetDynobjOwner(), searcher, radius);
-        }
-        else
-        {
-            Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius, nullptr, false, true);
-            Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetDynobjOwner(), units, u_check);
-            Cell::VisitAllObjects(GetDynobjOwner(), searcher, radius);
-        }
+        ConditionContainer* condList = effect->ImplicitTargetConditions;
+
+        Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetDynobjOwner(), dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetDynobjOwner(), units, check);
+        Cell::VisitAllObjects(GetDynobjOwner(), searcher, radius);
+
+        // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
+        units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); }), units.end());
 
         for (Unit* unit : units)
         {
