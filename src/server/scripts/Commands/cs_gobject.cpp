@@ -663,10 +663,12 @@ public:
                 handler->PSendSysMessage(LANG_SPAWNINFO_DISTANCEFROMPLAYER, dist);
             }
         }
+
         handler->PSendSysMessage(LANG_GOINFO_ENTRY, entry);
         handler->PSendSysMessage(LANG_GOINFO_TYPE, type);
         handler->PSendSysMessage(LANG_GOINFO_LOOTID, lootId);
         handler->PSendSysMessage(LANG_GOINFO_DISPLAYID, displayId);
+
         if (WorldObject* object = handler->getSelectedObject())
         {
             if (object->ToGameObject() && object->ToGameObject()->GetGameObjectData() && object->ToGameObject()->GetGameObjectData()->spawnGroupData->groupId)
@@ -674,14 +676,19 @@ public:
                 SpawnGroupTemplateData const* groupData = object->ToGameObject()->GetGameObjectData()->spawnGroupData;
                 handler->PSendSysMessage(LANG_SPAWNINFO_GROUP_ID, groupData->name.c_str(), groupData->groupId, groupData->flags, object->GetMap()->IsSpawnGroupActive(groupData->groupId));
             }
+
             if (object->ToGameObject())
                 handler->PSendSysMessage(LANG_SPAWNINFO_COMPATIBILITY_MODE, object->ToGameObject()->GetRespawnCompatibilityMode());
         }
+
         handler->PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
         handler->PSendSysMessage(LANG_GOINFO_SIZE, gameObjectInfo->size);
 
         if (GameObjectTemplateAddon const* addon = sObjectMgr->GetGameObjectTemplateAddon(entry))
             handler->PSendSysMessage(LANG_GOINFO_ADDON, addon->faction, addon->flags);
+
+        if (thisGO)
+            handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, thisGO->GetAIName().c_str(), thisGO->GetScriptName().c_str());
 
         if (GameObjectDisplayInfoEntry const* modelInfo = sGameObjectDisplayInfoStore.LookupEntry(displayId))
             handler->PSendSysMessage(LANG_GOINFO_MODEL, modelInfo->maxX, modelInfo->maxY, modelInfo->maxZ, modelInfo->minX, modelInfo->minY, modelInfo->minZ);
