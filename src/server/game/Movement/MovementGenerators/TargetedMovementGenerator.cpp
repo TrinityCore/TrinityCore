@@ -117,7 +117,7 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
                     // Beasts move backwards. Some other creatures as well. Todo: find a way to detect this automaticly.
                     bool moveBackwards = me->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_BEAST;
                     float x, y, z;
-                    GetTarget()->GetContactPoint(me, x, y, z);
+                    me->GetNearPoint(GetTarget(), x, y, z, 0.0f, 0.0f, GetTarget()->GetAngle(me));
 
                     Movement::MoveSplineInit init(me);
                     init.MoveTo(x, y, z, true);
