@@ -57,6 +57,7 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
 
     bool targetMoved = false;
     _timer.Update(diff);
+
     if (!_interrupt && _timer.Passed())
     {
         _timer.Reset(100);
@@ -95,6 +96,35 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
         {
             _targetReached = true;
             ReachTarget(owner);
+        }
+    }
+
+    _advanceMovementTimer.Update(diff);
+    if (_advanceMovementTimer.Passed())
+    {
+        _advanceMovementTimer.Reset(3000);
+
+        // the owner needs to reposition itself when being too close to its victim
+        if (Creature* me = owner->ToCreature())
+        {
+            // Exceptions:
+            // Combatreach bigger than 10 yards, Dungeon/Raid bosses, flying creatures and vehicle passengers
+            if (me->GetCombatReach() <= 10.0f && !me->IsDungeonBoss() && !me->IsFlying() && !me->GetVehicle())
+            {
+                if (me->GetCombatReach() > me->GetPosition().GetExactDist(GetTarget()->GetPosition()))
+                {
+                    // Beasts move backwards. Some other creatures as well. Todo: find a way to detect this automaticly.
+                    bool moveBackwards = me->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_BEAST;
+                    float x, y, z;
+                    GetTarget()->GetContactPoint(me, x, y, z);
+
+                    Movement::MoveSplineInit init(me);
+                    init.MoveTo(x, y, z, true);
+                    init.SetWalk(EnableWalking());
+                    init.SetOrientationFixed(moveBackwards);
+                    init.Launch();
+                }
+            }
         }
     }
 

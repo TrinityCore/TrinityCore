@@ -45,7 +45,7 @@ template<class T, typename D>
 class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
 {
     public:
-        explicit TargetedMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target), _path(nullptr), _timer(0), _offset(offset), _angle(angle), _recalculateTravel(false), _targetReached(false), _interrupt(false) { }
+        explicit TargetedMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target), _path(nullptr), _timer(0), _advanceMovementTimer(0), _offset(offset), _angle(angle), _recalculateTravel(false), _targetReached(false), _interrupt(false) { }
         ~TargetedMovementGenerator();
 
         bool DoUpdate(T*, uint32);
@@ -65,6 +65,7 @@ class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public
     private:
         PathGenerator* _path;
         TimeTrackerSmall _timer;
+        TimeTrackerSmall _advanceMovementTimer;
         float _offset;
         float _angle;
         bool _recalculateTravel;
@@ -83,7 +84,6 @@ class ChaseMovementGenerator : public TargetedMovementGenerator<T, ChaseMovement
         void DoInitialize(T*);
         void DoFinalize(T*);
         void DoReset(T*);
-
         void ClearUnitStateMove(T*) override;
         void AddUnitStateMove(T*) override;
         bool HasLostTarget(T*) const override;
