@@ -134,17 +134,6 @@ struct boss_goroth : public BossAI
             summon->CastSpell(summon, SPELL_INFERNAL_SPIKE, false);
     }
 
-    void JustRegisteredAreaTrigger(AreaTrigger* at) override
-    {
-        if (at->GetTemplate()->Id == AT_SHATTERING_STAR)
-        {
-            if (Unit* target = ObjectAccessor::GetUnit(*me, _shatteringStarTargetGUID))
-                at->SetDestination(*target, 1000);
-
-            _shatteringStarTargetGUID = ObjectGuid::Empty;
-        }
-    }
-
     ObjectGuid GetGUID(int32 /*id*/ = 0) const override
     {
         return _shatteringStarTargetGUID;
@@ -259,17 +248,16 @@ class spell_shattering_star_dummy : public SpellScript
 {
     PrepareSpellScript(spell_shattering_star_dummy);
 
-    void HandleLaunch(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (Creature* cCaster = GetCaster()->ToCreature())
-            if (cCaster->AI())
-                if (Unit* shatteringStarTarget = ObjectAccessor::GetUnit(*cCaster, cCaster->AI()->GetGUID()))
-                    cCaster->CastSpell(shatteringStarTarget, SPELL_SHATTERING_STAR_AT, true);
+        if (Creature* goroth = GetExplTargetUnit()->ToCreature())
+            if (goroth->AI())
+                goroth->CastSpell(GetCaster(), SPELL_SHATTERING_STAR_AT, true);
     }
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_shattering_star_dummy::HandleLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_shattering_star_dummy::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -278,6 +266,15 @@ class spell_shattering_star_dummy : public SpellScript
 struct at_goroth_shattering_star : AreaTriggerAI
 {
     at_goroth_shattering_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (Creature* creCaster = caster->ToCreature())
+                if (creCaster->IsAIEnabled)
+                    if (Unit* target = ObjectAccessor::GetUnit(*creCaster, creCaster->AI()->GetGUID()))
+                        at->SetDestination(*target, 2000);
+    }
 
     void OnUnitEnter(Unit* unit) override
     {
