@@ -73,23 +73,12 @@ class TC_GAME_API SmartScript
         void DoFindFriendlyMissingBuff(std::vector<Creature*>& creatures, float range, uint32 spellid) const;
         Unit* DoFindClosestFriendlyInRange(float range, bool playerOnly) const;
 
-        bool IsSmart(Creature* c = nullptr);
-        bool IsSmartGO(GameObject* g = nullptr);
+        bool IsSmart(Creature* c, bool silent = false);
+        bool IsSmart(GameObject* g, bool silent = false);
+        bool IsSmart(bool silent = false);
 
-        void StoreTargetList(ObjectVector const& targets, uint32 id)
-        {
-            // insert or replace
-            _storedTargets.erase(id);
-            _storedTargets.emplace(id, ObjectGuidVector(targets));
-        }
-
-        ObjectVector const* GetStoredTargetVector(uint32 id, WorldObject const& ref) const
-        {
-            auto itr = _storedTargets.find(id);
-            if (itr != _storedTargets.end())
-                return itr->second.GetObjectVector(ref);
-            return nullptr;
-        }
+        void StoreTargetList(ObjectVector const& targets, uint32 id);
+        ObjectVector const* GetStoredTargetVector(uint32 id, WorldObject const& ref) const;
 
         void StoreCounter(uint32 id, uint32 value, uint32 reset);
         uint32 GetCounterValue(uint32 id) const;
