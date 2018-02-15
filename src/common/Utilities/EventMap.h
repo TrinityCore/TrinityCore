@@ -27,15 +27,15 @@ class TC_COMMON_API EventMap
     /**
     * Internal storage type.
     * Key: Time as uint32 when the event should occur.
-    * Value: The event data as uint32.
+    * Value: The event data as uint64.
     *
     * Structure of event data:
-    * - Bit  0 - 15: Event Id.
-    * - Bit 16 - 23: Group
-    * - Bit 24 - 31: Phase
-    * - Pattern: 0xPPGGEEEE
+    * - Bit  0 - 31: Event Id.
+    * - Bit 32 - 47: Group
+    * - Bit 48 - 63: Phase
+    * - Pattern: 0xPPPPGGGGEEEEEEEE
     */
-    typedef std::multimap<uint32, uint32> EventStore;
+    typedef std::multimap<uint32, uint64> EventStore;
 
 public:
     EventMap() : _time(0), _phase(0), _lastEvent(0) { }
@@ -86,19 +86,19 @@ public:
     /**
     * @name SetPhase
     * @brief Sets the phase of the map (absolute).
-    * @param phase Phase which should be set. Values: 1 - 8. 0 resets phase.
+    * @param phase Phase which should be set. Values: 1 - 16. 0 resets phase.
     */
-    void SetPhase(uint8 phase);
+    void SetPhase(uint16 phase);
 
     /**
     * @name AddPhase
     * @brief Activates the given phase (bitwise).
     * @param phase Phase which should be activated. Values: 1 - 8
     */
-    void AddPhase(uint8 phase)
+    void AddPhase(uint16 phase)
     {
-        if (phase && phase <= 8)
-            _phase |= uint8(1 << (phase - 1));
+        if (phase && phase <= 16)
+            _phase |= uint16(1 << (phase - 1));
     }
 
     /**
@@ -106,10 +106,10 @@ public:
     * @brief Deactivates the given phase (bitwise).
     * @param phase Phase which should be deactivated. Values: 1 - 8.
     */
-    void RemovePhase(uint8 phase)
+    void RemovePhase(uint16 phase)
     {
-        if (phase && phase <= 8)
-            _phase &= uint8(~(1 << (phase - 1)));
+        if (phase && phase <= 16)
+            _phase &= uint16(~(1 << (phase - 1)));
     }
 
     /**
@@ -120,7 +120,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void ScheduleEvent(uint32 eventId, Milliseconds const& time, uint32 group = 0, uint8 phase = 0)
+    void ScheduleEvent(uint32 eventId, Milliseconds const& time, uint16 group = 0, uint16 phase = 0)
     {
         ScheduleEvent(eventId, uint32(time.count()), group, phase);
     }
@@ -134,7 +134,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void ScheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group = 0, uint8 phase = 0);
+    void ScheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint16 group = 0, uint16 phase = 0);
 
     /**
     * @name ScheduleEvent
@@ -144,7 +144,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void ScheduleEvent(uint32 eventId, uint32 time, uint32 group = 0, uint8 phase = 0);
+    void ScheduleEvent(uint32 eventId, uint32 time, uint16 group = 0, uint16 phase = 0);
 
     /**
     * @name RescheduleEvent
@@ -154,7 +154,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void RescheduleEvent(uint32 eventId, Milliseconds const& time, uint32 group = 0, uint8 phase = 0)
+    void RescheduleEvent(uint32 eventId, Milliseconds const& time, uint16 group = 0, uint16 phase = 0)
     {
         RescheduleEvent(eventId, uint32(time.count()), group, phase);
     }
@@ -168,7 +168,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void RescheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group = 0, uint8 phase = 0);
+    void RescheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint16 group = 0, uint16 phase = 0);
 
     /**
     * @name RescheduleEvent
@@ -178,7 +178,7 @@ public:
     * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
     * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
     */
-    void RescheduleEvent(uint32 eventId, uint32 time, uint32 group = 0, uint8 phase = 0)
+    void RescheduleEvent(uint32 eventId, uint32 time, uint16 group = 0, uint16 phase = 0)
     {
         CancelEvent(eventId);
         ScheduleEvent(eventId, time, group, phase);
@@ -295,7 +295,7 @@ public:
     * @param delay Amount of delay in ms as std::chrono::duration.
     * @param group Group of the events.
     */
-    void DelayEvents(Milliseconds const& delay, uint32 group)
+    void DelayEvents(Milliseconds const& delay, uint16 group)
     {
         DelayEvents(uint32(delay.count()), group);
     }
@@ -306,7 +306,7 @@ public:
     * @param delay Amount of delay.
     * @param group Group of the events.
     */
-    void DelayEvents(uint32 delay, uint32 group);
+    void DelayEvents(uint32 delay, uint16 group);
 
     /**
     * @name CancelEvent
@@ -320,7 +320,7 @@ public:
     * @brief Cancel events belonging to specified group.
     * @param group Group to cancel.
     */
-    void CancelEventGroup(uint32 group);
+    void CancelEventGroup(uint16 group);
 
     /**
     * @name GetNextEventTime
@@ -345,9 +345,9 @@ public:
     * @param phase Wanted phase.
     * @return True, if phase of event map contains specified phase.
     */
-    bool IsInPhase(uint8 phase) const
+    bool IsInPhase(uint16 phase) const
     {
-        return phase <= 8 && (!phase || _phase & (1 << (phase - 1)));
+        return phase <= 16 && (!phase || _phase & (1 << (phase - 1)));
     }
 
     /**
@@ -379,7 +379,7 @@ private:
     * phases from 1 to 8 can be set with SetPhase or
     * AddPhase. RemovePhase deactives a phase.
     */
-    uint8 _phase;
+    uint16 _phase;
 
     /**
     * @name _eventMap
@@ -394,7 +394,7 @@ private:
     * @name _lastEvent
     * @brief Stores information on the most recently executed event
     */
-    uint32 _lastEvent;
+    uint64 _lastEvent;
 };
 
 #endif // _EVENT_MAP_H_
