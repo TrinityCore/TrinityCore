@@ -250,7 +250,7 @@ class spell_shattering_star_dummy : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (Creature* goroth = GetExplTargetUnit()->ToCreature())
+        if (Creature* goroth = GetHitUnit()->ToCreature())
             if (goroth->AI())
                 goroth->CastSpell(GetCaster(), SPELL_SHATTERING_STAR_AT, true);
     }
