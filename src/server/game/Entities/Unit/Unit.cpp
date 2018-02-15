@@ -8051,7 +8051,6 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         // mount as a vehicle
         if (VehicleId)
         {
-            // mount as a vehicle
             if (CreateVehicleKit(VehicleId, creatureEntry))
             {
                 // Send others that we now have a vehicle
