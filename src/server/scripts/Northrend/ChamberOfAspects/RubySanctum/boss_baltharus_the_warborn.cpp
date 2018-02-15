@@ -183,10 +183,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                 if (!events.IsInPhase(PHASE_INTRO))
                     me->SetHealth(instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
+                events.Update(diff);
+
                 if (!events.IsInPhase(PHASE_INTRO) && me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
-                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
