@@ -188,7 +188,7 @@ class spell_crashing_comet_damage : public SpellScript
             return;
 
         CreatureList infernalSpikes;
-        target->GetCreatureListWithEntryInGrid(infernalSpikes, NPC_INFERNAL_SPIKE, GetSpellInfo()->GetMaxRange());
+        target->GetCreatureListWithEntryInGrid(infernalSpikes, NPC_INFERNAL_SPIKE, GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius());
 
         for (Creature* infernalSpike : infernalSpikes)
         {
