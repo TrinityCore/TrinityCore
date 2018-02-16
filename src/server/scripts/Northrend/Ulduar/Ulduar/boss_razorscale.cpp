@@ -590,12 +590,12 @@ struct boss_razorscale : public BossAI
                     break;
                 case EVENT_SUMMON_MINIONS:
                 {
-                    uint8 random = urand(2, 4);
+                    uint8 random = RAID_MODE<uint8>(2, urand(2, 4));
                     uint8 time = 5;
                     for (uint8 n = 0; n < random; ++n)
                     {
                         events.ScheduleEvent(EVENT_SUMMON_MINIONS_2, Seconds(time), 0, PHASE_AIR);
-                        time += 5;
+                        time += urand(2, 5);
                     }
                     events.Repeat(Seconds(40));
                     break;
