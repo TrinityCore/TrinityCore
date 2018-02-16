@@ -115,9 +115,8 @@ class TC_GAME_API GameEventMgr
         bool StartEvent(uint16 event_id, bool overwrite = false);
         void StopEvent(uint16 event_id, bool overwrite = false);
         void HandleQuestComplete(uint32 quest_id);  // called on world event type quest completions
-        void HandleWorldEventGossip(Player* player, Creature* c);
         uint64 GetNPCFlag(Creature* cr);
-        uint32 GetNpcTextId(uint32 guid);
+
     private:
         void SendWorldStateUpdate(Player* player, uint16 event_id);
         void AddActiveEvent(uint16 event_id) { m_ActiveEvents.insert(event_id); }
@@ -171,6 +170,7 @@ class TC_GAME_API GameEventMgr
         GameEventNPCFlagMap mGameEventNPCFlags;
         ActiveEvents m_ActiveEvents;
         bool isSystemInit;
+
     public:
         GameEventGuidMap  mGameEventCreatureGuids;
         GameEventGuidMap  mGameEventGameobjectGuids;
