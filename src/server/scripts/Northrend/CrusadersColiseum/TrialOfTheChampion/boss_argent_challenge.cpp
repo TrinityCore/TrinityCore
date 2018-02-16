@@ -65,9 +65,9 @@ enum Events
     EVENT_HOLY_SMITE_E,
     EVENT_RENEW,
     EVENT_SUMMON_MEMORY,
+    EVENT_MEMORY_AGGRESSIVE,
 
     // Memory
-    EVENT_ENTER_AGGRESSIVE,
     EVENT_OLD_WOUNDS,
     EVENT_SHADOWS_PAST,
     EVENT_WAKING_NIGHTMARE,
@@ -281,7 +281,6 @@ public:
 
             if (damage >= me->GetHealth())
             {
-                //damage = me->GetHealth() - 1;
                 damage = 0;
                 if (instance->GetBossState(DATA_ARGENT_CHALLENGE) != SPECIAL)
                 {
@@ -406,10 +405,10 @@ public:
 
         uint32 GetData(uint32 type) const override
         {
-            if (type != DATA_MEMORY_ENTRY || _memoryGuid.IsEmpty())
+            if (type != DATA_MEMORY_ENTRY || !_memory)
                 return 0;
 
-            return _memoryGuid.GetEntry();
+            return _memory->GetEntry();
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
@@ -420,10 +419,10 @@ public:
                 return;
             }
 
-            if (!_memorySummoned && !HealthAbovePct(25))
+            if (!_memorySummoned && me->HealthBelowPctDamaged(25, damage))
             {
+				damage = me->GetHealth() - me->CountPctFromMaxHealth(25);
                 _memorySummoned = true;
-
                 me->InterruptNonMeleeSpells(true);
                 DoCastAOE(SPELL_HOLY_NOVA);
                 Talk(SAY_MEMORY_SUMMON);
@@ -435,7 +434,6 @@ public:
 
             if (damage >= me->GetHealth())
             {
-                //damage = me->GetHealth() - 1;
                 damage = 0;
                 if (instance->GetBossState(DATA_ARGENT_CHALLENGE) != SPECIAL)
                 {
@@ -449,9 +447,11 @@ public:
         void JustSummoned(Creature* summon) override
         {
             argent_challenge_baseAI::JustSummoned(summon);
-
-            _memoryGuid = summon->GetGUID();
+			
+            ObjectGuid _memoryGuid = summon->GetGUID();
+			_memory = ObjectAccessor::GetCreature(*me, _memoryGuid);
             me->GetMotionMaster()->MoveFollow(summon, 30.0f, 0.0f);
+            events.ScheduleEvent(EVENT_MEMORY_AGGRESSIVE, 3 * IN_MILLISECONDS);
         }
 
         void JustEngagedWith(Unit* who) override
@@ -492,13 +492,12 @@ public:
                     break;
                 case EVENT_RENEW:
                     me->InterruptNonMeleeSpells(true);
-                    if ((rand32() % 2) > 0 && me->GetHealthPct() < 100)
+                    if (roll_chance_i(50) && me->GetHealthPct() < 100)
                         DoCastSelf(SPELL_RENEW);
                     else
                     {
-                        Creature* memory = ObjectAccessor::GetCreature(*me, _memoryGuid);
-                        if (memory && memory->GetHealth() > 1)
-                            DoCast(memory, SPELL_RENEW);
+                        if (_memory && _memory->GetHealth() > 1)
+                            DoCast(_memory, SPELL_RENEW);
                         else
                             DoCastSelf(SPELL_RENEW);
                     }
@@ -510,6 +509,12 @@ public:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_SUMMON_MEMORY, true);
                     break;
+				case EVENT_MEMORY_AGGRESSIVE:
+					if(_memory) {
+						_memory->SetReactState(REACT_AGGRESSIVE);
+						_memory->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+					}
+					break;
                 case EVENT_CHALLENGE_DONE:
                     me->RemoveAllAuras();
                     me->GetThreatManager().ClearAllThreat();
@@ -537,7 +542,7 @@ public:
 
     private:
         bool _memorySummoned;
-        ObjectGuid _memoryGuid;
+		Creature* _memory;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -863,13 +868,17 @@ public:
         {
             Initialize();
             me->SetReactState(REACT_PASSIVE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            _events.ScheduleEvent(EVENT_OLD_WOUNDS, urand(14 * IN_MILLISECONDS, 16 * IN_MILLISECONDS));
+            _events.ScheduleEvent(EVENT_SHADOWS_PAST, 8 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_WAKING_NIGHTMARE, urand(10 * IN_MILLISECONDS, 13 * IN_MILLISECONDS));
         }
 
         void Initialize()
         {
             DoCastAOE(SPELL_SHADOWFORM);
             DoCastAOE(SPELL_SPAWN_VISUAL);
-            _events.ScheduleEvent(EVENT_ENTER_AGGRESSIVE, 3 * IN_MILLISECONDS);
+
         }
 
         void Reset() override
@@ -895,12 +904,6 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_ENTER_AGGRESSIVE:
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    _events.ScheduleEvent(EVENT_OLD_WOUNDS, urand(11 * IN_MILLISECONDS, 13 * IN_MILLISECONDS));
-                    _events.ScheduleEvent(EVENT_SHADOWS_PAST, 5 * IN_MILLISECONDS);
-                    _events.ScheduleEvent(EVENT_WAKING_NIGHTMARE, urand(7 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
-                    break;
                 case EVENT_OLD_WOUNDS:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
                         DoCast(target, SPELL_OLD_WOUNDS);
