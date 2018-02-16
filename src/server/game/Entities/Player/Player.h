@@ -2138,6 +2138,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
 
+        void SetSession(WorldSession* ws);
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;

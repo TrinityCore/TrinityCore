@@ -121,6 +121,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     m_playerLogout(false),
     m_playerRecentlyLogout(false),
     m_playerSave(false),
+    m_playerDestroy(true),
+    m_playerReloaded(false),
     m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
     m_sessionDbLocaleIndex(locale),
     m_latency(0),
@@ -130,7 +132,6 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     isRecruiter(isARecruiter),
     _RBACData(nullptr),
     expireTime(60000), // 1 min after socket loss, session is deleted
-    forceExit(false),
     m_currentBankerGUID()
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
@@ -149,10 +150,12 @@ WorldSession::~WorldSession()
 {
     ///- unload player if not unloaded
     if (_player)
-        LogoutPlayer (true);
+    {
+        LogoutPlayer(true);
+    }
 
     /// - If have unclosed socket, close it
-    if (m_Socket)
+    if (!m_playerReloaded && m_Socket)
     {
         m_Socket->CloseSocket();
         m_Socket = nullptr;
@@ -283,7 +286,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     uint32 processedPackets = 0;
     time_t currentTime = GameTime::GetGameTime();
 
-    while (m_Socket && _recvQueue.next(packet, updater))
+    while (m_Socket && m_Socket->IsOpen() && _recvQueue.next(packet, updater))
     {
         ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
         try
@@ -406,8 +409,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     if (updater.ProcessLogout())
     {
         ///- If necessary, log the player out
-        if (ShouldLogOut(currentTime) && !m_playerLoading)
-            LogoutPlayer(true);
+        if (ShouldLogOut(currentTime))
+            return false;
 
         if (m_Socket && GetPlayer() && _warden)
             _warden->Update();
@@ -415,15 +418,16 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         ///- Cleanup socket pointer if need
         if (m_Socket && !m_Socket->IsOpen())
         {
+            if (!_logoutTime) // Lost connection so start the logout timer.
+                LogoutRequest(GameTime::GetGameTime());
+
             expireTime -= expireTime > diff ? diff : expireTime;
-            if (expireTime < diff || forceExit || !GetPlayer())
+            if (expireTime < diff || !GetPlayer())
             {
                 m_Socket = nullptr;
+                
             }
-        }
-
-        if (!m_Socket)
-            return false;                                       //Will remove this session from the world session map
+        }            
     }
 
     return true;
@@ -439,7 +443,7 @@ void WorldSession::LogoutPlayer(bool save)
     m_playerLogout = true;
     m_playerSave = save;
 
-    if (_player)
+    if (_player && m_playerDestroy)
     {
         if (ObjectGuid lguid = _player->GetLootGUID())
             DoLootRelease(lguid);
@@ -587,7 +591,6 @@ void WorldSession::KickPlayer()
     if (m_Socket)
     {
         m_Socket->CloseSocket();
-        forceExit = true;
     }
 }
 

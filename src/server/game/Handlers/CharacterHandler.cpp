@@ -679,17 +679,19 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 
 void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 {
-    if (PlayerLoading() || GetPlayer() != nullptr)
+    /*if (PlayerLoading() || GetPlayer() != nullptr)
     {
         TC_LOG_ERROR("network", "Player tries to login again, AccountId = %d", GetAccountId());
         KickPlayer();
         return;
-    }
+    }*/
 
     m_playerLoading = true;
     ObjectGuid playerGuid;
 
     recvData >> playerGuid;
+
+    m_playerGuid = playerGuid;
 
     if (!IsLegitCharacterForAccount(playerGuid))
     {
@@ -713,12 +715,17 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 {
     ObjectGuid playerGuid = holder->GetGuid();
 
-    Player* pCurrChar = new Player(this);
+    Player* pCurrChar;
+    if (_player)
+        pCurrChar = _player;
+    else 
+        pCurrChar = new Player(this);
+
      // for send server info and strings (config)
     ChatHandler chH = ChatHandler(pCurrChar->GetSession());
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
-    if (!pCurrChar->LoadFromDB(playerGuid, holder))
+    if (!m_playerReloaded && !pCurrChar->LoadFromDB(playerGuid, holder))
     {
         SetPlayer(nullptr);
         KickPlayer();                                       // disconnect client, player no set to session and it will not deleted or saved at kick
@@ -806,6 +813,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
                 chH.PSendSysMessage("%s", sWorld->GetNewCharString().c_str());
         }
     }
+
+    if (m_playerReloaded)
+        pCurrChar->GetMap()->RemovePlayerFromMap(pCurrChar, false);
 
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar))
     {
@@ -995,6 +1005,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     TC_METRIC_EVENT("player_events", "Login", pCurrChar->GetName());
 
+    m_playerReloaded = false;
     delete holder;
 }
 

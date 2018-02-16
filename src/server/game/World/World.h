@@ -575,6 +575,7 @@ class TC_GAME_API World
         void AddSession(WorldSession* s);
         void SendAutoBroadcast();
         bool RemoveSession(uint32 id);
+		void AddOldSession(WorldSession * ws);
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();
         SessionMap const& GetAllSessions() const { return m_sessions; }
@@ -804,6 +805,7 @@ class TC_GAME_API World
         time_t mail_timer_expires;
 
         SessionMap m_sessions;
+        SessionMap m_oldSessions;
         typedef std::unordered_map<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;
         uint32 m_maxActiveSessionCount;

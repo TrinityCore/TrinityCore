@@ -330,7 +330,7 @@ class TC_GAME_API WorldSession
         /// Is logout cooldown expired?
         bool ShouldLogOut(time_t currTime) const
         {
-            return (_logoutTime > 0 && currTime >= _logoutTime + 20);
+            return (_logoutTime > 0 && currTime >= _logoutTime + 60);
         }
 
         void LogoutPlayer(bool save);
@@ -1055,6 +1055,10 @@ class TC_GAME_API WorldSession
         bool m_playerLogout;                                // code processed in LogoutPlayer
         bool m_playerRecentlyLogout;
         bool m_playerSave;
+        bool m_playerDestroy;
+        bool m_playerReloaded;
+        uint32 m_playerGuid;
+
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
         std::atomic<uint32> m_latency;
@@ -1068,7 +1072,6 @@ class TC_GAME_API WorldSession
         LockedQueue<WorldPacket*> _recvQueue;
         rbac::RBACData* _RBACData;
         uint32 expireTime;
-        bool forceExit;
         ObjectGuid m_currentBankerGUID;
 
         WorldSession(WorldSession const& right) = delete;

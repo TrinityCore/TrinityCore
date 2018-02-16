@@ -688,6 +688,12 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     return true;
 }
 
+void Player::SetSession(WorldSession* ws) {
+    m_session = ws;
+    if (PlayerTalkClass)
+        PlayerTalkClass->SetSession(ws);
+};
+
 bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
 {
     TC_LOG_DEBUG("entities.player.items", "Player::StoreNewItemInBestSlots: Player '%s' (%s) creates initial item (ItemID: %u, Count: %u)",

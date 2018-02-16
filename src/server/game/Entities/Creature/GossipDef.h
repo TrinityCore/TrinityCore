@@ -287,6 +287,7 @@ class TC_GAME_API PlayerMenu
         void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const;
         void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool closeOnCancel) const;
 
+        void SetSession(WorldSession* ws) { _session = ws; };
     private:
         GossipMenu _gossipMenu;
         QuestMenu  _questMenu;

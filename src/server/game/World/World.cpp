@@ -265,21 +265,11 @@ WorldSession* World::FindSession(uint32 id) const
         return nullptr;
 }
 
-/// Remove a given session
-bool World::RemoveSession(uint32 id)
+void World::AddOldSession(WorldSession* ws)
 {
-    ///- Find the session, kick the user, but we can't delete session at this moment to prevent iterator invalidation
-    SessionMap::const_iterator itr = m_sessions.find(id);
-
-    if (itr != m_sessions.end() && itr->second)
-    {
-        if (itr->second->PlayerLoading())
-            return false;
-
-        itr->second->KickPlayer();
-    }
-
-    return true;
+    //ws->LogoutRequest(GameTime::GetGameTime());
+    m_oldSessions[ws->GetAccountId()] = ws;
+    m_sessions.erase(ws->GetAccountId());
 }
 
 void World::AddSession(WorldSession* s)
@@ -291,32 +281,24 @@ void World::AddSession_(WorldSession* s)
 {
     ASSERT(s);
 
-    //NOTE - Still there is race condition in WorldSession* being used in the Sockets
-
-    ///- kick already loaded player with same account (if any) and remove session
-    ///- if player is in loading and want to load again, return
-    if (!RemoveSession (s->GetAccountId()))
-    {
-        s->KickPlayer();
-        delete s;                                           // session not added yet in session list, so not listed in queue
-        return;
-    }
-
     // decrease session counts only at not reconnection case
     bool decrease_session = true;
 
-    // if session already exist, prepare to it deleting at next world update
-    // NOTE - KickPlayer() should be called on "old" in RemoveSession()
     {
         SessionMap::const_iterator old = m_sessions.find(s->GetAccountId());
 
         if (old != m_sessions.end())
         {
+            // Kick the 1st logged in account player
+            old->second->KickPlayer();
+            
             // prevent decrease sessions count if session queued
             if (RemoveQueuedPlayer(old->second))
                 decrease_session = false;
-            // not remove replaced session form queue if listed
-            delete old->second;
+
+            // If 1st session is in world add to old sessions.
+            if (old->second->_player && old->second->_player->IsInWorld())
+                AddOldSession(old->second);
         }
     }
 
@@ -2948,10 +2930,35 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
 
 void World::UpdateSessions(uint32 diff)
 {
+
     ///- Add new sessions
     WorldSession* sess = nullptr;
     while (addSessQueue.next(sess))
-        AddSession_ (sess);
+        AddSession_(sess);
+
+    for (SessionMap::iterator itr = m_oldSessions.begin(), next; itr != m_oldSessions.end(); itr = next)
+    {
+        next = itr;
+        ++next;
+
+        WorldSession* pSession = itr->second;
+        WorldSessionFilter updater(pSession);
+        WorldSession* newSession = m_sessions[pSession->GetAccountId()];
+        bool loginSameCharacter = newSession && newSession->m_playerGuid == pSession->m_playerGuid;
+        if (!pSession->Update(diff, updater) || loginSameCharacter)
+        {
+            m_disconnects[pSession->GetAccountId()] = GameTime::GetGameTime();
+            if (loginSameCharacter)
+            {
+                pSession->m_playerDestroy = false;
+                newSession->SetPlayer(pSession->_player);
+                newSession->_player->SetSession(newSession);
+                newSession->m_playerReloaded = true;
+            }
+            m_oldSessions.erase(itr);
+            delete pSession;
+        }
+    }
 
     ///- Then send an update signal to remaining ones
     for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)
@@ -2970,7 +2977,6 @@ void World::UpdateSessions(uint32 diff)
             RemoveQueuedPlayer(pSession);
             m_sessions.erase(itr);
             delete pSession;
-
         }
     }
 }
