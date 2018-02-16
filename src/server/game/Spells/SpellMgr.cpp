@@ -3047,6 +3047,11 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({
         379,   // Earth Shield
         33778, // Lifebloom Final Bloom
+
+        52042, // Healing Stream Totem
+        // this one is here because we have no SP bonus for dmgclass none spell
+        // but this one should since it's DBC data, it won't crit because it already has can't crit attr
+
         64844, // Divine Hymn
         71607, // Item - Bauble of True Blood 10m
         71646, // Item - Bauble of True Blood 25m
