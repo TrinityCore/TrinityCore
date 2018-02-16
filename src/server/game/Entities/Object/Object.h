@@ -274,6 +274,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void MovePosition(Position &pos, float dist, float angle);
         Position GetNearPosition(float dist, float angle);
         void MovePositionToFirstCollision(Position &pos, float dist, float angle);
+        bool ComputeCollisionPosition(Position const& startPosition, Position const& endPosition, float& x, float& y, float& z) const;
         Position GetFirstCollisionPosition(float dist, float angle);
         Position GetRandomNearPosition(float radius);
         void GetContactPoint(WorldObject const* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const;
@@ -492,6 +493,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool CanDetect(WorldObject const* obj, bool ignoreStealth, bool checkAlert = false) const;
         bool CanDetectInvisibilityOf(WorldObject const* obj) const;
         bool CanDetectStealthOf(WorldObject const* obj, bool checkAlert = false) const;
+        float SelectBestZForDestination(float x, float y, float z, bool excludeCollisionHeight) const;
 };
 
 namespace Trinity
