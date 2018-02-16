@@ -441,8 +441,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 -- Gossip Menu GM options added to DB, the regular ones were already there... Please review....
 DELETE FROM `gossip_menu_option` WHERE `MenuID`=@GOSSIP_MENU AND `OptionID` IN (4, 5, 6, 7, 8);
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
-(@GOSSIP_MENU,'4','0','[GM] Start Grand Champions encounter, unskipped roleplaying','0','1','1','0','0','0','0','','0','0'),
-(@GOSSIP_MENU,'5','0','[GM] Start Grand Champions encounter, skipped roleplaying','0','1','1','0','0','0','0','','0','0'),
-(@GOSSIP_MENU,'6','0','[GM] Start Eadric the Pure encounter','0','1','1','0','0','0','0','','0','0'),
-(@GOSSIP_MENU,'7','0','[GM] Start Argent Confessor Paletress encounter','0','1','1','0','0','0','0','','0','0'),
-(@GOSSIP_MENU,'8','0','[GM] Start The Black Knight encounter','0','1','1','0','0','0','0','','0','0');
+(@GOSSIP_MENU, 4, 0, '[GM] Start Grand Champions encounter, unskipped roleplaying', 0, 1, 1, 0, 0, 0, 0, '', 0, 0),
+(@GOSSIP_MENU, 5, 0, '[GM] Start Grand Champions encounter, skipped roleplaying', 0, 1, 1, 0, 0, 0, 0, '', 0, 0),
+(@GOSSIP_MENU, 6, 0, '[GM] Start Eadric the Pure encounter', 0, 1, 1, 0, 0, 0, 0, '', 0, 0),
+(@GOSSIP_MENU, 7, 0, '[GM] Start Argent Confessor Paletress encounter', 0, 1, 1, 0, 0, 0, 0, '', 0, 0),
+(@GOSSIP_MENU, 8, 0, '[GM] Start The Black Knight encounter', 0, 1, 1, 0, 0, 0, 0, '', 0, 0);

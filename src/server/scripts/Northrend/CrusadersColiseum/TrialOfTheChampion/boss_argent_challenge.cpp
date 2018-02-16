@@ -341,7 +341,7 @@ public:
                     me->RestoreFaction();
                     DoCastAOE(SPELL_EADRIC_ACH, true);
                     DoCastAOE(SPELL_EADRIC_FACEROLLER, true);
-
+                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_EADRIC_ACH, 0, me);
                     _JustDied();
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
