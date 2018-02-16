@@ -397,17 +397,6 @@ public:
             argent_challenge_baseAI::OnReset();
         }
 
-        void DoAction(int32 /*action*/) override
-        {
-            /*if (action != ACTION_MEMORY_DEATH)
-                return;
-
-            me->InterruptNonMeleeSpells(true);
-            Talk(SAY_MEMORY_DEATH);
-            me->GetMotionMaster()->Clear();
-            me->RemoveAura(SPELL_SHIELD);*/
-        }
-
         void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override {
             me->InterruptNonMeleeSpells(true);
             Talk(SAY_MEMORY_DEATH);
@@ -889,13 +878,6 @@ public:
             Initialize();
         }
 
-        /*void JustDied(Unit* /*killer*//*) override
-        {
-            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                summoner->GetAI()->DoAction(ACTION_MEMORY_DEATH);
-
-            me->DespawnOrUnsummon();
-        }*/
 
         void JustEngagedWith(Unit* /*who*/) override
         {
