@@ -46,8 +46,8 @@ namespace WorldPackets
         {
             CharacterCreateInfo() { }
             CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face,
-                uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId) : Name(name), Race(race), Class(cclass), Sex(gender), Skin(skin),Face(face),
-                                                                                      HairStyle(hairStyle), HairColor(hairColor), FacialHairStyle(facialHair), OutfitId(outfitId) { }
+                uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId) : Race(race), Class(cclass), Sex(gender), Skin(skin),Face(face),
+                                                                                      HairStyle(hairStyle), HairColor(hairColor), FacialHairStyle(facialHair), OutfitId(outfitId), Name(name){ }
 
             /// User specified variables
             uint8 Race            = RACE_NONE;
