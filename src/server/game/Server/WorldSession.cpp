@@ -1493,9 +1493,9 @@ void WorldSession::LoadRecoveries()
         WorldLocation loc;
 
         if (newChar.GetTeamId() == TEAM_ALLIANCE)
-            loc.WorldRelocate(1116, 2303.92f, 455.56f, 6.85f, 2.383643f);
+            loc.WorldRelocate(0, -8837.51f, 617.54f, 93.5f, 0.696735f);
         else
-            loc.WorldRelocate(1116, 5533.83f, 5016.83f, 12.69f, 5.122329f);
+            loc.WorldRelocate(1, 1569.96f, -4397.41f, 16.05f, 0.543025f);
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         Player::SavePositionInDB(loc, 0, newChar.GetGUID(), trans);
