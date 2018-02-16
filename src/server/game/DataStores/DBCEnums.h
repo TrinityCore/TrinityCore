@@ -796,6 +796,26 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_NONE             = 40
 };
 
+enum ItemContext : uint8
+{
+    None            = 0,
+
+    DungeonNormal   = 1,
+    DungeonHeroic   = 2,
+    DungeonMythic   = 23,
+
+    RaidLfr         = 4,
+    RaidNormal      = 3,
+    RaidHeroic      = 5,
+    RaidMythic      = 6,
+
+    ScenarioNormal  = 9,
+    ScenarioHeroic  = 10,
+
+    Event           = 9,
+    TimeWalker      = 22,
+};
+
 enum MapDifficultyFlags : uint8
 {
     MAP_DIFFICULTY_FLAG_CANNOT_EXTEND   = 0x10
