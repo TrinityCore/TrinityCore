@@ -55,26 +55,36 @@ public:
         CONVERSATION_KHADGAR_BLINK_OF_EYE   = 3827,
     };
 
+    void OnLogin(Player* player, bool firstLogin)
+    {
+        // Can happen in recovery cases
+        if (player->getLevel() >= 100 && firstLogin)
+            HandleLegionArrival(player);
+    }
+
     void OnLevelChanged(Player* player, uint8 oldLevel) override
     {
         if (oldLevel < 100 && player->getLevel() >= 100)
+            HandleLegionArrival(player);
+    }
+
+    void HandleLegionArrival(Player* player)
+    {
+        if (player->getClass() == CLASS_MAGE)
+            player->CastSpell(player, SPELL_MAGE_LEARN_GUARDIAN_HALL_TP, true);
+        else if (player->getClass() == CLASS_WARRIOR)
+            player->CastSpell(player, SPELL_WAR_LEARN_JUMP_TO_SKYHOLD, true);
+        else if (player->getClass() == CLASS_DRUID)
+            player->CastSpell(player, SPELL_DRUID_CLASS_HALL_TP, true);
+
+        player->CastSpell(player, player->IsInAlliance() ? SPELL_CREATE_CLASS_HALL_ALLIANCE : SPELL_CREATE_CLASS_HALL_HORDE, true);
+
+        if (player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_NONE)
         {
-            if (player->getClass() == CLASS_MAGE)
-                player->CastSpell(player, SPELL_MAGE_LEARN_GUARDIAN_HALL_TP, true);
-            else if (player->getClass() == CLASS_WARRIOR)
-                player->CastSpell(player, SPELL_WAR_LEARN_JUMP_TO_SKYHOLD, true);
-            else if (player->getClass() == CLASS_DRUID)
-                player->CastSpell(player, SPELL_DRUID_CLASS_HALL_TP, true);
+            Conversation::CreateConversation(CONVERSATION_KHADGAR_BLINK_OF_EYE, player, player->GetPosition(), { player->GetGUID() });
 
-            player->CastSpell(player, player->IsInAlliance() ? SPELL_CREATE_CLASS_HALL_ALLIANCE : SPELL_CREATE_CLASS_HALL_HORDE, true);
-
-            if (player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_NONE)
-            {
-                Conversation::CreateConversation(CONVERSATION_KHADGAR_BLINK_OF_EYE, player, player->GetPosition(), { player->GetGUID() });
-
-                if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_BLINK_OF_AN_EYE))
-                    player->AddQuest(quest, nullptr);
-            }
+            if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_BLINK_OF_AN_EYE))
+                player->AddQuest(quest, nullptr);
         }
     }
 };
