@@ -1,4 +1,4 @@
-﻿-- Trial of the Champion (originated from Appled). Thanks to Aokromes for providing sniffs
+﻿-- Trial of the Champion (Originated from Appled). Thanks to Aokromes for providing sniffs
 
 -- General:
 
