@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss Black Knight
-SD%Complete: 100%
-SDComment:
-SDCategory: Trial of the Champion
-EndScriptData */
-
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"

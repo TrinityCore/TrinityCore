@@ -294,4 +294,4 @@ AI* GetTrialOfChampionAI(Creature* creature)
     return GetInstanceAI<AI>(creature, ToCScriptName);
 }
 
-#endif // TRIAL_OF_CHAMPION_H_
+#endif

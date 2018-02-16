@@ -15,12 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance Trial of the Champion
-SDComment: missing fireworks when boss encounter is set to done
-SDCategory: Trial Of the Champion
-EndScriptData */
-
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Player.h"

@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_grand_champions
-SD%Complete: 99%
-SDComment: Cosmetic things missing
-SDCategory: Trial Of the Champion
-EndScriptData */
-
 #include "GridNotifiers.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
