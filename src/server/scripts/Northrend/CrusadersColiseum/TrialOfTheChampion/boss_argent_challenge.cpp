@@ -1180,7 +1180,7 @@ class spell_paletress_reflective_shield : public SpellScriptLoader
                 if (dmgInfo.GetAttacker() == GetTarget())
                     return;
 
-                int32 bp = CalculatePct(absorbAmount, GetSpellInfo()->Effects[EFFECT_2].CalcValue());
+                //int32 bp = CalculatePct(absorbAmount, GetSpellInfo()->Effects[EFFECT_2].CalcValue()); - Unused until i figure out how to fix the reflect damage
                 GetTarget()->CastSpell(dmgInfo.GetAttacker(), SPELL_SHIELD_REFLECT, true);
             }
 
