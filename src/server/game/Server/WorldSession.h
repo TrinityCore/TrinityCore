@@ -1752,6 +1752,8 @@ class TC_GAME_API WorldSession
         };
 
         uint64 GetConnectToInstanceKey() const { return _instanceConnectKey.Raw; }
+
+        void LoadRecoveries();
     private:
         void ProcessQueryCallbacks();
 
