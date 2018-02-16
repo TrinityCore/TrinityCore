@@ -1393,7 +1393,7 @@ WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _polic
 }
 
 
-struct itemRecovery
+struct ItemRecovery
 {
     uint32 itemId;
     uint32 context;
