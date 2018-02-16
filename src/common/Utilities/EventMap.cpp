@@ -95,7 +95,7 @@ void EventMap::DelayEvents(uint32 delay, uint16 group)
 
     for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
     {
-        if (itr->second & (1 << (group + 31)))
+        if (itr->second & (1ULL << (group + 31)))
         {
             delayed.insert(EventStore::value_type(itr->first + delay, itr->second));
             _eventMap.erase(itr++);
@@ -128,7 +128,7 @@ void EventMap::CancelEventGroup(uint16 group)
 
     for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
     {
-        if (itr->second & (1 << (group + 31)))
+        if (itr->second & (1ULL << (group + 31)))
             _eventMap.erase(itr++);
         else
             ++itr;
