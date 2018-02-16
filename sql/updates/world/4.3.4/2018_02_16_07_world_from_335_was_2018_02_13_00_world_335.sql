@@ -1,3 +1,4 @@
+/*
 -- Remove unique items from reference table 24064
 DELETE FROM `reference_loot_template` WHERE `Entry`=24064 AND `Item` IN (911, 920, 1076, 1406, 1455, 1459, 1461, 1462, 2034, 2232, 3429);
 
@@ -24,3 +25,4 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `GroupId`, `Com
 (205,  2232, 0.1, 0, "Nightbane Dark Runner - Dark Runner Boots"),
 (2427, 3429, 1,   0, "Jailor Eston - Guardsman Belt"),
 (2428, 3429, 1,   0, "Jailor Marlgen - Guardsman Belt");
+*/
