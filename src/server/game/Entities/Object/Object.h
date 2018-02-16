@@ -393,12 +393,6 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
-enum GOSummonType
-{
-   GO_SUMMON_TIMED_OR_CORPSE_DESPAWN = 0,    // despawns after a specified time OR when the summoner dies
-   GO_SUMMON_TIMED_DESPAWN = 1     // despawns after a specified time
-};
-
 class TC_GAME_API WorldObject : public Object, public WorldLocation
 {
     protected:
