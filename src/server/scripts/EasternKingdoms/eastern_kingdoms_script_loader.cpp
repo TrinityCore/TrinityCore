@@ -70,6 +70,7 @@ void AddSC_instance_blackwing_lair();
 void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
 void AddSC_boss_glubtok();
+void AddSC_boss_helix_gearbreaker();
 void AddSC_gilneas_c1();                     //Gilneas
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
@@ -272,6 +273,7 @@ void AddEasternKingdomsScripts()
     AddSC_deadmines();                      //Deadmines
     AddSC_instance_deadmines();
     AddSC_boss_glubtok();
+    AddSC_boss_helix_gearbreaker();
     AddSC_gilneas_c1();                     //Gilneas
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();

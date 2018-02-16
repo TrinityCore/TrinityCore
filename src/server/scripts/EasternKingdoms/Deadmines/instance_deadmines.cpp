@@ -24,8 +24,10 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_GLUBTOK,     DATA_GLUBTOK    },
-    { 0,                0               }, // END
+    { BOSS_GLUBTOK,             DATA_GLUBTOK            },
+    { BOSS_HELIX_GEARBREAKER,   DATA_HELIX_GEARBREAKER  },
+    { NPC_LUMBERING_OAF,        DATA_LUMBERING_OAF      },
+    { 0,                        0                       }, // END
 };
 
 ObjectData const gameobjectData[] =
@@ -35,8 +37,10 @@ ObjectData const gameobjectData[] =
 
 DoorData const doorData[] =
 {
-    { GO_FACTORY_DOOR,      DATA_GLUBTOK,       DOOR_TYPE_PASSAGE   },
-    { 0,                    0,                  DOOR_TYPE_ROOM      }, // END
+    { GO_FACTORY_DOOR,      DATA_GLUBTOK,           DOOR_TYPE_PASSAGE   },
+    { GO_MAST_ROOM_DOOR,    DATA_HELIX_GEARBREAKER, DOOR_TYPE_PASSAGE   },
+    { GO_HEAVY_DOOR,        DATA_HELIX_GEARBREAKER, DOOR_TYPE_ROOM      },
+    { 0,                    0,                      DOOR_TYPE_ROOM      }, // END
 };
 
 class instance_deadmines : public InstanceMapScript
@@ -94,6 +98,14 @@ class instance_deadmines : public InstanceMapScript
                         if (Creature* glubtok = GetCreature(DATA_GLUBTOK))
                             glubtok->AI()->JustSummoned(creature);
                         break;
+                    case NPC_STICKY_BOMB:
+                        if (Creature* helix = GetCreature(DATA_HELIX_GEARBREAKER))
+                            helix->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_LUMBERING_OAF:
+                        if (creature->isDead() && GetBossState(DATA_HELIX_GEARBREAKER) != DONE)
+                            creature->Respawn();
+                        break;
                     default:
                         break;
                 }
@@ -135,7 +147,6 @@ class instance_deadmines : public InstanceMapScript
 
         protected:
             uint32 _teamInInstance;
-            GuidSet _arcaneBeamBunnyGUIDList;
         };
 
 

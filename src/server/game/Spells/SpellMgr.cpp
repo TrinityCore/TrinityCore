@@ -4144,6 +4144,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
     });
 
+    // Helix Gearbreaker 88295
+    // Fists of Frost
+    ApplySpellFix({ 88295 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
+    });
+
     // END OF DEADMINES SPELLS
 
     //

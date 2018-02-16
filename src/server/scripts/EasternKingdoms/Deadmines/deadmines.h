@@ -27,7 +27,7 @@ enum DMDataTypes
 {
     // Encounters
     DATA_GLUBTOK            = 0,
-    DATA_HELUX_GEARBREAKER  = 1,
+    DATA_HELIX_GEARBREAKER  = 1,
     DATA_FOE_REAPER_5000    = 2,
     DATA_ADMIRAL_RIPSNARL   = 3,
     DATA_CAPTAIN_COOKIE     = 4,
@@ -35,12 +35,14 @@ enum DMDataTypes
 
     DATA_TEAM_IN_INSTANCE   = 6,
     DATA_FIREWALL_PLATTER   = 7,
+    DATA_LUMBERING_OAF      = 8
 };
 
 enum DMCreatures
 {
     // Bosses
     BOSS_GLUBTOK                    = 47162,
+    BOSS_HELIX_GEARBREAKER          = 47296,
 
     // Horde Creatures
     NPC_SLINKY_SHARPSHIV            = 46906,
@@ -68,6 +70,9 @@ enum DMCreatures
     NPC_GENERAL_PURPOSE_BUNNY_L2    = 47242,
     NPC_FIRE_BLOSSOM_BUNNY          = 47282,
     NPC_FROST_BLOSSOM_BUNNY         = 47284,
+    NPC_LUMBERING_OAF               = 47297,
+    NPC_HELIX_CREW                  = 49139,
+    NPC_STICKY_BOMB                 = 47314
 };
 
 enum DMGameObjects
@@ -76,7 +81,8 @@ enum DMGameObjects
     GO_IRONCLAD_DOOR    = 16397,
     GO_DEFIAS_CANNON    = 16398,
     GO_DOOR_LEVER       = 101833,
-    GO_MR_SMITE_CHEST   = 144111
+    GO_MAST_ROOM_DOOR   = 16400,
+    GO_HEAVY_DOOR       = 17153
 };
 
 
