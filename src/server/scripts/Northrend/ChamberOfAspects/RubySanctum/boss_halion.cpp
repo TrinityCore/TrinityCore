@@ -319,10 +319,13 @@ class boss_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_TWO))
                     return;
 
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -921,13 +924,6 @@ class npc_orb_carrier : public CreatureScript
                     me->CastSpell(nullptr, SPELL_TRACK_ROTATION, false);
 
                 scheduler.Update(diff);
-
-                /// Workaround: This is here because even though the above spell has SPELL_ATTR1_CHANNEL_TRACK_TARGET,
-                /// we are having two creatures involded here. This attribute is handled clientside, meaning the client
-                /// sends orientation update itself. Here, no packet is sent, and the creature does not rotate. By
-                /// forcing the carrier to always be facing the rotation focus, we ensure everything works as it should.
-                if (Creature* rotationFocus = _instance->GetCreature(DATA_ORB_ROTATION_FOCUS))
-                    me->SetFacingToObject(rotationFocus); // setInFront
             }
 
             void DoAction(int32 action) override

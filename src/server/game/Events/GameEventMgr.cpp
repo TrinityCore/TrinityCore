@@ -952,7 +952,6 @@ void GameEventMgr::LoadHolidayDates()
 
     //                                               0   1         2
     QueryResult result = WorldDatabase.Query("SELECT id, date_id, date_value FROM holiday_dates");
-
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 holiday dates. DB table `holiday_dates` is empty.");
@@ -977,7 +976,10 @@ void GameEventMgr::LoadHolidayDates()
             continue;
         }
         entry->Date[dateId] = fields[2].GetUInt32();
-        modifiedHolidays.insert(entry->Id);
+
+        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->Id);
+        if (itr == modifiedHolidays.end() || *itr != entry->Id)
+            modifiedHolidays.insert(itr, entry->Id);
         ++count;
 
     } while (result->NextRow());
@@ -1729,7 +1731,6 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
         return;
 
     HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
-
     if (!holiday->Date[0] || !holiday->Duration[0]) // Invalid definitions
     {
         TC_LOG_ERROR("sql.sql", "Missing date or duration for holiday %u.", event.holiday_id);
@@ -1740,7 +1741,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     event.length = holiday->Duration[stageIndex] * HOUR / MINUTE;
 
     time_t stageOffset = 0;
-    for (int i = 0; i < stageIndex; ++i)
+    for (uint8 i = 0; i < stageIndex; ++i)
         stageOffset += holiday->Duration[i] * HOUR;
 
     switch (holiday->CalendarFilterType)
@@ -1760,20 +1761,23 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     if (holiday->Looping)
     {
         event.occurence = 0;
-        for (int i = 0; i < MAX_HOLIDAY_DURATIONS && holiday->Duration[i]; ++i)
+        for (uint8 i = 0; i < MAX_HOLIDAY_DURATIONS && holiday->Duration[i]; ++i)
             event.occurence += holiday->Duration[i] * HOUR / MINUTE;
     }
 
     bool singleDate = ((holiday->Date[0] >> 24) & 0x1F) == 31; // Events with fixed date within year have - 1
 
     time_t curTime = GameTime::GetGameTime();
-    for (int i = 0; i < MAX_HOLIDAY_DATES && holiday->Date[i]; ++i)
+    for (uint8 i = 0; i < MAX_HOLIDAY_DATES && holiday->Date[i]; ++i)
     {
         uint32 date = holiday->Date[i];
 
         tm timeInfo;
         if (singleDate)
-            timeInfo.tm_year = localtime(&curTime)->tm_year - 1; // First try last year (event active through New Year)
+        {
+            localtime_r(&curTime, &timeInfo);
+            timeInfo.tm_year -= 1; // First try last year (event active through New Year)
+        }
         else
             timeInfo.tm_year = ((date >> 24) & 0x1F) + 100;
 
@@ -1785,22 +1789,31 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
         timeInfo.tm_wday = 0;
         timeInfo.tm_yday = 0;
         timeInfo.tm_isdst = -1;
-        tm tmCopy = timeInfo;
 
+        // try to get next start time (skip past dates)
         time_t startTime = mktime(&timeInfo);
         if (curTime < startTime + event.length * MINUTE)
         {
             event.start = startTime + stageOffset;
-            return;
+            break;
         }
         else if (singleDate)
         {
-            tmCopy.tm_year = localtime(&curTime)->tm_year; // This year
+            tm tmCopy;
+            localtime_r(&curTime, &tmCopy);
+            int year = tmCopy.tm_year; // This year
+            tmCopy = timeInfo;
+            tmCopy.tm_year = year;
+
             event.start = mktime(&tmCopy) + stageOffset;
-            return;
+            break;
+        }
+        else
+        {
+            // date is due and not a singleDate event, try with next DBC date (modified by holiday_dates)
+            // if none is found we don't modify start date and use the one in game_event
         }
     }
-    TC_LOG_ERROR("sql.sql", "No suitable start date found for holiday %u.", event.holiday_id);
 }
 
 bool IsHolidayActive(HolidayIds id)
