@@ -36,6 +36,9 @@
 #include <map>
 #include <unordered_map>
 
+#include <memory>
+class CreatureOutfit;
+
 class Item;
 class Unit;
 class Vehicle;
@@ -168,30 +171,6 @@ struct GameTele
 };
 
 typedef std::unordered_map<uint32, GameTele > GameTeleContainer;
-
-struct CreatureOutfit
-{
-    // Remember to change DB query too!
-    static constexpr uint32 max_outfit_displays = 11;
-    static constexpr uint32 max_custom_displays = 3;
-
-    uint8 race;
-    uint8 Class;
-    uint8 gender;
-    uint8 face;
-    uint8 skin;
-    uint8 hair;
-    uint8 facialhair;
-    uint8 haircolor;
-    uint8 customdisplay[max_custom_displays];
-    uint64 guild;
-    uint32 npcsoundsid;
-
-    uint32 displayId;
-    uint32 outfit[max_outfit_displays];
-};
-
-typedef std::unordered_map<uint32, CreatureOutfit> CreatureOutfitContainer;
 
 enum ScriptsType
 {
@@ -961,6 +940,8 @@ class TC_GAME_API ObjectMgr
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
 
+        typedef std::unordered_map<uint32, std::shared_ptr<CreatureOutfit>> CreatureOutfitContainer;
+
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry) const;
         GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
         int LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *skip_vendors);
@@ -972,7 +953,7 @@ class TC_GAME_API ObjectMgr
         CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId) const;
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID) const;
-        static int32 ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data = nullptr);
+        static uint32 ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data = nullptr);
         static void ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64& npcFlags, uint32& unitFlags, uint32& unitFlags2, uint32& unitFlags3, uint32& dynamicFlags, CreatureData const* data = nullptr);
         EquipmentInfo const* GetEquipmentInfo(uint32 entry, int8& id) const;
         CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType lowguid) const;
@@ -981,7 +962,6 @@ class TC_GAME_API ObjectMgr
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry) const;
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
-        uint32 GetCreatureDisplay(int32 modelid) const;
 
         InstanceTemplate const* GetInstanceTemplate(uint32 mapId) const;
 
@@ -1256,7 +1236,6 @@ class TC_GAME_API ObjectMgr
 
         void LoadNPCSpellClickSpells();
 
-        void LoadCreatureOutfits();
         void LoadGameTele();
 
         void LoadGossipMenu();
@@ -1486,6 +1465,9 @@ class TC_GAME_API ObjectMgr
         bool DeleteGameTele(std::string const& name);
 
         const CreatureOutfitContainer& GetCreatureOutfitMap() const { return _creatureOutfitStore; }
+        std::shared_ptr<CreatureOutfit> const & GetOutfit(uint32 modelid) const;
+        uint32 GetRealDisplayId(uint32 modelid) const;
+        void LoadCreatureOutfits();
 
         Trainer::Trainer const* GetTrainer(uint32 trainerId) const;
         uint32 GetCreatureDefaultTrainer(uint32 creatureId) const;

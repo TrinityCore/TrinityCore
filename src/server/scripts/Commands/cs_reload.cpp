@@ -31,6 +31,7 @@ EndScriptData */
 #include "Chat.h"
 #include "ConversationDataStore.h"
 #include "Creature.h"
+#include "CreatureOutfit.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
@@ -471,10 +472,12 @@ public:
         {
             for (auto e : map->GetCreatureBySpawnIdStore())
             {
-                if (e.second->IsMirrorImage())
-                    new MirrorImageUpdate(e.second);
+                auto const & outfit = e.second->GetOutfit();
+                if (outfit && outfit->GetId())
+                    e.second->SetDisplayId(outfit->GetId());
             }
         });
+
         handler->SendGlobalGMSysMessage("DB table `creature_template_outfits` reloaded.");
         return true;
     }

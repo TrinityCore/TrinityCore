@@ -95,10 +95,14 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
             stats.ProxyCreatureID[i] = creatureInfo->KillCredit[i];
 
-        stats.CreatureDisplayID[0] = sObjectMgr->GetCreatureDisplay(creatureInfo->Modelid1);
-        stats.CreatureDisplayID[1] = sObjectMgr->GetCreatureDisplay(creatureInfo->Modelid2);
-        stats.CreatureDisplayID[2] = sObjectMgr->GetCreatureDisplay(creatureInfo->Modelid3);
-        stats.CreatureDisplayID[3] = sObjectMgr->GetCreatureDisplay(creatureInfo->Modelid4);
+        // stats.CreatureDisplayID[0] = sObjectMgr->GetRealDisplayId(creatureInfo->Modelid1);
+        // stats.CreatureDisplayID[1] = sObjectMgr->GetRealDisplayId(creatureInfo->Modelid2);
+        // stats.CreatureDisplayID[2] = sObjectMgr->GetRealDisplayId(creatureInfo->Modelid3);
+        // stats.CreatureDisplayID[3] = sObjectMgr->GetRealDisplayId(creatureInfo->Modelid4);
+        stats.CreatureDisplayID[0] = creatureInfo->Modelid1;
+        stats.CreatureDisplayID[1] = creatureInfo->Modelid2;
+        stats.CreatureDisplayID[2] = creatureInfo->Modelid3;
+        stats.CreatureDisplayID[3] = creatureInfo->Modelid4;
 
         stats.HpMulti = creatureInfo->ModHealth;
         stats.EnergyMulti = creatureInfo->ModMana;
