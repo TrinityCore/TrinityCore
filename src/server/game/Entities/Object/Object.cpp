@@ -1487,7 +1487,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             else
             {
                 float ground_z = GetMapHeight(x, y, z);
-                if (z < ground_z)
+                if (std::fabs(z - ground_z) < GetCollisionHeight())
                     z = ground_z;
             }
             break;
@@ -1510,7 +1510,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             else
             {
                 float ground_z = GetMapHeight(x, y, z);
-                if (z < ground_z)
+                if (std::fabs(z - ground_z) < GetCollisionHeight())
                     z = ground_z;
             }
             break;
@@ -2035,7 +2035,7 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
     return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime);
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime)
+GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime, GOSummonType summonType)
 {
     if (!IsInWorld())
         return nullptr;
@@ -2056,7 +2056,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     }
 
     go->SetRespawnTime(respawnTime);
-    if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
+    if (GetTypeId() == TYPEID_PLAYER || (GetTypeId() == TYPEID_UNIT && summonType == GO_SUMMON_TIMED_OR_CORPSE_DESPAWN)) //not sure how to handle this
         ToUnit()->AddGameObject(go);
     else
         go->SetSpawnedByDefault(false);
@@ -2305,13 +2305,95 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     pos.SetOrientation(GetOrientation());
 }
 
+// Only call this function when you already checked for collision with vmap/gameobject.
+// You should check for collision again after this one has been called.
+// excludeCollisionHeight should only be true if you had collision, it wont add it to raycasts for dest position.
+float WorldObject::SelectBestZForDestination(float x, float y, float z, bool excludeCollisionHeight) const
+{
+    if (Unit const* unit = ToUnit())
+    {
+        float const ground = GetFloorZ();
+        bool const isInAir = (G3D::fuzzyGt(unit->GetPositionZMinusOffset(), ground + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(unit->GetPositionZMinusOffset(), ground - GROUND_HEIGHT_TOLERANCE));
+        if (unit->IsFlying() && isInAir)
+            return z;
+    }
+
+    float myX, myY, myZ;
+    GetPosition(myX, myY, myZ);
+
+    float const myCollisionHeight = GetCollisionHeight();
+    float const destCollisionHeight = excludeCollisionHeight ? 0.0f : myCollisionHeight;
+
+    float const myGridHeight = GetMap()->GetGridMapHeight(myX, myY);
+    float const myVmapFloor = std::max(GetMap()->GetVMapFloor(myX, myY, myZ, 150.0f, myCollisionHeight),
+        GetMap()->GetGameObjectFloor(GetPhaseMask(), myX, myY, myZ, 150.0f, myCollisionHeight));
+
+    // which of these 3 do I want ?
+    float const destGridHeight = GetMap()->GetGridMapHeight(x, y);
+    float const destCeil = GetMap()->GetCeil(GetPhaseMask(), x, y, z, 150.0f, destCollisionHeight);
+    float const destVmapFloor = std::max(GetMap()->GetVMapFloor(x, y, z, 150.0f, destCollisionHeight),
+        GetMap()->GetGameObjectFloor(GetPhaseMask(), x, y, z, 150.0f, destCollisionHeight));
+
+    bool const hasVmapFloor = myVmapFloor > INVALID_HEIGHT;
+    bool const hasDestGridHeight = destGridHeight > INVALID_HEIGHT;
+    bool const hasDestVmapCeil = destCeil < VMAP_INVALID_CEIL && destCeil != destVmapFloor;
+    bool const hasDestVmapFloor = destVmapFloor > INVALID_HEIGHT;
+    bool const destBetweenVmaps = hasDestVmapCeil && hasDestVmapFloor;
+    bool const noVmap = !hasDestVmapFloor && !hasDestVmapCeil;
+
+    // It is possible that while moving, our feet are slightly moving under the ground. Jumping / reconnecting fixes this issue but we don't want to rely on that.
+    myZ += myCollisionHeight;
+    bool const isOnVmap = hasVmapFloor &&
+        ((myZ < myGridHeight && std::fabs(myVmapFloor - myZ) < std::fabs(myGridHeight - myZ)) ||
+        (myZ > myGridHeight && myVmapFloor > myGridHeight));
+
+    bool const hasToFollowGridHeight = hasDestGridHeight && (noVmap ||
+        (z > destGridHeight && destGridHeight > destVmapFloor) ||
+        (z < destGridHeight && hasDestVmapFloor && !hasDestVmapCeil) ||
+        (z < destGridHeight && !hasDestVmapFloor) ||
+        (destBetweenVmaps && !isOnVmap && destGridHeight > destVmapFloor && destGridHeight < destCeil));
+
+    float result = INVALID_HEIGHT;
+    if (hasToFollowGridHeight)
+    {
+        result = destGridHeight;
+        if (hasDestVmapFloor)
+            if (std::fabs(destVmapFloor - destGridHeight) < myCollisionHeight)
+                result = std::max(destVmapFloor, destGridHeight);
+
+        if (hasDestVmapCeil)
+            if (std::fabs(destCeil - destGridHeight) < myCollisionHeight)
+                result = std::max(destCeil, destGridHeight);
+    }
+    else if (hasDestVmapFloor)
+        result = destVmapFloor;
+    else if (hasDestVmapCeil)
+        result = destCeil;
+
+    if (Unit const* unit = ToUnit())
+        if (!unit->CanSwim())
+            return result;
+
+    LiquidData liquidData;
+    ZLiquidStatus const liquidStatus = GetMap()->GetLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquidData, destCollisionHeight);
+    switch (liquidStatus)
+    {
+        case LIQUID_MAP_ABOVE_WATER:
+            return std::max<float>(liquidData.level, result);
+        case LIQUID_MAP_IN_WATER:
+        case LIQUID_MAP_UNDER_WATER:
+            return std::max<float>(z, result);
+        default:
+            return result;
+    }
+}
+
 void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float angle)
 {
     angle += GetOrientation();
-    float destx, desty, destz;
-    destx = pos.m_positionX + dist * std::cos(angle);
-    desty = pos.m_positionY + dist * std::sin(angle);
-    destz = pos.m_positionZ;
+    float destx = pos.m_positionX + dist * std::cos(angle);
+    float desty = pos.m_positionY + dist * std::sin(angle);
+    float destz = pos.m_positionZ;
 
     // Prevent invalid coordinates here, position is unchanged
     if (!Trinity::IsValidMapCoord(destx, desty))
@@ -2320,52 +2402,72 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         return;
     }
 
-    UpdateAllowedPositionZ(destx, desty, destz);
-    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, destx, desty, destz, destx, desty, destz, -0.5f);
-
-    // collision occured
+    bool const col = ComputeCollisionPosition(pos, { destx, desty, destz }, destx, desty, destz);
     if (col)
-    {
-        // move back a bit
-        destx -= CONTACT_DISTANCE * std::cos(angle);
-        desty -= CONTACT_DISTANCE * std::sin(angle);
         dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
-    }
 
-    // check dynamic collision
-    col = GetMap()->getObjectHitPos(GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, destx, desty, destz, destx, desty, destz, -0.5f);
+    destz = SelectBestZForDestination(destx, desty, destz, col);
 
-    // Collided with a gameobject
-    if (col)
+    float const step = dist / 10.0f;
+    // do not allow too big z changes
+    for (uint8 j = 0; j < 10 && std::fabs(pos.m_positionZ - destz) > 6.0f; ++j)
     {
-        destx -= CONTACT_DISTANCE * std::cos(angle);
-        desty -= CONTACT_DISTANCE * std::sin(angle);
-        dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
+        destx -= step * std::cos(angle);
+        desty -= step * std::sin(angle);
+        // There should not be any collision between our position and destx, desty, pos.m_positionZ at this point.
+        // Use pos.m_positionZ here because destz was not good.
+        destz = SelectBestZForDestination(destx, desty, pos.m_positionZ, col);
     }
 
-    float step = dist / 10.0f;
-
-    for (uint8 j = 0; j < 10; ++j)
-    {
-        // do not allow too big z changes
-        if (std::fabs(pos.m_positionZ - destz) > 6.0f)
-        {
-            destx -= step * std::cos(angle);
-            desty -= step * std::sin(angle);
-            UpdateAllowedPositionZ(destx, desty, destz);
-        }
-        // we have correct destz now
-        else
-        {
-            pos.Relocate(destx, desty, destz);
-            break;
-        }
-    }
-
-    Trinity::NormalizeMapCoord(pos.m_positionX);
-    Trinity::NormalizeMapCoord(pos.m_positionY);
-    UpdateAllowedPositionZ(destx, desty, pos.m_positionZ);
+    Trinity::NormalizeMapCoord(destx);
+    Trinity::NormalizeMapCoord(desty);
+    // We might want to loop until there is no more collision with a better z position. (And/or until a fixed #attemps have been made).
+    ComputeCollisionPosition(pos, { destx, desty, destz }, destx, desty, destz);
+    pos.Relocate(destx, desty, destz);
     pos.SetOrientation(GetOrientation());
+}
+
+bool WorldObject::ComputeCollisionPosition(Position const& startPosition, Position const& endPosition, float& x, float& y, float& z) const
+{
+    Position vmapCollisionPos;
+    bool const vmapCollision = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), startPosition.m_positionX, startPosition.m_positionY, startPosition.m_positionZ + GetCollisionHeight(), endPosition.m_positionX, endPosition.m_positionY, endPosition.m_positionZ + GetCollisionHeight(), vmapCollisionPos.m_positionX, vmapCollisionPos.m_positionY, vmapCollisionPos.m_positionZ, -CONTACT_DISTANCE * 2.0f);
+    Position gameObjectCollisionPos;
+    bool const gameObjectCollision = GetMap()->getObjectHitPos(GetPhaseMask(), startPosition.m_positionX, startPosition.m_positionY, startPosition.m_positionZ + GetCollisionHeight(), endPosition.m_positionX, endPosition.m_positionY, endPosition.m_positionZ + GetCollisionHeight(), gameObjectCollisionPos.m_positionX, gameObjectCollisionPos.m_positionY, gameObjectCollisionPos.m_positionZ, -CONTACT_DISTANCE * 2.0f);
+
+    // Both collision occures, check which one is closest to start.
+    if (vmapCollision && gameObjectCollision)
+    {
+        if (startPosition.GetExactDist(vmapCollision) < startPosition.GetExactDist(gameObjectCollisionPos))
+        {
+            x = vmapCollisionPos.m_positionX;
+            y = vmapCollisionPos.m_positionY;
+            z = vmapCollisionPos.m_positionZ;
+            return true;
+        }
+
+        x = gameObjectCollisionPos.m_positionX;
+        y = gameObjectCollisionPos.m_positionY;
+        z = gameObjectCollisionPos.m_positionZ;
+        return true;
+    }
+
+    if (vmapCollision)
+    {
+        x = vmapCollisionPos.m_positionX;
+        y = vmapCollisionPos.m_positionY;
+        z = vmapCollisionPos.m_positionZ;
+        return true;
+    }
+
+    if (gameObjectCollision)
+    {
+        x = gameObjectCollisionPos.m_positionX;
+        y = gameObjectCollisionPos.m_positionY;
+        z = gameObjectCollisionPos.m_positionZ;
+        return true;
+    }
+
+    return false;
 }
 
 void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
@@ -2558,10 +2660,7 @@ float WorldObject::GetMapWaterOrGroundLevel(float x, float y, float z, float* gr
 
 float WorldObject::GetMapHeight(float x, float y, float z, bool vmap/* = true*/, float distanceToSearch/* = DEFAULT_HEIGHT_SEARCH*/) const
 {
-    if (z != MAX_HEIGHT)
-        z += GetCollisionHeight();
-
-    return GetMap()->GetHeight(GetPhaseMask(), x, y, z, vmap, distanceToSearch);
+    return GetMap()->GetHeight(GetPhaseMask(), x, y, z, vmap, distanceToSearch, GetCollisionHeight());
 }
 
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>&, uint32, float) const;
