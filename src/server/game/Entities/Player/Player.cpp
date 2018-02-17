@@ -29209,6 +29209,44 @@ void Player::ShowNeutralPlayerFactionSelectUI()
     GetSession()->SendPacket(packet.Write());
 }
 
+enum LegionProfessionSpells
+{
+    Alchemy         = 201697,
+    Blacksmithing   = 201699,
+    Enchanting      = 201698,
+    Engineering     = 201700,
+    Inscription     = 201703,
+    JewelCrafting   = 201704,
+    LeatherWorking  = 201705,
+    Tailoring       = 201708,
+    FirstAid        = 201701,
+    Cooking         = 201710,
+    Herbalism       = 201702,
+    Mining          = 201706,
+    Skinning        = 201707,
+    Archaeology     = 201709,
+    Fishing         = 210829
+};
+
+const std::map<uint32, uint32> skillLearningSpells =
+{
+    { SkillType::SKILL_ALCHEMY,         LegionProfessionSpells::Alchemy         },
+    { SkillType::SKILL_BLACKSMITHING,   LegionProfessionSpells::Blacksmithing   },
+    { SkillType::SKILL_ENCHANTING,      LegionProfessionSpells::Enchanting      },
+    { SkillType::SKILL_ENGINEERING,     LegionProfessionSpells::Engineering     },
+    { SkillType::SKILL_INSCRIPTION,     LegionProfessionSpells::Inscription     },
+    { SkillType::SKILL_JEWELCRAFTING,   LegionProfessionSpells::JewelCrafting   },
+    { SkillType::SKILL_LEATHERWORKING,  LegionProfessionSpells::LeatherWorking  },
+    { SkillType::SKILL_TAILORING,       LegionProfessionSpells::Tailoring       },
+    { SkillType::SKILL_FIRST_AID,       LegionProfessionSpells::FirstAid        },
+    { SkillType::SKILL_COOKING,         LegionProfessionSpells::Cooking         },
+    { SkillType::SKILL_HERBALISM,       LegionProfessionSpells::Herbalism       },
+    { SkillType::SKILL_MINING,          LegionProfessionSpells::Mining          },
+    { SkillType::SKILL_SKINNING,        LegionProfessionSpells::Skinning        },
+    { SkillType::SKILL_ARCHAEOLOGY,     LegionProfessionSpells::Archaeology     },
+    { SkillType::SKILL_FISHING,         LegionProfessionSpells::Fishing         }
+};
+
 void Player::UpdateShop(uint32 diff)
 {
     if (m_shopTimer > diff)
@@ -29278,8 +29316,28 @@ void Player::UpdateShop(uint32 diff)
                 // TODO
                 break;
             case 4: // APPEARANCE
-                // TODO
+            {
+                GetSession()->GetCollectionMgr()->AddItemAppearance(itemId, itemCount);
+                delivered = true;
                 break;
+            }
+            case 5: // SKILL
+            {
+                auto itr = skillLearningSpells.find(itemId);
+                if (itr == skillLearningSpells.end())
+                    continue;
+
+                if (GetSkillValue(itemId) >= itemCount)
+                    break;
+
+                if (IsPrimaryProfessionSkill(itemId) && !GetFreePrimaryProfessionPoints())
+                    break;
+
+                CastSpell(this, itr->second, true);
+                SetSkill(itemId, GetSkillStep(itemId), itemCount, GetMaxSkillValue(itemId));
+                delivered = true;
+                break;
+            }
         }
 
         if (delivered)
