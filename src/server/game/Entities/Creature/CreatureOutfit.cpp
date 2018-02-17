@@ -2,6 +2,11 @@
 #include "DB2Structure.h" // ChrRacesEntry
 #include "DB2Stores.h" // sChrRacesStore, sDB2Manager
 
+constexpr uint32 CreatureOutfit::max_custom_displays;
+constexpr uint32 CreatureOutfit::invisible_model;
+constexpr uint32 CreatureOutfit::max_real_modelid;
+constexpr EquipmentSlots CreatureOutfit::item_slots[];
+
 CreatureOutfit::CreatureOutfit(uint8 race, Gender gender) : race(race), gender(gender)
 {
     const ChrRacesEntry* rEntry = sChrRacesStore.LookupEntry(race);
