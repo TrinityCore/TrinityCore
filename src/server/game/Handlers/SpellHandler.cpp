@@ -19,6 +19,7 @@
 #include "WorldSession.h"
 #include "Common.h"
 #include "Config.h"
+#include "CreatureOutfit.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "DBCStores.h"
@@ -606,34 +607,28 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 
     if (Creature* creature = unit->ToCreature())
     {
-        int32 outfitId = creature->GetOutfit();
-        if (outfitId < 0)
+        if (std::shared_ptr<CreatureOutfit> const & outfit_ptr = creature->GetOutfit())
         {
-            const CreatureOutfitContainer& outfits = sObjectMgr->GetCreatureOutfitMap();
-            CreatureOutfitContainer::const_iterator it = outfits.find(-outfitId);
-            if (it != outfits.end())
-            {
-                CreatureOutfit const& outfit = it->second;
-                WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
-                data << uint64(guid);
-                data << uint32(outfit.displayId);   // displayId
-                data << uint8(outfit.race);         // race
-                data << uint8(outfit.gender);       // gender
-                data << uint8(outfit.Class);        // class
-                data << uint8(outfit.skin);         // skin
-                data << uint8(outfit.face);         // face
-                data << uint8(outfit.hair);         // hair
-                data << uint8(outfit.haircolor);    // haircolor
-                data << uint8(outfit.facialhair);   // facialhair
-                data << uint32(outfit.guild);       // guildId
+            CreatureOutfit const& outfit = *outfit_ptr;
+            WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
+            data << uint64(guid);
+            data << uint32(outfit.GetDisplayId());  // displayId
+            data << uint8(outfit.GetRace());        // race
+            data << uint8(outfit.GetGender());      // gender
+            data << uint8(outfit.Class);            // class
+            data << uint8(outfit.skin);             // skin
+            data << uint8(outfit.face);             // face
+            data << uint8(outfit.hair);             // hair
+            data << uint8(outfit.haircolor);        // haircolor
+            data << uint8(outfit.facialhair);       // facialhair
+            data << uint32(outfit.guild);           // guildId
 
-                // item displays
-                for (uint32 i = 0; i < CreatureOutfit::max_outfit_displays; ++i)
-                    data << uint32(it->second.outfit[i]);
+            // item displays
+            for (auto const& slot : CreatureOutfit::item_slots)
+                data << uint32(outfit.outfitdisplays[slot]);
 
-                SendPacket(&data);
-                return;
-            }
+            SendPacket(&data);
+            return;
         }
     }
 

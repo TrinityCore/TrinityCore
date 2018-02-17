@@ -89,10 +89,10 @@ struct TC_GAME_API CreatureTemplate
     uint32  Entry;
     uint32  DifficultyEntry[MAX_DIFFICULTY - 1];
     uint32  KillCredit[MAX_KILL_CREDIT];
-    int32  Modelid1;
-    int32  Modelid2;
-    int32  Modelid3;
-    int32  Modelid4;
+    uint32  Modelid1;
+    uint32  Modelid2;
+    uint32  Modelid3;
+    uint32  Modelid4;
     std::string  Name;
     std::string  Title;
     std::string  IconName;
@@ -148,8 +148,8 @@ struct TC_GAME_API CreatureTemplate
     uint32  flags_extra;
     uint32  ScriptID;
     WorldPacket QueryData[TOTAL_LOCALES];
-    int32  GetRandomValidModelId() const;
-    int32  GetFirstValidModelId() const;
+    uint32  GetRandomValidModelId() const;
+    uint32  GetFirstValidModelId() const;
     uint32  GetFirstInvisibleModel() const;
     uint32  GetFirstVisibleModel() const;
 

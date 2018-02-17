@@ -376,22 +376,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
-                            Creature* crea = target->ToCreature();
-                            ASSERT(crea);
-                            crea->SetOutfit(ObjectMgr::ChooseDisplayId(ci));
-                            if (crea->IsMirrorImage())
-                            {
-                                new MirrorImageUpdate(crea);
-                            }
-                            else
-                            {
-                                target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
-
-                                uint32 displayId = sObjectMgr->GetCreatureDisplay(crea->GetOutfit());
-                                target->ToCreature()->SetDisplayId(displayId);
-                                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry %u, %s set displayid to %u",
-                                    target->GetEntry(), target->GetGUID().ToString().c_str(), displayId);
-                            }
+                            uint32 displayId = ObjectMgr::ChooseDisplayId(ci);
+                            target->ToCreature()->SetDisplayId(displayId);
+                            TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry %u, GuidLow %u set displayid to %u",
+                                target->GetEntry(), target->GetGUID().GetCounter(), displayId);
                         }
                     }
                     //if no param1, then use value from param2 (modelId)
@@ -1095,7 +1083,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (e.action.morphOrMount.creature > 0)
                     {
                         if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
-                            target->ToUnit()->Mount(sObjectMgr->GetCreatureDisplay(ObjectMgr::ChooseDisplayId(cInfo)));
+                            target->ToUnit()->Mount(ObjectMgr::ChooseDisplayId(cInfo));
                     }
                     else
                         target->ToUnit()->Mount(e.action.morphOrMount.model);

@@ -28,6 +28,9 @@
 #include "MapObject.h"
 #include <list>
 
+class CreatureOutfit;
+#include <memory>
+
 class CreatureAI;
 class CreatureGroup;
 class Group;
@@ -69,10 +72,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void SetObjectScale(float scale) override;
         void SetDisplayId(uint32 modelId) override;
+        uint32 GetDisplayId() const final;
+        void SetDisplayIdRaw(uint32 modelId);
 
-        void SetOutfit(int32 outfit) { outfitId = outfit; };
-        int32 GetOutfit() const { return outfitId; };
-        bool IsMirrorImage() const { return outfitId < 0; };
+        std::shared_ptr<CreatureOutfit> & GetOutfit() { return m_outfit; };
+        void SetOutfit(std::shared_ptr<CreatureOutfit> const & outfit);
+        void SetMirrorImageFlag(bool on) { if (on) SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE); else RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE); };
         void SendMirrorSound(Player* target, uint8 type);
 
         void DisappearAndDie();
@@ -438,7 +443,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         ObjectGuid m_suppressedTarget; // Stores the creature's "real" target while casting
         float m_suppressedOrientation; // Stores the creature's "real" orientation while casting
 
-        int32 outfitId = 0;
+        std::shared_ptr<CreatureOutfit> m_outfit;
 
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
@@ -472,13 +477,6 @@ class TC_GAME_API ForcedDespawnDelayEvent : public BasicEvent
     private:
         Creature& m_owner;
         Seconds const m_respawnTimer;
-};
-
-struct MirrorImageUpdate : BasicEvent
-{
-    MirrorImageUpdate(Creature* creature);
-    bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override;
-    Creature* creature;
 };
 
 #endif

@@ -805,7 +805,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 display_id = (uint32)atoi((char*)args);
+        uint32 display_id = atoul(args);
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -816,9 +816,6 @@ public:
             return false;
 
         target->SetDisplayId(display_id);
-        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
-        if (Creature* crea = target->ToCreature())
-            crea->SetOutfit(display_id);
 
         return true;
     }

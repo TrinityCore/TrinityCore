@@ -1121,6 +1121,12 @@ struct NPCSoundsEntry
     uint32 ack;
 };
 
+struct CreatureDisplayInfoStore
+{
+    const CreatureDisplayInfoEntry * AssertEntry(uint32 id) const;
+    const CreatureDisplayInfoEntry * LookupEntry(uint32 id) const;
+};
+
 #define MAX_OVERRIDE_SPELL 10
 
 struct OverrideSpellDataEntry
