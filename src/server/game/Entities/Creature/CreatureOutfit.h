@@ -9,7 +9,7 @@
 class Creature;
 class WorldSession;
 
-class CreatureOutfit
+class TC_GAME_API CreatureOutfit
 {
 public:
     friend class ObjectMgr;
