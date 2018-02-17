@@ -849,7 +849,7 @@ void MovementInfo::OutDebug()
 }
 
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
-m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
+m_name(""), m_isActive(false), m_isFarVisible(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
 m_transport(nullptr), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_currMap(nullptr), m_InstanceId(0),
 _dbPhase(0), m_notifyflags(0)
 {
@@ -916,6 +916,14 @@ void WorldObject::SetVisibilityDistanceOverride(VisibilityDistanceType type)
         return;
 
     m_visibilityDistanceOverride = VisibilityDistances[AsUnderlyingType(type)];
+}
+
+void WorldObject::SetFarVisible(bool on)
+{
+    if (GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    m_isFarVisible = on;
 }
 
 void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
@@ -1385,7 +1393,7 @@ float WorldObject::GetVisibilityRange() const
 {
     if (IsVisibilityOverridden() && !ToPlayer())
         return *m_visibilityDistanceOverride;
-    else if (isActiveObject() && !ToPlayer())
+    else if (IsFarVisible() && !ToPlayer())
         return MAX_VISIBILITY_DISTANCE;
     else
         return GetMap()->GetVisibilityRange();
@@ -1399,7 +1407,7 @@ float WorldObject::GetSightRange(WorldObject const* target) const
         {
             if (target && target->IsVisibilityOverridden() && !target->ToPlayer())
                 return *target->m_visibilityDistanceOverride;
-            else if (target && target->isActiveObject() && !target->ToPlayer())
+            else if (target && target->IsFarVisible() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
             else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
                 return DEFAULT_VISIBILITY_INSTANCE;

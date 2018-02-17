@@ -566,6 +566,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
+        bool IsFarVisible() const { return m_isFarVisible; }
+        void SetFarVisible(bool on);
         bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride.is_initialized(); }
         void SetVisibilityDistanceOverride(VisibilityDistanceType type);
         void SetWorldObject(bool apply);
@@ -612,6 +614,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     protected:
         std::string m_name;
         bool m_isActive;
+        bool m_isFarVisible;
         Optional<float> m_visibilityDistanceOverride;
         const bool m_isWorldObject;
         ZoneScript* m_zoneScript;

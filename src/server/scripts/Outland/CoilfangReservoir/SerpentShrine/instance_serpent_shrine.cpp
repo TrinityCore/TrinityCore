@@ -189,18 +189,22 @@ class instance_serpent_shrine : public InstanceMapScript
                     case 184568:
                         ControlConsole = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     case 184203:
                         BridgePart[0] = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     case 184204:
                         BridgePart[1] = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     case 184205:
                         BridgePart[2] = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     default:
                         break;

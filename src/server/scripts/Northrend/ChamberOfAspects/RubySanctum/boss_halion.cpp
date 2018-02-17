@@ -1079,6 +1079,7 @@ class npc_meteor_strike : public CreatureScript
                 {
                     DoCastSelf(SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, Milliseconds(500));
                 }
             }
