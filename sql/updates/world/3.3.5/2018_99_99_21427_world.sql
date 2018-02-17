@@ -1,11 +1,10 @@
-﻿-- Trial of the Champion (Originated from Appled). Thanks to Aokromes for providing sniffs
-
--- General:
-
+DELETE FROM `disables` WHERE `entry`=650 AND `sourceType`=2;
+-- Trial of the Champion (Originated from Appled). Thanks to Aokromes for providing sniffs
+-- General: 
 -- Disabling mmap for Trial of the Champion instance
 -- creatures are spawned according to sniffs behind an invisible wall and they don't know how to go through it
 -- Edit: Aokromes has pushed this already, but disabled the whole instance in the same commit
-DELETE FROM `disables` WHERE `entry`=650 AND `sourceType`=2;
+
 -- DELETE FROM `disables` WHERE `sourceType`=7 AND `entry`= 650;
 -- INSERT INTO `disables` (`sourceType`,`entry`) VALUES (7, 650);
 
