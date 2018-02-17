@@ -1,6 +1,7 @@
 -- Template Updates
 -- Helix Gearbreaker
-UPDATE `creature_template` SET `scriptname`= 'boss_helix_gearbreaker', `flags_extra`= `flags_extra`|1 WHERE `entry`= 47296;
+UPDATE `creature_template` SET `scriptname`= 'boss_helix_gearbreaker', `flags_extra`= 0 WHERE `entry`= 47296;
+UPDATE `creature_template` SET `flags_extra`= `flags_extra`|1, `DamageModifier`= 15 WHERE `entry`= 48940;
 -- Lumbering Oaf
 UPDATE `creature_template` SET `scriptname`= 'npc_helix_lumbering_oaf' WHERE `entry`= 47297;
 UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87 WHERE `entry`= 48939;
@@ -61,3 +62,20 @@ DELETE FROM `conditions` WHERE `SourceEntry`= 88295 AND `SourceTypeOrReferenceId
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
 (13, 1, 88295, 0, 0, 31, 0, 3, 45979, 0, 0, 0, '', 'Charge - Target General Purpose Bunny'),
 (13, 1, 88295, 0, 0, 35, 0, 1, 20, 3, 0, 0, '', 'Charge - Target Distance Must be Higher than 15 yards');
+
+-- Loot
+UPDATE `creature_template` SET  `lootid`= 47296 WHERE `entry`= 47296;
+UPDATE `creature_template` SET `lootid`= 48940 WHERE `entry`= 48940;
+DELETE FROM `creature_loot_template` WHERE `Entry` IN (47296, 48940);
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
+(47296, 5199, 0, 1, 1, 1, 1),
+(47296, 5191, 0, 1, 1, 1, 1),
+(47296, 5200, 0, 1, 1, 1, 1),
+(47296, 5443, 0, 1, 1, 1, 1);
+
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
+(48940, 63473, 0, 1, 1, 1, 1),
+(48940, 63475, 0, 1, 1, 1, 1),
+(48940, 63476, 0, 1, 1, 1, 1),
+(48940, 63474, 0, 1, 1, 1, 1),
+(48940, 65164, 0, 1, 1, 1, 1);

@@ -787,8 +787,8 @@ class spell_helix_ride_face_targeting : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (Creature* creature = caster->ToCreature())
-                            if (creature->IsAIEnabled)
-                                creature->getThreatManager().resetAllAggro();
+                            if (creature->IsAIEnabled && creature->GetVictim())
+                                creature->getThreatManager().modifyThreatPercent(caster->GetVictim(), -100);
 
                         caster->CastSpell(caster, SPELL_HELIX_RIDE_FACE_TIMER_AURA, true);
                         // Until we have core support for hiding vehicle datas clientside, we handle it like this
@@ -898,29 +898,31 @@ class spell_helix_ride_face_timer_aura: public SpellScriptLoader
                 {
                     if (InstanceScript* instance = owner->GetInstanceScript())
                     {
-                        if (owner->GetMap() && owner->GetMap()->IsHeroic())
-                            if (Unit* vehicle = owner->GetVehicleBase())
+                        if (Unit* vehicle = owner->GetVehicleBase())
+                        {
+                            if (owner->GetMap() && owner->GetMap()->IsHeroic())
                                 if (vehicle->GetTypeId() == TYPEID_PLAYER)
                                 {
                                     owner->CastSpell(vehicle, SPELL_CHEST_BOMB, true);
                                     owner->CastSpell(vehicle, SPELL_HELIX_CHEST_BOMB_EMOTE, true);
                                 }
 
-                        if (Creature* oaf = instance->GetCreature(DATA_LUMBERING_OAF))
-                        {
-                            if (oaf->IsAlive())
+                            if (Creature* oaf = instance->GetCreature(DATA_LUMBERING_OAF))
                             {
-                                owner->CastSpell(oaf, SPELL_RIDE_VEHICLE_OAF);
-                                if (Creature* creature = owner->ToCreature())
+                                if (oaf->IsAlive())
                                 {
-                                    creature->AttackStop();
-                                    creature->SetReactState(REACT_PASSIVE);
+                                    owner->CastSpell(oaf, SPELL_RIDE_VEHICLE_OAF);
+                                    if (Creature* creature = owner->ToCreature())
+                                    {
+                                        creature->AttackStop();
+                                        creature->SetReactState(REACT_PASSIVE);
+                                    }
                                 }
+                                else
+                                    owner->CastSpell(owner, SPELL_RIDE_FACE_TARGETING, true);
                             }
-                            else
-                                owner->CastSpell(owner, SPELL_RIDE_FACE_TARGETING, true);
+                            vehicle->RemoveAurasDueToSpell(SPELL_HELIX_RIDE);
                         }
-
                     }
                 }
             }
