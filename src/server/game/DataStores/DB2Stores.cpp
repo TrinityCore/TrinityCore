@@ -1201,7 +1201,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     {
         ASSERT(namesProfanity->Language < TOTAL_LOCALES || namesProfanity->Language == -1);
         std::wstring name;
-        ASSERT(Utf8toWStr(namesProfanity->Name, name));
+        bool conversionResult = Utf8toWStr(namesProfanity->Name, name);
+        ASSERT(conversionResult);
         if (namesProfanity->Language != -1)
             _nameValidators[namesProfanity->Language].emplace_back(name, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
         else
@@ -1219,7 +1220,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (NamesReservedEntry const* namesReserved : sNamesReservedStore)
     {
         std::wstring name;
-        ASSERT(Utf8toWStr(namesReserved->Name, name));
+        bool conversionResult = Utf8toWStr(namesReserved->Name, name);
+        ASSERT(conversionResult);
         _nameValidators[TOTAL_LOCALES].emplace_back(name, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
     }
 
@@ -1227,7 +1229,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     {
         ASSERT(!(namesReserved->LocaleMask & ~((1u << TOTAL_LOCALES) - 1)));
         std::wstring name;
-        ASSERT(Utf8toWStr(namesReserved->Name, name));
+        bool conversionResult = Utf8toWStr(namesReserved->Name, name);
+        ASSERT(conversionResult);
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
             if (i == LOCALE_none)
