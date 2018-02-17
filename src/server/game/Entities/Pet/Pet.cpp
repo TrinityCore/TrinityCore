@@ -654,14 +654,32 @@ void Creature::Regenerate(Powers power)
     }
 
     // Apply modifiers (if any).
+    float modifier = 0.0f;
     AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
         if (Powers((*i)->GetMiscValue()) == power)
-            AddPct(addvalue, (*i)->GetAmount());
+            modifier += (*i)->GetAmount();
 
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet()? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
+    if (modifier)
+        AddPct(addvalue, modifier);
 
-    ModifyPower(power, int32(addvalue));
+    if (power != POWER_ENERGY)
+        addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet() ? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
+    else
+        addvalue += (float)GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((float)CREATURE_REGEN_INTERVAL / 5140.0f);
+
+    if (power == POWER_ENERGY)
+    {
+        m_tmpEnergyReg += std::min((float)CREATURE_REGEN_ENERGY_INTERVAL * addvalue / CREATURE_REGEN_INTERVAL, 10.0f);
+        int32 enerReg = int32(m_tmpEnergyReg);
+        if (enerReg)
+        {
+            ModifyPower(power, enerReg);
+            m_tmpEnergyReg = fmod(m_tmpEnergyReg, 1);
+        }
+    }
+    else
+        ModifyPower(power, int32(addvalue));
 }
 
 void Pet::Remove(PetSaveMode mode, bool returnreagent)
