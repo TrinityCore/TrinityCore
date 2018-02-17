@@ -89,6 +89,7 @@ public:
             currentEvent = 0;
             eventProgress = 0;
             me->setActive(true);
+            me->SetFarVisible(true);
             me->SetImmuneToPC(false);
         }
 
