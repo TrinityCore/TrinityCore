@@ -1113,7 +1113,7 @@ class spell_pri_renew : public SpellScriptLoader
                 if (AuraEffect const* empoweredRenewAurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT, EFFECT_1))
                 {
                     int32 heal = aurEff->GetAmount();
-                    heal *= GetSpellInfo()->GetMaxTicks();
+                    heal *= aurEff->GetTotalTicks();
 
                     CastSpellExtraArgs args(aurEff);
                     args.AddSpellBP0(CalculatePct(heal, empoweredRenewAurEff->GetAmount()));
