@@ -2935,3 +2935,15 @@ bool Creature::CanGiveExperience() const
         && !IsTotem()
         && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
 }
+
+bool Creature::IsAllowedToRepostionAgainst(Unit* target) const
+{
+    // Exceptions for repositioning against a too close enemy:
+    return GetCombatReach() <= 10.0f        // 1. Creature has a too big combat reach
+        && !IsMovementPreventedByCasting()  // 2. Creature is currently casting
+        && CanFreeMove()                    // 3. Creature cannot move
+        && !GetVehicleBase()                // 4. Creature is on a vehicle
+        && !target->GetVehicleBase()        // 5. Chase target is on a vehicle
+        && !IsDungeonBoss()                 // 6. Creature is a dungeon boss
+        && !isWorldBoss();                  // 7. Creature is a world boss
+}

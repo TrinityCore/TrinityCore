@@ -107,16 +107,12 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
         // the owner needs to reposition itself when being too close to its victim
         if (Creature* me = owner->ToCreature())
         {
-            // Exceptions:
-            // Combatreach bigger than 10 yards, Dungeon/Raid bosses, flying creatures and vehicle passengers
-            if (me->GetCombatReach() <= 10.0f && !me->IsDungeonBoss() && !me->IsFlying() && !me->GetVehicleBase()
-                && GetMovementGeneratorType() == CHASE_MOTION_TYPE && !me->IsMovementPreventedByCasting() && me->CanFreeMove()
-                && !GetTarget()->GetVehicleBase())
+            if (GetMovementGeneratorType() == CHASE_MOTION_TYPE && me->IsAllowedToRepostionAgainst(GetTarget()))
             {
                 if (me->GetCombatReach() > me->GetPosition().GetExactDist(GetTarget()->GetPosition()))
                 {
                     // Beasts move backwards. Some other creatures as well. Todo: find a way to detect this automaticly.
-                    bool moveBackwards = me->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_BEAST;
+                    bool moveBackwards = me->GetCreatureTemplate()->type == CREATURE_TYPE_BEAST;
                     float x, y, z;
                     me->GetNearPoint(GetTarget(), x, y, z, 0.0f, 0.0f, GetTarget()->GetAngle(me));
 
