@@ -415,7 +415,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
         bool IsFarVisible() const { return m_isFarVisible; }
-        void SetFarVisible(bool m_isFarVisible);
+        void SetFarVisible(bool on);
         void SetWorldObject(bool apply);
         bool IsPermanentWorldObject() const { return m_isWorldObject; }
         bool IsWorldObject() const;
