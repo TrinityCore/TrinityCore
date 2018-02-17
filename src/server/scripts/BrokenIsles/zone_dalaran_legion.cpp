@@ -55,7 +55,7 @@ public:
         CONVERSATION_KHADGAR_BLINK_OF_EYE   = 3827,
     };
 
-    void OnLogin(Player* player, bool firstLogin)
+    void OnLogin(Player* player, bool firstLogin) override
     {
         // Can happen in recovery cases
         if (player->getLevel() >= 100 && firstLogin)
