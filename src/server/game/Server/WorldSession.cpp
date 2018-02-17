@@ -1428,6 +1428,7 @@ void WorldSession::LoadRecoveries()
         uint32 at_login         = fields[10].GetUInt32();
 
         WorldPackets::Character::CharacterCreateInfo* createInfo = new WorldPackets::Character::CharacterCreateInfo("Recovery", race, cclass, 0, 0, 0, 0, 0, 0, 0);
+        createInfo->withStartOutfit = false;
 
         Player newChar(this);
         if (!newChar.Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo))

@@ -64,7 +64,8 @@ namespace WorldPackets
             std::string Name;
 
             /// Server side data
-            uint8 CharCount  = 0;
+            uint8 CharCount = 0;
+            bool withStartOutfit = true;
         };
 
         struct CharacterRenameInfo
