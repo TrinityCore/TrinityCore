@@ -63,8 +63,8 @@ public:
 private:
     CreatureOutfit() {};
     uint32 id = 0;
-    uint8 gender;
     uint8 race;
+    uint8 gender;
     uint32 displayId;
 };
 
