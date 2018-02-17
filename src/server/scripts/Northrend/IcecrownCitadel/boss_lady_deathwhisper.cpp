@@ -289,10 +289,10 @@ class boss_lady_deathwhisper : public CreatureScript
                     return;
                 }
 
+                _phase = PHASE_ONE;
                 me->SetCombatPulseDelay(5);
                 me->setActive(true);
                 DoZoneInCombat();
-                _phase = PHASE_ONE;
                 scheduler.CancelGroup(GROUP_INTRO);
                 // phase-independent events
                 scheduler
