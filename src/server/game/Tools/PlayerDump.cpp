@@ -197,10 +197,12 @@ std::vector<TableStruct> CharacterTables;
 inline bool StringsEqualCaseInsensitive(std::string const& left, std::string const& right)
 {
     std::string upperLeftString = left;
-    ASSERT(Utf8ToUpperOnlyLatin(upperLeftString));
+    bool leftResult = Utf8ToUpperOnlyLatin(upperLeftString);
+    ASSERT(leftResult);
 
     std::string upperRightString = right;
-    ASSERT(Utf8ToUpperOnlyLatin(upperRightString));
+    bool rightResult = Utf8ToUpperOnlyLatin(upperRightString);
+    ASSERT(rightResult);
 
     return upperLeftString == upperRightString;
 }
@@ -301,7 +303,8 @@ void PlayerDump::InitializeTables()
             f.FieldName = columnName;
             f.IsBinaryField = !boost::ifind_first(typeName, "binary").empty() || !boost::ifind_first(typeName, "blob").empty();
 
-            ASSERT(Utf8ToUpperOnlyLatin(columnName));
+            bool toUpperResult = Utf8ToUpperOnlyLatin(columnName);
+            ASSERT(toUpperResult);
 
             t.TableFields.emplace_back(std::move(f));
         } while (result->NextRow());
