@@ -43,6 +43,7 @@ DoorData const doorData[] =
     { GO_FACTORY_DOOR,      DATA_GLUBTOK,           DOOR_TYPE_PASSAGE   },
     { GO_MAST_ROOM_DOOR,    DATA_HELIX_GEARBREAKER, DOOR_TYPE_PASSAGE   },
     { GO_HEAVY_DOOR,        DATA_HELIX_GEARBREAKER, DOOR_TYPE_ROOM      },
+    { GO_FOUNDRY_DOOR,      DATA_FOE_REAPER_5000,   DOOR_TYPE_PASSAGE   },
     { 0,                    0,                      DOOR_TYPE_ROOM      }, // END
 };
 

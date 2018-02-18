@@ -91,7 +91,8 @@ enum DMGameObjects
     GO_DEFIAS_CANNON    = 16398,
     GO_DOOR_LEVER       = 101833,
     GO_MAST_ROOM_DOOR   = 16400,
-    GO_HEAVY_DOOR       = 17153
+    GO_HEAVY_DOOR       = 17153,
+    GO_FOUNDRY_DOOR     = 16399
 };
 
 
