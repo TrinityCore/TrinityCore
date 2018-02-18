@@ -445,3 +445,5 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 (@GOSSIP_MENU, 6, 0, '[GM] Start Eadric the Pure encounter', 0, 1, 1, 0, 0, 0, 0, '', 0, 0),
 (@GOSSIP_MENU, 7, 0, '[GM] Start Argent Confessor Paletress encounter', 0, 1, 1, 0, 0, 0, 0, '', 0, 0),
 (@GOSSIP_MENU, 8, 0, '[GM] Start The Black Knight encounter', 0, 1, 1, 0, 0, 0, 0, '', 0, 0);
+-- Death knight mount speed fixed.
+UPDATE `creature_template` SET `speed_run` = '11.71429', `speed_walk` = 10 WHERE `creature_template`.`entry` = 35491;
