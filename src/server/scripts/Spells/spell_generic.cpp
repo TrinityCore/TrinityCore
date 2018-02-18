@@ -859,6 +859,24 @@ class spell_gen_choking_vines : public AuraScript
     }
 };
 
+// 5138 - Drain Mana
+// 8129 - Mana Burn
+class spell_gen_clear_fear_poly : public SpellScript
+{
+    PrepareSpellScript(spell_gen_clear_fear_poly);
+
+    void HandleAfterHit()
+    {
+        if (Unit* unitTarget = GetHitUnit())
+            unitTarget->RemoveAurasWithMechanic((1 << MECHANIC_FEAR) | (1 << MECHANIC_POLYMORPH));
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_gen_clear_fear_poly::HandleAfterHit);
+    }
+};
+
 class spell_gen_clone : public SpellScript
 {
     PrepareSpellScript(spell_gen_clone);
@@ -3958,6 +3976,7 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_gen_chains_of_ice);
     RegisterSpellScript(spell_gen_chaos_blast);
     RegisterAuraScript(spell_gen_choking_vines);
+    RegisterSpellScript(spell_gen_clear_fear_poly);
     RegisterSpellScript(spell_gen_clone);
     RegisterSpellScript(spell_gen_clone_weapon);
     RegisterAuraScript(spell_gen_clone_weapon_aura);
