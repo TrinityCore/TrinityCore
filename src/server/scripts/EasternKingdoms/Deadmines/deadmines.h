@@ -35,7 +35,10 @@ enum DMDataTypes
 
     DATA_TEAM_IN_INSTANCE   = 6,
     DATA_FIREWALL_PLATTER   = 7,
-    DATA_LUMBERING_OAF      = 8
+    DATA_LUMBERING_OAF      = 8,
+    DATA_FOE_REAPER_INTRO   = 9,
+    DATA_FOE_REAPER_BUNNY   = 10,
+    DATA_PROTOTYPE_REAPER   = 11,
 };
 
 enum DMCreatures
@@ -43,6 +46,7 @@ enum DMCreatures
     // Bosses
     BOSS_GLUBTOK                    = 47162,
     BOSS_HELIX_GEARBREAKER          = 47296,
+    BOSS_FOE_REAPER_5000            = 43778,
 
     // Horde Creatures
     NPC_SLINKY_SHARPSHIV            = 46906,
@@ -72,7 +76,12 @@ enum DMCreatures
     NPC_FROST_BLOSSOM_BUNNY         = 47284,
     NPC_LUMBERING_OAF               = 47297,
     NPC_HELIX_CREW                  = 49139,
-    NPC_STICKY_BOMB                 = 47314
+    NPC_STICKY_BOMB                 = 47314,
+    NPC_DEFIAS_REAPER               = 47403,
+    NPC_DEFIAS_WATCHER              = 47404,
+    NPC_FOE_REAPER_TARGETING_BUNNY  = 47468,
+    NPC_PROTOTYPE_REAPER            = 49208,
+    NPC_MOLTEN_SLAG                 = 49229,
 };
 
 enum DMGameObjects

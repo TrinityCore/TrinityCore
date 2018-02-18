@@ -24,10 +24,13 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_GLUBTOK,             DATA_GLUBTOK            },
-    { BOSS_HELIX_GEARBREAKER,   DATA_HELIX_GEARBREAKER  },
-    { NPC_LUMBERING_OAF,        DATA_LUMBERING_OAF      },
-    { 0,                        0                       }, // END
+    { BOSS_GLUBTOK,                     DATA_GLUBTOK            },
+    { BOSS_HELIX_GEARBREAKER,           DATA_HELIX_GEARBREAKER  },
+    { BOSS_FOE_REAPER_5000,             DATA_FOE_REAPER_5000    },
+    { NPC_LUMBERING_OAF,                DATA_LUMBERING_OAF      },
+    { NPC_FOE_REAPER_TARGETING_BUNNY,   DATA_FOE_REAPER_BUNNY   },
+    { NPC_PROTOTYPE_REAPER,             DATA_PROTOTYPE_REAPER   },
+    { 0,                                0                       }, // END
 };
 
 ObjectData const gameobjectData[] =
@@ -57,6 +60,7 @@ class instance_deadmines : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameobjectData);
                 _teamInInstance = 0;
+                _foeReaper5000Intro = 0;
             }
 
             void OnPlayerEnter(Player* player) override
@@ -106,6 +110,19 @@ class instance_deadmines : public InstanceMapScript
                         if (creature->isDead() && GetBossState(DATA_HELIX_GEARBREAKER) != DONE)
                             creature->Respawn();
                         break;
+                    case NPC_DEFIAS_REAPER:
+                    case NPC_DEFIAS_WATCHER:
+                        if (!GetData(DATA_FOE_REAPER_INTRO) && creature->isDead())
+                            creature->Respawn();
+                        break;
+                    case NPC_PROTOTYPE_REAPER:
+                        if (!instance->IsHeroic())
+                            creature->SetVisible(false);
+                        break;
+                    case NPC_MOLTEN_SLAG:
+                        if (Creature* reaper = GetCreature(DATA_FOE_REAPER_5000))
+                            reaper->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }
@@ -119,6 +136,10 @@ class instance_deadmines : public InstanceMapScript
                         _teamInInstance = data;
                         SaveToDB();
                         break;
+                    case DATA_FOE_REAPER_INTRO:
+                        _foeReaper5000Intro = data;
+                        SaveToDB();
+                        break;
                     default:
                         break;
                 }
@@ -130,6 +151,8 @@ class instance_deadmines : public InstanceMapScript
                 {
                     case DATA_TEAM_IN_INSTANCE:
                         return _teamInInstance;
+                    case DATA_FOE_REAPER_INTRO:
+                        return _foeReaper5000Intro;
                     default:
                         return 0;
                 }
@@ -137,16 +160,20 @@ class instance_deadmines : public InstanceMapScript
 
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << _teamInInstance;
+                data << _teamInInstance << ' '
+                    << _foeReaper5000Intro;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
                 data >> _teamInInstance;
+                data >> _foeReaper5000Intro;
+
             }
 
         protected:
             uint32 _teamInInstance;
+            uint32 _foeReaper5000Intro;
         };
 
 
