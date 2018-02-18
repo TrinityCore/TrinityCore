@@ -6306,9 +6306,6 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
     if (!player)
         return SPELL_CAST_OK;
 
-    if (m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_ITEM_CHECK))
-        return SPELL_CAST_OK;
-
     if (!m_CastItem)
     {
         if (m_castItemGUID)
