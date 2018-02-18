@@ -66,7 +66,7 @@ namespace WorldPackets
             std::string VirtualRealmName;
             std::string Guild;
             std::string GuildVirtualRealmName;
-            int32 RaceFilter = -1;
+            int64 RaceFilter = SI64LIT(0);
             int32 ClassFilter = -1;
             std::vector<WhoWord> Words;
             bool ShowEnemies = false;

@@ -132,6 +132,10 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
                         *((int16*)(&dataValue[offset])) = fields[f].GetInt16();
                         offset += 2;
                         break;
+                    case FT_LONG:
+                        *((int64*)(&dataValue[offset])) = fields[f].GetInt64();
+                        offset += 8;
+                        break;
                     case FT_STRING:
                     {
                         LocalizedString** slot = (LocalizedString**)(&dataValue[offset]);
@@ -245,6 +249,9 @@ void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexT
                             break;
                         case FT_SHORT:
                             offset += 2;
+                            break;
+                        case FT_LONG:
+                            offset += 8;
                             break;
                         case FT_STRING:
                         {

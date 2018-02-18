@@ -85,7 +85,12 @@ enum Expansions
     EXPANSION_MISTS_OF_PANDARIA        = 4,
     EXPANSION_WARLORDS_OF_DRAENOR      = 5,
     EXPANSION_LEGION                   = 6,
-    MAX_EXPANSIONS
+    MAX_EXPANSIONS,
+
+    // future expansion
+    EXPANSION_BATTLE_FOR_AZEROTH       = 7,
+
+    MAX_ACCOUNT_EXPANSIONS
 };
 
 #define CURRENT_EXPANSION EXPANSION_LEGION
@@ -126,17 +131,17 @@ enum Gender
 enum Races
 {
     RACE_NONE               = 0,
-    RACE_HUMAN              = 1,
-    RACE_ORC                = 2,
-    RACE_DWARF              = 3,
-    RACE_NIGHTELF           = 4,
-    RACE_UNDEAD_PLAYER      = 5,
-    RACE_TAUREN             = 6,
-    RACE_GNOME              = 7,
-    RACE_TROLL              = 8,
-    RACE_GOBLIN             = 9,
-    RACE_BLOODELF           = 10,
-    RACE_DRAENEI            = 11,
+    RACE_HUMAN                  = 1,
+    RACE_ORC                    = 2,
+    RACE_DWARF                  = 3,
+    RACE_NIGHTELF               = 4,
+    RACE_UNDEAD_PLAYER          = 5,
+    RACE_TAUREN                 = 6,
+    RACE_GNOME                  = 7,
+    RACE_TROLL                  = 8,
+    RACE_GOBLIN                 = 9,
+    RACE_BLOODELF               = 10,
+    RACE_DRAENEI                = 11,
     //RACE_FEL_ORC            = 12,
     //RACE_NAGA               = 13,
     //RACE_BROKEN             = 14,
@@ -147,15 +152,19 @@ enum Races
     //RACE_TAUNKA             = 19,
     //RACE_NORTHREND_SKELETON = 20,
     //RACE_ICE_TROLL          = 21,
-    RACE_WORGEN             = 22,
+    RACE_WORGEN                 = 22,
     //RACE_GILNEAN            = 23
-    RACE_PANDAREN_NEUTRAL   = 24,
-    RACE_PANDAREN_ALLIANCE  = 25,
-    RACE_PANDAREN_HORDE     = 26
+    RACE_PANDAREN_NEUTRAL       = 24,
+    RACE_PANDAREN_ALLIANCE      = 25,
+    RACE_PANDAREN_HORDE         = 26,
+    RACE_NIGHTBORNE             = 27,
+    RACE_HIGHMOUNTAIN_TAUREN    = 28,
+    RACE_VOID_ELF               = 29,
+    RACE_LIGHTFORGED_DRAENEI    = 30
 };
 
 // max+1 for player race
-#define MAX_RACES         27
+#define MAX_RACES         31
 
 #define RACEMASK_ALL_PLAYABLE      \
     ((1<<(RACE_HUMAN-1))         | \
@@ -172,7 +181,11 @@ enum Races
      (1<<(RACE_WORGEN-1))        | \
      (1<<(RACE_PANDAREN_NEUTRAL-1))  |\
      (1<<(RACE_PANDAREN_ALLIANCE-1)) |\
-     (1<<(RACE_PANDAREN_HORDE-1)))
+     (1<<(RACE_PANDAREN_HORDE-1))|\
+     (1<<(RACE_NIGHTBORNE-1))|\
+     (1<<(RACE_HIGHMOUNTAIN_TAUREN-1))|\
+     (1<<(RACE_VOID_ELF-1))|\
+     (1<<(RACE_LIGHTFORGED_DRAENEI-1)))
 
 #define RACEMASK_NEUTRAL (1<<(RACE_PANDAREN_NEUTRAL-1))
 
@@ -183,7 +196,9 @@ enum Races
      (1<<(RACE_GNOME-1))    | \
      (1<<(RACE_DRAENEI-1))  | \
      (1<<(RACE_WORGEN-1))   | \
-     (1<<(RACE_PANDAREN_ALLIANCE-1)))
+     (1<<(RACE_PANDAREN_ALLIANCE-1)) |\
+     (1<<(RACE_VOID_ELF-1)) |\
+     (1<<(RACE_LIGHTFORGED_DRAENEI-1)))
 
 #define RACEMASK_HORDE RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE
 
@@ -1947,6 +1962,19 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_MUST_BE_STANDING_NEAR_INJURED_CHROMIE_IN_MOUNT_HYJAL = 340, // Must be standing near the injured Chromie in Mount Hyjal.
     SPELL_CUSTOM_ERROR_REMOVE_CANNONS_HEAVY_IRON_PLATING_FIRST          = 342, // You should remove the cannon's Heavy Iron Plating first.
     SPELL_CUSTOM_ERROR_REMOVE_CANNONS_ELECTROKINETIC_DEFENSE_GRID_FIRST = 343, // You should remove the cannon's Electrokinetic Defense Grid first.
+    SPELL_CUSTOM_ERROR_REQUIRES_THE_ARMORY_KEY_AND_DENDRITE_CLUSTERS    = 344, // You are missing pieces of the Armory Key or do not have enough Dendrite Clusters.
+    SPELL_CUSTOM_ERROR_THIS_ITEM_REQUIRES_BASIC_OBLITERUM_TO_UPGRADE    = 345, // This item requires basic Obliterum to upgrade.
+    SPELL_CUSTOM_ERROR_THIS_ITEM_REQUIRES_PRIMAL_OBLITERUM_TO_UPGRADE   = 346, // This item requires Primal Obliterum to upgrade.
+    SPELL_CUSTOM_ERROR_THIS_ITEM_REQUIRES_FLIGHT_MASTERS_WHISTLE        = 347, // This item requires a Flight Master's Whistle.
+    SPELL_CUSTOM_ERROR_REQUIRES_POWER_THAT_ECHOES_THAT_OF_THE_AUGARI    = 349, // Will only open to one wielding the power that echoes that of the Augari.
+    SPELL_CUSTOM_ERROR_THAT_PLAYER_HAS_A_PENDING_TOTEMIC_REVIVAL        = 350, // That player has a pending Totemic Revival.
+    SPELL_CUSTOM_ERROR_YOU_HAVE_NO_FIRE_MINES_DEPLOYED                  = 351, // You have no Fire Mines deployed.
+    SPELL_CUSTOM_ERROR_YOU_ARE_BLOCKED_BY_A_STRUCTURE_ABOVE_YOU         = 353, // You are blocked by a structure above you.
+    SPELL_CUSTOM_ERROR_REQUIRES_100_IMP_MEAT                            = 354, // Requires 100 Imp Meat.
+    SPELL_CUSTOM_ERROR_YOU_HAVE_NOT_OBTAINED_ANY_BACKGROUND_FILTERS     = 355, // You have not obtained any background filters.
+    SPELL_CUSTOM_ERROR_NOTHING_INTERESTING_POSTED_HERE_RIGHT_NOW        = 356, // There is nothing interesting posted here right now.
+    SPELL_CUSTOM_ERROR_PARAGON_REPUTATION_REQUIRES_HIGHER_LEVEL         = 357, // Paragon Reputation is not available until a higher level.
+    SPELL_CUSTOM_ERROR_UUNA_IS_MISSING                                  = 358, // Uuna is missing.
 };
 
 enum StealthType
@@ -4724,51 +4752,54 @@ enum ResponseCodes
     CHAR_CREATE_TRIAL                                      = 47,
     CHAR_CREATE_TIMEOUT                                    = 48,
     CHAR_CREATE_THROTTLE                                   = 49,
+    CHAR_CREATE_ALLIED_RACE_ACHIEVEMENT                    = 50,
+    CHAR_CREATE_LEVEL_REQUIREMENT_DEMON_HUNTER             = 51,
 
-    CHAR_DELETE_IN_PROGRESS                                = 50,
-    CHAR_DELETE_SUCCESS                                    = 51,
-    CHAR_DELETE_FAILED                                     = 52,
-    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 53,
-    CHAR_DELETE_FAILED_GUILD_LEADER                        = 54,
-    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 55,
-    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 56,
-    CHAR_DELETE_FAILED_UPGRADE_IN_PROGRESS                 = 57,
-    CHAR_DELETE_FAILED_HAS_WOW_TOKEN                       = 58,
-    CHAR_DELETE_FAILED_VAS_TRANSACTION_IN_PROGRESS         = 59,
+    CHAR_DELETE_IN_PROGRESS                                = 52,
+    CHAR_DELETE_SUCCESS                                    = 53,
+    CHAR_DELETE_FAILED                                     = 54,
+    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 55,
+    CHAR_DELETE_FAILED_GUILD_LEADER                        = 56,
+    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 57,
+    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 58,
+    CHAR_DELETE_FAILED_UPGRADE_IN_PROGRESS                 = 59,
+    CHAR_DELETE_FAILED_HAS_WOW_TOKEN                       = 60,
+    CHAR_DELETE_FAILED_VAS_TRANSACTION_IN_PROGRESS         = 61,
 
-    CHAR_LOGIN_IN_PROGRESS                                 = 60,
-    CHAR_LOGIN_SUCCESS                                     = 61,
-    CHAR_LOGIN_NO_WORLD                                    = 62,
-    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 63,
-    CHAR_LOGIN_NO_INSTANCES                                = 64,
-    CHAR_LOGIN_FAILED                                      = 65,
-    CHAR_LOGIN_DISABLED                                    = 66,
-    CHAR_LOGIN_NO_CHARACTER                                = 67,
-    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 68,
-    CHAR_LOGIN_LOCKED_BY_BILLING                           = 69,
-    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 70,
-    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 71,
-    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 72,
-    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 73,
-    CHAR_LOGIN_LOCKED_BY_REVOKED_VAS_TRANSACTION           = 74,
+    CHAR_LOGIN_IN_PROGRESS                                 = 62,
+    CHAR_LOGIN_SUCCESS                                     = 63,
+    CHAR_LOGIN_NO_WORLD                                    = 64,
+    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 65,
+    CHAR_LOGIN_NO_INSTANCES                                = 66,
+    CHAR_LOGIN_FAILED                                      = 67,
+    CHAR_LOGIN_DISABLED                                    = 68,
+    CHAR_LOGIN_NO_CHARACTER                                = 69,
+    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 70,
+    CHAR_LOGIN_LOCKED_BY_BILLING                           = 71,
+    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 72,
+    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 73,
+    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 74,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 75,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_VAS_TRANSACTION           = 76,
+    CHAR_LOGIN_LOCKED_BY_RESTRICTION                       = 77,
 
-    CHAR_NAME_SUCCESS                                      = 75,
-    CHAR_NAME_FAILURE                                      = 76,
-    CHAR_NAME_NO_NAME                                      = 77,
-    CHAR_NAME_TOO_SHORT                                    = 78,
-    CHAR_NAME_TOO_LONG                                     = 79,
-    CHAR_NAME_INVALID_CHARACTER                            = 80,
-    CHAR_NAME_MIXED_LANGUAGES                              = 81,
-    CHAR_NAME_PROFANE                                      = 82,
-    CHAR_NAME_RESERVED                                     = 83,
-    CHAR_NAME_INVALID_APOSTROPHE                           = 84,
-    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 85,
-    CHAR_NAME_THREE_CONSECUTIVE                            = 86,
-    CHAR_NAME_INVALID_SPACE                                = 87,
-    CHAR_NAME_CONSECUTIVE_SPACES                           = 88,
-    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 89,
-    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 90,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 91
+    CHAR_NAME_SUCCESS                                      = 78,
+    CHAR_NAME_FAILURE                                      = 79,
+    CHAR_NAME_NO_NAME                                      = 80,
+    CHAR_NAME_TOO_SHORT                                    = 81,
+    CHAR_NAME_TOO_LONG                                     = 82,
+    CHAR_NAME_INVALID_CHARACTER                            = 83,
+    CHAR_NAME_MIXED_LANGUAGES                              = 84,
+    CHAR_NAME_PROFANE                                      = 85,
+    CHAR_NAME_RESERVED                                     = 86,
+    CHAR_NAME_INVALID_APOSTROPHE                           = 87,
+    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 88,
+    CHAR_NAME_THREE_CONSECUTIVE                            = 89,
+    CHAR_NAME_INVALID_SPACE                                = 90,
+    CHAR_NAME_CONSECUTIVE_SPACES                           = 91,
+    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 92,
+    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 93,
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 94
 };
 
 enum CharacterUndeleteResult
@@ -6195,6 +6226,7 @@ enum class GameError : uint32
     ERR_CLAIMED_CHALLENGE_MODE_REWARD_OLD                   = 984,
     ERR_TALENT_GRANTED_BY_AURA                              = 985,
     ERR_CHALLENGE_MODE_ALREADY_COMPLETE                     = 986,
+    ERR_GLYPH_TARGET_NOT_AVAILABLE                          = 987,
 };
 
 #endif

@@ -511,7 +511,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRewardItem co
     data << rewardItem.ItemID;
     data << rewardItem.Unk4;
     data << uint32(rewardItem.AchievementsRequired.size());
-    data << rewardItem.RaceMask;
+    data << uint64(rewardItem.RaceMask);
     data << rewardItem.MinGuildLevel;
     data << rewardItem.MinGuildRep;
     data << rewardItem.Cost;
