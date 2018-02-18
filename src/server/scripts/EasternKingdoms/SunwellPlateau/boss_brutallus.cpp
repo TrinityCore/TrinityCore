@@ -153,6 +153,7 @@ public:
             {
                 Madrigosa->Respawn();
                 Madrigosa->setActive(true);
+                Madrigosa->SetFarVisible(true);
                 IsIntro = true;
                 Madrigosa->SetMaxHealth(me->GetMaxHealth());
                 Madrigosa->SetHealth(me->GetMaxHealth());

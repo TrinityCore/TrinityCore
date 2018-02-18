@@ -416,6 +416,7 @@ class boss_algalon_the_observer : public CreatureScript
                         brann->AI()->DoAction(ACTION_FINISH_INTRO);
 
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     DoZoneInCombat();
                     introDelay = 26000;
                     summons.DespawnEntry(NPC_AZEROTH);
