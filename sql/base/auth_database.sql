@@ -349,7 +349,7 @@ LOCK TABLES `rbac_default_permissions` WRITE;
 /*!40000 ALTER TABLE `rbac_default_permissions` DISABLE KEYS */;
 INSERT INTO `rbac_default_permissions` VALUES
 (1,194,-1),
-(0,195,-1);
+(0,195,-1),
 (2,193,-1),
 (3,192,-1);
 /*!40000 ALTER TABLE `rbac_default_permissions` ENABLE KEYS */;
