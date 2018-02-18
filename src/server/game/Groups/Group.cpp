@@ -1343,7 +1343,6 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
-                    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
                     player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
 
                     ItemDisenchantLootEntry const* disenchant = ASSERT_NOTNULL(roll->GetItemDisenchantLoot(player));
@@ -1906,6 +1905,8 @@ ItemDisenchantLootEntry const* Roll::GetItemDisenchantLoot(Player const* player)
         uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, player->getLevel(), 0, lootItemInSlot->upgradeId);
         return Item::GetDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
     }
+
+    return nullptr;
 }
 
 void Group::SetDungeonDifficultyID(Difficulty difficulty)
