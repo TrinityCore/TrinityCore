@@ -1,3 +1,4 @@
+/*
 -- 
 -- Remove unique items from reference table 24066
 DELETE FROM `reference_loot_template` WHERE `Entry`=24066 AND `Item` IN (886, 1077, 2013, 2227, 2233, 2566, 3204, 3569, 6315);
@@ -13,3 +14,4 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `GroupId`, `Com
 (2372, 3204, 0.1, 0, "Mudsnout Gnoll - Deepwood Bracers"),
 (4517, 3569, 1.5, 0, "Death's Head Priest - Vicar's Robe"),
 (6523, 6315, 0.1, 0, "Dark Iron Rifleman - Steelarrow Crossbow");
+*/
