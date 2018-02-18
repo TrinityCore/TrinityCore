@@ -496,6 +496,10 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
 
     m_updateTargetMapInterval = UPDATE_TARGET_MAP_INTERVAL;
 
+    // skip update if owner is not in world!
+    if (!GetOwner()->IsInWorld())
+        return;
+
     // fill up to date target list
     //                 target, effMask
     std::unordered_map<Unit*, uint8> targets;
@@ -1791,12 +1795,6 @@ uint8 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo,
     // do allow additional requirements for procs
     // this is needed because this is the last moment in which you can prevent aura charge drop on proc
     // and possibly a way to prevent default checks (if there're going to be any)
-
-    // Aura added by spell can't trigger from self (prevent drop charges/do triggers)
-    // But except periodic and kill triggers (can triggered from self)
-    if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
-        if (spellInfo->Id == GetId() && !(eventInfo.GetTypeMask() & (PROC_FLAG_TAKEN_PERIODIC | PROC_FLAG_KILL)))
-            return 0;
 
     // Check if current equipment meets aura requirements
     // do that only for passive spells

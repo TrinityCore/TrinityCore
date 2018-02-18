@@ -16,8 +16,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Channel.h"
 #include "ChannelMgr.h"
+#include "Channel.h"
+#include "DBCStores.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"

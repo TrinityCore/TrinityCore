@@ -1131,6 +1131,7 @@ class npc_thorim_pre_phase : public CreatureScript
             npc_thorim_pre_phaseAI(Creature* creature) : npc_thorim_trashAI(creature)
             {
                 me->setActive(true); // prevent grid unload
+                me->SetFarVisible(true);
             }
 
             void Reset() override
@@ -1146,7 +1147,7 @@ class npc_thorim_pre_phase : public CreatureScript
                     SetCombatMovement(false);
             }
 
-            void JustDied(Unit* /*victim*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 if (Creature* thorim = _instance->GetCreature(BOSS_THORIM))
                     thorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
@@ -1405,7 +1406,7 @@ class npc_runic_colossus : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*victim*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 // open the Runic Door
                 _instance->HandleGameObject(_instance->GetGuidData(DATA_RUNIC_DOOR), true);
@@ -1516,7 +1517,7 @@ class npc_ancient_rune_giant : public CreatureScript
                 _events.ScheduleEvent(EVENT_RUNE_DETONATION, 25000);
             }
 
-            void JustDied(Unit* /*victim*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 // opem the Stone Door
                 _instance->HandleGameObject(_instance->GetGuidData(DATA_STONE_DOOR), true);

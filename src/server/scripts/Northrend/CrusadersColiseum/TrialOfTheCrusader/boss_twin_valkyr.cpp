@@ -276,7 +276,7 @@ struct boss_twin_baseAI : public BossAI
         DoCast(me, SurgeSpellId);
 
         events.ScheduleEvent(EVENT_TWIN_SPIKE, 20 * IN_MILLISECONDS);
-        events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 6 * MINUTE*IN_MILLISECONDS : 10 * MINUTE*IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 6 * MINUTE*IN_MILLISECONDS : 8 * MINUTE*IN_MILLISECONDS);
         if (IsHeroic())
             events.ScheduleEvent(EVENT_TOUCH, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
     }

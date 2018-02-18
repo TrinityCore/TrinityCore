@@ -59,11 +59,6 @@ class boss_moragg : public CreatureScript
                 instance->SetData(DATA_HANDLE_CELLS, DATA_MORAGG);
             }
 
-            void JustDied(Unit* killer) override
-            {
-                BossAI::JustDied(killer);
-            }
-
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())

@@ -311,10 +311,13 @@ class boss_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_TWO))
                     return;
 
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -1080,6 +1083,7 @@ class npc_meteor_strike : public CreatureScript
                 {
                     DoCastSelf(SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, Milliseconds(500));
                 }
             }

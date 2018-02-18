@@ -150,7 +150,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
-
+            me->SetVisible(true);
             instance->SetBossState(DATA_MAGUS_TELESTRA, DONE);
         }
 
