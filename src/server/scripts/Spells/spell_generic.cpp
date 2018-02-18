@@ -922,6 +922,24 @@ enum Clone
     SPELL_NIGHTMARE_FIGMENT_MIRROR_IMAGE        = 57528
 };
 
+// 5138 - Drain Mana
+// 8129 - Mana Burn
+class spell_gen_clear_fear_poly : public SpellScript
+{
+    PrepareSpellScript(spell_gen_clear_fear_poly);
+
+    void HandleAfterHit()
+    {
+        if (Unit* unitTarget = GetHitUnit())
+            unitTarget->RemoveAurasWithMechanic((1 << MECHANIC_FEAR) | (1 << MECHANIC_POLYMORPH));
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_gen_clear_fear_poly::HandleAfterHit);
+    }
+};
+
 class spell_gen_clone : public SpellScriptLoader
 {
     public:
@@ -4380,6 +4398,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_burning_depths_necrolyte_image();
     new spell_gen_cannibalize();
     new spell_gen_chaos_blast();
+    RegisterSpellScript(spell_gen_clear_fear_poly);
     new spell_gen_clone();
     new spell_gen_clone_weapon();
     new spell_gen_clone_weapon_aura();
