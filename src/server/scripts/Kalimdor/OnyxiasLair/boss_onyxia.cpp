@@ -184,6 +184,7 @@ public:
                     break;
                 case NPC_LAIRGUARD:
                     summoned->setActive(true);
+                    summoned->SetFarVisible(true);
                     break;
             }
             summons.Summon(summoned);
