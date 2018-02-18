@@ -178,6 +178,7 @@ class Roll : public LootValidatorRef
         Loot* getLoot();
         void targetObjectBuildLink() override;
         void FillPacket(WorldPackets::Loot::LootItemData& lootItem) const;
+        ItemDisenchantLootEntry const* GetItemDisenchantLoot(Player const* player) const;
 
         uint32 itemid;
         ItemRandomEnchantmentId itemRandomPropId;
