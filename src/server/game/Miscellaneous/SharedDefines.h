@@ -131,17 +131,17 @@ enum Gender
 enum Races
 {
     RACE_NONE               = 0,
-    RACE_HUMAN              = 1,
-    RACE_ORC                = 2,
-    RACE_DWARF              = 3,
-    RACE_NIGHTELF           = 4,
-    RACE_UNDEAD_PLAYER      = 5,
-    RACE_TAUREN             = 6,
-    RACE_GNOME              = 7,
-    RACE_TROLL              = 8,
-    RACE_GOBLIN             = 9,
-    RACE_BLOODELF           = 10,
-    RACE_DRAENEI            = 11,
+    RACE_HUMAN                  = 1,
+    RACE_ORC                    = 2,
+    RACE_DWARF                  = 3,
+    RACE_NIGHTELF               = 4,
+    RACE_UNDEAD_PLAYER          = 5,
+    RACE_TAUREN                 = 6,
+    RACE_GNOME                  = 7,
+    RACE_TROLL                  = 8,
+    RACE_GOBLIN                 = 9,
+    RACE_BLOODELF               = 10,
+    RACE_DRAENEI                = 11,
     //RACE_FEL_ORC            = 12,
     //RACE_NAGA               = 13,
     //RACE_BROKEN             = 14,
@@ -152,15 +152,19 @@ enum Races
     //RACE_TAUNKA             = 19,
     //RACE_NORTHREND_SKELETON = 20,
     //RACE_ICE_TROLL          = 21,
-    RACE_WORGEN             = 22,
+    RACE_WORGEN                 = 22,
     //RACE_GILNEAN            = 23
-    RACE_PANDAREN_NEUTRAL   = 24,
-    RACE_PANDAREN_ALLIANCE  = 25,
-    RACE_PANDAREN_HORDE     = 26
+    RACE_PANDAREN_NEUTRAL       = 24,
+    RACE_PANDAREN_ALLIANCE      = 25,
+    RACE_PANDAREN_HORDE         = 26,
+    RACE_NIGHTBORNE             = 27,
+    RACE_HIGHMOUNTAIN_TAUREN    = 28,
+    RACE_VOID_ELF               = 29,
+    RACE_LIGHTFORGED_DRAENEI    = 30
 };
 
 // max+1 for player race
-#define MAX_RACES         27
+#define MAX_RACES         31
 
 #define RACEMASK_ALL_PLAYABLE      \
     ((1<<(RACE_HUMAN-1))         | \
@@ -177,7 +181,11 @@ enum Races
      (1<<(RACE_WORGEN-1))        | \
      (1<<(RACE_PANDAREN_NEUTRAL-1))  |\
      (1<<(RACE_PANDAREN_ALLIANCE-1)) |\
-     (1<<(RACE_PANDAREN_HORDE-1)))
+     (1<<(RACE_PANDAREN_HORDE-1))|\
+     (1<<(RACE_NIGHTBORNE-1))|\
+     (1<<(RACE_HIGHMOUNTAIN_TAUREN-1))|\
+     (1<<(RACE_VOID_ELF-1))|\
+     (1<<(RACE_LIGHTFORGED_DRAENEI-1)))
 
 #define RACEMASK_NEUTRAL (1<<(RACE_PANDAREN_NEUTRAL-1))
 
@@ -188,7 +196,9 @@ enum Races
      (1<<(RACE_GNOME-1))    | \
      (1<<(RACE_DRAENEI-1))  | \
      (1<<(RACE_WORGEN-1))   | \
-     (1<<(RACE_PANDAREN_ALLIANCE-1)))
+     (1<<(RACE_PANDAREN_ALLIANCE-1)) |\
+     (1<<(RACE_VOID_ELF-1)) |\
+     (1<<(RACE_LIGHTFORGED_DRAENEI-1)))
 
 #define RACEMASK_HORDE RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE
 
