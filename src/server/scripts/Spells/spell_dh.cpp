@@ -2156,6 +2156,8 @@ public:
 
             if (caster->HasAura(SPELL_DH_SOUL_RENDING_HAVOC))
                 amount += 100;
+            else
+                amount += 30;
         }
 
         void Register() override
