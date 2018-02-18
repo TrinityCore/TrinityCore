@@ -30,12 +30,13 @@ ObjectData const creatureData[] =
     { NPC_LUMBERING_OAF,                DATA_LUMBERING_OAF      },
     { NPC_FOE_REAPER_TARGETING_BUNNY,   DATA_FOE_REAPER_BUNNY   },
     { NPC_PROTOTYPE_REAPER,             DATA_PROTOTYPE_REAPER   },
-    { 0,                                0                       }, // END
+    { 0,                                0                       } // END
 };
 
 ObjectData const gameobjectData[] =
 {
-    { 0,            0 }, // END
+    { GO_IRON_CLAD_DOOR,                DATA_IRON_CLAD_DOOR     },
+    { 0,                                0                       } // END
 };
 
 DoorData const doorData[] =
@@ -44,7 +45,7 @@ DoorData const doorData[] =
     { GO_MAST_ROOM_DOOR,    DATA_HELIX_GEARBREAKER, DOOR_TYPE_PASSAGE   },
     { GO_HEAVY_DOOR,        DATA_HELIX_GEARBREAKER, DOOR_TYPE_ROOM      },
     { GO_FOUNDRY_DOOR,      DATA_FOE_REAPER_5000,   DOOR_TYPE_PASSAGE   },
-    { 0,                    0,                      DOOR_TYPE_ROOM      }, // END
+    { 0,                    0,                      DOOR_TYPE_ROOM      } // END
 };
 
 class instance_deadmines : public InstanceMapScript
@@ -62,6 +63,7 @@ class instance_deadmines : public InstanceMapScript
                 LoadObjectData(creatureData, gameobjectData);
                 _teamInInstance = 0;
                 _foeReaper5000Intro = 0;
+                _IronCladDoorState = 0;
             }
 
             void OnPlayerEnter(Player* player) override
@@ -129,6 +131,21 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
+            void OnGameObjectCreate(GameObject* go) override
+            {
+                InstanceScript::OnGameObjectCreate(go);
+
+                switch (go->GetEntry())
+                {
+                    case GO_IRON_CLAD_DOOR:
+                        if (_IronCladDoorState == DONE)
+                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
@@ -139,6 +156,10 @@ class instance_deadmines : public InstanceMapScript
                         break;
                     case DATA_FOE_REAPER_INTRO:
                         _foeReaper5000Intro = data;
+                        SaveToDB();
+                        break;
+                    case DATA_BROKEN_DOOR:
+                        _IronCladDoorState = data;
                         SaveToDB();
                         break;
                     default:
@@ -154,6 +175,8 @@ class instance_deadmines : public InstanceMapScript
                         return _teamInInstance;
                     case DATA_FOE_REAPER_INTRO:
                         return _foeReaper5000Intro;
+                    case DATA_BROKEN_DOOR:
+                        return _IronCladDoorState;
                     default:
                         return 0;
                 }
@@ -162,19 +185,22 @@ class instance_deadmines : public InstanceMapScript
             void WriteSaveDataMore(std::ostringstream& data) override
             {
                 data << _teamInInstance << ' '
-                    << _foeReaper5000Intro;
+                    << _foeReaper5000Intro << ' '
+                    << _IronCladDoorState;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
                 data >> _teamInInstance;
                 data >> _foeReaper5000Intro;
+                data >> _IronCladDoorState;
 
             }
 
         protected:
             uint32 _teamInInstance;
             uint32 _foeReaper5000Intro;
+            uint32 _IronCladDoorState;
         };
 
 

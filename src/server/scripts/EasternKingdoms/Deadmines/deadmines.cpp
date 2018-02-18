@@ -21,6 +21,8 @@
 #include "Spell.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GameObjectAI.h"
+#include "GameObject.h"
 
 enum DefiasWatcherSpells
 {
@@ -112,6 +114,49 @@ class npc_deadmines_defias_watcher : public CreatureScript
         }
 };
 
+enum DefiasCannon
+{
+    // GroupID 0 and 1 are used by Foe Reaper 5000
+    SAY_ANNOUNCE_CANNON_LOADED = 2
+};
+
+class go_deadmines_defias_cannon : public GameObjectScript
+{
+    public:
+        go_deadmines_defias_cannon() : GameObjectScript("go_deadmines_defias_cannon") { }
+
+        struct go_deadmines_defias_cannonAI : public GameObjectAI
+        {
+            go_deadmines_defias_cannonAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
+
+            bool OnReportUse(Player* player) override
+            {
+                if (GameObject* cannon = me->ToGameObject())
+                {
+                    if (_instance->GetData(DATA_BROKEN_DOOR) != DONE)
+                    {
+                        cannon->SendCustomAnim(0);
+                        if (GameObject* door = _instance->GetGameObject(DATA_IRON_CLAD_DOOR))
+                            door->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+
+                        if (Creature* bunny = me->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 20.0f, true))
+                            bunny->AI()->Talk(SAY_ANNOUNCE_CANNON_LOADED);
+
+                        _instance->SetData(DATA_BROKEN_DOOR, DONE);
+                    }
+                }
+                return true;
+            }
+        private:
+            InstanceScript* _instance;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetDeadminesAI<go_deadmines_defias_cannonAI>(go);
+        }
+};
+
 class spell_deadmines_on_fire : public SpellScriptLoader
 {
     public:
@@ -147,5 +192,6 @@ class spell_deadmines_on_fire : public SpellScriptLoader
 void AddSC_deadmines()
 {
     new npc_deadmines_defias_watcher();
+    new go_deadmines_defias_cannon();
     new spell_deadmines_on_fire();
 }

@@ -39,6 +39,8 @@ enum DMDataTypes
     DATA_FOE_REAPER_INTRO   = 9,
     DATA_FOE_REAPER_BUNNY   = 10,
     DATA_PROTOTYPE_REAPER   = 11,
+    DATA_BROKEN_DOOR        = 13,
+    DATA_IRON_CLAD_DOOR     = 14
 };
 
 enum DMCreatures
@@ -87,7 +89,7 @@ enum DMCreatures
 enum DMGameObjects
 {
     GO_FACTORY_DOOR     = 13965,
-    GO_IRONCLAD_DOOR    = 16397,
+    GO_IRON_CLAD_DOOR   = 16397,
     GO_DEFIAS_CANNON    = 16398,
     GO_DOOR_LEVER       = 101833,
     GO_MAST_ROOM_DOOR   = 16400,
@@ -100,6 +102,12 @@ template<class AI>
 AI* GetDeadminesAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, DMScriptName);
+}
+
+template<class AI>
+AI* GetDeadminesAI(GameObject* go)
+{
+    return GetInstanceAI<AI>(go, DMScriptName);
 }
 
 #endif
