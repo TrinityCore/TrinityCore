@@ -2244,6 +2244,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_EXIT_VEHICLE:
+        {
+            if (e.GetTargetType() == SMART_TARGET_POSITION)
+            {
+                Position _exitPosition = { e.target.x, e.target.y, e.target.z, e.target.o };
+                if (Creature* creature = GetBaseObject()->ToCreature())
+                    creature->_ExitVehicle(&_exitPosition);
+            }
+            else
+            {
+                for (WorldObject* const target : targets)
+                {
+                    if (Player* player = target->ToPlayer())
+                        player->_ExitVehicle();
+                    else if (Creature* creature = target->ToCreature())
+                        creature->_ExitVehicle();
+                }
+            }
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;

@@ -13481,7 +13481,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         init.SetFall();
 
     init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), height, false);
-    init.SetFacing(GetOrientation());
+    init.SetFacing(pos.GetOrientation());
     init.SetTransportExit();
     init.Launch();
 
