@@ -61,10 +61,10 @@ struct AdventureJournalLoadInfo
             { false, FT_STRING, "Title" },
             { false, FT_STRING, "Description" },
             { false, FT_STRING, "ButtonText" },
-            { false, FT_INT, "Unk1" },
-            { false, FT_INT, "Unk2" },
             { false, FT_STRING, "Unk3" },
             { false, FT_STRING, "ObjectiveText" },
+            { false, FT_INT, "Unk1" },
+            { false, FT_INT, "Unk2" },
             { false, FT_SHORT, "Unk4" },
             { false, FT_SHORT, "QuestID" },
             { false, FT_SHORT, "Unk5_1" },
@@ -1651,11 +1651,11 @@ struct GarrMissionLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "Duration" },
-            { false, FT_INT, "OfferTime" },
             { false, FT_STRING, "Name" },
             { false, FT_STRING, "Description" },
             { false, FT_STRING, "Location" },
+            { false, FT_INT, "Duration" },
+            { false, FT_INT, "OfferTime" },
             { false, FT_FLOAT, "Map1X" },
             { false, FT_FLOAT, "Map1Y" },
             { false, FT_FLOAT, "Map2X" },
@@ -3647,9 +3647,9 @@ struct PvpTalentLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
+            { false, FT_STRING, "Description" },
             { false, FT_INT, "SpellID" },
             { false, FT_INT, "OverridesSpellID" },
-            { false, FT_STRING, "Description" },
             { false, FT_INT, "ExtraSpellID" },
             { false, FT_INT, "TierID" },
             { false, FT_INT, "ColumnIndex" },
@@ -3709,7 +3709,7 @@ struct QuestV2CliTaskLoadInfo
         // issihhhhhhbbbbbbbbbbiii
         static DB2FieldMeta const fields[] =
         {
-            { true,  FT_INT,    "Unk1"          },
+            { true,  FT_LONG,   "Unk1"          },
             { false, FT_STRING_NOT_LOCALIZED, "Name"        },
             { false, FT_STRING_NOT_LOCALIZED, "Description" },
             { true,  FT_INT,    "Unk2"          },
@@ -3734,6 +3734,7 @@ struct QuestV2CliTaskLoadInfo
             { false, FT_INT,    "ID"            },
             { false, FT_INT,    "Unk19"         },
             { false, FT_INT,    "QuestInfoID"   },
+            { false, FT_INT,    "Unk20"         },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestV2CliTaskMeta::Instance(), HOTFIX_SEL_QUEST_V2_CLI_TASK);
         return &loadInfo;

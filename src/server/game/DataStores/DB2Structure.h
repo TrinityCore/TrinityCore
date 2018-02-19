@@ -2220,7 +2220,7 @@ struct QuestFactionRewardEntry
 
 struct QuestV2CliTaskEntry
 {
-    int32 Unk1;
+    int64 Unk1;
     char* Name;
     char* Description;
     int32  Unk2;
@@ -2243,6 +2243,7 @@ struct QuestV2CliTaskEntry
     uint32 ID;
     int32 Unk19;
     int32 QuestInfoID;
+    int32 Unk20;
 };
 
 struct QuestMoneyRewardEntry
