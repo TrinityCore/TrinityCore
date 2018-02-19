@@ -60,6 +60,7 @@ namespace WorldPackets
             int32 QuestID       = 0;
             int32 QuestType     = 0;
             int32 QuestLevel    = 0;
+            int32 QuestMaxScalingLevel = 0;
             bool Repeatable     = false;
             std::string QuestTitle;
             int32 QuestFlags[2] = { };

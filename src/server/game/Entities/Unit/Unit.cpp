@@ -3127,7 +3127,10 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
         if (castItem)
         {
             castItemGuid = castItem->GetGUID();
-            castItemLevel = castItem->GetItemLevel(castItem->GetOwner());
+            if (Player* owner = castItem->GetOwner())
+                castItemLevel = int32(castItem->GetItemLevel(owner));
+            else if (castItem->GetOwnerGUID() == caster->GetGUID())
+                castItemLevel = int32(castItem->GetItemLevel(caster->ToPlayer()));
         }
 
         // find current aura from spell and change it's stackamount, or refresh it's duration

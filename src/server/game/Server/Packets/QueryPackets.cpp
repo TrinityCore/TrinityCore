@@ -370,6 +370,9 @@ WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
                 _worldPacket << int32(questPOIBlobPoint.X);
                 _worldPacket << int32(questPOIBlobPoint.Y);
             }
+
+            _worldPacket.WriteBit(questPOIBlobData.AlwaysAllowMergingBlobs);
+            _worldPacket.FlushBits();
         }
     }
 

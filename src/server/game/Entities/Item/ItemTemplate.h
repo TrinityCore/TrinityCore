@@ -721,7 +721,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
     InventoryType GetInventoryType() const { return InventoryType(ExtendedData->InventoryType); }
     int32 GetAllowableClass() const { return ExtendedData->AllowableClass; }
-    int32 GetAllowableRace() const { return ExtendedData->AllowableRace; }
+    int64 GetAllowableRace() const { return ExtendedData->AllowableRace; }
     uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; }
     int32 GetBaseRequiredLevel() const { return ExtendedData->RequiredLevel; }
     uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }
@@ -760,14 +760,13 @@ struct TC_GAME_API ItemTemplate
     HolidayIds GetHolidayID() const { return HolidayIds(ExtendedData->HolidayID); }
     float  GetStatScalingFactor() const { return ExtendedData->StatScalingFactor; }
     uint8 GetArtifactID() const { return ExtendedData->ArtifactID; }
+    uint8 GetRequiredExpansion() const { return ExtendedData->RequiredExpansion; }
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;
 
     // extra fields, not part of db2 files
     uint32 ScriptId;
-    uint32 DisenchantID;
-    uint32 RequiredDisenchantSkill;
     uint32 FoodType;
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;

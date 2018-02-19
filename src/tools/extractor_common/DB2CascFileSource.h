@@ -28,6 +28,7 @@ struct DB2CascFileSource : public DB2FileSource
     bool IsOpen() const override;
     bool Read(void* buffer, std::size_t numBytes) override;
     std::size_t GetPosition() const override;
+    std::size_t GetFileSize() const override;
     char const* GetFileName() const override;
 
 private:

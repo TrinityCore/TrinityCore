@@ -425,14 +425,17 @@ enum PlayerFlagsEx
 
 enum PlayerLocalFlags
 {
+    PLAYER_LOCAL_FLAG_CONTROLLING_PET               = 0x00000001,   // Displays "You have an active summon already" when trying to tame new pet
     PLAYER_LOCAL_FLAG_TRACK_STEALTHED               = 0x00000002,
     PLAYER_LOCAL_FLAG_RELEASE_TIMER                 = 0x00000008,   // Display time till auto release spirit
     PLAYER_LOCAL_FLAG_NO_RELEASE_WINDOW             = 0x00000010,   // Display no "release spirit" window at all
     PLAYER_LOCAL_FLAG_NO_PET_BAR                    = 0x00000020,   // CGPetInfo::IsPetBarUsed
     PLAYER_LOCAL_FLAG_OVERRIDE_CAMERA_MIN_HEIGHT    = 0x00000040,
+    PLAYER_LOCAL_FLAG_NEWLY_BOOSTED_CHARACTER       = 0x00000080,
     PLAYER_LOCAL_FLAG_USING_PARTY_GARRISON          = 0x00000100,
     PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED       = 0x00000200,
-    PLAYER_LOCAL_FLAG_CAN_VISIT_PARTY_GARRISON      = 0x00000400
+    PLAYER_LOCAL_FLAG_CAN_VISIT_PARTY_GARRISON      = 0x00000400,
+    PLAYER_LOCAL_FLAG_ACCOUNT_SECURED               = 0x00001000,   // Script_IsAccountSecured
 };
 
 enum PlayerBytesOffsets
@@ -446,7 +449,7 @@ enum PlayerBytesOffsets
 enum PlayerBytes2Offsets
 {
     PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION = 0, // 3 bytes
-    PLAYER_BYTES_2_OFFSET_FACIAL_STYLE          = 3,
+    PLAYER_BYTES_2_OFFSET_FACIAL_STYLE          = 3
 };
 
 enum PlayerBytes3Offsets
@@ -454,7 +457,7 @@ enum PlayerBytes3Offsets
     PLAYER_BYTES_3_OFFSET_PARTY_TYPE        = 0,
     PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS    = 1,
     PLAYER_BYTES_3_OFFSET_GENDER            = 2,
-    PLAYER_BYTES_3_OFFSET_INEBRIATION       = 3,
+    PLAYER_BYTES_3_OFFSET_INEBRIATION       = 3
 };
 
 enum PlayerBytes4Offsets
@@ -468,13 +471,14 @@ enum PlayerFieldBytesOffsets
     PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL       = 0,
     PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES        = 1,
     PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK     = 2,
-    PLAYER_FIELD_BYTES_OFFSET_NUM_RESPECS               = 3,
+    PLAYER_FIELD_BYTES_OFFSET_NUM_RESPECS               = 3
 };
 
 enum PlayerFieldBytes2Offsets
 {
     PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK  = 0,
     PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION                         = 1,
+    PLAYER_FIELD_BYTES_2_OFFSET_NUM_BACKPACK_SLOTS                  = 2
 };
 
 enum PlayerFieldBytes3Offsets
@@ -604,11 +608,12 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 187,
+    PLAYER_SLOT_END             = 195,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
 #define INVENTORY_SLOT_BAG_0    255
+#define INVENTORY_DEFAULT_SIZE  16
 
 enum EquipmentSlots : uint8                                 // 19 slots
 {
@@ -644,41 +649,41 @@ enum InventorySlots : uint8                                 // 4 slots
     INVENTORY_SLOT_BAG_END      = 23
 };
 
-enum InventoryPackSlots : uint8                             // 16 slots
+enum InventoryPackSlots : uint8                             // 24 slots
 {
     INVENTORY_SLOT_ITEM_START   = 23,
-    INVENTORY_SLOT_ITEM_END     = 39
+    INVENTORY_SLOT_ITEM_END     = 47
 };
 
 enum BankItemSlots                                          // 28 slots
 {
-    BANK_SLOT_ITEM_START        = 39,
-    BANK_SLOT_ITEM_END          = 67
+    BANK_SLOT_ITEM_START        = 47,
+    BANK_SLOT_ITEM_END          = 75
 };
 
 enum BankBagSlots                                           // 7 slots
 {
-    BANK_SLOT_BAG_START         = 67,
-    BANK_SLOT_BAG_END           = 74
+    BANK_SLOT_BAG_START         = 75,
+    BANK_SLOT_BAG_END           = 82
 };
 
 enum BuyBackSlots                                           // 12 slots
 {
     // stored in m_buybackitems
-    BUYBACK_SLOT_START          = 74,
-    BUYBACK_SLOT_END            = 86
+    BUYBACK_SLOT_START          = 82,
+    BUYBACK_SLOT_END            = 94
 };
 
-enum ReagentSlots
+enum ReagentSlots                                           // 98 slots
 {
-    REAGENT_SLOT_START          = 87,
-    REAGENT_SLOT_END            = 184,
+    REAGENT_SLOT_START          = 94,
+    REAGENT_SLOT_END            = 192,
 };
 
 enum ChildEquipmentSlots
 {
-    CHILD_EQUIPMENT_SLOT_START   = 184,
-    CHILD_EQUIPMENT_SLOT_END     = 187,
+    CHILD_EQUIPMENT_SLOT_START   = 192,
+    CHILD_EQUIPMENT_SLOT_END     = 195,
 };
 
 struct ItemPosCount
@@ -1178,6 +1183,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsChildEquipmentPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const;
+        uint8 GetInventorySlotCount() const { return GetByteValue(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_NUM_BACKPACK_SLOTS); }
+        void SetInventorySlotCount(uint8 slots);
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS); }
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS, count); }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
@@ -1337,7 +1344,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
 
-        int32 GetQuestLevel(Quest const* quest) const { return quest && (quest->GetQuestLevel() > 0) ? quest->GetQuestLevel() : getLevel(); }
+        int32 GetQuestLevel(Quest const* quest) const
+        {
+            if (!quest)
+                return getLevel();
+            return quest->GetQuestLevel() > 0 ? quest->GetQuestLevel() : std::min<int32>(getLevel(), quest->GetQuestMaxScalingLevel());
+        }
 
         void PrepareQuestMenu(ObjectGuid guid);
         void SendPreparedQuest(ObjectGuid guid);
@@ -1858,7 +1870,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static void OfflineResurrect(ObjectGuid const& guid, SQLTransaction& trans);
         bool HasCorpse() const { return _corpseLocation.GetMapId() != MAPID_INVALID; }
         WorldLocation GetCorpseLocation() const { return _corpseLocation; }
-        uint32 GetResurrectionSpellId() const;
+        void InitializeSelfResurrectionSpells();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
         void RepopAtGraveyard();
