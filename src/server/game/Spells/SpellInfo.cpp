@@ -369,7 +369,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_RANDOM},      // 149
 };
 
-SpellEffectInfo::SpellEffectInfo(SpellEffectScalingEntry const* spellEffectScaling, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect)
+SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect)
 {
     _spellInfo = spellInfo;
     EffectIndex = _effect ? _effect->EffectIndex : effIndex;
@@ -396,11 +396,10 @@ SpellEffectInfo::SpellEffectInfo(SpellEffectScalingEntry const* spellEffectScali
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128();
     BonusCoefficientFromAP = _effect ? _effect->BonusCoefficientFromAP : 0.0f;
+    Scaling.Coefficient = _effect->Coefficient;
+    Scaling.Variance = _effect->Variance;
+    Scaling.ResourceCoefficient = _effect->ResourceCoefficient;
     ImplicitTargetConditions = NULL;
-
-    Scaling.Coefficient = spellEffectScaling ? spellEffectScaling->Coefficient : 0.0f;
-    Scaling.Variance = spellEffectScaling ? spellEffectScaling->Variance : 0.0f;
-    Scaling.ResourceCoefficient = spellEffectScaling ? spellEffectScaling->ResourceCoefficient : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -985,26 +984,19 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 255 SPELL_EFFECT_LEARN_TRANSMOG_SET
 };
 
-SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals,
-    std::unordered_map<uint32, SpellEffectScalingEntry const*> const& effectScaling)
+SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals)
     : _hasPowerDifficultyData(false)
 {
     Id = data.Entry->ID;
 
-    // SpellDifficultyEntry
     for (SpellEffectEntryMap::value_type const& itr : effectsMap)
     {
         SpellEffectEntryVector const& effects = itr.second;
         _effects[itr.first].resize(effects.size());
 
         for (size_t i = 0; i < effects.size(); ++i)
-        {
             if (SpellEffectEntry const* effect = effects[i])
-            {
-                auto scalingItr = effectScaling.find(effect->ID);
-                _effects[itr.first][effect->EffectIndex] = new SpellEffectInfo(scalingItr != effectScaling.end() ? scalingItr->second : nullptr, this, effect->EffectIndex, effect);
-            }
-        }
+                _effects[itr.first][effect->EffectIndex] = new SpellEffectInfo(this, effect->EffectIndex, effect);
     }
 
     SpellName = data.Entry->Name;

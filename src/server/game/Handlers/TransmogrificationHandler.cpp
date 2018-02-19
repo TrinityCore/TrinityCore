@@ -94,7 +94,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
                 bindAppearances.push_back(transmogItem.ItemModifiedAppearanceID);
 
             // add cost
-            cost += itemTransmogrified->GetSpecialPrice();
+            cost += itemTransmogrified->GetSellPrice(_player);
         }
         else
             resetAppearanceItems.push_back(itemTransmogrified);

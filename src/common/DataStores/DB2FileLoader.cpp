@@ -23,6 +23,90 @@
 #include "Log.h"
 #include <sstream>
 
+enum class DB2ColumnCompression : uint32
+{
+    None,
+    Immediate,
+    CommonData,
+    Pallet,
+    PalletArray
+};
+
+#pragma pack(push, 1)
+
+struct DB2FieldEntry
+{
+    int16 UnusedBits;
+    uint16 Offset;
+};
+
+struct DB2CatalogEntry
+{
+    uint32 FileOffset;
+    uint16 RecordSize;
+};
+
+struct DB2ColumnMeta
+{
+    uint16 BitOffset;
+    uint16 BitSize;
+    uint32 AdditionalDataSize;
+    DB2ColumnCompression CompressionType;
+    union
+    {
+        struct
+        {
+            uint32 BitOffset;
+            uint32 BitWidth;
+            bool Signed;
+        } immediate;
+
+        struct
+        {
+            uint32 Value;
+        } commonData;
+
+        struct
+        {
+            uint32 BitOffset;
+            uint32 BitWidth;
+            uint32 ArraySize;
+        } pallet;
+    } CompressionData;
+};
+
+struct DB2CommonValue
+{
+    uint32 RecordId;
+    uint32 Value;
+};
+
+struct DB2PalletValue
+{
+    uint32 Value;
+};
+
+struct DB2IndexDataInfo
+{
+    uint32 NumEntries;
+    uint32 MinId;
+    uint32 MaxId;
+};
+
+struct DB2IndexEntry
+{
+    uint32 ParentId;
+    uint32 RecordIndex;
+};
+
+#pragma pack(pop)
+
+struct DB2IndexData
+{
+    DB2IndexDataInfo Info;
+    std::unique_ptr<DB2IndexEntry[]> Entries;
+};
+
 DB2FileLoadInfo::DB2FileLoadInfo() : Fields(nullptr), FieldCount(0), Meta(nullptr)
 {
 }
@@ -70,7 +154,12 @@ class DB2FileLoaderImpl
 {
 public:
     virtual ~DB2FileLoaderImpl() { }
-    virtual bool Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo, DB2Header const* header) = 0;
+    virtual bool LoadTableData(DB2FileSource* source) = 0;
+    virtual bool LoadCatalogData(DB2FileSource* source) = 0;
+    virtual void SetAdditionalData(std::unique_ptr<DB2FieldEntry[]> fields, std::unique_ptr<uint32[]> idTable, std::unique_ptr<DB2RecordCopy[]> copyTable,
+        std::unique_ptr<DB2ColumnMeta[]> columnMeta, std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletValues,
+        std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletArrayValues, std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues,
+        std::unique_ptr<DB2IndexData[]> parentIndexes) = 0;
     virtual char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) = 0;
     virtual char* AutoProduceStrings(char* dataTable, uint32 locale) = 0;
     virtual void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) = 0;
@@ -84,13 +173,14 @@ public:
 private:
     friend class DB2Record;
     virtual unsigned char const* GetRawRecordData(uint32 recordNumber) const = 0;
-    virtual uint32 RecordGetId(unsigned char const* record, uint32 recordIndex) const = 0;
-    virtual uint8 RecordGetUInt8(unsigned char const* record, uint32 field, uint32 arrayIndex) const = 0;
-    virtual uint16 RecordGetUInt16(unsigned char const* record, uint32 field, uint32 arrayIndex) const = 0;
-    virtual uint32 RecordGetUInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const = 0;
-    virtual int32 RecordGetInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const = 0;
-    virtual float RecordGetFloat(unsigned char const* record, uint32 field, uint32 arrayIndex) const = 0;
-    virtual char const* RecordGetString(unsigned char const* record, uint32 field, uint32 arrayIndex) const = 0;
+    virtual uint32 RecordGetId(uint8 const* record, uint32 recordIndex) const = 0;
+    virtual uint8 RecordGetUInt8(uint8 const* record, uint32 field, uint32 arrayIndex) const = 0;
+    virtual uint16 RecordGetUInt16(uint8 const* record, uint32 field, uint32 arrayIndex) const = 0;
+    virtual uint32 RecordGetUInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const = 0;
+    virtual int32 RecordGetInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const = 0;
+    virtual uint64 RecordGetUInt64(uint8 const* record, uint32 field, uint32 arrayIndex) const = 0;
+    virtual float RecordGetFloat(uint8 const* record, uint32 field, uint32 arrayIndex) const = 0;
+    virtual char const* RecordGetString(uint8 const* record, uint32 field, uint32 arrayIndex) const = 0;
     virtual std::size_t* RecordCreateDetachedFieldOffsets(std::size_t* oldOffsets) const = 0;
     virtual void RecordDestroyFieldOffsets(std::size_t*& fieldOffsets) const = 0;
 };
@@ -98,10 +188,15 @@ private:
 class DB2FileLoaderRegularImpl final : public DB2FileLoaderImpl
 {
 public:
-    DB2FileLoaderRegularImpl();
+    DB2FileLoaderRegularImpl(char const* fileName, DB2FileLoadInfo const* loadInfo, DB2Header const* header);
     ~DB2FileLoaderRegularImpl();
 
-    bool Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo, DB2Header const* header) override;
+    bool LoadTableData(DB2FileSource* source) override;
+    bool LoadCatalogData(DB2FileSource* /*source*/) override { return true; }
+    void SetAdditionalData(std::unique_ptr<DB2FieldEntry[]> fields, std::unique_ptr<uint32[]> idTable, std::unique_ptr<DB2RecordCopy[]> copyTable,
+        std::unique_ptr<DB2ColumnMeta[]> columnMeta, std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletValues,
+        std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletArrayValues, std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues,
+        std::unique_ptr<DB2IndexData[]> parentIndexes) override;
     char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) override;
     char* AutoProduceStrings(char* dataTable, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) override;
@@ -113,50 +208,49 @@ public:
     DB2FileLoadInfo const* GetLoadInfo() const override;
 
 private:
-    void FillCommonValues(char** indexTable);
-    unsigned char const* GetRawRecordData(uint32 recordNumber) const override;
-    uint32 RecordGetId(unsigned char const* record, uint32 recordIndex) const override;
-    uint8 RecordGetUInt8(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    uint16 RecordGetUInt16(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    uint32 RecordGetUInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    int32 RecordGetInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    float RecordGetFloat(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    char const* RecordGetString(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    uint32 RecordGetVarInt(unsigned char const* record, uint32 field, uint32 arrayIndex, bool isSigned) const;
+    void FillParentLookup(char* dataTable);
+    uint8 const* GetRawRecordData(uint32 recordNumber) const override;
+    uint32 RecordGetId(uint8 const* record, uint32 recordIndex) const override;
+    uint8 RecordGetUInt8(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    uint16 RecordGetUInt16(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    uint32 RecordGetUInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    int32 RecordGetInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    uint64 RecordGetUInt64(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    float RecordGetFloat(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    char const* RecordGetString(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    template<typename T>
+    T RecordGetVarInt(uint8 const* record, uint32 field, uint32 arrayIndex) const;
+    uint64 RecordGetPackedValue(uint8 const* packedRecordData, uint32 bitWidth, uint32 bitOffset) const;
     uint16 GetFieldOffset(uint32 field) const;
-    uint16 GetFieldSize(uint32 field) const;
     std::size_t* RecordCreateDetachedFieldOffsets(std::size_t* oldOffsets) const override;
     void RecordDestroyFieldOffsets(std::size_t*& fieldOffsets) const override;
 
-#pragma pack(push, 1)
-    struct FieldEntry
-    {
-        uint16 UnusedBits;
-        uint16 Offset;
-    };
-#pragma pack(pop)
-
-    char const* fileName;
+    char const* _fileName;
     DB2FileLoadInfo const* _loadInfo;
-
     DB2Header const* _header;
-
-    unsigned char* data;
-    unsigned char* stringTable;
-    unsigned char* idTable;
-    uint32 idTableSize;
-    DB2RecordCopy* copyTable;
-    FieldEntry* fields;
-    unsigned char* commonData;
+    std::unique_ptr<uint8[]> _data;
+    uint8* _stringTable;
+    std::unique_ptr<uint32[]> _idTable;
+    std::unique_ptr<DB2RecordCopy[]> _copyTable;
+    std::unique_ptr<DB2ColumnMeta[]> _columnMeta;
+    std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> _palletValues;
+    std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> _palletArrayValues;
+    std::unique_ptr<std::unordered_map<uint32, uint32>[]> _commonValues;
+    std::unique_ptr<DB2IndexData[]> _parentIndexes;
 };
 
 class DB2FileLoaderSparseImpl final : public DB2FileLoaderImpl
 {
 public:
-    DB2FileLoaderSparseImpl();
+    DB2FileLoaderSparseImpl(char const* fileName, DB2FileLoadInfo const* loadInfo, DB2Header const* header);
     ~DB2FileLoaderSparseImpl();
 
-    bool Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo, DB2Header const* header) override;
+    bool LoadTableData(DB2FileSource* source) override;
+    bool LoadCatalogData(DB2FileSource* source) override;
+    void SetAdditionalData(std::unique_ptr<DB2FieldEntry[]> fields, std::unique_ptr<uint32[]> idTable, std::unique_ptr<DB2RecordCopy[]> copyTable,
+        std::unique_ptr<DB2ColumnMeta[]> columnMeta, std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletValues,
+        std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletArrayValues, std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues,
+        std::unique_ptr<DB2IndexData[]> parentIndexes) override;
     char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool) override;
     char* AutoProduceStrings(char* dataTable, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 /*records*/, char** /*indexTable*/, char* /*dataTable*/) override { }
@@ -168,127 +262,72 @@ public:
     DB2FileLoadInfo const* GetLoadInfo() const override;
 
 private:
-    unsigned char const* GetRawRecordData(uint32 recordNumber) const override;
-    uint32 RecordGetId(unsigned char const* record, uint32 recordIndex) const override;
-    uint8 RecordGetUInt8(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    uint16 RecordGetUInt16(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    uint32 RecordGetUInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    int32 RecordGetInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    float RecordGetFloat(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    char const* RecordGetString(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
-    uint32 RecordGetVarInt(unsigned char const* record, uint32 field, uint32 arrayIndex, bool isSigned) const;
+    uint8 const* GetRawRecordData(uint32 recordNumber) const override;
+    uint32 RecordGetId(uint8 const* record, uint32 recordIndex) const override;
+    uint8 RecordGetUInt8(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    uint16 RecordGetUInt16(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    uint32 RecordGetUInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    int32 RecordGetInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    uint64 RecordGetUInt64(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    float RecordGetFloat(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    char const* RecordGetString(uint8 const* record, uint32 field, uint32 arrayIndex) const override;
+    uint32 RecordGetVarInt(uint8 const* record, uint32 field, uint32 arrayIndex, bool isSigned) const;
     uint16 GetFieldOffset(uint32 field, uint32 arrayIndex) const;
     uint16 GetFieldSize(uint32 field) const;
     std::size_t* RecordCreateDetachedFieldOffsets(std::size_t* oldOffsets) const override;
     void RecordDestroyFieldOffsets(std::size_t*& fieldOffsets) const override;
-    void CalculateAndStoreFieldOffsets(unsigned char const* rawRecord) const;
+    void CalculateAndStoreFieldOffsets(uint8 const* rawRecord) const;
 
 #pragma pack(push, 1)
-    struct OffsetTableEntry
-    {
-        uint32 FileOffset;
-        uint16 RecordSize;
-    };
-    struct FieldEntry
-    {
-        uint16 UnusedBits;
-        uint16 Offset;
-    };
 #pragma pack(pop)
 
-    char const* fileName;
+    char const* _fileName;
     DB2FileLoadInfo const* _loadInfo;
-    std::size_t* _fieldAndArrayOffsets;
-
     DB2Header const* _header;
-    FieldEntry* fields;
-
-    std::size_t dataStart;
-    unsigned char* data;
-    OffsetTableEntry* offsets;
+    std::size_t _dataStart;
+    std::unique_ptr<uint8[]> _data;
+    std::unique_ptr<DB2FieldEntry[]> _fields;
+    std::unique_ptr<std::size_t[]> _fieldAndArrayOffsets;
+    std::unique_ptr<DB2CatalogEntry[]> _catalog;
 };
 
-DB2FileLoaderRegularImpl::DB2FileLoaderRegularImpl()
+DB2FileLoaderRegularImpl::DB2FileLoaderRegularImpl(char const* fileName, DB2FileLoadInfo const* loadInfo, DB2Header const* header) :
+    _fileName(fileName),
+    _loadInfo(loadInfo),
+    _header(header),
+    _stringTable(nullptr)
 {
-    fileName = nullptr;
-    _loadInfo = nullptr;
-    _header = nullptr;
-    data = nullptr;
-    stringTable = nullptr;
-    idTable = nullptr;
-    idTableSize = 0;
-    copyTable = nullptr;
-    fields = nullptr;
-    commonData = nullptr;
 }
 
-bool DB2FileLoaderRegularImpl::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo, DB2Header const* header)
+bool DB2FileLoaderRegularImpl::LoadTableData(DB2FileSource* source)
 {
-    _loadInfo = loadInfo;
-    _header = header;
-    ASSERT(_loadInfo->Meta->IndexField == -1 || _loadInfo->Meta->IndexField == int32(header->IndexField));
+    _data = Trinity::make_unique<uint8[]>(_header->RecordSize * _header->RecordCount + _header->StringTableSize);
+    _stringTable = &_data[_header->RecordSize * _header->RecordCount];
+    return source->Read(_data.get(), _header->RecordSize * _header->RecordCount + _header->StringTableSize);
+}
 
-    fileName = source->GetFileName();
-    fields = new FieldEntry[header->FieldCount];
-    if (!source->Read(fields, header->FieldCount * sizeof(FieldEntry)))
-        return false;
-
-    if (!_loadInfo->Meta->HasIndexFieldInData())
-        idTableSize = header->RecordCount * sizeof(uint32);
-
-    data = new unsigned char[header->RecordSize * header->RecordCount + header->StringTableSize];
-    stringTable = data + header->RecordSize * header->RecordCount;
-
-    if (!source->Read(data, header->RecordSize * header->RecordCount + header->StringTableSize))
-        return false;
-
-    if (idTableSize)
-    {
-        idTable = new unsigned char[idTableSize];
-        if (!source->Read(idTable, idTableSize))
-            return false;
-    }
-
-    if (header->CopyTableSize)
-    {
-        copyTable = new DB2RecordCopy[header->CopyTableSize / sizeof(DB2RecordCopy)];
-        if (!source->Read(copyTable, header->CopyTableSize))
-            return false;
-    }
-
-    if (header->CommonDataSize)
-    {
-        uint32 commonFieldCount;
-        if (!source->Read(&commonFieldCount, sizeof(uint32)))
-            return false;
-
-        if (commonFieldCount != header->TotalFieldCount)
-            return false;
-
-        commonData = new unsigned char[header->CommonDataSize - sizeof(uint32)];
-        if (!source->Read(commonData, header->CommonDataSize - sizeof(uint32)))
-            return false;
-    }
-
-    return true;
+void DB2FileLoaderRegularImpl::SetAdditionalData(std::unique_ptr<DB2FieldEntry[]> /*fields*/, std::unique_ptr<uint32[]> idTable, std::unique_ptr<DB2RecordCopy[]> copyTable,
+    std::unique_ptr<DB2ColumnMeta[]> columnMeta, std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletValues,
+    std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletArrayValues, std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues,
+    std::unique_ptr<DB2IndexData[]> parentIndexes)
+{
+    _idTable = std::move(idTable);
+    _copyTable = std::move(copyTable);
+    _columnMeta = std::move(columnMeta);
+    _palletValues = std::move(palletValues);
+    _palletArrayValues = std::move(palletArrayValues);
+    _commonValues = std::move(commonValues);
+    _parentIndexes = std::move(parentIndexes);
 }
 
 DB2FileLoaderRegularImpl::~DB2FileLoaderRegularImpl()
 {
-    delete[] data;
-    delete[] idTable;
-    delete[] copyTable;
-    delete[] fields;
-    delete[] commonData;
 }
 
 static char const* const nullStr = "";
 
 char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool)
 {
-    if (_loadInfo->Meta->FieldCount != _header->TotalFieldCount)
-        return nullptr;
-
     //get struct size and index pos
     uint32 recordsize = _loadInfo->Meta->GetRecordSize();
 
@@ -354,7 +393,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                         offset += 4;
                         break;
                     case FT_INT:
-                        *((uint32*)(&dataTable[offset])) = RecordGetVarInt(rawRecord, x, z, _loadInfo->Fields[fieldIndex].IsSigned);
+                        *((uint32*)(&dataTable[offset])) = RecordGetVarInt<uint32>(rawRecord, x, z);
                         offset += 4;
                         break;
                     case FT_BYTE:
@@ -365,6 +404,10 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                         *((uint16*)(&dataTable[offset])) = RecordGetUInt16(rawRecord, x, z);
                         offset += 2;
                         break;
+                    case FT_LONG:
+                        *((uint64*)(&dataTable[offset])) = RecordGetUInt64(rawRecord, x, z);
+                        offset += 8;
+                        break;
                     case FT_STRING:
                     case FT_STRING_NOT_LOCALIZED:
                     {
@@ -380,34 +423,38 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], _fileName);
                         break;
                 }
                 ++fieldIndex;
             }
         }
 
-        for (uint32 x = _header->FieldCount; x < _header->TotalFieldCount; ++x)
+        for (uint32 x = _header->FieldCount; x < _loadInfo->Meta->FieldCount; ++x)
         {
             for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
                 switch (_loadInfo->TypesString[fieldIndex])
                 {
                     case FT_FLOAT:
-                        *((float*)(&dataTable[offset])) = _loadInfo->Meta->FieldDefaults[x].AsFloat;
+                        *((float*)(&dataTable[offset])) = 0;
                         offset += 4;
                         break;
                     case FT_INT:
-                        *((uint32*)(&dataTable[offset])) = _loadInfo->Meta->FieldDefaults[x].AsUInt32;
+                        *((uint32*)(&dataTable[offset])) = 0;
                         offset += 4;
                         break;
                     case FT_BYTE:
-                        *((uint8*)(&dataTable[offset])) = _loadInfo->Meta->FieldDefaults[x].AsUInt8;
+                        *((uint8*)(&dataTable[offset])) = 0;
                         offset += 1;
                         break;
                     case FT_SHORT:
-                        *((uint16*)(&dataTable[offset])) = _loadInfo->Meta->FieldDefaults[x].AsUInt16;
+                        *((uint16*)(&dataTable[offset])) = 0;
                         offset += 2;
+                        break;
+                    case FT_LONG:
+                        *((uint64*)(&dataTable[offset])) = 0;
+                        offset += 8;
                         break;
                     case FT_STRING:
                     case FT_STRING_NOT_LOCALIZED:
@@ -424,7 +471,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], _fileName);
                         break;
                 }
                 ++fieldIndex;
@@ -432,17 +479,14 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
         }
     }
 
-    if (commonData)
-        FillCommonValues(indexTable);
+    if (_parentIndexes)
+        FillParentLookup(dataTable);
 
     return dataTable;
 }
 
 char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 locale)
 {
-    if (_loadInfo->Meta->FieldCount != _header->TotalFieldCount)
-        return nullptr;
-
     if (!(_header->Locale & (1 << locale)))
     {
         char const* sep = "";
@@ -456,12 +500,12 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
             }
         }
 
-        TC_LOG_ERROR("", "Attempted to load %s which has locales %s as %s. Check if you placed your localized db2 files in correct directory.", fileName, str.str().c_str(), localeNames[locale]);
+        TC_LOG_ERROR("", "Attempted to load %s which has locales %s as %s. Check if you placed your localized db2 files in correct directory.", _fileName, str.str().c_str(), localeNames[locale]);
         return nullptr;
     }
 
     char* stringPool = new char[_header->StringTableSize];
-    memcpy(stringPool, stringTable, _header->StringTableSize);
+    memcpy(stringPool, _stringTable, _header->StringTableSize);
 
     uint32 offset = 0;
 
@@ -475,7 +519,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
             ++fieldIndex;
         }
 
-        for (uint32 x = 0; x < _header->TotalFieldCount; ++x)
+        for (uint32 x = 0; x < _loadInfo->Meta->FieldCount; ++x)
         {
             for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
@@ -491,6 +535,9 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
                     case FT_SHORT:
                         offset += 2;
                         break;
+                    case FT_LONG:
+                        offset += 8;
+                        break;
                     case FT_STRING:
                     {
                         // fill only not filled entries
@@ -498,7 +545,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
                         if (db2str->Str[locale] == nullStr)
                         {
                             char const* st = RecordGetString(rawRecord, x, z);
-                            db2str->Str[locale] = stringPool + (st - (char const*)stringTable);
+                            db2str->Str[locale] = stringPool + (st - (char const*)_stringTable);
                         }
 
                         offset += sizeof(char*);
@@ -508,12 +555,12 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
                     {
                         char** db2str = (char**)(&dataTable[offset]);
                         char const* st = RecordGetString(rawRecord, x, z);
-                        *db2str = stringPool + (st - (char const*)stringTable);
+                        *db2str = stringPool + (st - (char const*)_stringTable);
                         offset += sizeof(char*);
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], _fileName);
                         break;
                 }
                 ++fieldIndex;
@@ -528,6 +575,7 @@ void DB2FileLoaderRegularImpl::AutoProduceRecordCopies(uint32 records, char** in
 {
     uint32 recordsize = _loadInfo->Meta->GetRecordSize();
     uint32 offset = _header->RecordCount * recordsize;
+    uint32 idFieldOffset = _loadInfo->Meta->HasIndexFieldInData() ? GetFieldOffset(_loadInfo->Meta->GetIndexField()) : 0;
     for (uint32 c = 0; c < GetRecordCopyCount(); ++c)
     {
         DB2RecordCopy copy = GetRecordCopy(c);
@@ -535,96 +583,34 @@ void DB2FileLoaderRegularImpl::AutoProduceRecordCopies(uint32 records, char** in
         {
             indexTable[copy.NewRowId] = &dataTable[offset];
             memcpy(indexTable[copy.NewRowId], indexTable[copy.SourceRowId], recordsize);
-
-            if (_loadInfo->Meta->HasIndexFieldInData())
-                *((uint32*)(&dataTable[offset + GetFieldOffset(_loadInfo->Meta->GetIndexField())])) = copy.NewRowId;
-            else
-                *((uint32*)(&dataTable[offset])) = copy.NewRowId;
-
+            *((uint32*)(&dataTable[offset + idFieldOffset])) = copy.NewRowId;
             offset += recordsize;
         }
     }
 }
 
-void DB2FileLoaderRegularImpl::FillCommonValues(char** indexTable)
+void DB2FileLoaderRegularImpl::FillParentLookup(char* dataTable)
 {
-    uint32 fieldOffset = 0;
-    if (!_loadInfo->Meta->HasIndexFieldInData())
-        fieldOffset += 4;
-
-    unsigned char* commonDataItr = commonData;
-    for (uint32 field = 0; field < _header->TotalFieldCount; ++field)
+    int32 parentIdOffset = _loadInfo->Meta->GetParentIndexFieldOffset();
+    uint32 recordSize = _loadInfo->Meta->GetRecordSize();
+    for (uint32 i = 0; i < _parentIndexes[0].Info.NumEntries; ++i)
     {
-        uint32 numExtraValuesForField = *reinterpret_cast<uint32*>(commonDataItr);
-        commonDataItr += sizeof(uint32);
-        uint8 dataType = *reinterpret_cast<uint8*>(commonDataItr);
-        commonDataItr += sizeof(uint8);
-        for (uint32 record = 0; record < numExtraValuesForField; ++record)
+        uint32 parentId = _parentIndexes[0].Entries[i].ParentId;
+        char* recordData = &dataTable[_parentIndexes[0].Entries[i].RecordIndex * recordSize];
+
+        switch (_loadInfo->Meta->Types[_loadInfo->Meta->ParentIndexField])
         {
-            uint32 recordId = *reinterpret_cast<uint32*>(commonDataItr);
-            commonDataItr += sizeof(uint32);
-
-            char* recordData = indexTable[recordId];
-
-            switch (dataType)
-            {
-                case 1:
-                {
-                    ASSERT(_loadInfo->Meta->Types[field] == FT_SHORT);
-                    uint16 value = *reinterpret_cast<uint16*>(commonDataItr);
-                    EndianConvert(value);
-                    for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
-                        *reinterpret_cast<uint16*>(&recordData[fieldOffset + sizeof(uint16) * arrayIndex]) = value;
-                    break;
-                }
-                case 2:
-                {
-                    ASSERT(_loadInfo->Meta->Types[field] == FT_BYTE);
-                    uint8 value = *reinterpret_cast<uint8*>(commonDataItr);
-                    for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
-                        *reinterpret_cast<uint8*>(&recordData[fieldOffset + sizeof(uint8) * arrayIndex]) = value;
-                    break;
-                }
-                case 3:
-                {
-                    ASSERT(_loadInfo->Meta->Types[field] == FT_FLOAT);
-                    float value = *reinterpret_cast<float*>(commonDataItr);
-                    EndianConvert(value);
-                    for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
-                        *reinterpret_cast<float*>(&recordData[fieldOffset + sizeof(float) * arrayIndex]) = value;
-                    break;
-                }
-                case 4:
-                {
-                    ASSERT(_loadInfo->Meta->Types[field] == FT_INT);
-                    uint32 value = *reinterpret_cast<uint32*>(commonDataItr);
-                    EndianConvert(value);
-                    for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
-                        *reinterpret_cast<uint32*>(&recordData[fieldOffset + sizeof(uint32) * arrayIndex]) = value;
-                    break;
-                }
-                default:
-                    ASSERT(false, "Unhandled common value type %d found in %s", dataType, fileName);
-                    break;
-            }
-
-            commonDataItr += sizeof(uint32);
-        }
-
-        switch (_loadInfo->Meta->Types[field])
-        {
-            case FT_FLOAT:
-            case FT_INT:
-                fieldOffset += 4 * _loadInfo->Meta->ArraySizes[field];
+            case FT_SHORT:
+                *reinterpret_cast<uint16*>(&recordData[parentIdOffset]) = uint16(parentId);
                 break;
             case FT_BYTE:
-                fieldOffset += 1 * _loadInfo->Meta->ArraySizes[field];
+                *reinterpret_cast<uint8*>(&recordData[parentIdOffset]) = uint8(parentId);
                 break;
-            case FT_SHORT:
-                fieldOffset += 2 * _loadInfo->Meta->ArraySizes[field];
+            case FT_INT:
+                *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
                 break;
-            case FT_STRING:
-                fieldOffset += sizeof(char*) * _loadInfo->Meta->ArraySizes[field];
+            default:
+                ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Types[_loadInfo->Meta->ParentIndexField], _fileName);
                 break;
         }
     }
@@ -640,7 +626,7 @@ DB2RecordCopy DB2FileLoaderRegularImpl::GetRecordCopy(uint32 copyNumber) const
     if (copyNumber >= GetRecordCopyCount())
         return DB2RecordCopy{};
 
-    return copyTable[copyNumber];
+    return _copyTable[copyNumber];
 }
 
 uint32 DB2FileLoaderRegularImpl::GetRecordCount() const
@@ -653,86 +639,154 @@ uint32 DB2FileLoaderRegularImpl::GetRecordCopyCount() const
     return _header->CopyTableSize / sizeof(DB2RecordCopy);
 }
 
-unsigned char const* DB2FileLoaderRegularImpl::GetRawRecordData(uint32 recordNumber) const
+uint8 const* DB2FileLoaderRegularImpl::GetRawRecordData(uint32 recordNumber) const
 {
     if (recordNumber >= _header->RecordCount)
         return nullptr;
 
-    return data + recordNumber * _header->RecordSize;
+    return &_data[recordNumber * _header->RecordSize];
 }
 
-uint32 DB2FileLoaderRegularImpl::RecordGetId(unsigned char const* record, uint32 recordIndex) const
+uint32 DB2FileLoaderRegularImpl::RecordGetId(uint8 const* record, uint32 recordIndex) const
 {
     if (_loadInfo->Meta->HasIndexFieldInData())
-        return RecordGetVarInt(record, _loadInfo->Meta->GetIndexField(), 0, false);
+        return RecordGetVarInt<uint32>(record, _loadInfo->Meta->GetIndexField(), 0);
 
-    return (reinterpret_cast<uint32 const*>(idTable))[recordIndex];
+    return _idTable[recordIndex];
 }
 
-uint8 DB2FileLoaderRegularImpl::RecordGetUInt8(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+uint8 DB2FileLoaderRegularImpl::RecordGetUInt8(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
-    ASSERT(field < _header->FieldCount);
-    ASSERT(GetFieldSize(field) == 1);
-    return *reinterpret_cast<uint8 const*>(record + GetFieldOffset(field) + arrayIndex * sizeof(uint8));
+    return RecordGetVarInt<uint8>(record, field, arrayIndex);
 }
 
-uint16 DB2FileLoaderRegularImpl::RecordGetUInt16(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+uint16 DB2FileLoaderRegularImpl::RecordGetUInt16(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
-    ASSERT(field < _header->FieldCount);
-    ASSERT(GetFieldSize(field) == 2);
-    uint16 val = *reinterpret_cast<uint16 const*>(record + GetFieldOffset(field) + arrayIndex * sizeof(uint16));
-    EndianConvert(val);
-    return val;
+    return RecordGetVarInt<uint16>(record, field, arrayIndex);
 }
 
-uint32 DB2FileLoaderRegularImpl::RecordGetUInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+uint32 DB2FileLoaderRegularImpl::RecordGetUInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
-    return RecordGetVarInt(record, field, arrayIndex, false);
+    return RecordGetVarInt<uint32>(record, field, arrayIndex);
 }
 
-int32 DB2FileLoaderRegularImpl::RecordGetInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+int32 DB2FileLoaderRegularImpl::RecordGetInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
-    return int32(RecordGetVarInt(record, field, arrayIndex, true));
+    return RecordGetVarInt<int32>(record, field, arrayIndex);
 }
 
-float DB2FileLoaderRegularImpl::RecordGetFloat(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+uint64 DB2FileLoaderRegularImpl::RecordGetUInt64(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
-    ASSERT(field < _header->FieldCount);
-    float val = *reinterpret_cast<float const*>(record + GetFieldOffset(field) + arrayIndex * sizeof(float));
-    EndianConvert(val);
-    return val;
+    return RecordGetVarInt<uint64>(record, field, arrayIndex);
 }
 
-char const* DB2FileLoaderRegularImpl::RecordGetString(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+float DB2FileLoaderRegularImpl::RecordGetFloat(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
-    ASSERT(field < _header->FieldCount);
-    uint32 stringOffset = *reinterpret_cast<uint32 const*>(record + GetFieldOffset(field) + arrayIndex * sizeof(uint32));
-    EndianConvert(stringOffset);
+    return RecordGetVarInt<float>(record, field, arrayIndex);
+}
+
+char const* DB2FileLoaderRegularImpl::RecordGetString(uint8 const* record, uint32 field, uint32 arrayIndex) const
+{
+    uint32 stringOffset = RecordGetVarInt<uint32>(record, field, arrayIndex);
     ASSERT(stringOffset < _header->StringTableSize);
-    return reinterpret_cast<char*>(stringTable + stringOffset);
+    return reinterpret_cast<char*>(_stringTable + stringOffset);
 }
 
-uint32 DB2FileLoaderRegularImpl::RecordGetVarInt(unsigned char const* record, uint32 field, uint32 arrayIndex, bool isSigned) const
+template<typename T>
+T DB2FileLoaderRegularImpl::RecordGetVarInt(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
     ASSERT(field < _header->FieldCount);
-    uint32 val = *reinterpret_cast<uint32 const*>(record + GetFieldOffset(field) + arrayIndex * (4 - fields[field].UnusedBits / 8));
-    EndianConvert(val);
-    if (isSigned)
-        return int32(val) << fields[field].UnusedBits >> fields[field].UnusedBits;
+    switch (_columnMeta[field].CompressionType)
+    {
+        case DB2ColumnCompression::None:
+        {
+            T val = *reinterpret_cast<T const*>(record + GetFieldOffset(field) + sizeof(T) * arrayIndex);
+            EndianConvert(val);
+            return val;
+        }
+        case DB2ColumnCompression::Immediate:
+        {
+            ASSERT(arrayIndex == 0);
+            uint64 immediateValue = RecordGetPackedValue(record + GetFieldOffset(field),
+                _columnMeta[field].CompressionData.immediate.BitWidth, _columnMeta[field].CompressionData.immediate.BitOffset);
+            EndianConvert(immediateValue);
+            if (_columnMeta[field].CompressionData.immediate.Signed)
+            {
+                uint64 mask = UI64LIT(1) << (_columnMeta[field].CompressionData.immediate.BitWidth - 1);
+                immediateValue = (immediateValue ^ mask) - mask;
+            }
+            T value;
+            memcpy(&value, &immediateValue, std::min(sizeof(T), sizeof(immediateValue)));
+            return value;
+        }
+        case DB2ColumnCompression::CommonData:
+        {
+            uint32 id = RecordGetId(record, (_data.get() - record) / _header->RecordSize);
+            T value;
+            auto valueItr = _commonValues[field].find(id);
+            if (valueItr != _commonValues[field].end())
+                memcpy(&value, &valueItr->second, std::min(sizeof(T), sizeof(uint32)));
+            else
+                memcpy(&value, &_columnMeta[field].CompressionData.commonData.Value, std::min(sizeof(T), sizeof(uint32)));
+            return value;
+        }
+        case DB2ColumnCompression::Pallet:
+        {
+            ASSERT(arrayIndex == 0);
+            uint64 palletIndex = RecordGetPackedValue(record + GetFieldOffset(field),
+                _columnMeta[field].CompressionData.pallet.BitWidth, _columnMeta[field].CompressionData.pallet.BitOffset);
+            EndianConvert(palletIndex);
+            uint32 palletValue = _palletValues[field][palletIndex].Value;
+            EndianConvert(palletValue);
+            T value;
+            memcpy(&value, &palletValue, std::min(sizeof(T), sizeof(palletValue)));
+            return value;
+        }
+        case DB2ColumnCompression::PalletArray:
+        {
+            uint64 palletIndex = RecordGetPackedValue(record + GetFieldOffset(field),
+                _columnMeta[field].CompressionData.pallet.BitWidth, _columnMeta[field].CompressionData.pallet.BitOffset);
+            EndianConvert(palletIndex);
+            uint32 palletValue = _palletArrayValues[field][palletIndex * _columnMeta[field].CompressionData.pallet.ArraySize + arrayIndex].Value;
+            EndianConvert(palletValue);
+            T value;
+            memcpy(&value, &palletValue, std::min(sizeof(T), sizeof(palletValue)));
+            return value;
+        }
+        default:
+            ASSERT(false, "Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
+            break;
+    }
 
-    return val << fields[field].UnusedBits >> fields[field].UnusedBits;
+    return 0;
+}
+
+uint64 DB2FileLoaderRegularImpl::RecordGetPackedValue(uint8 const* packedRecordData, uint32 bitWidth, uint32 bitOffset) const
+{
+    uint32 bitsToRead = bitOffset & 7;
+    return *reinterpret_cast<uint64 const*>(packedRecordData) << (64 - bitsToRead - bitWidth) >> (64 - bitWidth);
 }
 
 uint16 DB2FileLoaderRegularImpl::GetFieldOffset(uint32 field) const
 {
     ASSERT(field < _header->FieldCount);
-    return fields[field].Offset;
-}
+    switch (_columnMeta[field].CompressionType)
+    {
+        case DB2ColumnCompression::None:
+            return _columnMeta[field].BitOffset / 8;
+        case DB2ColumnCompression::Immediate:
+            return _columnMeta[field].CompressionData.immediate.BitOffset / 8 + _header->PackedDataOffset;
+        case DB2ColumnCompression::CommonData:
+            return 0xFFFF;
+        case DB2ColumnCompression::Pallet:
+        case DB2ColumnCompression::PalletArray:
+            return _columnMeta[field].CompressionData.pallet.BitOffset / 8 + _header->PackedDataOffset;
+        default:
+            ASSERT(false, "Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
+            break;
+    }
 
-uint16 DB2FileLoaderRegularImpl::GetFieldSize(uint32 field) const
-{
-    ASSERT(field < _header->FieldCount);
-    return 4 - fields[field].UnusedBits / 8;
+    return 0;
 }
 
 std::size_t* DB2FileLoaderRegularImpl::RecordCreateDetachedFieldOffsets(std::size_t* /*oldOffsets*/) const
@@ -769,49 +823,38 @@ DB2FileLoadInfo const* DB2FileLoaderRegularImpl::GetLoadInfo() const
     return _loadInfo;
 }
 
-DB2FileLoaderSparseImpl::DB2FileLoaderSparseImpl()
+DB2FileLoaderSparseImpl::DB2FileLoaderSparseImpl(char const* fileName, DB2FileLoadInfo const* loadInfo, DB2Header const* header) :
+    _fileName(fileName),
+    _loadInfo(loadInfo),
+    _header(header),
+    _dataStart(0),
+    _fieldAndArrayOffsets(Trinity::make_unique<std::size_t[]>(loadInfo->Meta->FieldCount + loadInfo->FieldCount - (!loadInfo->Meta->HasIndexFieldInData() ? 1 : 0)))
 {
-    fileName = nullptr;
-    _loadInfo = nullptr;
-    _fieldAndArrayOffsets = nullptr;
-    _header = nullptr;
-    fields = nullptr;
-    dataStart = 0;
-    data = nullptr;
-    offsets = nullptr;
 }
 
 DB2FileLoaderSparseImpl::~DB2FileLoaderSparseImpl()
 {
-    delete[] _fieldAndArrayOffsets;
-    delete[] data;
-    delete[] offsets;
-    delete[] fields;
 }
 
-bool DB2FileLoaderSparseImpl::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo, DB2Header const* header)
+bool DB2FileLoaderSparseImpl::LoadTableData(DB2FileSource* source)
 {
-    _loadInfo = loadInfo;
-    _header = header;
-    fileName = source->GetFileName();
+    _dataStart = source->GetPosition();
+    _data = Trinity::make_unique<uint8[]>(_header->CatalogDataOffset - _dataStart);
+    return source->Read(_data.get(), _header->CatalogDataOffset - _dataStart);
+}
 
-    fields = new FieldEntry[header->FieldCount];
-    if (!source->Read(fields, header->FieldCount * sizeof(FieldEntry)))
-        return false;
+bool DB2FileLoaderSparseImpl::LoadCatalogData(DB2FileSource* source)
+{
+    _catalog = Trinity::make_unique<DB2CatalogEntry[]>(_header->MaxId - _header->MinId + 1);
+    return source->Read(_catalog.get(), sizeof(DB2CatalogEntry) * (_header->MaxId - _header->MinId + 1));
+}
 
-    dataStart = source->GetPosition();
-
-    data = new unsigned char[header->StringTableSize - dataStart];
-
-    if (!source->Read(data, header->StringTableSize - dataStart))
-        return false;
-
-    offsets = new OffsetTableEntry[header->MaxId - header->MinId + 1];
-    if (!source->Read(offsets, (header->MaxId - header->MinId + 1) * 6))
-        return false;
-
-    _fieldAndArrayOffsets = new std::size_t[_loadInfo->Meta->FieldCount + _loadInfo->FieldCount - (!_loadInfo->Meta->HasIndexFieldInData() ? 1 : 0)];
-    return true;
+void DB2FileLoaderSparseImpl::SetAdditionalData(std::unique_ptr<DB2FieldEntry[]> fields, std::unique_ptr<uint32[]> /*idTable*/, std::unique_ptr<DB2RecordCopy[]> /*copyTable*/,
+    std::unique_ptr<DB2ColumnMeta[]> /*columnMeta*/, std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> /*palletValues*/,
+    std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> /*palletArrayValues*/, std::unique_ptr<std::unordered_map<uint32, uint32>[]> /*commonValues*/,
+    std::unique_ptr<DB2IndexData[]> /*parentIndexes*/)
+{
+    _fields = std::move(fields);
 }
 
 char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable, std::vector<char*>& stringPool)
@@ -827,10 +870,10 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
     uint32 expandedDataSize = 0;
     for (uint32 i = 0; i < offsetCount; ++i)
     {
-        if (offsets[i].FileOffset && offsets[i].RecordSize)
+        if (_catalog[i].FileOffset && _catalog[i].RecordSize)
         {
             ++records;
-            expandedDataSize += offsets[i].RecordSize;
+            expandedDataSize += _catalog[i].RecordSize;
         }
     }
 
@@ -904,6 +947,10 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
                         *((uint16*)(&dataTable[offset])) = RecordGetUInt16(rawRecord, x, z);
                         offset += 2;
                         break;
+                    case FT_LONG:
+                        *((uint64*)(&dataTable[offset])) = RecordGetUInt64(rawRecord, x, z);
+                        offset += 8;
+                        break;
                     case FT_STRING:
                     {
                         LocalizedString** slot = (LocalizedString**)(&dataTable[offset]);
@@ -929,7 +976,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], _fileName);
                         break;
                 }
                 ++fieldIndex;
@@ -960,20 +1007,20 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
             }
         }
 
-        TC_LOG_ERROR("", "Attempted to load %s which has locales %s as %s. Check if you placed your localized db2 files in correct directory.", fileName, str.str().c_str(), localeNames[locale]);
+        TC_LOG_ERROR("", "Attempted to load %s which has locales %s as %s. Check if you placed your localized db2 files in correct directory.", _fileName, str.str().c_str(), localeNames[locale]);
         return nullptr;
     }
 
     uint32 offsetCount = _header->MaxId - _header->MinId + 1;
     uint32 records = 0;
     for (uint32 i = 0; i < offsetCount; ++i)
-        if (offsets[i].FileOffset && offsets[i].RecordSize)
+        if (_catalog[i].FileOffset && _catalog[i].RecordSize)
             ++records;
 
     uint32 recordsize = _loadInfo->Meta->GetRecordSize();
     std::size_t stringFields = _loadInfo->GetStringFieldCount(true);
-    char* stringTable = new char[_header->StringTableSize - dataStart - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*))];
-    memset(stringTable, 0, _header->StringTableSize - dataStart - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
+    char* stringTable = new char[_header->CatalogDataOffset - _dataStart - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*))];
+    memset(stringTable, 0, _header->CatalogDataOffset - _dataStart - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
     char* stringPtr = stringTable;
 
     uint32 offset = 0;
@@ -1009,6 +1056,9 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
                     case FT_SHORT:
                         offset += 2;
                         break;
+                    case FT_LONG:
+                        offset += 8;
+                        break;
                     case FT_STRING:
                     {
                         LocalizedString* db2str = *(LocalizedString**)(&dataTable[offset]);
@@ -1022,7 +1072,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
                         offset += sizeof(char*);
                         break;
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], _fileName);
                         break;
                 }
                 ++fieldIndex;
@@ -1035,7 +1085,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
 
 DB2Record DB2FileLoaderSparseImpl::GetRecord(uint32 recordNumber) const
 {
-    return DB2Record(*this, recordNumber, _fieldAndArrayOffsets);
+    return DB2Record(*this, recordNumber, _fieldAndArrayOffsets.get());
 }
 
 DB2RecordCopy DB2FileLoaderSparseImpl::GetRecordCopy(uint32 /*recordId*/) const
@@ -1053,17 +1103,17 @@ uint32 DB2FileLoaderSparseImpl::GetRecordCopyCount() const
     return 0;
 }
 
-unsigned char const* DB2FileLoaderSparseImpl::GetRawRecordData(uint32 recordNumber) const
+uint8 const* DB2FileLoaderSparseImpl::GetRawRecordData(uint32 recordNumber) const
 {
-    if (recordNumber > (_header->MaxId - _header->MinId) || !offsets[recordNumber].FileOffset || !offsets[recordNumber].RecordSize)
+    if (recordNumber > (_header->MaxId - _header->MinId) || !_catalog[recordNumber].FileOffset || !_catalog[recordNumber].RecordSize)
         return nullptr;
 
-    unsigned char const* rawRecord = &data[offsets[recordNumber].FileOffset - dataStart];
+    uint8 const* rawRecord = &_data[_catalog[recordNumber].FileOffset - _dataStart];
     CalculateAndStoreFieldOffsets(rawRecord);
     return rawRecord;
 }
 
-uint32 DB2FileLoaderSparseImpl::RecordGetId(unsigned char const* record, uint32 recordIndex) const
+uint32 DB2FileLoaderSparseImpl::RecordGetId(uint8 const* record, uint32 recordIndex) const
 {
     if (_loadInfo->Meta->HasIndexFieldInData())
         return RecordGetVarInt(record, _loadInfo->Meta->GetIndexField(), 0, false);
@@ -1071,33 +1121,39 @@ uint32 DB2FileLoaderSparseImpl::RecordGetId(unsigned char const* record, uint32 
     return _header->MinId + recordIndex;
 }
 
-uint8 DB2FileLoaderSparseImpl::RecordGetUInt8(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+uint8 DB2FileLoaderSparseImpl::RecordGetUInt8(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
     ASSERT(field < _header->FieldCount);
-    ASSERT(GetFieldSize(field) == 1);
     return *reinterpret_cast<uint8 const*>(record + GetFieldOffset(field, arrayIndex));
 }
 
-uint16 DB2FileLoaderSparseImpl::RecordGetUInt16(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+uint16 DB2FileLoaderSparseImpl::RecordGetUInt16(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
     ASSERT(field < _header->FieldCount);
-    ASSERT(GetFieldSize(field) == 2);
     uint16 val = *reinterpret_cast<uint16 const*>(record + GetFieldOffset(field, arrayIndex));
     EndianConvert(val);
     return val;
 }
 
-uint32 DB2FileLoaderSparseImpl::RecordGetUInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+uint32 DB2FileLoaderSparseImpl::RecordGetUInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
     return RecordGetVarInt(record, field, arrayIndex, false);
 }
 
-int32 DB2FileLoaderSparseImpl::RecordGetInt32(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+int32 DB2FileLoaderSparseImpl::RecordGetInt32(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
     return int32(RecordGetVarInt(record, field, arrayIndex, true));
 }
 
-float DB2FileLoaderSparseImpl::RecordGetFloat(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+uint64 DB2FileLoaderSparseImpl::RecordGetUInt64(uint8 const* record, uint32 field, uint32 arrayIndex) const
+{
+    ASSERT(field < _header->FieldCount);
+    uint64 val = *reinterpret_cast<uint64 const*>(record + GetFieldOffset(field, arrayIndex));
+    EndianConvert(val);
+    return val;
+}
+
+float DB2FileLoaderSparseImpl::RecordGetFloat(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
     ASSERT(field < _header->FieldCount);
     float val = *reinterpret_cast<float const*>(record + GetFieldOffset(field, arrayIndex));
@@ -1105,22 +1161,22 @@ float DB2FileLoaderSparseImpl::RecordGetFloat(unsigned char const* record, uint3
     return val;
 }
 
-char const* DB2FileLoaderSparseImpl::RecordGetString(unsigned char const* record, uint32 field, uint32 arrayIndex) const
+char const* DB2FileLoaderSparseImpl::RecordGetString(uint8 const* record, uint32 field, uint32 arrayIndex) const
 {
     ASSERT(field < _header->FieldCount);
     return reinterpret_cast<char const*>(record + GetFieldOffset(field, arrayIndex));
 }
 
-uint32 DB2FileLoaderSparseImpl::RecordGetVarInt(unsigned char const* record, uint32 field, uint32 arrayIndex, bool isSigned) const
+uint32 DB2FileLoaderSparseImpl::RecordGetVarInt(uint8 const* record, uint32 field, uint32 arrayIndex, bool isSigned) const
 {
     ASSERT(field < _header->FieldCount);
     uint32 val = 0;
     memcpy(&val, record + GetFieldOffset(field, arrayIndex), GetFieldSize(field));
     EndianConvert(val);
     if (isSigned)
-        return int32(val) << fields[field].UnusedBits >> fields[field].UnusedBits;
+        return int32(val) << _fields[field].UnusedBits >> _fields[field].UnusedBits;
 
-    return val << fields[field].UnusedBits >> fields[field].UnusedBits;
+    return val << _fields[field].UnusedBits >> _fields[field].UnusedBits;
 }
 
 uint16 DB2FileLoaderSparseImpl::GetFieldOffset(uint32 field, uint32 arrayIndex) const
@@ -1131,30 +1187,30 @@ uint16 DB2FileLoaderSparseImpl::GetFieldOffset(uint32 field, uint32 arrayIndex) 
 uint16 DB2FileLoaderSparseImpl::GetFieldSize(uint32 field) const
 {
     ASSERT(field < _header->FieldCount);
-    return 4 - fields[field].UnusedBits / 8;
+    return 4 - _fields[field].UnusedBits / 8;
 }
 
 std::size_t* DB2FileLoaderSparseImpl::RecordCreateDetachedFieldOffsets(std::size_t* oldOffsets) const
 {
-    if (oldOffsets != _fieldAndArrayOffsets)
+    if (oldOffsets != _fieldAndArrayOffsets.get())
         return oldOffsets;
 
     std::size_t size = _loadInfo->Meta->FieldCount + _loadInfo->FieldCount - (!_loadInfo->Meta->HasIndexFieldInData() ? 1 : 0);
     std::size_t* newOffsets = new std::size_t[size];
-    memcpy(newOffsets, _fieldAndArrayOffsets, size * sizeof(std::size_t));
+    memcpy(newOffsets, _fieldAndArrayOffsets.get(), size * sizeof(std::size_t));
     return newOffsets;
 }
 
 void DB2FileLoaderSparseImpl::RecordDestroyFieldOffsets(std::size_t*& fieldOffsets) const
 {
-    if (fieldOffsets == _fieldAndArrayOffsets)
+    if (fieldOffsets == _fieldAndArrayOffsets.get())
         return;
 
     delete[] fieldOffsets;
     fieldOffsets = nullptr;
 }
 
-void DB2FileLoaderSparseImpl::CalculateAndStoreFieldOffsets(unsigned char const* rawRecord) const
+void DB2FileLoaderSparseImpl::CalculateAndStoreFieldOffsets(uint8 const* rawRecord) const
 {
     std::size_t offset = 0;
     uint32 combinedField = _loadInfo->Meta->FieldCount;
@@ -1169,6 +1225,7 @@ void DB2FileLoaderSparseImpl::CalculateAndStoreFieldOffsets(unsigned char const*
                 case FT_BYTE:
                 case FT_SHORT:
                 case FT_INT:
+                case FT_LONG:
                     offset += GetFieldSize(field);
                     break;
                 case FT_FLOAT:
@@ -1178,7 +1235,7 @@ void DB2FileLoaderSparseImpl::CalculateAndStoreFieldOffsets(unsigned char const*
                     offset += strlen(reinterpret_cast<char const*>(rawRecord) + offset) + 1;
                     break;
                 default:
-                    ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[field], fileName);
+                    ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[field], _fileName);
                     break;
             }
             ++combinedField;
@@ -1264,6 +1321,18 @@ int32 DB2Record::GetInt32(char const* fieldName) const
     return _db2.RecordGetInt32(_recordData, uint32(fieldIndex.first), uint32(fieldIndex.second));
 }
 
+uint64 DB2Record::GetUInt64(uint32 field, uint32 arrayIndex) const
+{
+    return _db2.RecordGetUInt64(_recordData, field, arrayIndex);
+}
+
+uint64 DB2Record::GetUInt64(char const* fieldName) const
+{
+    std::pair<int32, int32> fieldIndex = _db2.GetLoadInfo()->GetFieldIndexByName(fieldName);
+    ASSERT(fieldIndex.first != -1, "Field with name %s does not exist!", fieldName);
+    return _db2.RecordGetUInt64(_recordData, uint32(fieldIndex.first), uint32(fieldIndex.second));
+}
+
 float DB2Record::GetFloat(uint32 field, uint32 arrayIndex) const
 {
     return _db2.RecordGetFloat(_recordData, field, arrayIndex);
@@ -1324,20 +1393,165 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     EndianConvert(_header.Flags);
     EndianConvert(_header.IndexField);
     EndianConvert(_header.TotalFieldCount);
+    EndianConvert(_header.PackedDataOffset);
+    EndianConvert(_header.ParentLookupCount);
+    EndianConvert(_header.CatalogDataOffset);
+    EndianConvert(_header.IdTableSize);
+    EndianConvert(_header.ColumnMetaSize);
     EndianConvert(_header.CommonDataSize);
+    EndianConvert(_header.PalletDataSize);
+    EndianConvert(_header.ParentLookupDataSize);
 
-    if (_header.Signature != 0x36424457)                        //'WDB6'
+    if (_header.Signature != 0x31434457)                        //'WCH1'
         return false;
 
     if (_header.LayoutHash != loadInfo->Meta->LayoutHash)
         return false;
 
     if (!(_header.Flags & 0x1))
-        _impl = new DB2FileLoaderRegularImpl();
-    else
-        _impl = new DB2FileLoaderSparseImpl();
+    {
+        std::size_t expectedFileSize =
+            sizeof(DB2Header) +
+            sizeof(DB2FieldEntry) * _header.FieldCount +
+            _header.RecordCount * _header.RecordSize +
+            _header.StringTableSize +
+            _header.IdTableSize +
+            _header.CopyTableSize +
+            _header.ColumnMetaSize +
+            _header.PalletDataSize +
+            _header.CommonDataSize +
+            _header.ParentLookupDataSize;
 
-    return _impl->Load(source, loadInfo, &_header);
+        if (source->GetFileSize() != expectedFileSize)
+            return false;
+    }
+
+    if (_header.ParentLookupCount > 1)
+        return false;
+
+    if (_header.TotalFieldCount + (loadInfo->Meta->ParentIndexField >= int32(_header.TotalFieldCount) ? 1 : 0) != loadInfo->Meta->FieldCount)
+        return false;
+
+    if (_header.ParentLookupCount && loadInfo->Meta->ParentIndexField == -1)
+        return false;
+
+    if (!(_header.Flags & 0x1))
+        _impl = new DB2FileLoaderRegularImpl(source->GetFileName(), loadInfo, &_header);
+    else
+        _impl = new DB2FileLoaderSparseImpl(source->GetFileName(), loadInfo, &_header);
+
+    std::unique_ptr<DB2FieldEntry[]> fieldData = Trinity::make_unique<DB2FieldEntry[]>(_header.FieldCount);
+    if (!source->Read(fieldData.get(), sizeof(DB2FieldEntry) * _header.FieldCount))
+        return false;
+
+    if (!_impl->LoadTableData(source))
+        return false;
+
+    if (!_impl->LoadCatalogData(source))
+        return false;
+
+    ASSERT(!loadInfo->Meta->HasIndexFieldInData() || _header.IdTableSize == 0);
+    ASSERT(loadInfo->Meta->HasIndexFieldInData() || _header.IdTableSize == 4 * _header.RecordCount);
+
+    std::unique_ptr<uint32[]> idTable;
+    if (!loadInfo->Meta->HasIndexFieldInData() && _header.IdTableSize)
+    {
+        idTable = Trinity::make_unique<uint32[]>(_header.RecordCount);
+        if (!source->Read(idTable.get(), _header.IdTableSize))
+            return false;
+    }
+
+    std::unique_ptr<DB2RecordCopy[]> copyTable;
+    if (_header.CopyTableSize)
+    {
+        copyTable = Trinity::make_unique<DB2RecordCopy[]>(_header.CopyTableSize / sizeof(DB2RecordCopy));
+        if (!source->Read(copyTable.get(), _header.CopyTableSize))
+            return false;
+    }
+
+    std::unique_ptr<DB2ColumnMeta[]> columnMeta;
+    std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletValues;
+    std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletArrayValues;
+    std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues;
+    if (_header.ColumnMetaSize)
+    {
+        columnMeta = Trinity::make_unique<DB2ColumnMeta[]>(_header.TotalFieldCount);
+        if (!source->Read(columnMeta.get(), _header.ColumnMetaSize))
+            return false;
+
+        ASSERT(!loadInfo->Meta->HasIndexFieldInData() ||
+            columnMeta[loadInfo->Meta->IndexField].CompressionType == DB2ColumnCompression::None ||
+            columnMeta[loadInfo->Meta->IndexField].CompressionType == DB2ColumnCompression::Immediate);
+
+        palletValues = Trinity::make_unique<std::unique_ptr<DB2PalletValue[]>[]>(_header.TotalFieldCount);
+        for (uint32 i = 0; i < _header.TotalFieldCount; ++i)
+        {
+            if (columnMeta[i].CompressionType != DB2ColumnCompression::Pallet)
+                continue;
+
+            palletValues[i] = Trinity::make_unique<DB2PalletValue[]>(columnMeta[i].AdditionalDataSize / sizeof(DB2PalletValue));
+            if (!source->Read(palletValues[i].get(), columnMeta[i].AdditionalDataSize))
+                return false;
+        }
+
+        palletArrayValues = Trinity::make_unique<std::unique_ptr<DB2PalletValue[]>[]>(_header.TotalFieldCount);
+        for (uint32 i = 0; i < _header.TotalFieldCount; ++i)
+        {
+            if (columnMeta[i].CompressionType != DB2ColumnCompression::PalletArray)
+                continue;
+
+            palletArrayValues[i] = Trinity::make_unique<DB2PalletValue[]>(columnMeta[i].AdditionalDataSize / sizeof(DB2PalletValue));
+            if (!source->Read(palletArrayValues[i].get(), columnMeta[i].AdditionalDataSize))
+                return false;
+        }
+
+        std::unique_ptr<std::unique_ptr<DB2CommonValue[]>[]> commonData = Trinity::make_unique<std::unique_ptr<DB2CommonValue[]>[]>(_header.TotalFieldCount);
+        commonValues = Trinity::make_unique<std::unordered_map<uint32, uint32>[]>(_header.TotalFieldCount);
+        for (uint32 i = 0; i < _header.TotalFieldCount; ++i)
+        {
+            if (columnMeta[i].CompressionType != DB2ColumnCompression::CommonData)
+                continue;
+
+            if (!columnMeta[i].AdditionalDataSize)
+                continue;
+
+            commonData[i] = Trinity::make_unique<DB2CommonValue[]>(columnMeta[i].AdditionalDataSize / sizeof(DB2CommonValue));
+            if (!source->Read(commonData[i].get(), columnMeta[i].AdditionalDataSize))
+                return false;
+
+            uint32 numExtraValuesForField = columnMeta[i].AdditionalDataSize / sizeof(DB2CommonValue);
+            for (uint32 record = 0; record < numExtraValuesForField; ++record)
+            {
+                uint32 recordId = commonData[i][record].RecordId;
+                uint32 value = commonData[i][record].Value;
+                EndianConvert(value);
+                commonValues[i][recordId] = value;
+            }
+        }
+    }
+
+    std::unique_ptr<DB2IndexData[]> parentIndexes;
+    if (_header.ParentLookupCount)
+    {
+        parentIndexes = Trinity::make_unique<DB2IndexData[]>(_header.ParentLookupCount);
+        for (uint32 i = 0; i < _header.ParentLookupCount; ++i)
+        {
+            if (!source->Read(&parentIndexes[i].Info, sizeof(DB2IndexDataInfo)))
+                return false;
+
+            if (!parentIndexes[i].Info.NumEntries)
+                continue;
+
+            parentIndexes[i].Entries = Trinity::make_unique<DB2IndexEntry[]>(parentIndexes[i].Info.NumEntries);
+            if (!source->Read(parentIndexes[i].Entries.get(), sizeof(DB2IndexEntry) * parentIndexes[i].Info.NumEntries))
+                return false;
+        }
+    }
+
+    _impl->SetAdditionalData(std::move(fieldData), std::move(idTable), std::move(copyTable), std::move(columnMeta),
+        std::move(palletValues), std::move(palletArrayValues), std::move(commonValues), std::move(parentIndexes));
+
+    return true;
 }
 
 char* DB2FileLoader::AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool)

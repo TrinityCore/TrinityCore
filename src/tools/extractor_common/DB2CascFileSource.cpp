@@ -40,6 +40,14 @@ std::size_t DB2CascFileSource::GetPosition() const
     return CASC::GetFilePointer(_fileHandle);
 }
 
+std::size_t DB2CascFileSource::GetFileSize() const
+{
+    DWORD sizeLow = 0;
+    DWORD sizeHigh = 0;
+    sizeLow = CASC::GetFileSize(_fileHandle, &sizeHigh);
+    return std::size_t(uint64(sizeLow) | (uint64(sizeHigh) << 32));
+}
+
 char const* DB2CascFileSource::GetFileName() const
 {
     return _fileName.c_str();

@@ -823,7 +823,9 @@ namespace WorldPackets
         public:
             SelfRes(WorldPacket&& packet) : ClientPacket(CMSG_SELF_RES, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            int32 SpellID = 0;
         };
 
         class GetMirrorImageData final : public ClientPacket
