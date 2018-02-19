@@ -8417,7 +8417,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
 
     // Sanctified Wrath (bypass damage reduction)
-    if (attacker && TakenTotalMod < 1.0f)
+    if (TakenTotalMod < 1.0f)
     {
         SpellSchoolMask const attackSchoolMask = spellProto ? spellProto->GetSchoolMask() : damageSchoolMask;
 

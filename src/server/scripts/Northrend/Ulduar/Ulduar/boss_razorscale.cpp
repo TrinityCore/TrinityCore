@@ -1232,6 +1232,7 @@ struct npc_razorscale_spawner : public ScriptedAI
     void Reset() override
     {
         me->setActive(true);
+        me->SetFarVisible(true);
         me->SetReactState(REACT_PASSIVE);
         _scheduler.
             Schedule(Seconds(1), [this](TaskContext /*context*/)
