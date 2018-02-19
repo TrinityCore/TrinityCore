@@ -1821,158 +1821,168 @@ bool Item::CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceE
     return true;
 }
 
-// used by mail items, transmog cost, stationeryinfo and others
-uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
+uint32 Item::GetBuyPrice(Player const* owner, bool& standardPrice) const
 {
-    normalSellPrice = true;
-
-    if (proto->GetFlags2() & ITEM_FLAG2_OVERRIDE_GOLD_COST)
-    {
-        return proto->GetBuyPrice();
-    }
-    else
-    {
-        ImportPriceQualityEntry const* qualityPrice = sImportPriceQualityStore.LookupEntry(proto->GetQuality() + 1);
-        ItemPriceBaseEntry const* basePrice = sItemPriceBaseStore.LookupEntry(proto->GetBaseItemLevel());
-
-        if (!qualityPrice || !basePrice)
-            return 0;
-
-        float qualityFactor = qualityPrice->Factor;
-        float baseFactor = 0.0f;
-
-        uint32 inventoryType = proto->GetInventoryType();
-
-        if (inventoryType == INVTYPE_WEAPON ||
-            inventoryType == INVTYPE_2HWEAPON ||
-            inventoryType == INVTYPE_WEAPONMAINHAND ||
-            inventoryType == INVTYPE_WEAPONOFFHAND ||
-            inventoryType == INVTYPE_RANGED ||
-            inventoryType == INVTYPE_THROWN ||
-            inventoryType == INVTYPE_RANGEDRIGHT)
-            baseFactor = basePrice->WeaponFactor;
-        else
-            baseFactor = basePrice->ArmorFactor;
-
-        if (inventoryType == INVTYPE_ROBE)
-            inventoryType = INVTYPE_CHEST;
-
-        float typeFactor = 0.0f;
-        int8 weapType = -1;
-
-        switch (inventoryType)
-        {
-            case INVTYPE_HEAD:
-            case INVTYPE_SHOULDERS:
-            case INVTYPE_CHEST:
-            case INVTYPE_WAIST:
-            case INVTYPE_LEGS:
-            case INVTYPE_FEET:
-            case INVTYPE_WRISTS:
-            case INVTYPE_HANDS:
-            case INVTYPE_CLOAK:
-            {
-                ImportPriceArmorEntry const* armorPrice = sImportPriceArmorStore.LookupEntry(inventoryType);
-                if (!armorPrice)
-                    return 0;
-
-                switch (proto->GetSubClass())
-                {
-                    case ITEM_SUBCLASS_ARMOR_MISCELLANEOUS:
-                    case ITEM_SUBCLASS_ARMOR_CLOTH:
-                        typeFactor = armorPrice->ClothFactor;
-                        break;
-                    case ITEM_SUBCLASS_ARMOR_LEATHER:
-                        typeFactor = armorPrice->LeatherFactor;
-                        break;
-                    case ITEM_SUBCLASS_ARMOR_MAIL:
-                        typeFactor = armorPrice->MailFactor;
-                        break;
-                    case ITEM_SUBCLASS_ARMOR_PLATE:
-                        typeFactor = armorPrice->PlateFactor;
-                        break;
-                    default:
-                        return 0;
-                }
-
-                break;
-            }
-            case INVTYPE_SHIELD:
-            {
-                ImportPriceShieldEntry const* shieldPrice = sImportPriceShieldStore.LookupEntry(1); // it only has two rows, it's unclear which is the one used
-                if (!shieldPrice)
-                    return 0;
-
-                typeFactor = shieldPrice->Factor;
-                break;
-            }
-            case INVTYPE_WEAPONMAINHAND:
-                weapType = 0;
-                break;
-            case INVTYPE_WEAPONOFFHAND:
-                weapType = 1;
-                break;
-            case INVTYPE_WEAPON:
-                weapType = 2;
-                break;
-            case INVTYPE_2HWEAPON:
-                weapType = 3;
-                break;
-            case INVTYPE_RANGED:
-            case INVTYPE_RANGEDRIGHT:
-            case INVTYPE_RELIC:
-                weapType = 4;
-                break;
-            default:
-                return proto->GetBuyPrice();
-        }
-
-        if (weapType != -1)
-        {
-            ImportPriceWeaponEntry const* weaponPrice = sImportPriceWeaponStore.LookupEntry(weapType + 1);
-            if (!weaponPrice)
-                return 0;
-
-            typeFactor = weaponPrice->Factor;
-        }
-
-        normalSellPrice = false;
-        return uint32(qualityFactor * proto->GetUnk1() * proto->GetUnk2() * typeFactor * baseFactor);
-    }
+    return Item::GetBuyPrice(GetTemplate(), GetQuality(), GetItemLevel(owner), standardPrice);
 }
 
-uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 10000*/)
+uint32 Item::GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel, bool& standardPrice)
 {
-    uint32 cost = 0;
+    standardPrice = false;
 
     if (proto->GetFlags2() & ITEM_FLAG2_OVERRIDE_GOLD_COST)
-        cost = proto->GetSellPrice();
-    else
-    {
-        bool normalPrice;
-        cost = Item::GetSellPrice(proto, normalPrice);
+        return proto->GetBuyPrice();
 
-        if (!normalPrice)
-        {
-            if (proto->GetBuyCount() <= 1)
-            {
-                ItemClassEntry const* classEntry = sDB2Manager.GetItemClassByOldEnum(proto->GetClass());
-                if (classEntry)
-                    cost *= classEntry->PriceMod;
-                else
-                    cost = 0;
-            }
-            else
-                cost /= 4 * proto->GetBuyCount();
-        }
-        else
-            cost = proto->GetSellPrice();
+    ImportPriceQualityEntry const* qualityPrice = sImportPriceQualityStore.LookupEntry(quality + 1);
+    if (!qualityPrice)
+        return 0;
+
+    ItemPriceBaseEntry const* basePrice = sItemPriceBaseStore.LookupEntry(itemLevel);
+    if (!basePrice)
+        return 0;
+
+    float qualityFactor = qualityPrice->Factor;
+    float baseFactor = 0.0f;
+
+    uint32 inventoryType = proto->GetInventoryType();
+
+    if (inventoryType == INVTYPE_WEAPON ||
+        inventoryType == INVTYPE_2HWEAPON ||
+        inventoryType == INVTYPE_WEAPONMAINHAND ||
+        inventoryType == INVTYPE_WEAPONOFFHAND ||
+        inventoryType == INVTYPE_RANGED ||
+        inventoryType == INVTYPE_THROWN ||
+        inventoryType == INVTYPE_RANGEDRIGHT)
+        baseFactor = basePrice->WeaponFactor;
+    else
+        baseFactor = basePrice->ArmorFactor;
+
+    if (inventoryType == INVTYPE_ROBE)
+        inventoryType = INVTYPE_CHEST;
+
+    if (proto->GetClass() == ITEM_CLASS_GEM && proto->GetSubClass() == ITEM_SUBCLASS_GEM_ARTIFACT_RELIC)
+    {
+        inventoryType = INVTYPE_WEAPON;
+        baseFactor = basePrice->WeaponFactor / 3.0f;
     }
 
-    if (cost < minimumPrice)
-        cost = minimumPrice;
+    float typeFactor = 0.0f;
+    int8 weapType = -1;
 
-    return cost;
+    switch (inventoryType)
+    {
+        case INVTYPE_HEAD:
+        case INVTYPE_NECK:
+        case INVTYPE_SHOULDERS:
+        case INVTYPE_CHEST:
+        case INVTYPE_WAIST:
+        case INVTYPE_LEGS:
+        case INVTYPE_FEET:
+        case INVTYPE_WRISTS:
+        case INVTYPE_HANDS:
+        case INVTYPE_FINGER:
+        case INVTYPE_TRINKET:
+        case INVTYPE_CLOAK:
+        case INVTYPE_HOLDABLE:
+        {
+            ImportPriceArmorEntry const* armorPrice = sImportPriceArmorStore.LookupEntry(inventoryType);
+            if (!armorPrice)
+                return 0;
+
+            switch (proto->GetSubClass())
+            {
+                case ITEM_SUBCLASS_ARMOR_MISCELLANEOUS:
+                case ITEM_SUBCLASS_ARMOR_CLOTH:
+                    typeFactor = armorPrice->ClothFactor;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_LEATHER:
+                    typeFactor = armorPrice->LeatherFactor;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_MAIL:
+                    typeFactor = armorPrice->MailFactor;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_PLATE:
+                    typeFactor = armorPrice->PlateFactor;
+                    break;
+                default:
+                    typeFactor = 1.0f;
+                    break;
+            }
+
+            break;
+        }
+        case INVTYPE_SHIELD:
+        {
+            ImportPriceShieldEntry const* shieldPrice = sImportPriceShieldStore.LookupEntry(2);
+            if (!shieldPrice)
+                return 0;
+
+            typeFactor = shieldPrice->Factor;
+            break;
+        }
+        case INVTYPE_WEAPONMAINHAND:
+            weapType = 0;
+            break;
+        case INVTYPE_WEAPONOFFHAND:
+            weapType = 1;
+            break;
+        case INVTYPE_WEAPON:
+            weapType = 2;
+            break;
+        case INVTYPE_2HWEAPON:
+            weapType = 3;
+            break;
+        case INVTYPE_RANGED:
+        case INVTYPE_RANGEDRIGHT:
+        case INVTYPE_RELIC:
+            weapType = 4;
+            break;
+        default:
+            return proto->GetBuyPrice();
+    }
+
+    if (weapType != -1)
+    {
+        ImportPriceWeaponEntry const* weaponPrice = sImportPriceWeaponStore.LookupEntry(weapType + 1);
+        if (!weaponPrice)
+            return 0;
+
+        typeFactor = weaponPrice->Factor;
+    }
+
+    standardPrice = false;
+    return uint32(proto->GetUnk2() * typeFactor * baseFactor * qualityFactor * proto->GetUnk1());
+}
+
+uint32 Item::GetSellPrice(Player const* owner) const
+{
+    return Item::GetSellPrice(GetTemplate(), GetQuality(), GetItemLevel(owner));
+}
+
+uint32 Item::GetSellPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel)
+{
+    if (proto->GetFlags2() & ITEM_FLAG2_OVERRIDE_GOLD_COST)
+        return proto->GetSellPrice();
+    else
+    {
+        bool standardPrice;
+        uint32 cost = Item::GetBuyPrice(proto, quality, itemLevel, standardPrice);
+
+        if (standardPrice)
+        {
+            if (ItemClassEntry const* classEntry = sDB2Manager.GetItemClassByOldEnum(proto->GetClass()))
+            {
+                uint32 buyCount = std::max(proto->GetBuyCount(), 1u);
+                return cost * classEntry->PriceMod / buyCount;
+            }
+
+            return 0;
+        }
+        else
+            return proto->GetSellPrice();
+    }
+
+    return 0;
 }
 
 void Item::ItemContainerSaveLootToDB()
@@ -2165,29 +2175,37 @@ void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
 
 uint32 Item::GetItemLevel(Player const* owner) const
 {
-    ItemTemplate const* stats = GetTemplate();
-    if (!stats)
+    return Item::GetItemLevel(GetTemplate(), _bonusData, owner->getLevel(), GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), GetModifier(ITEM_MODIFIER_UPGRADE_ID));
+}
+
+uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel, uint32 upgradeId)
+{
+    if (!itemTemplate)
         return MIN_ITEM_LEVEL;
 
-    uint32 itemLevel = stats->GetBaseItemLevel();
-    if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
+    uint32 itemLevel = itemTemplate->GetBaseItemLevel();
+    if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(bonusData.ScalingStatDistribution))
     {
-        uint32 level = owner->getLevel();
-        if (uint32 fixedLevel = GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
+        if (fixedLevel)
             level = fixedLevel;
         else
             level = std::min(std::max(level, ssd->MinLevel), ssd->MaxLevel);
+
+        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(bonusData.SandboxScalingId))
+            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
+                level = std::min(std::max(level, sandbox->MinLevel), sandbox->MaxLevel);
+
         if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, level)))
             itemLevel = heirloomIlvl;
     }
 
-    itemLevel += _bonusData.ItemLevelBonus;
+    itemLevel += bonusData.ItemLevelBonus;
 
-    if (ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(GetModifier(ITEM_MODIFIER_UPGRADE_ID)))
+    if (ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(upgradeId))
         itemLevel += upgrade->ItemLevelBonus;
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
-        itemLevel += _bonusData.GemItemLevelBonus[i];
+        itemLevel += bonusData.GemItemLevelBonus[i];
 
     return std::min(std::max(itemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }
@@ -2206,6 +2224,48 @@ int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
     }
 
     return _bonusData.ItemStatValue[index];
+}
+
+ItemDisenchantLootEntry const* Item::GetDisenchantLoot(Player const* owner) const
+{
+    return Item::GetDisenchantLoot(GetTemplate(), GetQuality(), GetItemLevel(owner));
+}
+
+ItemDisenchantLootEntry const* Item::GetDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel)
+{
+    if (itemTemplate->GetFlags() & (ITEM_FLAG_CONJURED | ITEM_FLAG_NO_DISENCHANT) || itemTemplate->GetBonding() == BIND_QUEST)
+        return nullptr;
+
+    if (itemTemplate->GetArea() || itemTemplate->GetMap() || itemTemplate->GetMaxStackSize() > 1)
+        return nullptr;
+
+    if (!Item::GetSellPrice(itemTemplate, quality, itemLevel) && !sDB2Manager.HasItemCurrencyCost(itemTemplate->GetId()))
+        return nullptr;
+
+    uint32 itemClass = itemTemplate->GetClass();
+    int8 itemSubClass = itemTemplate->GetSubClass();
+    uint8 expansion = itemTemplate->GetRequiredExpansion();
+    for (ItemDisenchantLootEntry const* disenchant : sItemDisenchantLootStore)
+    {
+        if (disenchant->ItemClass != itemClass)
+            continue;
+
+        if (disenchant->ItemSubClass >= 0 && itemSubClass)
+            continue;
+
+        if (disenchant->ItemQuality != quality)
+            continue;
+
+        if (disenchant->MinItemLevel > itemLevel || disenchant->MaxItemLevel < itemLevel)
+            continue;
+
+        if (disenchant->Expansion != -2 && disenchant->Expansion != expansion)
+            continue;
+
+        return disenchant;
+    }
+
+    return nullptr;
 }
 
 uint32 Item::GetDisplayId(Player const* owner) const
@@ -2506,6 +2566,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
     AppearanceModID = 0;
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
+    SandboxScalingId = 0;
     RelicType = -1;
     HasItemLevelBonus = false;
 
@@ -2529,7 +2590,7 @@ void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
                     AddBonus(bonus->Type, bonus->Value);
 }
 
-void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
+void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
 {
     switch (type)
     {
@@ -2591,6 +2652,7 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             if (values[1] < _state.ScalingStatDistributionPriority)
             {
                 ScalingStatDistribution = static_cast<uint32>(values[0]);
+                SandboxScalingId = static_cast<uint32>(values[2]);
                 _state.ScalingStatDistributionPriority = values[1];
             }
             break;
@@ -2599,6 +2661,9 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             break;
         case ITEM_BONUS_RELIC_TYPE:
             RelicType = values[0];
+            break;
+        case ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL:
+            RequiredLevel = values[0];
             break;
     }
 }

@@ -244,6 +244,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             text.QuestID = questID;
             text.QuestType = item.QuestIcon;
             text.QuestLevel = quest->GetQuestLevel();
+            text.QuestMaxScalingLevel = quest->GetQuestMaxScalingLevel();
             text.QuestFlags[0] = quest->GetFlags();
             text.QuestFlags[1] = quest->GetFlagsEx();
             text.Repeatable = quest->IsRepeatable();
@@ -380,7 +381,8 @@ void PlayerMenu::SendQuestGiverQuestListMessage(ObjectGuid guid)
 
             bool repeatable = false; // NYI
 
-            questList.QuestDataText.emplace_back(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, title);
+            questList.QuestDataText.emplace_back(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetQuestMaxScalingLevel(),
+                quest->GetFlags(), quest->GetFlagsEx(), repeatable, std::move(title));
         }
     }
 
@@ -506,6 +508,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.QuestID = quest->GetQuestId();
     packet.Info.QuestType = quest->GetQuestType();
     packet.Info.QuestLevel = quest->GetQuestLevel();
+    packet.Info.QuestMaxScalingLevel = quest->GetQuestMaxScalingLevel();
     packet.Info.QuestPackageID = quest->GetQuestPackageID();
     packet.Info.QuestMinLevel = quest->GetMinLevel();
     packet.Info.QuestSortID = quest->GetZoneOrSort();

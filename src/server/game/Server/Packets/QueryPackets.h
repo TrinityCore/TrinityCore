@@ -321,6 +321,7 @@ namespace WorldPackets
             int32 PlayerConditionID = 0;
             int32 UnkWoD1 = 0;
             std::vector<QuestPOIBlobPoint> QuestPOIBlobPointStats;
+            bool AlwaysAllowMergingBlobs = false;
         };
 
         struct QuestPOIData
