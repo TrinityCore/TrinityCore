@@ -35,7 +35,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
     {
         response.SuccessInfo = boost::in_place();
 
-        response.SuccessInfo->AccountExpansionLevel = GetExpansion();
+        response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo->VirtualRealmAddress = realm.Id.GetAddress();
         response.SuccessInfo->Time = int32(time(nullptr));
@@ -48,7 +48,6 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
                 response.SuccessInfo->Templates.push_back(&templ.second);
 
         response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
-        response.SuccessInfo->AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
 
     if (queued)

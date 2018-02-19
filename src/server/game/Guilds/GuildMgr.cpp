@@ -515,7 +515,7 @@ void GuildMgr::LoadGuildRewards()
         Field* fields = result->Fetch();
         reward.ItemID        = fields[0].GetUInt32();
         reward.MinGuildRep   = fields[1].GetUInt8();
-        reward.RaceMask      = fields[2].GetInt32();
+        reward.RaceMask      = fields[2].GetUInt64();
         reward.Cost          = fields[3].GetUInt64();
 
         if (!sObjectMgr->GetItemTemplate(reward.ItemID))
