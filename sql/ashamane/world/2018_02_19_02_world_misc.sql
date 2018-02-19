@@ -171,7 +171,8 @@ INSERT INTO spell_loot_template (Entry, Item, Chance, MinCount, MaxCount) VALUES
 (257631, 139115, 6, 1, 1),
 (257639, 153146, 48, 1, 1),
 (257639, 153138, 48, 1, 1),
-(257639, 153150, 4, 1, 1),
+(257639, 153150, 4, 1, 1);
+
 -- Ajouter Rênes de serpent-nuage d'onyx fulminant sur Huolon Monture Manquante
 DELETE FROM `creature_loot_template` WHERE (Entry = 73167) AND (Item IN (104269));
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
