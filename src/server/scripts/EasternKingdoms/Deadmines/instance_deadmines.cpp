@@ -27,6 +27,7 @@ ObjectData const creatureData[] =
     { BOSS_GLUBTOK,                     DATA_GLUBTOK            },
     { BOSS_HELIX_GEARBREAKER,           DATA_HELIX_GEARBREAKER  },
     { BOSS_FOE_REAPER_5000,             DATA_FOE_REAPER_5000    },
+    { BOSS_ADMIRAL_RIPSNARL,            DATA_ADMIRAL_RIPSNARL   },
     { NPC_LUMBERING_OAF,                DATA_LUMBERING_OAF      },
     { NPC_FOE_REAPER_TARGETING_BUNNY,   DATA_FOE_REAPER_BUNNY   },
     { NPC_PROTOTYPE_REAPER,             DATA_PROTOTYPE_REAPER   },
@@ -126,6 +127,13 @@ class instance_deadmines : public InstanceMapScript
                         if (Creature* reaper = GetCreature(DATA_FOE_REAPER_5000))
                             reaper->AI()->JustSummoned(creature);
                         break;
+                    case NPC_GENERAL_PURPOSE_BUNNY_L2:
+                        _generalPurposeBunnyJMF2GuidSet.insert(creature->GetGUID());
+                        break;
+                    case NPC_VAPOR:
+                        if (Creature* ripsnarl = GetCreature(DATA_ADMIRAL_RIPSNARL))
+                            ripsnarl->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }
@@ -161,6 +169,22 @@ class instance_deadmines : public InstanceMapScript
                     case DATA_BROKEN_DOOR:
                         _IronCladDoorState = data;
                         SaveToDB();
+                        break;
+                    case DATA_RIPSNARL_FOG:
+                        if (data == IN_PROGRESS)
+                        {
+                            if (Creature* ripsnarl = GetCreature(DATA_ADMIRAL_RIPSNARL))
+                                for (auto itr = _generalPurposeBunnyJMF2GuidSet.begin(); itr != _generalPurposeBunnyJMF2GuidSet.end(); itr++)
+                                    if (Creature* bunny = instance->GetCreature(*itr))
+                                        if (bunny->GetDistance2d(ripsnarl->GetHomePosition().GetPositionX(), ripsnarl->GetHomePosition().GetPositionY()) <= 100.0f)
+                                            bunny->CastSpell(bunny, SPELL_FOG, true);
+                        }
+                        else if (data == NOT_STARTED)
+                        {
+                            for (auto itr = _generalPurposeBunnyJMF2GuidSet.begin(); itr != _generalPurposeBunnyJMF2GuidSet.end(); itr++)
+                                if (Creature* bunny = instance->GetCreature(*itr))
+                                    bunny->RemoveAllAuras();
+                        }
                         break;
                     default:
                         break;
@@ -201,6 +225,7 @@ class instance_deadmines : public InstanceMapScript
             uint32 _teamInInstance;
             uint32 _foeReaper5000Intro;
             uint32 _IronCladDoorState;
+            GuidSet _generalPurposeBunnyJMF2GuidSet;
         };
 
 

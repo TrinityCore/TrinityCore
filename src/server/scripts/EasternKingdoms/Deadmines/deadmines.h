@@ -40,7 +40,8 @@ enum DMDataTypes
     DATA_FOE_REAPER_BUNNY   = 10,
     DATA_PROTOTYPE_REAPER   = 11,
     DATA_BROKEN_DOOR        = 13,
-    DATA_IRON_CLAD_DOOR     = 14
+    DATA_IRON_CLAD_DOOR     = 14,
+    DATA_RIPSNARL_FOG       = 15
 };
 
 enum DMCreatures
@@ -49,6 +50,7 @@ enum DMCreatures
     BOSS_GLUBTOK                    = 47162,
     BOSS_HELIX_GEARBREAKER          = 47296,
     BOSS_FOE_REAPER_5000            = 43778,
+    BOSS_ADMIRAL_RIPSNARL           = 47626,
 
     // Horde Creatures
     NPC_SLINKY_SHARPSHIV            = 46906,
@@ -84,6 +86,7 @@ enum DMCreatures
     NPC_FOE_REAPER_TARGETING_BUNNY  = 47468,
     NPC_PROTOTYPE_REAPER            = 49208,
     NPC_MOLTEN_SLAG                 = 49229,
+    NPC_VAPOR                       = 47714
 };
 
 enum DMGameObjects
@@ -97,6 +100,10 @@ enum DMGameObjects
     GO_FOUNDRY_DOOR     = 16399
 };
 
+enum DMSpells
+{
+    SPELL_FOG           = 88768
+};
 
 template<class AI>
 AI* GetDeadminesAI(Creature* creature)
