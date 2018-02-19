@@ -166,3 +166,21 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (@ENTRY, 0, 0, 0, 37, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set react state to REACT_PASSIVE // "),
 (@ENTRY, 0, 1, 0, 73, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spellclick - Self: Despawn instantly // ");
+
+-- Loot
+UPDATE `creature_template` SET `lootid`= 47739 WHERE `entry`= 47739;
+UPDATE `creature_template` SET `lootid`= 48944 WHERE `entry` = 48944;
+DELETE FROM creature_loot_template WHERE `Entry` IN (47739, 48944);
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
+(47739, 5193, 0, 1, 1, 1, 1),
+(47739, 5202, 0, 1, 1, 1, 1),
+(47739, 5192, 0, 1, 1, 1, 1),
+(47739, 5197, 0, 1, 1, 1, 1),
+(47739, 5198, 0, 1, 1, 1, 1);
+
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
+(48944, 65177, 0, 1, 1, 1, 1),
+(48944, 65174, 0, 1, 1, 1, 1),
+(48944, 65173, 0, 1, 1, 1, 1),
+(48944, 65171, 0, 1, 1, 1, 1),
+(48944, 65172, 0, 1, 1, 1, 1);
