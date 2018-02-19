@@ -340,6 +340,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
         raceUnlock.RaceID = requirement.first;
         raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
+        raceUnlock.HasAchievement = requirement.second.AchievementId == 0 /*|| HasAchievement(requirement.second.AchievementId)*/;
         charEnum.RaceUnlockData.push_back(raceUnlock);
     }
 
