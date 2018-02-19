@@ -22,12 +22,25 @@
 #include "TemporarySummon.h"
 #include "WorldPacket.h"
 
+enum EventIds
+{
+    EVENT_SUMMON_CAPTAIN_COOKIE = 1
+};
+
+enum TextsIds
+{
+    // Id's 0 - 1 used by Foe Reaper 5000
+    // Id 2 used by Defias Cannon
+    SAY_ANNOUNCE_SHADOWY_FIGURE = 3
+};
+
 ObjectData const creatureData[] =
 {
     { BOSS_GLUBTOK,                     DATA_GLUBTOK            },
     { BOSS_HELIX_GEARBREAKER,           DATA_HELIX_GEARBREAKER  },
     { BOSS_FOE_REAPER_5000,             DATA_FOE_REAPER_5000    },
     { BOSS_ADMIRAL_RIPSNARL,            DATA_ADMIRAL_RIPSNARL   },
+    { BOSS_CAPTAIN_COOKIE,              DATA_CAPTAIN_COOKIE     },
     { NPC_LUMBERING_OAF,                DATA_LUMBERING_OAF      },
     { NPC_FOE_REAPER_TARGETING_BUNNY,   DATA_FOE_REAPER_BUNNY   },
     { NPC_PROTOTYPE_REAPER,             DATA_PROTOTYPE_REAPER   },
@@ -65,6 +78,7 @@ class instance_deadmines : public InstanceMapScript
                 _teamInInstance = 0;
                 _foeReaper5000Intro = 0;
                 _IronCladDoorState = 0;
+                _firstCookieSpawn = true;
             }
 
             void OnPlayerEnter(Player* player) override
@@ -134,6 +148,21 @@ class instance_deadmines : public InstanceMapScript
                         if (Creature* ripsnarl = GetCreature(DATA_ADMIRAL_RIPSNARL))
                             ripsnarl->AI()->JustSummoned(creature);
                         break;
+                    case NPC_CORN:
+                    case NPC_ROTTEN_CORN:
+                    case NPC_MELON:
+                    case NPC_ROTTEN_MELON:
+                    case NPC_STEAK:
+                    case NPC_ROTTEN_STEAK:
+                    case NPC_MYSTERY_MEAT:
+                    case NPC_ROTTEN_MYSTERY_MEAT:
+                    case NPC_LOAF:
+                    case NPC_ROTTEN_LOAF:
+                    case NPC_BUN:
+                    case NPC_ROTTEN_BUN:
+                        if (Creature* cookie = GetCreature(DATA_CAPTAIN_COOKIE))
+                            cookie->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }
@@ -152,6 +181,27 @@ class instance_deadmines : public InstanceMapScript
                     default:
                         break;
                 }
+            }
+
+            bool SetBossState(uint32 type, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_ADMIRAL_RIPSNARL:
+                        if (state == DONE)
+                            events.ScheduleEvent(EVENT_SUMMON_CAPTAIN_COOKIE, Seconds(10));
+                        break;
+                    case DATA_CAPTAIN_COOKIE:
+                        if (state == FAIL)
+                            events.ScheduleEvent(EVENT_SUMMON_CAPTAIN_COOKIE, Seconds(30));
+                        break;
+                    default:
+                        break;
+                }
+                return true;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -221,13 +271,37 @@ class instance_deadmines : public InstanceMapScript
 
             }
 
+            void Update(uint32 diff) override
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SUMMON_CAPTAIN_COOKIE:
+                            if (Creature* cookie = instance->SummonCreature(BOSS_CAPTAIN_COOKIE, captainCookieSpawnPos))
+                                if (_firstCookieSpawn)
+                                {
+                                    if (Creature* bunny = cookie->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 30.0f, true))
+                                        bunny->AI()->Talk(SAY_ANNOUNCE_SHADOWY_FIGURE);
+                                    _firstCookieSpawn = false;
+                                }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
         protected:
+            EventMap events;
             uint32 _teamInInstance;
             uint32 _foeReaper5000Intro;
             uint32 _IronCladDoorState;
             GuidSet _generalPurposeBunnyJMF2GuidSet;
+            bool _firstCookieSpawn;
         };
-
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {

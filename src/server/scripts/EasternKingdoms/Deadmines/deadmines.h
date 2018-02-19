@@ -51,6 +51,7 @@ enum DMCreatures
     BOSS_HELIX_GEARBREAKER          = 47296,
     BOSS_FOE_REAPER_5000            = 43778,
     BOSS_ADMIRAL_RIPSNARL           = 47626,
+    BOSS_CAPTAIN_COOKIE             = 47739,
 
     // Horde Creatures
     NPC_SLINKY_SHARPSHIV            = 46906,
@@ -86,7 +87,20 @@ enum DMCreatures
     NPC_FOE_REAPER_TARGETING_BUNNY  = 47468,
     NPC_PROTOTYPE_REAPER            = 49208,
     NPC_MOLTEN_SLAG                 = 49229,
-    NPC_VAPOR                       = 47714
+    NPC_VAPOR                       = 47714,
+    NPC_COOKIES_CAULDRON            = 47754,
+    NPC_CORN                        = 48006,
+    NPC_ROTTEN_CORN                 = 48276,
+    NPC_MELON                       = 48294,
+    NPC_ROTTEN_MELON                = 48293,
+    NPC_STEAK                       = 48296,
+    NPC_ROTTEN_STEAK                = 48295,
+    NPC_MYSTERY_MEAT                = 48297,
+    NPC_ROTTEN_MYSTERY_MEAT         = 48298,
+    NPC_LOAF                        = 48300,
+    NPC_ROTTEN_LOAF                 = 48299,
+    NPC_BUN                         = 48301,
+    NPC_ROTTEN_BUN                  = 48302,
 };
 
 enum DMGameObjects
@@ -104,6 +118,8 @@ enum DMSpells
 {
     SPELL_FOG           = 88768
 };
+
+Position const captainCookieSpawnPos = { -88.13194f, -819.3299f, 39.23453f };
 
 template<class AI>
 AI* GetDeadminesAI(Creature* creature)

@@ -4177,6 +4177,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
     });
 
+    // "Captain" Coikie
+    // Rotten Aura
+    ApplySpellFix({
+        89735,
+        92065,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+    });
+
     // END OF DEADMINES SPELLS
 
     //
