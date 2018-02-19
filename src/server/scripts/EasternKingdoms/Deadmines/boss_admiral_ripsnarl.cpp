@@ -98,12 +98,16 @@ class boss_admiral_ripsnarl: public CreatureScript
             {
                 _vanishCounter = 0;
                 _firstVaporGuid.Clear();
+                _bunnyGuid.Clear();
             }
 
             void Reset() override
             {
                 _Reset();
                 Initialize();
+                if (Creature* bunny = me->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
+                    _bunnyGuid = bunny->GetGUID();
+
                 DoCastSelf(SPELL_THIRST_FOR_BLOOD, true);
             }
 
@@ -242,7 +246,7 @@ class boss_admiral_ripsnarl: public CreatureScript
                             DoCastSelf(SPELL_VANISH);
                             break;
                         case EVENT_CAST_RIPSNARLS_FOG_AURA:
-                            if (Creature* bunny = me->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 100.0f, true))
+                            if (Creature* bunny = ObjectAccessor::GetCreature(*me, _bunnyGuid))
                                 bunny->CastSpell(bunny, SPELL_RIPSNARLS_FOG_AURA);
                             events.Repeat(Seconds(2));
                             break;
@@ -273,6 +277,7 @@ class boss_admiral_ripsnarl: public CreatureScript
         private:
             uint8 _vanishCounter;
             ObjectGuid _firstVaporGuid;
+            ObjectGuid _bunnyGuid;
         };
 
         CreatureAI* GetAI(Creature *creature) const override
