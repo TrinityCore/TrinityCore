@@ -37,12 +37,12 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 UPDATE `creature_template` SET `lootid`= 47626 WHERE `entry` = 47626;
 DELETE FROM creature_loot_template WHERE `Entry` IN (47626, 48943);
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
-(47626, 1156, 0, 1, 1, 1, 1),
+(47626, 872, 0, 1, 1, 1, 1),
 (47626, 5196, 0, 1, 1, 1, 1),
-(47626, 872, 0, 1, 1, 1, 1);
+(47626, 1156, 0, 1, 1, 1, 1);
 
 UPDATE `creature_template` SET `lootid`= 48943 WHERE `entry` = 48943;
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
-(48943, 65166, 0, 1, 1, 1, 1),
-(48943, 65165, 0, 1, 1, 1, 1),
-(48943, 65167, 0, 1, 1, 1, 1);
+(65168, 65166, 0, 1, 1, 1, 1),
+(48943, 65170, 0, 1, 1, 1, 1),
+(48943, 65169, 0, 1, 1, 1, 1);
