@@ -253,8 +253,8 @@ class boss_admiral_ripsnarl: public CreatureScript
                         case EVENT_GO_FOR_THE_THROAT:
                             if (me->HasAura(SPELL_VANISH))
                             {
-                                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                                 me->RemoveAurasDueToSpell(SPELL_VANISH);
+                                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 me->PlayDirectSound(SOUND_HOWL);
                                 events.ScheduleEvent(EVENT_SWIPE, Seconds(3) + Milliseconds(500));
