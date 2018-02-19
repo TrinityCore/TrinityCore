@@ -43,7 +43,14 @@ struct DB2Header
     uint16 Flags;
     int16 IndexField;
     uint32 TotalFieldCount;
+    uint32 PackedDataOffset;
+    uint32 ParentLookupCount;
+    uint32 CatalogDataOffset;
+    uint32 IdTableSize;
+    uint32 ColumnMetaSize;
     uint32 CommonDataSize;
+    uint32 PalletDataSize;
+    uint32 ParentLookupDataSize;
 };
 #pragma pack(pop)
 
@@ -65,16 +72,18 @@ struct TC_COMMON_API DB2FileSource
 {
     virtual ~DB2FileSource();
 
-    ///
-    /**
-     * Returns true when the source is open for reading
-     */
+    // Returns true when the source is open for reading
     virtual bool IsOpen() const = 0;
 
     // Reads numBytes bytes from source and places them into buffer
-    // Retu
+    // Returns true if numBytes was read successfully
     virtual bool Read(void* buffer, std::size_t numBytes) = 0;
+
+    // Returns current read position in file
     virtual std::size_t GetPosition() const = 0;
+
+    virtual std::size_t GetFileSize() const = 0;
+
     virtual char const* GetFileName() const = 0;
 };
 
@@ -96,6 +105,8 @@ public:
     uint32 GetUInt32(char const* fieldName) const;
     int32 GetInt32(uint32 field, uint32 arrayIndex) const;
     int32 GetInt32(char const* fieldName) const;
+    uint64 GetUInt64(uint32 field, uint32 arrayIndex) const;
+    uint64 GetUInt64(char const* fieldName) const;
     float GetFloat(uint32 field, uint32 arrayIndex) const;
     float GetFloat(char const* fieldName) const;
     char const* GetString(uint32 field, uint32 arrayIndex) const;

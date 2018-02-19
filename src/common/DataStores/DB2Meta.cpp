@@ -18,33 +18,8 @@
 #include "DB2Meta.h"
 #include "Errors.h"
 
-DB2FieldDefault::DB2FieldDefault(uint8 u8)
-{
-    AsUInt8 = u8;
-}
-
-DB2FieldDefault::DB2FieldDefault(uint16 u16)
-{
-    AsUInt16 = u16;
-}
-
-DB2FieldDefault::DB2FieldDefault(uint32 u32)
-{
-    AsUInt32 = u32;
-}
-
-DB2FieldDefault::DB2FieldDefault(float f)
-{
-    AsFloat = f;
-}
-
-DB2FieldDefault::DB2FieldDefault(char const* str)
-{
-    AsString = str;
-}
-
-DB2Meta::DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes, DB2FieldDefault const* fieldDefaults)
-    : IndexField(indexField), FieldCount(fieldCount), LayoutHash(layoutHash), Types(types), ArraySizes(arraySizes), FieldDefaults(fieldDefaults)
+DB2Meta::DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes, int32 parentIndexField)
+    : IndexField(indexField), ParentIndexField(parentIndexField), FieldCount(fieldCount), LayoutHash(layoutHash), Types(types), ArraySizes(arraySizes)
 {
 }
 
@@ -77,6 +52,9 @@ uint32 DB2Meta::GetRecordSize() const
                 case FT_INT:
                     size += 4;
                     break;
+                case FT_LONG:
+                    size += 8;
+                    break;
                 case FT_STRING:
                     size += sizeof(char*);
                     break;
@@ -91,6 +69,47 @@ uint32 DB2Meta::GetRecordSize() const
         size += 4;
 
     return size;
+}
+
+int32 DB2Meta::GetParentIndexFieldOffset() const
+{
+    if (ParentIndexField == -1)
+        return -1;
+
+    uint32 offset = 0;
+    if (!HasIndexFieldInData())
+        offset += 4;
+
+    for (int32 i = 0; i < ParentIndexField; ++i)
+    {
+        for (uint8 j = 0; j < ArraySizes[i]; ++j)
+        {
+            switch (Types[i])
+            {
+                case FT_BYTE:
+                    offset += 1;
+                    break;
+                case FT_SHORT:
+                    offset += 2;
+                    break;
+                case FT_FLOAT:
+                case FT_INT:
+                    offset += 4;
+                    break;
+                case FT_LONG:
+                    offset += 8;
+                    break;
+                case FT_STRING:
+                    offset += sizeof(char*);
+                    break;
+                default:
+                    ASSERT(false, "Unsupported column type specified %c", Types[i]);
+                    break;
+            }
+        }
+    }
+
+    return offset;
 }
 
 uint32 DB2Meta::GetDbIndexField() const

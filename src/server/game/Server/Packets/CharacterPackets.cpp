@@ -37,8 +37,8 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     // "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, "
     //  19                    20                      21                   22                   23                     24                   25
     // "guild_member.guildid, characters.playerFlags, characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, "
-    //  26                     27               28                      29                            30
-    // "character_banned.guid, characters.slot, characters.logout_time, characters.activeTalentGroup, character_declinedname.genitive"
+    //  26                     27               28                      29                            30                         31
+    // "character_banned.guid, characters.slot, characters.logout_time, characters.activeTalentGroup, characters.lastLoginBuild, character_declinedname.genitive"
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
     Name              = fields[1].GetString();
@@ -82,7 +82,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     if (fields[26].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[30].GetString().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[31].GetString().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
@@ -117,6 +117,8 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(Class, fields[29].GetUInt8()))
         SpecID = spec->ID;
 
+    LastLoginBuild = fields[30].GetUInt32();
+
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
         uint32 visualBase = slot * 3;
@@ -126,76 +128,96 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     }
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharactersResult::CharacterInfo::VisualItemInfo const& visualItem)
+{
+    data << uint32(visualItem.DisplayId);
+    data << uint32(visualItem.DisplayEnchantId);
+    data << uint8(visualItem.InventoryType);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharactersResult::CharacterInfo const& charInfo)
+{
+    data << charInfo.Guid;
+    data << uint8(charInfo.ListPosition);
+    data << uint8(charInfo.Race);
+    data << uint8(charInfo.Class);
+    data << uint8(charInfo.Sex);
+    data << uint8(charInfo.Skin);
+    data << uint8(charInfo.Face);
+    data << uint8(charInfo.HairStyle);
+    data << uint8(charInfo.HairColor);
+    data << uint8(charInfo.FacialHair);
+    data.append(charInfo.CustomDisplay.data(), charInfo.CustomDisplay.size());
+    data << uint8(charInfo.Level);
+    data << int32(charInfo.ZoneId);
+    data << int32(charInfo.MapId);
+    data << charInfo.PreLoadPosition;
+    data << charInfo.GuildGuid;
+    data << uint32(charInfo.Flags);
+    data << uint32(charInfo.CustomizationFlag);
+    data << uint32(charInfo.Flags3);
+    data << uint32(charInfo.Pet.CreatureDisplayId);
+    data << uint32(charInfo.Pet.Level);
+    data << uint32(charInfo.Pet.CreatureFamily);
+
+    data << uint32(charInfo.ProfessionIds[0]);
+    data << uint32(charInfo.ProfessionIds[1]);
+
+    for (WorldPackets::Character::EnumCharactersResult::CharacterInfo::VisualItemInfo const& visualItem : charInfo.VisualItems)
+        data << visualItem;
+
+    data << uint32(charInfo.LastPlayedTime);
+    data << uint16(charInfo.SpecID);
+    data << uint32(charInfo.Unknown703);
+    data << uint32(charInfo.LastLoginBuild);
+    data << uint32(charInfo.Flags4);
+    data.WriteBits(charInfo.Name.length(), 6);
+    data.WriteBit(charInfo.FirstLogin);
+    data.WriteBit(charInfo.BoostInProgress);
+    data.WriteBits(charInfo.unkWod61x, 5);
+    data.FlushBits();
+
+    data.WriteString(charInfo.Name);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharactersResult::RaceUnlock const& raceUnlock)
+{
+    data << int32(raceUnlock.RaceID);
+    data.WriteBit(raceUnlock.HasExpansion);
+    data.WriteBit(raceUnlock.HasAchievement);
+    data.WriteBit(raceUnlock.HasHeritageArmor);
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
 {
-    _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + FactionChangeRestrictions.size() * sizeof(RestrictedFactionChangeRuleInfo));
+    _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + RaceUnlockData.size() * sizeof(RaceUnlock));
 
     _worldPacket.WriteBit(Success);
     _worldPacket.WriteBit(IsDeletedCharacters);
     _worldPacket.WriteBit(IsDemonHunterCreationAllowed);
     _worldPacket.WriteBit(HasDemonHunterOnRealm);
-    _worldPacket.WriteBit(HasLevel70OnRealm);
     _worldPacket.WriteBit(Unknown7x);
     _worldPacket.WriteBit(DisabledClassesMask.is_initialized());
+    _worldPacket.WriteBit(IsAlliedRacesCreationAllowed);
     _worldPacket << uint32(Characters.size());
-    _worldPacket << uint32(FactionChangeRestrictions.size());
+    _worldPacket << int32(MaxCharacterLevel);
+    _worldPacket << uint32(RaceUnlockData.size());
 
     if (DisabledClassesMask)
         _worldPacket << uint32(*DisabledClassesMask);
 
-    for (RestrictedFactionChangeRuleInfo const& rule : FactionChangeRestrictions)
-    {
-        _worldPacket << int32(rule.Mask);
-        _worldPacket << uint8(rule.Race);
-    }
-
     for (CharacterInfo const& charInfo : Characters)
-    {
-        _worldPacket << charInfo.Guid;
-        _worldPacket << uint8(charInfo.ListPosition);
-        _worldPacket << uint8(charInfo.Race);
-        _worldPacket << uint8(charInfo.Class);
-        _worldPacket << uint8(charInfo.Sex);
-        _worldPacket << uint8(charInfo.Skin);
-        _worldPacket << uint8(charInfo.Face);
-        _worldPacket << uint8(charInfo.HairStyle);
-        _worldPacket << uint8(charInfo.HairColor);
-        _worldPacket << uint8(charInfo.FacialHair);
-        _worldPacket.append(charInfo.CustomDisplay.data(), charInfo.CustomDisplay.size());
-        _worldPacket << uint8(charInfo.Level);
-        _worldPacket << int32(charInfo.ZoneId);
-        _worldPacket << int32(charInfo.MapId);
-        _worldPacket << charInfo.PreLoadPosition;
-        _worldPacket << charInfo.GuildGuid;
-        _worldPacket << uint32(charInfo.Flags);
-        _worldPacket << uint32(charInfo.CustomizationFlag);
-        _worldPacket << uint32(charInfo.Flags3);
-        _worldPacket << uint32(charInfo.Pet.CreatureDisplayId);
-        _worldPacket << uint32(charInfo.Pet.Level);
-        _worldPacket << uint32(charInfo.Pet.CreatureFamily);
+        _worldPacket << charInfo;
 
-        _worldPacket << uint32(charInfo.ProfessionIds[0]);
-        _worldPacket << uint32(charInfo.ProfessionIds[1]);
-
-        for (CharacterInfo::VisualItemInfo const& visualItem : charInfo.VisualItems)
-        {
-            _worldPacket << uint32(visualItem.DisplayId);
-            _worldPacket << uint32(visualItem.DisplayEnchantId);
-            _worldPacket << uint8(visualItem.InventoryType);
-        }
-
-        _worldPacket << uint32(charInfo.LastPlayedTime);
-        _worldPacket << uint16(charInfo.SpecID);
-        _worldPacket << uint32(charInfo.Unknown703);
-        _worldPacket << uint32(charInfo.Flags4);
-        _worldPacket.WriteBits(charInfo.Name.length(), 6);
-        _worldPacket.WriteBit(charInfo.FirstLogin);
-        _worldPacket.WriteBit(charInfo.BoostInProgress);
-        _worldPacket.WriteBits(charInfo.unkWod61x, 5);
-        _worldPacket.FlushBits();
-
-        _worldPacket.WriteString(charInfo.Name);
-    }
+    for (RaceUnlock const& raceUnlock : RaceUnlockData)
+        _worldPacket << raceUnlock;
 
     return &_worldPacket;
 }
@@ -469,9 +491,7 @@ WorldPacket const* WorldPackets::Character::LogXPGain::Write()
     _worldPacket << uint8(Reason);
     _worldPacket << int32(Amount);
     _worldPacket << float(GroupBonus);
-    _worldPacket.WriteBit(ReferAFriend);
-
-    _worldPacket.FlushBits();
+    _worldPacket << uint8(ReferAFriendBonusType);
 
     return &_worldPacket;
 }

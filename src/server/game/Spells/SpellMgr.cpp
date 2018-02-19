@@ -2216,7 +2216,6 @@ void SpellMgr::LoadSpellInfoStore()
 
     std::unordered_map<uint32, SpellEffectEntryMap> effectsBySpell;
     std::unordered_map<uint32, SpellVisualMap> visualsBySpell;
-    std::unordered_map<uint32, SpellEffectScalingEntry const*> spellEffectScallingByEffectId;
 
     for (SpellEffectEntry const* effect : sSpellEffectStore)
     {
@@ -2255,9 +2254,6 @@ void SpellMgr::LoadSpellInfoStore()
         if (!cooldowns->DifficultyID)   // TODO: implement
             loadData[cooldowns->SpellID].Cooldowns = cooldowns;
 
-    for (SpellEffectScalingEntry const* spellEffectScaling : sSpellEffectScalingStore)
-        spellEffectScallingByEffectId[spellEffectScaling->SpellEffectID] = spellEffectScaling;
-
     for (SpellEquippedItemsEntry const* equippedItems : sSpellEquippedItemsStore)
         loadData[equippedItems->SpellID].EquippedItems = equippedItems;
 
@@ -2268,6 +2264,10 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellLevelsEntry const* levels : sSpellLevelsStore)
         if (!levels->DifficultyID)  // TODO: implement
             loadData[levels->SpellID].Levels = levels;
+
+    for (SpellMiscEntry const* misc : sSpellMiscStore)
+        if (!misc->DifficultyID)
+            loadData[misc->SpellID].Misc = misc;
 
     for (SpellReagentsEntry const* reagents : sSpellReagentsStore)
         loadData[reagents->SpellID].Reagents = reagents;
@@ -2293,8 +2293,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
         {
             loadData[i].Entry = spellEntry;
-            loadData[i].Misc = sSpellMiscStore.LookupEntry(spellEntry->MiscID);
-            mSpellInfoMap[i] = new SpellInfo(loadData[i], effectsBySpell[i], std::move(visualsBySpell[i]), spellEffectScallingByEffectId);
+            mSpellInfoMap[i] = new SpellInfo(loadData[i], effectsBySpell[i], std::move(visualsBySpell[i]));
         }
     }
 

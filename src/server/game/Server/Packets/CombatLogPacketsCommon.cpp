@@ -166,7 +166,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData 
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& sandboxScalingData)
 {
-    data.WriteBits(sandboxScalingData.Type, 3);
+    data.WriteBits(sandboxScalingData.Type, 4);
     data << int16(sandboxScalingData.PlayerLevelDelta);
     data << uint16(sandboxScalingData.PlayerItemLevel);
     data << uint8(sandboxScalingData.TargetLevel);

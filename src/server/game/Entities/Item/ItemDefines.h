@@ -123,6 +123,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_USE_ITEM                                = 98, // You can't use that item.
     EQUIP_ERR_CANT_BE_OBLITERATED                          = 99, // You can't obliterate that item
     EQUIP_ERR_GUILD_BANK_CONJURED_ITEM                     = 100,// You cannot store conjured items in the guild bank
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 101,// You can't do that right now.
 };
 
 enum BuyResult

@@ -130,17 +130,10 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint8(SuccessInfo->ActiveExpansionLevel);
         _worldPacket << uint8(SuccessInfo->AccountExpansionLevel);
         _worldPacket << uint32(SuccessInfo->TimeSecondsUntilPCKick);
-        _worldPacket << uint32(SuccessInfo->AvailableRaces->size());
         _worldPacket << uint32(SuccessInfo->AvailableClasses->size());
         _worldPacket << uint32(SuccessInfo->Templates.size());
         _worldPacket << uint32(SuccessInfo->CurrencyID);
         _worldPacket << int32(SuccessInfo->Time);
-
-        for (auto const& race : *SuccessInfo->AvailableRaces)
-        {
-            _worldPacket << uint8(race.first); /// the current race
-            _worldPacket << uint8(race.second); /// the required Expansion
-        }
 
         for (auto const& klass : *SuccessInfo->AvailableClasses)
         {
