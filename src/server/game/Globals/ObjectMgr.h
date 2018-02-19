@@ -594,8 +594,8 @@ struct PlayerInfo
     float positionY;
     float positionZ;
     float orientation;
-    uint16 displayId_m;
-    uint16 displayId_f;
+    uint32 displayId_m;
+    uint32 displayId_f;
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
     PlayerCreateInfoSpells castSpells;
