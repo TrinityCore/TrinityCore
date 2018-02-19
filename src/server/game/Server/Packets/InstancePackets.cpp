@@ -146,6 +146,8 @@ WorldPacket const* WorldPackets::Instance::InstanceEncounterStart::Write()
     _worldPacket << uint32(MaxInCombatResCount);
     _worldPacket << uint32(CombatResChargeRecovery);
     _worldPacket << uint32(NextCombatResChargeTime);
+    _worldPacket.WriteBit(InProgress);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

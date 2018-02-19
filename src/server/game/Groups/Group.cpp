@@ -26,6 +26,7 @@
 #include "GameObject.h"
 #include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
+#include "Item.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -879,7 +880,11 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
     startLootRoll.Method = GetLootMethod();
     r.FillPacket(startLootRoll.Item);
 
-    p->GetSession()->SendPacket(startLootRoll.Write());
+    if (ItemDisenchantLootEntry const* disenchant = r.GetItemDisenchantLoot(p))
+        if (m_maxEnchantingLevel >= disenchant->RequiredDisenchantSkill)
+            startLootRoll.ValidRolls |= ROLL_FLAG_TYPE_DISENCHANT;
+
+    p->SendDirectMessage(startLootRoll.Write());
 }
 
 void Group::SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const
@@ -1021,9 +1026,6 @@ void Group::GroupLoot(Loot* loot, WorldObject* lootedObject)
             {
                 r->setLoot(loot);
                 r->itemSlot = itemSlot;
-                if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
-                    r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
-
                 if (item->GetFlags2() & ITEM_FLAG2_CAN_ONLY_ROLL_GREED)
                     r->rollVoteMask &= ~ROLL_FLAG_TYPE_NEED;
 
@@ -1341,17 +1343,18 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
-                    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
                     player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
+
+                    ItemDisenchantLootEntry const* disenchant = ASSERT_NOTNULL(roll->GetItemDisenchantLoot(player));
 
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
                     if (msg == EQUIP_ERR_OK)
-                        player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
+                        player->AutoStoreLoot(disenchant->ID, LootTemplates_Disenchant, true);
                     else // If the player's inventory is full, send the disenchant result in a mail.
                     {
                         Loot loot;
-                        loot.FillLoot(pProto->DisenchantID, LootTemplates_Disenchant, player, true);
+                        loot.FillLoot(disenchant->ID, LootTemplates_Disenchant, player, true);
 
                         uint32 max_slot = loot.GetMaxSlotInLootFor(player);
                         for (uint32 i = 0; i < max_slot; ++i)
@@ -1886,6 +1889,24 @@ void Roll::FillPacket(WorldPackets::Loot::LootItemData& lootItem) const
         lootItem.CanTradeToTapList = lootItemInSlot->allowedGUIDs.size() > 1;
         lootItem.Loot.Initialize(*lootItemInSlot);
     }
+}
+
+ItemDisenchantLootEntry const* Roll::GetItemDisenchantLoot(Player const* player) const
+{
+    if (LootItem const* lootItemInSlot = (*this)->GetItemInSlot(itemSlot))
+    {
+        WorldPackets::Item::ItemInstance itemInstance;
+        itemInstance.Initialize(*lootItemInSlot);
+
+        BonusData bonusData;
+        bonusData.Initialize(itemInstance);
+
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemid);
+        uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, player->getLevel(), 0, lootItemInSlot->upgradeId);
+        return Item::GetDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
+    }
+
+    return nullptr;
 }
 
 void Group::SetDungeonDifficultyID(Difficulty difficulty)
