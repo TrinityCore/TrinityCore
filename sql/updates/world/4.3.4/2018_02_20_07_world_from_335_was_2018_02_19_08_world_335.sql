@@ -1,3 +1,4 @@
+/*
 -- Apothecary Faustin
 DELETE FROM `creature_text` WHERE `CreatureID`=5414;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -19,3 +20,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (541400,9,6,0,0,0,100,0,1000,1000,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,3.14159,"Apothecary Faustin - On Script - Set Orientation"),
 (541400,9,7,0,0,0,100,0,0,0,0,0,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Apothecary Faustin - On Script - Say Line 2"),
 (541400,9,8,0,0,0,100,0,0,0,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Apothecary Faustin - On Script - Add Npc Flag Questgiver");
+*/

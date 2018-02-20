@@ -1,3 +1,4 @@
+/*
 -- Blood Elf Defender
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=8581;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=8581 AND `source_type`=0;
@@ -30,3 +31,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=8578;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (8578,0,0,"You dare! Now feel my wrath!",14,0,100,0,0,0,4495,0,"Magus Rimtori");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Mordent Evenshade & Sentinel Stillbough
 DELETE FROM `creature_text` WHERE `CreatureID` IN (36479,36481);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -47,3 +48,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (3647901,9,7,0,0,0,100,0,5000,5000,0,0,1,5,0,0,0,0,0,19,36481,0,0,0,0,0,0,"Archmage Mordent Evenshade - On Script - Say Line 5 (Sentinel Stillbough)"),
 (3647901,9,8,0,0,0,100,0,3000,3000,0,0,1,12,0,0,0,0,0,1,0,0,0,0,0,0,0,"Archmage Mordent Evenshade - On Script - Say Line 12"),
 (3647901,9,9,0,0,0,100,0,6000,6000,0,0,1,6,0,0,0,0,0,19,36481,0,0,0,0,0,0,"Archmage Mordent Evenshade - On Script - Say Line 6 (Sentinel Stillbough)");
+*/

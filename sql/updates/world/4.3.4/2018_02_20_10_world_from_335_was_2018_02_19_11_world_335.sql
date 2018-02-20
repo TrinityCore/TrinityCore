@@ -1,3 +1,4 @@
+/*
 -- Starving Snickerfang
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=5984;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=5984 AND `source_type`=0;
@@ -109,3 +110,4 @@ UPDATE `smart_scripts` SET `action_param2`=32 WHERE `entryorguid`=6008 AND `sour
 -- Shadowsworn Dreadweaver
 UPDATE `smart_scripts` SET `action_param2`=0 WHERE `entryorguid`=6009 AND `source_type`=0 AND `id`=1;
 UPDATE `smart_scripts` SET `action_param2`=32 WHERE `entryorguid`=6009 AND `source_type`=0 AND `id`=2;
+*/

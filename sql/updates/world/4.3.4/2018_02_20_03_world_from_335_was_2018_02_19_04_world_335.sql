@@ -1,3 +1,4 @@
+/*
 -- Un'Goro Thunderer
 DELETE FROM `smart_scripts` WHERE `entryorguid`=-24081 AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=651600 AND `source_type`=9;
@@ -13,3 +14,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=6516;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (6516,0,0,"%s looks tired. He then yawns and lies down next to A-Me 01.",16,0,100,0,0,0,5045,0,"Un'Goro Thunderer"),
 (6516,0,1,"%s snores loudly and cuddles up next to A-Me 01.",16,0,100,0,0,0,5046,0,"Un'Goro Thunderer");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Remove unique items from reference table 24048
 DELETE FROM `reference_loot_template` WHERE `Entry`=24048 AND `Item` IN (1297, 2234, 4462, 4724);
 
@@ -19,3 +20,4 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `GroupId`, `Com
 (697,  1998, 0.1, 0, "Bloodscalp Shaman - Bloodscalp Channeling Staff"),
 (2562, 3341, 0.1, 0, "Boulderfist Ogre - Gauntlets of Ogre Strength"),
 (2564, 3341, 0.1, 0, "Boulderfist Enforcer - Gauntlets of Ogre Strength");
+*/
