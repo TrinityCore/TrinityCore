@@ -123,20 +123,6 @@ class spell_dalaran_teleportation : public SpellScript
     }
 };
 
-// 246854
-class go_dalaran_karazhan : public GameObjectScript
-{
-public:
-    go_dalaran_karazhan() : GameObjectScript("go_dalaran_karazhan") { }
-
-    // This is also called on object Creation. Set dalaran to active to enable far sight
-    void OnGameObjectStateChanged(GameObject* go, uint32 /*state*/) override
-    {
-        if (!go->isActiveObject())
-            go->setActive(true);
-    }
-};
-
 // 113986 - Khadgar
 class npc_dalaran_karazhan_khadgar : public CreatureScript
 {
