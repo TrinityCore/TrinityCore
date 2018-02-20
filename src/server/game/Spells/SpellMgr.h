@@ -249,18 +249,18 @@ enum ProcAttributes
 
 struct SpellProcEntry
 {
-    uint32 SchoolMask;      // if nonzero - bitmask for matching proc condition based on spell's school
-    uint32 SpellFamilyName; // if nonzero - for matching proc condition based on candidate spell's SpellFamilyName
-    flag96 SpellFamilyMask; // if nonzero - bitmask for matching proc condition based on candidate spell's SpellFamilyFlags
-    uint32 ProcFlags;       // if nonzero - owerwrite procFlags field for given Spell.dbc entry, bitmask for matching proc condition, see enum ProcFlags
-    uint32 SpellTypeMask;   // if nonzero - bitmask for matching proc condition based on candidate spell's damage/heal effects, see enum ProcFlagsSpellType
-    uint32 SpellPhaseMask;  // if nonzero - bitmask for matching phase of a spellcast on which proc occurs, see enum ProcFlagsSpellPhase
-    uint32 HitMask;         // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
-    uint32 AttributesMask;  // bitmask, see ProcAttributes
-    float ProcsPerMinute;   // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
-    float Chance;           // if nonzero - owerwrite procChance field for given Spell.dbc entry, defines chance of proc to occur, not used if ProcsPerMinute set
-    Milliseconds Cooldown;  // if nonzero - cooldown in secs for aura proc, applied to aura
-    uint32 Charges;         // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
+    uint32 SchoolMask = 0;                      // if nonzero - bitmask for matching proc condition based on spell's school
+    uint32 SpellFamilyName = 0;                 // if nonzero - for matching proc condition based on candidate spell's SpellFamilyName
+    flag96 SpellFamilyMask[MAX_SPELL_EFFECTS];  // if nonzero - bitmask for matching effect proc condition based on candidate spell's SpellFamilyFlags
+    uint32 ProcFlags = 0;                       // if nonzero - owerwrite procFlags field for given Spell.dbc entry, bitmask for matching proc condition, see enum ProcFlags
+    uint32 SpellTypeMask = 0;                   // if nonzero - bitmask for matching proc condition based on candidate spell's damage/heal effects, see enum ProcFlagsSpellType
+    uint32 SpellPhaseMask = 0;                  // if nonzero - bitmask for matching phase of a spellcast on which proc occurs, see enum ProcFlagsSpellPhase
+    uint32 HitMask = 0;                         // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
+    uint32 AttributesMask = 0;                  // bitmask, see ProcAttributes
+    float ProcsPerMinute = 0.f;                 // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
+    float Chance = 0.f;                         // if nonzero - owerwrite procChance field for given Spell.dbc entry, defines chance of proc to occur, not used if ProcsPerMinute set
+    Milliseconds Cooldown = 0ms;                // if nonzero - cooldown in secs for aura proc, applied to aura
+    uint32 Charges = 0;                         // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
 };
 
 typedef std::unordered_map<uint32, SpellProcEntry> SpellProcMap;
@@ -633,7 +633,7 @@ class TC_GAME_API SpellMgr
 
         // Spell proc table
         SpellProcEntry const* GetSpellProcEntry(uint32 spellId) const;
-        static bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo);
+        static uint8 GetProcMaskTriggeredOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo);
 
         // Spell bonus data table
         SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const;

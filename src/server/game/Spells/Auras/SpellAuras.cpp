@@ -1981,7 +1981,8 @@ uint8 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo,
         return 0;
 
     // do checks against db data
-    if (!SpellMgr::CanSpellTriggerProcOnEvent(*procEntry, eventInfo))
+    uint8 eventEffMask = SpellMgr::GetProcMaskTriggeredOnEvent(*procEntry, eventInfo);
+    if (!eventEffMask)
         return 0;
 
     // do checks using conditions table
@@ -1994,7 +1995,7 @@ uint8 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo,
         return 0;
 
     // At least one effect has to pass checks to proc aura
-    uint8 procEffectMask = aurApp->GetEffectMask();
+    uint8 procEffectMask = aurApp->GetEffectMask() & eventEffMask;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (procEffectMask & (1 << i))
             if ((procEntry->AttributesMask & (PROC_ATTR_DISABLE_EFF_0 << i)) || !GetEffect(i)->CheckEffectProc(aurApp, eventInfo))
