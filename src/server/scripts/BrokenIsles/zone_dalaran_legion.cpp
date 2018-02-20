@@ -194,7 +194,6 @@ void AddSC_dalaran_legion()
 {
     new OnLegionArrival();
     RegisterSpellScript(spell_dalaran_teleportation);
-    new go_dalaran_karazhan();
     new npc_dalaran_karazhan_khadgar();
     new scene_dalaran_kharazan_teleportion();
     new zone_legion_dalaran_underbelly();
