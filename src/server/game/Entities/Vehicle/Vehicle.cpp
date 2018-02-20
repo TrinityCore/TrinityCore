@@ -27,6 +27,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include "Util.h"
@@ -761,7 +762,16 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 {
     ASSERT(Passenger->IsInWorld());
     ASSERT(Target && Target->GetBase()->IsInWorld());
-    ASSERT(Target->GetBase()->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
+
+    Unit::AuraEffectList const& vehicleAuras = Target->GetBase()->GetAuraEffectsByType(SPELL_AURA_CONTROL_VEHICLE);
+    auto itr = std::find_if(vehicleAuras.begin(), vehicleAuras.end(), [this](AuraEffect const* aurEff) -> bool
+        {
+            return aurEff->GetCasterGUID() == Passenger->GetGUID();
+        });
+    ASSERT(itr != vehicleAuras.end());
+
+    AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(Target->GetBase()->GetGUID());
+    ASSERT(aurApp && !aurApp->GetRemoveMode());
 
     Target->RemovePendingEventsForSeat(Seat->first);
     Target->RemovePendingEventsForPassenger(Passenger);
@@ -805,14 +815,14 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         player->StopCastingCharm();
         player->StopCastingBindSight();
         player->SendOnCancelExpectedVehicleRideAura();
-        if (!(veSeat->FlagsB & VEHICLE_SEAT_FLAG_B_KEEP_PET))
+        if (!veSeat->HasFlag(VEHICLE_SEAT_FLAG_B_KEEP_PET))
             player->UnsummonPetTemporaryIfAny();
     }
 
-    if (veSeat->Flags & VEHICLE_SEAT_FLAG_DISABLE_GRAVITY)
+    if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_DISABLE_GRAVITY))
         Passenger->SetDisableGravity(true);
 
-    if (Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
+    if (Seat->second.SeatInfo->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE))
         Passenger->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
     Passenger->m_movementInfo.transport.pos.Relocate(veSeat->AttachmentOffset.X, veSeat->AttachmentOffset.Y, veSeat->AttachmentOffset.Z);
@@ -822,10 +832,15 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     Passenger->m_movementInfo.transport.vehicleId = Target->GetVehicleInfo()->ID;
 
     if (Target->GetBase()->GetTypeId() == TYPEID_UNIT && Passenger->GetTypeId() == TYPEID_PLAYER &&
-        Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
+        Seat->second.SeatInfo->HasFlag(VEHICLE_SEAT_FLAG_CAN_CONTROL))
     {
-        bool charmedByResult = Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE);  // SMSG_CLIENT_CONTROL
-        ASSERT(charmedByResult);
+        // handles SMSG_CLIENT_CONTROL
+        if (!Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE, aurApp))
+        {
+            // charming failed, probably aura was removed by relocation/scripts/whatever
+            Abort(0);
+            return true;
+        }
     }
 
     Passenger->SendClearTarget();                            // SMSG_BREAK_TARGET
