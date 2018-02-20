@@ -70,9 +70,6 @@ namespace MMAP
 
         dtNavMesh* GetNavMesh(TerrainSet swaps);
 
-        void AddBaseTile(uint32 packedGridPos, unsigned char* data, MmapTileHeader const& fileHeader, int32 dataSize);
-        void DeleteBaseTile(uint32 packedGridPos);
-
         // we have to use single dtNavMeshQuery for every instance, since those are not thread safe
         NavMeshQuerySet navMeshQueries;     // instanceId to query
 
