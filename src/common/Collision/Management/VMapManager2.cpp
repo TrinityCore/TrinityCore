@@ -52,11 +52,11 @@ namespace VMAP
         }
     }
 
-    void VMapManager2::InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData)
+    void VMapManager2::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
     {
         // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
-        for (auto const& p : mapData)
-            iInstanceMapTrees.insert(InstanceTreeMap::value_type(p.first, nullptr));
+        for (uint32 const& mapId : mapIds)
+            iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId, nullptr));
 
         thread_safe_environment = false;
     }
