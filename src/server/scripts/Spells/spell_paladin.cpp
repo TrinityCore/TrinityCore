@@ -1002,6 +1002,7 @@ class spell_pal_divine_steed : public SpellScript
                 spellId = SPELL_PALADIN_DIVINE_STEED_HUMAN;
                 break;
             case RACE_DRAENEI:
+            case RACE_LIGHTFORGED_DRAENEI:
                 spellId = SPELL_PALADIN_DIVINE_STEED_DRAENEI;
                 break;
             case RACE_BLOODELF:

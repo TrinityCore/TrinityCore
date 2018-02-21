@@ -30,8 +30,18 @@
 enum DruidSpells
 {
     //7.3.2.25549
-    SPELL_DRUID_THRASH_PERIODIC_DAMAGE                 = 192090
+    SPELL_DRUID_THRASH_PERIODIC_DAMAGE              = 192090,
     //7.3.2.25549 END
+
+    //7.3.5.25996
+    SPELL_DRUID_BLESSING_OF_THE_ANCIENTS            = 202360,
+    SPELL_DRUID_BLESSING_OF_ELUNE                   = 202737,
+    SPELL_DRUID_BLESSING_OF_ANSHE                   = 202739,
+
+    SPELL_DRUID_STARLORD_DUMMY                      = 202345,
+    SPELL_DRUID_STARLORD_SOLAR                      = 202416,
+    SPELL_DRUID_STARLORD_LUNAR                      = 202423,
+    //7.3.5.25996 END
 };
 
 enum ShapeshiftFormSpells
@@ -101,6 +111,72 @@ class spell_dru_thrash_periodic_damage : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_thrash_periodic_damage::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// Blessing of the Ancients - 202360
+class spell_dru_blessing_of_the_ancients : public SpellScript
+{
+    PrepareSpellScript(spell_dru_blessing_of_the_ancients);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        uint32 removeAura   = GetCaster()->HasAura(SPELL_DRUID_BLESSING_OF_ELUNE) ? SPELL_DRUID_BLESSING_OF_ELUNE : SPELL_DRUID_BLESSING_OF_ANSHE;
+        uint32 addAura      = GetCaster()->HasAura(SPELL_DRUID_BLESSING_OF_ELUNE) ? SPELL_DRUID_BLESSING_OF_ANSHE : SPELL_DRUID_BLESSING_OF_ELUNE;
+
+        GetCaster()->RemoveAurasDueToSpell(removeAura);
+        GetCaster()->CastSpell(nullptr, addAura, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_blessing_of_the_ancients::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// Solar empowerment - 164545
+class aura_dru_solar_empowerment : public AuraScript
+{
+    PrepareAuraScript(aura_dru_solar_empowerment);
+
+    void OnApply(const AuraEffect* /* aurEff */, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTarget()->HasAura(SPELL_DRUID_STARLORD_DUMMY))
+            GetTarget()->CastSpell(nullptr, SPELL_DRUID_STARLORD_SOLAR, true);
+    }
+
+    void OnRemove(const AuraEffect* /* aurEff */, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_STARLORD_SOLAR);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(aura_dru_solar_empowerment::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(aura_dru_solar_empowerment::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// Lunar empowerment - 164547
+class aura_dru_lunar_empowerment : public AuraScript
+{
+    PrepareAuraScript(aura_dru_lunar_empowerment);
+
+    void OnApply(const AuraEffect* /* aurEff */, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTarget()->HasAura(SPELL_DRUID_STARLORD_DUMMY))
+            GetTarget()->CastSpell(nullptr, SPELL_DRUID_STARLORD_LUNAR, true);
+    }
+
+    void OnRemove(const AuraEffect* /* aurEff */, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_STARLORD_LUNAR);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(aura_dru_lunar_empowerment::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(aura_dru_lunar_empowerment::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 //7.3.2.25549 END
@@ -2139,6 +2215,13 @@ void AddSC_druid_spell_scripts()
     
     RegisterAuraScript(spell_dru_thrash_periodic_damage);
     //7.3.2.25549 END
+
+    //7.3.5.25996
+    RegisterSpellScript(spell_dru_blessing_of_the_ancients);
+
+    RegisterAuraScript(aura_dru_solar_empowerment);
+    RegisterAuraScript(aura_dru_lunar_empowerment);
+    //7.3.5.25996 END
 
     // AreaTrigger Scripts
     new at_dru_solar_beam();

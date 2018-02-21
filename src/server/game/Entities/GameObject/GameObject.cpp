@@ -1028,7 +1028,7 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
 
     m_goData = data;
 
-    setActive(data->isActive);
+    setActive(data->isActive || GetGoType() == GAMEOBJECT_TYPE_PHASEABLE_MO);
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
