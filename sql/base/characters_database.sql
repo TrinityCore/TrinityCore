@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	5.7.14-log
+-- Server version	10.1.6-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1704,11 +1704,11 @@ CREATE TABLE `characters` (
   `deleteInfos_Account` int(10) unsigned DEFAULT NULL,
   `deleteInfos_Name` varchar(12) DEFAULT NULL,
   `deleteDate` int(10) unsigned DEFAULT NULL,
-  `honor` INT(10) unsigned NOT NULL DEFAULT '0',
-  `honorLevel` INT(10) unsigned NOT NULL DEFAULT '1',
-  `prestigeLevel` INT(10) unsigned NOT NULL DEFAULT '0',
-  `honorRestState` TINYINT unsigned NOT NULL DEFAULT '2',
-  `honorRestBonus` FLOAT NOT NULL DEFAULT '0',
+  `honor` int(10) unsigned NOT NULL DEFAULT '0',
+  `honorLevel` int(10) unsigned NOT NULL DEFAULT '1',
+  `prestigeLevel` int(10) unsigned NOT NULL DEFAULT '0',
+  `honorRestState` tinyint(3) unsigned NOT NULL DEFAULT '2',
+  `honorRestBonus` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `idx_account` (`account`),
   KEY `idx_online` (`online`),
@@ -3536,4 +3536,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-04-19  0:17:39
+-- Dump completed on 2018-02-19 22:43:09
