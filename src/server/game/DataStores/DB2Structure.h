@@ -51,10 +51,10 @@ struct AdventureJournalEntry
     LocalizedString* Title;
     LocalizedString* Description;
     LocalizedString* ButtonText;
-    uint32 Unk1;
-    uint32 Unk2;
     LocalizedString* Unk3;
     LocalizedString* ObjectiveText;
+    uint32 Unk1;
+    uint32 Unk2;
     uint16 Unk4;
     uint16 QuestID;
     uint16 Unk5[2];
@@ -1158,11 +1158,11 @@ struct GarrFollowerXAbilityEntry
 
 struct GarrMissionEntry
 {
-    uint32 Duration;
-    uint32 OfferTime;
     LocalizedString const* Name;
     LocalizedString const* Description;
     LocalizedString const* Location;
+    uint32 Duration;
+    uint32 OfferTime;
     float Map1[2];
     float Map2[2];
     uint16  RequiredItemLevel;
@@ -2192,9 +2192,9 @@ struct PvpRewardEntry
 struct PvpTalentEntry
 {
     uint32 ID;
+    LocalizedString* Description;
     uint32 SpellID;
     uint32 OverridesSpellID;
-    LocalizedString* Description;
     uint32 ExtraSpellID;
     uint32 TierID;
     uint32 ColumnIndex;

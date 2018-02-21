@@ -1,0 +1,20 @@
+DELETE FROM `graveyard_zone` WHERE `GhostZone` = 7503;
+INSERT INTO `graveyard_zone` (`ID`, `GhostZone`, `Faction`, `Comment`) VALUES 
+(5109, 7503, 67, 'Highmountain - Mesa GY'),
+(5201, 7503, 67, 'Highmountain - Riverbend - Rivermane - IntroGY'),
+(5202, 7503, 67, 'Highmountain - Bloodhunt Highland - GY'),
+(5203, 7503, 0, 'Highmountain - Shipwreck Cove - Murloc GY'),
+(5204, 7503, 0, 'Highmountain - Feltotem Coast - Hub GY'),
+(5205, 7503, 469, 'Highmountain - Thundertotem - Graveyard'),
+(5206, 7503, 469, 'HighMountain - Skyhorn - GY'),
+(5207, 7503, 469, 'HighMountain - Nesingwarys Retreat - Graveyard'),
+(5208, 7503, 0, 'Highmountain - Prepfoot Compound - Graveyard'),
+(5209, 7503, 469, 'Highmountain - Rockaway Coast - MurlocVinetteGY'),
+(5216, 7503, 469, 'Highmountain - LonehoofWatch - GY'),
+(5217, 7334, 67, 'Highmountain - FrosthoofWatch - GY'),
+(5435, 7334, 469, 'Highmountain - Thundertotem Cave - Graveyard'),
+(5460, 7334, 465, 'Highmountain - Trueshot Lodge - GY'),
+(5551, 7334, 67, 'Highmountain - Skyhorn - Northern GY'),
+(5552, 7334, 67, 'Highmountain - Path of Huln - GY'),
+(5764, 7334, 67, 'Highmountain - The Ettinwalk - GY'),
+(5767, 7334, 67, 'Highmountain - Sunfrost Glade - GY');
