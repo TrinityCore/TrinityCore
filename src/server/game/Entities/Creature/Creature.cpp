@@ -66,7 +66,7 @@ bool VendorItem::IsGoldRequired(ItemTemplate const* pProto) const
     return pProto->GetFlags2() & ITEM_FLAG2_DONT_IGNORE_BUY_PRICE || !ExtendedCost || OverrideGoldCost >= 0;
 }
 
-int32 VendorItem::GetBuyPrice(ItemTemplate const* pProto) const
+int64 VendorItem::GetBuyPrice(ItemTemplate const* pProto) const
 {
     return OverrideGoldCost >= 0 ? OverrideGoldCost : pProto->GetBuyPrice();
 }
