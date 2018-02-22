@@ -568,7 +568,7 @@ struct VendorItem
     uint32 maxcount;                                        // 0 for infinity item amount
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
-    int32 OverrideGoldCost;
+    int64 OverrideGoldCost;
     uint8  Type;
     std::vector<int32> BonusListIDs;
     uint32 PlayerConditionId;
@@ -576,7 +576,7 @@ struct VendorItem
 
     //helpers
     bool IsGoldRequired(ItemTemplate const* pProto) const;
-    int32 GetBuyPrice(ItemTemplate const* pProto) const;
+    int64 GetBuyPrice(ItemTemplate const* pProto) const;
 };
 
 struct VendorItemData
