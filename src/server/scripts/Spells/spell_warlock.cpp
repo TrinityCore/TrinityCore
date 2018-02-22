@@ -904,13 +904,20 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
             void HandleDispel(DispelInfo* dispelInfo)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
                     {
+                        Unit* target = dispelInfo->GetDispeller();
+                        int32 bp = aurEff->GetAmount();
+                        bp = target->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), bp, DOT);
+                        bp *= 9;
+
                         // backfire damage and silence
                         CastSpellExtraArgs args(aurEff);
-                        args.AddSpellBP0(aurEff->GetAmount() * 9);
-                        caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, args);
+                        args.AddSpellBP0(bp);
+                        caster->CastSpell(target, SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, args);
                     }
+                }
             }
 
             void Register() override
