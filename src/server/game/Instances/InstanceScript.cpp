@@ -271,7 +271,7 @@ void InstanceScript::UpdateSpawnGroups()
         if (doSpawn)
             instance->SpawnGroupSpawn(groupId);
         else // otherwise, set it as inactive so it no longer respawns (but don't despawn it)
-            instance->SetSpawnGroupActive(groupId, false);
+            instance->SetSpawnGroupInactive(groupId);
     }
 }
 
