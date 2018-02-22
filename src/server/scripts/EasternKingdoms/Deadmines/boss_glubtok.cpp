@@ -98,7 +98,7 @@ enum Data
 
 Position const firewallPlatterPos = { -193.4054f, -441.5011f, 54.57029f, 1.833041f };
 Position const firewallPlatterSplineEndpoint = { -193.4514f, -441.0169f, 55.70924f };
-Position const leftSideDistanceCheck = { -214.413f, -441.664f, 54.547f };
+Position const leftSideDistanceCheck = { -210.840f, -443.449f, 61.179f };
 
 class boss_glubtok : public CreatureScript
 {
@@ -206,7 +206,7 @@ public:
                     {
                         for (auto itr = units.begin(); itr != units.end(); ++itr)
                         {
-                            if ((*itr)->GetHomePosition().GetExactDist2d(leftSideDistanceCheck) <= 20.0f)
+                            if ((*itr)->GetHomePosition().GetExactDist(leftSideDistanceCheck) <= 20.0f)
                                 (*itr)->CastSpell((*itr), SPELL_ARCANE_FROST_BEAM);
                             else
                                 (*itr)->CastSpell((*itr), SPELL_ARCANE_FIRE_BEAM);
@@ -300,7 +300,7 @@ public:
                         {
                             for (auto itr = units.begin(); itr != units.end(); ++itr)
                             {
-                                if ((*itr)->GetHomePosition().GetExactDist2d(leftSideDistanceCheck) <= 20.0f)
+                                if ((*itr)->GetHomePosition().GetExactDist(leftSideDistanceCheck) <= 20.0f)
                                     (*itr)->CastSpell((*itr), SPELL_ARCANE_FROST_BEAM);
                                 else
                                     (*itr)->CastSpell((*itr), SPELL_ARCANE_FIRE_BEAM);
@@ -412,8 +412,43 @@ class spell_glubtok_blossom_targeting : public SpellScriptLoader
         }
 };
 
+class spell_glubtok_fire_wall : public SpellScriptLoader
+{
+public:
+    spell_glubtok_fire_wall() : SpellScriptLoader("spell_glubtok_fire_wall") { }
+
+    class spell_glubtok_fire_wall_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_glubtok_fire_wall_AuraScript);
+
+        void HandlePeriodic(AuraEffect const* aurEff)
+        {
+            PreventDefaultAction();
+
+            if (Unit* caster = GetOwner()->ToUnit())
+            {
+                if (caster->GetEntry() != NPC_FIREWALL_PLATTER_1A
+                    && caster->GetEntry() != NPC_FIREWALL_PLATTER_1B
+                    && caster->GetEntry() != NPC_FIREWALL_PLATTER_1C)
+                    caster->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_glubtok_fire_wall_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_glubtok_fire_wall_AuraScript();
+    }
+};
+
 void AddSC_boss_glubtok()
 {
     new boss_glubtok();
     new spell_glubtok_blossom_targeting();
+    new spell_glubtok_fire_wall();
 }

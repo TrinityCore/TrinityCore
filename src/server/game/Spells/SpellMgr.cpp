@@ -4170,6 +4170,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
     });
 
+    // Fire Wall
+    ApplySpellFix({ 91397 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
+    });
+
     // Helix Gearbreaker
     // Charge
     ApplySpellFix({ 88295 }, [](SpellInfo* spellInfo)
