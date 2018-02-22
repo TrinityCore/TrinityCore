@@ -1209,8 +1209,12 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
                         if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
                         {
                             // backfire damage
+                            int32 bp = aurEff->GetAmount();
+                            bp = target->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), bp, DOT);
+                            bp *= 8;
+
                             CastSpellExtraArgs args(aurEff);
-                            args.AddSpellBP0(aurEff->GetAmount() * 8);
+                            args.AddSpellBP0(bp);
                             caster->CastSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, args);
                         }
                     }
