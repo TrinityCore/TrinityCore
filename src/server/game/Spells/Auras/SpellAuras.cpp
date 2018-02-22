@@ -2283,6 +2283,10 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         }
         else
         {
+            // skip area update if owner is not in world!
+            if (!GetUnitOwner()->IsInWorld())
+                continue;
+
             float radius = effect->CalcRadius(caster);
 
             if (!GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
