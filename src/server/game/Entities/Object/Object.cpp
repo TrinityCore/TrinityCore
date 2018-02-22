@@ -2671,6 +2671,11 @@ float WorldObject::GetMapHeight(float x, float y, float z, bool vmap/* = true*/,
     return GetMap()->GetHeight(GetPhaseMask(), x, y, z, vmap, distanceToSearch, GetCollisionHeight());
 }
 
+bool WorldObject::IsOutdoors() const
+{
+    return GetMap()->IsOutdoors(GetPositionX(), GetPositionY(), GetPositionZ() + GetCollisionHeight());
+}
+
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>&, uint32, float) const;
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::deque<GameObject*>&, uint32, float) const;
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::vector<GameObject*>&, uint32, float) const;
