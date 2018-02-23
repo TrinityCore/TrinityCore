@@ -19,6 +19,7 @@
 #include "WorldSession.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "BattlegroundMgr"
 #include "CharacterCache.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
