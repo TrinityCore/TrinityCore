@@ -132,6 +132,13 @@ void AddSC_boss_helya_maw();
 //void AddSC_boss_saelorn();
 //void AddSC_boss_fel_lord_betrug();
 
+// Court of Stars
+void AddSC_boss_patrol_captain_gerdo();
+void AddSC_talixae_flamewreath();
+void AddSC_boss_advisor_melandrus();
+void AddSC_court_of_stars();
+void AddSC_instance_court_of_stars();
+
 // Emerald Nightmare
 void AddSC_nythendra();
 void AddSC_ilgynoth();
@@ -273,6 +280,12 @@ void AddBrokenIslesScripts()
     //AddSC_boss_shivermaw();
     //AddSC_boss_saelorn();
     //AddSC_boss_fel_lord_betrug();
+
+    AddSC_boss_patrol_captain_gerdo();
+    AddSC_talixae_flamewreath();
+    AddSC_boss_advisor_melandrus();
+    AddSC_court_of_stars();
+    AddSC_instance_court_of_stars();
 
     // Emerald Nightmare
     AddSC_nythendra();
