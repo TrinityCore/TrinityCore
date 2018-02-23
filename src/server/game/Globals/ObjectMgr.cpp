@@ -8248,6 +8248,13 @@ void ObjectMgr::LoadCreatureOutfits()
 
     _creatureOutfitStore.clear();
 
+    for (auto* e : sChrRacesStore)
+    {
+        const char* error = "Dress NPCs requires an entry in creature_model_info for modelid %u (%s %s)";
+        ASSERT(GetCreatureModelInfo(e->MaleDisplayID), error, e->MaleDisplayID, e->Name->Str[DEFAULT_LOCALE], "Male");
+        ASSERT(GetCreatureModelInfo(e->FemaleDisplayID), error, e->FemaleDisplayID, e->Name->Str[DEFAULT_LOCALE], "Female");
+    }
+
     QueryResult result = WorldDatabase.Query("SELECT entry, npcsoundsid, race, class, gender, skin, face, hair, haircolor, facialhair, feature1, feature2, feature3, "
         "head, head_appearance, shoulders, shoulders_appearance, body, body_appearance, chest, chest_appearance, waist, waist_appearance, "
         "legs, legs_appearance, feet, feet_appearance, wrists, wrists_appearance, hands, hands_appearance, tabard, tabard_appearance, back, back_appearance, "
