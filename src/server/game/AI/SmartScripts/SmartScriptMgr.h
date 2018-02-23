@@ -579,8 +579,9 @@ enum SMART_ACTION
     SMART_ACTION_SCENE_CANCEL                       = 130,    // don't use on 3.3.5a
     SMART_ACTION_SPAWN_SPAWNGROUP                   = 131,    // Group ID, min secs, max secs, spawnflags
     SMART_ACTION_DESPAWN_SPAWNGROUP                 = 132,    // Group ID, min secs, max secs, spawnflags
+    SMART_ACTION_RESPAWN_BY_SPAWNID                 = 133,    // spawnType, spawnId
 
-    SMART_ACTION_END                                = 133
+    SMART_ACTION_END                                = 134
 };
 
 struct SmartAction
@@ -1123,6 +1124,12 @@ struct SmartAction
             uint32 stopMovement;
             uint32 movementExpired;
         } stopMotion;
+
+        struct
+        {
+            uint32 spawnType;
+            uint32 spawnId;
+        } respawnData;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
