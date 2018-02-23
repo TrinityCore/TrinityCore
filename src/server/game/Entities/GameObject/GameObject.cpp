@@ -1380,6 +1380,8 @@ void GameObject::SetRespawnTime(int32 respawn)
 {
     m_respawnTime = respawn > 0 ? GameTime::GetGameTime() + respawn : 0;
     m_respawnDelayTime = respawn > 0 ? respawn : 0;
+    if (respawn && !m_spawnedByDefault)
+        UpdateObjectVisibility(true);
 }
 
 void GameObject::Respawn()
