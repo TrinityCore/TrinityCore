@@ -8753,7 +8753,7 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *s
             vItem.maxcount          = fields[1].GetUInt32();
             vItem.incrtime          = fields[2].GetUInt32();
             vItem.ExtendedCost      = fields[3].GetUInt32();
-            vItem.OverrideGoldCost  = fields[4].GetInt32();
+            vItem.OverrideGoldCost  = fields[4].GetInt64();
             vItem.Type              = fields[5].GetUInt8();
             vItem.PlayerConditionId = fields[7].GetUInt32();
             vItem.IgnoreFiltering   = fields[8].GetBool();
@@ -8811,7 +8811,7 @@ void ObjectMgr::LoadVendors()
             vItem.maxcount          = fields[2].GetUInt32();
             vItem.incrtime          = fields[3].GetUInt32();
             vItem.ExtendedCost      = fields[4].GetUInt32();
-            vItem.OverrideGoldCost  = fields[5].GetInt32();
+            vItem.OverrideGoldCost  = fields[5].GetInt64();
             vItem.Type              = fields[6].GetUInt8();
             vItem.PlayerConditionId = fields[8].GetUInt32();
             vItem.IgnoreFiltering   = fields[9].GetBool();
