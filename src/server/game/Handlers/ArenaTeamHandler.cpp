@@ -232,6 +232,14 @@ void WorldSession::HandleArenaTeamLeaveOpcode(WorldPacket& recvData)
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAM_LEADER_LEAVE_S);
         return;
     }
+    
+    // Player cannot be removed during queues
+    BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType());
+    if (bgQueue && _player->InBattlegroundQueueForBattlegroundQueueType(bgQueue))
+    {
+        SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAMS_LOCKED);
+        return;
+    }
 
     // If team consists only of the captain, disband the team
     if (_player->GetGUID() == arenaTeam->GetCaptain())
@@ -263,6 +271,11 @@ void WorldSession::HandleArenaTeamDisbandOpcode(WorldPacket& recvData)
         if (arenaTeam->GetCaptain() != _player->GetGUID())
             return;
 
+        // Teams cannot be disbanded during queues
+        BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType());
+        if (bgQueue && _player->InBattlegroundQueueForBattlegroundQueueType(bgQueue))
+            return;
+        
         // Teams cannot be disbanded during fights
         if (arenaTeam->IsFighting())
             return;
@@ -309,6 +322,14 @@ void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket& recvData)
     if (arenaTeam->GetCaptain() == member->Guid)
     {
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAM_LEADER_LEAVE_S);
+        return;
+    }
+    
+    // Team cannot be removed during queues
+    BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType());
+    if (bgQueue && _player->InBattlegroundQueueForBattlegroundQueueType(bgQueue))
+    {
+        SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAMS_LOCKED);
         return;
     }
 
