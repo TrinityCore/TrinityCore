@@ -82,7 +82,7 @@ void WorldQuestMgr::LoadWorldQuestTemplates()
 
 void WorldQuestMgr::LoadWorldQuestRewardTemplates()
 {
-    QueryResult result = WorldDatabase.Query("SELECT id, questType, rewardType - 1 AS rewardType, rewardId, rewardCount FROM world_quest_reward");
+    QueryResult result = WorldDatabase.Query("SELECT id, questType, rewardType - 1 AS rewardType, rewardId, rewardCount, rewardContext FROM world_quest_reward");
     if (!result)
         return;
 
@@ -94,7 +94,8 @@ void WorldQuestMgr::LoadWorldQuestRewardTemplates()
                                                              fields[1].GetUInt8(),
                                                              fields[2].GetUInt8(),
                                                              fields[3].GetUInt32(),
-                                                             fields[4].GetUInt32());
+                                                             fields[4].GetUInt32(),
+                                                             fields[].GetUInt32());
 
         _worldQuestRewards[worldQuestReward.Id].push_back(worldQuestReward);
         _worldQuestRewardByQuestInfos[worldQuestReward.QuestType].push_back(worldQuestReward.Id);
@@ -286,8 +287,7 @@ void WorldQuestMgr::RewardQuestForPlayer(Player* player, uint32 questId)
                 ItemPosCountVec dest;
                 if (player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, worldQuestReward->RewardId, worldQuestReward->RewardCount) == EQUIP_ERR_OK)
                 {
-                    std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, 0);
-
+                    std::vector<int32> bonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, worldQuestReward->RewardContext);
                     Item* item = player->StoreNewItem(dest, worldQuestReward->RewardId, true, GenerateItemRandomPropertyId(worldQuestReward->RewardId), GuidSet(), 0, bonusListIDs);
                     player->SendNewItem(item, worldQuestReward->RewardCount, true, false);
                 }
@@ -409,6 +409,9 @@ void WorldQuestMgr::BuildRewardPacket(Player* player, uint32 questId, WorldPacke
             {
                 WorldPackets::Quest::QueryQuestRewardResponse::ItemReward itemReward;
                 itemReward.Item.ItemID = worldQuestReward->RewardId;
+                itemReward.Item.ItemBonus = WorldPackets::Item::ItemBonusInstanceData();
+                itemReward.Item.ItemBonus->Context = worldQuestReward->RewardContext;
+                itemReward.Item.ItemBonus->BonusListIDs = sDB2Manager.GetItemBonusTreeVector(worldQuestReward->RewardId, worldQuestReward->RewardContext);
                 itemReward.Quantity = worldQuestReward->RewardCount;
                 packet.ItemRewards.push_back(itemReward);
                 break;
