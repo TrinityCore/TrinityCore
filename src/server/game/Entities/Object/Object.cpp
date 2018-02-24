@@ -36,7 +36,9 @@
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "SpellAuraEffects.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "SummonedGameObject.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Transport.h"
@@ -2021,7 +2023,7 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
     return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime);
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime, GOSummonType summonType)
+GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, GOSummonType summonType, Seconds const& despawnTime, uint32 spellId)
 {
     if (!IsInWorld())
         return nullptr;
@@ -2033,25 +2035,21 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
         return nullptr;
     }
 
+    SpellInfo const* spell = spellId ? ASSERT_NOTNULL(sSpellMgr->GetSpellInfo(spellId)) : nullptr;
+
     Map* map = GetMap();
-    GameObject* go = new GameObject();
+    GameObject* go = new SummonedGameObject(this, spell, summonType, despawnTime);
     if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
     {
         delete go;
         return nullptr;
     }
 
-    go->SetRespawnTime(respawnTime);
-    if (GetTypeId() == TYPEID_PLAYER || (GetTypeId() == TYPEID_UNIT && summonType == GO_SUMMON_TIMED_OR_CORPSE_DESPAWN)) //not sure how to handle this
-        ToUnit()->AddGameObject(go);
-    else
-        go->SetSpawnedByDefault(false);
-
     map->AddToMap(go);
     return go;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime)
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, GOSummonType summonType, Seconds const& despawnTime)
 {
     if (!x && !y && !z)
     {
@@ -2060,7 +2058,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     }
 
     Position pos(x, y, z, ang);
-    return SummonGameObject(entry, pos, rot, respawnTime);
+    return SummonGameObject(entry, pos, rot, summonType, despawnTime);
 }
 
 Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint32 duration, CreatureAI* (*GetAI)(Creature*))

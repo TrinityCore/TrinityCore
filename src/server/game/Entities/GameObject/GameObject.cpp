@@ -36,6 +36,7 @@
 #include "PoolMgr.h"
 #include "QueryPackets.h"
 #include "ScriptMgr.h"
+#include "SummonedGameObject.h"
 #include "SpellMgr.h"
 #include "Transport.h"
 #include "UpdateFieldFlags.h"
@@ -110,9 +111,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_respawnDelayTime = 300;
     m_despawnDelay = 0;
     m_lootState = GO_NOT_READY;
-    m_spawnedByDefault = true;
     m_usetimes = 0;
-    m_spellId = 0;
     m_cooldownTime = 0;
     m_prevGoState = GO_STATE_ACTIVE;
     m_goInfo = nullptr;
@@ -163,33 +162,6 @@ std::string const& GameObject::GetAIName() const
     return sObjectMgr->GetGameObjectTemplate(GetEntry())->AIName;
 }
 
-void GameObject::CleanupsBeforeDelete(bool finalCleanup)
-{
-    WorldObject::CleanupsBeforeDelete(finalCleanup);
-
-    if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
-        RemoveFromOwner();
-}
-
-void GameObject::RemoveFromOwner()
-{
-    ObjectGuid ownerGUID = GetOwnerGUID();
-    if (!ownerGUID)
-        return;
-
-    if (Unit* owner = ObjectAccessor::GetUnit(*this, ownerGUID))
-    {
-        owner->RemoveGameObject(this, false);
-        ASSERT(!GetOwnerGUID());
-        return;
-    }
-
-    // This happens when a mage portal is despawned after the caster changes map (for example using the portal)
-    TC_LOG_DEBUG("misc", "Removed GameObject (GUID: %u Entry: %u SpellId: %u LinkedGO: %u) that just lost any reference to the owner (%s) GO list",
-        GetGUID().GetCounter(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID.ToString().c_str());
-    SetOwnerGUID(ObjectGuid::Empty);
-}
-
 void GameObject::AddToWorld()
 {
     ///- Register the gameobject for guid lookup
@@ -225,7 +197,6 @@ void GameObject::RemoveFromWorld()
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
 
-        RemoveFromOwner();
         if (m_model)
             if (GetMap()->ContainsGameObjectModel(*m_model))
                 GetMap()->RemoveGameObjectModel(*m_model);
@@ -383,7 +354,12 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     if (uint32 linkedEntry = GetGOInfo()->GetLinkedGameObjectEntry())
     {
-        GameObject* linkedGO = new GameObject();
+        GameObject* linkedGO;
+        if (SummonedGameObject* summon = ToSummonedGameObject())
+            linkedGO = new SummonedGameObject(summon->GetOwner(), sSpellMgr->GetSpellInfo(summon->GetSpellId()), summon->GetSummonType(), summon->GetFullDuration());
+        else
+            linkedGO = new GameObject();
+
         if (linkedGO->Create(map->GenerateLowGuid<HighGuid::GameObject>(), linkedEntry, map, phaseMask, pos, rotation, 255, GO_STATE_READY))
         {
             SetLinkedTrap(linkedGO);
@@ -530,13 +506,17 @@ void GameObject::Update(uint32 diff)
                         {
                             case GAMEOBJECT_TYPE_FISHINGNODE:   //  can't fish now
                             {
-                                Unit* caster = GetOwner();
-                                if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+                                if (SummonedGameObject* summon = ToSummonedGameObject())
                                 {
-                                    caster->ToPlayer()->RemoveGameObject(this, false);
+                                    summon->UnlinkFromOwner();
 
-                                    WorldPacket data(SMSG_FISH_ESCAPED, 0);
-                                    caster->ToPlayer()->SendDirectMessage(&data);
+                                    Unit* caster = summon->GetOwner();
+                                    Player* pCaster = caster ? caster->ToPlayer() : nullptr;
+                                    if (pCaster)
+                                    {
+                                        WorldPacket data(SMSG_FISH_ESCAPED, 0);
+                                        pCaster->SendDirectMessage(&data);
+                                    }
                                 }
                                 // can be delete
                                 m_lootState = GO_JUST_DEACTIVATED;
@@ -557,7 +537,7 @@ void GameObject::Update(uint32 diff)
                         }
 
                         // Despawn timer
-                        if (!m_spawnedByDefault)
+                        if (!IsSpawnedByDefault())
                         {
                             // Can be despawned or destroyed
                             SetLootState(GO_JUST_DEACTIVATED);
@@ -750,7 +730,7 @@ void GameObject::Update(uint32 diff)
 
             //! If this is summoned by a spell with ie. SPELL_EFFECT_SUMMON_OBJECT_WILD, with or without owner, we check respawn criteria based on spell
             //! The GetOwnerGUID() check is mostly for compatibility with hacky scripts - 99% of the time summoning should be done trough spells.
-            if (GetSpellId() || GetOwnerGUID())
+            if (IsSummonedGameObject())
             {
                 SetRespawnTime(0);
                 Delete();
@@ -772,7 +752,7 @@ void GameObject::Update(uint32 diff)
                 return;
 
             // ToDo: Decide if we should properly despawn these. Maybe they expect to be able to manually respawn from script?
-            if (!m_spawnedByDefault)
+            if (!IsSpawnedByDefault())
             {
                 m_respawnTime = 0;
                 DestroyForNearbyPlayers(); // old UpdateObjectVisibility()
@@ -821,7 +801,7 @@ GameObjectOverride const* GameObject::GetGameObjectOverride() const
 void GameObject::Refresh()
 {
     // Do not refresh despawned GO from spellcast (GO's from spellcast are destroyed after despawn)
-    if (m_respawnTime > 0 && m_spawnedByDefault)
+    if (m_respawnTime > 0 && IsSpawnedByDefault())
         return;
 
     if (isSpawned())
@@ -856,7 +836,6 @@ void GameObject::DespawnOrUnsummon(Milliseconds const& delay, Seconds const& for
 void GameObject::Delete()
 {
     SetLootState(GO_NOT_READY);
-    RemoveFromOwner();
 
     SendObjectDeSpawnAnim(GetGUID());
 
@@ -945,7 +924,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.spawnPoint.WorldRelocate(this);
     data.phaseMask = phaseMask;
     data.rotation = m_worldRotation;
-    data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
+    data.spawntimesecs = IsSpawnedByDefault() ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
     data.goState = GetGoState();
     data.spawnMask = spawnMask;
@@ -1009,8 +988,6 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     if (data->spawntimesecs >= 0)
     {
-        m_spawnedByDefault = true;
-
         if (!GetGOInfo()->GetDespawnPossibility() && !GetGOInfo()->IsDespawnAtAction())
         {
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
@@ -1037,8 +1014,6 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
             TC_LOG_WARN("sql.sql", "GameObject %u (SpawnID %u) is not spawned by default, but tries to use a non-hack spawn system. This will not work. Defaulting to compatibility mode.", entry, spawnId);
             m_respawnCompatibilityMode = true;
         }
-
-        m_spawnedByDefault = false;
         m_respawnDelayTime = -data->spawntimesecs;
         m_respawnTime = 0;
     }
@@ -1151,7 +1126,7 @@ bool GameObject::IsDestructibleBuilding() const
 
 void GameObject::SaveRespawnTime(uint32 forceDelay, bool savetodb)
 {
-    if (m_goData && (forceDelay || m_respawnTime > GameTime::GetGameTime()) && m_spawnedByDefault)
+    if (m_goData && (forceDelay || m_respawnTime > GameTime::GetGameTime()) && IsSpawnedByDefault())
     {
         if (m_respawnCompatibilityMode)
         {
@@ -1187,12 +1162,11 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
         return false;
 
     // Always seen by owner and friendly units
-    if (ObjectGuid guid = GetOwnerGUID())
+    if (Unit* owner = GetOwner())
     {
-        if (seer->GetGUID() == guid)
+        if (seer == owner)
             return true;
 
-        Unit* owner = GetOwner();
         if (Unit const* unitSeer = seer->ToUnit())
             if (owner && owner->IsFriendlyTo(unitSeer))
                 return true;
@@ -1221,6 +1195,12 @@ uint8 GameObject::getLevelForTarget(WorldObject const* target) const
     return 1;
 }
 
+Unit* GameObject::GetOwner() const
+{
+    if (SummonedGameObject const* gobj = ToSummonedGameObject())
+        return gobj->GetUnitOwner();
+}
+
 time_t GameObject::GetRespawnTimeEx() const
 {
     time_t now = GameTime::GetGameTime();
@@ -1234,13 +1214,13 @@ void GameObject::SetRespawnTime(int32 respawn)
 {
     m_respawnTime = respawn > 0 ? GameTime::GetGameTime() + respawn : 0;
     m_respawnDelayTime = respawn > 0 ? respawn : 0;
-    if (respawn && !m_spawnedByDefault)
+    if (respawn && !IsSpawnedByDefault())
         UpdateObjectVisibility(true);
 }
 
 void GameObject::Respawn()
 {
-    if (m_spawnedByDefault && m_respawnTime > 0)
+    if (IsSpawnedByDefault() && m_respawnTime > 0)
     {
         m_respawnTime = GameTime::GetGameTime();
         GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, true);
@@ -1614,7 +1594,9 @@ void GameObject::Use(Unit* user)
             if (!player)
                 return;
 
-            if (player->GetGUID() != GetOwnerGUID())
+            SummonedGameObject* summon = ToSummonedGameObject();
+
+            if (!summon || player->GetGUID() != summon->GetOwnerGUID())
                 return;
 
             switch (getLootState())
@@ -1659,9 +1641,8 @@ void GameObject::Use(Unit* user)
                     {
                         /// @todo I do not understand this hack. Need some explanation.
                         // prevent removing GO at spell cancel
-                        RemoveFromOwner();
-                        SetOwnerGUID(player->GetGUID());
-                        SetSpellId(0); // prevent removing unintended auras at Unit::RemoveGameObject
+                        summon->UnlinkFromOwner();
+                        summon->SetSpellId(0); // prevent removing unintended auras at Unit::RemoveGameObject
 
                         if (fishingPool)
                         {
@@ -2408,7 +2389,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
 
     uint32* flags = GameObjectUpdateFieldFlags;
     uint32 visibleFlag = UF_FLAG_PUBLIC;
-    if (GetOwnerGUID() == target->GetGUID())
+    if (GetGuidValue(OBJECT_FIELD_CREATED_BY) == target->GetGUID())
         visibleFlag |= UF_FLAG_OWNER;
 
     for (uint16 index = 0; index < m_valuesCount; ++index)

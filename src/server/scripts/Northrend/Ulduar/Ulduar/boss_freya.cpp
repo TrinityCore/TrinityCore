@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -1455,8 +1456,8 @@ class npc_nature_bomb : public CreatureScript
                     if (GameObject* go = me->FindNearestGameObject(OBJECT_NATURE_BOMB, 1.0f))
                     {
                         DoCast(me, SPELL_NATURE_BOMB);
-                        me->RemoveGameObject(go, true);
-                        me->RemoveFromWorld();
+                        go->DespawnOrUnsummon();
+                        me->DespawnOrUnsummon();
                     }
 
                     bombTimer = 10000;

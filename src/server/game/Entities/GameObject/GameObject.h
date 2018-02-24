@@ -30,6 +30,7 @@ class GameObjectAI;
 class GameObjectModel;
 class Group;
 class OPvPCapturePoint;
+class SummonedGameObject;
 class Transport;
 class Unit;
 struct TransportAnimation;
@@ -87,7 +88,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
-        void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
         bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0, bool dynamic = false, ObjectGuid::LowType spawnid = 0);
         void Update(uint32 p_time) override;
@@ -117,24 +117,11 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool = true); // arg4 is unused, only present to match the signature on Creature
         void DeleteFromDB();
 
-        void SetOwnerGUID(ObjectGuid owner)
-        {
-            // Owner already found and different than expected owner - remove object from old owner
-            if (owner && GetOwnerGUID() && GetOwnerGUID() != owner)
-            {
-                ABORT();
-            }
-            m_spawnedByDefault = false;                     // all object with owner is despawned after delay
-            SetGuidValue(OBJECT_FIELD_CREATED_BY, owner);
-        }
         ObjectGuid GetOwnerGUID() const override { return GetGuidValue(OBJECT_FIELD_CREATED_BY); }
-
-        void SetSpellId(uint32 id)
-        {
-            m_spawnedByDefault = false;                     // all summoned object is despawned after delay
-            m_spellId = id;
-        }
-        uint32 GetSpellId() const { return m_spellId;}
+        bool IsSummonedGameObject() const { return GetOwnerGUID() != ObjectGuid::Empty; }
+        // compatibility
+        SummonedGameObject* ToSummonedGameObject() { if (IsSummonedGameObject()) return reinterpret_cast<SummonedGameObject*>(this); else return nullptr; }
+        SummonedGameObject const* ToSummonedGameObject() const { if (IsSummonedGameObject()) return reinterpret_cast<SummonedGameObject const*>(this); else return nullptr; }
 
         time_t GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -144,11 +131,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool isSpawned() const
         {
             return m_respawnDelayTime == 0 ||
-                (m_respawnTime > 0 && !m_spawnedByDefault) ||
-                (m_respawnTime == 0 && m_spawnedByDefault);
+                (m_respawnTime > 0 == !IsSpawnedByDefault());
         }
-        bool isSpawnedByDefault() const { return m_spawnedByDefault; }
-        void SetSpawnedByDefault(bool b) { m_spawnedByDefault = b; }
+        bool IsSpawnedByDefault() const { return !m_goData || (m_goData->spawntimesecs < 0); }
         uint32 GetRespawnDelay() const { return m_respawnDelayTime; }
         void Refresh();
         void DespawnOrUnsummon(Milliseconds const& delay = 0ms, Seconds const& forceRespawnTime = 0s);
@@ -287,14 +272,12 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
     protected:
         GameObjectModel* CreateModel();
         void UpdateModel();                                 // updates model in case displayId were changed
-        uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
         uint32      m_respawnDelayTime;                     // (secs) if 0 then current GO state no dependent from timer
         uint32      m_despawnDelay;
         Seconds     m_despawnRespawnTime;                   // override respawn time after delayed despawn
         LootState   m_lootState;
         ObjectGuid  m_lootStateUnitGUID;                    // GUID of the unit passed with SetLootState(LootState, Unit*)
-        bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         GOState     m_prevGoState;                          // What state to set whenever resetting
@@ -326,7 +309,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid m_linkedTrap;
 
     private:
-        void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
         void UpdatePackedRotation();
 

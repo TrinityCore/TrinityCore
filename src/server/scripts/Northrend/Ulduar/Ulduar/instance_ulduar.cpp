@@ -771,7 +771,7 @@ class instance_ulduar : public InstanceMapScript
                         {
                             if (Creature* hodir = GetCreature(BOSS_HODIR))
                                 if (GameObject* gameObject = instance->GetGameObject(HodirRareCacheGUID))
-                                    hodir->RemoveGameObject(gameObject, false);
+                                    hodir->UnlinkGameObject(gameObject->ToSummonedGameObject());
                         }
                         break;
                     case DATA_UNBROKEN:

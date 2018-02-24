@@ -66,8 +66,11 @@ enum NotifyFlags
 
 enum GOSummonType
 {
-   GO_SUMMON_TIMED_OR_CORPSE_DESPAWN = 0,    // despawns after a specified time OR when the summoner dies
-   GO_SUMMON_TIMED_DESPAWN = 1     // despawns after a specified time
+   
+    GO_SUMMON_TIMED_OR_CORPSE_DESPAWN = 0,    // despawns after a specified time OR when the summoner dies
+    GO_SUMMON_TIMED_DESPAWN           = 1,    // despawns after a specified time
+    GO_SUMMON_MANUAL_DESPAWN          = 2,    // never despawns automatically
+    GO_SUMMON_CORPSE_DESPAWN          = 3,    // despawn when summoner dies
 };
 
 inline uint64 MAKE_PAIR64(uint32 l, uint32 h)

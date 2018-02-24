@@ -1342,11 +1342,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                         {
                             summon->AI()->SetGUID(GetTarget()->GetGUID(), DATA_TRAPPED_PLAYER);
                             GetTarget()->CastSpell(GetTarget(), SPELL_ICE_TOMB_UNTARGETABLE);
-                            if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos, QuaternionData(), 0))
-                            {
-                                go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
-                                summon->AddGameObject(go);
-                            }
+                            summon->SummonGameObject(GO_ICE_BLOCK, pos, QuaternionData(), GO_SUMMON_CORPSE_DESPAWN, 0s, SPELL_ICE_TOMB_DAMAGE);
                         }
                     }
                 }

@@ -373,12 +373,10 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-
-            owner->RemoveGameObject(object, false);
         }
 
         object->SetRespawnTime(0);                                 // not save respawn time
-        object->Delete();
+        object->DespawnOrUnsummon();
         object->DeleteFromDB();
 
         handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetSpawnId());

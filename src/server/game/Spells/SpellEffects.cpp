@@ -44,13 +44,14 @@
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-#include "SkillExtraItems.h"
 #include "SharedDefines.h"
+#include "SkillExtraItems.h"
 #include "SocialMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SummonedGameObject.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "UpdateMask.h"
@@ -5111,7 +5112,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (goinfo->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)
         unitCaster->GetPosition(fx, fy, fz);
 
-    GameObject* pGameObj = new GameObject;
+    SummonedGameObject* pGameObj = new SummonedGameObject(m_caster, m_spellInfo, GO_SUMMON_CORPSE_DESPAWN);
 
     Position pos = { fx, fy, fz, unitCaster->GetOrientation() };
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(unitCaster->GetOrientation(), 0.f, 0.f);
@@ -5127,7 +5128,6 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
             unitCaster->SetChannelObjectGuid(pGameObj->GetGUID());
-            unitCaster->AddGameObject(pGameObj);              // will removed at spell cancel
 
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
             // start time == fish-FISHING_BOBBER_READY_TIME (0..GetDuration(m_spellInfo)-FISHING_BOBBER_READY_TIME)
@@ -5148,25 +5148,17 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             if (unitCaster->GetTypeId() == TYPEID_PLAYER)
             {
                 pGameObj->AddUniqueUse(unitCaster->ToPlayer());
-                unitCaster->AddGameObject(pGameObj);      // will be removed at spell cancel
             }
             break;
         }
         case GAMEOBJECT_TYPE_DUEL_ARBITER: // 52991
-            unitCaster->AddGameObject(pGameObj);
             break;
         case GAMEOBJECT_TYPE_FISHINGHOLE:
         case GAMEOBJECT_TYPE_CHEST:
         default:
+            unitCaster->UnlinkGameObject(pGameObj);
             break;
     }
-
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
-
-    pGameObj->SetOwnerGUID(unitCaster->GetGUID());
-
-    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->getLevel());
-    pGameObj->SetSpellId(m_spellInfo->Id);
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
@@ -5177,14 +5169,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     cMap->AddToMap(pGameObj);
 
     if (GameObject* linkedTrap = pGameObj->GetLinkedTrap())
-    {
-        linkedTrap->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
-        //linkedTrap->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->getLevel());
-        linkedTrap->SetSpellId(m_spellInfo->Id);
-        linkedTrap->SetOwnerGUID(unitCaster->GetGUID());
-
         ExecuteLogEffectSummonObject(effIndex, linkedTrap);
-    }
 }
 
 void Spell::EffectProspecting(SpellEffIndex /*effIndex*/)

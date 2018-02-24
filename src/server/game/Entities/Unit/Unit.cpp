@@ -55,6 +55,7 @@
 #include "PlayerAI.h"
 #include "QuestDef.h"
 #include "ReputationMgr.h"
+#include "SummonedGameObject.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Spell.h"
@@ -2865,23 +2866,6 @@ void Unit::_UpdateSpells(uint32 time)
 
     _DeleteRemovedAuras();
 
-    if (!m_gameObj.empty())
-    {
-        GameObjectList::iterator itr;
-        for (itr = m_gameObj.begin(); itr != m_gameObj.end();)
-        {
-            if (!(*itr)->isSpawned())
-            {
-                (*itr)->SetOwnerGUID(ObjectGuid::Empty);
-                (*itr)->SetRespawnTime(0);
-                (*itr)->Delete();
-                m_gameObj.erase(itr++);
-            }
-            else
-                ++itr;
-        }
-    }
-
     m_spellHistory->Update();
 }
 
@@ -4977,14 +4961,10 @@ void Unit::_UnregisterDynObject(DynamicObject* dynObj)
 
 DynamicObject* Unit::GetDynObject(uint32 spellId)
 {
-    if (m_dynObj.empty())
-        return nullptr;
-    for (DynObjectList::const_iterator i = m_dynObj.begin(); i != m_dynObj.end();++i)
-    {
-        DynamicObject* dynObj = *i;
+    for (DynamicObject* dynObj : m_dynObj)
         if (dynObj->GetSpellId() == spellId)
             return dynObj;
-    }
+
     return nullptr;
 }
 
@@ -4992,16 +4972,16 @@ void Unit::RemoveDynObject(uint32 spellId)
 {
     if (m_dynObj.empty())
         return;
-    for (DynObjectList::iterator i = m_dynObj.begin(); i != m_dynObj.end();)
+    for (auto it = m_dynObj.begin(); it != m_dynObj.end();)
     {
-        DynamicObject* dynObj = *i;
+        DynamicObject* dynObj = *it;
         if (dynObj->GetSpellId() == spellId)
         {
+            it = m_dynObj.erase(it); // iterator invalidation on ->Remove()
             dynObj->Remove();
-            i = m_dynObj.begin();
         }
         else
-            ++i;
+            ++it;
     }
 }
 
@@ -5013,37 +4993,23 @@ void Unit::RemoveAllDynObjects()
 
 GameObject* Unit::GetGameObject(uint32 spellId) const
 {
-    for (GameObjectList::const_iterator i = m_gameObj.begin(); i != m_gameObj.end(); ++i)
-        if ((*i)->GetSpellId() == spellId)
-            return *i;
+    for (SummonedGameObject* o : m_gameObj)
+        if (o->GetSpellId() == spellId)
+            return o;
 
     return nullptr;
 }
 
-void Unit::AddGameObject(GameObject* gameObj)
+void Unit::AddGameObject(SummonedGameObject* gameObj)
 {
-    if (!gameObj || gameObj->GetOwnerGUID())
-        return;
-
+    ASSERT(gameObj && gameObj->GetOwnerGUID(), "GO with entry %u being added to %s, even though it is not owned.", gameObj ? gameObj->GetEntry() : 0, GetName().c_str());
     m_gameObj.push_back(gameObj);
-    gameObj->SetOwnerGUID(GetGUID());
-
-    if (gameObj->GetSpellId())
-    {
-        SpellInfo const* createBySpell = sSpellMgr->GetSpellInfo(gameObj->GetSpellId());
-        // Need disable spell use for owner
-        if (createBySpell && createBySpell->IsCooldownStartedOnEvent())
-            // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
-            GetSpellHistory()->StartCooldown(createBySpell, 0, nullptr, true);
-    }
 }
 
-void Unit::RemoveGameObject(GameObject* gameObj, bool del)
+void Unit::UnlinkGameObject(SummonedGameObject* gameObj)
 {
     if (!gameObj || gameObj->GetOwnerGUID() != GetGUID())
         return;
-
-    gameObj->SetOwnerGUID(ObjectGuid::Empty);
 
     for (uint8 i = 0; i < MAX_GAMEOBJECT_SLOT; ++i)
     {
@@ -5053,49 +5019,34 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
             break;
         }
     }
-
-    // GO created by some spell
-    if (uint32 spellid = gameObj->GetSpellId())
-    {
-        RemoveAurasDueToSpell(spellid);
-
-        SpellInfo const* createBySpell = sSpellMgr->GetSpellInfo(spellid);
-        // Need activate spell use for owner
-        if (createBySpell && createBySpell->IsCooldownStartedOnEvent())
-            // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
-            GetSpellHistory()->SendCooldownEvent(createBySpell);
-    }
-
     m_gameObj.remove(gameObj);
-
-    if (del)
-    {
-        gameObj->SetRespawnTime(0);
-        gameObj->Delete();
-    }
 }
 
 void Unit::RemoveGameObject(uint32 spellid, bool del)
 {
     if (m_gameObj.empty())
         return;
-    GameObjectList::iterator i, next;
-    for (i = m_gameObj.begin(); i != m_gameObj.end(); i = next)
-    {
-        next = i;
-        if (spellid == 0 || (*i)->GetSpellId() == spellid)
-        {
-            (*i)->SetOwnerGUID(ObjectGuid::Empty);
-            if (del)
-            {
-                (*i)->SetRespawnTime(0);
-                (*i)->Delete();
-            }
 
-            next = m_gameObj.erase(i);
+    if (!spellid)
+    {
+        if (del)
+            RemoveAllGameObjects();
+        else
+            m_gameObj.clear();
+        return;
+    }
+
+    for (auto it = m_gameObj.begin(); it != m_gameObj.end();)
+    {
+        if ((*it)->GetSpellId() == spellid)
+        {
+            SummonedGameObject* obj = *it;
+            it = m_gameObj.erase(it); // ->Delete would invalidate
+            if (del)
+                (obj)->Delete();
         }
         else
-            ++next;
+            ++it;
     }
 }
 
@@ -5103,13 +5054,7 @@ void Unit::RemoveAllGameObjects()
 {
     // remove references to unit
     while (!m_gameObj.empty())
-    {
-        GameObjectList::iterator i = m_gameObj.begin();
-        (*i)->SetOwnerGUID(ObjectGuid::Empty);
-        (*i)->SetRespawnTime(0);
-        (*i)->Delete();
-        m_gameObj.erase(i);
-    }
+        m_gameObj.front()->Delete();
 }
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)

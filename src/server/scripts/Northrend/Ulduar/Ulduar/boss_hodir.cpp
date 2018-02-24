@@ -631,8 +631,8 @@ class npc_snowpacked_icicle : public CreatureScript
             {
                 if (despawnTimer <= diff)
                 {
-                    if (GameObject* Snowdrift = me->FindNearestGameObject(GO_SNOWDRIFT, 2.0f))
-                        me->RemoveGameObject(Snowdrift, true);
+                    if (GameObject* snowdrift = me->FindNearestGameObject(GO_SNOWDRIFT, 2.0f))
+                        snowdrift->DespawnOrUnsummon();
                     me->DespawnOrUnsummon();
                 }
                 else
@@ -963,8 +963,8 @@ class npc_toasty_fire : public CreatureScript
             {
                 if (spell->Id == SPELL_BLOCK_OF_ICE || spell->Id == SPELL_ICE_SHARD || spell->Id == SPELL_ICE_SHARD_HIT)
                 {
-                    if (GameObject* ToastyFire = me->FindNearestGameObject(GO_TOASTY_FIRE, 1.0f))
-                        me->RemoveGameObject(ToastyFire, true);
+                    if (GameObject* fire = me->FindNearestGameObject(GO_TOASTY_FIRE, 1.0f))
+                        fire->DespawnOrUnsummon();
                     me->DespawnOrUnsummon();
                 }
             }
