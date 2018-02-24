@@ -237,9 +237,29 @@ namespace VMAP
         return(height);
     }
 
+    StaticMapTree::TileFileOpenResult StaticMapTree::OpenMapTileFile(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
+    {
+        TileFileOpenResult result;
+        result.Name = basePath + getTileFileName(mapID, tileX, tileY);
+        result.File = fopen(result.Name.c_str(), "rb");
+        result.IsPrimary = true;
+        if (!result.File)
+        {
+            int32 parentMapId = vm->getParentMapId(mapID);
+            if (parentMapId != -1)
+            {
+                result.Name = basePath + getTileFileName(parentMapId, tileX, tileY);
+                result.File = fopen(result.Name.c_str(), "rb");
+                result.IsPrimary = false;
+            }
+        }
+
+        return result;
+    }
+
     //=========================================================
 
-    bool StaticMapTree::CanLoadMap(const std::string &vmapPath, uint32 mapID, uint32 tileX, uint32 tileY)
+    bool StaticMapTree::CanLoadMap(const std::string &vmapPath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
     {
         std::string basePath = vmapPath;
         if (basePath.length() > 0 && basePath[basePath.length()-1] != '/' && basePath[basePath.length()-1] != '\\')
@@ -259,8 +279,7 @@ namespace VMAP
         }
         if (tiled)
         {
-            std::string tilefile = basePath + getTileFileName(mapID, tileX, tileY);
-            FILE* tf = fopen(tilefile.c_str(), "rb");
+            FILE* tf = OpenMapTileFile(basePath, mapID, tileX, tileY, vm).File;
             if (!tf)
                 success = false;
             else
@@ -321,6 +340,22 @@ namespace VMAP
             }
         }
 
+        if (success)
+        {
+            success = readChunk(rf, chunk, "SIDX", 4);
+            uint32 spawnIndicesSize = 0;
+            uint32 spawnId;
+            uint32 spawnIndex;
+            if (success && fread(&spawnIndicesSize, sizeof(uint32), 1, rf) != 1) success = false;
+            for (uint32 i = 0; i < spawnIndicesSize && success; ++i)
+            {
+                if (fread(&spawnId, sizeof(uint32), 1, rf) == 1 && fread(&spawnIndex, sizeof(uint32), 1, rf) == 1)
+                    iSpawnIndices[spawnId] = spawnIndex;
+                else
+                    success = false;
+            }
+        }
+
         fclose(rf);
         return success;
     }
@@ -337,6 +372,7 @@ namespace VMAP
         }
         iLoadedSpawns.clear();
         iLoadedTiles.clear();
+        iLoadedPrimaryTiles.clear();
     }
 
     //=========================================================
@@ -357,22 +393,21 @@ namespace VMAP
         }
         bool result = true;
 
-        std::string tilefile = iBasePath + getTileFileName(iMapID, tileX, tileY);
-        FILE* tf = fopen(tilefile.c_str(), "rb");
-        if (tf)
+        TileFileOpenResult fileResult = OpenMapTileFile(iBasePath, iMapID, tileX, tileY, vm);
+        if (fileResult.File)
         {
             char chunk[8];
 
-            if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
+            if (!readChunk(fileResult.File, chunk, VMAP_MAGIC, 8))
                 result = false;
             uint32 numSpawns = 0;
-            if (result && fread(&numSpawns, sizeof(uint32), 1, tf) != 1)
+            if (result && fread(&numSpawns, sizeof(uint32), 1, fileResult.File) != 1)
                 result = false;
             for (uint32 i=0; i<numSpawns && result; ++i)
             {
                 // read model spawns
                 ModelSpawn spawn;
-                result = ModelSpawn::readFromFile(tf, spawn);
+                result = ModelSpawn::readFromFile(fileResult.File, spawn);
                 if (result)
                 {
                     // acquire model instance
@@ -381,15 +416,15 @@ namespace VMAP
                         VMAP_ERROR_LOG("misc", "StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u, %u]", tileX, tileY);
 
                     // update tree
-                    uint32 referencedVal;
-
-                    if (fread(&referencedVal, sizeof(uint32), 1, tf) == 1)
+                    auto spawnIndex = iSpawnIndices.find(spawn.ID);
+                    if (spawnIndex != iSpawnIndices.end())
                     {
+                        uint32 referencedVal = spawnIndex->second;
                         if (!iLoadedSpawns.count(referencedVal))
                         {
-                            if (referencedVal > iNTreeValues)
+                            if (referencedVal >= iNTreeValues)
                             {
-                                VMAP_ERROR_LOG("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u) referenced in tile %s", referencedVal, iNTreeValues, tilefile.c_str());
+                                VMAP_ERROR_LOG("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u) referenced in tile %s", referencedVal, iNTreeValues, fileResult.Name.c_str());
                                 continue;
                             }
 
@@ -412,7 +447,9 @@ namespace VMAP
                 }
             }
             iLoadedTiles[packTileID(tileX, tileY)] = true;
-            fclose(tf);
+            if (fileResult.IsPrimary)
+                iLoadedPrimaryTiles.emplace_back(tileX, tileY);
+            fclose(fileResult.File);
         }
         else
             iLoadedTiles[packTileID(tileX, tileY)] = false;
@@ -434,34 +471,33 @@ namespace VMAP
         }
         if (tile->second) // file associated with tile
         {
-            std::string tilefile = iBasePath + getTileFileName(iMapID, tileX, tileY);
-            FILE* tf = fopen(tilefile.c_str(), "rb");
-            if (tf)
+            TileFileOpenResult fileResult = OpenMapTileFile(iBasePath, iMapID, tileX, tileY, vm);
+            if (fileResult.File)
             {
                 bool result=true;
                 char chunk[8];
-                if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
+                if (!readChunk(fileResult.File, chunk, VMAP_MAGIC, 8))
                     result = false;
                 uint32 numSpawns;
-                if (fread(&numSpawns, sizeof(uint32), 1, tf) != 1)
+                if (fread(&numSpawns, sizeof(uint32), 1, fileResult.File) != 1)
                     result = false;
                 for (uint32 i=0; i<numSpawns && result; ++i)
                 {
                     // read model spawns
                     ModelSpawn spawn;
-                    result = ModelSpawn::readFromFile(tf, spawn);
+                    result = ModelSpawn::readFromFile(fileResult.File, spawn);
                     if (result)
                     {
                         // release model instance
                         vm->releaseModelInstance(spawn.name);
 
                         // update tree
-                        uint32 referencedNode;
-
-                        if (fread(&referencedNode, sizeof(uint32), 1, tf) != 1)
+                        auto spawnIndex = iSpawnIndices.find(spawn.ID);
+                        if (spawnIndex == iSpawnIndices.end())
                             result = false;
                         else
                         {
+                            uint32 referencedNode = spawnIndex->second;
                             if (!iLoadedSpawns.count(referencedNode))
                             VMAP_ERROR_LOG("misc", "StaticMapTree::UnloadMapTile() : trying to unload non-referenced model '%s' (ID:%u)", spawn.name.c_str(), spawn.ID);
                             else if (--iLoadedSpawns[referencedNode] == 0)
@@ -472,10 +508,12 @@ namespace VMAP
                         }
                     }
                 }
-                fclose(tf);
+                fclose(fileResult.File);
             }
         }
         iLoadedTiles.erase(tile);
+        iLoadedPrimaryTiles.erase(std::remove_if(iLoadedPrimaryTiles.begin(), iLoadedPrimaryTiles.end(),
+            [tileX, tileY](std::pair<uint32, uint32> const& p) { return p.first == tileX && p.second == tileY; }), iLoadedPrimaryTiles.end());
         TC_METRIC_EVENT("map_events", "UnloadMapTile",
             "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
     }
@@ -484,5 +522,14 @@ namespace VMAP
     {
         models = iTreeValues;
         count = iNTreeValues;
+    }
+
+    int32 StaticMapTree::GetDistanceToClosestPrimaryTile(int32 x, int32 y) const
+    {
+        int32 minDistance = std::numeric_limits<int32>::max();
+        for (std::pair<int32, int32> const& primaryTile : iLoadedPrimaryTiles)
+            minDistance = std::min(minDistance, (primaryTile.first - x) * (primaryTile.first - x) + (primaryTile.second - y) * (primaryTile.second - y));
+
+        return minDistance;
     }
 }

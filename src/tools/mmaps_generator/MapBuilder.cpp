@@ -216,7 +216,7 @@ namespace MMAP
             _workerThreads.push_back(std::thread(&MapBuilder::WorkerThread, this));
         }
 
-        m_tiles.sort([](MapTiles a, MapTiles b)
+        m_tiles.sort([](MapTiles const& a, MapTiles const& b)
         {
             return a.m_tiles->size() > b.m_tiles->size();
         });

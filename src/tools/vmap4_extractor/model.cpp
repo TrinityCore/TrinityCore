@@ -19,6 +19,7 @@
 #include "vmapexport.h"
 #include "model.h"
 #include "wmo.h"
+#include "adtfile.h"
 #include "cascfile.h"
 #include <cassert>
 #include <algorithm>
@@ -154,7 +155,7 @@ Vec3D fixCoordSystem2(Vec3D v)
     return Vec3D(v.x, v.z, v.y);
 }
 
-ModelInstance::ModelInstance(CASCFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile)
+ModelInstance::ModelInstance(CASCFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
     : id(0), scale(0), flags(0)
 {
     float ff[3];
@@ -190,6 +191,8 @@ ModelInstance::ModelInstance(CASCFile& f, char const* ModelInstName, uint32 mapI
     uint32 tcflags = MOD_M2;
     if (tileX == 65 && tileY == 65)
         tcflags |= MOD_WORLDSPAWN;
+    if (mapID != originalMapId)
+        tcflags |= MOD_PARENT_SPAWN;
 
     //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
@@ -204,6 +207,34 @@ ModelInstance::ModelInstance(CASCFile& f, char const* ModelInstName, uint32 mapI
     uint32 nlen = strlen(ModelInstName);
     fwrite(&nlen, sizeof(uint32), 1, pDirfile);
     fwrite(ModelInstName, sizeof(char), nlen, pDirfile);
+
+    if (dirfileCache)
+    {
+        dirfileCache->emplace_back();
+        ADTOutputCache& cacheModelData = dirfileCache->back();
+        cacheModelData.Flags = tcflags & ~MOD_PARENT_SPAWN;
+        cacheModelData.Data.resize(
+            sizeof(uint16) +    // adtId
+            sizeof(uint32) +    // id
+            sizeof(float) * 3 + // pos
+            sizeof(float) * 3 + // rot
+            sizeof(float) +     // sc
+            sizeof(uint32) +    // nlen
+            nlen);              // ModelInstName
+
+        uint8* cacheData = cacheModelData.Data.data();
+#define CACHE_WRITE(value, size, count, dest) memcpy(dest, value, size * count); dest += size * count;
+
+        CACHE_WRITE(&adtId, sizeof(uint16), 1, cacheData);
+        CACHE_WRITE(&id, sizeof(uint32), 1, cacheData);
+        CACHE_WRITE(&pos, sizeof(float), 3, cacheData);
+        CACHE_WRITE(&rot, sizeof(float), 3, cacheData);
+        CACHE_WRITE(&sc, sizeof(float), 1, cacheData);
+        CACHE_WRITE(&nlen, sizeof(uint32), 1, cacheData);
+        CACHE_WRITE(ModelInstName, sizeof(char), nlen, cacheData);
+
+#undef CACHE_WRITE
+    }
 
     /* int realx1 = (int) ((float) pos.x / 533.333333f);
     int realy1 = (int) ((float) pos.z / 533.333333f);
