@@ -1576,11 +1576,17 @@ void World::SetInitialWorldSettings()
     sTaxiPathGraph.Initialize();
 
     std::vector<uint32> mapIds;
+    std::unordered_map<uint32, std::vector<uint32>> mapData;
     for (MapEntry const* mapEntry : sMapStore)
+    {
         mapIds.push_back(mapEntry->ID);
+        mapData.emplace(std::piecewise_construct, std::forward_as_tuple(mapEntry->ID), std::forward_as_tuple());
+        if (mapEntry->ParentMapID != -1)
+            mapData[mapEntry->ParentMapID].push_back(mapEntry->ID);
+    }
 
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-        vmmgr2->InitializeThreadUnsafe(mapIds);
+        vmmgr2->InitializeThreadUnsafe(mapData);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
     mmmgr->InitializeThreadUnsafe(mapIds);
