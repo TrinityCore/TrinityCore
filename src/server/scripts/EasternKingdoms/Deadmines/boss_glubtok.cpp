@@ -322,6 +322,9 @@ public:
                     case EVENT_FIRE_WALL:
                         for (auto itr = _firewallDummyGUIDList.begin(); itr != _firewallDummyGUIDList.end(); itr++)
                             if (Creature* firewallDummy = ObjectAccessor::GetCreature(*me, (*itr)))
+                                if (firewallDummy->GetEntry() != NPC_FIREWALL_PLATTER_1A
+                                    && firewallDummy->GetEntry() != NPC_FIREWALL_PLATTER_1B
+                                    && firewallDummy->GetEntry() != NPC_FIREWALL_PLATTER_1C)
                                 firewallDummy->CastSpell(firewallDummy, SPELL_FIRE_WALL);
                         break;
                     case EVENT_ARCANE_OVERLOAD:
@@ -412,43 +415,8 @@ class spell_glubtok_blossom_targeting : public SpellScriptLoader
         }
 };
 
-class spell_glubtok_fire_wall : public SpellScriptLoader
-{
-public:
-    spell_glubtok_fire_wall() : SpellScriptLoader("spell_glubtok_fire_wall") { }
-
-    class spell_glubtok_fire_wall_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_glubtok_fire_wall_AuraScript);
-
-        void HandlePeriodic(AuraEffect const* aurEff)
-        {
-            PreventDefaultAction();
-
-            if (Unit* caster = GetOwner()->ToUnit())
-            {
-                if (caster->GetEntry() != NPC_FIREWALL_PLATTER_1A
-                    && caster->GetEntry() != NPC_FIREWALL_PLATTER_1B
-                    && caster->GetEntry() != NPC_FIREWALL_PLATTER_1C)
-                    caster->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell);
-            }
-        }
-
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_glubtok_fire_wall_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_glubtok_fire_wall_AuraScript();
-    }
-};
-
 void AddSC_boss_glubtok()
 {
     new boss_glubtok();
     new spell_glubtok_blossom_targeting();
-    new spell_glubtok_fire_wall();
 }
