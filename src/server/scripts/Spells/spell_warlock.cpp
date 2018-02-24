@@ -84,7 +84,12 @@ enum WarlockSpells
     SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
     SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER              = 92795,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
-    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 196364,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_1      = 233490,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_2      = 233496,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_3      = 233497,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_4      = 233498,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_5      = 233499,
     SPELL_WARLOCK_AGONY                             = 980,
     SPELL_WARLOCK_ARCHIMONDES_VENGEANCE_COOLDOWN    = 116405,
     SPELL_WARLOCK_ARCHIMONDES_VENGEANCE_DAMAGE      = 124051,
@@ -1747,44 +1752,64 @@ public:
     }
 };
 
-// 30108, 34438, 34439, 35183 - Unstable Affliction
-/// Updated 4.3.4
-class spell_warl_unstable_affliction : public SpellScriptLoader
+// 30108 Unstable Affliction
+class spell_warl_unstable_affliction : public SpellScript
 {
-public:
-    spell_warl_unstable_affliction() : SpellScriptLoader("spell_warl_unstable_affliction") { }
+    PrepareSpellScript(spell_warl_unstable_affliction);
 
-    class spell_warl_unstable_affliction_AuraScript : public AuraScript
+    const uint32 damageSpells[5] =
     {
-        PrepareAuraScript(spell_warl_unstable_affliction_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL))
-                return false;
-            return true;
-        }
-
-        void HandleDispel(DispelInfo* dispelInfo)
-        {
-            if (Unit* caster = GetCaster())
-                if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
-                {
-                    int32 damage = aurEff->GetAmount() * 9;
-                    // backfire damage and silence
-                    caster->CastCustomSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
-                }
-        }
-
-        void Register() override
-        {
-            AfterDispel += AuraDispelFn(spell_warl_unstable_affliction_AuraScript::HandleDispel);
-        }
+        SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_1,
+        SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_2,
+        SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_3,
+        SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_4,
+        SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_5,
     };
 
-    AuraScript* GetAuraScript() const override
+    void HandleOnHitTarget(SpellEffIndex effIndex)
     {
-        return new spell_warl_unstable_affliction_AuraScript();
+        if (Unit* target = GetHitUnit())
+        {
+            for (uint8 i = 0; i < 5; ++i)
+            {
+                if (target->HasAura(damageSpells[i]))
+                    continue;
+
+                GetCaster()->CastSpell(target, damageSpells[i], true);
+                break;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_unstable_affliction::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 233490 - 233496 - 233497 - 233498 - 233499 - Unstable Affliction
+class aura_warl_unstable_affliction : public AuraScript
+{
+    PrepareAuraScript(aura_warl_unstable_affliction);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL });
+    }
+
+    void HandleDispel(DispelInfo* dispelInfo)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            // backfire damage and silence
+            int32 damage = int32(4.0f * 0.927f * caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()));
+            caster->CastCustomSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, nullptr, nullptr, true);
+        }
+    }
+
+    void Register() override
+    {
+        AfterDispel += AuraDispelFn(aura_warl_unstable_affliction::HandleDispel);
     }
 };
 
@@ -4616,7 +4641,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soulburn_seed_of_corruption_damage();
     new spell_warl_soulshatter();
     new spell_warl_twilight_ward_s12();
-    new spell_warl_unstable_affliction();
+    RegisterSpellScript(spell_warl_unstable_affliction);
+    RegisterAuraScript(aura_warl_unstable_affliction);
     new spell_warl_void_ray();
     new spell_warlock_agony();
     new spell_warlock_blood_horror();
