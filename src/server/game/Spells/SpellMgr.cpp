@@ -2886,13 +2886,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
     });
 
-    // Missile Barrage
-    ApplySpellFix({ 44401 }, [](SpellInfo* spellInfo)
-    {
-        // should be consumed before Clearcasting
-        spellInfo->Priority = 100;
-    });
-
     // Howl of Azgalor
     ApplySpellFix({ 31344 }, [](SpellInfo* spellInfo)
     {
