@@ -1174,48 +1174,6 @@ class spell_pal_improved_aura : public SpellScriptLoader
         uint32 _spellId;
 };
 
-// 63510 - Improved Concentration Aura (Area Aura)
-// 63514 - Improved Devotion Aura (Area Aura)
-// 63531 - Sanctified Retribution (Area Aura)
-class spell_pal_improved_aura_effect : public SpellScriptLoader
-{
-    public:
-        spell_pal_improved_aura_effect(char const* name) : SpellScriptLoader(name) { }
-
-        class spell_pal_improved_aura_effect_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_improved_aura_effect_AuraScript);
-
-            bool CheckAreaTarget(Unit* target)
-            {
-                Unit::AuraApplicationMap& appliedAuras = target->GetAppliedAuras();
-                for (Unit::AuraApplicationMap::iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
-                {
-                    Aura const* aura = itr->second->GetBase();
-                    if (aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && aura->GetCasterGUID() == GetCasterGUID())
-                    {
-                        // Not allow for Retribution Aura (prevent stacking) - Retribution Aura Overflow and Retribution Aura has same spell effects
-                        if (GetSpellInfo()->Id == SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA && aura->GetSpellInfo()->SpellIconID == PALADIN_ICON_ID_RETRIBUTION_AURA)
-                            return false;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            void Register() override
-            {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_pal_improved_aura_effect_AuraScript::CheckAreaTarget);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_improved_aura_effect_AuraScript();
-        }
-};
-
 // -20234 - Improved Lay on Hands
 class spell_pal_improved_lay_of_hands : public SpellScriptLoader
 {
@@ -2429,9 +2387,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura("spell_pal_improved_devotion_aura", SPELL_PALADIN_IMPROVED_DEVOTION_AURA);
     new spell_pal_improved_aura("spell_pal_sanctified_retribution", SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA);
     new spell_pal_improved_aura("spell_pal_swift_retribution", SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA);
-    new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
-    new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
-    new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     new spell_pal_improved_lay_of_hands();
     new spell_pal_infusion_of_light();
     new spell_pal_item_healing_discount();

@@ -555,10 +555,6 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
 
     m_updateTargetMapInterval = UPDATE_TARGET_MAP_INTERVAL;
 
-    // skip update if owner is not in world!
-    if (!GetOwner()->IsInWorld())
-        return;
-
     // fill up to date target list
     //                 target, effMask
     std::unordered_map<Unit*, uint8> targets;
@@ -2520,11 +2516,15 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
         // non-area aura
         if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA)
         {
-            if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), GetUnitOwner(), *condList))
+            if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), caster, *condList))
                 units.push_back(GetUnitOwner());
         }
         else
         {
+            // skip area update if owner is not in world!
+            if (!GetUnitOwner()->IsInWorld())
+                continue;
+
             float radius = GetSpellInfo()->Effects[effIndex].CalcRadius(caster);
 
             if (!GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
@@ -2545,14 +2545,14 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
                         selectionType = TARGET_CHECK_ENEMY;
                         break;
                     case SPELL_EFFECT_APPLY_AREA_AURA_PET:
-                        if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), GetUnitOwner(), *condList))
+                        if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), caster, *condList))
                             units.push_back(GetUnitOwner());
                         // no break
                     case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                     {
                         if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
                             if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
-                                if (!condList || sConditionMgr->IsObjectMeetToConditions(owner, GetUnitOwner(), *condList))
+                                if (!condList || sConditionMgr->IsObjectMeetToConditions(owner, caster, *condList))
                                     units.push_back(owner);
                         break;
                     }
@@ -2560,7 +2560,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
 
                 if (selectionType != TARGET_CHECK_DEFAULT)
                 {
-                    Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), GetUnitOwner(), GetUnitOwner(), m_spellInfo, selectionType, condList);
+                    Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), caster, caster, m_spellInfo, selectionType, condList);
                     Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
                     Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
                 }
