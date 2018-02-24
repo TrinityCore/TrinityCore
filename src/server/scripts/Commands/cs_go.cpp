@@ -247,7 +247,7 @@ public:
             player->SaveRecallPosition();
 
         Map const* map = sMapMgr->CreateBaseMap(mapId);
-        float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+        float z = std::max(map->GetStaticHeight(PhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
 
         player->TeleportTo(mapId, x, y, z, player->GetOrientation());
         return true;
@@ -369,7 +369,7 @@ public:
             player->SaveRecallPosition();
 
         Map const* map = sMapMgr->CreateBaseMap(mapId);
-        z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+        z = std::max(map->GetStaticHeight(PhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
 
         player->TeleportTo(mapId, x, y, z, 0.0f);
         return true;
@@ -532,7 +532,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+        float z = std::max(map->GetStaticHeight(PhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
 
         player->TeleportTo(zoneEntry->ContinentID, x, y, z, player->GetOrientation());
         return true;
@@ -580,7 +580,7 @@ public:
                 return false;
             }
             Map const* map = sMapMgr->CreateBaseMap(mapId);
-            z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+            z = std::max(map->GetStaticHeight(PhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
         }
 
         // stop flight if need
