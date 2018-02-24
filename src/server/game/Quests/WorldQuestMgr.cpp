@@ -95,7 +95,7 @@ void WorldQuestMgr::LoadWorldQuestRewardTemplates()
                                                              fields[2].GetUInt8(),
                                                              fields[3].GetUInt32(),
                                                              fields[4].GetUInt32(),
-                                                             fields[].GetUInt32());
+                                                             fields[5].GetUInt32());
 
         _worldQuestRewards[worldQuestReward.Id].push_back(worldQuestReward);
         _worldQuestRewardByQuestInfos[worldQuestReward.QuestType].push_back(worldQuestReward.Id);
