@@ -3056,6 +3056,8 @@ void Unit::_DeleteRemovedAuras()
         delete m_removedAuras.front();
         m_removedAuras.pop_front();
     }
+
+    m_removedAurasCount = 0;
 }
 
 void Unit::_UpdateSpells(uint32 time)
