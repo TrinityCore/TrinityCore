@@ -12707,28 +12707,28 @@ void Unit::JumpTo(WorldObject* obj, float speedZ, bool withOrientation)
     GetMotionMaster()->MoveJump(x, y, z, GetAngle(obj), speedXY, speedZ, EVENT_JUMP, withOrientation);
 }
 
-bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
+void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
 {
-    bool result = false;
+    bool spellClickHandled = false;
     uint32 spellClickEntry = GetVehicleKit() ? GetVehicleKit()->GetCreatureEntry() : GetEntry();
     TriggerCastFlags const flags = GetVehicleKit() ? TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE : TRIGGERED_NONE;
 
-    SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(spellClickEntry);
-    for (SpellClickInfoContainer::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
+    auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(spellClickEntry);
+    for (auto const& clickPair : clickBounds)
     {
         //! First check simple relations from clicker to clickee
-        if (!itr->second.IsFitToRequirements(clicker, this))
+        if (!clickPair.second.IsFitToRequirements(clicker, this))
             continue;
 
         //! Check database conditions
-        if (!sConditionMgr->IsObjectMeetingSpellClickConditions(spellClickEntry, itr->second.spellId, clicker, this))
+        if (!sConditionMgr->IsObjectMeetingSpellClickConditions(spellClickEntry, clickPair.second.spellId, clicker, this))
             continue;
 
-        Unit* caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
-        Unit* target = (itr->second.castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
-        ObjectGuid origCasterGUID = (itr->second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerGUID() : clicker->GetGUID();
+        Unit* caster = (clickPair.second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
+        Unit* target = (clickPair.second.castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
+        ObjectGuid origCasterGUID = (clickPair.second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerGUID() : clicker->GetGUID();
 
-        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(itr->second.spellId, caster->GetMap()->GetDifficultyID());
+        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(clickPair.second.spellId, caster->GetMap()->GetDifficultyID());
         // if (!spellEntry) should be checked at npc_spellclick load
 
         if (seatId > -1)
@@ -12750,7 +12750,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 
             if (!valid)
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u specified in npc_spellclick_spells is not a valid vehicle enter aura!", itr->second.spellId);
+                TC_LOG_ERROR("sql.sql", "Spell %u specified in npc_spellclick_spells is not a valid vehicle enter aura!", clickPair.second.spellId);
                 continue;
             }
 
@@ -12759,7 +12759,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 CastSpellExtraArgs args(flags);
                 args.OriginalCaster = origCasterGUID;
                 args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1);
-                caster->CastSpell(target, itr->second.spellId, args);
+                caster->CastSpell(target, clickPair.second.spellId, args);
             }
             else    // This can happen during Player::_LoadAuras
             {
@@ -12780,17 +12780,15 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 Aura::TryRefreshStackOrCreate(spellEntry, ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellEntry->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>()), MAX_EFFECT_MASK, this, clicker, GetMap()->GetDifficultyID(), nullptr, nullptr, origCasterGUID);
         }
 
-        result = true;
+        spellClickHandled = true;
     }
 
     Creature* creature = ToCreature();
     if (creature && creature->IsAIEnabled)
-        creature->AI()->OnSpellClick(clicker, result);
-
-    return result;
+        creature->AI()->OnSpellClick(clicker, spellClickHandled);
 }
 
-void Unit::EnterVehicle(Unit* base, int8 seatId)
+void Unit::EnterVehicle(Unit* base, int8 seatId /*= -1*/)
 {
     CastSpellExtraArgs args(TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
     args.AddSpellMod(SPELLVALUE_BASE_POINT0, seatId + 1);

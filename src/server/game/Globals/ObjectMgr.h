@@ -454,7 +454,6 @@ struct TC_GAME_API SpellClickInfo
 };
 
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoContainer;
-typedef std::pair<SpellClickInfoContainer::const_iterator, SpellClickInfoContainer::const_iterator> SpellClickInfoMapBounds;
 
 struct AreaTriggerStruct
 {
@@ -1580,9 +1579,9 @@ class TC_GAME_API ObjectMgr
         std::string const& GetScriptName(uint32 id) const;
         uint32 GetScriptId(std::string const& name);
 
-        SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
+        Trinity::IteratorPair<SpellClickInfoContainer::const_iterator> GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
-            return _spellClickInfoStore.equal_range(creature_id);
+            return Trinity::Containers::MapEqualRange(_spellClickInfoStore, creature_id);
         }
 
         GossipMenusMapBounds GetGossipMenusMapBounds(uint32 uiMenuId) const

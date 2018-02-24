@@ -840,9 +840,9 @@ void SmartAI::OnGameEvent(bool start, uint16 eventId)
     GetScript()->ProcessEventsFor(start ? SMART_EVENT_GAME_EVENT_START : SMART_EVENT_GAME_EVENT_END, nullptr, eventId);
 }
 
-void SmartAI::OnSpellClick(Unit* clicker, bool& result)
+void SmartAI::OnSpellClick(Unit* clicker, bool spellClickHandled)
 {
-    if (!result)
+    if (!spellClickHandled)
         return;
 
     GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELLCLICK, clicker);
