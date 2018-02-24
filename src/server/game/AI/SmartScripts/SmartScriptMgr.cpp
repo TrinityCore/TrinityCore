@@ -1480,6 +1480,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
+        case SMART_ACTION_RESPAWN_BY_SPAWNID:
+            if (!sObjectMgr->GetSpawnData(SpawnObjectType(e.action.respawnData.spawnType), e.action.respawnData.spawnId))
+            {
+                TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u specifies invalid spawn data (%u,%u)", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.respawnData.spawnType, e.action.respawnData.spawnId);
+                return false;
+            }
+            break;
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -1558,6 +1565,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
+        case SMART_ACTION_STOP_MOTION:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
