@@ -1648,6 +1648,7 @@ UPDATE `creature_template` SET `speed_run`=1.142857 WHERE `entry`=114480; -- Obs
 SET @GROUP_ID := 0;
 SET @ID := 0;
 
+DELETE FROM `creature_text` WHERE `CreatureID` IN (104215, 104217, 104218, 104251, 104278, 104694, 104695, 104696, 105296, 106468, 107324, 107435, 110443, 110958);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
 (104215, @GROUP_ID+0, @ID+0, 'No trespassers allowed!', 14, 0, 100, 0, 0, 58627, 108480, 'Patrol Captain Gerdo to Player'),
 (104215, @GROUP_ID+1, @ID+0, 'Guards! To me!', 14, 0, 100, 0, 0, 58637, 108973, 'Patrol Captain Gerdo'),
