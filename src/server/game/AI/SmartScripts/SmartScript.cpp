@@ -2244,6 +2244,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_RESPAWN_BY_SPAWNID:
+        {
+            Map* map = nullptr;
+            if (WorldObject* obj = GetBaseObject())
+                map = obj->GetMap();
+            else if (!targets.empty())
+                map = targets.front()->GetMap();
+
+            if (map)
+                map->RemoveRespawnTime(SpawnObjectType(e.action.respawnData.spawnType), e.action.respawnData.spawnId, true);
+            else
+                TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u - tries to respawn by spawnId but does not provide a map", e.entryOrGuid, e.GetScriptType(), e.event_id);
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
