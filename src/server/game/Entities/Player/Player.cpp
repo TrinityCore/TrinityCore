@@ -8802,7 +8802,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
             if (go->GetLootMode() > 0)
                 if (GameObjectTemplateAddon const* addon = go->GetTemplateAddon())
-                    loot->generateMoneyLoot(addon->mingold, addon->maxgold);
+                    loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
 
             if (loot_type == LOOT_FISHING)
                 go->getFishLoot(loot, this);

@@ -1929,7 +1929,10 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadSpawnGroups();
 
     TC_LOG_INFO("server.loading", "Loading GameObject Addon Data...");
-    sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjectTemplate() and LoadGameObjects()
+    sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjects()
+
+    TC_LOG_INFO("server.loading", "Loading GameObject faction and flags overrides...");
+    sObjectMgr->LoadGameObjectOverrides();                       // must be after LoadGameObjects()
 
     TC_LOG_INFO("server.loading", "Loading GameObject Quest Items...");
     sObjectMgr->LoadGameObjectQuestItems();

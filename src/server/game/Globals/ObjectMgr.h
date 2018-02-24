@@ -505,6 +505,7 @@ typedef std::unordered_map<uint32, CreatureModelInfo> CreatureModelContainer;
 typedef std::unordered_map<uint32, std::vector<uint32>> CreatureQuestItemMap;
 typedef std::unordered_map<uint32, GameObjectTemplate> GameObjectTemplateContainer;
 typedef std::unordered_map<uint32, GameObjectTemplateAddon> GameObjectTemplateAddonContainer;
+typedef std::unordered_map<ObjectGuid::LowType, GameObjectOverride> GameObjectOverrideContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectAddon> GameObjectAddonContainer;
 typedef std::unordered_map<uint32, std::vector<uint32>> GameObjectQuestItemMap;
@@ -1034,6 +1035,7 @@ class TC_GAME_API ObjectMgr
 
         void LoadGameObjectTemplate();
         void LoadGameObjectTemplateAddons();
+        void LoadGameObjectOverrides();
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry) const;
         CreatureTemplateContainer const& GetCreatureTemplates() const { return _creatureTemplateStore; }
@@ -1045,6 +1047,7 @@ class TC_GAME_API ObjectMgr
         CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType lowguid) const;
         GameObjectAddon const* GetGameObjectAddon(ObjectGuid::LowType lowguid) const;
         GameObjectTemplateAddon const* GetGameObjectTemplateAddon(uint32 entry) const;
+        GameObjectOverride const* GetGameObjectOverride(ObjectGuid::LowType spawnId) const;
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry) const;
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const& GetItemTemplateStore() const { return _itemTemplateStore; }
@@ -1800,6 +1803,7 @@ class TC_GAME_API ObjectMgr
         GameObjectLocaleContainer _gameObjectLocaleStore;
         GameObjectTemplateContainer _gameObjectTemplateStore;
         GameObjectTemplateAddonContainer _gameObjectTemplateAddonStore;
+        GameObjectOverrideContainer _gameObjectOverrideStore;
         SpawnGroupDataContainer _spawnGroupDataStore;
         SpawnGroupLinkContainer _spawnGroupMapStore;
         InstanceSpawnGroupContainer _instanceSpawnGroupStore;
