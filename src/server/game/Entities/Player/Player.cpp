@@ -22498,7 +22498,7 @@ void Player::RestoreAllSpellMods(uint32 ownerAuraId /*= 0*/, Aura* aura /*= null
 
 void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
 {
-    if (!spell)
+    if (!spell || !mod || !mod->ownerAura)
         return;
 
     // don't do anything with no charges
