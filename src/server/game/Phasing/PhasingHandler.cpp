@@ -422,6 +422,7 @@ void PhasingHandler::FillPartyMemberPhase(WorldPackets::Party::PartyMemberPhaseS
 
 void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId)
 {
+    phaseShift.ClearPhases();
     phaseShift.IsDbPhaseShift = true;
 
     EnumClassFlag<PhaseShiftFlags> flags = PhaseShiftFlags::None;
@@ -449,6 +450,7 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
 
 void PhasingHandler::InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId)
 {
+    phaseShift.VisibleMapIds.clear();
     if (visibleMapId != -1)
         phaseShift.AddVisibleMapId(visibleMapId, sObjectMgr->GetTerrainSwapInfo(visibleMapId));
 }
