@@ -1040,13 +1040,18 @@ struct GameObjectTemplate
     WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
-// From `gameobject_template_addon`
-struct GameObjectTemplateAddon
+// From `gameobject_template_addon`, `gameobject_overrides`
+struct GameObjectOverride
 {
-    uint32 faction;
-    uint32 flags;
-    uint32 mingold;
-    uint32 maxgold;
+    uint32 Faction;
+    uint32 Flags;
+};
+
+// From `gameobject_template_addon`
+struct GameObjectTemplateAddon : public GameObjectOverride
+{
+    uint32 Mingold;
+    uint32 Maxgold;
     uint32 WorldEffectID;
     uint32 AIAnimKitID;
 };

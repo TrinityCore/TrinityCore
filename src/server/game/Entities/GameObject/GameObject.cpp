@@ -318,11 +318,14 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     SetObjectScale(goInfo->size);
 
+    if (GameObjectOverride const* goOverride = GetGameObjectOverride())
+    {
+        SetFaction(goOverride->Faction);
+        SetFlags(GameObjectFlags(goOverride->Flags));
+    }
+
     if (m_goTemplateAddon)
     {
-        SetFaction(m_goTemplateAddon->faction);
-        SetFlags(GameObjectFlags(m_goTemplateAddon->flags));
-
         if (m_goTemplateAddon->WorldEffectID)
         {
             m_updateFlag.GameObject = true;
@@ -871,14 +874,14 @@ void GameObject::Update(uint32 diff)
                 SetGoState(GO_STATE_READY);
 
                 //any return here in case battleground traps
-                if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
-                    if (addon->flags & GO_FLAG_NODESPAWN)
+                if (GameObjectOverride const* goOverride = GetGameObjectOverride())
+                    if (goOverride->Flags & GO_FLAG_NODESPAWN)
                         return;
             }
 
             loot.clear();
 
-            //! If this is summoned by a spell with ie. SPELL_EFFECT_SUMMON_OBJECT_WILD, with or without owner, we check respawn criteria based on spell
+            //! If this is summoned by a spell with ie. SPELL_EFFECT_SUMMON_OBJECT_WILD, with or without owner, we check respawn criteria based on speSendObjectDeSpawnAnim(GetGUID());ll
             //! The GetOwnerGUID() check is mostly for compatibility with hacky scripts - 99% of the time summoning should be done trough spells.
             if (GetSpellId() || !GetOwnerGUID().IsEmpty())
             {
@@ -894,8 +897,8 @@ void GameObject::Update(uint32 diff)
             {
                 SendGameObjectDespawn();
                 //reset flags
-                if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
-                    SetFlags(GameObjectFlags(addon->flags));
+                if (GameObjectOverride const* goOverride = GetGameObjectOverride())
+                    SetFlags(GameObjectFlags(goOverride->Flags));
             }
 
             if (!m_respawnDelayTime)
@@ -936,6 +939,17 @@ void GameObject::Update(uint32 diff)
             break;
         }
     }
+}
+
+GameObjectOverride const* GameObject::GetGameObjectOverride() const
+{
+    if (m_spawnId)
+    {
+        if (GameObjectOverride const* goOverride = sObjectMgr->GetGameObjectOverride(m_spawnId))
+            return goOverride;
+    }
+
+    return m_goTemplateAddon;
 }
 
 void GameObject::Refresh()
@@ -982,8 +996,8 @@ void GameObject::Delete()
 
     SetGoState(GO_STATE_READY);
 
-    if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
-        SetFlags(GameObjectFlags(addon->flags));
+    if (GameObjectOverride const* goOverride = GetGameObjectOverride())
+        SetFlags(GameObjectFlags(goOverride->Flags));
 
     uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
     if (poolid)
