@@ -259,7 +259,7 @@ uint32 Quest::XPValue(uint32 playerLevel) const
 {
     if (playerLevel)
     {
-        uint32 questLevel = uint32(Level == -1 ? playerLevel : Level);
+        uint32 questLevel = uint32(Level == -1 ? std::min(playerLevel, uint32(GetQuestMaxScalingLevel())) : Level);
         QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
         if (!questXp || RewardXPDifficulty >= 10)
             return 0;
