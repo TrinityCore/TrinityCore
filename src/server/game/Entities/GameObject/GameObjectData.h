@@ -1043,7 +1043,6 @@ struct GameObjectTemplate
 // From `gameobject_template_addon`
 struct GameObjectTemplateAddon
 {
-    uint32 entry;
     uint32 faction;
     uint32 flags;
     uint32 mingold;
