@@ -1501,19 +1501,18 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
-        case SMART_ACTION_RESPAWN_TARGET:
+        case SMART_ACTION_ENABLE_TEMP_GOBJ:
         {
             for (WorldObject* target : targets)
             {
                 if (IsCreature(target))
-                    target->ToCreature()->Respawn();
+                    TC_LOG_WARN("sql.sql", "Invalid creature target '%s' (entry %u, spawnId " UI64FMTD ") specified for SMART_ACTION_ENABLE_TEMP_GOBJ", target->GetName().c_str(), target->GetEntry(), target->ToCreature()->GetSpawnId());
                 else if (IsGameObject(target))
                 {
-                    // do not modify respawndelay of already spawned gameobjects
                     if (target->ToGameObject()->isSpawnedByDefault())
-                        target->ToGameObject()->Respawn();
+                        TC_LOG_WARN("sql.sql", "Invalid gameobject target '%s' (entry %u, spawnId " UI64FMTD ") for SMART_ACTION_ENABLE_TEMP_GOBJ - the object is spawned by default", target->GetName().c_str(), target->GetEntry(), target->ToGameObject()->GetSpawnId());
                     else
-                        target->ToGameObject()->SetRespawnTime(e.action.RespawnTarget.goRespawnTime);
+                        target->ToGameObject()->SetRespawnTime(e.action.enableTempGO.duration);
                 }
             }
             break;
