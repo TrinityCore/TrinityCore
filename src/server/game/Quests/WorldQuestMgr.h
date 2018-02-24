@@ -116,14 +116,15 @@ struct WorldQuestTemplate
 
 struct WorldQuestReward
 {
-    WorldQuestReward(uint32 id, uint8 questType, uint8 rewardType, uint32 rewardId, uint32 rewardCount) :
-        Id(id), QuestType(questType), RewardType(rewardType), RewardId(rewardId), RewardCount(rewardCount) { }
+    WorldQuestReward(uint32 id, uint8 questType, uint8 rewardType, uint32 rewardId, uint32 rewardCount, uint32 rewardContext) :
+        Id(id), QuestType(questType), RewardType(rewardType), RewardId(rewardId), RewardCount(rewardCount), RewardContext(rewardContext) { }
 
     uint32 Id;
     uint8 QuestType;
     uint8 RewardType;
     uint32 RewardId;
     uint32 RewardCount;
+    uint32 RewardContext;
 };
 
 struct ActiveWorldQuest
