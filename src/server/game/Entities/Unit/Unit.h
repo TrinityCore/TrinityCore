@@ -887,10 +887,32 @@ enum ReactiveType
 
 enum PlayerTotemType
 {
-    SUMMON_TYPE_TOTEM_FIRE  = 63,
-    SUMMON_TYPE_TOTEM_EARTH = 81,
-    SUMMON_TYPE_TOTEM_WATER = 82,
-    SUMMON_TYPE_TOTEM_AIR   = 83
+    SUMMON_TYPE_TOTEM_FIRE  = 0,
+    SUMMON_TYPE_TOTEM_EARTH = 1,
+    SUMMON_TYPE_TOTEM_WATER = 2,
+    SUMMON_TYPE_TOTEM_AIR   = 3
+};
+
+enum PlayerTotemCategory
+{
+    TOTEM_CATEGORY_FIRE     = 3211, // Skyfury Totem
+    TOTEM_CATEGORY_FIRE_2   = 3697, // Liquid Magma Totem
+    TOTEM_CATEGORY_FIRE_3   = 3722, // Voodoo Totem
+
+    TOTEM_CATEGORY_EARTH    = 3400, // Earthbind Totem
+    TOTEM_CATEGORY_EARTH_2  = 3404, // Earthgrab Totem
+    TOTEM_CATEGORY_EARTH_3  = 3737, // Earthen Shield Totem
+    TOTEM_CATEGORY_EARTH_4  = 3787, // Ancestral Protection Totem
+
+    TOTEM_CATEGORY_WATER    = 82,   // Healing Tide Totem
+    TOTEM_CATEGORY_WATER_2  = 3402, // Healing Stream & Cloudburst Totem
+
+    TOTEM_CATEGORY_AIR      = 3399, // Spirit Link Totem
+    TOTEM_CATEGORY_AIR_2    = 3406, // Grounding Totem
+    TOTEM_CATEGORY_AIR_3    = 3407, // Lightning Surge Totem
+    TOTEM_CATEGORY_AIR_4    = 3695, // Winrush Totem
+    TOTEM_CATEGORY_AIR_5    = 3804, // Counterstrike Totem
+    TOTEM_CATEGORY_AIR_6    = 3806  // Windfury Totem
 };
 
 // delay time next attack to prevent client attack animation problems
@@ -1799,7 +1821,8 @@ class TC_GAME_API Unit : public WorldObject
         void RemovePetAura(PetAura const* petSpell);
 
         uint32 GetModelForForm(ShapeshiftForm form) const;
-        uint32 GetModelForTotem(PlayerTotemType totemType);
+        uint32 GetCategoryForTotem(uint32 totemCategory);
+        uint32 GetModelForTotem(uint32 totemType);
 
         // Redirect Threat
         void SetRedirectThreat(ObjectGuid guid, uint32 pct) { _redirectThreadInfo.Set(guid, pct); }

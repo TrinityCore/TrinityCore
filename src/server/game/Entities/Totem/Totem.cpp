@@ -76,7 +76,7 @@ void Totem::InitStats(uint32 duration)
             });
 
             if (summonEffect != effects.end())
-                SetDisplayId(owner->GetModelForTotem(PlayerTotemType((*summonEffect)->MiscValueB)));
+                SetDisplayId(owner->GetModelForTotem(uint32((*summonEffect)->MiscValueB)));
         }
     }
 

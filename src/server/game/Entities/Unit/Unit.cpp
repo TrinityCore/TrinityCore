@@ -12605,8 +12605,39 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
     return modelid;
 }
 
-uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
+uint32 Unit::GetCategoryForTotem(uint32 totemCategory)
 {
+    switch (totemCategory)
+    {
+        case TOTEM_CATEGORY_FIRE:
+        case TOTEM_CATEGORY_FIRE_2:
+        case TOTEM_CATEGORY_FIRE_3:
+            return SUMMON_TYPE_TOTEM_FIRE;
+        case TOTEM_CATEGORY_EARTH:
+        case TOTEM_CATEGORY_EARTH_2:
+        case TOTEM_CATEGORY_EARTH_3:
+        case TOTEM_CATEGORY_EARTH_4:
+            return SUMMON_TYPE_TOTEM_EARTH;
+        case TOTEM_CATEGORY_WATER:
+        case TOTEM_CATEGORY_WATER_2:
+            return SUMMON_TYPE_TOTEM_WATER;
+        case TOTEM_CATEGORY_AIR:
+        case TOTEM_CATEGORY_AIR_2:
+        case TOTEM_CATEGORY_AIR_3:
+        case TOTEM_CATEGORY_AIR_4:
+        case TOTEM_CATEGORY_AIR_5:
+        case TOTEM_CATEGORY_AIR_6:
+            return SUMMON_TYPE_TOTEM_AIR;
+        default:
+            break;
+    }
+    return 0;
+}
+
+uint32 Unit::GetModelForTotem(uint32 totemType)
+{
+    totemType = GetCategoryForTotem(totemType);
+
     switch (getRace())
     {
         case RACE_ORC:
@@ -12696,6 +12727,38 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
                     return 30784;
                 case SUMMON_TYPE_TOTEM_AIR:     // air
                     return 30781;
+            }
+            break;
+        }
+        case RACE_PANDAREN_NEUTRAL:
+        case RACE_PANDAREN_ALLIANCE:
+        case RACE_PANDAREN_HORDE:
+        {
+            switch (totemType)
+            {
+                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                    return 41670;
+                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                    return 41669;
+                case SUMMON_TYPE_TOTEM_WATER:   // water
+                    return 41671;
+                case SUMMON_TYPE_TOTEM_AIR:     // air
+                    return 41668;
+            }
+            break;
+        }
+        case RACE_HIGHMOUNTAIN_TAUREN:
+        {
+            switch (totemType)
+            {
+                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                    return 81444;
+                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                    return 81443;
+                case SUMMON_TYPE_TOTEM_WATER:   // water
+                    return 81442;
+                case SUMMON_TYPE_TOTEM_AIR:     // air
+                    return 81441;
             }
             break;
         }
