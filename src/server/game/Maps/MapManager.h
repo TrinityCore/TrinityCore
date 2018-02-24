@@ -25,6 +25,7 @@
 #include "GridStates.h"
 #include "MapUpdater.h"
 
+class PhaseShift;
 class Transport;
 struct TransportCreatureProto;
 
@@ -38,20 +39,20 @@ class TC_GAME_API MapManager
         Map* CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId=0);
         Map* FindMap(uint32 mapId, uint32 instanceId) const;
 
-        uint32 GetAreaId(uint32 mapid, float x, float y, float z) const
+        uint32 GetAreaId(PhaseShift const& phaseShift, uint32 mapid, float x, float y, float z) const
         {
             Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
-            return m->GetAreaId(x, y, z);
+            return m->GetAreaId(phaseShift, x, y, z);
         }
-        uint32 GetZoneId(uint32 mapid, float x, float y, float z) const
+        uint32 GetZoneId(PhaseShift const& phaseShift, uint32 mapid, float x, float y, float z) const
         {
             Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
-            return m->GetZoneId(x, y, z);
+            return m->GetZoneId(phaseShift, x, y, z);
         }
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
+        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
         {
             Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
-            m->GetZoneAndAreaId(zoneid, areaid, x, y, z);
+            m->GetZoneAndAreaId(phaseShift, zoneid, areaid, x, y, z);
         }
 
         void Initialize(void);
