@@ -22450,6 +22450,9 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId /*= 0*/, Aura* au
         {
             for (SpellModifier* mod : m_spellMods[i][j])
             {
+                if (!mod->ownerAura)
+                    continue;
+
                 // Spellmods without charged aura set cannot be charged
                 if (!mod->ownerAura->IsUsingCharges())
                     continue;
@@ -22495,7 +22498,7 @@ void Player::RestoreAllSpellMods(uint32 ownerAuraId /*= 0*/, Aura* aura /*= null
 
 void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
 {
-    if (!spell)
+    if (!spell || !mod || !mod->ownerAura)
         return;
 
     // don't do anything with no charges
