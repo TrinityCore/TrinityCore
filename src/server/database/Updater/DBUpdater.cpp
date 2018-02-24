@@ -287,11 +287,11 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             }
             case LOCATION_DOWNLOAD:
             {
-                const char* filename = base.filename().generic_string().c_str();
-                const char* workdir = boost::filesystem::current_path().generic_string().c_str();
+                std::string const filename = base.filename().generic_string();
+                std::string const workdir = boost::filesystem::current_path().generic_string().c_str();
                 TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://t.me/trinitycorelegacy\"" \
                     " Mirror: \"https://github.com/TrinityCoreLegacy/TrinityCore/releases\"" \
-                    " uncompress it and place the file \"%s\" in the directory \"%s\".", filename, filename, workdir);
+                    " uncompress it and place the file \"%s\" in the directory \"%s\".", filename.c_str(), filename.c_str(), workdir.c_str());
                 break;
             }
         }
