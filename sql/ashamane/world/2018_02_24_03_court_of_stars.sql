@@ -1,6 +1,10 @@
 SET @CGUID := 21010578;
 SET @OGUID := 21002115;
 
+DELETE FROM instance_template WHERE `map`= 1571;
+INSERT INTO instance_template VALUES
+(1571, 1220, "instance_court_of_stars", 0, 1);
+
 DELETE FROM `areatrigger_template` WHERE `Id` IN (12579, 11386, 11382);
 INSERT INTO `areatrigger_template` (`Id`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `VerifiedBuild`) VALUES
 (12579, 0, 4, 3, 3, 0, 0, 0, 0, 25996),
