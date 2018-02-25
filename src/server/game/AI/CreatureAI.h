@@ -177,6 +177,12 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when owner attacks something
         virtual void OwnerAttacked(Unit* /*target*/) { }
 
+        // Called when the Creature reach splineIndex
+        virtual void OnSplineIndexReached(int /*splineIndex*/) { }
+
+        // Called when the Creature reach spline end
+        virtual void OnSplineEndReached() { }
+
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)

@@ -1768,7 +1768,7 @@ class spell_warl_unstable_affliction : public SpellScript
         SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_5,
     };
 
-    void HandleOnHitTarget(SpellEffIndex effIndex)
+    void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
         {
