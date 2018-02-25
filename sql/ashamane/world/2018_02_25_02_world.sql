@@ -21,3 +21,6 @@ UPDATE `creature_template` SET `InhabitType` = 3 WHERE (entry = 89053);
 
 -- Table `creature_template`
 UPDATE `creature_template` SET `InhabitType` = 3 WHERE (entry = 91113);
+
+-- Table `creature_template`
+UPDATE `creature_template` SET `InhabitType` = 3 WHERE (entry = 89013);
