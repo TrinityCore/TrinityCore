@@ -70,6 +70,7 @@ enum MageSpells
 
     SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT       = 44614,
 
+    SPELL_MAGE_HOT_STREAK                        = 44445,
     SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1         = 11210,
     SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1    = 83046,
     SPELL_MAGE_IMPROVED_POLYMORPH_MARKER         = 87515,
@@ -1626,20 +1627,21 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES))
-                return false;
-
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES_DAMAGE))
-                return false;
-
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_BLAST))
-                return false;
-
-            return true;
+            return ValidateSpellInfo(
+                {
+                    SPELL_MAGE_ARCANE_MISSILES,
+                    SPELL_MAGE_ARCANE_MISSILES_DAMAGE,
+                    SPELL_MAGE_ARCANE_BLAST,
+                    SPELL_MAGE_HOT_STREAK
+                });
         }
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
+            // Hot Streak will no longer allow Arcane Missiles to proc
+            if (GetCaster()->HasAura(SPELL_MAGE_HOT_STREAK))
+                return false;
+
             // Don't proc when caster does not know Arcane Missiles
             if (Player* playerCaster = GetCaster()->ToPlayer())
                 if (!playerCaster->HasSpell(SPELL_MAGE_ARCANE_MISSILES))
@@ -1653,11 +1655,11 @@ public:
             switch (eventInfo.GetProcSpell()->GetSpellInfo()->Id)
             {
                 case SPELL_MAGE_ARCANE_BLAST: // Arcane Blast has a 30% chance
-                    if (rand() % 100 < 30)
+                    if (roll_chance_i(30))
                         return true;
                     break;
                 default: // The default chance is at 15%
-                    if (rand() % 100 < 15)
+                    if (roll_chance_i(15))
                         return true;
                     break;
             }
