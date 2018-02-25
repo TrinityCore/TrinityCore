@@ -1922,7 +1922,7 @@ public:
     {
         PrepareAuraScript(spell_warlock_agony_AuraScript);
 
-        void HandleDummyPeriodic(AuraEffect const* /* auraEffect */)
+        void HandleDummyPeriodic(AuraEffect const* auraEffect)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -1942,17 +1942,10 @@ public:
 
             caster->Variables.Set("SoulShardAgonyTick", soulShardAgonyTick);
 
-            // If we have more than 20, dont do anything
-            if (GetStackAmount() >= 20)
+            // If we have more than maxStackAmount, dont do anything
+            if (GetStackAmount() >= auraEffect->GetBase()->GetSpellInfo()->GetMaxStackAmount(caster))
                 return;
 
-            // If we have more than 10 and DONT have the writhe of agony talent, dont do anything
-            if (GetStackAmount() >= 10 && !caster->HasAura(SPELL_WARLOCK_WRITHE_IN_AGONY))
-                return;
-
-            //The only cases the code below is executed is :
-            //Stacks < 10
-            //Stacks < 20 AND player has Writhe of Agony talent.
             SetStackAmount(GetStackAmount() + 1);
         }
 
