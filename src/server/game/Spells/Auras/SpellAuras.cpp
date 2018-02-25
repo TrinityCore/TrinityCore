@@ -922,6 +922,20 @@ void Aura::DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode)
     owner->m_Events.AddEvent(m_dropEvent, owner->m_Events.CalculateTime(delay));
 }
 
+uint32 Aura::GetMaxStackAmount() const
+{
+    uint32 maxStackAmount = GetSpellInfo()->StackAmount;
+
+    if (GetCaster() && GetCaster()->IsPlayer())
+    {
+        Player* playerCaster = GetCaster()->ToPlayer();
+        playerCaster->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_STACK_AMOUNT, maxStackAmount);
+        playerCaster->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_STACK_AMOUNT2, maxStackAmount);
+    }
+
+    return maxStackAmount;
+}
+
 void Aura::SetStackAmount(uint8 stackAmount)
 {
     m_stackAmount = stackAmount;
@@ -951,15 +965,16 @@ void Aura::SetStackAmount(uint8 stackAmount)
 bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/)
 {
     int32 stackAmount = m_stackAmount + num;
+    uint32 maxStackAmount = GetMaxStackAmount();
 
     // limit the stack amount (only on stack increase, stack amount may be changed manually)
-    if ((num > 0) && (stackAmount > int32(m_spellInfo->StackAmount)))
+    if ((num > 0) && (stackAmount > int32(maxStackAmount)))
     {
         // not stackable aura - set stack amount to 1
-        if (!m_spellInfo->StackAmount)
+        if (!maxStackAmount)
             stackAmount = 1;
         else
-            stackAmount = m_spellInfo->StackAmount;
+            stackAmount = maxStackAmount;
     }
     // we're out of stacks, remove
     else if (stackAmount <= 0)

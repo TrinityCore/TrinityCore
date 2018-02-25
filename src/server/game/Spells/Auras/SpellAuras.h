@@ -182,6 +182,7 @@ class TC_GAME_API Aura
         void DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         uint8 GetStackAmount() const { return m_stackAmount; }
+        uint32 GetMaxStackAmount() const;
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
 
