@@ -318,10 +318,10 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     SetObjectScale(goinfo->size);
 
-    if (m_goTemplateAddon)
+    if (GameObjectOverride const* goOverride = GetGameObjectOverride())
     {
-        SetFaction(m_goTemplateAddon->faction);
-        SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
+        SetFaction(goOverride->Faction);
+        SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
     }
 
     SetEntry(goinfo->entry);
@@ -757,8 +757,8 @@ void GameObject::Update(uint32 diff)
                 SetGoState(GO_STATE_READY);
 
                 //any return here in case battleground traps
-                if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
-                    if (addon->flags & GO_FLAG_NODESPAWN)
+                if (GameObjectOverride const* goOverride = GetGameObjectOverride())
+                    if (goOverride->Flags & GO_FLAG_NODESPAWN)
                         return;
             }
 
@@ -780,8 +780,8 @@ void GameObject::Update(uint32 diff)
             {
                 SendObjectDeSpawnAnim(GetGUID());
                 //reset flags
-                if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
-                    SetUInt32Value(GAMEOBJECT_FLAGS, addon->flags);
+                if (GameObjectOverride const* goOverride = GetGameObjectOverride())
+                    SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
             }
 
             if (!m_respawnDelayTime)
@@ -821,6 +821,17 @@ void GameObject::Update(uint32 diff)
             break;
         }
     }
+}
+
+GameObjectOverride const* GameObject::GetGameObjectOverride() const
+{
+    if (m_spawnId)
+    {
+        if (GameObjectOverride const* goOverride = sObjectMgr->GetGameObjectOverride(m_spawnId))
+            return goOverride;
+    }
+
+    return m_goTemplateAddon;
 }
 
 void GameObject::Refresh()
@@ -867,8 +878,8 @@ void GameObject::Delete()
 
     SetGoState(GO_STATE_READY);
 
-    if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
-        SetUInt32Value(GAMEOBJECT_FLAGS, addon->flags);
+    if (GameObjectOverride const* goOverride = GetGameObjectOverride())
+        SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
 
     uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
     if (poolid)
