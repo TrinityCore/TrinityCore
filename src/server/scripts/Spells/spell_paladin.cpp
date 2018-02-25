@@ -989,11 +989,10 @@ class spell_pal_lay_on_hands : public SpellScript
 
     void TriggerForbearance()
     {
-        Unit* caster = GetCaster();
-        if (caster == GetHitUnit())
+        if (Unit* target = GetHitUnit())
         {
-            GetCaster()->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
-            GetCaster()->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
+            GetCaster()->CastSpell(target, SPELL_PALADIN_FORBEARANCE, true);
+            GetCaster()->CastSpell(target, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
         }
     }
 
