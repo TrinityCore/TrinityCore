@@ -1943,7 +1943,7 @@ public:
             caster->Variables.Set("SoulShardAgonyTick", soulShardAgonyTick);
 
             // If we have more than maxStackAmount, dont do anything
-            if (GetStackAmount() >= auraEffect->GetBase()->GetSpellInfo()->GetMaxStackAmount(caster))
+            if (GetStackAmount() >= auraEffect->GetBase()->GetMaxStackAmount())
                 return;
 
             SetStackAmount(GetStackAmount() + 1);
