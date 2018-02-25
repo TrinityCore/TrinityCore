@@ -141,7 +141,7 @@ class boss_raigonn : public CreatureScript
 
                     if (Creature* weakSpot = me->SummonCreature(NPC_WEAK_SPOT, 0, 0, 0))
                     {
-                        weakSpot->_EnterVehicle(meVehicle, 1);
+                        weakSpot->EnterVehicle(me, 1);
 
                         if (pInstance)
                             pInstance->SetGuidData(NPC_WEAK_SPOT, weakSpot->GetGUID());
