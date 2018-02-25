@@ -47,6 +47,7 @@ enum DruidSpells
     SPELL_DRUID_EUPHORIA_ENERGIZE           = 81069,
     SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
     SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
+    SPELL_DRUID_FURY_OF_STORMRAGE           = 81093,
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
     SPELL_DRUID_GLYPH_OF_STARFIRE           = 54846,
     SPELL_DRUID_GLYPH_OF_TYPHOON            = 62135,
@@ -172,6 +173,8 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
 
             int32 energizeAmount;
             bool allowEuphoriaBonus;
+            bool allowFuryRemoval;
+            bool allowShootingStarsRemoval;
 
             bool Load() override
             {
@@ -187,6 +190,8 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
 
                 energizeAmount = 0;
                 allowEuphoriaBonus = false;
+                allowFuryRemoval = caster->HasAura(SPELL_DRUID_FURY_OF_STORMRAGE);
+                allowShootingStarsRemoval = caster->HasAura(SPELL_DRUID_SHOOTING_STARS);
 
                 return true;
             }
@@ -194,8 +199,16 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
             void HandleShootingStars(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
-                    if (caster->HasAura(SPELL_DRUID_SHOOTING_STARS) && GetSpellInfo()->Id == SPELL_DRUID_STARSURGE)
+                    if (allowShootingStarsRemoval&& GetSpellInfo()->Id == SPELL_DRUID_STARSURGE)
                         caster->RemoveAurasDueToSpell(SPELL_DRUID_SHOOTING_STARS);
+            }
+
+            void HandleFuryOfStormrage(SpellEffIndex /*effIndex*/)
+            {
+                // Fury of Stormrage
+                if (Unit* caster = GetCaster())
+                    if (allowFuryRemoval && GetSpellInfo()->Id == SPELL_DRUID_STARFIRE)
+                        caster->RemoveAurasDueToSpell(SPELL_DRUID_FURY_OF_STORMRAGE);
             }
 
             void HandleEnergize(SpellEffIndex /*effIndex*/)
@@ -314,6 +327,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
             {
                 OnEffectLaunch += SpellEffectFn(spell_dru_eclipse_energize_SpellScript::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnEffectLaunch += SpellEffectFn(spell_dru_eclipse_energize_SpellScript::HandleShootingStars, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectLaunch += SpellEffectFn(spell_dru_eclipse_energize_SpellScript::HandleFuryOfStormrage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
