@@ -7184,16 +7184,16 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         }
 
         GameObjectTemplateAddon& gameObjectAddon = _gameObjectTemplateAddonStore[entry];
-        gameObjectAddon.faction = uint32(fields[1].GetUInt16());
-        gameObjectAddon.flags   = fields[2].GetUInt32();
-        gameObjectAddon.mingold = fields[3].GetUInt32();
-        gameObjectAddon.maxgold = fields[4].GetUInt32();
+        gameObjectAddon.Faction = uint32(fields[1].GetUInt16());
+        gameObjectAddon.Flags   = fields[2].GetUInt32();
+        gameObjectAddon.Mingold = fields[3].GetUInt32();
+        gameObjectAddon.Maxgold = fields[4].GetUInt32();
 
         // checks
-        if (gameObjectAddon.faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
-            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid faction (%u) defined in `gameobject_template_addon`.", entry, gameObjectAddon.faction);
+        if (gameObjectAddon.Faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.Faction))
+            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid faction (%u) defined in `gameobject_template_addon`.", entry, gameObjectAddon.Faction);
 
-        if (gameObjectAddon.maxgold > 0)
+        if (gameObjectAddon.Maxgold > 0)
         {
             switch (got->type)
             {
@@ -7211,6 +7211,44 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u game object template addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadGameObjectOverrides()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                     0        1      2
+    QueryResult result = WorldDatabase.Query("SELECT spawnId, faction, flags FROM gameobject_overrides");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gameobject faction and flags overrides. DB table `gameobject_overrides` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        ObjectGuid::LowType spawnId = fields[0].GetUInt32();
+        GameObjectData const* goData = GetGameObjectData(spawnId);
+        if (!goData)
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (SpawnId: %u) does not exist but has a record in `gameobject_overrides`", spawnId);
+            continue;
+        }
+
+        GameObjectOverride& gameObjectOverride = _gameObjectOverrideStore[spawnId];
+        gameObjectOverride.Faction = fields[1].GetUInt32();
+        gameObjectOverride.Flags = fields[2].GetUInt32();
+
+        if (gameObjectOverride.Faction && !sFactionTemplateStore.LookupEntry(gameObjectOverride.Faction))
+            TC_LOG_ERROR("sql.sql", "GameObject (SpawnId: %u) has invalid faction (%u) defined in `gameobject_overrides`.", spawnId, gameObjectOverride.Faction);
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u gameobject faction and flags overrides in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadExplorationBaseXP()
@@ -9616,6 +9654,11 @@ GameObjectTemplateAddon const* ObjectMgr::GetGameObjectTemplateAddon(uint32 entr
         return &itr->second;
 
     return nullptr;
+}
+
+GameObjectOverride const* ObjectMgr::GetGameObjectOverride(ObjectGuid::LowType spawnId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_gameObjectOverrideStore, spawnId);
 }
 
 CreatureTemplate const* ObjectMgr::GetCreatureTemplate(uint32 entry) const

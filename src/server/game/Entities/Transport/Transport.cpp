@@ -85,10 +85,10 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     _triggeredArrivalEvent = false;
     _triggeredDepartureEvent = false;
 
-    if (m_goTemplateAddon)
+    if (GameObjectOverride const* goOverride = GetGameObjectOverride())
     {
-        SetFaction(m_goTemplateAddon->faction);
-        SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
+        SetFaction(goOverride->Faction);
+        SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
     }
 
     m_goValue.Transport.PathProgress = 0;
