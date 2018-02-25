@@ -527,7 +527,17 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
     bool arrived = movespline->Finalized();
 
     if (arrived)
+    {
         DisableSpline();
+
+        if (IsCreature() && IsAIEnabled)
+        {
+            ToCreature()->AI()->OnSplineIndexReached(movespline->_Spline().last());
+            ToCreature()->AI()->OnSplineEndReached();
+        }
+    }
+    else if (IsAIEnabled && movespline->_lastSplineIdx() != movespline->_currentSplineIdx())
+        ToCreature()->AI()->OnSplineIndexReached(movespline->_lastSplineIdx());
 
     m_movesplineTimer.Update(t_diff);
     if (m_movesplineTimer.Passed() || arrived)
