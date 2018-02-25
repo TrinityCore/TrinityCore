@@ -1,5 +1,5 @@
 -- Add random movement to multiple creatures
-UPDATE `creature` SET `MovementType`= 1, `spawndist`= 10 WHERE `ID` IN (113, 524, 822, 30, 40, 476, 1922, 525);
+UPDATE `creature` SET `MovementType`= 1, `spawndist`= 10 WHERE `ID` IN (113, 524, 822, 30, 40, 476, 1922, 525, 119, 118);
 UPDATE `creature` SET `MovementType`= 1, `spawndist`= 5 WHERE `ID` IN (475, 735);
 
 -- Add quest items for Quest 'A pie for Billy'
