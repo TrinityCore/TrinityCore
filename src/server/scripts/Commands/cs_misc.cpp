@@ -2369,10 +2369,6 @@ public:
 
         Player* attacker = handler->GetSession()->GetPlayer();
         SpellNonMeleeDamage dmgInfo(attacker, target, spellid, spellInfo->GetSchoolMask());
-        damage = attacker->SpellDamageBonusDone(target, spellInfo, damage, SPELL_DIRECT_DAMAGE);
-        damage = target->SpellDamageBonusTaken(attacker, spellInfo, damage, SPELL_DIRECT_DAMAGE);
-
-        attacker->CalculateSpellDamageTaken(&dmgInfo, damage, spellInfo);
         attacker->DealDamageMods(dmgInfo.target, dmgInfo.damage, &dmgInfo.absorb);
         attacker->SendSpellNonMeleeDamageLog(&dmgInfo);
         attacker->DealSpellDamage(&dmgInfo, true);

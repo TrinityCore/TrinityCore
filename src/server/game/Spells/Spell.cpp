@@ -4120,7 +4120,7 @@ void Spell::SendSpellStart()
                 type = 0;
                 Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
                 amt = CalculateDamage(i, target);
-                amt = m_caster->SpellHealingBonusDone(target, m_spellInfo, amt, HEAL);
+                amt = m_caster->SpellHealingBonusDone(target, m_spellInfo, amt, HEAL, i);
                 break;
             }
         }

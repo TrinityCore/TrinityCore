@@ -1070,7 +1070,7 @@ class spell_dk_pestilence : public SpellScriptLoader
                                 {
                                     aurEffNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
                                     aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
+                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT, aurEffNew->GetEffIndex()));
                                 }
                             }
                         }
@@ -1089,7 +1089,7 @@ class spell_dk_pestilence : public SpellScriptLoader
                                 if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
                                 {
                                     aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
+                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT, aurEffNew->GetEffIndex()));
                                 }
                             }
                         }

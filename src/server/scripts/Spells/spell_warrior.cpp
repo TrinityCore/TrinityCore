@@ -95,14 +95,14 @@ class spell_warr_bloodthirst : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
 
-            void HandleDamage(SpellEffIndex /*effIndex*/)
+            void HandleDamage(SpellEffIndex effIndex)
             {
                 int32 damage = GetEffectValue();
                 ApplyPct(damage, GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
 
                 if (Unit* target = GetHitUnit())
                 {
-                    damage = GetCaster()->SpellDamageBonusDone(target, GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE);
+                    damage = GetCaster()->SpellDamageBonusDone(target, GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE, effIndex);
                     damage = target->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE);
                 }
                 SetHitDamage(damage);
