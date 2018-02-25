@@ -40,6 +40,8 @@ enum DumpTableType
 
     DTT_INVENTORY,      //    -> item guids collection      // character_inventory
 
+    DTT_CHAR_TRANSMOG,  // <- guid                          // character_transmog_outfits
+
     DTT_MAIL,           //    -> mail ids collection        // mail
                         //    -> item_text
 
@@ -50,6 +52,8 @@ enum DumpTableType
                         //    -> item_text
 
     DTT_ITEM_GIFT,      // <- item guids                    // character_gifts
+
+    DTT_ITEM_TABLE,     // <- item guids                    // item_instance_artifact, item_instance_artifact_powers, item_instance_gems, item_instance_modifiers, item_instance_transmog
 
     DTT_PET,            //    -> pet guids collection       // character_pet
     DTT_PET_TABLE       // <- pet guids                     // pet_aura, pet_spell, pet_spell_cooldown
@@ -70,6 +74,8 @@ class TC_GAME_API PlayerDump
     public:
         typedef std::set<ObjectGuid::LowType> DumpGuidSet;
         typedef std::map<ObjectGuid::LowType, ObjectGuid::LowType> DumpGuidMap;
+
+        static void InitializeColumnDefinition();
 
     protected:
         PlayerDump() { }

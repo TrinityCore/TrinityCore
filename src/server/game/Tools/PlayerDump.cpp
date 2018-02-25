@@ -26,14 +26,13 @@
 #include "World.h"
 #include <sstream>
 
-#define DUMP_TABLE_COUNT 35
 struct DumpTable
 {
     char const* name;
     DumpTableType type;
 };
 
-DumpTable const dumpTables[DUMP_TABLE_COUNT] =
+DumpTable const dumpTables[] =
 {
     { "characters",                       DTT_CHARACTER  },
     { "character_account_data",           DTT_CHAR_TABLE },
@@ -45,18 +44,24 @@ DumpTable const dumpTables[DUMP_TABLE_COUNT] =
     { "character_cuf_profiles",           DTT_CHAR_TABLE },
     { "character_currency",               DTT_CURRENCY   },
     { "character_declinedname",           DTT_CHAR_TABLE },
-    { "character_equipmentsets",          DTT_EQSET_TABLE},
     { "character_fishingsteps",           DTT_CHAR_TABLE },
+    { "character_garrison",               DTT_CHAR_TABLE },
+    { "character_garrison_blueprints",    DTT_CHAR_TABLE },
+    { "character_garrison_buildings",     DTT_CHAR_TABLE },
+    /// @todo: character_garrison_follower_abilities
+    /// @todo: character_garrison_followers
     { "character_glyphs",                 DTT_CHAR_TABLE },
     { "character_homebind",               DTT_CHAR_TABLE },
     { "character_inventory",              DTT_INVENTORY  },
     { "character_pet",                    DTT_PET        },
     { "character_pet_declinedname",       DTT_PET        },
     { "character_queststatus",            DTT_CHAR_TABLE },
-    { "character_queststatus_objectives", DTT_CHAR_TABLE },
     { "character_queststatus_daily",      DTT_CHAR_TABLE },
-    { "character_queststatus_weekly",     DTT_CHAR_TABLE },
     { "character_queststatus_monthly",    DTT_CHAR_TABLE },
+    { "character_queststatus_objectives", DTT_CHAR_TABLE },
+    { "character_queststatus_objectives_criteria", DTT_CHAR_TABLE },
+    { "character_queststatus_objectives_criteria_progress", DTT_CHAR_TABLE },
+    { "character_queststatus_weekly",     DTT_CHAR_TABLE },
     { "character_queststatus_seasonal",   DTT_CHAR_TABLE },
     { "character_queststatus_rewarded",   DTT_CHAR_TABLE },
     { "character_reputation",             DTT_CHAR_TABLE },
@@ -65,6 +70,7 @@ DumpTable const dumpTables[DUMP_TABLE_COUNT] =
     { "character_spell_charges",          DTT_CHAR_TABLE },
     { "character_spell_cooldown",         DTT_CHAR_TABLE },
     { "character_talent",                 DTT_CHAR_TABLE },
+    { "character_transmog_outfits",       DTT_CHAR_TRANSMOG },
     /// @todo: character_void_storage
     { "mail",                             DTT_MAIL       },
     { "mail_items",                       DTT_MAIL_ITEM  }, // must be after mail
@@ -74,10 +80,49 @@ DumpTable const dumpTables[DUMP_TABLE_COUNT] =
     { "pet_spell_charges",                DTT_PET_TABLE  }, // must be after character_pet
     { "pet_spell_cooldown",               DTT_PET_TABLE  }, // must be after character_pet
     { "item_instance",                    DTT_ITEM       }, // must be after character_inventory and mail_items
+    { "character_equipmentsets",          DTT_EQSET_TABLE}, // must be after item_instance
     { "character_gifts",                  DTT_ITEM_GIFT  }, // must be after item_instance
+    { "item_instance_artifact",           DTT_ITEM_TABLE }, // must be after item_instance
+    { "item_instance_artifact_powers",    DTT_ITEM_TABLE }, // must be after item_instance
+    { "item_instance_gems",               DTT_ITEM_TABLE }, // must be after item_instance
+    { "item_instance_modifiers",          DTT_ITEM_TABLE }, // must be after item_instance
+    { "item_instance_transmog",           DTT_ITEM_TABLE }, // must be after item_instance
 };
+size_t constexpr dumpTablesCount = std::extent<decltype(dumpTables)>::value;
+
+namespace
+{
+    std::unordered_map<std::pair<std::string, std::string>, uint32> ColumnDefinitions;
+}
+
+void PlayerDump::InitializeColumnDefinition()
+{
+    uint32 oldMSTime = getMSTime();
+
+    for (size_t i = 0; i < dumpTablesCount; ++i)
+    {
+        QueryResult result = CharacterDatabase.PQuery("SELECT column_name, ordinal_position FROM information_schema.columns WHERE table_schema=SCHEMA() AND table_name = \"%s\"", dumpTables[i].name);
+        WPFatal(result, "Error while initializing PlayerDump ColumnDefinitions. Table \"%s\" does not exist.", dumpTables[i].name);
+
+        Field* fields = result->Fetch();
+
+        do
+        {
+            ColumnDefinitions[std::make_pair(std::string(dumpTables[i].name), fields[0].GetString())] = uint32(fields[1].GetUInt64());
+        } while (result->NextRow());
+    }
+
+    TC_LOG_INFO("server.loading", ">> Initialized " SZFMTD " PlayerDump ColumnDefinitions in %u ms.", ColumnDefinitions.size(), GetMSTimeDiffToNow(oldMSTime));
+}
 
 // Low level functions
+static uint32 GetColNumber(std::string const& table, std::string const& column)
+{
+    auto itr = ColumnDefinitions.find(std::make_pair(table, column));
+    ASSERT(itr != ColumnDefinitions.end(), "ColumnDefinition (Table: \"%s\", Column: \"%s\") not found.", table.c_str(), column.c_str());
+    return itr->second;
+}
+
 static bool FindTokNth(std::string const& str, uint32 n, std::string::size_type& s, std::string::size_type& e)
 {
     s = e = 0;
@@ -282,6 +327,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, ObjectGuid::LowType guid, ch
         case DTT_CURRENCY:  fieldname = "CharacterGuid";             break;
         case DTT_ITEM:      fieldname = "guid";      guids = &items; break;
         case DTT_ITEM_GIFT: fieldname = "item_guid"; guids = &items; break;
+        case DTT_ITEM_TABLE: fieldname = "itemGuid"; guids = &items; break;
         case DTT_PET:       fieldname = "owner";                     break;
         case DTT_PET_TABLE: fieldname = "guid";      guids = &pets;  break;
         case DTT_MAIL:      fieldname = "receiver";                  break;
@@ -317,26 +363,26 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, ObjectGuid::LowType guid, ch
             switch (type)
             {
                 case DTT_INVENTORY:
-                    StoreGUID(result, 3, items);                // item guid collection (character_inventory.item)
+                    StoreGUID(result, GetColNumber(tableFrom, "item") - 1, items);                         // item guid collection (character_inventory.item)
                     break;
                 case DTT_PET:
-                    StoreGUID(result, 0, pets);                 // pet petnumber collection (character_pet.id)
+                    StoreGUID(result, GetColNumber(tableFrom, "id") - 1, pets);                            // pet petnumber collection (character_pet.id)
                     break;
                 case DTT_MAIL:
-                    StoreGUID(result, 0, mails);                // mail id collection (mail.id)
+                    StoreGUID(result, GetColNumber(tableFrom, "id") - 1, mails);                           // mail id collection (mail.id)
                     break;
                 case DTT_MAIL_ITEM:
-                    StoreGUID(result, 1, items);                // item guid collection (mail_items.item_guid)
+                    StoreGUID(result, GetColNumber(tableFrom, "item_guid") - 1, items);                    // item guid collection (mail_items.item_guid)
                     break;
                 case DTT_CHARACTER:
                 {
-                    if (result->GetFieldCount() <= 64)          // avoid crashes on next check
+                    if (result->GetFieldCount() <= GetColNumber(tableFrom, "deleteInfos_Account") - 1)     // avoid crashes on next check
                     {
                         TC_LOG_FATAL("misc", "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
                         return false;
                     }
 
-                    if (result->Fetch()[64].GetUInt32())        // characters.deleteInfos_Account - if filled error
+                    if (result->Fetch()[GetColNumber(tableFrom, "deleteInfos_Account") - 1].GetUInt32())   // characters.deleteInfos_Account - if filled error
                         return false;
                     break;
                 }
@@ -358,7 +404,7 @@ bool PlayerDumpWriter::GetDump(ObjectGuid::LowType guid, std::string &dump)
     dump =  "IMPORTANT NOTE: THIS DUMPFILE IS MADE FOR USE WITH THE 'PDUMP' COMMAND ONLY - EITHER THROUGH INGAME CHAT OR ON CONSOLE!\n";
     dump += "IMPORTANT NOTE: DO NOT apply it directly - it will irreversibly DAMAGE and CORRUPT your database! You have been warned!\n\n";
 
-    for (uint8 i = 0; i < DUMP_TABLE_COUNT; ++i)
+    for (size_t i = 0; i < dumpTablesCount; ++i)
         if (!DumpTable(dump, guid, dumpTables[i].name, dumpTables[i].name, dumpTables[i].type))
             return false;
 
@@ -515,8 +561,8 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         }
 
         DumpTableType type = DumpTableType(0);
-        uint8 i;
-        for (i = 0; i < DUMP_TABLE_COUNT; ++i)
+        size_t i;
+        for (i = 0; i < dumpTablesCount; ++i)
         {
             if (tn == dumpTables[i].name)
             {
@@ -525,7 +571,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
             }
         }
 
-        if (i == DUMP_TABLE_COUNT)
+        if (i == dumpTablesCount)
         {
             TC_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
@@ -536,113 +582,134 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         {
             case DTT_CHARACTER:
             {
-                if (!ChangeNth(line, 1, newguid))           // characters.guid update
+                if (!ChangeNth(line, GetColNumber(tn, "guid"), newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (!ChangeNth(line, 2, chraccount))        // characters.account update
+                if (!ChangeNth(line, GetColNumber(tn, "account"), chraccount))
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                race = uint8(atoul(GetNth(line, 4).c_str()));
-                playerClass = uint8(atoul(GetNth(line, 5).c_str()));
-                gender = uint8(atoul(GetNth(line, 6).c_str()));
-                level = uint8(atoul(GetNth(line, 7).c_str()));
+                race = uint8(atoul(GetNth(line, GetColNumber(tn, "race")).c_str()));
+                playerClass = uint8(atoul(GetNth(line, GetColNumber(tn, "class")).c_str()));
+                gender = uint8(atoul(GetNth(line, GetColNumber(tn, "gender")).c_str()));
+                level = uint8(atoul(GetNth(line, GetColNumber(tn, "level")).c_str()));
                 if (name.empty())
                 {
                     // check if the original name already exists
-                    name = GetNth(line, 3);
+                    name = GetNth(line, GetColNumber(tn, "name"));
 
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
                     stmt->setString(0, name);
                     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
                     if (result)
-                        if (!ChangeNth(line, 41, "1"))      // characters.at_login set to "rename on login"
+                        if (!ChangeNth(line, GetColNumber(tn, "at_login"), "1"))      // characters.at_login set to "rename on login"
                             ROLLBACK(DUMP_FILE_BROKEN);
                 }
-                else if (!ChangeNth(line, 3, name.c_str())) // characters.name
+                else if (!ChangeNth(line, GetColNumber(tn, "name"), name.c_str()))
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 const char null[5] = "NULL";
-                if (!ChangeNth(line, 65, null))             // characters.deleteInfos_Account
+                if (!ChangeNth(line, GetColNumber(tn, "deleteInfos_Account"), null))
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeNth(line, 66, null))             // characters.deleteInfos_Name
+                if (!ChangeNth(line, GetColNumber(tn, "deleteInfos_Name"), null))
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeNth(line, 67, null))             // characters.deleteDate
+                if (!ChangeNth(line, GetColNumber(tn, "deleteDate"), null))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
             case DTT_CHAR_TABLE:
+            {
+                if (!ChangeNth(line, GetColNumber(tn, "guid"), newguid))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
             case DTT_CURRENCY:
             {
-                if (!ChangeNth(line, 1, newguid))           // character_*.guid update
+                if (!ChangeNth(line, GetColNumber(tn, "CharacterGuid"), newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
             case DTT_EQSET_TABLE:
             {
-                if (!ChangeNth(line, 1, newguid))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.guid
+                if (!ChangeNth(line, GetColNumber(tn, "guid"), newguid))
+                    ROLLBACK(DUMP_FILE_BROKEN);
 
                 char newSetGuid[24];
                 snprintf(newSetGuid, 24, UI64FMTD, sObjectMgr->GenerateEquipmentSetGuid());
-                if (!ChangeNth(line, 2, newSetGuid))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.setguid
+                if (!ChangeNth(line, GetColNumber(tn, "setguid"), newSetGuid))
+                    ROLLBACK(DUMP_FILE_BROKEN);
 
                 for (uint8 slot = 0; slot < EQUIPMENT_SLOT_END; ++slot)
-                    if (!ChangeGuid(line, 7 + slot, items, itemLowGuidOffset, true))
-                        ROLLBACK(DUMP_FILE_BROKEN);         // character_equipmentsets.item
+                    if (!ChangeGuid(line, GetColNumber(tn, "item" + std::to_string(slot)), items, itemLowGuidOffset, true))
+                        ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
             case DTT_INVENTORY:
             {
-                if (!ChangeNth(line, 1, newguid))           // character_inventory.guid update
+                if (!ChangeNth(line, GetColNumber(tn, "guid"), newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (!ChangeGuid(line, 2, items, itemLowGuidOffset, true))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.bag update
-                if (!ChangeGuid(line, 4, items, itemLowGuidOffset))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.item update
-                break;
-            }
-            case DTT_MAIL:                                  // mail
-            {
-                if (!ChangeGuid(line, 1, mails, sObjectMgr->_mailId))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // mail.id update
-                if (!ChangeNth(line, 6, newguid))           // mail.receiver update
+                if (!ChangeGuid(line, GetColNumber(tn, "bag"), items, itemLowGuidOffset, true))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                if (!ChangeGuid(line, GetColNumber(tn, "item"), items, itemLowGuidOffset))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
-            case DTT_MAIL_ITEM:                             // mail_items
+            case DTT_CHAR_TRANSMOG:
             {
-                if (!ChangeGuid(line, 1, mails, sObjectMgr->_mailId))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.id
-                if (!ChangeGuid(line, 2, items, itemLowGuidOffset))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.item_guid
-                if (!ChangeNth(line, 3, newguid))           // mail_items.receiver
+                if (!ChangeNth(line, GetColNumber(tn, "guid"), newguid))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+
+                char newSetGuid[24];
+                snprintf(newSetGuid, 24, UI64FMTD, sObjectMgr->GenerateEquipmentSetGuid());
+                if (!ChangeNth(line, GetColNumber(tn, "setguid"), newSetGuid))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
+            case DTT_MAIL:
+            {
+                if (!ChangeGuid(line, GetColNumber(tn, "id"), mails, sObjectMgr->_mailId))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                if (!ChangeNth(line, GetColNumber(tn, "receiver"), newguid))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
+            case DTT_MAIL_ITEM:
+            {
+                if (!ChangeGuid(line, GetColNumber(tn, "mail_id"), mails, sObjectMgr->_mailId))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                if (!ChangeGuid(line, GetColNumber(tn, "item_guid"), items, itemLowGuidOffset))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                if (!ChangeNth(line, GetColNumber(tn, "receiver"), newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
             case DTT_ITEM:
             {
-                // item, owner, data field:item, owner guid
-                if (!ChangeGuid(line, 1, items, itemLowGuidOffset))
-                   ROLLBACK(DUMP_FILE_BROKEN);              // item_instance.guid update
-                if (!ChangeNth(line, 3, newguid))           // item_instance.owner_guid update
+                if (!ChangeGuid(line, GetColNumber(tn, "guid"), items, itemLowGuidOffset))
+                   ROLLBACK(DUMP_FILE_BROKEN);
+                if (!ChangeNth(line, GetColNumber(tn, "owner_guid"), newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
             case DTT_ITEM_GIFT:
             {
-                if (!ChangeNth(line, 1, newguid))           // character_gifts.guid update
+                if (!ChangeNth(line, GetColNumber(tn, "guid"), newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeGuid(line, 2, items, itemLowGuidOffset))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // character_gifts.item_guid update
+                if (!ChangeGuid(line, GetColNumber(tn, "item_guid"), items, itemLowGuidOffset))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
+            case DTT_ITEM_TABLE:
+            {
+                if (!ChangeGuid(line, GetColNumber(tn, "itemGuid"), items, itemLowGuidOffset))
+                    ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
             case DTT_PET:
             {
                 // store a map of old pet id to new inserted pet id for use by DTT_PET_TABLE tables
-                std::string petIdStr = GetNth(line, 1);
+                std::string petIdStr = GetNth(line, GetColNumber(tn, "id"));
 
                 uint32 currentPetId = atoul(petIdStr.c_str());
 
@@ -653,23 +720,23 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 uint32 newPetId = sObjectMgr->GeneratePetNumber();
                 petIds[currentPetId] = newPetId;
 
-                if (!ChangeNth(line, 1, std::to_string(newPetId).c_str())) // character_pet.id update
+                if (!ChangeNth(line, GetColNumber(tn, "id"), std::to_string(newPetId).c_str()))
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeNth(line, 3, newguid))           // character_pet.owner update
+                if (!ChangeNth(line, GetColNumber(tn, "owner"), newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 break;
             }
             case DTT_PET_TABLE:                             // pet_aura, pet_spell, pet_spell_cooldown
             {
-                std::string petIdStr = GetNth(line, 1);
+                std::string petIdStr = GetNth(line, GetColNumber(tn, "id"));
 
                 // lookup currpetid and match to new inserted pet id
                 PetIds::const_iterator petIdsItr = petIds.find(atoul(petIdStr.c_str()));
                 if (petIdsItr == petIds.end())              // couldn't find new inserted id
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (!ChangeNth(line, 1, std::to_string(petIdsItr->second).c_str()))
+                if (!ChangeNth(line, GetColNumber(tn, "guid"), std::to_string(petIdsItr->second).c_str()))
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 break;
