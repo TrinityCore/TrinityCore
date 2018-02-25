@@ -325,9 +325,15 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
             {
                 GroupQueueInfo ginfo;
                 BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
-                if (queue.GetPlayerGroupInfoData(itr->Guid, &ginfo))
+                if (queue.GetPlayerGroupInfoData(player->GetGUID(), &ginfo))
                     if (!ginfo.IsInvitedToBGInstanceGUID)
-                        queue.RemovePlayer(itr->Guid, true);
+                    {
+                        WorldPacket data;
+                        player->RemoveBattlegroundQueueId(bgQueue);
+                        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, nullptr, player->GetBattlegroundQueueIndex(bgQueue), STATUS_NONE, 0, 0, 0, 0);
+                        queue.RemovePlayer(player->GetGUID(), true);
+                        SendPacket(&data);
+                    }
             }
         }
 
