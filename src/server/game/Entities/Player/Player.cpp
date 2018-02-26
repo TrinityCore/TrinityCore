@@ -6151,16 +6151,11 @@ void Player::CheckAreaExploreAndOutdoor()
     if (IsInFlight())
         return;
 
-    bool isOutdoor;
-    uint32 areaId = GetMap()->GetAreaId(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), &isOutdoor);
-    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
-
-    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !isOutdoor)
+    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !IsOutdoors())
         RemoveAurasWithAttribute(SPELL_ATTR0_OUTDOORS_ONLY);
 
-    if (!areaId)
-        return;
-
+    uint32 const areaId = GetAreaId();
+    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
     if (!areaEntry)
     {
         TC_LOG_ERROR("entities.player", "Player '%s' (%s) discovered unknown area (x: %f y: %f z: %f map: %u)",
