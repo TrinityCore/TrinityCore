@@ -2682,7 +2682,11 @@ void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFul
     // area lookup
     AreaTableEntry const* areaEntry = nullptr;
     WMOAreaTableEntry const* wmoEntry = nullptr;
-    if (vmapData.areaInfo && (z <= mapHeight || mapHeight <= vmapData.floorZ))
+    // the vmap floor is our floor if either
+    //  - the vmap floor is above the gridmap floor
+    // or
+    //  - we are below the gridmap floor
+    if (vmapData.areaInfo && (G3D::fuzzyLt(z, mapHeight - GROUND_HEIGHT_TOLERANCE) || mapHeight <= vmapData.floorZ))
         if ((wmoEntry = GetWMOAreaTableEntryByTripple(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId)))
             areaEntry = sAreaTableStore.LookupEntry(wmoEntry->areaId);
 
