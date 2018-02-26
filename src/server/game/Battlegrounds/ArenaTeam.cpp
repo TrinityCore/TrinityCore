@@ -315,25 +315,30 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
 
 void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
 {
+    Player* player = ObjectAccessor::FindPlayer(guid);
+    
     // Remove member from team
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         // Remove queues of members
-        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+        if (Player* playerMember = ObjectAccessor::FindConnectedPlayer(itr->Guid))
         {
-            if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, GetType()))
+            if (player && player->GetGroup() && playerMember->GetGroup() && player->GetGroup()->GetGUID() == playerMember->GetGroup()->GetGUID())
             {
-                GroupQueueInfo ginfo;
-                BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
-                if (queue.GetPlayerGroupInfoData(player->GetGUID(), &ginfo))
-                    if (!ginfo.IsInvitedToBGInstanceGUID)
-                    {
-                        WorldPacket data;
-                        player->RemoveBattlegroundQueueId(bgQueue);
-                        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, nullptr, player->GetBattlegroundQueueIndex(bgQueue), STATUS_NONE, 0, 0, 0, 0);
-                        queue.RemovePlayer(player->GetGUID(), true);
-                        player->GetSession()->SendPacket(&data);
-                    }
+                if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, GetType()))
+                {
+                    GroupQueueInfo ginfo;
+                    BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
+                    if (queue.GetPlayerGroupInfoData(playerMember->GetGUID(), &ginfo))
+                        if (!ginfo.IsInvitedToBGInstanceGUID)
+                        {
+                            WorldPacket data;
+                            playerMember->RemoveBattlegroundQueueId(bgQueue);
+                            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, nullptr, playerMember->GetBattlegroundQueueIndex(bgQueue), STATUS_NONE, 0, 0, 0, 0);
+                            queue.RemovePlayer(playerMember->GetGUID(), true);
+                            playerMember->GetSession()->SendPacket(&data);
+                        }
+                }
             }
         }
 
@@ -346,7 +351,7 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
     }
 
     // Inform player and remove arena team info from player data
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (player)
     {
         player->GetSession()->SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, GetName(), "", 0);
         // delete all info regarding this team
