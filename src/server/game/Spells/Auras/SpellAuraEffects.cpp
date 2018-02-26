@@ -4421,11 +4421,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     Aura* pet_aura  = pet->GetAura(58914, GetCasterGUID());
                     if (owner_aura)
                     {
-                        owner_aura->SetStackAmount(owner_aura->GetSpellInfo()->StackAmount);
+                        owner_aura->SetStackAmount(owner_aura->GetMaxStackAmount());
                         if (pet_aura)
                         {
                             pet_aura->SetCharges(0);
-                            pet_aura->SetStackAmount(owner_aura->GetSpellInfo()->StackAmount);
+                            pet_aura->SetStackAmount(owner_aura->GetMaxStackAmount());
                         }
                     }
                     break;
@@ -5055,7 +5055,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     }
                     break;
                 case 64821: // Fuse Armor (Razorscale)
-                    if (GetBase()->GetStackAmount() == GetSpellInfo()->StackAmount)
+                    if (GetBase()->GetStackAmount() == GetBase()->GetMaxStackAmount())
                     {
                         target->CastSpell(target, 64774, true, NULL, NULL, GetCasterGUID());
                         target->RemoveAura(64821);

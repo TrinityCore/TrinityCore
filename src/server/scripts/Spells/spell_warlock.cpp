@@ -200,7 +200,9 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_CALLING_TRIGGER           = 205146,
     SPELL_WARLOCK_DEMONBOLT                         = 157695,
     SPELL_WARLOCK_DEMONIC_CALLING                   = 205145,
-    SPELL_WARLOCK_FEL_FIREBOLT                      = 104318
+    SPELL_WARLOCK_FEL_FIREBOLT                      = 104318,
+    SPELL_WARLOCK_PHANTOMATIC_SINGULARITY           = 205179,
+    SPELL_WARLOCK_PHANTOMATIC_SINGULARITY_DAMAGE    = 205246,
 };
 
 enum WarlockSpellIcons
@@ -1766,7 +1768,7 @@ class spell_warl_unstable_affliction : public SpellScript
         SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE_5,
     };
 
-    void HandleOnHitTarget(SpellEffIndex effIndex)
+    void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
         {
@@ -1920,7 +1922,7 @@ public:
     {
         PrepareAuraScript(spell_warlock_agony_AuraScript);
 
-        void HandleDummyPeriodic(AuraEffect const* /* auraEffect */)
+        void HandleDummyPeriodic(AuraEffect const* auraEffect)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -1940,17 +1942,10 @@ public:
 
             caster->Variables.Set("SoulShardAgonyTick", soulShardAgonyTick);
 
-            // If we have more than 20, dont do anything
-            if (GetStackAmount() >= 20)
+            // If we have more than maxStackAmount, dont do anything
+            if (GetStackAmount() >= auraEffect->GetBase()->GetMaxStackAmount())
                 return;
 
-            // If we have more than 10 and DONT have the writhe of agony talent, dont do anything
-            if (GetStackAmount() >= 10 && !caster->HasAura(SPELL_WARLOCK_WRITHE_IN_AGONY))
-                return;
-
-            //The only cases the code below is executed is :
-            //Stacks < 10
-            //Stacks < 20 AND player has Writhe of Agony talent.
             SetStackAmount(GetStackAmount() + 1);
         }
 
@@ -4574,6 +4569,22 @@ public:
     }
 };
 
+// 205179
+class aura_warl_phantomatic_singularity : public AuraScript
+{
+    PrepareAuraScript(aura_warl_phantomatic_singularity);
+
+    void OnTick(const AuraEffect* /*aurEff*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget()->GetPosition(), SPELL_WARLOCK_PHANTOMATIC_SINGULARITY_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(aura_warl_phantomatic_singularity::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
 
 void AddSC_warlock_spell_scripts()
 {
@@ -4670,6 +4681,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_calling();
     new spell_warl_chaotic_energies();
     new spell_warl_eradication();
+    RegisterAuraScript(aura_warl_phantomatic_singularity);
 
     ///AreaTrigger scripts
     new at_warl_rain_of_fire();
