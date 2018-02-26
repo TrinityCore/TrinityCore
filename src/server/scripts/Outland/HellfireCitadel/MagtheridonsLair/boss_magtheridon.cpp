@@ -218,10 +218,13 @@ class boss_magtheridon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!events.IsInPhase(PHASE_BANISH) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -290,9 +293,6 @@ class boss_magtheridon : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                if (!UpdateVictim())
-                    return;
 
                 DoMeleeAttackIfReady();
             }

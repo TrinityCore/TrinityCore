@@ -524,7 +524,8 @@ void LoadDBCStores(const std::string& dataPath)
 
         ASSERT(namesProfanity->Language < TOTAL_LOCALES || namesProfanity->Language == -1);
         std::wstring wname;
-        ASSERT(Utf8toWStr(namesProfanity->Name, wname));
+        bool conversionResult = Utf8toWStr(namesProfanity->Name, wname);
+        ASSERT(conversionResult);
 
         if (namesProfanity->Language != -1)
             NamesProfaneValidators[namesProfanity->Language].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
@@ -541,7 +542,8 @@ void LoadDBCStores(const std::string& dataPath)
 
         ASSERT(namesReserved->Language < TOTAL_LOCALES || namesReserved->Language == -1);
         std::wstring wname;
-        ASSERT(Utf8toWStr(namesReserved->Name, wname));
+        bool conversionResult = Utf8toWStr(namesReserved->Name, wname);
+        ASSERT(conversionResult);
 
         if (namesReserved->Language != -1)
             NamesReservedValidators[namesReserved->Language].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);

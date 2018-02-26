@@ -407,6 +407,7 @@ class boss_algalon_the_observer : public CreatureScript
                         brann->AI()->DoAction(ACTION_FINISH_INTRO);
 
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     DoZoneInCombat();
                     introDelay = 26000;
                     summons.DespawnEntry(NPC_AZEROTH);
@@ -979,7 +980,7 @@ class go_celestial_planetarium_access : public GameObjectScript
             {
             }
 
-            bool GossipHello(Player* player) override
+            bool OnReportUse(Player* player) override
             {
                 if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
                     return true;
