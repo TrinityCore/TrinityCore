@@ -5594,6 +5594,16 @@ void ObjectMgr::LoadInstanceEncounters()
                     continue;
                 }
                 const_cast<CreatureTemplate*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+
+                if (dungeonEncounter->difficulty == -1)
+                {
+                    for (uint8 i = 0; i < 3; i++)
+                    {
+                        if (CreatureTemplate const* creatureBaseInfo = GetCreatureTemplate(creditEntry))
+                            if (CreatureTemplate const* creatureInfo = GetCreatureTemplate(creatureBaseInfo->DifficultyEntry[i]))
+                                const_cast<CreatureTemplate*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                    }
+                }
                 break;
             }
             case ENCOUNTER_CREDIT_CAST_SPELL:
@@ -6964,7 +6974,7 @@ void ObjectMgr::LoadGameObjectTemplate()
     //                                        21      22      23      24      25      26      27      28      29      30      31      32      33      34      35      36
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, Data24, Data25, Data26, Data27, Data28, "
     //                                        37      38      39      40        41      42
-                                             "Data29, Data30, Data31, unkInt32, AIName, ScriptName "
+                                             "Data29, Data30, Data31, RequiredLevel, AIName, ScriptName "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -6995,7 +7005,7 @@ void ObjectMgr::LoadGameObjectTemplate()
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
             got.raw.data[i] = fields[8 + i].GetUInt32();
 
-        got.unkInt32 = fields[40].GetInt32();
+        got.RequiredLevel = fields[40].GetInt32();
         got.AIName = fields[41].GetString();
         got.ScriptId = GetScriptId(fields[42].GetCString());
 

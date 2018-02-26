@@ -1098,64 +1098,64 @@ public:
         {
             switch (gossipListId)
             {
-            case GOSSIP_OPTION_ALCHEMY:
-            case GOSSIP_OPTION_BLACKSMITHING:
-            case GOSSIP_OPTION_ENCHANTING:
-            case GOSSIP_OPTION_ENGINEERING:
-            case GOSSIP_OPTION_HERBALISM:
-            case GOSSIP_OPTION_INSCRIPTION:
-            case GOSSIP_OPTION_JEWELCRAFTING:
-            case GOSSIP_OPTION_LEATHERWORKING:
-            case GOSSIP_OPTION_MINING:
-            case GOSSIP_OPTION_SKINNING:
-            case GOSSIP_OPTION_TAILORING:
-                SendTrainerList(player, gossipListId);
+                case GOSSIP_OPTION_ALCHEMY:
+                case GOSSIP_OPTION_BLACKSMITHING:
+                case GOSSIP_OPTION_ENCHANTING:
+                case GOSSIP_OPTION_ENGINEERING:
+                case GOSSIP_OPTION_HERBALISM:
+                case GOSSIP_OPTION_INSCRIPTION:
+                case GOSSIP_OPTION_JEWELCRAFTING:
+                case GOSSIP_OPTION_LEATHERWORKING:
+                case GOSSIP_OPTION_MINING:
+                case GOSSIP_OPTION_SKINNING:
+                case GOSSIP_OPTION_TAILORING:
+                    SendTrainerList(player, gossipListId);
                 break;
-            case GOSSIP_OPTION_MULTI:
-            {
-                switch (menuId)
+                case GOSSIP_OPTION_MULTI:
                 {
-                case GOSSIP_MENU_HERBALISM:
-                    SendTrainerList(player, GOSSIP_OPTION_HERBALISM);
-                    break;
-                case GOSSIP_MENU_MINING:
-                    SendTrainerList(player, GOSSIP_OPTION_MINING);
-                    break;
-                case GOSSIP_MENU_SKINNING:
-                    SendTrainerList(player, GOSSIP_OPTION_SKINNING);
-                    break;
-                case GOSSIP_MENU_ALCHEMY:
-                    SendTrainerList(player, GOSSIP_OPTION_ALCHEMY);
-                    break;
-                case GOSSIP_MENU_BLACKSMITHING:
-                    SendTrainerList(player, GOSSIP_OPTION_BLACKSMITHING);
-                    break;
-                case GOSSIP_MENU_ENCHANTING:
-                    SendTrainerList(player, GOSSIP_OPTION_ENCHANTING);
-                    break;
-                case GOSSIP_MENU_ENGINEERING:
-                    SendTrainerList(player, GOSSIP_OPTION_ENGINEERING);
-                    break;
-                case GOSSIP_MENU_INSCRIPTION:
-                    SendTrainerList(player, GOSSIP_OPTION_INSCRIPTION);
-                    break;
-                case GOSSIP_MENU_JEWELCRAFTING:
-                    SendTrainerList(player, GOSSIP_OPTION_JEWELCRAFTING);
-                    break;
-                case GOSSIP_MENU_LEATHERWORKING:
-                    SendTrainerList(player, GOSSIP_OPTION_LEATHERWORKING);
-                    break;
-                case GOSSIP_MENU_TAILORING:
-                    SendTrainerList(player, GOSSIP_OPTION_TAILORING);
-                    break;
+                    switch (menuId)
+                    {
+                        case GOSSIP_MENU_HERBALISM:
+                            SendTrainerList(player, GOSSIP_OPTION_HERBALISM);
+                            break;
+                        case GOSSIP_MENU_MINING:
+                            SendTrainerList(player, GOSSIP_OPTION_MINING);
+                            break;
+                        case GOSSIP_MENU_SKINNING:
+                            SendTrainerList(player, GOSSIP_OPTION_SKINNING);
+                            break;
+                        case GOSSIP_MENU_ALCHEMY:
+                            SendTrainerList(player, GOSSIP_OPTION_ALCHEMY);
+                            break;
+                        case GOSSIP_MENU_BLACKSMITHING:
+                            SendTrainerList(player, GOSSIP_OPTION_BLACKSMITHING);
+                            break;
+                        case GOSSIP_MENU_ENCHANTING:
+                            SendTrainerList(player, GOSSIP_OPTION_ENCHANTING);
+                            break;
+                        case GOSSIP_MENU_ENGINEERING:
+                            SendTrainerList(player, GOSSIP_OPTION_ENGINEERING);
+                            break;
+                        case GOSSIP_MENU_INSCRIPTION:
+                            SendTrainerList(player, GOSSIP_OPTION_INSCRIPTION);
+                            break;
+                        case GOSSIP_MENU_JEWELCRAFTING:
+                            SendTrainerList(player, GOSSIP_OPTION_JEWELCRAFTING);
+                            break;
+                        case GOSSIP_MENU_LEATHERWORKING:
+                            SendTrainerList(player, GOSSIP_OPTION_LEATHERWORKING);
+                            break;
+                        case GOSSIP_MENU_TAILORING:
+                            SendTrainerList(player, GOSSIP_OPTION_TAILORING);
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 default:
                     break;
-                }
             }
-            default:
-                break;
-            }
-            return true;
+            return false;
         }
 
         void SendTrainerList(Player* player, uint32 Index)

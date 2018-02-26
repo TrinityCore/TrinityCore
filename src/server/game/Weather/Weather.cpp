@@ -28,7 +28,7 @@
 #include "Util.h"
 #include "ScriptMgr.h"
 #include "Opcodes.h"
-#include "WorldSession.h"
+#include "World.h"
 
 /// Create the Weather object
 Weather::Weather(uint32 zone, WeatherData const* weatherChances)
@@ -197,7 +197,16 @@ void Weather::SendWeatherUpdateToPlayer(Player* player)
     data << uint32(GetWeatherState());
     data << (float)m_grade;
     data << uint8(0);
-    player->GetSession()->SendPacket(&data);
+    player->SendDirectMessage(&data);
+}
+
+void Weather::SendFineWeatherUpdateToPlayer(Player* player)
+{
+    WorldPacket data(SMSG_WEATHER, (4 + 4 + 1));
+    data << uint32(WEATHER_STATE_FINE);
+    data << (float)0;
+    data << uint8(0);
+    player->SendDirectMessage(&data);
 }
 
 /// Send the new weather to all players in the zone

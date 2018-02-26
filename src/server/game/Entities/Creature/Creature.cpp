@@ -185,9 +185,11 @@ m_lootRecipient(), m_lootRecipientGroup(0), _skinner(), _pickpocketLootRestore(0
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0), m_formation(nullptr), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f)
+m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0), m_formation(nullptr), m_focusSpell(nullptr),
+m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f), m_tmpEnergyReg(0.0f)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
+    m_regenTimerEnergy = CREATURE_REGEN_ENERGY_INTERVAL;
     m_valuesCount = UNIT_END;
 
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
@@ -591,13 +593,17 @@ void Creature::Update(uint32 diff)
             if (m_shouldReacquireTarget && !IsFocusing(nullptr, true))
             {
                 SetTarget(m_suppressedTarget);
-                if (m_suppressedTarget)
+                
+                if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
                 {
-                    if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
-                        SetFacingToObject(objTarget, false);
+                    if (m_suppressedTarget)
+                    {
+                        if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
+                            SetFacingToObject(objTarget, false);
+                    }
+                    else
+                        SetFacingTo(m_suppressedOrientation, false);
                 }
-                else
-                    SetFacingTo(m_suppressedOrientation, false);
                 m_shouldReacquireTarget = false;
             }
 
@@ -681,6 +687,16 @@ void Creature::Update(uint32 diff)
                     m_regenTimer -= diff;
             }
 
+            if (m_regenTimerEnergy <= diff)
+            {
+                if (getPowerType() == POWER_ENERGY)
+                    if (!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerDisplayId != POWER_PYRITE)
+                        Regenerate(POWER_ENERGY);
+                m_regenTimerEnergy = CREATURE_REGEN_ENERGY_INTERVAL;
+            }
+            else
+                m_regenTimerEnergy -= diff;
+
             if (m_regenTimer == 0)
             {
                 bool bInCombat = IsInCombat() && (!GetVictim() ||                                        // if IsInCombat() is true and this has no victim
@@ -691,12 +707,9 @@ void Creature::Update(uint32 diff)
                     RegenerateHealth();
 
                 if (HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
-                {
-                    if (getPowerType() == POWER_ENERGY)
-                        Regenerate(POWER_ENERGY);
-                    else
+                    if (getPowerType() != POWER_ENERGY)
                         RegenerateMana();
-                }
+
                 m_regenTimer = CREATURE_REGEN_INTERVAL;
             }
 
@@ -829,7 +842,7 @@ bool Creature::AIM_Destroy()
     return true;
 }
 
-bool Creature::AIM_Initialize(CreatureAI* ai)
+bool Creature::AIM_Create(CreatureAI* ai /*= nullptr*/)
 {
     // make sure nothing can change the AI during AI update
     if (m_AI_locked)
@@ -843,12 +856,24 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     Motion_Initialize();
 
     i_AI = ai ? ai : FactorySelector::SelectAI(this);
+    return true;
+}
 
+void Creature::AI_InitializeAndEnable()
+{
     IsAIEnabled = true;
     i_AI->InitializeAI();
     // Initialize vehicle
     if (GetVehicleKit())
         GetVehicleKit()->Reset();
+}
+
+bool Creature::AIM_Initialize(CreatureAI* ai)
+{
+    if (!AIM_Create(ai))
+        return false;
+
+    AI_InitializeAndEnable();
     return true;
 }
 
@@ -1637,9 +1662,9 @@ float Creature::GetAttackDistance(Unit const* player) const
     if (aggroRate == 0.0f)
         return 0.0f;
 
-    // The aggro radius for creatures with equal level as the player is 20 yards.
+    // The aggro radius for creatures with equal level as the player is 15 yards.
     // The combatreach should not get taken into account for the distance so we drop it from the range (see Supremus as expample)
-    float baseAggroDistance = 20.0f - GetCombatReach();
+    float baseAggroDistance = 15.0f - GetCombatReach();
     float aggroRadius = baseAggroDistance;
 
     // detect range auras
@@ -2810,15 +2835,19 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
         }
     }
 
-    bool const canTurnDuringCast = !spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
-    // Face the target - we need to do this before the unit state is modified for no-turn spells
-    if (target)
-        SetFacingToObject(target, false);
-    else if (!canTurnDuringCast)
-        if (Unit* victim = GetVictim())
-            SetFacingToObject(victim, false); // ensure orientation is correct at beginning of cast
+    bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+    
+    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+    {
+        // Face the target - we need to do this before the unit state is modified for no-turn spells
+        if (target)
+            SetFacingToObject(target, false);
+        else if (noTurnDuringCast)
+            if (Unit* victim = GetVictim())
+                SetFacingToObject(victim, false); // ensure orientation is correct at beginning of cast
+    }
 
-    if (!canTurnDuringCast)
+    if (noTurnDuringCast)
         AddUnitState(UNIT_STATE_CANNOT_TURN);
 }
 
@@ -2856,7 +2885,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
     if (focusSpell && focusSpell != m_focusSpell)
         return;
 
-    if (IsPet()) // player pets do not use delay system
+    if (IsPet() && !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN)) // player pets do not use delay system
     {
         SetGuidValue(UNIT_FIELD_TARGET, m_suppressedTarget);
         if (m_suppressedTarget)
@@ -2917,4 +2946,16 @@ bool Creature::CanGiveExperience() const
         && !IsPet()
         && !IsTotem()
         && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
+}
+
+bool Creature::IsAllowedToRepostionAgainst(Unit* target) const
+{
+    // Exceptions for repositioning against a too close enemy:
+    return GetCombatReach() <= 10.0f        // 1. Creature has a too big combat reach
+        && !IsMovementPreventedByCasting()  // 2. Creature is currently casting
+        && CanFreeMove()                    // 3. Creature cannot move
+        && !GetVehicleBase()                // 4. Creature is on a vehicle
+        && !target->GetVehicleBase()        // 5. Chase target is on a vehicle
+        && !IsDungeonBoss()                 // 6. Creature is a dungeon boss
+        && !isWorldBoss();                  // 7. Creature is a world boss
 }

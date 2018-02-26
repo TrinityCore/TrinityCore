@@ -102,7 +102,7 @@ class boss_shattered_executioner : public CreatureScript
 
             void JustSummoned(Creature*) override { } // avoid despawn of prisoners on death/reset
 
-            void JustDied(Unit*) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 

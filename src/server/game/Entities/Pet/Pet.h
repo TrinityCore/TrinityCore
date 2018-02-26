@@ -23,7 +23,23 @@
 #include "TemporarySummon.h"
 
 #define PET_FOCUS_REGEN_INTERVAL 4 * IN_MILLISECONDS
-#define HAPPINESS_LEVEL_SIZE        333000
+
+enum StableResultCode
+{
+    STABLE_ERR_MONEY        = 0x01,                         // "you don't have enough money"
+    STABLE_ERR_INVALID_SLOT = 0x03,                         // "That slot is locked"
+    STABLE_SUCCESS_STABLE   = 0x08,                         // stable success
+    STABLE_SUCCESS_UNSTABLE = 0x09,                         // unstable/swap success
+    STABLE_SUCCESS_BUY_SLOT = 0x0A,                         // buy slot success
+    STABLE_ERR_EXOTIC       = 0x0B,                         // "you are unable to control exotic creatures"
+    STABLE_ERR_STABLE       = 0x0C                          // "Internal pet error"
+};
+
+enum PetStableInfo
+{
+    PET_STABLE_ACTIVE   = 1,
+    PET_STABLE_INACTIVE = 2
+};
 
 struct PetSpell
 {
@@ -60,7 +76,7 @@ class TC_GAME_API Pet : public Guardian
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
         bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map);
-        bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
+        bool LoadPetData(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
         bool IsLoading() const override { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
         void Remove(PetSaveMode mode, bool returnreagent = false);
@@ -119,6 +135,7 @@ class TC_GAME_API Pet : public Guardian
         bool unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         bool removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         void CleanupActionBar();
+        std::string GenerateActionBarData() const;
 
         PetSpellMap     m_spells;
         AutoSpellList   m_autospells;
@@ -145,6 +162,12 @@ class TC_GAME_API Pet : public Guardian
 
         Player* GetOwner() const;
 
+        uint32 GetSlot() { return m_petSlot; }
+        void SetSlot(uint32 newPetSlot) { m_petSlot = newPetSlot; } // use only together with DB update
+
+        bool IsActive() { return m_petActive; }
+        void SetActive(bool active) { m_petActive = active; }
+
     protected:
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
@@ -153,6 +176,8 @@ class TC_GAME_API Pet : public Guardian
         uint32  m_focusRegenTimer;
 
         DeclinedName *m_declinedname;
+        uint32 m_petSlot;
+        bool m_petActive = false;
 
     private:
         void SaveToDB(uint32, uint8, uint32) override                // override of Creature::SaveToDB     - must not be called

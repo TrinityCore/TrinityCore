@@ -88,10 +88,6 @@ public:
                 SetupInstance();
                 _instanceSpawned = true;
             }
-
-            if (GetData(DATA_GODFREY_INTRO) != DONE)
-                if (GameObject* door = GetGameObject(DATA_ARUGAL_DOOR))
-                    door->SetGoState(GO_STATE_READY);
         }
 
         void SetupInstance() // set up instance state depending on the progression within the instance after unloading the instance for some reason (eg. crash)
@@ -284,6 +280,15 @@ public:
             }
         }
 
+        void OnGameObjectCreate(GameObject* go) override
+        {
+            InstanceScript::OnGameObjectCreate(go);
+
+            if (go->GetEntry() == GO_ARUGAL_DOOR)
+                if (GetData(DATA_GODFREY_INTRO) != DONE)
+                    go->SetGoState(GO_STATE_READY);
+        }
+
         bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
@@ -332,6 +337,8 @@ public:
             {
                 case DATA_TEAM_IN_INSTANCE:
                     return _teamInInstance;
+                case DATA_GODFREY_INTRO:
+                    return _arugalDoorState;
                 default:
                     break;
             }
@@ -407,8 +414,9 @@ public:
                             }
                         }
                     }
-                    if (GameObject* door = GetGameObject(DATA_ARUGAL_DOOR))
-                        door->SetGoState(data == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                    if (data == DONE)
+                        if (GameObject* door = GetGameObject(DATA_ARUGAL_DOOR))
+                            InstanceScript::OnGameObjectCreate(door);
                     SaveToDB();
                     break;
                 default:

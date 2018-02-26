@@ -540,7 +540,7 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
         return false;
 
     // check spell family name/flags (if set) for spells
-    if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK))
+    if (eventInfo.GetTypeMask() & SPELL_PROC_FLAG_MASK)
     {
         if (SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo())
             if (!eventSpellInfo->IsAffected(procEntry.SpellFamilyName, procEntry.SpellFamilyMask))
@@ -1670,7 +1670,7 @@ void SpellMgr::LoadSpellProcs()
                     TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `ProcFlags` value defined, proc will not be triggered.", spellInfo->Id);
                 if (procEntry.SpellTypeMask & ~PROC_SPELL_TYPE_MASK_ALL)
                     TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SpellTypeMask` set: %u", spellInfo->Id, procEntry.SpellTypeMask);
-                if (procEntry.SpellTypeMask && !(procEntry.ProcFlags & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK)))
+                if (procEntry.SpellTypeMask && !(procEntry.ProcFlags & SPELL_PROC_FLAG_MASK))
                     TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has `SpellTypeMask` value defined, but it will not be used for the defined `ProcFlags` value.", spellInfo->Id);
                 if (!procEntry.SpellPhaseMask && procEntry.ProcFlags & REQ_SPELL_PHASE_PROC_FLAG_MASK)
                     TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `SpellPhaseMask` value defined, but it is required for the defined `ProcFlags` value. Proc will not be triggered.", spellInfo->Id);
@@ -1685,6 +1685,24 @@ void SpellMgr::LoadSpellProcs()
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     if ((procEntry.AttributesMask & (PROC_ATTR_DISABLE_EFF_0 << i)) && !spellInfo->Effects[i].IsAura())
                         TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has Attribute PROC_ATTR_DISABLE_EFF_%u, but effect %u is not an aura effect", spellInfo->Id, static_cast<uint32>(i), static_cast<uint32>(i));
+                if (procEntry.AttributesMask & PROC_ATTR_REQ_SPELLMOD)
+                {
+                    bool found = false;
+                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    {
+                        if (!spellInfo->Effects[i].IsAura())
+                            continue;
+
+                        if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_ADD_PCT_MODIFIER || spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_ADD_FLAT_MODIFIER)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                        TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has Attribute PROC_ATTR_REQ_SPELLMOD, but spell has no spell mods. Proc will not be triggered", spellInfo->Id);
+                }
 
                 mSpellProcMap[spellInfo->Id] = procEntry;
 
@@ -1906,7 +1924,7 @@ void SpellMgr::LoadSpellProcs()
     TC_LOG_INFO("server.loading", ">> Generated spell proc data for %u spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void SpellMgr::LoadSpellBonusess()
+void SpellMgr::LoadSpellBonuses()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -2844,6 +2862,19 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].Effect = 0;
     });
 
+    // Immolate
+    ApplySpellFix({ 348 }, [](SpellInfo* spellInfo)
+    {
+        // copy SP scaling data from direct damage to DoT
+        spellInfo->Effects[EFFECT_0].BonusMultiplier = spellInfo->Effects[EFFECT_1].BonusMultiplier;
+    });
+
+    // Flame Orb / Frostfire Orb
+    ApplySpellFix({ 82690, 84717 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].Amplitude = 1000;
+    });
+
     ApplySpellFix({
         63665, // Charge (Argent Tournament emote on riders)
         31298, // Sleep (needs target selection script)
@@ -3080,6 +3111,19 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 2;
     });
 
+    // Summon Ravenous Worgen
+    // Serverside dummy target so we have to change to spell_target_position
+    ApplySpellFix({ 66925, 66836 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DB;
+    });
+
+    // Pull-to
+    ApplySpellFix({ 67357 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MiscValue = 150;
+    });
+
     // Renewed Hope
     ApplySpellFix({
         57470, // (Rank 1)
@@ -3203,6 +3247,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
     });
 
+    // Vampiric Touch (dispel effect)
+    ApplySpellFix({ 64085 }, [](SpellInfo* spellInfo)
+    {
+        // copy from similar effect of Unstable Affliction (31117)
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
+    });
+
     // Improved Devouring Plague
     ApplySpellFix({ 63675 }, [](SpellInfo* spellInfo)
     {
@@ -3236,16 +3288,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00067801, 0x10820001, 0x00000801);
-    });
-
-    ApplySpellFix({
-        5176,  // Wrath
-        2912,  // Starfire
-        78674  // Starsurge
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
-        spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
     });
 
     ApplySpellFix({
@@ -3417,6 +3459,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(34); // Twenty-Five yards
+    });
+
+    // Concussive Barrage
+    ApplySpellFix({ 35101 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(173); // Anywhere
     });
 
     //
@@ -3816,7 +3864,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 70106 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
     });
 
     // Ice Lock
@@ -4104,6 +4152,90 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF THE VORTEX PINNACLE SPELLS
 
     //
+    // DEADMINES SPELLS
+    //
+    // Glubtok
+    // Fists of Flame
+    ApplySpellFix({
+        87874,
+        91268,
+        87896,
+        91269
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
+    });
+
+    // Fists of Frost
+    ApplySpellFix({
+        87899,
+        91272,
+        87901,
+        91273,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
+    });
+
+    // Helix Gearbreaker
+    // Charge
+    ApplySpellFix({ 88295 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
+    });
+
+    // "Captain" Coikie
+    // Rotten Aura
+    ApplySpellFix({
+        89735,
+        92065,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+    });
+
+    // END OF DEADMINES SPELLS
+
+    //
+    // GRIM BATOL SPELLS
+    //
+    // General Umbriss
+    // Ground Siege
+    ApplySpellFix({ 74634, 90249 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+    });
+
+    // Drahga Shadowburner
+    // Flaming Fixate
+    ApplySpellFix({ 82850 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING;
+    });
+
+    // Ride Vehicle
+    ApplySpellFix({ 43671 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
+
+    // Erudax
+    // Twilight Blast
+    ApplySpellFix({ 76194, 91042 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
+    // Shadow Gale
+    ApplySpellFix({ 75664, 91086 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 &= ~SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING;
+    });
+
+    // ENDOF GRIM_BATOL SPELLS
+
+    //
     // THE LOST CITY OF THE TOL'VIR SPELLS
     //
     // General Husam
@@ -4195,11 +4327,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
         spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
     });
-    // END OF HALLS OF ORIGINATION SPELLS
 
-    //
-    // THE LOST CITY OF THE TOL'VIR SPELLS
-    //
     // Solar Fire
     ApplySpellFix({ 89133, 89878 }, [](SpellInfo* spellInfo)
     {
@@ -4211,38 +4339,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
     });
-
-    // Heaven's Fury
-    ApplySpellFix({ 81942, 90040 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
-    });
-
-    // Hallowed Ground
-    ApplySpellFix({ 88814, 90010 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
-        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_13_YARDS);
-    });
-
-    // Blaze of the Heavens
-    ApplySpellFix({ 91196 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
-    });
-
-    // Repentance
-    ApplySpellFix({ 82430 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].MiscValue = 150;
-    });
-
-    // Blaze of the Heavens
-    ApplySpellFix({ 95249 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
-    });
-    // END OF THE LOST CITY OF THE TOL'VIR SPELLS
+    // END OF HALLS OF ORIGINATION SPELLS
 
     //
     // SHADOWFANG KEEP SPELLS
@@ -4364,6 +4461,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             if (spellInfo->IsPassive() && GetTalentSpellCost(i))
                 if (spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PET)
                     spellInfo->Effects[j].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+
+            if (spellInfo->Effects[j].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE || spellInfo->Effects[j].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE)
+                if (G3D::fuzzyEq(spellInfo->ConeAngle, 0.f))
+                    spellInfo->ConeAngle = 90.f;
         }
 
         // disable proc for magnet auras, they're handled differently
@@ -4376,13 +4477,6 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         if (spellInfo->ActiveIconID == 2158)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
-
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
-        {
-            if (spellInfo->Effects[i].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE || spellInfo->Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE)
-                if (G3D::fuzzyEq(spellInfo->ConeAngle, 0.f))
-                    spellInfo->ConeAngle = 90.f;
-        }
 
         switch (spellInfo->SpellFamilyName)
         {

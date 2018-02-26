@@ -548,7 +548,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
                     // Refresh corruption on target
                     if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, caster->GetGUID()))
                     {
-                        aurEff->SetBonusAmount(caster->SpellDamageBonusDone(target, aurEff->GetSpellInfo(), 0, DOT));
+                        aurEff->SetBonusAmount(caster->SpellDamageBonusDone(target, aurEff->GetSpellInfo(), 0, DOT, aurEff->GetEffIndex()));
                         aurEff->CalculatePeriodic(caster, false, false);
                         aurEff->GetBase()->RefreshDuration(true);
                     }
@@ -1107,9 +1107,7 @@ class spell_warl_shadow_ward : public SpellScriptLoader
                 {
                     // +80.68% from sp bonus
                     float bonus = 0.8068f;
-
                     bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
 
                     amount += int32(bonus);
                 }

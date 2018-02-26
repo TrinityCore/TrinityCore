@@ -88,6 +88,7 @@ enum Events
 
     EVENT_GRAVITY_WELL_AURA_DAMAGE,
     EVENT_GRAVITY_WELL_AURA_PULL,
+    EVENT_APPLY_IMMUNITY,
 
     // Phase 2: Fury of Earth
     EVENT_EARTH_FURY_FLY_UP,
@@ -134,14 +135,7 @@ class boss_high_priestess_azil : public CreatureScript
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
                 me->SetReactState(REACT_PASSIVE);
-
-                events.ScheduleEvent(EVENT_INTRO_MOVE, 2000);
-                events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 6000);
-                events.ScheduleEvent(EVENT_FORCE_GRIP, urand(8000,10000));
-                events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, 16000);
-                events.ScheduleEvent(EVENT_ENERGY_SHIELD, urand(35000,36000));
-                events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, 0);
-                events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, 40000);
+                MakeInterruptable(false);
             }
 
             void JustEngagedWith(Unit* /*victim*/) override
@@ -150,6 +144,13 @@ class boss_high_priestess_azil : public CreatureScript
 
                 DoCast(me, SPELL_ENERGY_SHIELD);
                 Talk(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_INTRO_MOVE, 2000);
+                events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 6000);
+                events.ScheduleEvent(EVENT_FORCE_GRIP, urand(8000, 10000));
+                events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, 16000);
+                events.ScheduleEvent(EVENT_ENERGY_SHIELD, urand(35000, 36000));
+                events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, 0);
+                events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, 40000);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -157,6 +158,21 @@ class boss_high_priestess_azil : public CreatureScript
                 _JustDied();
 
                 Talk(SAY_DEATH);
+            }
+
+            void MakeInterruptable(bool apply)
+            {
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !apply);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
+            }
+
+            void OnSpellCastInterrupt(SpellInfo const* spell) override
+            {
+                if (spell->Id == SPELL_FORCE_GRIP)
+                {
+                    MakeInterruptable(false);
+                    events.CancelEvent(EVENT_APPLY_IMMUNITY);
+                }
             }
 
             void MovementInform(uint32 type, uint32 id) override
@@ -223,6 +239,7 @@ class boss_high_priestess_azil : public CreatureScript
                             events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, urand(13000, 15000));
                             break;
                         case EVENT_FORCE_GRIP:
+                            MakeInterruptable(true);
                             DoCastVictim(SPELL_FORCE_GRIP);
                             events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, urand(13000, 15000));
                             break;
@@ -281,6 +298,9 @@ class boss_high_priestess_azil : public CreatureScript
                             if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
                                 worldtrigger->CastSpell(worldtrigger, SPELL_SUMMON_WAVE_WEST);
                             events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, 20000);
+                            break;
+                        case EVENT_APPLY_IMMUNITY:
+                            MakeInterruptable(false);
                             break;
                         default:
                             break;

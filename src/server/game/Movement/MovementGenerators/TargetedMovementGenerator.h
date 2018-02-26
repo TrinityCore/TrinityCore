@@ -23,6 +23,8 @@
 #include "FollowerReference.h"
 #include "Timer.h"
 
+#define MOVE_FOLLOW_REPOSITIONING_DISTANCE 1.5f
+
 class TargetedMovementGeneratorBase
 {
     public:
@@ -43,7 +45,7 @@ template<class T, typename D>
 class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
 {
     public:
-        explicit TargetedMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target), _path(nullptr), _timer(0), _offset(offset), _angle(angle), _recalculateTravel(false), _targetReached(false), _interrupt(false) { }
+        explicit TargetedMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target), _path(nullptr), _timer(0), _advanceMovementTimer(0), _offset(offset), _angle(angle), _recalculateTravel(false), _targetReached(false), _interrupt(false) { }
         ~TargetedMovementGenerator();
 
         bool DoUpdate(T*, uint32);
@@ -55,6 +57,7 @@ class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public
         virtual void ReachTarget(T*) { }
         virtual bool EnableWalking() const { return false; }
         virtual void MovementInform(T*) { }
+        virtual float GetMaxDistanceBeforeRepositioning(T*) { return 0.0f; }
 
         bool IsReachable() const;
         void SetTargetLocation(T* owner, bool updateDestination);
@@ -62,6 +65,7 @@ class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public
     private:
         PathGenerator* _path;
         TimeTrackerSmall _timer;
+        TimeTrackerSmall _advanceMovementTimer;
         float _offset;
         float _angle;
         bool _recalculateTravel;
@@ -80,12 +84,12 @@ class ChaseMovementGenerator : public TargetedMovementGenerator<T, ChaseMovement
         void DoInitialize(T*);
         void DoFinalize(T*);
         void DoReset(T*);
-
         void ClearUnitStateMove(T*) override;
         void AddUnitStateMove(T*) override;
         bool HasLostTarget(T*) const override;
         void ReachTarget(T*) override;
         void MovementInform(T*) override;
+        float GetMaxDistanceBeforeRepositioning(T*) override;
 };
 
 template<class T>
@@ -106,6 +110,7 @@ class FollowMovementGenerator : public TargetedMovementGenerator<T, FollowMoveme
         void ReachTarget(T*) override;
         bool EnableWalking() const override;
         void MovementInform(T*) override;
+        float GetMaxDistanceBeforeRepositioning(T*) override;
     private:
         void UpdateSpeed(T* owner);
 };

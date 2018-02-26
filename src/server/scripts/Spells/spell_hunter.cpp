@@ -33,7 +33,10 @@
 
 enum HunterSpells
 {
+    SPELL_HUNTER_AIMED_SHOT                         = 19434,
+    SPELL_HUNTER_AIMED_SHOT_INSTANT                 = 82928,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
+    SPELL_HUNTER_CHIMERA_SHOT                       = 53209,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_FIRE                               = 82926,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
@@ -46,11 +49,13 @@ enum HunterSpells
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
+    SPELL_HUNTER_MULTISHOT                          = 2643,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX           = 55709,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_PET_CARRION_FEEDER_TRIGGERED       = 54045,
+    SPELL_HUNTER_PIERCING_SHOTS                     = 63468,
     SPELL_HUNTER_RAPID_RECUPERATION                 = 58883,
     SPELL_HUNTER_READINESS                          = 23989,
     SPELL_HUNTER_SERPENT_STING                      = 1978,
@@ -58,6 +63,8 @@ enum HunterSpells
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
+    SPELL_HUNTER_TERMINATION_R_1                    = 83489,
+    SPELL_HUNTER_TERMINATION_R_2                    = 83490,
     SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED     = 53220,
     SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
     SPELL_HUNTER_WILD_QUIVER_DAMAGE                 = 76663,
@@ -175,10 +182,13 @@ class spell_hun_cobra_shot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SERPENT_STING))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                    {
+                        SPELL_HUNTER_TERMINATION_R_1,
+                        SPELL_HUNTER_TERMINATION_R_2,
+                        SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS,
+                        SPELL_HUNTER_SERPENT_STING
+                    });
             }
 
             bool Load() override
@@ -186,10 +196,29 @@ class spell_hun_cobra_shot : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
+            void HandleLaunch(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    uint32 spellId = 0;
+                    if (caster->HasAura(SPELL_HUNTER_TERMINATION_R_2))
+                        spellId = SPELL_HUNTER_TERMINATION_R_2;
+                    else if (caster->HasAura(SPELL_HUNTER_TERMINATION_R_1))
+                        spellId = SPELL_HUNTER_TERMINATION_R_1;
+
+                    uint32 amount = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                    if (Aura* terminationAura = caster->GetAura(spellId))
+                    {
+                        if (Unit* spellTarget = GetExplTargetUnit())
+                            if (spellTarget->GetHealthPct() <= float(terminationAura->GetSpellInfo()->Effects[EFFECT_1].BasePoints))
+                                amount += terminationAura->GetEffect(EFFECT_0)->GetAmount();
+                    }
+                    caster->CastCustomSpell(SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS, SPELLVALUE_BASE_POINT0, amount, caster, true);
+                }
+            }
+
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS, true);
-
                 if (Aura* aur = GetHitUnit()->GetAura(SPELL_HUNTER_SERPENT_STING, GetCaster()->GetGUID()))
                 {
                     int32 newDuration = aur->GetDuration() + GetEffectValue() * IN_MILLISECONDS;
@@ -199,6 +228,7 @@ class spell_hun_cobra_shot : public SpellScriptLoader
 
             void Register() override
             {
+                OnEffectLaunchTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleLaunch, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
@@ -250,6 +280,16 @@ class spell_hun_fire : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_fire_AuraScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_HUNTER_AIMED_SHOT_INSTANT });
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_HUNTER_AIMED_SHOT_INSTANT;
+            }
+
             void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
             {
                 if (!spellMod)
@@ -266,6 +306,7 @@ class spell_hun_fire : public SpellScriptLoader
 
             void Register() override
             {
+                DoCheckProc += AuraCheckProcFn(spell_hun_fire_AuraScript::CheckProc);
                 DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_hun_fire_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
@@ -962,9 +1003,12 @@ class spell_hun_steady_shot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_STEADY_SHOT_FOCUS))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                    {
+                        SPELL_HUNTER_TERMINATION_R_1,
+                        SPELL_HUNTER_TERMINATION_R_2,
+                        SPELL_HUNTER_STEADY_SHOT_FOCUS,
+                    });
             }
 
             bool Load() override
@@ -974,7 +1018,27 @@ class spell_hun_steady_shot : public SpellScriptLoader
 
             void HandleLaunch(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_STEADY_SHOT_FOCUS, true);
+                if (Unit* caster = GetCaster())
+                {
+                    uint32 spellId = 0;
+                    if (caster->HasAura(SPELL_HUNTER_TERMINATION_R_2))
+                        spellId = SPELL_HUNTER_TERMINATION_R_2;
+                    else if (caster->HasAura(SPELL_HUNTER_TERMINATION_R_1))
+                        spellId = SPELL_HUNTER_TERMINATION_R_1;
+
+                    uint32 amount = 0;
+                    if (SpellInfo const* focusSpell = sSpellMgr->GetSpellInfo(SPELL_HUNTER_STEADY_SHOT_FOCUS))
+                        amount = focusSpell->Effects[EFFECT_0].BasePoints;
+
+                    if (Aura* terminationAura = caster->GetAura(spellId))
+                    {
+                        if (Unit* spellTarget = GetExplTargetUnit())
+                            if (spellTarget->GetHealthPct() <= float(terminationAura->GetSpellInfo()->Effects[EFFECT_1].BasePoints))
+                                amount += terminationAura->GetEffect(EFFECT_0)->GetAmount();
+                    }
+
+                    caster->CastCustomSpell(SPELL_HUNTER_STEADY_SHOT_FOCUS, SPELLVALUE_BASE_POINT0, amount, caster, true);
+                }
             }
 
             void Register() override
@@ -1064,6 +1128,9 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
                 if (!GetExplTargetUnit())
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                if (!caster->ToPlayer()->GetFirstUnusedActivePetSlot())
+                    return SPELL_FAILED_DONT_REPORT;
 
                 if (Creature* target = GetExplTargetUnit()->ToCreature())
                 {
@@ -1301,9 +1368,140 @@ class spell_hun_serpent_sting : public SpellScriptLoader
     }
 };
 
+// - 53234 - Piercing Shots
+class spell_hun_piercing_shots : public SpellScriptLoader
+{
+    public:
+        spell_hun_piercing_shots() : SpellScriptLoader("spell_hun_piercing_shots") { }
+
+        class spell_hun_piercing_shots_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_piercing_shots_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_HUNTER_PIERCING_SHOTS,
+                        SPELL_HUNTER_AIMED_SHOT,
+                        SPELL_HUNTER_AIMED_SHOT_INSTANT,
+                        SPELL_HUNTER_CHIMERA_SHOT,
+                        SPELL_HUNTER_STEADY_SHOT
+                    });
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                switch (eventInfo.GetProcSpell()->GetSpellInfo()->Id)
+                {
+                    case SPELL_HUNTER_AIMED_SHOT:
+                    case SPELL_HUNTER_AIMED_SHOT_INSTANT:
+                    case SPELL_HUNTER_CHIMERA_SHOT:
+                    case SPELL_HUNTER_STEADY_SHOT:
+                        return true;
+                    default:
+                        return false;
+                }
+
+                return false;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                uint8 tickNumber = 0;
+
+                if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_HUNTER_PIERCING_SHOTS))
+                    tickNumber = spell->GetMaxTicks();
+
+                if (tickNumber)
+                {
+                    uint32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage() * aurEff->GetAmount(), 1) / tickNumber;
+                    GetCaster()->CastCustomSpell(SPELL_HUNTER_PIERCING_SHOTS, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetActionTarget(), true);
+                }
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_piercing_shots_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_hun_piercing_shots_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_piercing_shots_AuraScript();
+        }
+};
+
+// - 34485 - Master Marksman
+class spell_hun_master_marksman : public SpellScriptLoader
+{
+    public:
+        spell_hun_master_marksman() : SpellScriptLoader("spell_hun_master_marksman") { }
+
+        class spell_hun_master_marksman_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_master_marksman_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_HUNTER_STEADY_SHOT });
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_HUNTER_STEADY_SHOT;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_master_marksman_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_master_marksman_AuraScript();
+        }
+};
+
+// - 35104 - Bombardment
+class spell_hun_bombardment : public SpellScriptLoader
+{
+    public:
+        spell_hun_bombardment() : SpellScriptLoader("spell_hun_bombardment") { }
+
+        class spell_hun_bombardment_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_bombardment_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_HUNTER_MULTISHOT });
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_HUNTER_MULTISHOT;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_bombardment_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_bombardment_AuraScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
+    new spell_hun_bombardment();
     new spell_hun_chimera_shot();
     new spell_hun_cobra_shot();
     new spell_hun_disengage();
@@ -1313,11 +1511,13 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();
     new spell_hun_lock_and_load();
+    new spell_hun_master_marksman();
     new spell_hun_masters_call();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
     new spell_hun_pet_carrion_feeder();
     new spell_hun_pet_heart_of_the_phoenix();
+    new spell_hun_piercing_shots();
     new spell_hun_rapid_recuperation();
     new spell_hun_readiness();
     new spell_hun_ready_set_aim();

@@ -221,10 +221,17 @@ public:
             {
                 _JustDied();
                 me->setActive(false);
+                me->SetFarVisible(false);
                 if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
+                {
                     stalagg->setActive(false);
+                    stalagg->SetFarVisible(false);
+                }
                 if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
+                {
                     feugen->setActive(false);
+                    feugen->SetFarVisible(false);
+                }
                 Talk(SAY_DEATH);
             }
 
@@ -262,11 +269,18 @@ public:
                         instance->SetBossState(BOSS_THADDIUS, IN_PROGRESS);
 
                         me->setActive(true);
+                        me->SetFarVisible(true);
                         DoZoneInCombat();
                         if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
+                        {
                             stalagg->setActive(true);
+                            stalagg->SetFarVisible(true);
+                        }
                         if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
+                        {
                             feugen->setActive(true);
+                            feugen->SetFarVisible(true);
+                        }
                         break;
                     case ACTION_FEUGEN_DIED:
                         if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
@@ -335,6 +349,7 @@ public:
                     stalagg->AI()->DoAction(ACTION_BEGIN_RESET_ENCOUNTER);
 
                 me->setActive(false);
+                me->SetFarVisible(false);
             }
 
             void ResetEncounter()
@@ -525,6 +540,7 @@ public:
                     coil->SetGoState(GO_STATE_READY);
                 me->DespawnOrUnsummon();
                 me->setActive(false);
+                me->SetFarVisible(false);
             }
 
             void ResetEncounter()
@@ -794,6 +810,7 @@ public:
                     coil->SetGoState(GO_STATE_READY);
                 me->DespawnOrUnsummon();
                 me->setActive(false);
+                me->SetFarVisible(false);
             }
 
             void ResetEncounter()

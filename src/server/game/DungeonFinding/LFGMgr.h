@@ -128,7 +128,11 @@ enum LfgRoleCheckState
     LFG_ROLECHECK_NO_ROLE                        = 6       // Someone selected no role
 };
 
-#define LFG_CALL_TO_ARMS_QUEST 29339
+/// Call to Arms bonus rewards
+enum LfgCallToArms
+{
+    LFG_CALL_TO_ARMS_QUEST                       = 29339
+};
 
 // Forward declaration (just to have all typedef together)
 struct LFGDungeonData;
@@ -350,11 +354,11 @@ class TC_GAME_API LFGMgr
         /// Return Lfg dungeon entry for given dungeon id
         uint32 GetLFGDungeonEntry(uint32 id);
         /// Handles Call to Arms bonuses
-        bool IsCallToArmEligible(uint32 level, uint32 dungeonId);
+        bool IsCallToArmsEligible(uint32 level, uint32 dungeonId);
         uint8 GetRolesForCallToArms() { return _callToArmsRoles; }
         void AddCallToArmsRole(uint8 role) { _callToArmsRoles |= role; }
         void RemoveCallToArmsRole(uint8 role) { _callToArmsRoles = _callToArmsRoles & ~role; }
-        void SetCallToArmEligible(bool val) { _isCallToArmEligible = val; }
+        void SetCallToArmsEligible(bool val) { _isCallToArmsEligible = val; }
 
         // cs_lfg
         /// Get current player roles
@@ -493,7 +497,7 @@ class TC_GAME_API LFGMgr
         LfgPlayerDataContainer PlayersStore;               ///< Player data
         LfgGroupDataContainer GroupsStore;                 ///< Group data
         // Call to Arms System
-        bool _isCallToArmEligible;
+        bool _isCallToArmsEligible;
         uint8 _callToArmsRoles;
 };
 

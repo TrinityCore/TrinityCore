@@ -27,6 +27,7 @@
 #include "SmartScript.h"
 #include "SmartScriptMgr.h"
 #include "GameObjectAI.h"
+#include "WaypointDefines.h"
 
 enum SmartEscortState
 {
@@ -45,7 +46,7 @@ enum SmartEscortVars
 class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
-        ~SmartAI(){ }
+        ~SmartAI();
         explicit SmartAI(Creature* c);
 
         // Check whether we are currently permitted to make the creature take action
@@ -58,7 +59,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
-        WayPoint* GetNextWayPoint();
         bool HasEscortState(uint32 uiEscortState) const { return (mEscortState & uiEscortState) != 0; }
         void AddEscortState(uint32 uiEscortState) { mEscortState |= uiEscortState; }
         void RemoveEscortState(uint32 uiEscortState) { mEscortState &= ~uiEscortState; }
@@ -198,6 +198,8 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetWPPauseTimer(uint32 time) { mWPPauseTimer = time; }
 
+        void SetGossipReturn(bool val) { _gossipReturn = val; }
+
     private:
         bool mIsCharmed;
         uint32 mFollowCreditType;
@@ -211,16 +213,13 @@ class TC_GAME_API SmartAI : public CreatureAI
         void ReturnToLastOOCPos();
         void UpdatePath(const uint32 diff);
         SmartScript mScript;
-        WPPath* mWayPoints;
         uint32 mEscortState;
         uint32 mCurrentWPID;
-        uint32 mLastWPIDReached;
         bool mWPReached;
+        bool mOOCReached;
+        bool m_Ended;
         uint32 mWPPauseTimer;
         uint32 mEscortNPCFlags;
-        WayPoint* mLastWP;
-        Position mLastOOCPos;//set on enter combat
-        uint32 GetWPCount() const { return mWayPoints ? uint32(mWayPoints->size()) : 0; }
         bool mCanRepeatPath;
         bool mRun;
         bool mEvadeDisabled;
@@ -230,6 +229,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 mInvincibilityHpLevel;
         bool AssistPlayerInCombatAgainst(Unit* who);
 
+        WaypointPath _path;
         uint32 mDespawnTime;
         uint32 mDespawnState;
         void UpdateDespawn(uint32 diff);
@@ -240,12 +240,15 @@ class TC_GAME_API SmartAI : public CreatureAI
         void CheckConditions(uint32 diff);
         bool mHasConditions;
         uint32 mConditionsTimer;
+
+        // Gossip
+        bool _gossipReturn;
 };
 
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g) { }
+        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), _gossipReturn(false) { }
         ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff) override;
@@ -268,8 +271,13 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void EventInform(uint32 eventId) override;
         void SpellHit(Unit* unit, const SpellInfo* spellInfo) override;
 
+        void SetGossipReturn(bool val) { _gossipReturn = val; }
+
     private:
         SmartScript mScript;
+
+        // Gossip
+        bool _gossipReturn;
 };
 
 /// Registers scripts required by the SAI scripting system

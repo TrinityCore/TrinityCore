@@ -30,13 +30,7 @@
 
 struct WayPoint
 {
-    WayPoint(uint32 _id, float _x, float _y, float _z)
-    {
-        id = _id;
-        x = _x;
-        y = _y;
-        z = _z;
-    }
+    WayPoint() : id(0), x(0.0f), y(0.0f), z(0.0f) { }
 
     uint32 id;
     float x;
@@ -448,6 +442,7 @@ struct SmartEvent
             uint32 param2;
             uint32 param3;
             uint32 param4;
+            uint32 param5;
         } raw;
     };
 };
@@ -574,7 +569,7 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_POWER                       = 110,    // PowerType, newPower
     SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
-    SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
+    // Not used                                     = 113,
     SMART_ACTION_MOVE_OFFSET                        = 114,
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
@@ -837,6 +832,7 @@ struct SmartAction
         {
             uint32 entry;
             uint32 despawnTime;
+            uint32 summonType;
         } summonGO;
 
         struct
@@ -1187,7 +1183,7 @@ enum SMARTAI_TEMPLATE
 
 enum SMARTAI_TARGETS
 {
-    SMART_TARGET_NONE                           = 0,    // NONE, defaulting to invoket
+    SMART_TARGET_NONE                           = 0,    // NONE
     SMART_TARGET_SELF                           = 1,    // Self cast
     SMART_TARGET_VICTIM                         = 2,    // Our current target (ie: highest aggro)
     SMART_TARGET_HOSTILE_SECOND_AGGRO           = 3,    // Second highest aggro, maxdist, playerOnly, powerType + 1
@@ -1216,7 +1212,7 @@ enum SMARTAI_TARGETS
     SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist, playerOnly
     SMART_TARGET_LOOT_RECIPIENTS                = 27,   // all players that have tagged this creature (for kill credit)
     SMART_TARGET_FARTHEST                       = 28,   // maxDist, playerOnly, isInLos
-    SMART_TARGET_VEHICLE_ACCESSORY              = 29,   // seat number (vehicle can target it's own accessory)
+    SMART_TARGET_VEHICLE_PASSENGER              = 29,   // seatMask (0 - all seats)
 
     SMART_TARGET_END                            = 30
 };
@@ -1344,7 +1340,7 @@ struct SmartTarget
 
         struct
         {
-            uint32 seat;
+            uint32 seatMask;
         } vehicle;
     };
 };
@@ -1531,7 +1527,7 @@ struct SmartScriptHolder
     operator bool() const { return entryOrGuid != 0; }
 };
 
-typedef std::unordered_map<uint32, WayPoint*> WPPath;
+typedef std::vector<WayPoint> WPPath;
 
 typedef std::list<WorldObject*> ObjectList;
 
@@ -1591,22 +1587,23 @@ class TC_GAME_API SmartWaypointMgr
 {
     private:
         SmartWaypointMgr() { }
-        ~SmartWaypointMgr();
+        ~SmartWaypointMgr() { }
 
     public:
         static SmartWaypointMgr* instance();
 
         void LoadFromDB();
 
-        WPPath* GetPath(uint32 id)
+        WPPath const* GetPath(uint32 id)
         {
-            if (waypoint_map.find(id) != waypoint_map.end())
-                return waypoint_map[id];
-            else return nullptr;
+            auto itr = waypoint_map.find(id);
+            if (itr != waypoint_map.end())
+                return &itr->second;
+            return nullptr;
         }
 
     private:
-        std::unordered_map<uint32, WPPath*> waypoint_map;
+        std::unordered_map<uint32, WPPath> waypoint_map;
 };
 
 // all events for a single entry
@@ -1671,6 +1668,8 @@ class TC_GAME_API SmartAIMgr
     private:
         //event stores
         SmartAIEventMap mEventMap[SMART_SCRIPT_TYPE_MAX];
+
+        static bool EventHasInvoker(SMART_EVENT event);
 
         bool IsEventValid(SmartScriptHolder& e);
         bool IsTargetValid(SmartScriptHolder const& e);

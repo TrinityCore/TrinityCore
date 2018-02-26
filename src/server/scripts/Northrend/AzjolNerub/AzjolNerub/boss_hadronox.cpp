@@ -218,7 +218,7 @@ public:
         bool CanAIAttack(Unit const* target) const override
         {
             // Prevent Hadronox from going too far from her current home position
-            if (!target->IsControlledByPlayer() && target->GetDistance(me->GetHomePosition()) > 20.0f)
+            if (!target->IsControlledByPlayer() && target->GetDistance(me->GetHomePosition()) > 70.0f)
                 return false;
             return BossAI::CanAIAttack(target);
         }
@@ -366,7 +366,7 @@ public:
         // Safeguard to prevent Hadronox dying to NPCs
         void DamageTaken(Unit* who, uint32& damage) override
         {
-            if (!who->IsControlledByPlayer() && me->HealthBelowPct(70))
+            if ((!who || !who->IsControlledByPlayer()) && me->HealthBelowPct(70))
             {
                 if (me->HealthBelowPctDamaged(5, damage))
                     damage = 0;

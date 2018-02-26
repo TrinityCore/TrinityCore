@@ -18,7 +18,7 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Gr
 
 -- Siamat
 DELETE FROM `creature_loot_template` WHERE `Entry` IN (44819, 51088);
-DELETE FROM `reference_loot_template` WHERE `Entry` IN (44819, 51088);
+DELETE FROM `reference_loot_template` WHERE `Entry` IN (448190, 510880);
 INSERT INTO `creature_loot_template` (`Entry`, `Chance`, `LootMode`, `Reference`, `MinCount`, `MaxCount`) VALUES
 (44819, 100, 1, 448190, 2, 2);
 INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES

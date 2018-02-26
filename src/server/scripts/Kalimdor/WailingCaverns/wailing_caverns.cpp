@@ -82,6 +82,7 @@ public:
             currentEvent = 0;
             eventProgress = 0;
             me->setActive(true);
+            me->SetFarVisible(true);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
@@ -172,7 +173,7 @@ public:
             Talk(SAY_ATTACKED, who);
         }
 
-        void JustDied(Unit* /*slayer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(DATA_NARALEX_EVENT, FAIL);
             instance->SetData(DATA_NARALEX_PART1, FAIL);

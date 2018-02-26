@@ -137,8 +137,101 @@ class npc_pet_dk_guardian : public CreatureScript
         }
 };
 
+enum GhoulSpells
+{
+    // Dark Transformation
+    SPELL_PET_DARK_TRANSFORMATION   = 63560,
+
+    // Gnaw
+    SPELL_PET_GNAW_DUMMY            = 47481,
+    SPELL_PET_GNAW_DAMAGE           = 91800,
+    SPELL_PET_MONSTROUS_BLOW        = 91797,
+
+    // Leap
+    SPELL_PET_LEAP_DUMMY            = 47482,
+    SPELL_PET_LEAP_EFFECT           = 91809,
+    SPELL_PET_SHAMBLING_RUSH        = 91802,
+
+    // Claw
+    SPELL_PET_CLAW_DUMMY            = 47468,
+    SPELL_PET_CLAW_DAMAGE           = 91776,
+    SPELL_PET_SWEEPING_CLAWS        = 91778,
+
+    // Huddle
+    SPELL_PET_HUDDLE_DUMMY          = 47484,
+    SPELL_PET_HUDDLE_EFFECT         = 91838,
+    SPELL_PET_PUTRID_BULWARK        = 91837,
+};
+
+class spell_pet_ghoul_dummy_ability : public SpellScriptLoader
+{
+public:
+    spell_pet_ghoul_dummy_ability() : SpellScriptLoader("spell_pet_ghoul_dummy_ability") { }
+
+    class spell_pet_ghoul_dummy_ability_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pet_ghoul_dummy_ability_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo(
+                {
+                    SPELL_PET_DARK_TRANSFORMATION,
+                    SPELL_PET_GNAW_DUMMY,
+                    SPELL_PET_GNAW_DAMAGE,
+                    SPELL_PET_MONSTROUS_BLOW,
+                    SPELL_PET_LEAP_DUMMY,
+                    SPELL_PET_LEAP_EFFECT,
+                    SPELL_PET_SHAMBLING_RUSH,
+                    SPELL_PET_CLAW_DUMMY,
+                    SPELL_PET_CLAW_DAMAGE,
+                    SPELL_PET_SWEEPING_CLAWS,
+                    SPELL_PET_HUDDLE_DUMMY,
+                    SPELL_PET_HUDDLE_EFFECT,
+                    SPELL_PET_PUTRID_BULWARK
+                });
+        }
+
+        void HandleHit(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                bool isTransformed = caster->HasAura(SPELL_PET_DARK_TRANSFORMATION);
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_PET_GNAW_DUMMY:
+                        caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_MONSTROUS_BLOW : SPELL_PET_GNAW_DAMAGE, true);
+                        break;
+                    case SPELL_PET_LEAP_DUMMY:
+                        caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_SHAMBLING_RUSH : SPELL_PET_LEAP_EFFECT, true);
+                        break;
+                    case SPELL_PET_CLAW_DUMMY:
+                        caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_SWEEPING_CLAWS : SPELL_PET_CLAW_DAMAGE, true);
+                        break;
+                    case SPELL_PET_HUDDLE_DUMMY:
+                        caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_PUTRID_BULWARK : SPELL_PET_HUDDLE_EFFECT, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pet_ghoul_dummy_ability_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pet_ghoul_dummy_ability_SpellScript();
+    }
+};
+
 void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
     new npc_pet_dk_guardian();
+    new spell_pet_ghoul_dummy_ability();
 }

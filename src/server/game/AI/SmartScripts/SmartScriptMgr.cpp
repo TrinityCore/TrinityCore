@@ -38,14 +38,6 @@ void SmartWaypointMgr::LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (std::unordered_map<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
-    {
-        for (WPPath::iterator pathItr = itr->second->begin(); pathItr != itr->second->end(); ++pathItr)
-            delete pathItr->second;
-
-        delete itr->second;
-    }
-
     waypoint_map.clear();
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMARTAI_WP);
@@ -73,9 +65,10 @@ void SmartWaypointMgr::LoadFromDB()
         y = fields[3].GetFloat();
         z = fields[4].GetFloat();
 
+        WPPath& path = waypoint_map[entry];
+
         if (last_entry != entry)
         {
-            waypoint_map[entry] = new WPPath();
             last_id = 1;
             count++;
         }
@@ -84,7 +77,13 @@ void SmartWaypointMgr::LoadFromDB()
             TC_LOG_ERROR("sql.sql", "SmartWaypointMgr::LoadFromDB: Path entry %u, unexpected point id %u, expected %u.", entry, id, last_id);
 
         last_id++;
-        (*waypoint_map[entry])[id] = new WayPoint(id, x, y, z);
+        WayPoint point;
+        point.id = id;
+        point.x = x;
+        point.y = y;
+        point.z = z;
+
+        path.push_back(std::move(point));
 
         last_entry = entry;
         total++;
@@ -92,17 +91,6 @@ void SmartWaypointMgr::LoadFromDB()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u SmartAI waypoint paths (total %u waypoints) in %u ms", count, total, GetMSTimeDiffToNow(oldMSTime));
-}
-
-SmartWaypointMgr::~SmartWaypointMgr()
-{
-    for (std::unordered_map<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
-    {
-        for (WPPath::iterator pathItr = itr->second->begin(); pathItr != itr->second->end(); ++pathItr)
-            delete pathItr->second;
-
-        delete itr->second;
-    }
 }
 
 SmartAIMgr* SmartAIMgr::instance()
@@ -264,23 +252,24 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.event.raw.param2 = fields[9].GetUInt32();
         temp.event.raw.param3 = fields[10].GetUInt32();
         temp.event.raw.param4 = fields[11].GetUInt32();
+        temp.event.raw.param5 = fields[12].GetUInt32();
 
-        temp.action.type = (SMART_ACTION)fields[12].GetUInt8();
-        temp.action.raw.param1 = fields[13].GetUInt32();
-        temp.action.raw.param2 = fields[14].GetUInt32();
-        temp.action.raw.param3 = fields[15].GetUInt32();
-        temp.action.raw.param4 = fields[16].GetUInt32();
-        temp.action.raw.param5 = fields[17].GetUInt32();
-        temp.action.raw.param6 = fields[18].GetUInt32();
+        temp.action.type = (SMART_ACTION)fields[13].GetUInt8();
+        temp.action.raw.param1 = fields[14].GetUInt32();
+        temp.action.raw.param2 = fields[15].GetUInt32();
+        temp.action.raw.param3 = fields[16].GetUInt32();
+        temp.action.raw.param4 = fields[17].GetUInt32();
+        temp.action.raw.param5 = fields[18].GetUInt32();
+        temp.action.raw.param6 = fields[19].GetUInt32();
 
-        temp.target.type = (SMARTAI_TARGETS)fields[19].GetUInt8();
-        temp.target.raw.param1 = fields[20].GetUInt32();
-        temp.target.raw.param2 = fields[21].GetUInt32();
-        temp.target.raw.param3 = fields[22].GetUInt32();
-        temp.target.x = fields[23].GetFloat();
-        temp.target.y = fields[24].GetFloat();
-        temp.target.z = fields[25].GetFloat();
-        temp.target.o = fields[26].GetFloat();
+        temp.target.type = (SMARTAI_TARGETS)fields[20].GetUInt8();
+        temp.target.raw.param1 = fields[21].GetUInt32();
+        temp.target.raw.param2 = fields[22].GetUInt32();
+        temp.target.raw.param3 = fields[23].GetUInt32();
+        temp.target.x = fields[24].GetFloat();
+        temp.target.y = fields[25].GetFloat();
+        temp.target.z = fields[26].GetFloat();
+        temp.target.o = fields[27].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))
@@ -379,6 +368,54 @@ void SmartAIMgr::LoadSmartAIFromDB()
     UnLoadHelperStores();
 }
 
+/*static*/ bool SmartAIMgr::EventHasInvoker(SMART_EVENT event)
+{
+    switch (event)
+    { // white list of events that actually have an invoker passed to them
+        case SMART_EVENT_AGGRO:
+        case SMART_EVENT_DEATH:
+        case SMART_EVENT_KILL:
+        case SMART_EVENT_SUMMONED_UNIT:
+        case SMART_EVENT_SPELLHIT:
+        case SMART_EVENT_SPELLHIT_TARGET:
+        case SMART_EVENT_DAMAGED:
+        case SMART_EVENT_RECEIVE_HEAL:
+        case SMART_EVENT_RECEIVE_EMOTE:
+        case SMART_EVENT_JUST_SUMMONED:
+        case SMART_EVENT_DAMAGED_TARGET:
+        case SMART_EVENT_SUMMON_DESPAWNED:
+        case SMART_EVENT_PASSENGER_BOARDED:
+        case SMART_EVENT_PASSENGER_REMOVED:
+        case SMART_EVENT_GOSSIP_HELLO:
+        case SMART_EVENT_GOSSIP_SELECT:
+        case SMART_EVENT_ACCEPTED_QUEST:
+        case SMART_EVENT_REWARD_QUEST:
+        case SMART_EVENT_FOLLOW_COMPLETED:
+        case SMART_EVENT_ON_SPELLCLICK:
+        case SMART_EVENT_GO_LOOT_STATE_CHANGED:
+        case SMART_EVENT_AREATRIGGER_ONTRIGGER:
+        case SMART_EVENT_IC_LOS:
+        case SMART_EVENT_OOC_LOS:
+        case SMART_EVENT_DISTANCE_CREATURE:
+        case SMART_EVENT_FRIENDLY_HEALTH:
+        case SMART_EVENT_FRIENDLY_HEALTH_PCT:
+        case SMART_EVENT_FRIENDLY_IS_CC:
+        case SMART_EVENT_FRIENDLY_MISSING_BUFF:
+        case SMART_EVENT_ACTION_DONE:
+        case SMART_EVENT_TARGET_HEALTH_PCT:
+        case SMART_EVENT_TARGET_MANA_PCT:
+        case SMART_EVENT_RANGE:
+        case SMART_EVENT_VICTIM_CASTING:
+        case SMART_EVENT_TARGET_BUFFED:
+        case SMART_EVENT_IS_BEHIND_TARGET:
+        case SMART_EVENT_INSTANCE_PLAYER_ENTER:
+        case SMART_EVENT_TRANSPORT_ADDCREATURE:
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
 {
     if (std::abs(e.target.o) > 2 * float(M_PI))
@@ -432,6 +469,16 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             }
             break;
         }
+        case SMART_TARGET_ACTION_INVOKER:
+        case SMART_TARGET_ACTION_INVOKER_VEHICLE:
+        case SMART_TARGET_INVOKER_PARTY:
+            if (e.GetScriptType() != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST && e.GetEventType() != SMART_EVENT_LINK && !EventHasInvoker(e.event.type))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has invoker target, but action does not provide any invoker!", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
+                // allow this to load for now
+                // return false;
+            }
+            break;
         case SMART_TARGET_PLAYER_RANGE:
         case SMART_TARGET_SELF:
         case SMART_TARGET_VICTIM:
@@ -439,11 +486,8 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_HOSTILE_LAST_AGGRO:
         case SMART_TARGET_HOSTILE_RANDOM:
         case SMART_TARGET_HOSTILE_RANDOM_NOT_TOP:
-        case SMART_TARGET_ACTION_INVOKER:
-        case SMART_TARGET_INVOKER_PARTY:
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
-        case SMART_TARGET_ACTION_INVOKER_VEHICLE:
         case SMART_TARGET_OWNER_OR_SUMMONER:
         case SMART_TARGET_THREAT_LIST:
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
@@ -453,7 +497,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_STORED:
         case SMART_TARGET_LOOT_RECIPIENTS:
         case SMART_TARGET_FARTHEST:
-        case SMART_TARGET_VEHICLE_ACCESSORY:
+        case SMART_TARGET_VEHICLE_PASSENGER:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled target_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetTargetType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1157,7 +1201,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_WP_START:
             {
-                if (!sSmartWaypointMgr->GetPath(e.action.wpStart.pathID))
+                WPPath const* path = sSmartWaypointMgr->GetPath(e.action.wpStart.pathID);
+                if (!path || path->empty())
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Creature %d Event %u Action %u uses non-existent WaypointPath id %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.pathID);
                     return false;
@@ -1314,7 +1359,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
-        case SMART_ACTION_START_CLOSEST_WAYPOINT:
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:

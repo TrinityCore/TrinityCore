@@ -496,6 +496,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         init.SetFly();
         init.SetCyclic();
         init.SetAnimation(Movement::ToFly);
+        init.SetUncompressed();
     }
     else
     {
@@ -503,6 +504,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         init.SetCyclic();
     }
 
+    init.SetSmooth();
     init.Launch();
 }
 
@@ -675,6 +677,14 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
     TC_LOG_DEBUG("misc", "%s (GUID: %u) starts moving over path(Id:%u, repeatable: %s).",
         _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
         _owner->GetGUID().GetCounter(), path_id, repeatable ? "YES" : "NO");
+}
+
+void MotionMaster::MovePath(WaypointPath& path, bool repeatable)
+{
+    Mutate(new WaypointMovementGenerator<Creature>(path, repeatable), MOTION_SLOT_IDLE);
+
+    TC_LOG_DEBUG("misc", "%s starts moving over path (repeatable: %s).",
+        _owner->GetGUID().ToString().c_str(), repeatable ? "YES" : "NO");
 }
 
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)

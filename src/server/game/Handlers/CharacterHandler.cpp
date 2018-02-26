@@ -225,6 +225,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ALL_PETS_DETAIL);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ALL_PETS, stmt);
+
     return res;
 }
 
@@ -289,8 +293,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
     else
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM);
 
-    stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
-    stmt->setUInt32(1, GetAccountId());
+    stmt->setUInt32(0, GetAccountId());
 
     _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharEnum, this, std::placeholders::_1)));
 }
@@ -993,6 +996,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
         Pet::resetTalentsForAllPetsOf(pCurrChar);
 
+    pCurrChar->LoadPetsFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ALL_PETS));
+
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
 
@@ -1104,6 +1109,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             repMgr.SendState(nullptr);
         }
     }
+
+    if (pCurrChar->getClass() == CLASS_HUNTER)
+        pCurrChar->GetSession()->SendStablePet(ObjectGuid::Empty);
 
     // show time before shutdown if shutdown planned.
     if (sWorld->IsShuttingDown())

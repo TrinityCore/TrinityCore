@@ -22,6 +22,7 @@
  */
 
 #include "Player.h"
+#include "Pet.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -41,7 +42,9 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BUTCHERY                           = 50163,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
+    SPELL_DK_DARK_TRANSFORMATION_DUMMY          = 93426,
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
+    SPELL_DK_DEATH_COIL                         = 47541,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
     SPELL_DK_DEATH_GRIP                         = 49560,
@@ -64,6 +67,7 @@ enum DeathKnightSpells
     SPELL_DK_RUNE_TAP                           = 48982,
     SPELL_DK_SCENT_OF_BLOOD                     = 50422,
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
+    SPELL_DK_SHADOW_INFUSION                    = 91342,
     SPELL_DK_UNHOLY_PRESENCE                    = 48265,
     SPELL_DK_PESTILENCE_REDUCED_DOTS            = 76243,
     SPELL_DK_PESTILENCE_VISUAL                  = 91939,
@@ -1066,7 +1070,7 @@ class spell_dk_pestilence : public SpellScriptLoader
                                 {
                                     aurEffNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
                                     aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
+                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT, aurEffNew->GetEffIndex()));
                                 }
                             }
                         }
@@ -1085,7 +1089,7 @@ class spell_dk_pestilence : public SpellScriptLoader
                                 if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
                                 {
                                     aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
+                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT, aurEffNew->GetEffIndex()));
                                 }
                             }
                         }
@@ -1521,6 +1525,132 @@ public:
     }
 };
 
+// -48965 - Shadow Infusion
+class spell_dk_shadow_infusion : public SpellScriptLoader
+{
+    public:
+        spell_dk_shadow_infusion() : SpellScriptLoader("spell_dk_shadow_infusion") { }
+
+        class spell_dk_shadow_infusion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_shadow_infusion_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_DK_SHADOW_INFUSION,
+                        SPELL_DK_DARK_TRANSFORMATION_DUMMY,
+                        SPELL_DK_DEATH_COIL
+                    });
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_DK_DEATH_COIL;
+            }
+
+            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Player* petOwner = caster->ToPlayer())
+                        if (Pet* pet = petOwner->GetPet())
+                            if (Aura* aura = pet->GetAura(SPELL_DK_SHADOW_INFUSION))
+                                if (aura->GetStackAmount() == 4)
+                                    caster->CastSpell(caster, SPELL_DK_DARK_TRANSFORMATION_DUMMY, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dk_shadow_infusion_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dk_shadow_infusion_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_shadow_infusion_AuraScript();
+        }
+};
+
+// 63560 - Dark Transformation
+class spell_dk_dark_transformation : public SpellScriptLoader
+{
+    public:
+        spell_dk_dark_transformation() : SpellScriptLoader("spell_dk_dark_transformation") { }
+
+        class spell_dk_dark_transformation_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_dark_transformation_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_DK_SHADOW_INFUSION,
+                        SPELL_DK_DARK_TRANSFORMATION_DUMMY,
+                    });
+            }
+
+            void HandleLaunch(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->RemoveAurasDueToSpell(SPELL_DK_DARK_TRANSFORMATION_DUMMY);
+                    if (Player* petOwner = caster->ToPlayer())
+                        if (Pet* pet = petOwner->GetPet())
+                            pet->RemoveAurasDueToSpell(SPELL_DK_SHADOW_INFUSION);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectLaunchTarget += SpellEffectFn(spell_dk_dark_transformation_SpellScript::HandleLaunch, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dk_dark_transformation_SpellScript();
+        }
+};
+
+// 93426 - Dark Transformation
+class spell_dk_dark_transformation_aura : public SpellScriptLoader
+{
+    public:
+        spell_dk_dark_transformation_aura() : SpellScriptLoader("spell_dk_dark_transformation_aura") { }
+
+        class spell_dk_dark_transformation_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_dark_transformation_aura_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_DK_SHADOW_INFUSION });
+            }
+
+            void HandlePeriodic(AuraEffect const* aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Player* player = caster->ToPlayer())
+                        if (Pet* pet = player->GetPet())
+                            if (!pet->HasAura(SPELL_DK_SHADOW_INFUSION))
+                                aurEff->GetBase()->Remove();
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_dark_transformation_aura_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_dark_transformation_aura_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1529,6 +1659,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_blood_boil();
     new spell_dk_blood_gorged();
     new spell_dk_butchery();
+    new spell_dk_dark_transformation();
+    new spell_dk_dark_transformation_aura();
     new spell_dk_death_and_decay();
     new spell_dk_death_coil();
     new spell_dk_death_gate();
@@ -1547,6 +1679,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_raise_dead();
     new spell_dk_rune_tap_party();
     new spell_dk_scent_of_blood();
+    new spell_dk_shadow_infusion();
     new spell_dk_scourge_strike();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();

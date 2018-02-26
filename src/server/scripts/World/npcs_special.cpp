@@ -2551,6 +2551,9 @@ enum StableMasters
     SPELL_CHIKEN                    = 54677,
     SPELL_WOLPERTINGER              = 54688,
 
+    NPC_TEXT_STABLE_MASTER_HUNTER   = 13557,
+    NPC_TEXT_STABLE_MASTER_OTHER    = 13584,
+    GOSSIP_MENU_STABLE_MASTER       = 9821,
     STABLE_MASTER_GOSSIP_SUB_MENU   = 9820
 };
 
@@ -2559,44 +2562,49 @@ class npc_stable_master : public CreatureScript
     public:
         npc_stable_master() : CreatureScript("npc_stable_master") { }
 
-        struct npc_stable_masterAI : public SmartAI
+        struct npc_stable_masterAI : public ScriptedAI
         {
-            npc_stable_masterAI(Creature* creature) : SmartAI(creature) { }
+            npc_stable_masterAI(Creature* creature) : ScriptedAI(creature) { }
 
             bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
-                SmartAI::GossipSelect(player, menuId, gossipListId);
-                if (menuId != STABLE_MASTER_GOSSIP_SUB_MENU)
-                    return true;
-
-                switch (gossipListId)
+                if (menuId == STABLE_MASTER_GOSSIP_SUB_MENU)
                 {
-                    case 0:
-                        player->CastSpell(player, SPELL_MINIWING, false);
-                        break;
-                    case 1:
-                        player->CastSpell(player, SPELL_JUBLING, false);
-                        break;
-                    case 2:
-                        player->CastSpell(player, SPELL_DARTER, false);
-                        break;
-                    case 3:
-                        player->CastSpell(player, SPELL_WORG, false);
-                        break;
-                    case 4:
-                        player->CastSpell(player, SPELL_SMOLDERWEB, false);
-                        break;
-                    case 5:
-                        player->CastSpell(player, SPELL_CHIKEN, false);
-                        break;
-                    case 6:
-                        player->CastSpell(player, SPELL_WOLPERTINGER, false);
-                        break;
-                    default:
-                        return false;
+                    switch (gossipListId)
+                    {
+                        case 0:
+                            player->CastSpell(player, SPELL_MINIWING, false);
+                            break;
+                        case 1:
+                            player->CastSpell(player, SPELL_JUBLING, false);
+                            break;
+                        case 2:
+                            player->CastSpell(player, SPELL_DARTER, false);
+                            break;
+                        case 3:
+                            player->CastSpell(player, SPELL_WORG, false);
+                            break;
+                        case 4:
+                            player->CastSpell(player, SPELL_SMOLDERWEB, false);
+                            break;
+                        case 5:
+                            player->CastSpell(player, SPELL_CHIKEN, false);
+                            break;
+                        case 6:
+                            player->CastSpell(player, SPELL_WOLPERTINGER, false);
+                            break;
+                        default:
+                            return false;
+                    }
                 }
-
-                player->PlayerTalkClass->SendCloseGossip();
+                else
+                {
+                    if (gossipListId == 0)
+                    {
+                        player->GetSession()->SendStablePet(me->GetGUID());
+                        player->PlayerTalkClass->SendCloseGossip();
+                    }
+                }
                 return false;
             }
         };
@@ -3003,6 +3011,79 @@ public:
     }
 };
 
+enum MageOrb
+{
+    EVENT_START_MOVING          = 1,
+    EVENT_APPLY_PERIODIC_EFFECT = 2,
+    EVENT_EXPLODE               = 3,
+
+    SPELL_FLAME_ORB_AURA        = 82690,
+    SPELL_FROSTFIRE_ORB_AURA    = 84717,
+
+    NPC_FLAME_ORB               = 44214,
+    NPC_FROSTFIRE_ORB           = 45322,
+
+};
+
+// Frostfire Orb / Flaming Orb
+class npc_mage_orb : public CreatureScript
+{
+    public:
+        npc_mage_orb() : CreatureScript("npc_mage_orb") { }
+
+        struct npc_mage_orbAI : public ScriptedAI
+        {
+            npc_mage_orbAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void IsSummonedBy(Unit* /*summoner*/) override
+            {
+                events.ScheduleEvent(EVENT_START_MOVING, Milliseconds(1));
+                events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECT, Milliseconds(400));
+                me->m_ControlledByPlayer = false;
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_START_MOVING:
+                        {
+                            me->GetMotionMaster()->Clear();
+                            pos.SetOrientation(me->GetOrientation());
+                            pos.m_positionX = me->GetPositionX() + cos(pos.GetOrientation()) * 100.0f;
+                            pos.m_positionY = me->GetPositionY() + sin(pos.GetOrientation()) * 100.0f;
+                            float ground;
+                            me->GetMap()->GetWaterOrGroundLevel(me->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), &ground);
+                            pos.m_positionZ = ground;
+                            Movement::MoveSplineInit init(me);
+                            init.SetSmooth();
+                            init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+                            init.Launch();
+                            break;
+                        }
+                        case EVENT_APPLY_PERIODIC_EFFECT:
+                            DoCastSelf(me->GetEntry() == NPC_FLAME_ORB ? SPELL_FLAME_ORB_AURA : SPELL_FROSTFIRE_ORB_AURA, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        private:
+            EventMap events;
+            Position pos;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_mage_orbAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -3030,4 +3111,5 @@ void AddSC_npcs_special()
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
+    new npc_mage_orb();
 }

@@ -31,62 +31,62 @@ enum Texts
 enum Spells
 {
     // Lurking Tempest
-    SPELL_LIGHTNING_BOLT = 89105,
-    SPELL_LURK = 85467, // dummy aura while not playing dead
-    SPELL_LURK_SEARCH = 85294, // periodically triggers either SPELL_LURK_CHECK or SPELL_FEIGN_DEATH_CHECK
-    SPELL_LURK_CHECK = 85291,
-    SPELL_FEIGN_DEATH = 85267,
-    SPELL_FEIGN_DEATH_CHECK = 86493,
-    SPELL_LURK_RESSURECT = 85281, // 1250 ms duration, on remove SPELL_LURK (85467) is cast
-    SPELL_LURK_FIND_VICTIM = 86456,
+    SPELL_LIGHTNING_BOLT                            = 89105,
+    SPELL_LURK                                      = 85467, // dummy aura while not playing dead
+    SPELL_LURK_SEARCH                               = 85294, // periodically triggers either SPELL_LURK_CHECK or SPELL_FEIGN_DEATH_CHECK
+    SPELL_LURK_CHECK                                = 85291,
+    SPELL_FEIGN_DEATH                               = 85267,
+    SPELL_FEIGN_DEATH_CHECK                         = 86493,
+    SPELL_LURK_RESSURECT                            = 85281, // 1250 ms duration, on remove SPELL_LURK (85467) is cast
+    SPELL_LURK_FIND_VICTIM                          = 86456,
 
     // Young Storm Dragon
-    SPELL_HEALING_WELL = 88201,
-    SPELL_CHILLING_BLAST = 88194,
+    SPELL_HEALING_WELL                              = 88201,
+    SPELL_CHILLING_BLAST                            = 88194,
 
     // Howling Gale
-    SPELL_HOWLING_GALE_VISUAL = 85086,
-    SPELL_HOWLING_GALE_KNOCKBACK = 85159,
-    SPELL_HOWLING_GALE_VISUAL_2 = 85137,
-    SPELL_HOWLING_GALE_KNOCKBACK_2 = 85085,
+    SPELL_HOWLING_GALE_VISUAL                       = 85086,
+    SPELL_HOWLING_GALE_KNOCKBACK                    = 85159,
+    SPELL_HOWLING_GALE_VISUAL_2                     = 85137,
+    SPELL_HOWLING_GALE_KNOCKBACK_2                  = 85085,
 
     // Slipstream (spells Slipstream npcs cast on passenger to make it enter next Slipstream)
-    SPELL_SLIPSTREAM_SPELLCLICK                  = 84965, // spellclick
-    SPELL_SLIPSTREAM_FIRST                       = 84980, // Cast on passenger by Slipstream 1 and 4.
-    SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA  = 84978, // Triggered by SPELL_SLIPSTREAM_FIRST. Targets closest NPC_SLIPSTREAM.
-    SPELL_SLIPSTREAM_SECOND                      = 84988, // Cast on passenger by Slipstream 2 and 5.
-    SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA = 84989, // Triggered by SPELL_SLIPSTREAM_SECOND.  Targets second closest NPC_SLIPSTREAM.
-    SPELL_SLIPSTREAM_THIRD                       = 85394, // Cast on passenger by Slipstream 6.
-    SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA  = 85395, // Triggered by SPELL_SLIPSTREAM_THIRD.  Unknown how it targets next NPC_SLIPSTREAM.
-    SPELL_SLIPSTREAM_FORTH                       = 85397, // Cast on passenger by Slipstream 7.
-    SPELL_SLIPSTREAM_FORTH_CONTROL_VEHICLE_AURA  = 85396, // Triggered by SPELL_SLIPSTREAM_FORTH. Unknown how it targets next NPC_SLIPSTREAM.
-    SPELL_SLIPSTREAM_LAST                        = 85016, // Cast on passenger by Slipstream 3 and 8.
-    SPELL_SLIPSTREAM_LAST_CONTROL_VEHICLE_AURA   = 85017, // Triggered by SPELL_SLIPSTREAM_LAST. Targets NPC_SLIPSTREAM_LANDING_ZONE.
+    SPELL_SLIPSTREAM_SPELLCLICK                     = 84965, // spellclick
+    SPELL_SLIPSTREAM_FIRST                          = 84980, // Cast on passenger by Slipstream 1 and 4.
+    SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA     = 84978, // Triggered by SPELL_SLIPSTREAM_FIRST. Targets closest NPC_SLIPSTREAM.
+    SPELL_SLIPSTREAM_SECOND                         = 84988, // Cast on passenger by Slipstream 2 and 5.
+    SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA    = 84989, // Triggered by SPELL_SLIPSTREAM_SECOND.  Targets second closest NPC_SLIPSTREAM.
+    SPELL_SLIPSTREAM_THIRD                          = 85394, // Cast on passenger by Slipstream 6.
+    SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA     = 85395, // Triggered by SPELL_SLIPSTREAM_THIRD.  Unknown how it targets next NPC_SLIPSTREAM.
+    SPELL_SLIPSTREAM_FORTH                          = 85397, // Cast on passenger by Slipstream 7.
+    SPELL_SLIPSTREAM_FORTH_CONTROL_VEHICLE_AURA     = 85396, // Triggered by SPELL_SLIPSTREAM_FORTH. Unknown how it targets next NPC_SLIPSTREAM.
+    SPELL_SLIPSTREAM_LAST                           = 85016, // Cast on passenger by Slipstream 3 and 8.
+    SPELL_SLIPSTREAM_LAST_CONTROL_VEHICLE_AURA      = 85017, // Triggered by SPELL_SLIPSTREAM_LAST. Targets NPC_SLIPSTREAM_LANDING_ZONE.
 
     // No one sniffed using Slipstreams at entrance, I guess they take you to Slipstream Landing Zone directly, but need spell IDs.
     // Possible spell IDs named 'Slipstream': 87742 Jet Stream??, 89498, 89500, 95911
-//  SPELL_SLIPSTREAM_LEFT = 0,
-//  SPELL_SLIPSTREAM_RIGHT = 0,
+    //  SPELL_SLIPSTREAM_LEFT = 0,
+    //  SPELL_SLIPSTREAM_RIGHT = 0,
 
     // Slipstream Landing Zone
-    SPELL_GENERIC_EJECT_ALL_PASSENGERS = 79737, // Generic Eject All Passengers - Always Allow
+    SPELL_GENERIC_EJECT_ALL_PASSENGERS              = 79737, // Generic Eject All Passengers - Always Allow
 
     // Grounding Field
-    SPELL_PRISM_BEAMS = 87724,
-    SPELL_GROUNDING_FIELD = 87725,
+    SPELL_PRISM_BEAMS                               = 87724,
+    SPELL_GROUNDING_FIELD                           = 87725,
 
     // Skyfall npc
-    SPELL_SKYFALL_VISUAL = 85719,
-    SPELL_SKYFALL = 87850,
+    SPELL_SKYFALL_VISUAL                            = 85719,
+    SPELL_SKYFALL                                   = 87850,
 
     // Skyfall Star npc
-    SPELL_ARCANE_BARRAGE = 87845,
+    SPELL_ARCANE_BARRAGE                            = 87845,
 };
 
 enum NPCs
 {
-    NPC_SKYFALL = 45981,
-    NPC_SKYFALL_STAR = 52019,
+    NPC_SKYFALL                                     = 45981,
+    NPC_SKYFALL_STAR                                = 52019,
 };
 
 enum Events

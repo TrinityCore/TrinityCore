@@ -69,10 +69,19 @@ void AddSC_boss_nefarian();
 void AddSC_instance_blackwing_lair();
 void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
-void AddSC_boss_mr_smite();
+void AddSC_boss_glubtok();
+void AddSC_boss_helix_gearbreaker();
+void AddSC_boss_foe_reaper_5000();
+void AddSC_boss_admiral_ripsnarl();
+void AddSC_boss_captain_cookie();
 void AddSC_gilneas_c1();                     //Gilneas
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
+void AddSC_instance_grim_batol();            //Grim Batol
+void AddSC_boss_general_umbriss();
+void AddSC_boss_forgemaster_throngus();
+void AddSC_boss_drahga_shadowburner();
+void AddSC_boss_erudax();
 void AddSC_boss_attumen();                   //Karazhan
 void AddSC_boss_curator();
 void AddSC_boss_maiden_of_virtue();
@@ -197,6 +206,7 @@ void AddSC_duskwood();
 //void AddSC_eastern_plaguelands();
 void AddSC_elwynn_forest();
 void AddSC_ghostlands();
+void AddSC_goldshire();
 void AddSC_hinterlands();
 void AddSC_redridge_mountains();
 void AddSC_silverpine_forest();
@@ -264,11 +274,20 @@ void AddEasternKingdomsScripts()
     AddSC_boss_nefarian();
     AddSC_instance_blackwing_lair();
     AddSC_deadmines();                      //Deadmines
-    AddSC_boss_mr_smite();
     AddSC_instance_deadmines();
+    AddSC_boss_glubtok();
+    AddSC_boss_helix_gearbreaker();
+    AddSC_boss_foe_reaper_5000();
+    AddSC_boss_admiral_ripsnarl();
+    AddSC_boss_captain_cookie();
     AddSC_gilneas_c1();                     //Gilneas
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
+    AddSC_instance_grim_batol();            //Grim Batol
+    AddSC_boss_general_umbriss();
+    AddSC_boss_forgemaster_throngus();
+    AddSC_boss_erudax();
+    AddSC_boss_drahga_shadowburner();
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();
     AddSC_boss_maiden_of_virtue();
@@ -393,6 +412,7 @@ void AddEasternKingdomsScripts()
     //AddSC_eastern_plaguelands();
     AddSC_elwynn_forest();
     AddSC_ghostlands();
+    AddSC_goldshire();
     AddSC_hinterlands();
     AddSC_redridge_mountains();
     AddSC_silverpine_forest();

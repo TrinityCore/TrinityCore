@@ -37,6 +37,33 @@ struct TempSummonData
     uint32 time;         ///< Despawn time, usable only with certain temp summon types
 };
 
+enum PetEntries
+{
+    // Warlock Pet/Minions
+    ENTRY_IMP               = 416,
+    ENTRY_VOIDWALKER        = 1860,
+    ENTRY_SUCCUBUS          = 1863,
+    ENTRY_FELHUNTER         = 417,
+    ENTRY_FELGUARD          = 17252,
+
+    // Mage Pet
+    ENTRY_WATER_ELEMENTAL   = 510,
+
+    // Druid Minion
+    ENTRY_TREANT            = 1964,
+
+    // Shaman Minions
+    ENTRY_FIRE_ELEMENTAL    = 15438,
+    ENTRY_SPIRIT_WOLF       = 29264,
+
+    // Death Knight Pet/Minions
+    ENTRY_GHOUL             = 26125,
+    ENTRY_BLOODWORM         = 28017,
+    ENTRY_RUNIC_WEAPON      = 27893,
+    ENTRY_GARGOYLE          = 27829,
+    ENTRY_SHADOWFIEND       = 19668
+};
+
 class TC_GAME_API TempSummon : public Creature
 {
     public:
@@ -76,6 +103,7 @@ class TC_GAME_API Minion : public TempSummon
         bool IsPetGhoul() const { return GetEntry() == 26125; } // Ghoul may be guardian or pet
         bool IsSpiritWolf() const { return GetEntry() == 29264; } // Spirit wolf from feral spirits
         bool IsGuardianPet() const;
+        bool IsWarlockMinion() const;
     protected:
         Unit* const m_owner;
         float m_followAngle;

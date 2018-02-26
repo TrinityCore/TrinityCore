@@ -165,9 +165,8 @@ enum ProcFlags
                                                 | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG
                                                 | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS
                                                 | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG
+                                                | PROC_FLAG_DONE_PERIODIC | PROC_FLAG_TAKEN_PERIODIC
                                                 | PROC_FLAG_DONE_TRAP_ACTIVATION,
-
-    PERIODIC_PROC_FLAG_MASK                    = PROC_FLAG_DONE_PERIODIC | PROC_FLAG_TAKEN_PERIODIC,
 
     DONE_HIT_PROC_FLAG_MASK                    = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_RANGED_AUTO_ATTACK
                                                  | PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS
@@ -336,7 +335,7 @@ struct SpellThreatEntry
     float       apPctMod;                                   // Pct of AP that is added as Threat - default: 0.0f
 };
 
-typedef std::map<uint32, SpellThreatEntry> SpellThreatMap;
+typedef std::unordered_map<uint32, SpellThreatEntry> SpellThreatMap;
 
 // coordinates for spells (accessed using SpellMgr functions)
 struct SpellTargetPosition
@@ -409,7 +408,8 @@ enum EffectRadiusIndex
     EFFECT_RADIUS_47_YARDS      = 62,
     EFFECT_RADIUS_23_YARDS      = 63,
     EFFECT_RADIUS_3_5_YARDS     = 64,   // 3.5 yards
-    EFFECT_RADIUS_80_YARDS_2    = 65
+    EFFECT_RADIUS_80_YARDS_2    = 65,
+    EFFECT_RADIUS_1_5_YARDS     = 73    // 1.5 yards
 };
 
 // Spell pet auras
@@ -684,7 +684,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellGroups();
         void LoadSpellGroupStackRules();
         void LoadSpellProcs();
-        void LoadSpellBonusess();
+        void LoadSpellBonuses();
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();

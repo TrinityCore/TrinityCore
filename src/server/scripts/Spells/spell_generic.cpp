@@ -922,6 +922,24 @@ enum Clone
     SPELL_NIGHTMARE_FIGMENT_MIRROR_IMAGE        = 57528
 };
 
+// 5138 - Drain Mana
+// 8129 - Mana Burn
+class spell_gen_clear_fear_poly : public SpellScript
+{
+    PrepareSpellScript(spell_gen_clear_fear_poly);
+
+    void HandleAfterHit()
+    {
+        if (Unit* unitTarget = GetHitUnit())
+            unitTarget->RemoveAurasWithMechanic((1 << MECHANIC_FEAR) | (1 << MECHANIC_POLYMORPH));
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_gen_clear_fear_poly::HandleAfterHit);
+    }
+};
+
 class spell_gen_clone : public SpellScriptLoader
 {
     public:
@@ -1321,6 +1339,118 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_gen_dalaran_disguise_SpellScript();
+        }
+};
+
+class spell_gen_decay_over_time : public SpellScriptLoader
+{
+    public:
+        spell_gen_decay_over_time(char const* name) : SpellScriptLoader(name) { }
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_decay_over_time_SpellScript();
+        }
+
+    private:
+        class spell_gen_decay_over_time_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_decay_over_time_SpellScript);
+
+            void ModAuraStack()
+            {
+                if (Aura* aur = GetHitAura())
+                    aur->SetStackAmount(static_cast<uint8>(GetSpellInfo()->StackAmount));
+            }
+
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_gen_decay_over_time_SpellScript::ModAuraStack);
+            }
+        };
+
+    protected:
+        class spell_gen_decay_over_time_AuraScript : public AuraScript
+        {
+            protected:
+                PrepareAuraScript(spell_gen_decay_over_time_AuraScript);
+
+                bool CheckProc(ProcEventInfo& eventInfo)
+                {
+                    return (eventInfo.GetSpellInfo() == GetSpellInfo());
+                }
+
+                void Decay(ProcEventInfo& /*eventInfo*/)
+                {
+                    PreventDefaultAction();
+                    ModStackAmount(-1);
+                }
+
+                void Register() override
+                {
+                    DoCheckProc += AuraCheckProcFn(spell_gen_decay_over_time_AuraScript::CheckProc);
+                    OnProc += AuraProcFn(spell_gen_decay_over_time_AuraScript::Decay);
+                }
+
+                ~spell_gen_decay_over_time_AuraScript() = default;
+        };
+
+        ~spell_gen_decay_over_time() = default;
+};
+
+enum FungalDecay
+{
+    // found in sniffs, there is no duration entry we can possibly use
+    AURA_DURATION = 12600
+};
+
+// 32065 - Fungal Decay
+class spell_gen_decay_over_time_fungal_decay : public spell_gen_decay_over_time
+{
+    public:
+        spell_gen_decay_over_time_fungal_decay() : spell_gen_decay_over_time("spell_gen_decay_over_time_fungal_decay") { }
+
+        class spell_gen_decay_over_time_fungal_decay_AuraScript : public spell_gen_decay_over_time_AuraScript
+        {
+            PrepareAuraScript(spell_gen_decay_over_time_fungal_decay_AuraScript);
+
+            void ModDuration(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // only on actual reapply, not on stack decay
+                if (GetDuration() == GetMaxDuration())
+                {
+                    SetMaxDuration(AURA_DURATION);
+                    SetDuration(AURA_DURATION);
+                }
+            }
+
+            void Register() override
+            {
+                spell_gen_decay_over_time_AuraScript::Register();
+                OnEffectApply += AuraEffectApplyFn(spell_gen_decay_over_time_fungal_decay_AuraScript::ModDuration, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_decay_over_time_fungal_decay_AuraScript();
+        }
+};
+
+// 36659 - Tail Sting
+class spell_gen_decay_over_time_tail_sting : public spell_gen_decay_over_time
+{
+    public:
+        spell_gen_decay_over_time_tail_sting() : spell_gen_decay_over_time("spell_gen_decay_over_time_tail_sting") { }
+
+        class spell_gen_decay_over_time_tail_sting_AuraScript : public spell_gen_decay_over_time_AuraScript
+        {
+            PrepareAuraScript(spell_gen_decay_over_time_tail_sting_AuraScript);
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_decay_over_time_tail_sting_AuraScript();
         }
 };
 
@@ -2580,7 +2710,7 @@ class spell_gen_pet_summoned : public SpellScriptLoader
                 {
                     PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
                     Pet* newPet = new Pet(player, newPetType);
-                    if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
+                    if (newPet->LoadPetData(player, 0, player->GetLastPetNumber(), true))
                     {
                         // revive the pet if it is dead
                         if (newPet->getDeathState() == DEAD)
@@ -3105,7 +3235,7 @@ class spell_gen_summon_elemental : public SpellScriptLoader
                 if (GetCaster())
                     if (Unit* owner = GetCaster()->GetOwner())
                         if (owner->GetTypeId() == TYPEID_PLAYER) /// @todo this check is maybe wrong
-                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+                            owner->ToPlayer()->RemovePet(nullptr, PET_SAVE_DISMISS, true);
             }
 
             void Register() override
@@ -3693,10 +3823,10 @@ class spell_gen_gm_freeze : public SpellScriptLoader
                     {
                         if (Pet* pet = player->GetPet())
                         {
-                            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                            pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
                             // not let dismiss dead pet
                             if (pet->IsAlive())
-                                player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+                                player->RemovePet(pet, PET_SAVE_DISMISS);
                         }
                     }
                 }
@@ -4485,54 +4615,232 @@ enum ProjectileGoods
 
 class spell_gen_projectile_goods : public SpellScriptLoader
 {
-public:
-    spell_gen_projectile_goods() : SpellScriptLoader("spell_gen_projectile_goods") { }
+    public:
+        spell_gen_projectile_goods() : SpellScriptLoader("spell_gen_projectile_goods") { }
 
-    class spell_gen_projectile_goods_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_gen_projectile_goods_SpellScript);
+        class spell_gen_projectile_goods_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_projectile_goods_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo(
-                {
-                SPELL_PROJECTILE_GOODS_1,
-                SPELL_PROJECTILE_GOODS_2,
-                SPELL_PROJECTILE_GOODS_3,
-                SPELL_PROJECTILE_GOODS_4,
-                });
-        }
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            uint32 spellId = 0;
-            switch (RAND(0, 3))
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                case 0:
-                    spellId = SPELL_PROJECTILE_GOODS_1;
-                    break;
-                case 1:
-                    spellId = SPELL_PROJECTILE_GOODS_2;
-                    break;
-                case 2:
-                    spellId = SPELL_PROJECTILE_GOODS_3;
-                    break;
-                case 3:
-                    spellId = SPELL_PROJECTILE_GOODS_4;
-                    break;
+                return ValidateSpellInfo(
+                    {
+                        SPELL_PROJECTILE_GOODS_1,
+                        SPELL_PROJECTILE_GOODS_2,
+                        SPELL_PROJECTILE_GOODS_3,
+                        SPELL_PROJECTILE_GOODS_4,
+                    });
             }
-            GetCaster()->CastSpell(GetHitUnit(), spellId, true);
-        }
 
-        void Register()
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId = 0;
+                switch (RAND(0, 3))
+                {
+                    case 0:
+                        spellId = SPELL_PROJECTILE_GOODS_1;
+                        break;
+                    case 1:
+                        spellId = SPELL_PROJECTILE_GOODS_2;
+                        break;
+                    case 2:
+                        spellId = SPELL_PROJECTILE_GOODS_3;
+                        break;
+                    case 3:
+                        spellId = SPELL_PROJECTILE_GOODS_4;
+                        break;
+                }
+                GetCaster()->CastSpell(GetHitUnit(), spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_projectile_goods_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_gen_projectile_goods_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_gen_projectile_goods_SpellScript();
         }
-    };
+};
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_gen_projectile_goods_SpellScript();
-    }
+enum Vengeance
+{
+    SPELL_VENGEANCE_TRIGGERED = 76691
+};
+
+// 93098 - 93099 - 84839 - Vengeance
+class spell_gen_vengeance : public SpellScriptLoader
+{
+    public:
+        spell_gen_vengeance() : SpellScriptLoader("spell_gen_vengeance") { }
+
+        class spell_gen_vengeance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_vengeance_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_VENGEANCE_TRIGGERED });
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                PreventDefaultAction();
+                uint32 damage = eventInfo.GetDamageInfo()->GetDamage();
+                uint32 casterHealth = CalculatePct(caster->GetHealth(), 10);
+                if (damage > casterHealth)
+                    damage = casterHealth;
+
+                int32 bp = CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                if (bp) // make sure that we wont cast Vengeance when the damage bonus is 0
+                    caster->CastCustomSpell(caster, SPELL_VENGEANCE_TRIGGERED, &bp, &bp, NULL, true);
+                else if (caster->HasAura(SPELL_VENGEANCE_TRIGGERED))
+                    caster->RemoveAurasDueToSpell(SPELL_VENGEANCE_TRIGGERED);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_vengeance_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_vengeance_AuraScript();
+        }
+};
+
+enum GilneasPrison
+{
+    SPELL_SUMMON_RAVENOUS_WORGEN_1 = 66836,
+    SPELL_SUMMON_RAVENOUS_WORGEN_2 = 66925,
+
+    NPC_WORGEN_RUNT                = 35456,
+};
+
+Position const WorgenRuntHousePos[] =
+{
+    // House Roof
+    { -1729.345f, 1526.495f, 55.47962f, 6.188943f },
+    { -1709.63f, 1527.464f, 56.86086f, 3.258752f },
+    { -1717.75f, 1513.727f, 55.47941f, 4.704845f },
+    { -1724.719f, 1526.731f, 55.66177f, 6.138319f },
+    { -1713.974f, 1526.625f, 56.21981f, 3.306195f },
+    { -1718.104f, 1524.071f, 55.81641f, 4.709816f },
+    { -1718.262f, 1518.557f, 55.55954f, 4.726997f },
+    // Cathdral Roof
+    { -1618.054f, 1489.644f, 68.45153f, 3.593639f },
+    { -1625.62f, 1487.033f, 71.27762f, 3.531424f },
+    { -1638.569f, 1489.736f, 68.55273f, 4.548815f },
+    { -1630.399f, 1481.66f, 71.41516f, 3.484555f },
+    { -1622.424f, 1483.882f, 67.67381f, 3.404875f },
+    { -1634.344f, 1491.3f, 70.10101f, 4.6248f },
+    { -1631.979f, 1491.585f, 71.11481f, 4.032866f },
+    { -1627.273f, 1499.689f, 68.89395f, 4.251452f },
+    { -1622.665f, 1489.818f, 71.03797f, 3.776179f },
+};
+
+class spell_gen_gilneas_prison_periodic_dummy : public SpellScriptLoader
+{
+    public:
+        spell_gen_gilneas_prison_periodic_dummy() : SpellScriptLoader("spell_gen_gilneas_prison_periodic_dummy") { }
+
+        class spell_gen_gilneas_prison_periodic_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_gilneas_prison_periodic_dummy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_SUMMON_RAVENOUS_WORGEN_1, // House roof
+                        SPELL_SUMMON_RAVENOUS_WORGEN_2, // Cathedral roof
+                    });
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    switch (RAND(0, 1))
+                    {
+                        case 0:
+                            caster->CastSpell(caster, SPELL_SUMMON_RAVENOUS_WORGEN_1, true);
+                            for (uint8 i = 0; i < 7; i++)
+                                if (Creature* runt = caster->SummonCreature(NPC_WORGEN_RUNT, WorgenRuntHousePos[i]))
+                                    runt->AI()->DoAction(i);
+                            break;
+                        case 1:
+                            caster->CastSpell(caster, SPELL_SUMMON_RAVENOUS_WORGEN_2, true);
+                            for (uint8 i = 7; i < 16; i++)
+                                if (Creature* runt = caster->SummonCreature(NPC_WORGEN_RUNT, WorgenRuntHousePos[i]))
+                                    runt->AI()->DoAction(i);
+                            if (RAND(0, 1) == 1)
+                                for (uint8 i = 0; i < RAND(1, 3); i++)
+                                    if (Creature* runt = caster->SummonCreature(NPC_WORGEN_RUNT, WorgenRuntHousePos[i]))
+                                        runt->AI()->DoAction(i);
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_gilneas_prison_periodic_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_gilneas_prison_periodic_dummy_SpellScript();
+        }
+};
+
+enum ThrowTorch
+{
+    CREDIT_ROUND_UP_WORGEN  = 35582,
+    SPELL_THROW_TORCH       = 67063
+};
+
+class spell_gen_throw_torch : public SpellScriptLoader
+{
+    public:
+        spell_gen_throw_torch() : SpellScriptLoader("spell_gen_throw_torch") { }
+
+        class spell_gen_throw_torch_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_throw_torch_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo( { SPELL_THROW_TORCH });
+            }
+
+            void HandleEffect()
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                    if (GetHitUnit() && !GetHitUnit()->HasAura(SPELL_THROW_TORCH))
+                        player->KilledMonsterCredit(CREDIT_ROUND_UP_WORGEN);
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_gen_throw_torch_SpellScript::HandleEffect);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_throw_torch_SpellScript();
+        }
 };
 
 void AddSC_generic_spell_scripts()
@@ -4555,6 +4863,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_burning_depths_necrolyte_image();
     new spell_gen_cannibalize();
     new spell_gen_chaos_blast();
+    RegisterSpellScript(spell_gen_clear_fear_poly);
     new spell_gen_clone();
     new spell_gen_clone_weapon();
     new spell_gen_clone_weapon_aura();
@@ -4564,6 +4873,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_creature_permanent_feign_death();
     new spell_gen_dalaran_disguise("spell_gen_sunreaver_disguise");
     new spell_gen_dalaran_disguise("spell_gen_silver_covenant_disguise");
+    new spell_gen_decay_over_time_fungal_decay();
+    new spell_gen_decay_over_time_tail_sting();
     new spell_gen_defend();
     new spell_gen_despawn_self();
     new spell_gen_divine_storm_cd_reset();
@@ -4639,4 +4950,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_blink();
     new spell_gen_toxic_blow_dart();
     new spell_gen_projectile_goods();
+    new spell_gen_vengeance();
+    new spell_gen_gilneas_prison_periodic_dummy();
+    new spell_gen_throw_torch();
 }

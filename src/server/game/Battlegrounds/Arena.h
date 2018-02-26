@@ -20,6 +20,14 @@
 
 #include "Battleground.h"
 
+enum ArenaBroadcastTexts
+{
+    ARENA_TEXT_START_ONE_MINUTE             = 15740,
+    ARENA_TEXT_START_THIRTY_SECONDS         = 15741,
+    ARENA_TEXT_START_FIFTEEN_SECONDS        = 15739,
+    ARENA_TEXT_START_BATTLE_HAS_BEGUN       = 15742,
+};
+
 enum ArenaSpellIds
 {
     SPELL_ALLIANCE_GOLD_FLAG                = 32724,

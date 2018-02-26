@@ -19,46 +19,118 @@
 #define DEF_DEADMINES_H
 
 #define DataHeader "DM"
+#define DMScriptName "instance_deadmines"
 
-enum DMCannonState
+uint32 const EncounterCount = 6;
+
+enum DMDataTypes
 {
-    CANNON_NOT_USED,
-    CANNON_GUNPOWDER_USED,
-    CANNON_BLAST_INITIATED,
-    PIRATES_ATTACK,
-    SMITE_ALARMED,
-    EVENT_DONE
+    // Encounters
+    DATA_GLUBTOK            = 0,
+    DATA_HELIX_GEARBREAKER  = 1,
+    DATA_FOE_REAPER_5000    = 2,
+    DATA_ADMIRAL_RIPSNARL   = 3,
+    DATA_CAPTAIN_COOKIE     = 4,
+    DATA_VANESSA_VAN_CLEEF  = 5,
+
+    DATA_TEAM_IN_INSTANCE   = 6,
+    DATA_FIREWALL_PLATTER   = 7,
+    DATA_LUMBERING_OAF      = 8,
+    DATA_FOE_REAPER_INTRO   = 9,
+    DATA_FOE_REAPER_BUNNY   = 10,
+    DATA_PROTOTYPE_REAPER   = 11,
+    DATA_BROKEN_DOOR        = 13,
+    DATA_IRON_CLAD_DOOR     = 14,
+    DATA_RIPSNARL_FOG       = 15
 };
 
-enum DMData
+enum DMCreatures
 {
-    EVENT_STATE,
-    EVENT_RHAHKZOR
-};
+    // Bosses
+    BOSS_GLUBTOK                    = 47162,
+    BOSS_HELIX_GEARBREAKER          = 47296,
+    BOSS_FOE_REAPER_5000            = 43778,
+    BOSS_ADMIRAL_RIPSNARL           = 47626,
+    BOSS_CAPTAIN_COOKIE             = 47739,
 
-enum DMData64
-{
-    DATA_SMITE_CHEST
+    // Horde Creatures
+    NPC_SLINKY_SHARPSHIV            = 46906,
+    NPC_KAGTHA                      = 46889,
+    NPC_MISS_MAYHEM                 = 46902,
+    NPC_SHATTERED_HAND_ASSASSIN     = 46890,
+    NPC_MAYHEM_REAPER_PROTOTYPE     = 46903,
+
+    // Alliance Creatures
+    NPC_STORMWIND_INVESTIGATOR      = 46614,
+    NPC_CRIME_SCENE_ALARM_O_BOT     = 46613,
+    NPC_STORMWIND_DEFENDER          = 50595,
+    NPC_LIEUTENANT_HORATIO_LAINE    = 46612,
+    NPC_QUARTERMASTER_LEWIS         = 491,
+
+    // Encounter Related
+    NPC_GENERAL_PURPOSE_DUMMY_JMF   = 45979,
+    NPC_GLUBTOK_FIREWALL_PLATTER    = 48974,
+    NPC_FIREWALL_PLATTER_1A         = 48975,
+    NPC_FIREWALL_PLATTER_1B         = 49039,
+    NPC_FIREWALL_PLATTER_1C         = 49040,
+    NPC_FIREWALL_PLATTER_2A         = 48976,
+    NPC_FIREWALL_PLATTER_2B         = 49041,
+    NPC_FIREWALL_PLATTER_2C         = 49042,
+    NPC_GENERAL_PURPOSE_BUNNY_L2    = 47242,
+    NPC_FIRE_BLOSSOM_BUNNY          = 47282,
+    NPC_FROST_BLOSSOM_BUNNY         = 47284,
+    NPC_LUMBERING_OAF               = 47297,
+    NPC_HELIX_CREW                  = 49139,
+    NPC_STICKY_BOMB                 = 47314,
+    NPC_DEFIAS_REAPER               = 47403,
+    NPC_DEFIAS_WATCHER              = 47404,
+    NPC_FOE_REAPER_TARGETING_BUNNY  = 47468,
+    NPC_PROTOTYPE_REAPER            = 49208,
+    NPC_MOLTEN_SLAG                 = 49229,
+    NPC_VAPOR                       = 47714,
+    NPC_COOKIES_CAULDRON            = 47754,
+    NPC_CORN                        = 48006,
+    NPC_ROTTEN_CORN                 = 48276,
+    NPC_MELON                       = 48294,
+    NPC_ROTTEN_MELON                = 48293,
+    NPC_STEAK                       = 48296,
+    NPC_ROTTEN_STEAK                = 48295,
+    NPC_MYSTERY_MEAT                = 48297,
+    NPC_ROTTEN_MYSTERY_MEAT         = 48298,
+    NPC_LOAF                        = 48300,
+    NPC_ROTTEN_LOAF                 = 48299,
+    NPC_BUN                         = 48301,
+    NPC_ROTTEN_BUN                  = 48302,
 };
 
 enum DMGameObjects
 {
-    GO_FACTORY_DOOR                                        = 13965,
-    GO_IRONCLAD_DOOR                                       = 16397,
-    GO_DEFIAS_CANNON                                       = 16398,
-    GO_DOOR_LEVER                                          = 101833,
-    GO_MR_SMITE_CHEST                                      = 144111
+    GO_FACTORY_DOOR     = 13965,
+    GO_IRON_CLAD_DOOR   = 16397,
+    GO_DEFIAS_CANNON    = 16398,
+    GO_DOOR_LEVER       = 101833,
+    GO_MAST_ROOM_DOOR   = 16400,
+    GO_HEAVY_DOOR       = 17153,
+    GO_FOUNDRY_DOOR     = 16399
 };
 
-enum DMCreaturesIds
+enum DMSpells
 {
-    NPC_MR_SMITE   = 646
+    SPELL_FOG           = 88768
 };
 
-enum DMInstanceTexts
+Position const captainCookieSpawnPos = { -88.13194f, -819.3299f, 39.23453f };
+
+template<class AI>
+AI* GetDeadminesAI(Creature* creature)
 {
-    SAY_ALARM1 = 0,
-    SAY_ALARM2 = 1
-};
+    return GetInstanceAI<AI>(creature, DMScriptName);
+}
+
+template<class AI>
+AI* GetDeadminesAI(GameObject* go)
+{
+    return GetInstanceAI<AI>(go, DMScriptName);
+}
 
 #endif

@@ -82,6 +82,7 @@ enum CreatureFlagsExtra : uint32
 };
 
 const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
+const uint32 CREATURE_REGEN_ENERGY_INTERVAL = 100;
 const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
 
 const uint8 MAX_KILL_CREDIT = 2;
@@ -526,7 +527,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
         bool AIM_Destroy();
-        bool AIM_Initialize(CreatureAI* ai = NULL);
+        bool AIM_Create(CreatureAI* ai = nullptr);
+        void AI_InitializeAndEnable();
+        bool AIM_Initialize(CreatureAI* ai = nullptr);
         void Motion_Initialize();
 
         CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(i_AI); }
@@ -733,6 +736,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void ClearTextRepeatGroup(uint8 textGroup);
 
         bool CanGiveExperience() const;
+        bool IsAllowedToRepostionAgainst(Unit* target) const;
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
@@ -797,6 +801,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
         uint32 m_path_id;
+
+        float m_tmpEnergyReg;
 
         //Formation var
         CreatureGroup* m_formation;
