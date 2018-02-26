@@ -1882,7 +1882,8 @@ class spell_mage_hot_streak : public SpellScriptLoader
                         SPELL_MAGE_FIREBALL,
                         SPELL_MAGE_PYRO_BLAST,
                         SPELL_MAGE_FIRE_BLAST,
-                        SPELL_MAGE_FROSTFIRE_BOLT
+                        SPELL_MAGE_FROSTFIRE_BOLT,
+                        SPELL_MAGE_SCORCH
                     });
             }
 
@@ -1898,6 +1899,7 @@ class spell_mage_hot_streak : public SpellScriptLoader
                             case SPELL_MAGE_PYRO_BLAST:
                             case SPELL_MAGE_FIRE_BLAST:
                             case SPELL_MAGE_FROSTFIRE_BOLT:
+                            case SPELL_MAGE_SCORCH:
                                 return true;
                             default:
                                 return false;
@@ -1951,7 +1953,8 @@ class spell_mage_improved_hot_streak : public SpellScriptLoader
                         SPELL_MAGE_FIREBALL,
                         SPELL_MAGE_PYRO_BLAST,
                         SPELL_MAGE_FIRE_BLAST,
-                        SPELL_MAGE_FROSTFIRE_BOLT
+                        SPELL_MAGE_FROSTFIRE_BOLT,
+                        SPELL_MAGE_SCORCH
                     });
             }
 
@@ -1963,6 +1966,7 @@ class spell_mage_improved_hot_streak : public SpellScriptLoader
                     case SPELL_MAGE_PYRO_BLAST:
                     case SPELL_MAGE_FIRE_BLAST:
                     case SPELL_MAGE_FROSTFIRE_BOLT:
+                    case SPELL_MAGE_SCORCH:
                         if (eventInfo.GetDamageInfo()->GetHitMask() & PROC_HIT_CRITICAL)
                             criticalStrikesCounter++;
                         else
