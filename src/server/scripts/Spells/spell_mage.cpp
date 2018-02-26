@@ -1974,16 +1974,8 @@ class spell_mage_improved_hot_streak : public SpellScriptLoader
 
                         if (criticalStrikesCounter == 2)
                         {
-                            if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
-                            {
-                                criticalStrikesCounter = 0;
-                                return true;
-                            }
-                            else
-                            {
-                                criticalStrikesCounter = 0;
-                                return false;
-                            }
+                            criticalStrikesCounter = 0;
+                            return roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                         }
                 }
                 return false;
