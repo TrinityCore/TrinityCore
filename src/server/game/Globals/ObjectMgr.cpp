@@ -7501,7 +7501,7 @@ void ObjectMgr::LoadGameObjectOverrides()
         }
 
         GameObjectOverride& gameObjectOverride = _gameObjectOverrideStore[spawnId];
-        gameObjectOverride.Faction = fields[1].GetUInt32();
+        gameObjectOverride.Faction = fields[1].GetUInt16();
         gameObjectOverride.Flags = fields[2].GetUInt32();
 
         if (gameObjectOverride.Faction && !sFactionTemplateStore.LookupEntry(gameObjectOverride.Faction))
