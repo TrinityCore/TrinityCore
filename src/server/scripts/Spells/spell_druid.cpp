@@ -333,7 +333,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_dru_eclipse_energize_SpellScript;
+            return new spell_dru_eclipse_energize_SpellScript();
         }
 };
 
