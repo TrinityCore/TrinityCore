@@ -2549,10 +2549,8 @@ float Map::GetMinHeight(PhaseShift const& phaseShift, float x, float y)
     return -500.0f;
 }
 
-inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, int32 /*groupId*/, WMOAreaTableEntry const* wmoEntry, AreaTableEntry const* atEntry)
+inline bool IsOutdoorWMO(uint32 mogpFlags, WMOAreaTableEntry const* wmoEntry, AreaTableEntry const* atEntry)
 {
-    bool outdoor = true;
-
     if (wmoEntry && atEntry)
     {
         if (atEntry->Flags[0] & AREA_FLAG_OUTSIDE)
@@ -2561,16 +2559,14 @@ inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, in
             return false;
     }
 
-    outdoor = (mogpFlags & 0x8) != 0;
-
     if (wmoEntry)
     {
         if (wmoEntry->Flags & 4)
             return true;
         if (wmoEntry->Flags & 2)
-            outdoor = false;
+            return false;
     }
-    return outdoor;
+    return (mogpFlags & 0x8);
 }
 
 bool Map::IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z)
@@ -2583,13 +2579,13 @@ bool Map::IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z)
         return true;
 
     AreaTableEntry const* atEntry = nullptr;
-    WMOAreaTableEntry const* wmoEntry= sDB2Manager.GetWMOAreaTable(rootId, adtId, groupId);
+    WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(rootId, adtId, groupId);
     if (wmoEntry)
     {
         TC_LOG_DEBUG("maps", "Got WMOAreaTableEntry! flag %u, areaid %u", wmoEntry->Flags, wmoEntry->AreaTableID);
         atEntry = sAreaTableStore.LookupEntry(wmoEntry->AreaTableID);
     }
-    return IsOutdoorWMO(mogpFlags, adtId, rootId, groupId, wmoEntry, atEntry);
+    return IsOutdoorWMO(mogpFlags, wmoEntry, atEntry);
 }
 
 bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId)
@@ -2672,7 +2668,7 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, b
     if (isOutdoors)
     {
         if (haveAreaInfo)
-            *isOutdoors = IsOutdoorWMO(mogpFlags, adtId, rootId, groupId, wmoEntry, atEntry);
+            *isOutdoors = IsOutdoorWMO(mogpFlags, wmoEntry, atEntry);
         else
             *isOutdoors = true;
     }
@@ -2807,18 +2803,19 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
 
     // area lookup
     AreaTableEntry const* areaEntry = nullptr;
+    WMOAreaTableEntry const* wmoEntry = nullptr;
     if (vmapData.areaInfo && (z <= mapHeight || mapHeight <= vmapData.floorZ))
-        if (WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId))
+        if ((wmoEntry = sDB2Manager.GetWMOAreaTable(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId)))
             areaEntry = sAreaTableStore.LookupEntry(wmoEntry->AreaTableID);
 
     if (areaEntry)
     {
-        data.floorZ = vmapData.floorZ;
         data.areaId = areaEntry->ID;
+        data.floorZ = vmapData.floorZ;
+        data.outdoors = IsOutdoorWMO(vmapData.areaInfo->mogpFlags, wmoEntry, areaEntry);
     }
     else
     {
-        data.floorZ = mapHeight;
         if (gmap)
             data.areaId = gmap->getArea(x, y);
         else
@@ -2829,6 +2826,9 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
 
         if (data.areaId)
             areaEntry = sAreaTableStore.LookupEntry(data.areaId);
+
+        data.floorZ = mapHeight;
+        data.outdoors = true; // @todo default true taken from old GetAreaId check, maybe review
     }
 
     // liquid processing
