@@ -1929,7 +1929,7 @@ public:
                 return;
 
             float soulShardAgonyTick = caster->Variables.GetValue<float>("SoulShardAgonyTick", frand(0.0f, 99.0f));
-            soulShardAgonyTick += 16.0f / float(sqrt(GetStackAmount()));
+            soulShardAgonyTick += 16.0f;
 
             if (soulShardAgonyTick >= 100.0f)
             {
