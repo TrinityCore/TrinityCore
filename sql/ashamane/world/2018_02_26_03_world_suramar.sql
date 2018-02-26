@@ -172,8 +172,6 @@ UPDATE `gameobject_template_addon` SET `flags`=4 WHERE `entry`=245126; -- Crysta
 UPDATE `gameobject_template_addon` SET `flags`=36 WHERE `entry`=265435; -- Doodad_7sr_hubmanatree_seedholder001
 
 DELETE FROM `quest_poi` WHERE (`QuestID`=-469762048 AND `BlobIndex`=603979776 AND `Idx1`=0);
-INSERT INTO `quest_poi` (`QuestID`, `BlobIndex`, `Idx1`, `ObjectiveIndex`, `QuestObjectiveID`, `QuestObjectID`, `MapID`, `WorldMapAreaId`, `Floor`, `Priority`, `Flags`, `WorldEffectID`, `PlayerConditionID`, `WoDUnk1`, `VerifiedBuild`) VALUES
-(-469762048, 603979776, 0, 1862270988, 25, 35375, 3, 0, -1, 0, 0, 1116, 950, 0, 25996); -- -Unknown-
 
 UPDATE `quest_poi` SET `VerifiedBuild`=25996 WHERE (`QuestID`=44691 AND `BlobIndex`=0 AND `Idx1`=0); -- Hungry Work
 UPDATE `quest_poi` SET `VerifiedBuild`=25996 WHERE (`QuestID`=40830 AND `BlobIndex`=0 AND `Idx1`=0); -- Close Enough
