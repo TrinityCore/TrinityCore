@@ -1091,12 +1091,9 @@ public:
             if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
             {
                 SpellInfo const* piercingShots = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_PIERCING_SHOTS);
-                int32 duration = piercingShots->GetMaxDuration();
-                uint32 amplitude = piercingShots->Effects[EFFECT_0].Amplitude;
                 uint32 dmg = dmgInfo->GetDamage();
 
-                uint32 bp = CalculatePct(int32(dmg), aurEff->GetAmount()) / (duration / int32(amplitude));
-                bp += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_HUNTER_PIERCING_SHOTS, SPELL_AURA_PERIODIC_DAMAGE);
+                int32 bp = CalculatePct(int32(dmg), aurEff->GetAmount()) / static_cast<int32>(piercingShots->GetMaxTicks());
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(bp);
