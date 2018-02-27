@@ -56,6 +56,7 @@ class TC_GAME_API MapManager
         }
 
         void Initialize(void);
+        void InitializeParentMapData(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
         void Update(uint32);
 
         void SetGridCleanUpDelay(uint32 t)
@@ -145,8 +146,10 @@ class TC_GAME_API MapManager
             return (iter == i_maps.end() ? NULL : iter->second);
         }
 
-        MapManager(const MapManager &);
-        MapManager& operator=(const MapManager &);
+        Map* CreateBaseMap_i(MapEntry const* mapEntry);
+
+        MapManager(MapManager const&) = delete;
+        MapManager& operator=(MapManager const&) = delete;
 
         std::mutex _mapsLock;
         uint32 i_gridCleanUpDelay;
@@ -159,6 +162,9 @@ class TC_GAME_API MapManager
 
         // atomic op counter for active scripts amount
         std::atomic<std::size_t> _scheduledScripts;
+
+        // parent map links
+        std::unordered_map<uint32, std::vector<uint32>> _parentMapData;
 };
 
 template<typename Worker>

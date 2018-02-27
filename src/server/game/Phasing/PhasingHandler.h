@@ -55,6 +55,7 @@ public:
     static void SendToPlayer(Player const* player);
     static void FillPartyMemberPhase(WorldPackets::Party::PartyMemberPhaseStates* partyMemberPhases, PhaseShift const& phaseShift);
 
+    static PhaseShift const& GetEmptyPhaseShift();
     static void InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
     static void InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId);
     static bool InDbPhaseShift(WorldObject const* object, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
