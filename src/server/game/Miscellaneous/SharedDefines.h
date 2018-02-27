@@ -747,7 +747,7 @@ enum SpellAttr10
     SPELL_ATTR10_HERB_GATHERING_MINING           = 0x00000800, // 11 Only Herb Gathering and Mining
     SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING= 0x00001000, // 12
     SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END = 0x00002000, // 13
-    SPELL_ATTR10_UNK14                           = 0x00004000, // 14
+    SPELL_ATTR10_ROLLING_PERIODIC                = 0x00004000, // 14 Add remaining periodic damage to new aura when refreshed
     SPELL_ATTR10_UNK15                           = 0x00008000, // 15
     SPELL_ATTR10_UNK16                           = 0x00010000, // 16
     SPELL_ATTR10_CAN_DODGE_PARRY_WHILE_CASTING   = 0x00020000, // 17

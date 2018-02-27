@@ -1563,8 +1563,6 @@ public:
 
             ASSERT(spellInfo->GetMaxTicks() > 0);
             amount /= spellInfo->GetMaxTicks();
-            // Add remaining ticks to damage done
-            amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DRUID_LANGUISH, SPELL_AURA_PERIODIC_DAMAGE);
 
             CastSpellExtraArgs args(aurEff);
             args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);

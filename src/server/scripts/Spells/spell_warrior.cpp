@@ -733,10 +733,8 @@ public:
         void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             Unit* target = eventInfo.GetActionTarget();
-            //Get the Remaining Damage from the aura (if exist)
-            int32 remainingDamage = target->GetRemainingPeriodicAmount(target->GetGUID(), SPELL_WARRIOR_TRAUMA_EFFECT, SPELL_AURA_PERIODIC_DAMAGE);
             //Get 25% of damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
-            int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT, GetCastDifficulty())->GetMaxTicks()) + remainingDamage;
+            int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT, GetCastDifficulty())->GetMaxTicks());
             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
             args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
             GetCaster()->CastSpell(target, SPELL_WARRIOR_TRAUMA_EFFECT, args);
