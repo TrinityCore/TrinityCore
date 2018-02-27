@@ -2463,9 +2463,6 @@ class spell_dk_unholy_blight : public SpellScriptLoader
                 ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
-                // Add remaining ticks to healing done
-                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DK_UNHOLY_BLIGHT_DAMAGE, SPELL_AURA_PERIODIC_DAMAGE);
-
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(amount);
                 caster->CastSpell(target, SPELL_DK_UNHOLY_BLIGHT_DAMAGE, args);
