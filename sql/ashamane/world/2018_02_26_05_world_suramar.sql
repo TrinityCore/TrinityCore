@@ -1639,7 +1639,7 @@ REPLACE INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `la
 (111621, @GROUP_ID+0, @ID+0, 'Your fate is sealed!', 12, 0, 100, 0, 0, 66021, 116689, 'Duskwatch Executor to Player'), -- BroadcastTextID: 11455 - 94769 - 116675 - 116689
 (111774, @GROUP_ID+0, @ID+0, 'Val''kyr!  The Call has gone out!  Prepare yourselves!', 14, 0, 100, 5, 0, 0, 122615, 'Matilda Skoptidottir to Player');
 
-INSERT INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
+REPLACE INTO `creature_text` (`CreatureID`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
 (111871, @GROUP_ID+0, @ID+0, 'Inconceivable...', 12, 0, 100, 0, 0, 65808, 116788, 'Ley Line Researcher to Player'), -- BroadcastTextID: 93926 - 116757 - 116788
 (111871, @GROUP_ID+1, @ID+0, 'Tor''theras falar!', 12, 0, 100, 432, 0, 65809, 116780, 'Ley Line Researcher to Player'), -- BroadcastTextID: 102166 - 116432 - 116759 - 116770 - 116780 - 116790
 (111872, @GROUP_ID+0, @ID+0, 'No! It is not my time....', 12, 0, 100, 0, 0, 66015, 116778, 'Leyline Researcher to Player'), -- BroadcastTextID: 116768 - 116778
