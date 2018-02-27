@@ -31,6 +31,8 @@
 
 namespace
 {
+PhaseShift const Empty;
+
 inline PhaseFlags GetPhaseFlags(uint32 phaseId)
 {
     if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
@@ -418,6 +420,11 @@ void PhasingHandler::FillPartyMemberPhase(WorldPackets::Party::PartyMemberPhaseS
     partyMemberPhases->List.reserve(phaseShift.Phases.size());
     std::transform(phaseShift.Phases.begin(), phaseShift.Phases.end(), std::back_inserter(partyMemberPhases->List),
         [](PhaseShift::PhaseRef const& phase) -> WorldPackets::Party::PartyMemberPhase { return { phase.Flags.AsUnderlyingType(), phase.Id }; });
+}
+
+PhaseShift const& PhasingHandler::GetEmptyPhaseShift()
+{
+    return Empty;
 }
 
 void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId)
