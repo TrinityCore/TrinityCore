@@ -198,7 +198,7 @@ class TC_GAME_API GridMap
     uint8 _liquidOffY;
     uint8 _liquidWidth;
     uint8 _liquidHeight;
-
+    bool _fileExists;
 
     bool loadAreaData(FILE* in, uint32 offset, uint32 size);
     bool loadHeightData(FILE* in, uint32 offset, uint32 size);
@@ -224,6 +224,7 @@ public:
     float getLiquidLevel(float x, float y) const;
     uint8 getTerrainType(float x, float y) const;
     ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0);
+    bool fileExists() const { return _fileExists; }
 };
 
 #pragma pack(push, 1)
@@ -330,6 +331,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static void DeleteStateMachine();
 
         Map const* GetParent() const { return m_parentMap; }
+        void AddChildTerrainMap(Map* map) { m_childTerrainMaps->push_back(map); }
+        void UnlinkAllChildTerrainMaps() { m_childTerrainMaps->clear(); }
 
         // some calls like isInWater should not use vmaps due to processor power
         // can return INVALID_HEIGHT if under z+2 z coord not found height
@@ -346,8 +349,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         bool IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z) const;
 
-        uint8 GetTerrainType(float x, float y) const;
-        float GetWaterLevel(float x, float y) const;
+        uint8 GetTerrainType(PhaseShift const& phaseShift, float x, float y) const;
+        float GetWaterLevel(PhaseShift const& phaseShift, float x, float y) const;
         bool IsInWater(PhaseShift const& phaseShift, float x, float y, float z, LiquidData* data = nullptr) const;
         bool IsUnderWater(PhaseShift const& phaseShift, float x, float y, float z) const;
 
@@ -571,8 +574,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
         void LoadMap(int gx, int gy, bool reload = false);
+        static void LoadMapImpl(Map* map, int gx, int gy, bool reload);
+        static void UnloadMap(Map* map, int gx, int gy);
         void LoadMMap(int gx, int gy);
         GridMap* GetGrid(float x, float y);
+        GridMap* GetGrid(uint32 mapId, float x, float y);
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
@@ -672,6 +678,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         //used for fast base_map (e.g. MapInstanced class object) search for
         //InstanceMaps and BattlegroundMaps...
         Map* m_parentMap;
+        std::vector<Map*>* m_childTerrainMaps;
 
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         GridMap* GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
