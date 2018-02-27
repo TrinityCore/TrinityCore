@@ -787,7 +787,7 @@ void SmartAI::SetFly(bool fly)
 {
     if (me->SetDisableGravity(fly))
         if (!fly)
-            me->SetFall(true);
+            me->GetMotionMaster()->MoveFall();
 }
 
 void SmartAI::SetSwim(bool swim)
