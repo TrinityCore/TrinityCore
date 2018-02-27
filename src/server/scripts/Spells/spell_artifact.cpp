@@ -36,6 +36,7 @@ enum SpellIds
     SPELL_DRUID_HALF_MOON                           = 202768,
     SPELL_DRUID_HALF_MOON_OVERRIDE                  = 202788,
     SPELL_DRUID_FULL_MOON                           = 202771,
+    SPELL_DRUID_FULL_MOON_OVERRIDE                  = 202789,
     SPELL_MAGE_IMMOLATION                           = 211918,
     SPELL_MAGE_PHOENIX_FLAMES                       = 194466,
     SPELL_MAGE_PHOENIX_FLAMES_TRIGGER               = 224637,
@@ -76,574 +77,344 @@ class spell_arti_mage_ebonbolt : public SpellScript
 };
 
 // Reap Souls - 216698
-class spell_arti_warl_reap_souls : public SpellScriptLoader
+class spell_arti_warl_reap_souls : public SpellScript
 {
-public:
-    spell_arti_warl_reap_souls() : SpellScriptLoader("spell_arti_warl_reap_souls") {}
+    PrepareSpellScript(spell_arti_warl_reap_souls);
 
-    class spell_arti_warl_reap_souls_SpellScript : public SpellScript
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_arti_warl_reap_souls_SpellScript);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
+        caster->CastSpell(caster, SPELL_WARLOCK_DEADWIND_HARVERST, true);
+    }
 
-            caster->CastSpell(caster, SPELL_WARLOCK_DEADWIND_HARVERST, true);
-        }
-
-        SpellCastResult CheckCast()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return SPELL_FAILED_DONT_REPORT;
-
-            if (!caster->HasAura(SPELL_WARLOCK_TORMENTED_SOULS))
-                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-            return SPELL_CAST_OK;
-        }
-
-        void Register() override
-        {
-            OnCheckCast += SpellCheckCastFn(spell_arti_warl_reap_souls_SpellScript::CheckCast);
-            OnEffectHitTarget += SpellEffectFn(spell_arti_warl_reap_souls_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    SpellCastResult CheckCast()
     {
-        return new spell_arti_warl_reap_souls_SpellScript();
+        Unit* caster = GetCaster();
+        if (!caster)
+            return SPELL_FAILED_DONT_REPORT;
+
+        if (!caster->HasAura(SPELL_WARLOCK_TORMENTED_SOULS))
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_arti_warl_reap_souls::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_arti_warl_reap_souls::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // Deadwind harvest - 216708
-class spell_arti_warl_deadwind_harvest : public SpellScriptLoader
+class spell_arti_warl_deadwind_harvest : public AuraScript
 {
-public:
-    spell_arti_warl_deadwind_harvest() : SpellScriptLoader("spell_arti_warl_deadwind_harvest") {}
+    PrepareAuraScript(spell_arti_warl_deadwind_harvest);
 
-    class spell_arti_warl_deadwind_harvest_AuraScript : public AuraScript
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& /*amount*/, bool& /*canBeRecalculated*/)
     {
-        PrepareAuraScript(spell_arti_warl_deadwind_harvest_AuraScript);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-        void CalcAmount(AuraEffect const* /*aurEff*/, int32& /*amount*/, bool& /*canBeRecalculated*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
+        int32 stackAmount = 0;
+        if (Aura* aur = caster->GetAura(SPELL_WARLOCK_TORMENTED_SOULS))
+            stackAmount = aur->GetStackAmount();
 
-            int32 stackAmount = 0;
-            if (Aura* aur = caster->GetAura(SPELL_WARLOCK_TORMENTED_SOULS))
-                stackAmount = aur->GetStackAmount();
+        int32 duration = GetAura()->GetDuration() * stackAmount;
+        GetAura()->SetMaxDuration(duration);
+        GetAura()->SetDuration(duration);
 
-            int32 duration = GetAura()->GetDuration() * stackAmount;
-            GetAura()->SetMaxDuration(duration);
-            GetAura()->SetDuration(duration);
+        caster->RemoveAurasDueToSpell(SPELL_WARLOCK_TORMENTED_SOULS);
+    }
 
-            caster->RemoveAurasDueToSpell(SPELL_WARLOCK_TORMENTED_SOULS);
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_arti_warl_deadwind_harvest_AuraScript::CalcAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_arti_warl_deadwind_harvest_AuraScript();
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_arti_warl_deadwind_harvest::CalcAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     }
 };
 
 // Phoenix Flames - 194466
-class spell_arti_mage_phoenix_flames : public SpellScriptLoader
+class spell_arti_mage_phoenix_flames : public SpellScript
 {
-public:
-    spell_arti_mage_phoenix_flames() : SpellScriptLoader("spell_arti_mage_phoenix_flames") { }
+    PrepareSpellScript(spell_arti_mage_phoenix_flames);
 
-    class spell_arti_mage_phoenix_flames_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_arti_mage_phoenix_flames_SpellScript);
+        return ValidateSpellInfo({ SPELL_MAGE_PHOENIX_FLAMES_TRIGGER, SPELL_MAGE_PHOENIX_FLAMES });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_MAGE_PHOENIX_FLAMES_TRIGGER, SPELL_MAGE_PHOENIX_FLAMES });
-        }
-
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-            caster->CastSpell(target, SPELL_MAGE_PHOENIX_FLAMES_TRIGGER, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_arti_mage_phoenix_flames_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        return new spell_arti_mage_phoenix_flames_SpellScript();
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        caster->CastSpell(target, SPELL_MAGE_PHOENIX_FLAMES_TRIGGER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_arti_mage_phoenix_flames::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 // Phoenix Flames Trigger - 224637
-class spell_arti_mage_phoenix_flames_trigger : public SpellScriptLoader
+class spell_arti_mage_phoenix_flames_trigger : public SpellScript
 {
-public:
-    spell_arti_mage_phoenix_flames_trigger() : SpellScriptLoader("spell_arti_mage_phoenix_flames_trigger") { }
+    PrepareSpellScript(spell_arti_mage_phoenix_flames_trigger);
 
-    class spell_arti_mage_phoenix_flames_trigger_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_arti_mage_phoenix_flames_trigger_SpellScript);
+        return ValidateSpellInfo({ SPELL_MAGE_PHOENIX_FLAMES_TRIGGER, SPELL_MAGE_PHOENIX_FLAMES });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_MAGE_PHOENIX_FLAMES_TRIGGER, SPELL_MAGE_PHOENIX_FLAMES });
-        }
-
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            Unit* target = GetHitUnit();
-            Unit* originalTarget = GetExplTargetUnit();
-            if (!target || !originalTarget)
-                return;
-
-            if (originalTarget == target)
-                SetHitDamage(0);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_arti_mage_phoenix_flames_trigger_SpellScript::HandleHit, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        return new spell_arti_mage_phoenix_flames_trigger_SpellScript();
+        Unit* target = GetHitUnit();
+        Unit* originalTarget = GetExplTargetUnit();
+        if (!target || !originalTarget)
+            return;
+
+        if (originalTarget == target)
+            SetHitDamage(0);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_arti_mage_phoenix_flames_trigger::HandleHit, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 // Immolation (artifact passive) - 211918
-class spell_arti_mage_immolation : public SpellScriptLoader
+class spell_arti_mage_immolation : public AuraScript
 {
-public:
-    spell_arti_mage_immolation() : SpellScriptLoader("spell_arti_mage_immolation") {}
+    PrepareAuraScript(spell_arti_mage_immolation);
 
-    class spell_arti_mage_immolation_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_arti_mage_immolation_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_MAGE_IMMOLATION, SPELL_MAGE_PHOENIX_FLAMES });
-        }
-
-    public:
-
-        spell_arti_mage_immolation_AuraScript()
-        {
-            mod = new SpellModifier(GetAura());
-            mod->op = SPELLMOD_CRITICAL_CHANCE;
-            mod->type = SPELLMOD_FLAT;
-            mod->spellId = SPELL_MAGE_IMMOLATION;
-            mod->value = 200;
-            mod->mask[3] = 0x20000000;
-        }
-
-    private:
-
-        SpellModifier* mod = nullptr;
-
-        void HandleApply(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
-        {
-            Player* player = GetCaster()->ToPlayer();
-            if (!player)
-                return;
-
-            player->AddSpellMod(mod, true);
-        }
-
-        void HandleRemove(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
-        {
-            Player* player = GetCaster()->ToPlayer();
-            if (!player)
-                return;
-
-            player->AddSpellMod(mod, false);
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_arti_mage_immolation_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_arti_mage_immolation_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_arti_mage_immolation_AuraScript();
+        return ValidateSpellInfo({ SPELL_MAGE_IMMOLATION, SPELL_MAGE_PHOENIX_FLAMES });
     }
-};
 
-// Half Moon - 202768
-class spell_arti_dru_half_moon : public SpellScriptLoader
-{
 public:
-    spell_arti_dru_half_moon() : SpellScriptLoader("spell_arti_dru_half_moon") { }
 
-    class spell_arti_dru_half_moon_SpellScript : public SpellScript
+    spell_arti_mage_immolation()
     {
-        PrepareSpellScript(spell_arti_dru_half_moon_SpellScript);
+        mod = new SpellModifier(GetAura());
+        mod->op = SPELLMOD_CRITICAL_CHANCE;
+        mod->type = SPELLMOD_FLAT;
+        mod->spellId = SPELL_MAGE_IMMOLATION;
+        mod->value = 200;
+        mod->mask[3] = 0x20000000;
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_DRUID_HALF_MOON, SPELL_DRUID_HALF_MOON_OVERRIDE });
-        }
+private:
 
-        void RemoveOverride()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
+    SpellModifier* mod = nullptr;
 
-            caster->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
-        }
-
-        void Register() override
-        {
-            AfterCast += SpellCastFn(spell_arti_dru_half_moon_SpellScript::RemoveOverride);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleApply(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
     {
-        return new spell_arti_dru_half_moon_SpellScript();
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return;
+
+        player->AddSpellMod(mod, true);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return;
+
+        player->AddSpellMod(mod, false);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_arti_mage_immolation::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_arti_mage_immolation::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // Fury of the Illidari - 201467
 // AreaTriggerID - 5758
-class at_dh_fury_of_the_illidari : public AreaTriggerEntityScript
+struct at_dh_fury_of_the_illidari : AreaTriggerAI
 {
-public:
-    at_dh_fury_of_the_illidari() : AreaTriggerEntityScript("at_dh_fury_of_the_illidari") { }
+    int32 timeInterval;
 
-    struct at_dh_fury_of_the_illidariAI : AreaTriggerAI
+    at_dh_fury_of_the_illidari(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
     {
-        int32 timeInterval;
+        // How often should the action be executed
+        timeInterval = 420; // Blaze it (blizzard wtf, 7 times under 3 seconds)
+    }
 
-        at_dh_fury_of_the_illidariAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
-        {
-            // How often should the action be executed
-            timeInterval = 420; // Blaze it (blizzard wtf, 7 times under 3 seconds)
-        }
-
-        void OnCreate() override
-        {
-            at->SetDuration(3000);
-        }
-
-        void OnUpdate(uint32 p_Time) override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
-
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            // Check if we can handle actions
-            timeInterval += p_Time;
-            if (timeInterval < 420)
-                return;
-
-            if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
-            {
-                tempSumm->setFaction(caster->getFaction());
-                tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->CopyPhaseFrom(caster);
-                caster->CastSpell(tempSumm, SPELL_DH_FURY_OF_THE_ILLIDARI_MH, true);
-                caster->CastSpell(tempSumm, SPELL_DH_FURY_OF_THE_ILLIDARI_OH, true);
-            }
-
-            timeInterval -= 420;
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUpdate(uint32 p_Time) override
     {
-        return new at_dh_fury_of_the_illidariAI(areatrigger);
+        Unit* caster = at->GetCaster();
+        if (!caster || !caster->IsPlayer())
+            return;
+
+        // Check if we can handle actions
+        timeInterval += p_Time;
+        if (timeInterval < 420)
+            return;
+
+        caster->CastSpell(at->GetPosition(), SPELL_DH_FURY_OF_THE_ILLIDARI_MH, true);
+        caster->CastSpell(at->GetPosition(), SPELL_DH_FURY_OF_THE_ILLIDARI_OH, true);
+
+        timeInterval -= 420;
     }
 };
 
 //207357 - Servant of the queen
-class spell_arti_sha_servant_of_the_queen : public SpellScriptLoader
+class spell_arti_sha_servant_of_the_queen : public AuraScript
 {
-public:
-    spell_arti_sha_servant_of_the_queen() : SpellScriptLoader("spell_arti_sha_servant_of_the_queen") { }
+    PrepareAuraScript(spell_arti_sha_servant_of_the_queen);
 
-    class spell_arti_sha_servant_of_the_queen_AuraScript : public AuraScript
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        PrepareAuraScript(spell_arti_sha_servant_of_the_queen_AuraScript);
+        if (!eventInfo.GetSpellInfo())
+            return false;
 
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            if (!eventInfo.GetSpellInfo())
-                return false;
+        if(eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_REINCARNATION)
+            return true;
+        else
+            return false;
+    }
 
-            if(eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_REINCARNATION)
-                return true;
-            else
-                return false;
-        }
-
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_arti_sha_servant_of_the_queen_AuraScript::CheckProc);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_arti_sha_servant_of_the_queen_AuraScript();
+        DoCheckProc += AuraCheckProcFn(spell_arti_sha_servant_of_the_queen::CheckProc);
     }
 };
 
 //207354 - Caress of the tidemother
-class spell_arti_sha_caress_of_the_tidemother : public SpellScriptLoader
+class spell_arti_sha_caress_of_the_tidemother : public AuraScript
 {
-public:
-    spell_arti_sha_caress_of_the_tidemother() : SpellScriptLoader("spell_arti_sha_caress_of_the_tidemother") { }
+    PrepareAuraScript(spell_arti_sha_caress_of_the_tidemother);
 
-    class spell_arti_sha_caress_of_the_tidemother_AuraScript : public AuraScript
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        PrepareAuraScript(spell_arti_sha_caress_of_the_tidemother_AuraScript);
+        if(!eventInfo.GetSpellInfo())
+            return false;
 
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            if(!eventInfo.GetSpellInfo())
-                return false;
+        if(eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_HEALING_STREAM_TOTEM)
+            return true;
+        else
+            return false;
+    }
 
-            if(eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_HEALING_STREAM_TOTEM)
-                return true;
-            else
-                return false;
-        }
-
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_arti_sha_caress_of_the_tidemother_AuraScript::CheckProc);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_arti_sha_caress_of_the_tidemother_AuraScript();
+        DoCheckProc += AuraCheckProcFn(spell_arti_sha_caress_of_the_tidemother::CheckProc);
     }
 };
 
 // Dimensional Rift - 196586
-class spell_arti_warl_dimensional_rift : public SpellScriptLoader
+class spell_arti_warl_dimensional_rift : public SpellScript
 {
-public:
-    spell_arti_warl_dimensional_rift() : SpellScriptLoader("spell_arti_warl_dimensional_rift") {}
+    PrepareSpellScript(spell_arti_warl_dimensional_rift);
 
-    class spell_arti_warl_dimensional_rift_SpellScript : public SpellScript
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_arti_warl_dimensional_rift_SpellScript);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
 
-        void HandleHit(SpellEffIndex /*effIndex*/)
+                                                //green //green //purple
+        std::vector<uint32> spellVisualIds = { 219117, 219117, 219107 };
+                                        // Chaos Tear  //Chaos Portal  //Shadowy Tear
+        std::vector<uint32> summonIds = { 108493,        108493,          99887 };
+        // Durations must be longer, because if the npc gets destroyed before the last projectile hits
+        // it won't deal any damage.
+        std::vector<uint32> durations = { 7000, 4500, 16000 };
+        uint32 id = std::rand() % 3;
+        Position pos = caster->GetPosition();
+        caster->MovePosition(pos, (float)(std::rand() % 5) + 4.f, (float)rand_norm() * static_cast<float>(2 * M_PI));
+        if (TempSummon* rift = caster->SummonCreature(summonIds[id], pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, durations[id]))
         {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!caster || !target)
-                return;
-
-                                                  //green //green //purple
-            std::vector<uint32> spellVisualIds = { 219117, 219117, 219107 };
-                                          // Chaos Tear  //Chaos Portal  //Shadowy Tear
-            std::vector<uint32> summonIds = { 108493,        108493,          99887 };
-            // Durations must be longer, because if the npc gets destroyed before the last projectile hits
-            // it won't deal any damage.
-            std::vector<uint32> durations = { 7000, 4500, 16000 };
-            uint32 id = std::rand() % 3;
-            Position pos = caster->GetPosition();
-            caster->MovePosition(pos, (float)(std::rand() % 5) + 4.f, (float)rand_norm() * static_cast<float>(2 * M_PI));
-            if (TempSummon* rift = caster->SummonCreature(summonIds[id], pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, durations[id]))
-            {
-                rift->CastSpell(rift, spellVisualIds[id], true);
-                rift->SetOwnerGUID(caster->GetGUID());
-                rift->SetTarget(target->GetGUID());
-                // We use same ID and script for Chaos Portal and Chaos Tear as there are no more NPCs for this spell
-                rift->SetArmor(id);
-            }
+            rift->CastSpell(rift, spellVisualIds[id], true);
+            rift->SetOwnerGUID(caster->GetGUID());
+            rift->SetTarget(target->GetGUID());
+            // We use same ID and script for Chaos Portal and Chaos Tear as there are no more NPCs for this spell
+            rift->SetArmor(id);
         }
+    }
 
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_arti_warl_dimensional_rift_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_arti_warl_dimensional_rift_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_arti_warl_dimensional_rift::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // Thal'kiel's Consumption - 211714
-class spell_arti_warl_thalkiels_consumption : public SpellScriptLoader
+class spell_arti_warl_thalkiels_consumption : public SpellScript
 {
-public:
-    spell_arti_warl_thalkiels_consumption() : SpellScriptLoader("spell_arti_warl_thalkiels_consumption") {}
+    PrepareSpellScript(spell_arti_warl_thalkiels_consumption);
 
-    class spell_arti_warl_thalkiels_consumption_SpellScript : public SpellScript
+    int32 damage = 0;
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_arti_warl_thalkiels_consumption_SpellScript);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!target || !caster)
+            return;
 
-        int32 damage = 0;
+        caster->CastCustomSpell(SPELL_WARLOCK_THALKIELS_CONSUMPTION_DAMAGE, SPELLVALUE_BASE_POINT0, damage, target, TRIGGERED_FULL_MASK);
+    }
 
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (!target || !caster)
-                return;
-
-            caster->CastCustomSpell(SPELL_WARLOCK_THALKIELS_CONSUMPTION_DAMAGE, SPELLVALUE_BASE_POINT0, damage, target, TRIGGERED_FULL_MASK);
-        }
-
-        void SaveDamage(std::list<WorldObject*>& targets)
-        {
-            targets.remove_if([](WorldObject* target)
-            {
-                if (!target->ToUnit())
-                    return true;
-                // Remove Gateways
-                if (target->ToCreature()->GetCreatureType() != CREATURE_TYPE_DEMON)
-                    return true;
-
-                return false;
-            });
-
-            int32 basePoints = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints;
-            for (WorldObject* pet : targets)
-                damage += pet->ToUnit()->CountPctFromMaxHealth(basePoints);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_arti_warl_thalkiels_consumption_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arti_warl_thalkiels_consumption_SpellScript::SaveDamage, EFFECT_1, 0/*TARGET_UNIT_CASTER_PET*/);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void SaveDamage(std::list<WorldObject*>& targets)
     {
-        return new spell_arti_warl_thalkiels_consumption_SpellScript();
+        targets.remove_if([](WorldObject* target)
+        {
+            if (!target->ToUnit())
+                return true;
+            // Remove Gateways
+            if (target->ToCreature()->GetCreatureType() != CREATURE_TYPE_DEMON)
+                return true;
+
+            return false;
+        });
+
+        int32 basePoints = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints;
+        for (WorldObject* pet : targets)
+            damage += pet->ToUnit()->CountPctFromMaxHealth(basePoints);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_arti_warl_thalkiels_consumption::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arti_warl_thalkiels_consumption::SaveDamage, EFFECT_1, 0/*TARGET_UNIT_CASTER_PET*/);
     }
 };
-
 
 // Chaos Tear - 108493
-class npc_warl_chaos_tear : public CreatureScript
+struct npc_warl_chaos_tear : public ScriptedAI
 {
-public:
-    npc_warl_chaos_tear() : CreatureScript("npc_warl_chaos_tear") { }
+    npc_warl_chaos_tear(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-    struct npc_warl_chaos_tearAI : public ScriptedAI
+    int32 timer = 0;
+    int32 counter = 0;
+
+    void UpdateAI(uint32 diff) override
+
     {
-        npc_warl_chaos_tearAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-        int32 timer = 0;
-        int32 counter = 0;
-
-        void UpdateAI(uint32 diff) override
-
+        timer += diff;
+        switch (me->GetArmor())
         {
-            timer += diff;
-            switch (me->GetArmor())
-            {
-            case 0:
-                if (counter >= 22)
-                    return;
-                if (timer >= 250)
-                {
-                    timer -= 250;
-                    ObjectGuid targetGuid = me->GetTarget();
-                    ObjectGuid casterGuid = me->GetOwnerGUID();
-                    if (targetGuid.IsEmpty() || casterGuid.IsEmpty())
-                        return;
-                    Unit* caster = ObjectAccessor::GetUnit(*me, casterGuid);
-                    Unit* target = ObjectAccessor::GetUnit(*me, targetGuid);
-                    if (!caster || !target)
-                        return;
-
-                    me->CastSpell(target, SPELL_WARLOCK_TEAR_CHAOS_BARRAGE, true, nullptr, nullptr, caster->GetGUID());
-                    counter++;
-                }
-                break;
-            case 1:
-                if (timer >= 1500)
-                {
-                    timer -= 9000;
-                    ObjectGuid targetGuid = me->GetTarget();
-                    ObjectGuid casterGuid = me->GetOwnerGUID();
-                    if (targetGuid.IsEmpty() || casterGuid.IsEmpty())
-                        return;
-                    Unit* caster = ObjectAccessor::GetUnit(*me, casterGuid);
-                    Unit* target = ObjectAccessor::GetUnit(*me, targetGuid);
-                    if (!caster || !target)
-                        return;
-
-                    me->CastSpell(target, SPELL_WARLOCK_TEAR_CHAOS_BOLT, true, nullptr, nullptr, caster->GetGUID());
-                }
-                break;
-            default:
-                break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new npc_warl_chaos_tearAI(p_Creature);
-    }
-};
-
-// Shadowy Tear - 99887
-class npc_warl_shadowy_tear : public CreatureScript
-{
-public:
-    npc_warl_shadowy_tear() : CreatureScript("npc_warl_shadowy_tear") { }
-
-    struct npc_warl_shadowy_tearAI : public ScriptedAI
-    {
-        npc_warl_shadowy_tearAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-        int32 timer = 0;
-        int32 counter = 0;
-
-        void UpdateAI(uint32 diff) override
-
-        {
-            if (counter >= 7)
+        case 0:
+            if (counter >= 22)
                 return;
-
-            timer += diff;
-            if (timer >= 2000)
+            if (timer >= 250)
             {
-                timer -= 2000;
+                timer -= 250;
                 ObjectGuid targetGuid = me->GetTarget();
                 ObjectGuid casterGuid = me->GetOwnerGUID();
                 if (targetGuid.IsEmpty() || casterGuid.IsEmpty())
@@ -653,38 +424,164 @@ public:
                 if (!caster || !target)
                     return;
 
-                me->CastSpell(target, SPELL_WARLOCK_TEAR_SHADOW_BOLT, true, nullptr, nullptr, caster->GetGUID());
+                me->CastSpell(target, SPELL_WARLOCK_TEAR_CHAOS_BARRAGE, true, nullptr, nullptr, caster->GetGUID());
                 counter++;
             }
-        }
-    };
+            break;
+        case 1:
+            if (timer >= 1500)
+            {
+                timer -= 9000;
+                ObjectGuid targetGuid = me->GetTarget();
+                ObjectGuid casterGuid = me->GetOwnerGUID();
+                if (targetGuid.IsEmpty() || casterGuid.IsEmpty())
+                    return;
+                Unit* caster = ObjectAccessor::GetUnit(*me, casterGuid);
+                Unit* target = ObjectAccessor::GetUnit(*me, targetGuid);
+                if (!caster || !target)
+                    return;
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
+                me->CastSpell(target, SPELL_WARLOCK_TEAR_CHAOS_BOLT, true, nullptr, nullptr, caster->GetGUID());
+            }
+            break;
+        default:
+            break;
+        }
+    }
+};
+
+// Shadowy Tear - 99887
+struct npc_warl_shadowy_tear : public ScriptedAI
+{
+    npc_warl_shadowy_tear(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+    int32 timer = 0;
+    int32 counter = 0;
+
+    void UpdateAI(uint32 diff) override
+
     {
-        return new npc_warl_shadowy_tearAI(p_Creature);
+        if (counter >= 7)
+            return;
+
+        timer += diff;
+        if (timer >= 2000)
+        {
+            timer -= 2000;
+            ObjectGuid targetGuid = me->GetTarget();
+            ObjectGuid casterGuid = me->GetOwnerGUID();
+            if (targetGuid.IsEmpty() || casterGuid.IsEmpty())
+                return;
+            Unit* caster = ObjectAccessor::GetUnit(*me, casterGuid);
+            Unit* target = ObjectAccessor::GetUnit(*me, targetGuid);
+            if (!caster || !target)
+                return;
+
+            me->CastSpell(target, SPELL_WARLOCK_TEAR_SHADOW_BOLT, true, nullptr, nullptr, caster->GetGUID());
+            counter++;
+        }
+    }
+};
+
+class spell_arti_dru_new_moon : public SpellScript
+{
+    PrepareSpellScript(spell_arti_dru_new_moon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_NEW_MOON, SPELL_DRUID_NEW_MOON_OVERRIDE });
+    }
+
+    void RemoveOverride()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_FULL_MOON_OVERRIDE);
+        caster->AddAura(SPELL_DRUID_NEW_MOON_OVERRIDE, caster);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_arti_dru_new_moon::RemoveOverride);
+    }
+};
+
+// Half Moon - 202768
+class spell_arti_dru_half_moon : public SpellScript
+{
+    PrepareSpellScript(spell_arti_dru_half_moon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_HALF_MOON, SPELL_DRUID_HALF_MOON_OVERRIDE });
+    }
+
+    void RemoveOverride()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
+        caster->AddAura(SPELL_DRUID_HALF_MOON_OVERRIDE, caster);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_arti_dru_half_moon::RemoveOverride);
+    }
+};
+
+//Full Moon - 202771
+class spell_arti_dru_full_moon : public SpellScript
+{
+    PrepareSpellScript(spell_arti_dru_full_moon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_FULL_MOON, SPELL_DRUID_FULL_MOON_OVERRIDE });
+    }
+
+    void RemoveOverride()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->RemoveAurasDueToSpell(SPELL_DRUID_HALF_MOON_OVERRIDE);
+        //caster->AddAura(SPELL_DRUID_FULL_MOON_OVERRIDE, caster);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_arti_dru_full_moon::RemoveOverride);
     }
 };
 
 void AddSC_artifact_spell_scripts()
 {
-    new spell_arti_dru_half_moon();
+    RegisterSpellScript(spell_arti_dru_new_moon);
+    RegisterSpellScript(spell_arti_dru_half_moon);
+    RegisterSpellScript(spell_arti_dru_full_moon);
 
-    new spell_arti_mage_immolation();
-    new spell_arti_mage_phoenix_flames();
-    new spell_arti_mage_phoenix_flames_trigger();
+    RegisterAuraScript(spell_arti_mage_immolation);
+    RegisterSpellScript(spell_arti_mage_phoenix_flames);
+    RegisterSpellScript(spell_arti_mage_phoenix_flames_trigger);
 
-    new spell_arti_sha_servant_of_the_queen();
-    new spell_arti_sha_caress_of_the_tidemother();
+    RegisterAuraScript(spell_arti_sha_servant_of_the_queen);
+    RegisterAuraScript(spell_arti_sha_caress_of_the_tidemother);
 
-    new spell_arti_warl_deadwind_harvest();
-    new spell_arti_warl_reap_souls();
-    new spell_arti_warl_dimensional_rift();
-    new npc_warl_chaos_tear();
-    new npc_warl_shadowy_tear();
-    new spell_arti_warl_thalkiels_consumption();
+    RegisterAuraScript(spell_arti_warl_deadwind_harvest);
+    RegisterSpellScript(spell_arti_warl_reap_souls);
+    RegisterSpellScript(spell_arti_warl_dimensional_rift);
+    RegisterCreatureAI(npc_warl_chaos_tear);
+    RegisterCreatureAI(npc_warl_shadowy_tear);
+    RegisterSpellScript(spell_arti_warl_thalkiels_consumption);
 
     /// AreaTrigger scripts
-    new at_dh_fury_of_the_illidari();
+    RegisterAreaTriggerAI(at_dh_fury_of_the_illidari);
 
     RegisterSpellScript(spell_arti_mage_ebonbolt);
 }
