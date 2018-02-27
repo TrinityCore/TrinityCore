@@ -97,7 +97,6 @@ public:
         InstanceScript* instance;
         SummonList summons;
 
-
         uint32 Phase;
         uint32 uiTimer;
         uint32 numberKillMineRat;
@@ -256,7 +255,6 @@ class npc_lumbering_oaf : public CreatureScript
 public:
     npc_lumbering_oaf() : CreatureScript("npc_lumbering_oaf") { }
 
-
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_lumbering_oafAI(creature);
@@ -264,21 +262,17 @@ public:
 
     struct npc_lumbering_oafAI : public ScriptedAI
     {
-        npc_lumbering_oafAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
+        npc_lumbering_oafAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             _vehicle = me->GetVehicleKit();
-            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* instance;
-        SummonList summons;
-        EventMap events;
         Vehicle* _vehicle;
         Creature* bunny;
 
         void Reset() override
         {
-            if (!me || !_vehicle)
+            if (!_vehicle)
                 return;
 
             events.Reset();
@@ -286,9 +280,6 @@ public:
 
         void EnterCombat(Unit* /*pWho*/) override
         {
-            if (!me)
-                return;
-
             events.ScheduleEvent(EVENT_OAFQUARD, 5000);
         }
 
@@ -349,7 +340,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!me || !_vehicle)
+            if (!_vehicle)
                 return;
 
             events.Update(uiDiff);
@@ -399,130 +390,85 @@ public:
     };
 };
 
-class npc_sticky_bomb : public CreatureScript
+struct npc_sticky_bomb : public ScriptedAI
 {
-public:
-    npc_sticky_bomb() : CreatureScript("npc_sticky_bomb") { }
+    npc_sticky_bomb(Creature* pCreature) : ScriptedAI(pCreature) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    uint32 Phase;
+    uint32 uiTimer;
+
+    void Reset() override
     {
-        return new npc_sticky_bombAI(creature);
+        Phase   = 1;
+        uiTimer = 500;
+
+        DoCast(me, SPELL_CHEST_BOMB);
     }
 
-    struct npc_sticky_bombAI : public ScriptedAI
+    void UpdateAI(uint32 uiDiff) override
     {
-        npc_sticky_bombAI(Creature* pCreature) : ScriptedAI(pCreature)
+        if (uiTimer < uiDiff)
         {
-            instance = pCreature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        uint32 Phase;
-        uint32 uiTimer;
-
-        void Reset() override
-        {
-            Phase   = 1;
-            uiTimer = 500;
-
-            if (!me)
-                return;
-
-            DoCast(me, SPELL_CHEST_BOMB);
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (!me)
-                return;
-
-            if (uiTimer < uiDiff)
+            switch (Phase++)
             {
-                switch (Phase)
-                {
-                    case 1:
-                        DoCast(me, SPELL_ARMING_VISUAL_YELLOW);
-                        uiTimer = 700;
-                        break;
-
-                    case 2:
-                        DoCast(me, SPELL_ARMING_VISUAL_ORANGE);
-                        uiTimer = 600;
-                        break;
-
-                    case 3:
-                        DoCast(me, SPELL_ARMING_VISUAL_RED);
-                        uiTimer = 500;
-                        break;
-
-                    case 4:
-                        DoCast(me, SPELL_BOMB_ARMED_STATE);
-                        uiTimer = 400;
-                        break;
-
-                    case 5:
-                        DoCast(me, IsHeroic() ? SPELL_STICKY_BOMB_EXPLODE_H : SPELL_STICKY_BOMB_EXPLODE);
-                        uiTimer = 300;
-                        break;
-
-                    case 6:
-                        me->DespawnOrUnsummon();
-                        break;
-                }
-                Phase++;
-            } else
-                uiTimer -= uiDiff;
-        }
-    };
-};
-
-class npc_helix_crew : public CreatureScript
-{
-public:
-    npc_helix_crew() : CreatureScript("npc_helix_crew") { }
-
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_helix_crewAI(creature);
-    }
-
-    struct npc_helix_crewAI : public Scripted_NoMovementAI
-    {
-        npc_helix_crewAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) { }
-
-        uint32 ThrowBombTimer;
-
-        void Reset() override
-        {
-            ThrowBombTimer = 3000;
-            DoCast(me, 18373);
-
-            if (Player* victim = me->SelectNearestPlayer(80.0f))
-            {
-                me->Attack(victim, false);
+                case 1:
+                    DoCast(me, SPELL_ARMING_VISUAL_YELLOW);
+                    uiTimer = 700;
+                    break;
+                case 2:
+                    DoCast(me, SPELL_ARMING_VISUAL_ORANGE);
+                    uiTimer = 600;
+                    break;
+                case 3:
+                    DoCast(me, SPELL_ARMING_VISUAL_RED);
+                    uiTimer = 500;
+                    break;
+                case 4:
+                    DoCast(me, SPELL_BOMB_ARMED_STATE);
+                    uiTimer = 400;
+                    break;
+                case 5:
+                    DoCast(me, IsHeroic() ? SPELL_STICKY_BOMB_EXPLODE_H : SPELL_STICKY_BOMB_EXPLODE);
+                    uiTimer = 300;
+                    break;
+                case 6:
+                    me->DespawnOrUnsummon();
+                    break;
             }
         }
+        else
+            uiTimer -= uiDiff;
+    }
+};
 
-        void UpdateAI(uint32 diff) override
+struct npc_helix_crew : public Scripted_NoMovementAI
+{
+    npc_helix_crew(Creature* pCreature) : Scripted_NoMovementAI(pCreature) { }
+
+    void Reset() override
+    {
+        DoCast(me, 18373);
+
+        if (Player* victim = me->SelectNearestPlayer(80.0f))
+            me->Attack(victim, false);
+    }
+
+    void EnterCombat(Unit* /*who*/) override
+    {
+        me->GetScheduler().Schedule(5s, [this](TaskContext context)
         {
-            if (ThrowBombTimer <= diff)
-            {
-                if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
-                {
-                    DoCast(player, SPELL_THROW_BOMB);
-                    ThrowBombTimer = 5000;
-                }
-            } else ThrowBombTimer-= diff;
-        }
-    };
+            if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                DoCast(player, SPELL_THROW_BOMB);
+
+            context.Repeat();
+        });
+    }
 };
 
 void AddSC_boss_helix_gearbreaker()
 {
     new npc_lumbering_oaf();
     new boss_helix_gearbreaker();
-    new npc_sticky_bomb();
-    new npc_helix_crew();
+    RegisterCreatureAI(npc_sticky_bomb);
+    RegisterCreatureAI(npc_helix_crew);
 }
