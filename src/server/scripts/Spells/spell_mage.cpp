@@ -84,7 +84,7 @@ enum MageSpells
     SPELL_MAGE_IGNITE                            = 12654,
     SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE       = 29077,
     SPELL_MAGE_PERMAFROST                        = 91394,
-    SPELL_MAGE_PYRO_BLAST                        = 11366,
+    SPELL_MAGE_PYROBLAST                         = 11366,
     SPELL_MAGE_SCORCH                            = 2948,
     SPELL_MAGE_SLOW                              = 31589,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
@@ -1951,7 +1951,7 @@ class spell_mage_improved_hot_streak : public SpellScriptLoader
                     {
                         SPELL_MAGE_HOT_STREAK_TRIGGERED,
                         SPELL_MAGE_FIREBALL,
-                        SPELL_MAGE_PYRO_BLAST,
+                        SPELL_MAGE_PYROBLAST,
                         SPELL_MAGE_FIRE_BLAST,
                         SPELL_MAGE_FROSTFIRE_BOLT,
                         SPELL_MAGE_SCORCH
@@ -1963,7 +1963,7 @@ class spell_mage_improved_hot_streak : public SpellScriptLoader
                 switch (eventInfo.GetSpellInfo()->Id)
                 {
                     case SPELL_MAGE_FIREBALL:
-                    case SPELL_MAGE_PYRO_BLAST:
+                    case SPELL_MAGE_PYROBLAST:
                     case SPELL_MAGE_FIRE_BLAST:
                     case SPELL_MAGE_FROSTFIRE_BOLT:
                     case SPELL_MAGE_SCORCH:
@@ -2015,7 +2015,7 @@ class spell_mage_pyroblast : public SpellScriptLoader
                 return ValidateSpellInfo(
                     {
                         SPELL_MAGE_HOT_STREAK_TRIGGERED,
-                        SPELL_MAGE_PYRO_BLAST
+                        SPELL_MAGE_PYROBLAST
                     });
             }
 
@@ -2043,7 +2043,7 @@ class spell_mage_pyroblast : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                     if (Unit* caster = GetCaster())
-                        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_MAGE_PYRO_BLAST))
+                        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST))
                             if (Aura* aura = target->GetAura(GetSpellInfo()->Id))
                                 aura->GetEffect(EFFECT_1)->SetBonusAmount(caster->SpellDamageBonusDone(target, spell, 0, DOT, EFFECT_1));
             }
