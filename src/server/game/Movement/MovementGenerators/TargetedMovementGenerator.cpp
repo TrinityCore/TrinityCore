@@ -71,10 +71,7 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
                 transport->CalculatePassengerPosition(destination.x, destination.y, destination.z);
 
         // First check distance
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())
-            targetMoved = !GetTarget()->IsInDist(destination.x, destination.y, destination.z, distance);
-        else
-            targetMoved = !GetTarget()->IsInDist2d(destination.x, destination.y, distance);
+        targetMoved = !GetTarget()->IsInDist(destination.x, destination.y, destination.z, distance);
 
         // then, if the target is in range, check also Line of Sight.
         if (!targetMoved)
