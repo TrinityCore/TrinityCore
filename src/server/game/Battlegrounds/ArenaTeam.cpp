@@ -315,7 +315,8 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
 
 void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
 {
-    Player* player = ObjectAccessor::FindPlayer(guid);
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    Group* group = (player && player->GetGroup()) ? player->GetGroup() : nullptr;
     
     // Remove member from team
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
@@ -323,7 +324,7 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
         // Remove queues of members
         if (Player* playerMember = ObjectAccessor::FindConnectedPlayer(itr->Guid))
         {
-            if (player && player->GetGroup() && playerMember->GetGroup() && player->GetGroup()->GetGUID() == playerMember->GetGroup()->GetGUID())
+            if (group && playerMember->GetGroup() && group->GetGUID() == playerMember->GetGroup()->GetGUID())
             {
                 if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, GetType()))
                 {
