@@ -4541,6 +4541,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             if (effect->TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE || effect->TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE)
                 if (G3D::fuzzyEq(spellInfo->ConeAngle, 0.f))
                     spellInfo->ConeAngle = 90.f;
+
+            // Area auras may not target area (they're self cast)
+            if (effect->IsAreaAuraEffect() && effect->IsTargetingArea())
+            {
+                const_cast<SpellEffectInfo*>(effect)->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                const_cast<SpellEffectInfo*>(effect)->TargetB = SpellImplicitTargetInfo(0);
+            }
         }
 
         // disable proc for magnet auras, they're handled differently

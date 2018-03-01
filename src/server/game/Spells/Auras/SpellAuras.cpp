@@ -1022,9 +1022,21 @@ bool Aura::CanBeSaved() const
         return false;
 
     // Check if aura is single target, not only spell info
-    if (GetCasterGUID() != GetOwner()->GetGUID() || IsSingleTarget())
-        if (GetSpellInfo()->IsSingleTarget())
+    if (GetCasterGUID() != GetOwner()->GetGUID())
+    {
+        // owner == caster for area auras, check for possible bad data in DB
+        for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
+        {
+            if (!effect || !effect->IsEffect())
+                continue;
+
+            if (effect->IsTargetingArea() || effect->IsAreaAuraEffect())
+                return false;
+        }
+
+        if (IsSingleTarget() || GetSpellInfo()->IsSingleTarget())
             return false;
+    }
 
     if (GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED))
         return false;
@@ -2283,6 +2295,9 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         }
         else
         {
+            ASSERT(caster, "Area aura (Id: %u) has nullptr caster (%s)", m_spellInfo->Id, GetCasterGUID().ToString().c_str());
+            ASSERT(GetCasterGUID() == GetUnitOwner()->GetGUID(), "Area aura (Id: %u) has owner (%s) different to caster (%s)", m_spellInfo->Id, GetUnitOwner()->GetGUID().ToString().c_str(), GetCasterGUID().ToString().c_str());
+
             // skip area update if owner is not in world!
             if (!GetUnitOwner()->IsInWorld())
                 continue;
