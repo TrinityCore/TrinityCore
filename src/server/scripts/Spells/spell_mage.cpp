@@ -517,10 +517,8 @@ class spell_mage_arcane_blast : public SpellScript
         if (!caster || !caster->IsPlayer())
             return;
 
-        if (caster->HasAura(SPELL_MAGE_PRESENCE_OF_MIND))
-        {
-            caster->RemoveAurasDueToSpell(SPELL_MAGE_PRESENCE_OF_MIND);
-        }
+        if (Aura* presenceOfMind = caster->GetAura(SPELL_MAGE_PRESENCE_OF_MIND))
+            presenceOfMind->ModCharges(-1);
 
         SetHitDamage(CalculateArcaneChargeDamage(caster, 2.32804f, false));
     }
