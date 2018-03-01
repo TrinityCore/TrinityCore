@@ -1402,7 +1402,7 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     EndianConvert(_header.PalletDataSize);
     EndianConvert(_header.ParentLookupDataSize);
 
-    if (_header.Signature != 0x31434457)                        //'WCH1'
+    if (_header.Signature != 0x31434457)                        //'WDC1'
         return false;
 
     if (_header.LayoutHash != loadInfo->Meta->LayoutHash)
