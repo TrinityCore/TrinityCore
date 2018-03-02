@@ -161,63 +161,26 @@ enum TemporalDisplacementSpells
     SPELL_PET_NETHERWINDS_FATIGUED               = 160455
 };
 
-//7.3.2.25549
-int32 CalculateArcaneChargeDamage(Unit const* caster, float multiplier, bool missile)
+// Runic Empowerment - 81229
+class playerscript_mage_arcane : public PlayerScript
 {
-    uint8 arcaneCharges = caster->GetPower(POWER_ARCANE_CHARGES);
-    int32 mastery = 60 + (caster->GetFloatValue(PLAYER_MASTERY) * 0.6f);
+public:
+    playerscript_mage_arcane() : PlayerScript("playerscript_mage_arcane") {}
 
-    int32 sp = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-    int32 dmg = (sp * multiplier);
-    int32 arcaneChargeDmgMultiplier = (mastery * arcaneCharges);
-
-    AddPct(dmg, arcaneChargeDmgMultiplier);
-
-    if (caster->HasAura(SPELL_MAGE_ARCANE_AMPLIFICATION) && missile)
-        AddPct(dmg, (12 * arcaneCharges));
-
-    if (Aura* runeOfPower = caster->GetAura(SPELL_MAGE_RUNE_OF_POWER_BUFF))
+    enum eSpells
     {
-        int32 runeOfPowerMultiplier = (runeOfPower->GetEffect(EFFECT_0)->GetAmount());
-        AddPct(dmg, runeOfPowerMultiplier);
-    }
+        AURA_ARCANIC_CHARGE = 36032,
+    };
 
-    if (Aura* incantersFlow = caster->GetAura(SPELL_MAGE_INCANTERS_FLOW_BUFF))
+    void OnModifyPower(Player* player, Powers power, int32 /*oldValue*/, int32& newValue, bool /*regen*/, bool /*after*/)
     {
-        int32 incantersFlowMultiplier = (incantersFlow->GetEffect(EFFECT_0)->GetAmount());
-        AddPct(dmg, incantersFlowMultiplier);
-    }
-    
-    if (Aura* arcanePower = caster->GetAura(SPELL_MAGE_ARCANE_POWER))
-    {
-        int32 arcanePowerMultiplier = (arcanePower->GetEffect(EFFECT_0)->GetAmount());
-        AddPct(dmg, arcanePowerMultiplier);
-    }
-    
-    return dmg;
-}
-
-// Nether Tempest - 114923
-class spell_mage_nether_tempest : public AuraScript
-{
-    PrepareAuraScript(spell_mage_nether_tempest);
-
-    void OnTick(AuraEffect const* /*auraEff*/)
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetTarget();
-        if (!caster || !target)
+        if (power != POWER_ARCANE_CHARGES)
             return;
 
-        if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_0))
-        {
-            aurEff->SetDamage(CalculateArcaneChargeDamage(caster, 0.05687f, false));
-        }
-    }
+        player->RemoveAurasDueToSpell(AURA_ARCANIC_CHARGE);
 
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_nether_tempest::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        for (int32 i = 0; i < newValue; ++i)
+            player->CastSpell(player, AURA_ARCANIC_CHARGE, true);
     }
 };
 
@@ -266,18 +229,8 @@ class spell_mage_arcane_explosion : public SpellScript
             PreventHitEffect(effIndex);
     }
 
-    void OnHit(SpellEffIndex /* effIndex */)
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        SetHitDamage(CalculateArcaneChargeDamage(caster, 0.9075f, false));
-    }
-
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_explosion::OnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_arcane_explosion::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectLaunch += SpellEffectFn(spell_mage_arcane_explosion::Prevent, EFFECT_1, SPELL_EFFECT_ENERGIZE);
         OnEffectLaunchTarget += SpellEffectFn(spell_mage_arcane_explosion::Prevent, EFFECT_1, SPELL_EFFECT_ENERGIZE);
@@ -336,18 +289,8 @@ class spell_mage_arcane_missiles_damage :public SpellScript
             target = nullptr;
     }
 
-    void OnHit(SpellEffIndex /* effIndex */)
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        SetHitDamage(CalculateArcaneChargeDamage(caster, 0.53603f, true));
-    }
-
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_missiles_damage::OnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_mage_arcane_missiles_damage::CheckTarget, EFFECT_0, TARGET_UNIT_CHANNEL_TARGET);
     }
 };
@@ -462,46 +405,13 @@ class spell_mage_arcane_barrage : public SpellScript
 {
     PrepareSpellScript(spell_mage_arcane_barrage);
 
-    void HandleOnCast()
-    {
-        Unit* caster = GetCaster();
-        Unit* explunit = GetExplTargetUnit();
-        if (!caster || !explunit)
-            return;
-
-        int32 dmg = CalculateArcaneChargeDamage(caster, 1.573f, false);
-        dmg /= 2;
-
-        std::list<Unit*> targetList;
-        caster->GetAttackableUnitListInRange(targetList, 10.0f);
-        targetList.remove_if(CheckArcaneBarrageImpactPredicate(caster, explunit));
-
-        Trinity::Containers::RandomResize(targetList, caster->GetPower(POWER_ARCANE_CHARGES));
-
-        if (!targetList.empty())
-        {
-            for (auto itr : targetList)
-            {
-                caster->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &dmg, nullptr, nullptr, true);
-            }
-        }
-    }
-
     void OnHit(SpellEffIndex /* effIndex */)
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        if (!caster || !target)
-            return;
-
-        caster->SetPower(POWER_ARCANE_CHARGES, 0);
-
-        SetHitDamage(CalculateArcaneChargeDamage(caster, 1.573f, false));
+        GetCaster()->SetPower(POWER_ARCANE_CHARGES, 0);
     }
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_mage_arcane_barrage::HandleOnCast);
         OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_barrage::OnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
@@ -519,8 +429,6 @@ class spell_mage_arcane_blast : public SpellScript
 
         if (Aura* presenceOfMind = caster->GetAura(SPELL_MAGE_PRESENCE_OF_MIND))
             presenceOfMind->ModCharges(-1);
-
-        SetHitDamage(CalculateArcaneChargeDamage(caster, 2.32804f, false));
     }
 
     void Register() override
@@ -2844,6 +2752,8 @@ public:
 
 void AddSC_mage_spell_scripts()
 {
+    new playerscript_mage_arcane();
+
     new spell_mage_combustion();
     new spell_mage_incanters_flow();
     new spell_mage_polymorph();
@@ -2880,8 +2790,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_arcane_barrage);
     RegisterSpellScript(spell_mage_arcane_missiles_damage);
     RegisterSpellScript(spell_mage_arcane_explosion);
-    
-    RegisterAuraScript(spell_mage_nether_tempest);
+
     RegisterAuraScript(spell_mage_chrono_shift);
     RegisterAuraScript(spell_mage_arcane_missiles);
     RegisterAuraScript(spell_mage_arcane_missiles_proc);
