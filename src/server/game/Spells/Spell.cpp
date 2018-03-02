@@ -4763,15 +4763,6 @@ void Spell::TakePower()
             continue;
         }
 
-        if (powerType == POWER_MANA && m_caster->HasAura(12042))
-        {
-            if (Aura* arcanePower = m_caster->GetAura(12042))
-            {
-                int32 arcanePowerMultiplier = (arcanePower->GetEffect(EFFECT_0)->GetAmount());
-                cost.Amount -= CalculatePct(cost.Amount, arcanePowerMultiplier);
-            }
-        }
-
         if (powerType >= MAX_POWERS)
         {
             TC_LOG_ERROR("spells", "Spell::TakePower: Unknown power type '%d'", powerType);

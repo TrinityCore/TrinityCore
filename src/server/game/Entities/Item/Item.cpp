@@ -622,7 +622,7 @@ void Item::SaveToDB(SQLTransaction& trans)
         CharacterDatabase.CommitTransaction(trans);
 }
 
-bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry)
+bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player const* owner/* = nullptr*/)
 {
     //           0          1            2                3      4         5        6      7             8                   9                10          11          12    13
     // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyType, randomPropertyId, durability, playedTime, text,
@@ -683,6 +683,14 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
             SetSpellCharges(i, atoi(tokens[i]));
 
     SetUInt32Value(ITEM_FIELD_FLAGS, itemFlags);
+    SetUInt32Value(ITEM_FIELD_CONTEXT, fields[19].GetUInt8());
+
+    Tokenizer bonusListIDs(fields[20].GetString(), ' ');
+    for (char const* token : bonusListIDs)
+    {
+        uint32 bonusListID = atoul(token);
+        AddBonuses(bonusListID);
+    }
 
     _LoadIntoDataField(fields[8].GetString(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
     m_randomEnchantment.Type = ItemRandomEnchantmentType(fields[9].GetUInt8());
@@ -693,7 +701,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     {
         SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(m_randomEnchantment.Id));
         // recalculate suffix factor
-        UpdateItemSuffixFactor();
+        UpdateItemSuffixFactor(owner);
     }
 
     // We had a bug where randomEnchantment wasn't stored, check if it require a fix
@@ -738,15 +746,6 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, fields[16].GetUInt32());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[17].GetUInt16());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[18].GetUInt32());
-
-    SetUInt32Value(ITEM_FIELD_CONTEXT, fields[19].GetUInt8());
-
-    Tokenizer bonusListIDs(fields[20].GetString(), ' ');
-    for (char const* token : bonusListIDs)
-    {
-        uint32 bonusListID = atoul(token);
-        AddBonuses(bonusListID);
-    }
 
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[21].GetUInt32());
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[22].GetUInt32());
@@ -958,9 +957,9 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
     }
 }
 
-void Item::UpdateItemSuffixFactor()
+void Item::UpdateItemSuffixFactor(Player const* owner/* = nullptr*/)
 {
-    uint32 suffixFactor = GenerateEnchSuffixFactor(GetEntry());
+    uint32 suffixFactor = GetRandomPropertyPoints(GetItemLevel(owner ? owner : GetOwner()), GetTemplate()->GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass());
     if (GetItemSuffixFactor() == suffixFactor)
         return;
     SetUInt32Value(ITEM_FIELD_PROPERTY_SEED, suffixFactor);
