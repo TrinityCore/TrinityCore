@@ -3742,15 +3742,6 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
                 continue;
             }
 
-            // @TODO TEMPFIX
-            if (power->PowerType == POWER_MANA && Id && (Id == 30451 || Id == 1449))
-            {
-                if (caster->GetPower(POWER_ARCANE_CHARGES))
-                {
-                    powerCost = int32(powerCost * (caster->GetPower(POWER_ARCANE_CHARGES) * 1.25f));
-                }
-            }
-
             bool found = false;
             for (SpellPowerCost& cost : costs)
             {
