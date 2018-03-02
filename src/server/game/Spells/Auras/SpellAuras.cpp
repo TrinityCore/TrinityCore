@@ -1019,8 +1019,20 @@ bool Aura::CanBeSaved() const
 
     // Check if aura is single target, not only spell info
     if (GetCasterGUID() != GetOwner()->GetGUID())
-        if (GetSpellInfo()->IsSingleTarget() || IsSingleTarget())
+    {
+        // owner == caster for area auras, check for possible bad data in DB
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (!GetSpellInfo()->Effects[i].IsEffect())
+                continue;
+
+            if (GetSpellInfo()->Effects[i].IsTargetingArea() || GetSpellInfo()->Effects[i].IsAreaAuraEffect())
+                return false;
+        }
+
+        if (IsSingleTarget() || GetSpellInfo()->IsSingleTarget())
             return false;
+    }
 
     // Can't be saved - aura handler relies on calculated amount and changes it
     if (HasEffectType(SPELL_AURA_CONVERT_RUNE))
@@ -2506,17 +2518,21 @@ void UnitAura::Remove(AuraRemoveMode removeMode)
 
 void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* caster)
 {
+    Unit* ref = caster;
+    if (!ref)
+        ref = GetUnitOwner();
+
     for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
     {
         if (!HasEffect(effIndex))
             continue;
 
-        std::deque<Unit*> units;
+        std::vector<Unit*> units;
         ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
         // non-area aura
         if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA)
         {
-            if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), caster, *condList))
+            if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
                 units.push_back(GetUnitOwner());
         }
         else
@@ -2525,45 +2541,44 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
             if (!GetUnitOwner()->IsInWorld())
                 continue;
 
-            float radius = GetSpellInfo()->Effects[effIndex].CalcRadius(caster);
+            if (GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
+                continue;
 
-            if (!GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
+            float radius = GetSpellInfo()->Effects[effIndex].CalcRadius(ref);
+            SpellTargetCheckTypes selectionType = TARGET_CHECK_DEFAULT;
+            switch (GetSpellInfo()->Effects[effIndex].Effect)
             {
-                SpellTargetCheckTypes selectionType = TARGET_CHECK_DEFAULT;
-                switch (GetSpellInfo()->Effects[effIndex].Effect)
+                case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+                    selectionType = TARGET_CHECK_PARTY;
+                    break;
+                case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+                    selectionType = TARGET_CHECK_RAID;
+                    break;
+                case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+                    selectionType = TARGET_CHECK_ALLY;
+                    break;
+                case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+                    selectionType = TARGET_CHECK_ENEMY;
+                    break;
+                case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+                    if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
+                        units.push_back(GetUnitOwner());
+                    // no break
+                case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                 {
-                    case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
-                        selectionType = TARGET_CHECK_PARTY;
-                        break;
-                    case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
-                        selectionType = TARGET_CHECK_RAID;
-                        break;
-                    case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
-                        selectionType = TARGET_CHECK_ALLY;
-                        break;
-                    case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
-                        selectionType = TARGET_CHECK_ENEMY;
-                        break;
-                    case SPELL_EFFECT_APPLY_AREA_AURA_PET:
-                        if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), caster, *condList))
-                            units.push_back(GetUnitOwner());
-                        // no break
-                    case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
-                    {
-                        if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
-                            if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
-                                if (!condList || sConditionMgr->IsObjectMeetToConditions(owner, caster, *condList))
-                                    units.push_back(owner);
-                        break;
-                    }
+                    if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
+                        if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
+                            if (!condList || sConditionMgr->IsObjectMeetToConditions(owner, ref, *condList))
+                                units.push_back(owner);
+                    break;
                 }
+            }
 
-                if (selectionType != TARGET_CHECK_DEFAULT)
-                {
-                    Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), caster, caster, m_spellInfo, selectionType, condList);
-                    Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
-                    Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
-                }
+            if (selectionType != TARGET_CHECK_DEFAULT)
+            {
+                Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), ref, GetUnitOwner(), m_spellInfo, selectionType, condList);
+                Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
+                Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
             }
         }
 
@@ -2611,7 +2626,7 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* 
         if (m_spellInfo->Effects[effIndex].TargetB.GetReferenceType() == TARGET_REFERENCE_TYPE_DEST)
             selectionType = m_spellInfo->Effects[effIndex].TargetB.GetCheckType();
 
-        std::deque<Unit*> units;
+        std::vector<Unit*> units;
         ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
 
         Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetDynobjOwner(), dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList);
