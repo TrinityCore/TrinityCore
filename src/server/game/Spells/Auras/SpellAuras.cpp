@@ -2280,86 +2280,86 @@ void UnitAura::Remove(AuraRemoveMode removeMode)
 
 void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* caster)
 {
+    Unit* ref = caster;
+    if (!ref)
+        ref = GetUnitOwner();
+
     for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
     {
         if (!effect || !HasEffect(effect->EffectIndex))
             continue;
 
-        std::deque<Unit*> units;
+        std::vector<Unit*> units;
         ConditionContainer* condList = effect->ImplicitTargetConditions;
         // non-area aura
         if (effect->Effect == SPELL_EFFECT_APPLY_AURA)
         {
-            if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), caster, *condList))
+            if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
                 units.push_back(GetUnitOwner());
         }
         else
         {
-            ASSERT(caster, "Area aura (Id: %u) has nullptr caster (%s)", m_spellInfo->Id, GetCasterGUID().ToString().c_str());
-            ASSERT(GetCasterGUID() == GetUnitOwner()->GetGUID(), "Area aura (Id: %u) has owner (%s) different to caster (%s)", m_spellInfo->Id, GetUnitOwner()->GetGUID().ToString().c_str(), GetCasterGUID().ToString().c_str());
-
             // skip area update if owner is not in world!
             if (!GetUnitOwner()->IsInWorld())
                 continue;
 
+            if (GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
+                continue;
+
             float radius = effect->CalcRadius(caster);
-
-            if (!GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
+            SpellTargetCheckTypes selectionType = TARGET_CHECK_DEFAULT;
+            switch (effect->Effect)
             {
-                SpellTargetCheckTypes selectionType = TARGET_CHECK_DEFAULT;
-                switch (effect->Effect)
+                case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+                case SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM:
+                    selectionType = TARGET_CHECK_PARTY;
+                    break;
+                case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+                    selectionType = TARGET_CHECK_RAID;
+                    break;
+                case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+                    selectionType = TARGET_CHECK_ALLY;
+                    break;
+                case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+                    selectionType = TARGET_CHECK_ENEMY;
+                    break;
+                case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+                    if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
+                        units.push_back(GetUnitOwner());
+                    /* fallthrough */
+                case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                 {
-                    case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
-                    case SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM:
-                        selectionType = TARGET_CHECK_PARTY;
-                        break;
-                    case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
-                        selectionType = TARGET_CHECK_RAID;
-                        break;
-                    case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
-                        selectionType = TARGET_CHECK_ALLY;
-                        break;
-                    case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
-                        selectionType = TARGET_CHECK_ENEMY;
-                        break;
-                    case SPELL_EFFECT_APPLY_AREA_AURA_PET:
-                        if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), caster, *condList))
-                            units.push_back(GetUnitOwner());
-                        /* fallthrough */
-                    case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
-                    {
-                        if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
-                            if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
-                                if (!condList || sConditionMgr->IsObjectMeetToConditions(owner, caster, *condList))
-                                    units.push_back(owner);
-                        break;
-                    }
-                    case SPELL_EFFECT_APPLY_AURA_ON_PET:
-                    {
-                        if (Unit* pet = ObjectAccessor::GetUnit(*GetUnitOwner(), GetUnitOwner()->GetPetGUID()))
-                            if (!condList || sConditionMgr->IsObjectMeetToConditions(pet, caster, *condList))
-                                units.push_back(pet);
-                        break;
-                    }
-                    case SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS:
-                    {
-                        if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), caster, *condList))
-                            units.push_back(GetUnitOwner());
-
-                        selectionType = TARGET_CHECK_SUMMONED;
-                        break;
-                    }
+                    if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
+                        if (GetUnitOwner()->IsWithinDistInMap(owner, radius))
+                            if (!condList || sConditionMgr->IsObjectMeetToConditions(owner, ref, *condList))
+                                units.push_back(owner);
+                    break;
                 }
-
-                if (selectionType != TARGET_CHECK_DEFAULT)
+                case SPELL_EFFECT_APPLY_AURA_ON_PET:
                 {
-                    Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), caster, caster, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
-                    Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
-                    Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
-
-                    // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-                    units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); }), units.end());
+                    if (Unit* pet = ObjectAccessor::GetUnit(*GetUnitOwner(), GetUnitOwner()->GetPetGUID()))
+                        if (!condList || sConditionMgr->IsObjectMeetToConditions(pet, ref, *condList))
+                            units.push_back(pet);
+                    break;
                 }
+                case SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS:
+                {
+                    if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
+                        units.push_back(GetUnitOwner());
+
+                    selectionType = TARGET_CHECK_SUMMONED;
+                    break;
+                }
+            }
+
+            if (selectionType != TARGET_CHECK_DEFAULT)
+            {
+                Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), ref, GetUnitOwner(), m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
+                Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
+                Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
+
+                // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
+                units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); }), units.end());
             }
         }
 
@@ -2415,7 +2415,7 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit*
         if (effect->TargetB.GetReferenceType() == TARGET_REFERENCE_TYPE_DEST)
             selectionType = effect->TargetB.GetCheckType();
 
-        std::deque<Unit*> units;
+        std::vector<Unit*> units;
         ConditionContainer* condList = effect->ImplicitTargetConditions;
 
         Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetDynobjOwner(), dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
