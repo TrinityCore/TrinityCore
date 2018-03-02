@@ -3950,13 +3950,14 @@ void AuraEffect::HandleAuraModWeaponCritPercent(AuraApplication const* aurApp, u
     target->UpdateAllWeaponDependentCritAuras();
 }
 
-void AuraEffect::HandleModHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModHitChance(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
     Unit* target = aurApp->GetTarget();
 
+    // handle stack rules
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
         target->ToPlayer()->UpdateMeleeHitChances();
@@ -3964,8 +3965,9 @@ void AuraEffect::HandleModHitChance(AuraApplication const* aurApp, uint8 mode, b
     }
     else
     {
-        target->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
-        target->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
+        float value = target->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+        target->m_modMeleeHitChance = value;
+        target->m_modRangedHitChance = value;
     }
 }
 
