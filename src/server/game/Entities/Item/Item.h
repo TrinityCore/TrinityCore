@@ -152,7 +152,7 @@ class TC_GAME_API Item : public Object
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
-        virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
+        virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player const* owner = nullptr);
         void LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
 
         void AddBonuses(uint32 bonusListID);
@@ -215,7 +215,7 @@ class TC_GAME_API Item : public Object
         int32 GetItemRandomPropertyId() const { return GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID); }
         uint32 GetItemSuffixFactor() const { return GetUInt32Value(ITEM_FIELD_PROPERTY_SEED); }
         void SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId);
-        void UpdateItemSuffixFactor();
+        void UpdateItemSuffixFactor(Player const* owner = nullptr);
         ItemRandomEnchantmentId GetItemRandomEnchantmentId() const { return m_randomEnchantment; }
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
