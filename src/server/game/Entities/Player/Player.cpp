@@ -24669,6 +24669,8 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
                     if (!item || !item->IsFitToSpellRequirements(spellInfo))
                         return false;
                 }
+
+                return true;
             }
 
             break;
