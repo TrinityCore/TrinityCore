@@ -4763,30 +4763,6 @@ void Spell::TakePower()
             continue;
         }
 
-        // @TODO TEMPFIX
-        if (powerType == POWER_MANA && m_spellInfo && (m_spellInfo->Id == 30451 || m_spellInfo->Id == 1449))
-        {
-            if (m_caster->GetPower(POWER_ARCANE_CHARGES))
-            {
-                int32 pct = 0;
-                switch (m_spellInfo->Id)
-                {
-                    case 1449: 
-                        pct = 2;
-                        break;
-                    case 30451:
-                        pct = 3;
-                        break;
-                }
-
-                uint32 basemana = 0;
-                sObjectMgr->GetPlayerClassLevelInfo(m_caster->getClass(), m_caster->getLevel(), basemana);
-
-                int32 baseManaCost = CalculatePct(basemana, pct);
-                cost.Amount = int32(baseManaCost * (m_caster->GetPower(POWER_ARCANE_CHARGES) * 1.25f));
-            }
-        }
-
         if (powerType == POWER_MANA && m_caster->HasAura(12042))
         {
             if (Aura* arcanePower = m_caster->GetAura(12042))
