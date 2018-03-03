@@ -324,6 +324,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         time_t GetGridExpiry() const { return i_gridExpiry; }
 
+        bool HasGrid(uint32 mapId, int32 gx, int32 gy) const;
         static bool ExistMap(uint32 mapid, int gx, int gy);
         static bool ExistVMap(uint32 mapid, int gx, int gy);
 
@@ -630,8 +631,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void setNGrid(NGridType* grid, uint32 x, uint32 y);
         void ScriptsProcess();
-
-        void UpdateActiveCells(const float &x, const float &y, const uint32 t_diff);
 
         void SendObjectUpdates();
 

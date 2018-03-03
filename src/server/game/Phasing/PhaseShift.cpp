@@ -17,8 +17,6 @@
 
 #include "PhaseShift.h"
 #include "Containers.h"
-#include "GridDefines.h"
-#include "VMapFactory.h"
 
 bool PhaseShift::AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references /*= 1*/)
 {
@@ -145,33 +143,6 @@ bool PhaseShift::CanSee(PhaseShift const& other) const
         return checkInversePhaseShift(*this, other);
 
     return checkInversePhaseShift(other, *this);
-}
-
-uint32 PhaseShift::GetTerrainMapId(uint32 realMapId, float x, float y) const
-{
-    if (VisibleMapIds.empty())
-        return realMapId;
-
-    if (VisibleMapIds.size() == 1)
-        return VisibleMapIds.begin()->first;
-
-    GridCoord gridCoord = Trinity::ComputeGridCoord(x, y);
-    int32 gx = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.x_coord;
-    int32 gy = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
-
-    int32 minDistance = std::numeric_limits<int32>::max();
-    uint32 terrainMapId;
-    for (auto itr = VisibleMapIds.begin(); itr != VisibleMapIds.end(); ++itr)
-    {
-        int32 dist = VMAP::VMapFactory::createOrGetVMapManager()->GetDistanceToClosestPrimaryTile(itr->first, gx, gy);
-        if (dist < minDistance)
-        {
-            minDistance = dist;
-            terrainMapId = itr->first;
-        }
-    }
-
-    return terrainMapId;
 }
 
 void PhaseShift::ModifyPhasesReferences(PhaseContainer::iterator itr, int32 references)

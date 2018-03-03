@@ -18,15 +18,16 @@
  */
 
 #include "PathGenerator.h"
-#include "Map.h"
 #include "Creature.h"
-#include "MMapFactory.h"
-#include "MMapManager.h"
-#include "Log.h"
-#include "DisableMgr.h"
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
+#include "DisableMgr.h"
+#include "Log.h"
+#include "MMapFactory.h"
+#include "MMapManager.h"
+#include "Map.h"
 #include "Metric.h"
+#include "PhasingHandler.h"
 
 ////////////////// PathGenerator //////////////////
 PathGenerator::PathGenerator(const Unit* owner) :
@@ -39,7 +40,7 @@ PathGenerator::PathGenerator(const Unit* owner) :
 
     TC_LOG_DEBUG("maps", "++ PathGenerator::PathGenerator for %s", _sourceUnit->GetGUID().ToString().c_str());
 
-    uint32 mapId = _sourceUnit->GetPhaseShift().GetTerrainMapId(_sourceUnit->GetMapId(), _sourceUnit->GetPositionX(), _sourceUnit->GetPositionY());
+    uint32 mapId = PhasingHandler::GetTerrainMapId(_sourceUnit->GetPhaseShift(), _sourceUnit->GetMap(), _sourceUnit->GetPositionX(), _sourceUnit->GetPositionY());
     if (DisableMgr::IsPathfindingEnabled(_sourceUnit->GetMapId()))
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();

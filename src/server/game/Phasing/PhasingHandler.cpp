@@ -469,6 +469,32 @@ bool PhasingHandler::InDbPhaseShift(WorldObject const* object, uint8 phaseUseFla
     return object->GetPhaseShift().CanSee(phaseShift);
 }
 
+uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, Map const* map, float x, float y)
+{
+    if (phaseShift.VisibleMapIds.empty())
+        return map->GetId();
+
+    if (phaseShift.VisibleMapIds.size() == 1)
+        return phaseShift.VisibleMapIds.begin()->first;
+
+    GridCoord gridCoord = Trinity::ComputeGridCoord(x, y);
+    int32 gx = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.x_coord;
+    int32 gy = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
+
+    int32 gxbegin = std::max(gx - 1, 0);
+    int32 gxend = std::min(gx + 1, MAX_NUMBER_OF_GRIDS);
+    int32 gybegin = std::max(gy - 1, 0);
+    int32 gyend = std::min(gy + 1, MAX_NUMBER_OF_GRIDS);
+
+    for (auto itr = phaseShift.VisibleMapIds.rbegin(); itr != phaseShift.VisibleMapIds.rend(); ++itr)
+        for (int32 gxi = gxbegin; gxi < gxend; ++gxi)
+            for (int32 gyi = gybegin; gyi < gyend; ++gyi)
+                if (map->HasGrid(itr->first, gxi, gyi))
+                    return itr->first;
+
+    return map->GetId();
+}
+
 void PhasingHandler::SetAlwaysVisible(PhaseShift& phaseShift, bool apply)
 {
     if (apply)
