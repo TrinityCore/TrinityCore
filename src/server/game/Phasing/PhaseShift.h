@@ -101,7 +101,6 @@ public:
     void ClearPhases();
 
     bool CanSee(PhaseShift const& other) const;
-    uint32 GetTerrainMapId(uint32 realMapId, float x, float y) const;
 
 protected:
     friend class PhasingHandler;
