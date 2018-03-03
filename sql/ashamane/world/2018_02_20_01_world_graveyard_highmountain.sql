@@ -11,10 +11,10 @@ INSERT INTO `graveyard_zone` (`ID`, `GhostZone`, `Faction`, `Comment`) VALUES
 (5208, 7503, 0, 'Highmountain - Prepfoot Compound - Graveyard'),
 (5209, 7503, 469, 'Highmountain - Rockaway Coast - MurlocVinetteGY'),
 (5216, 7503, 469, 'Highmountain - LonehoofWatch - GY'),
-(5217, 7334, 67, 'Highmountain - FrosthoofWatch - GY'),
-(5435, 7334, 469, 'Highmountain - Thundertotem Cave - Graveyard'),
-(5460, 7334, 465, 'Highmountain - Trueshot Lodge - GY'),
-(5551, 7334, 67, 'Highmountain - Skyhorn - Northern GY'),
-(5552, 7334, 67, 'Highmountain - Path of Huln - GY'),
-(5764, 7334, 67, 'Highmountain - The Ettinwalk - GY'),
-(5767, 7334, 67, 'Highmountain - Sunfrost Glade - GY');
+(5217, 7503, 67, 'Highmountain - FrosthoofWatch - GY'),
+(5435, 7503, 469, 'Highmountain - Thundertotem Cave - Graveyard'),
+(5460, 7503, 465, 'Highmountain - Trueshot Lodge - GY'),
+(5551, 7503, 67, 'Highmountain - Skyhorn - Northern GY'),
+(5552, 7503, 67, 'Highmountain - Path of Huln - GY'),
+(5764, 7503, 67, 'Highmountain - The Ettinwalk - GY'),
+(5767, 7503, 67, 'Highmountain - Sunfrost Glade - GY');
