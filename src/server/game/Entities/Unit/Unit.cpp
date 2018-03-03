@@ -12612,22 +12612,22 @@ uint32 Unit::GetCategoryForTotem(uint32 totemCategory)
         case TOTEM_CATEGORY_FIRE:
         case TOTEM_CATEGORY_FIRE_2:
         case TOTEM_CATEGORY_FIRE_3:
-            return SUMMON_TYPE_TOTEM_FIRE;
+            return TC_FIRE_TOTEM;
         case TOTEM_CATEGORY_EARTH:
         case TOTEM_CATEGORY_EARTH_2:
         case TOTEM_CATEGORY_EARTH_3:
         case TOTEM_CATEGORY_EARTH_4:
-            return SUMMON_TYPE_TOTEM_EARTH;
+            return TC_EARTH_TOTEM;
         case TOTEM_CATEGORY_WATER:
         case TOTEM_CATEGORY_WATER_2:
-            return SUMMON_TYPE_TOTEM_WATER;
+            return TC_WATER_TOTEM;
         case TOTEM_CATEGORY_AIR:
         case TOTEM_CATEGORY_AIR_2:
         case TOTEM_CATEGORY_AIR_3:
         case TOTEM_CATEGORY_AIR_4:
         case TOTEM_CATEGORY_AIR_5:
         case TOTEM_CATEGORY_AIR_6:
-            return SUMMON_TYPE_TOTEM_AIR;
+            return TC_AIR_TOTEM;
         default:
             break;
     }
@@ -12644,13 +12644,13 @@ uint32 Unit::GetModelForTotem(uint32 totemType)
         {
             switch (totemType)
             {
-                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                case TC_FIRE_TOTEM:    // fire
                     return 30758;
-                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                case TC_EARTH_TOTEM:   // earth
                     return 30757;
-                case SUMMON_TYPE_TOTEM_WATER:   // water
+                case TC_WATER_TOTEM:   // water
                     return 30759;
-                case SUMMON_TYPE_TOTEM_AIR:     // air
+                case TC_AIR_TOTEM:     // air
                     return 30756;
             }
             break;
@@ -12659,13 +12659,13 @@ uint32 Unit::GetModelForTotem(uint32 totemType)
         {
             switch (totemType)
             {
-                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                case TC_FIRE_TOTEM:    // fire
                     return 30754;
-                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                case TC_EARTH_TOTEM:   // earth
                     return 30753;
-                case SUMMON_TYPE_TOTEM_WATER:   // water
+                case TC_WATER_TOTEM:   // water
                     return 30755;
-                case SUMMON_TYPE_TOTEM_AIR:     // air
+                case TC_AIR_TOTEM:     // air
                     return 30736;
             }
             break;
@@ -12674,13 +12674,13 @@ uint32 Unit::GetModelForTotem(uint32 totemType)
         {
             switch (totemType)
             {
-                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                case TC_FIRE_TOTEM:    // fire
                     return 30762;
-                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                case TC_EARTH_TOTEM:   // earth
                     return 30761;
-                case SUMMON_TYPE_TOTEM_WATER:   // water
+                case TC_WATER_TOTEM:   // water
                     return 30763;
-                case SUMMON_TYPE_TOTEM_AIR:     // air
+                case TC_AIR_TOTEM:     // air
                     return 30760;
             }
             break;
@@ -12689,13 +12689,13 @@ uint32 Unit::GetModelForTotem(uint32 totemType)
         {
             switch (totemType)
             {
-                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                case TC_FIRE_TOTEM:    // fire
                     return 4589;
-                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                case TC_EARTH_TOTEM:   // earth
                     return 4588;
-                case SUMMON_TYPE_TOTEM_WATER:   // water
+                case TC_WATER_TOTEM:   // water
                     return 4587;
-                case SUMMON_TYPE_TOTEM_AIR:     // air
+                case TC_AIR_TOTEM:     // air
                     return 4590;
             }
             break;
@@ -12704,13 +12704,13 @@ uint32 Unit::GetModelForTotem(uint32 totemType)
         {
             switch (totemType)
             {
-                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                case TC_FIRE_TOTEM:    // fire
                     return 19074;
-                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                case TC_EARTH_TOTEM:   // earth
                     return 19073;
-                case SUMMON_TYPE_TOTEM_WATER:   // water
+                case TC_WATER_TOTEM:   // water
                     return 19075;
-                case SUMMON_TYPE_TOTEM_AIR:     // air
+                case TC_AIR_TOTEM:     // air
                     return 19071;
             }
             break;
@@ -12719,13 +12719,13 @@ uint32 Unit::GetModelForTotem(uint32 totemType)
         {
             switch (totemType)
             {
-                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                case TC_FIRE_TOTEM:    // fire
                     return 30783;
-                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                case TC_EARTH_TOTEM:   // earth
                     return 30782;
-                case SUMMON_TYPE_TOTEM_WATER:   // water
+                case TC_WATER_TOTEM:   // water
                     return 30784;
-                case SUMMON_TYPE_TOTEM_AIR:     // air
+                case TC_AIR_TOTEM:     // air
                     return 30781;
             }
             break;
@@ -12736,13 +12736,13 @@ uint32 Unit::GetModelForTotem(uint32 totemType)
         {
             switch (totemType)
             {
-                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                case TC_FIRE_TOTEM:    // fire
                     return 41670;
-                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                case TC_EARTH_TOTEM:   // earth
                     return 41669;
-                case SUMMON_TYPE_TOTEM_WATER:   // water
+                case TC_WATER_TOTEM:   // water
                     return 41671;
-                case SUMMON_TYPE_TOTEM_AIR:     // air
+                case TC_AIR_TOTEM:     // air
                     return 41668;
             }
             break;
@@ -12751,13 +12751,13 @@ uint32 Unit::GetModelForTotem(uint32 totemType)
         {
             switch (totemType)
             {
-                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                case TC_FIRE_TOTEM:    // fire
                     return 81444;
-                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                case TC_EARTH_TOTEM:   // earth
                     return 81443;
-                case SUMMON_TYPE_TOTEM_WATER:   // water
+                case TC_WATER_TOTEM:   // water
                     return 81442;
-                case SUMMON_TYPE_TOTEM_AIR:     // air
+                case TC_AIR_TOTEM:     // air
                     return 81441;
             }
             break;

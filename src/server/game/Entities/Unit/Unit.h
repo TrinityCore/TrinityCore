@@ -885,14 +885,6 @@ enum ReactiveType
 
 #define MAX_GAMEOBJECT_SLOT 4
 
-enum PlayerTotemType
-{
-    SUMMON_TYPE_TOTEM_FIRE  = 0,
-    SUMMON_TYPE_TOTEM_EARTH = 1,
-    SUMMON_TYPE_TOTEM_WATER = 2,
-    SUMMON_TYPE_TOTEM_AIR   = 3
-};
-
 enum PlayerTotemCategory
 {
     TOTEM_CATEGORY_FIRE     = 3211, // Skyfury Totem
