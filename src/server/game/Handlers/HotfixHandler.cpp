@@ -18,7 +18,7 @@
 #include "WorldSession.h"
 #include "Containers.h"
 #include "DB2Stores.h"
-#include "Gametime.h"
+#include "GameTime.h"
 #include "HotfixPackets.h"
 #include "Log.h"
 #include "ObjectDefines.h"
