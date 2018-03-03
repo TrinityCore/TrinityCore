@@ -653,11 +653,11 @@ class TC_GAME_API World
         std::string const& GetDataPath() const { return m_dataPath; }
 
         /// When server started?
-        time_t const& GetStartTime() const { return m_startTime; }
+        //time_t const& GetStartTime() const { return m_startTime; }
         /// What time is it?
-        time_t const& GetGameTime() const { return m_gameTime; }
+        //time_t const& GetGameTime() const { return m_gameTime; }
         /// Uptime (in secs)
-        uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
+        //uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
         /// Update time
         uint32 GetUpdateTime() const { return m_updateTime; }
         void SetRecordDiffInterval(int32 t) { if (t >= 0) m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] = (uint32)t; }
@@ -834,8 +834,6 @@ class TC_GAME_API World
 
         bool m_isClosed;
 
-        time_t m_startTime;
-        time_t m_gameTime;
         IntervalTimer m_timers[WUPDATE_COUNT];
         time_t mail_timer;
         time_t mail_timer_expires;

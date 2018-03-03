@@ -33,6 +33,7 @@
 #include "DB2Stores.h"
 #include "EquipmentSetPackets.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "GitRevision.h"
 #include "Group.h"
 #include "Guild.h"
@@ -913,7 +914,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
     accountDataTimes.PlayerGuid = playerGuid;
-    accountDataTimes.ServerTime = uint32(sWorld->GetGameTime());
+    accountDataTimes.ServerTime = uint32(GameTime::GetGameTime());
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         accountDataTimes.AccountTimes[i] = uint32(GetAccountData(AccountDataType(i))->Time);
 
