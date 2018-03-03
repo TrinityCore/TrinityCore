@@ -2550,11 +2550,17 @@ GridMap* Map::GetGrid(uint32 mapId, float x, float y)
     EnsureGridCreated(GridCoord((MAX_NUMBER_OF_GRIDS - 1) - gx, (MAX_NUMBER_OF_GRIDS - 1) - gy));
 
     GridMap* grid = GridMaps[gx][gy];
-    auto childMapItr = std::find_if(m_childTerrainMaps->begin(), m_childTerrainMaps->end(), [mapId](Map* childTerrainMap) {return childTerrainMap->GetId() == mapId; });
+    auto childMapItr = std::find_if(m_childTerrainMaps->begin(), m_childTerrainMaps->end(), [mapId](Map* childTerrainMap) { return childTerrainMap->GetId() == mapId; });
     if (childMapItr != m_childTerrainMaps->end() && (*childMapItr)->GridMaps[gx][gy]->fileExists())
         grid = (*childMapItr)->GridMaps[gx][gy];
 
     return grid;
+}
+
+bool Map::HasGrid(uint32 mapId, int32 gx, int32 gy) const
+{
+    auto childMapItr = std::find_if(m_childTerrainMaps->begin(), m_childTerrainMaps->end(), [mapId](Map* childTerrainMap) { return childTerrainMap->GetId() == mapId; });
+    return childMapItr != m_childTerrainMaps->end() && (*childMapItr)->GridMaps[gx][gy] && (*childMapItr)->GridMaps[gx][gy]->fileExists();
 }
 
 float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground /*= nullptr*/, bool /*swim = false*/) const
@@ -2579,7 +2585,7 @@ float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float
 {
     // find raw .map surface under Z coordinates
     float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
-    uint32 terrainMapId = phaseShift.GetTerrainMapId(GetId(), x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(terrainMapId, x, y))
     {
         float gridHeight = gmap->getHeight(x, y);
@@ -2672,7 +2678,7 @@ bool Map::IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z) co
 bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const
 {
     float vmap_z = z;
-    uint32 terrainMapId = phaseShift.GetTerrainMapId(GetId(), x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     if (vmgr->getAreaInfo(terrainMapId, x, y, vmap_z, flags, adtId, rootId, groupId))
     {
@@ -2711,7 +2717,7 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, b
 
     if (!areaId)
     {
-        if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(phaseShift.GetTerrainMapId(GetId(), x, y), x, y))
+        if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
             areaId = gmap->getArea(x, y);
 
         // this used while not all *.map files generated (instances)
@@ -2754,7 +2760,7 @@ void Map::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32&
 
 uint8 Map::GetTerrainType(PhaseShift const& phaseShift, float x, float y) const
 {
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(phaseShift.GetTerrainMapId(GetId(), x, y), x, y))
+    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
         return gmap->getTerrainType(x, y);
     else
         return 0;
@@ -2767,7 +2773,7 @@ ZLiquidStatus Map::getLiquidStatus(PhaseShift const& phaseShift, float x, float 
     float liquid_level = INVALID_HEIGHT;
     float ground_level = INVALID_HEIGHT;
     uint32 liquid_type = 0;
-    uint32 terrainMapId = phaseShift.GetTerrainMapId(GetId(), x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     if (vmgr->GetLiquidLevel(terrainMapId, x, y, z, ReqLiquidType, liquid_level, ground_level, liquid_type))
     {
         TC_LOG_DEBUG("maps", "getLiquidStatus(): vmap liquid level: %f ground: %f type: %u", liquid_level, ground_level, liquid_type);
@@ -2848,7 +2854,7 @@ ZLiquidStatus Map::getLiquidStatus(PhaseShift const& phaseShift, float x, float 
 
 float Map::GetWaterLevel(PhaseShift const& phaseShift, float x, float y) const
 {
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(phaseShift.GetTerrainMapId(GetId(), x, y), x, y))
+    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
         return gmap->getLiquidLevel(x, y);
     else
         return 0;
@@ -2856,7 +2862,7 @@ float Map::GetWaterLevel(PhaseShift const& phaseShift, float x, float y) const
 
 bool Map::isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2) const
 {
-    return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(phaseShift.GetTerrainMapId(GetId(), x1, x2), x1, y1, z1, x2, y2, z2)
+    return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(PhasingHandler::GetTerrainMapId(phaseShift, this, x1, y1), x1, y1, z1, x2, y2, z2)
         && _dynamicTree.isInLineOfSight({ x1, y1, z1 }, { x2, y2, z2 }, phaseShift);
 }
 

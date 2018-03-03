@@ -306,15 +306,6 @@ namespace VMAP
         return false;
     }
 
-    int32 VMapManager2::GetDistanceToClosestPrimaryTile(uint32 mapId, int32 x, int32 y) const
-    {
-        auto instanceTree = GetMapTree(mapId);
-        if (instanceTree != iInstanceMapTrees.end())
-            return instanceTree->second->GetDistanceToClosestPrimaryTile(x, y);
-
-        return std::numeric_limits<int32>::max();
-    }
-
     WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename)
     {
         //! Critical section, thread safe access to iLoadedModelFiles

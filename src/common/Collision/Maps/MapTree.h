@@ -62,7 +62,6 @@ namespace VMAP
             {
                 FILE* File;
                 std::string Name;
-                bool IsPrimary;
             };
 
         private:
@@ -91,8 +90,6 @@ namespace VMAP
             bool isTiled() const { return iIsTiled; }
             uint32 numLoadedTiles() const { return uint32(iLoadedTiles.size()); }
             void getModelInstances(ModelInstance* &models, uint32 &count);
-
-            int32 GetDistanceToClosestPrimaryTile(int32 x, int32 y) const;
 
         private:
             StaticMapTree(StaticMapTree const& right) = delete;

@@ -242,7 +242,6 @@ namespace VMAP
         TileFileOpenResult result;
         result.Name = basePath + getTileFileName(mapID, tileX, tileY);
         result.File = fopen(result.Name.c_str(), "rb");
-        result.IsPrimary = true;
         if (!result.File)
         {
             int32 parentMapId = vm->getParentMapId(mapID);
@@ -250,7 +249,6 @@ namespace VMAP
             {
                 result.Name = basePath + getTileFileName(parentMapId, tileX, tileY);
                 result.File = fopen(result.Name.c_str(), "rb");
-                result.IsPrimary = false;
             }
         }
 
@@ -372,7 +370,6 @@ namespace VMAP
         }
         iLoadedSpawns.clear();
         iLoadedTiles.clear();
-        iLoadedPrimaryTiles.clear();
     }
 
     //=========================================================
@@ -447,8 +444,6 @@ namespace VMAP
                 }
             }
             iLoadedTiles[packTileID(tileX, tileY)] = true;
-            if (fileResult.IsPrimary)
-                iLoadedPrimaryTiles.emplace_back(tileX, tileY);
             fclose(fileResult.File);
         }
         else
@@ -512,8 +507,6 @@ namespace VMAP
             }
         }
         iLoadedTiles.erase(tile);
-        iLoadedPrimaryTiles.erase(std::remove_if(iLoadedPrimaryTiles.begin(), iLoadedPrimaryTiles.end(),
-            [tileX, tileY](std::pair<uint32, uint32> const& p) { return p.first == tileX && p.second == tileY; }), iLoadedPrimaryTiles.end());
         TC_METRIC_EVENT("map_events", "UnloadMapTile",
             "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
     }
@@ -522,14 +515,5 @@ namespace VMAP
     {
         models = iTreeValues;
         count = iNTreeValues;
-    }
-
-    int32 StaticMapTree::GetDistanceToClosestPrimaryTile(int32 x, int32 y) const
-    {
-        int32 minDistance = std::numeric_limits<int32>::max();
-        for (std::pair<int32, int32> const& primaryTile : iLoadedPrimaryTiles)
-            minDistance = std::min(minDistance, (primaryTile.first - x) * (primaryTile.first - x) + (primaryTile.second - y) * (primaryTile.second - y));
-
-        return minDistance;
     }
 }
