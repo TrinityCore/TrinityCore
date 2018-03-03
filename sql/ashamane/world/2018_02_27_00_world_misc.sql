@@ -11,119 +11,124 @@ UPDATE `creature_template` SET `unit_flags2`='2048' WHERE entry IN (110042,11004
 -- fix loot of the chest
 DELETE FROM gameobject_loot_template WHERE entry='251792';
 UPDATE `gameobject_template` SET `Data1`='251792' WHERE (`entry`='251792');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121374', '1.16', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121376', '1.39', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121377', '1.15', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121378', '1.13', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121380', '1.18', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121384', '1.31', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121385', '1.27', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121386', '1.31', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121387', '1.39', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121389', '1.37', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121390', '1.98', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121391', '1.21', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121392', '2.26', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121393', '1.27', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121394', '1.32', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121395', '1.96', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121397', '1.2', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121398', '1.21', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121399', '1.22', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121400', '1.44', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121401', '1.37', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121402', '1.4', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121403', '1.27', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121404', '1.22', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121405', '1.62', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121406', '1.71', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121407', '1.52', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121408', '1.57', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121409', '1.23', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121410', '1.64', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121411', '1.29', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121412', '1.33', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121413', '1.31', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121414', '1.42', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '121415', '1.98', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138242', '5.42', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138243', '3.57', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138244', '3.29', '1', '0', '1', '10');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138245', '1.94', '1', '0', '1', '5');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138246', '5.02', '1', '0', '1', '3');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138247', '3.69', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138248', '4.69', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138249', '7.27', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138250', '4.14', '1', '0', '1', '2');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138251', '3.97', '1', '0', '1', '5');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138307', '3.3', '1', '0', '1', '5');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138783', '2.33', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '138885', '2.77', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('251792', '140310', '1.47', '1', '0', '1', '1');
+
+INSERT INTO gameobject_loot_template (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES 
+('251792', '121374', '1.16', '1', '0', '1', '1'),
+('251792', '121376', '1.39', '1', '0', '1', '1'),
+('251792', '121377', '1.15', '1', '0', '1', '1'),
+('251792', '121378', '1.13', '1', '0', '1', '1'),
+('251792', '121380', '1.18', '1', '0', '1', '1'),
+('251792', '121384', '1.31', '1', '0', '1', '1'),
+('251792', '121385', '1.27', '1', '0', '1', '1'),
+('251792', '121386', '1.31', '1', '0', '1', '1'),
+('251792', '121387', '1.39', '1', '0', '1', '1'),
+('251792', '121389', '1.37', '1', '0', '1', '1'),
+('251792', '121390', '1.98', '1', '0', '1', '1'),
+('251792', '121391', '1.21', '1', '0', '1', '1'),
+('251792', '121392', '2.26', '1', '0', '1', '1'),
+('251792', '121393', '1.27', '1', '0', '1', '1'),
+('251792', '121394', '1.32', '1', '0', '1', '1'),
+('251792', '121395', '1.96', '1', '0', '1', '1'),
+('251792', '121397', '1.2', '1', '0', '1', '1'),
+('251792', '121398', '1.21', '1', '0', '1', '1'),
+('251792', '121399', '1.22', '1', '0', '1', '1'),
+('251792', '121400', '1.44', '1', '0', '1', '1'),
+('251792', '121401', '1.37', '1', '0', '1', '1'),
+('251792', '121402', '1.4', '1', '0', '1', '1'),
+('251792', '121403', '1.27', '1', '0', '1', '1'),
+('251792', '121404', '1.22', '1', '0', '1', '1'),
+('251792', '121405', '1.62', '1', '0', '1', '1'),
+('251792', '121406', '1.71', '1', '0', '1', '1'),
+('251792', '121407', '1.52', '1', '0', '1', '1'),
+('251792', '121408', '1.57', '1', '0', '1', '1'),
+('251792', '121409', '1.23', '1', '0', '1', '1'),
+('251792', '121410', '1.64', '1', '0', '1', '1'),
+('251792', '121411', '1.29', '1', '0', '1', '1'),
+('251792', '121412', '1.33', '1', '0', '1', '1'),
+('251792', '121413', '1.31', '1', '0', '1', '1'),
+('251792', '121414', '1.42', '1', '0', '1', '1'),
+('251792', '121415', '1.98', '1', '0', '1', '1'),
+('251792', '138242', '5.42', '1', '0', '1', '1'),
+('251792', '138243', '3.57', '1', '0', '1', '1'),
+('251792', '138244', '3.29', '1', '0', '1', '10'),
+('251792', '138245', '1.94', '1', '0', '1', '5'),
+('251792', '138246', '5.02', '1', '0', '1', '3'),
+('251792', '138247', '3.69', '1', '0', '1', '1'),
+('251792', '138248', '4.69', '1', '0', '1', '1'),
+('251792', '138249', '7.27', '1', '0', '1', '1'),
+('251792', '138250', '4.14', '1', '0', '1', '2'),
+('251792', '138251', '3.97', '1', '0', '1', '5'),
+('251792', '138307', '3.3', '1', '0', '1', '5'),
+('251792', '138783', '2.33', '1', '0', '1', '1'),
+('251792', '138885', '2.77', '1', '0', '1', '1'),
+('251792', '140310', '1.47', '1', '0', '1', '1');
+
 -- fix the loot of the chest
 DELETE FROM gameobject_loot_template WHERE entry='257291';
 UPDATE `gameobject_template` SET `Data1`='257291' WHERE (`entry`='257291');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121374', '1.27', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121375', '1.27', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121376', '1.54', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121377', '1.54', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121378', '1.36', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121379', '1.2', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121380', '1.52', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121382', '1.33', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121383', '1.32', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121384', '1.37', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121385', '1.52', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121386', '1.62', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121387', '1.65', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121388', '1.48', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121389', '2.02', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121390', '1.61', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121391', '1.14', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121392', '1.37', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121393', '1.4', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121394', '1.61', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121395', '1.51', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121396', '1.77', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121397', '1.85', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121398', '1.6', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121399', '1.5', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121400', '1.72', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121401', '1.59', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121402', '1.47', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121403', '1.46', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121404', '1.02', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121405', '2.7', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121406', '1.6', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121407', '1.63', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121408', '1.85', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121409', '1.37', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121410', '1.81', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121411', '1.63', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121412', '1.33', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121413', '1.4', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121414', '1.44', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '121415', '1.57', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138242', '5.37', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138243', '5.43', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138244', '5.26', '1', '0', '1', '10');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138245', '6.15', '1', '0', '1', '5');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138246', '5.63', '1', '0', '1', '3');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138247', '4.91', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138248', '7.29', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138249', '6.46', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138250', '5.79', '1', '0', '1', '2');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138251', '4.07', '1', '0', '1', '5');
-INSERT INTO gameobject_loot_template VALUES ('257291', '138307', '1.17', '1', '0', '1', '5');
-INSERT INTO gameobject_loot_template VALUES ('257291', '139792', '1.89', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '139795', '1.77', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '139801', '1.15', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '139813', '1.53', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '139814', '1.13', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '139816', '1.32', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '140581', '1.22', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '140582', '1.16', '1', '0', '1', '1');
-INSERT INTO gameobject_loot_template VALUES ('257291', '141888', '1.96', '1', '0', '1', '1');
+
+INSERT INTO gameobject_loot_template (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES 
+('257291', '121374', '1.27', '1', '0', '1', '1'),
+('257291', '121375', '1.27', '1', '0', '1', '1'),
+('257291', '121376', '1.54', '1', '0', '1', '1'),
+('257291', '121377', '1.54', '1', '0', '1', '1'),
+('257291', '121378', '1.36', '1', '0', '1', '1'),
+('257291', '121379', '1.2', '1', '0', '1', '1'),
+('257291', '121380', '1.52', '1', '0', '1', '1'),
+('257291', '121382', '1.33', '1', '0', '1', '1'),
+('257291', '121383', '1.32', '1', '0', '1', '1'),
+('257291', '121384', '1.37', '1', '0', '1', '1'),
+('257291', '121385', '1.52', '1', '0', '1', '1'),
+('257291', '121386', '1.62', '1', '0', '1', '1'),
+('257291', '121387', '1.65', '1', '0', '1', '1'),
+('257291', '121388', '1.48', '1', '0', '1', '1'),
+('257291', '121389', '2.02', '1', '0', '1', '1'),
+('257291', '121390', '1.61', '1', '0', '1', '1'),
+('257291', '121391', '1.14', '1', '0', '1', '1'),
+('257291', '121392', '1.37', '1', '0', '1', '1'),
+('257291', '121393', '1.4', '1', '0', '1', '1'),
+('257291', '121394', '1.61', '1', '0', '1', '1'),
+('257291', '121395', '1.51', '1', '0', '1', '1'),
+('257291', '121396', '1.77', '1', '0', '1', '1'),
+('257291', '121397', '1.85', '1', '0', '1', '1'),
+('257291', '121398', '1.6', '1', '0', '1', '1'),
+('257291', '121399', '1.5', '1', '0', '1', '1'),
+('257291', '121400', '1.72', '1', '0', '1', '1'),
+('257291', '121401', '1.59', '1', '0', '1', '1'),
+('257291', '121402', '1.47', '1', '0', '1', '1'),
+('257291', '121403', '1.46', '1', '0', '1', '1'),
+('257291', '121404', '1.02', '1', '0', '1', '1'),
+('257291', '121405', '2.7', '1', '0', '1', '1'),
+('257291', '121406', '1.6', '1', '0', '1', '1'),
+('257291', '121407', '1.63', '1', '0', '1', '1'),
+('257291', '121408', '1.85', '1', '0', '1', '1'),
+('257291', '121409', '1.37', '1', '0', '1', '1'),
+('257291', '121410', '1.81', '1', '0', '1', '1'),
+('257291', '121411', '1.63', '1', '0', '1', '1'),
+('257291', '121412', '1.33', '1', '0', '1', '1'),
+('257291', '121413', '1.4', '1', '0', '1', '1'),
+('257291', '121414', '1.44', '1', '0', '1', '1'),
+('257291', '121415', '1.57', '1', '0', '1', '1'),
+('257291', '138242', '5.37', '1', '0', '1', '1'),
+('257291', '138243', '5.43', '1', '0', '1', '1'),
+('257291', '138244', '5.26', '1', '0', '1', '10'),
+('257291', '138245', '6.15', '1', '0', '1', '5'),
+('257291', '138246', '5.63', '1', '0', '1', '3'),
+('257291', '138247', '4.91', '1', '0', '1', '1'),
+('257291', '138248', '7.29', '1', '0', '1', '1'),
+('257291', '138249', '6.46', '1', '0', '1', '1'),
+('257291', '138250', '5.79', '1', '0', '1', '2'),
+('257291', '138251', '4.07', '1', '0', '1', '5'),
+('257291', '138307', '1.17', '1', '0', '1', '5'),
+('257291', '139792', '1.89', '1', '0', '1', '1'),
+('257291', '139795', '1.77', '1', '0', '1', '1'),
+('257291', '139801', '1.15', '1', '0', '1', '1'),
+('257291', '139813', '1.53', '1', '0', '1', '1'),
+('257291', '139814', '1.13', '1', '0', '1', '1'),
+('257291', '139816', '1.32', '1', '0', '1', '1'),
+('257291', '140581', '1.22', '1', '0', '1', '1'),
+('257291', '140582', '1.16', '1', '0', '1', '1'),
+('257291', '141888', '1.96', '1', '0', '1', '1');
 -- fix the loot for mob
 UPDATE creature_template SET lootid='108521' WHERE entry='108521';
 -- fix the faction for some mobs
