@@ -22,6 +22,7 @@
 #include "DB2CascFileSource.h"
 #include "DB2Meta.h"
 #include "DBFilesClientList.h"
+#include "ExtractorDB2LoadInfo.h"
 #include "StringFormat.h"
 #include "adt.h"
 #include "wdt.h"
@@ -49,133 +50,6 @@ std::vector<uint16> LiqType;
 std::set<std::string> CameraFileNames;
 boost::filesystem::path input_path;
 boost::filesystem::path output_path;
-
-struct CinematicCameraLoadInfo
-{
-    static DB2FileLoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_INT, "SoundID" },
-            { false, FT_FLOAT, "OriginX" },
-            { false, FT_FLOAT, "OriginY" },
-            { false, FT_FLOAT, "OriginZ" },
-            { false, FT_FLOAT, "OriginFacing" },
-            { false, FT_INT, "ModelFileDataID" },
-        };
-        static char const* types = "iffi";
-        static uint8 const arraySizes[4] = { 1, 3, 1, 1 };
-        static DB2Meta const meta(-1, 4, 0x0062B0F4, types, arraySizes, -1);
-        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
-        return &loadInfo;
-    }
-};
-
-struct LiquidTypeLoadInfo
-{
-    static DB2FileLoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_STRING, "Name" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture1" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture2" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture3" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture4" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture5" },
-            { false, FT_STRING_NOT_LOCALIZED, "Texture6" },
-            { false, FT_INT, "SpellID" },
-            { false, FT_FLOAT, "MaxDarkenDepth" },
-            { false, FT_FLOAT, "FogDarkenIntensity" },
-            { false, FT_FLOAT, "AmbDarkenIntensity" },
-            { false, FT_FLOAT, "DirDarkenIntensity" },
-            { false, FT_FLOAT, "ParticleScale" },
-            { false, FT_INT, "Color1" },
-            { false, FT_INT, "Color2" },
-            { false, FT_FLOAT, "Float1" },
-            { false, FT_FLOAT, "Float2" },
-            { false, FT_FLOAT, "Float3" },
-            { false, FT_FLOAT, "Float4" },
-            { false, FT_FLOAT, "Float5" },
-            { false, FT_FLOAT, "Float6" },
-            { false, FT_FLOAT, "Float7" },
-            { false, FT_FLOAT, "Float8" },
-            { false, FT_FLOAT, "Float9" },
-            { false, FT_FLOAT, "Float10" },
-            { false, FT_FLOAT, "Float11" },
-            { false, FT_FLOAT, "Float12" },
-            { false, FT_FLOAT, "Float13" },
-            { false, FT_FLOAT, "Float14" },
-            { false, FT_FLOAT, "Float15" },
-            { false, FT_FLOAT, "Float16" },
-            { false, FT_FLOAT, "Float17" },
-            { false, FT_FLOAT, "Float18" },
-            { false, FT_INT, "Int1" },
-            { false, FT_INT, "Int2" },
-            { false, FT_INT, "Int3" },
-            { false, FT_INT, "Int4" },
-            { false, FT_SHORT, "Flags" },
-            { false, FT_SHORT, "LightID" },
-            { false, FT_BYTE, "Type" },
-            { false, FT_BYTE, "ParticleMovement" },
-            { false, FT_BYTE, "ParticleTexSlots" },
-            { false, FT_BYTE, "MaterialID" },
-            { false, FT_BYTE, "DepthTexCount1" },
-            { false, FT_BYTE, "DepthTexCount2" },
-            { false, FT_BYTE, "DepthTexCount3" },
-            { false, FT_BYTE, "DepthTexCount4" },
-            { false, FT_BYTE, "DepthTexCount5" },
-            { false, FT_BYTE, "DepthTexCount6" },
-            { false, FT_INT, "SoundID" },
-        };
-        static char const* types = "ssifffffifihhbbbbbi";
-        static uint8 const arraySizes[19] = { 1, 6, 1, 1, 1, 1, 1, 1, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
-        static DB2Meta const meta(-1, 19, 0x3313BBF3, types, arraySizes, -1);
-        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
-        return &loadInfo;
-    }
-};
-
-struct MapLoadInfo
-{
-    static DB2FileLoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_STRING_NOT_LOCALIZED, "Directory" },
-            { false, FT_STRING, "MapName" },
-            { false, FT_STRING, "MapDescription0" },
-            { false, FT_STRING, "MapDescription1" },
-            { false, FT_STRING, "ShortDescription" },
-            { false, FT_STRING, "LongDescription" },
-            { false, FT_INT, "Flags1" },
-            { false, FT_INT, "Flags2" },
-            { false, FT_FLOAT, "MinimapIconScale" },
-            { false, FT_FLOAT, "CorpsePosX" },
-            { false, FT_FLOAT, "CorpsePosY" },
-            { false, FT_SHORT, "AreaTableID" },
-            { false, FT_SHORT, "LoadingScreenID" },
-            { true, FT_SHORT, "CorpseMapID" },
-            { false, FT_SHORT, "TimeOfDayOverride" },
-            { true, FT_SHORT, "ParentMapID" },
-            { true, FT_SHORT, "CosmeticParentMapID" },
-            { false, FT_SHORT, "WindSettingsID" },
-            { false, FT_BYTE, "InstanceType" },
-            { false, FT_BYTE, "unk5" },
-            { false, FT_BYTE, "ExpansionID" },
-            { false, FT_BYTE, "MaxPlayers" },
-            { false, FT_BYTE, "TimeOffset" },
-        };
-        static char const* types = "ssssssiffhhhhhhhbbbbb";
-        static uint8 const arraySizes[21] = { 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2Meta const meta(-1, 21, 0xF568DF12, types, arraySizes, -1);
-        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
-        return &loadInfo;
-    }
-};
 
 // **************************************************
 // Extractor options
@@ -389,7 +263,7 @@ void ReadLiquidTypeTableDBC()
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
         DB2Record record = db2.GetRecord(x);
-        LiqType[record.GetId()] = record.GetUInt8("Type");
+        LiqType[record.GetId()] = record.GetUInt8("SoundBank");
     }
 
     for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
