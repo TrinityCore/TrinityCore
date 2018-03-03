@@ -31,6 +31,7 @@
 #include "Map.h"
 #include "MMapFactory.h"
 #include "PathGenerator.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "PointMovementGenerator.h"
 #include "RBAC.h"
@@ -130,12 +131,16 @@ public:
         int32 gx = 32 - player->GetPositionX() / SIZE_OF_GRIDS;
         int32 gy = 32 - player->GetPositionY() / SIZE_OF_GRIDS;
 
+        float x, y, z;
+        player->GetPosition(x, y, z);
+
         handler->PSendSysMessage("%04u%02i%02i.mmtile", player->GetMapId(), gx, gy);
         handler->PSendSysMessage("gridloc [%i, %i]", gy, gx);
 
         // calculate navmesh tile location
-        dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
-        dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMeshQuery(handler->GetSession()->GetPlayer()->GetMapId(), player->GetInstanceId());
+        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap(), x, y);
+        dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(terrainMapId);
+        dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMeshQuery(terrainMapId, player->GetInstanceId());
         if (!navmesh || !navmeshquery)
         {
             handler->PSendSysMessage("NavMesh not loaded for current map.");
@@ -143,8 +148,6 @@ public:
         }
 
         float const* min = navmesh->getParams()->orig;
-        float x, y, z;
-        player->GetPosition(x, y, z);
         float location[VERTEX_SIZE] = { y, z, x };
         float extents[VERTEX_SIZE] = { 3.0f, 5.0f, 3.0f };
 
@@ -185,9 +188,10 @@ public:
 
     static bool HandleMmapLoadedTilesCommand(ChatHandler* handler, char const* /*args*/)
     {
-        uint32 mapid = handler->GetSession()->GetPlayer()->GetMapId();
-        dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(mapid);
-        dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMeshQuery(mapid, handler->GetSession()->GetPlayer()->GetInstanceId());
+        Player* player = handler->GetSession()->GetPlayer();
+        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap(), player->GetPositionX(), player->GetPositionY());
+        dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(terrainMapId);
+        dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMeshQuery(terrainMapId, player->GetInstanceId());
         if (!navmesh || !navmeshquery)
         {
             handler->PSendSysMessage("NavMesh not loaded for current map.");
@@ -210,14 +214,15 @@ public:
 
     static bool HandleMmapStatsCommand(ChatHandler* handler, char const* /*args*/)
     {
-        uint32 mapId = handler->GetSession()->GetPlayer()->GetMapId();
+        Player* player = handler->GetSession()->GetPlayer();
+        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap(), player->GetPositionX(), player->GetPositionY());
         handler->PSendSysMessage("mmap stats:");
-        handler->PSendSysMessage("  global mmap pathfinding is %sabled", DisableMgr::IsPathfindingEnabled(mapId) ? "en" : "dis");
+        handler->PSendSysMessage("  global mmap pathfinding is %sabled", DisableMgr::IsPathfindingEnabled(player->GetMapId()) ? "en" : "dis");
 
         MMAP::MMapManager* manager = MMAP::MMapFactory::createOrGetMMapManager();
         handler->PSendSysMessage(" %u maps loaded with %u tiles overall", manager->getLoadedMapsCount(), manager->getLoadedTilesCount());
 
-        dtNavMesh const* navmesh = manager->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
+        dtNavMesh const* navmesh = manager->GetNavMesh(terrainMapId);
         if (!navmesh)
         {
             handler->PSendSysMessage("NavMesh not loaded for current map.");

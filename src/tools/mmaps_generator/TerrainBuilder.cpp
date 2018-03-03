@@ -17,12 +17,11 @@
  */
 
 #include "TerrainBuilder.h"
-
 #include "MapBuilder.h"
-
-#include "VMapManager2.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
 
 // ******************************************
 // Map file format defines
@@ -137,6 +136,16 @@ namespace MMAP
         sprintf(mapFileName, "maps/%04u_%02u_%02u.map", mapID, tileY, tileX);
 
         FILE* mapFile = fopen(mapFileName, "rb");
+        if (!mapFile)
+        {
+            int32 parentMapId = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager())->getParentMapId(mapID);
+            if (parentMapId != -1)
+            {
+                sprintf(mapFileName, "maps/%04d_%02u_%02u.map", parentMapId, tileY, tileX);
+                mapFile = fopen(mapFileName, "rb");
+            }
+        }
+
         if (!mapFile)
             return false;
 
@@ -389,7 +398,6 @@ namespace MMAP
                 useTerrain = true;
                 useLiquid = true;
                 uint8 liquidType = MAP_LIQUID_TYPE_NO_WATER;
-                // FIXME: "warning: the address of ‘liquid_type’ will always evaluate as ‘true’"
 
                 // if there is no liquid, don't use liquid
                 if (!meshData.liquidVerts.size() || !ltriangles.size())
@@ -626,8 +634,8 @@ namespace MMAP
     /**************************************************************************/
     bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
     {
-        IVMapManager* vmapManager = new VMapManager2();
-        int result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
+        VMapManager2* vmapManager = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager());
+        int result = vmapManager->loadSingleMap(mapID, "vmaps", tileX, tileY);
         bool retval = false;
 
         do
@@ -636,7 +644,7 @@ namespace MMAP
                 break;
 
             InstanceTreeMap instanceTrees;
-            ((VMapManager2*)vmapManager)->getInstanceMapTree(instanceTrees);
+            vmapManager->getInstanceMapTree(instanceTrees);
 
             if (!instanceTrees[mapID])
                 break;
@@ -664,7 +672,7 @@ namespace MMAP
                 worldModel->getGroupModels(groupModels);
 
                 // all M2s need to have triangle indices reversed
-                bool isM2 = instance.name.find(".m2") != std::string::npos || instance.name.find(".M2") != std::string::npos;
+                bool isM2 = (instance.flags & MOD_M2) != 0;
 
                 // transform data
                 float scale = instance.iScale;
@@ -779,8 +787,7 @@ namespace MMAP
         }
         while (false);
 
-        vmapManager->unloadMap(mapID, tileX, tileY);
-        delete vmapManager;
+        vmapManager->unloadSingleMap(mapID, tileX, tileY);
 
         return retval;
     }

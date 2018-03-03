@@ -39,8 +39,8 @@ PathGenerator::PathGenerator(const Unit* owner) :
 
     TC_LOG_DEBUG("maps", "++ PathGenerator::PathGenerator for %s", _sourceUnit->GetGUID().ToString().c_str());
 
-    uint32 mapId = _sourceUnit->GetMapId();
-    if (DisableMgr::IsPathfindingEnabled(mapId))
+    uint32 mapId = _sourceUnit->GetPhaseShift().GetTerrainMapId(_sourceUnit->GetMapId(), _sourceUnit->GetPositionX(), _sourceUnit->GetPositionY());
+    if (DisableMgr::IsPathfindingEnabled(_sourceUnit->GetMapId()))
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
         _navMesh = mmap->GetNavMesh(mapId);
