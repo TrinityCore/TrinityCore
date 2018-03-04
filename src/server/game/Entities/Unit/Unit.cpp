@@ -12629,9 +12629,9 @@ uint32 Unit::GetCategoryForTotem(uint32 totemCategory)
         case TOTEM_CATEGORY_AIR_6:
             return TC_AIR_TOTEM;
         default:
-            break;
+            TC_LOG_ERROR("entities.unit", "Can't find TotemCategory for PlayerTotemCategory %u.", totemCategory);
+            return 0;
     }
-    return 0;
 }
 
 uint32 Unit::GetModelForTotem(uint32 totemType)
