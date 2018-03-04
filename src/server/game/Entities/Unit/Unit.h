@@ -885,26 +885,26 @@ enum ReactiveType
 
 #define MAX_GAMEOBJECT_SLOT 4
 
-enum PlayerTotemCategory
+enum SummonProperties
 {
-    TOTEM_CATEGORY_FIRE     = 3211, // Skyfury Totem
-    TOTEM_CATEGORY_FIRE_2   = 3697, // Liquid Magma Totem
-    TOTEM_CATEGORY_FIRE_3   = 3722, // Voodoo Totem
+    SUMMON_PROPERTY_TOTEM_FIRE      = 3211, // Skyfury Totem
+    SUMMON_PROPERTY_TOTEM_FIRE_2    = 3697, // Liquid Magma Totem
+    SUMMON_PROPERTY_TOTEM_FIRE_3    = 3722, // Voodoo Totem
 
-    TOTEM_CATEGORY_EARTH    = 3400, // Earthbind Totem
-    TOTEM_CATEGORY_EARTH_2  = 3404, // Earthgrab Totem
-    TOTEM_CATEGORY_EARTH_3  = 3737, // Earthen Shield Totem
-    TOTEM_CATEGORY_EARTH_4  = 3787, // Ancestral Protection Totem
+    SUMMON_PROPERTY_TOTEM_EARTH     = 3400, // Earthbind Totem
+    SUMMON_PROPERTY_TOTEM_EARTH_2   = 3404, // Earthgrab Totem
+    SUMMON_PROPERTY_TOTEM_EARTH_3   = 3737, // Earthen Shield Totem
+    SUMMON_PROPERTY_TOTEM_EARTH_4   = 3787, // Ancestral Protection Totem
 
-    TOTEM_CATEGORY_WATER    = 82,   // Healing Tide Totem
-    TOTEM_CATEGORY_WATER_2  = 3402, // Healing Stream & Cloudburst Totem
+    SUMMON_PROPERTY_TOTEM_WATER     = 82,   // Healing Tide Totem
+    SUMMON_PROPERTY_TOTEM_WATER_2   = 3402, // Healing Stream & Cloudburst Totem
 
-    TOTEM_CATEGORY_AIR      = 3399, // Spirit Link Totem
-    TOTEM_CATEGORY_AIR_2    = 3406, // Grounding Totem
-    TOTEM_CATEGORY_AIR_3    = 3407, // Lightning Surge Totem
-    TOTEM_CATEGORY_AIR_4    = 3695, // Winrush Totem
-    TOTEM_CATEGORY_AIR_5    = 3804, // Counterstrike Totem
-    TOTEM_CATEGORY_AIR_6    = 3806  // Windfury Totem
+    SUMMON_PROPERTY_TOTEM_AIR       = 3399, // Spirit Link Totem
+    SUMMON_PROPERTY_TOTEM_AIR_2     = 3406, // Grounding Totem
+    SUMMON_PROPERTY_TOTEM_AIR_3     = 3407, // Lightning Surge Totem
+    SUMMON_PROPERTY_TOTEM_AIR_4     = 3695, // Winrush Totem
+    SUMMON_PROPERTY_TOTEM_AIR_5     = 3804, // Counterstrike Totem
+    SUMMON_PROPERTY_TOTEM_AIR_6     = 3806  // Windfury Totem
 };
 
 // delay time next attack to prevent client attack animation problems
@@ -1813,7 +1813,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemovePetAura(PetAura const* petSpell);
 
         uint32 GetModelForForm(ShapeshiftForm form) const;
-        uint32 GetCategoryForTotem(uint32 totemCategory);
+        uint32 GetCategoryForTotem(uint32 summonProperty);
         uint32 GetModelForTotem(uint32 totemType);
 
         // Redirect Threat

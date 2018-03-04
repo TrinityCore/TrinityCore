@@ -12605,31 +12605,31 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
     return modelid;
 }
 
-uint32 Unit::GetCategoryForTotem(uint32 totemCategory)
+uint32 Unit::GetCategoryForTotem(uint32 summonProperty)
 {
-    switch (totemCategory)
+    switch (summonProperty)
     {
-        case TOTEM_CATEGORY_FIRE:
-        case TOTEM_CATEGORY_FIRE_2:
-        case TOTEM_CATEGORY_FIRE_3:
+        case SUMMON_PROPERTY_TOTEM_FIRE:
+        case SUMMON_PROPERTY_TOTEM_FIRE_2:
+        case SUMMON_PROPERTY_TOTEM_FIRE_3:
             return TC_FIRE_TOTEM;
-        case TOTEM_CATEGORY_EARTH:
-        case TOTEM_CATEGORY_EARTH_2:
-        case TOTEM_CATEGORY_EARTH_3:
-        case TOTEM_CATEGORY_EARTH_4:
+        case SUMMON_PROPERTY_TOTEM_EARTH:
+        case SUMMON_PROPERTY_TOTEM_EARTH_2:
+        case SUMMON_PROPERTY_TOTEM_EARTH_3:
+        case SUMMON_PROPERTY_TOTEM_EARTH_4:
             return TC_EARTH_TOTEM;
-        case TOTEM_CATEGORY_WATER:
-        case TOTEM_CATEGORY_WATER_2:
+        case SUMMON_PROPERTY_TOTEM_WATER:
+        case SUMMON_PROPERTY_TOTEM_WATER_2:
             return TC_WATER_TOTEM;
-        case TOTEM_CATEGORY_AIR:
-        case TOTEM_CATEGORY_AIR_2:
-        case TOTEM_CATEGORY_AIR_3:
-        case TOTEM_CATEGORY_AIR_4:
-        case TOTEM_CATEGORY_AIR_5:
-        case TOTEM_CATEGORY_AIR_6:
+        case SUMMON_PROPERTY_TOTEM_AIR:
+        case SUMMON_PROPERTY_TOTEM_AIR_2:
+        case SUMMON_PROPERTY_TOTEM_AIR_3:
+        case SUMMON_PROPERTY_TOTEM_AIR_4:
+        case SUMMON_PROPERTY_TOTEM_AIR_5:
+        case SUMMON_PROPERTY_TOTEM_AIR_6:
             return TC_AIR_TOTEM;
         default:
-            TC_LOG_ERROR("entities.unit", "Can't find TotemCategory for PlayerTotemCategory %u.", totemCategory);
+            TC_LOG_ERROR("entities.unit", "Can't find TotemCategory for SummonProperty %u.", summonProperty);
             return 0;
     }
 }
