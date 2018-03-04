@@ -19065,7 +19065,12 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                         item->CopyArtifactDataFromParent(parent);
                     }
                     else
-                        err = EQUIP_ERR_WRONG_BAG_TYPE_3; // send by mail
+                    {
+                        item->DeleteFromDB(trans);
+                        item->DeleteFromInventoryDB(trans);
+                        delete item;
+                        continue;
+                    }
                 }
 
                 // Item is not in bag
