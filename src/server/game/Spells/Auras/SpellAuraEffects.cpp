@@ -3826,7 +3826,7 @@ void AuraEffect::HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp
         return;
 
     Unit* target = aurApp->GetTarget();
-    if (target->GetPowerIndex(powerDisplay->PowerType) == MAX_POWERS)
+    if (target->GetPowerIndex(Powers(powerDisplay->PowerType)) == MAX_POWERS)
         return;
 
     if (apply)
@@ -3845,7 +3845,7 @@ void AuraEffect::HandleAuraModMaxPowerPct(AuraApplication const* aurApp, uint8 m
 
     Unit* target = aurApp->GetTarget();
 
-    if (target->GetPowerIndex(GetMiscValue()) == MAX_POWERS)
+    if (target->GetPowerIndex(Powers(GetMiscValue())) == MAX_POWERS)
         return;
 
     if (apply)
