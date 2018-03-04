@@ -703,6 +703,14 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // PvpReward.db2
     PrepareStatement(HOTFIX_SEL_PVP_REWARD, "SELECT ID, HonorLevel, Prestige, RewardPackID FROM pvp_reward ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // PvpTalent.db2
+    PrepareStatement(HOTFIX_SEL_PVP_TALENT, "SELECT ID, Description, SpellID, OverridesSpellID, ExtraSpellID, TierID, ColumnIndex, Flags, ClassID, "
+        "SpecID, Role FROM pvp_talent ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_PVP_TALENT, "SELECT ID, Description_lang FROM pvp_talent_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // PvpTalentUnlock.db2
+    PrepareStatement(HOTFIX_SEL_PVP_TALENT_UNLOCK, "SELECT ID, TierID, ColumnIndex, HonorLevel FROM pvp_talent_unlock ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // QuestFactionReward.db2
     PrepareStatement(HOTFIX_SEL_QUEST_FACTION_REWARD, "SELECT ID, QuestRewFactionValue1, QuestRewFactionValue2, QuestRewFactionValue3, "
         "QuestRewFactionValue4, QuestRewFactionValue5, QuestRewFactionValue6, QuestRewFactionValue7, QuestRewFactionValue8, QuestRewFactionValue9, "

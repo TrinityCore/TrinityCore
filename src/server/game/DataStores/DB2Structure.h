@@ -2115,6 +2115,29 @@ struct PvpRewardEntry
     uint32 RewardPackID;
 };
 
+struct PvpTalentEntry
+{
+    uint32 ID;
+    LocalizedString* Description;
+    int32 SpellID;
+    int32 OverridesSpellID;
+    int32 ExtraSpellID;
+    int32 TierID;
+    int32 ColumnIndex;
+    int32 Flags;
+    int32 ClassID;
+    int32 SpecID;
+    int32 Role;
+};
+
+struct PvpTalentUnlockEntry
+{
+    uint32 ID;
+    int32 TierID;
+    int32 ColumnIndex;
+    int32 HonorLevel;
+};
+
 struct QuestFactionRewardEntry
 {
     uint32 ID;
