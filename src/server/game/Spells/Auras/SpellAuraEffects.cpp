@@ -2543,18 +2543,25 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         {
             if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mountEntry->ID))
             {
-                DB2Manager::MountXDisplayContainer usableDisplays;
-                std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [target](MountXDisplayEntry const* mountDisplay)
+                if (mountEntry->IsSelfMount())
                 {
-                    if (Player* playerTarget = target->ToPlayer())
-                        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
-                            return sConditionMgr->IsPlayerMeetingCondition(playerTarget, playerCondition);
+                    displayId = DISPLAYID_HIDDEN_MOUNT;
+                }
+                else
+                {
+                    DB2Manager::MountXDisplayContainer usableDisplays;
+                    std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [target](MountXDisplayEntry const* mountDisplay)
+                    {
+                        if (Player* playerTarget = target->ToPlayer())
+                            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
+                                return sConditionMgr->IsPlayerMeetingCondition(playerTarget, playerCondition);
 
-                    return true;
-                });
+                        return true;
+                    });
 
-                if (!usableDisplays.empty())
-                    displayId = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->DisplayID;
+                    if (!usableDisplays.empty())
+                        displayId = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->DisplayID;
+                }
             }
             // TODO: CREATE TABLE mount_vehicle (mountId, vehicleCreatureId) for future mounts that are vehicles (new mounts no longer have proper data in MiscValue)
             //if (MountVehicle const* mountVehicle = sObjectMgr->GetMountVehicle(mountEntry->Id))
@@ -2565,7 +2572,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         {
             vehicleId = creatureInfo->VehicleId;
 
-            if (!displayId || vehicleId)
+            if (!displayId)
             {
                 displayId = ObjectMgr::ChooseDisplayId(creatureInfo);
                 sObjectMgr->GetCreatureModelRandomGender(&displayId);
