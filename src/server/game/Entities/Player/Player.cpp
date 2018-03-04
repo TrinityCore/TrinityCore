@@ -612,8 +612,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
     UpdateMaxHealth();                                      // Update max Health (for add bonus from stamina)
     SetFullHealth();
-    if (GetPowerType() == POWER_MANA)
-        SetFullPower(POWER_MANA);
+    SetFullPower(POWER_MANA);
 
     // original spells
     LearnDefaultSkills();
@@ -2613,13 +2612,9 @@ void Player::GiveLevel(uint8 level)
 
     _ApplyAllLevelScaleItemMods(true); // Moved to above SetFullHealth so player will have full health from Heirlooms
 
-    // set current level health and mana/energy to maximum after applying all mods.
+    // Only health and mana are set to maximum.
     SetFullHealth();
     SetFullPower(POWER_MANA);
-    SetFullPower(POWER_ENERGY);
-    if (GetPower(POWER_RAGE) > GetMaxPower(POWER_RAGE))
-        SetFullPower(POWER_RAGE);
-    SetPower(POWER_FOCUS, 0);
 
     // update level to hunter/summon pet
     if (Pet* pet = GetPet())
@@ -18614,7 +18609,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     uint32 loadedPowers = 0;
     for (uint32 i = 0; i < MAX_POWERS; ++i)
     {
-        if (GetPowerIndex(i) != MAX_POWERS)
+        if (GetPowerIndex(Powers(i)) != MAX_POWERS)
         {
             uint32 savedPower = fields[56 + loadedPowers].GetUInt32();
             uint32 maxPower = GetUInt32Value(UNIT_FIELD_MAXPOWER + loadedPowers);
@@ -20552,7 +20547,7 @@ void Player::SaveToDB(bool create /*=false*/)
         uint32 storedPowers = 0;
         for (uint32 i = 0; i < MAX_POWERS; ++i)
         {
-            if (GetPowerIndex(i) != MAX_POWERS)
+            if (GetPowerIndex(Powers(i)) != MAX_POWERS)
             {
                 stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER + storedPowers));
                 if (++storedPowers >= MAX_POWERS_PER_CLASS)
@@ -20697,7 +20692,7 @@ void Player::SaveToDB(bool create /*=false*/)
         uint32 storedPowers = 0;
         for (uint32 i = 0; i < MAX_POWERS; ++i)
         {
-            if (GetPowerIndex(i) != MAX_POWERS)
+            if (GetPowerIndex(Powers(i)) != MAX_POWERS)
             {
                 stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER + storedPowers));
                 if (++storedPowers >= MAX_POWERS_PER_CLASS)
@@ -25362,6 +25357,7 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
             }
             else
             {
+                // requires item equipped in all armor slots
                 for (uint8 i : {EQUIPMENT_SLOT_HEAD, EQUIPMENT_SLOT_SHOULDERS, EQUIPMENT_SLOT_CHEST, EQUIPMENT_SLOT_WAIST, EQUIPMENT_SLOT_LEGS, EQUIPMENT_SLOT_FEET, EQUIPMENT_SLOT_WRISTS, EQUIPMENT_SLOT_HANDS})
                 {
                     Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
