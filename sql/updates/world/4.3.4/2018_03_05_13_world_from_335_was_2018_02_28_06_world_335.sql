@@ -1,3 +1,4 @@
+/*
 -- Quest "Helcular's Revenge (Part 2)"
 -- Helcular's Grave
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry`=1767;
@@ -23,3 +24,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=2433 AND `GroupID`=1 AND `ID`=1;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (2433,0,3,"I returned from the grave to take my revenge!",14,0,100,15,0,0,599,0,"Helcular's Remains"),
 (2433,1,1,"Die in the name of the Dark Lady, $n.",14,0,100,0,0,0,600,0,"Helcular's Remains");
+*/

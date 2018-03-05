@@ -1,3 +1,4 @@
+/*
 -- Quest "The Rescue"
 -- Locked ball and chain
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry` IN (1721,1722);
@@ -25,3 +26,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (2238,1,0,"I will only slow you down, but no pink-skinned humans will keep me from freedom!",12,1,100,15,0,0,595,0,"Tog'thar"),
 (2239,0,0,"Ah, it is good to be free of my bonds! Have you freed Tog'thar yet? The humans split us up after our capture.",12,1,100,4,0,0,592,0,"Drull"),
 (2239,1,0,"Go on ahead without me! I will make my own way to Tarren Mill.",12,1,100,5,0,0,594,0,"Drull");
+*/

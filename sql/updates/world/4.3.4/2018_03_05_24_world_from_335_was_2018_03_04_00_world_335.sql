@@ -1,3 +1,4 @@
+/*
 -- Fix availability for quest "Zamek's Distraction"
 UPDATE `quest_template_addon` SET `PrevQuestID`=0 WHERE `ID`=1191;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=19 AND `SourceEntry`=1191;
@@ -72,3 +73,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (472001,9,0,0,0,0,100,0,0,0,0,0,54,25000,0,0,0,0,0,1,0,0,0,0,0,0,0,'Rizzle Brassbolts - On Script - Pause Waypoint'),
 (472001,9,1,0,0,0,100,0,0,0,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,0.943443,'Rizzle Brassbolts - On Script - Set Orientation'),
 (472001,9,2,0,0,0,100,0,20000,20000,0,0,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,'Rizzle Brassbolts - On Script - Say Line 2');
+*/

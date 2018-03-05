@@ -1,3 +1,4 @@
+/*
 -- Ember Worg
 UPDATE `smart_scripts` SET `event_param1`=6000, `event_param2`=13000, `event_param3`=17000, `event_param4`=24000 WHERE `entryorguid`=9690 AND `source_type`=0 AND `id`=0;
 
@@ -142,3 +143,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Fix bytes2 for some creatures
 UPDATE `creature_addon` SET `bytes2`=2 WHERE `guid` IN (SELECT `guid` FROM `creature` WHERE `id` IN (7038,8978));
 UPDATE `creature_template_addon` SET `bytes2`=2 WHERE `entry`=9044;
+*/

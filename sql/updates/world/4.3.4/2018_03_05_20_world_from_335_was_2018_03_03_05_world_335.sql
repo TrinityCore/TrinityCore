@@ -1,3 +1,4 @@
+/*
 -- Laris Geardawdle - fix Gossip Texts
 DELETE FROM `gossip_menu` WHERE `MenuID`=2405 AND `TextID` IN (3099,3098,3097);
 DELETE FROM `gossip_menu` WHERE `MenuID` IN (2406,2407,2408);
@@ -27,3 +28,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14,2405,3099,0,0,9,0,4513,0,0,0,0,0,"","Show gossip text 3099 if quest 'A Little Slime Goes a Long Way (Part 2)' is taken"),
 (14,2405,3098,0,0,8,0,4513,0,0,0,0,0,"","Show gossip text 3098 if quest 'A Little Slime Goes a Long Way (Part 2)' is rewarded"),
 (15,2405,0,0,0,9,0,4513,0,0,0,0,0,"","Show gossip option if quest 'A Little Slime Goes a Long Way (Part 2)' is taken");
+*/

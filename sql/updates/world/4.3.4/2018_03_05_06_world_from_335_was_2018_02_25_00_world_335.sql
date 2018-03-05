@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `gameobject_overrides` WHERE `spawnId` IN (76499, 76498, 76436, 76435, 76229, 76228, 76182, 76181, 76147, 76146, 76145, 76144, 76099, 76098, 76097, 76067, 76066, 76065, 76579, 76580);
 INSERT INTO `gameobject_overrides` (`spawnId`, `faction`, `flags`) VALUES
@@ -21,3 +22,4 @@ INSERT INTO `gameobject_overrides` (`spawnId`, `faction`, `flags`) VALUES
 (76065, 0, 16),
 (76579, 0, 16),
 (76580, 0, 16);
+*/

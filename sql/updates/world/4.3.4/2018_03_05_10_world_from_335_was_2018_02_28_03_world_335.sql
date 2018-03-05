@@ -1,3 +1,4 @@
+/*
 -- Gol'dir
 DELETE FROM `creature_text` WHERE `CreatureID`=2316;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -13,3 +14,4 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=23
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22,1,2316,0,0,9,0,503,0,0,0,0,0,"","SAI triggers only if player has quest 'Gol'dir' taken"),
 (22,1,2316,0,1,28,0,503,0,0,0,0,0,"","SAI triggers only if player has quest 'Gol'dir' completed");
+*/

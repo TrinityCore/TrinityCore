@@ -1,3 +1,4 @@
+/*
 -- Blacksmith's Anvil
 SET @GUID := 1508;
 DELETE FROM `gameobject` WHERE `guid`=@GUID;
@@ -23,3 +24,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (614200,9,5,0,0,0,100,0,1000,1000,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,1.71042,"Mathiel - On Script - Set Orientation"),
 (614200,9,6,0,0,0,100,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Mathiel - On Script - Say Line 2"),
 (614200,9,7,0,0,0,100,0,0,0,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Mathiel - On Script - Add Npc Flag Questgiver");
+*/

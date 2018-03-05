@@ -1,3 +1,4 @@
+/*
 -- Deathguard Elite
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7980;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=7980 AND `source_type`=0;
@@ -33,3 +34,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (6804,9, 0,0, 0,0,100,0,0,0,0,0,66,0,0,0,0,0,0,7,0,0,0,0,0,0,0,"Stormwind City Guard - On Script - Set Orientation"),
 (6804,9, 1,0, 0,0,100,0,2000,2000,0,0,5,25,0,0,0,0,0,1,0,0,0,0,0,0,0,"Stormwind City Guard - On Script - Play Emote 'Point'"),
 (6804,9, 2,0, 0,0,100,0,10000,10000,0,0,66,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Stormwind City Guard - On Script - Set Orientation");
+*/

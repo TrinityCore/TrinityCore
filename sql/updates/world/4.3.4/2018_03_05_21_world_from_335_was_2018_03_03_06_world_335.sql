@@ -1,3 +1,4 @@
+/*
 -- Talen
 DELETE FROM `creature_text` WHERE `CreatureID`=3846;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -25,3 +26,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (384600,9,12,0,0,0,100,0,20000,20000,0,0,90,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Talen - On Script - Set Flag Standstate Sit Down");
 
 UPDATE `creature_template` SET `npcflag`=2, `gossip_menu_id`=0 WHERE `entry`=3846; -- Fix NPC flag and remove gossip
+*/
