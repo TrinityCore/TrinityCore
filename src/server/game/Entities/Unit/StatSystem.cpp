@@ -300,8 +300,17 @@ void Player::UpdateMaxHealth()
     SetMaxHealth((uint32)value);
 }
 
+uint32 Player::GetPowerIndex(Powers power) const
+{
+    return sDB2Manager.GetPowerIndexByClass(power, getClass());
+}
+
 void Player::UpdateMaxPower(Powers power)
 {
+    uint32 powerIndex = GetPowerIndex(power);
+    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+        return;
+
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
     float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
@@ -309,7 +318,7 @@ void Player::UpdateMaxPower(Powers power)
     value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
-    SetMaxPower(power, uint32(value));
+    SetMaxPower(power, (int32)std::lroundf(value));
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)
@@ -846,12 +855,30 @@ void Creature::UpdateMaxHealth()
     SetMaxHealth(uint32(value));
 }
 
+uint32 Creature::GetPowerIndex(Powers power) const
+{
+    if (power == GetPowerType())
+        return 0;
+    if (power == POWER_ALTERNATE_POWER)
+        return 1;
+    if (power == POWER_COMBO_POINTS)
+        return 2;
+    return MAX_POWERS;
+}
+
 void Creature::UpdateMaxPower(Powers power)
 {
+    if (GetPowerIndex(power) == MAX_POWERS)
+        return;
+
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
-    float value  = GetTotalAuraModValue(unitMod);
-    SetMaxPower(power, uint32(value));
+    float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
+    value *= GetModifierValue(unitMod, BASE_PCT);
+    value += GetModifierValue(unitMod, TOTAL_VALUE);
+    value *= GetModifierValue(unitMod, TOTAL_PCT);
+
+    SetMaxPower(power, (int32)std::lroundf(value));
 }
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
@@ -1010,6 +1037,8 @@ bool Guardian::UpdateStats(Stats stat)
 
 bool Guardian::UpdateAllStats()
 {
+    UpdateMaxHealth();
+
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         UpdateStats(Stats(i));
 
@@ -1084,27 +1113,17 @@ void Guardian::UpdateMaxHealth()
 
 void Guardian::UpdateMaxPower(Powers power)
 {
+    if (GetPowerIndex(power) == MAX_POWERS)
+        return;
+
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
-    float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
-    float multiplicator = 15.0f;
-
-    switch (GetEntry())
-    {
-        case ENTRY_IMP:         multiplicator = 4.95f;  break;
-        case ENTRY_VOIDWALKER:
-        case ENTRY_SUCCUBUS:
-        case ENTRY_FELHUNTER:
-        case ENTRY_FELGUARD:    multiplicator = 11.5f;  break;
-        default:                multiplicator = 15.0f;  break;
-    }
-
-    float value  = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
+    float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
     value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE) + addValue * multiplicator;
+    value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
-    SetMaxPower(power, uint32(value));
+    SetMaxPower(power, int32(value));
 }
 
 void Guardian::UpdateAttackPowerAndDamage(bool ranged)
