@@ -1504,7 +1504,7 @@ void World::SetInitialWorldSettings()
 
     std::vector<uint32> mapIds;
     for (MapEntry const* mapEntry : sMapStore)
-        mapIds.push_back(mapEntry->ID);
+        mapIds.push_back(mapEntry->MapID);
 
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
         vmmgr2->InitializeThreadUnsafe(mapIds);
