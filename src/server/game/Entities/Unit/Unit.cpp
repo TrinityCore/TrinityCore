@@ -714,6 +714,37 @@ void Unit::DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) co
     }
 
     damage *= GetDamageMultiplierForTarget(victim);
+
+    if (sWorld->getBoolConfig(CONFIG_LEGACY_BUFF_ENABLED))
+    {
+        // Damage increase with expansion/level difference
+        if (IsPlayer() && victim->IsCreature())
+        {
+            uint32 expansion = victim->ToCreature()->GetCreatureTemplate()->RequiredExpansion;
+
+            if (expansion < EXPANSION_MISTS_OF_PANDARIA && getLevel() > GetMaxLevelForExpansion(expansion))
+            {
+                float damageMultiplier = 1.0f;
+
+                switch (expansion)
+                {
+                    case EXPANSION_CLASSIC:
+                    case EXPANSION_THE_BURNING_CRUSADE:
+                    default:
+                        damageMultiplier = 20.0f;
+                        break;
+                    case EXPANSION_WRATH_OF_THE_LICH_KING:
+                        damageMultiplier = 25.0f;
+                        break;
+                    case EXPANSION_CATACLYSM:
+                        damageMultiplier = 13.5f;
+                        break;
+                }
+
+                damage *= damageMultiplier;
+            }
+        }
+    }
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)

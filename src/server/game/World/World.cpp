@@ -1488,6 +1488,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CREATURE_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("Creature.CheckInvalidPosition", false);
     m_bool_configs[CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("GameObject.CheckInvalidPosition", false);
 
+    m_bool_configs[CONFIG_LEGACY_BUFF_ENABLED] = sConfigMgr->GetBoolDefault("LegacyBuffEnabled", true);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
