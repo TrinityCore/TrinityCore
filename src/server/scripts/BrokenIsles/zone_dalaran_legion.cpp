@@ -89,6 +89,37 @@ public:
     }
 };
 
+class On110Arrival : public PlayerScript
+{
+public:
+    On110Arrival() : PlayerScript("On110Arrival") { }
+
+    enum
+    {
+        QUEST_UNITING_THE_ISLES     = 43341,
+    };
+
+    void OnLogin(Player* player, bool firstLogin) override
+    {
+        // Can happen in recovery cases
+        if (player->getLevel() >= 110 && firstLogin)
+            Handle110Arrival(player);
+    }
+
+    void OnLevelChanged(Player* player, uint8 oldLevel) override
+    {
+        if (oldLevel < 110 && player->getLevel() >= 110)
+            Handle110Arrival(player);
+    }
+
+    void Handle110Arrival(Player* player)
+    {
+        if (player->GetQuestStatus(QUEST_UNITING_THE_ISLES) == QUEST_STATUS_NONE)
+            if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_UNITING_THE_ISLES))
+                player->AddQuest(quest, nullptr);
+    }
+};
+
 // 228329 & 228330 - Téléportation
 class spell_dalaran_teleportation : public SpellScript
 {
@@ -193,6 +224,8 @@ public:
 void AddSC_dalaran_legion()
 {
     new OnLegionArrival();
+    new On110Arrival();
+
     RegisterSpellScript(spell_dalaran_teleportation);
     new npc_dalaran_karazhan_khadgar();
     new scene_dalaran_kharazan_teleportion();
