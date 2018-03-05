@@ -52,6 +52,7 @@ struct ItemTemplate;
 struct Loot;
 struct Mail;
 struct MapEntry;
+struct PvpTalentEntry;
 struct QuestPackageItemEntry;
 struct RewardPackEntry;
 struct SkillRaceClassInfoEntry;
@@ -814,6 +815,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
     PLAYER_LOGIN_QUERY_LOAD_GLYPHS,
     PLAYER_LOGIN_QUERY_LOAD_TALENTS,
+    PLAYER_LOGIN_QUERY_LOAD_PVP_TALENTS,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA,
     PLAYER_LOGIN_QUERY_LOAD_SKILLS,
     PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS,
@@ -1009,6 +1011,7 @@ struct TC_GAME_API SpecializationInfo
     }
 
     PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
+    PlayerTalentMap PvpTalents[MAX_SPECIALIZATIONS];
     std::vector<uint32> Glyphs[MAX_SPECIALIZATIONS];
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
@@ -1029,8 +1032,9 @@ struct PlayerDynamicFieldSpellModByLabel
 };
 #pragma pack(pop)
 
-uint8 const PLAYER_MAX_HONOR_LEVEL = 50;
-uint8 const PLAYER_LEVEL_MIN_HONOR = 110;
+uint8 constexpr PLAYER_MAX_HONOR_LEVEL = 50;
+uint8 constexpr PLAYER_LEVEL_MIN_HONOR = 110;
+uint32 constexpr SPELL_PVP_RULES_ENABLED = 134735;
 
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
@@ -1632,6 +1636,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetDefaultSpecId() const;
 
         bool ResetTalents(bool noCost = false);
+        void ResetPvpTalents();
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void SendTalentsInfoData();
@@ -1642,11 +1647,24 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 CalculateTalentsTiers() const;
         void ResetTalentSpecialization();
 
+        TalentLearnResult LearnPvpTalent(uint32 talentID, int32* spellOnCooldown);
+        bool AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup, bool learning);
+        void RemovePvpTalent(PvpTalentEntry const* talent);
+        void TogglePvpTalents(bool enable);
+        bool HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const;
+        void EnablePvpRules(bool dueToCombat = false);
+        void DisablePvpRules();
+        bool HasPvpRulesEnabled() const;
+        bool IsInAreaThatActivatesPvpTalents() const;
+        bool IsAreaThatActivatesPvpTalents(uint32 areaID) const;
+
         // Dual Spec
         void ActivateTalentGroup(ChrSpecializationEntry const* spec);
 
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_specializationInfo.Talents[spec]; }
         PlayerTalentMap* GetTalentMap(uint8 spec) { return &_specializationInfo.Talents[spec]; }
+        PlayerTalentMap const* GetPvpTalentMap(uint8 spec) const { return &_specializationInfo.PvpTalents[spec]; }
+        PlayerTalentMap* GetPvpTalentMap(uint8 spec) { return &_specializationInfo.PvpTalents[spec]; }
         std::vector<uint32> const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
         std::vector<uint32>& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
@@ -2429,6 +2447,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadBGData(PreparedQueryResult result);
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
+        void _LoadPvpTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
