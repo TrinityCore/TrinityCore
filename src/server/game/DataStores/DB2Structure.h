@@ -1882,6 +1882,8 @@ struct MountEntry
     uint32 ID;
     uint32 PlayerConditionId;
     int32 UiModelSceneID;
+
+    bool IsSelfMount() const { return (Flags & MOUNT_FLAG_SELF_MOUNT) != 0; }
 };
 
 struct MountCapabilityEntry
