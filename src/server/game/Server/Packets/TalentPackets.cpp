@@ -89,3 +89,21 @@ WorldPacket const* WorldPackets::Talent::ActiveGlyphs::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Talent::LearnPvpTalents::Read()
+{
+    Talents.resize(_worldPacket.ReadBits(6));
+    for (uint32 i = 0; i < Talents.size(); ++i)
+        _worldPacket >> Talents[i];
+}
+
+WorldPacket const* WorldPackets::Talent::LearnPvpTalentsFailed::Write()
+{
+    _worldPacket.WriteBits(Reason, 4);
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint32(Talents.size());
+    if (!Talents.empty())
+        _worldPacket.append(Talents.data(), Talents.size());
+
+    return &_worldPacket;
+}
