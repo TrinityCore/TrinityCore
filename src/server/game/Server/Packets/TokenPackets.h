@@ -77,6 +77,18 @@ namespace WorldPackets
             uint32 Result               = 0;
             uint32 UnkInt2              = 0;
         };
+
+        class WowTokenBuyStart final : public ClientPacket
+        {
+        public:
+            WowTokenBuyStart(WorldPacket&& packet) : ClientPacket(CMSG_BUY_WOW_TOKEN_START, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 UnkInt32 = 0;
+            ObjectGuid BuyerGuid;
+            uint64 CurrentMarketPrice = 0;
+        };
     }
 }
 
