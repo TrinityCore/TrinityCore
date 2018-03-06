@@ -1,3 +1,4 @@
+/*
 -- Quest "Escorting Erland"
 UPDATE `quest_offer_reward` SET `Emote1`=1 WHERE `ID`=435;
 
@@ -347,3 +348,4 @@ UPDATE `quest_offer_reward` SET `Emote1`=5 WHERE `ID`=517;
 DELETE FROM `quest_details` WHERE `ID`=524;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
 (524,1,1,11,0,0,0,0,0,0);
+*/
