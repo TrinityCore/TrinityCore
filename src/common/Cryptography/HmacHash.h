@@ -34,7 +34,7 @@ template<HashCreateFn HashCreator, uint32 DigestLength>
 class TC_COMMON_API HmacHash
 {
     public:
-        HmacHash(uint32 len, uint8 *seed);
+        HmacHash(uint32 len, uint8 const* seed);
         ~HmacHash();
         void UpdateData(std::string const& str);
         void UpdateData(uint8 const* data, size_t len);
@@ -43,7 +43,7 @@ class TC_COMMON_API HmacHash
         uint8* GetDigest() { return _digest; }
         uint32 GetLength() const { return DigestLength; }
     private:
-        HMAC_CTX _ctx;
+        HMAC_CTX* _ctx;
         uint8 _digest[DigestLength];
 };
 
