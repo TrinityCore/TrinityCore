@@ -146,6 +146,7 @@ namespace WorldPackets
                 uint32 LastPlayedTime    = 0;
                 uint16 SpecID            = 0;
                 uint32 Unknown703        = 0;
+                uint32 LastLoginBuild    = 0;
 
                 struct PetInfo
                 {
@@ -167,13 +168,12 @@ namespace WorldPackets
                 std::array<VisualItemInfo, 23> VisualItems = { };
             };
 
-            struct RestrictedFactionChangeRuleInfo
+            struct RaceUnlock
             {
-                RestrictedFactionChangeRuleInfo(int32 mask, uint8 race)
-                    : Mask(mask), Race(race) { }
-
-                int32 Mask = 0;
-                uint8 Race = 0;
+                int32 RaceID;
+                bool HasExpansion;
+                bool HasAchievement;
+                bool HasHeritageArmor;
             };
 
             EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }
@@ -184,13 +184,14 @@ namespace WorldPackets
             bool IsDeletedCharacters    = false; ///< used for character undelete list
             bool IsDemonHunterCreationAllowed = false; ///< used for demon hunter early access
             bool HasDemonHunterOnRealm  = false;
-            bool HasLevel70OnRealm      = false;
             bool Unknown7x              = false;
+            bool IsAlliedRacesCreationAllowed = false;
 
+            int32 MaxCharacterLevel     = 1;
             Optional<uint32> DisabledClassesMask;
 
             std::vector<CharacterInfo> Characters; ///< all characters on the list
-            std::vector<RestrictedFactionChangeRuleInfo> FactionChangeRestrictions; ///< @todo: research
+            std::vector<RaceUnlock> RaceUnlockData; ///<
         };
 
         class CreateCharacter final : public ClientPacket
@@ -631,7 +632,7 @@ namespace WorldPackets
             uint8 Reason = 0;
             int32 Amount = 0;
             float GroupBonus = 0;
-            bool ReferAFriend = false;
+            uint8 ReferAFriendBonusType = 0;    // 1 - 300% of normal XP; 2 - 150% of normal XP
         };
 
         class TitleEarned final : public ServerPacket

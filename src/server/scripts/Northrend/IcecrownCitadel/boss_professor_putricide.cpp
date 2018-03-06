@@ -1118,7 +1118,7 @@ class spell_putricide_ooze_tank_protection : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* actionTarget = eventInfo.GetActionTarget();
-                actionTarget->CastSpell((Unit*)nullptr, aurEff->GetSpellEffectInfo()->TriggerSpell, true);
+                actionTarget->CastSpell((Unit*)nullptr, aurEff->GetSpellEffectInfo()->TriggerSpell, true, nullptr, aurEff);
             }
 
             void Register() override

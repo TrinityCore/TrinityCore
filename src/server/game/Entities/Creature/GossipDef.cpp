@@ -76,11 +76,11 @@ uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const&
  * @name AddMenuItem
  * @brief Adds a localized gossip menu item from db by menu id and menu item id.
  * @param menuId Gossip menu id.
- * @param menuItemId Gossip menu item id.
+ * @param optionIndex Gossip menu item index.
  * @param sender Identifier of the current menu.
  * @param action Custom action given to OnGossipHello.
  */
-void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, uint32 action)
+void GossipMenu::AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action)
 {
     /// Find items for given menu id.
     GossipMenuItemsMapBounds bounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
@@ -92,13 +92,13 @@ void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, ui
     for (GossipMenuItemsContainer::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
         /// Find the one with the given menu item id.
-        if (itr->second.OptionID != menuItemId)
+        if (itr->second.OptionIndex != optionIndex)
             continue;
 
         /// Store texts for localization.
         std::string strOptionText, strBoxText;
-        BroadcastTextEntry const* optionBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.OptionBroadcastTextID);
-        BroadcastTextEntry const* boxBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.BoxBroadcastTextID);
+        BroadcastTextEntry const* optionBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.OptionBroadcastTextId);
+        BroadcastTextEntry const* boxBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.BoxBroadcastTextId);
 
         /// OptionText
         if (optionBroadcastText)
@@ -118,21 +118,21 @@ void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, ui
             if (!optionBroadcastText)
             {
                 /// Find localizations from database.
-                if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, menuItemId)))
+                if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(menuId, optionIndex))
                     ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, GetLocale(), strOptionText);
             }
 
             if (!boxBroadcastText)
             {
                 /// Find localizations from database.
-                if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, menuItemId)))
+                if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(menuId, optionIndex))
                     ObjectMgr::GetLocaleString(gossipMenuLocale->BoxText, GetLocale(), strBoxText);
             }
         }
 
         /// Add menu item with existing method. Menu item id -1 is also used in ADD_GOSSIP_ITEM macro.
-        uint32 optionIndex = AddMenuItem(-1, itr->second.OptionIcon, strOptionText, sender, action, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
-        AddGossipMenuItemData(optionIndex, itr->second.ActionMenuID, itr->second.ActionPoiID, itr->second.TrainerId);
+        uint32 newOptionIndex = AddMenuItem(-1, itr->second.OptionIcon, strOptionText, sender, action, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+        AddGossipMenuItemData(newOptionIndex, itr->second.ActionMenuId, itr->second.ActionPoiId, itr->second.TrainerId);
     }
 }
 
@@ -244,6 +244,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             text.QuestID = questID;
             text.QuestType = item.QuestIcon;
             text.QuestLevel = quest->GetQuestLevel();
+            text.QuestMaxScalingLevel = quest->GetQuestMaxScalingLevel();
             text.QuestFlags[0] = quest->GetFlags();
             text.QuestFlags[1] = quest->GetFlagsEx();
             text.Repeatable = quest->IsRepeatable();
@@ -380,7 +381,8 @@ void PlayerMenu::SendQuestGiverQuestListMessage(ObjectGuid guid)
 
             bool repeatable = false; // NYI
 
-            questList.QuestDataText.emplace_back(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, title);
+            questList.QuestDataText.emplace_back(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetQuestMaxScalingLevel(),
+                quest->GetFlags(), quest->GetFlagsEx(), repeatable, std::move(title));
         }
     }
 
@@ -506,6 +508,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.QuestID = quest->GetQuestId();
     packet.Info.QuestType = quest->GetQuestType();
     packet.Info.QuestLevel = quest->GetQuestLevel();
+    packet.Info.QuestMaxScalingLevel = quest->GetQuestMaxScalingLevel();
     packet.Info.QuestPackageID = quest->GetQuestPackageID();
     packet.Info.QuestMinLevel = quest->GetMinLevel();
     packet.Info.QuestSortID = quest->GetZoneOrSort();

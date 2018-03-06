@@ -109,7 +109,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.VignetteID = creatureInfo->VignetteID;
 
         stats.Title = creatureInfo->SubName;
-        //stats.TitleAlt = ;
+        stats.TitleAlt = creatureInfo->TitleAlt;
         stats.CursorName = creatureInfo->IconName;
 
         if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
@@ -375,6 +375,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
                     questPOIBlobData.WorldEffectID      = data->WorldEffectID;
                     questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
                     questPOIBlobData.UnkWoD1            = data->UnkWoD1;
+                    questPOIBlobData.AlwaysAllowMergingBlobs = data->AlwaysAllowMergingBlobs;
 
                     for (QuestPOIPoint const& point : data->points)
                     {

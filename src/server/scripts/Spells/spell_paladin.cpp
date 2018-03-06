@@ -101,8 +101,15 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 
             enum Spell
             {
-                PAL_SPELL_ARDENT_DEFENDER_HEAL = 66235,
+                PAL_SPELL_ARDENT_DEFENDER_HEAL = 66235
             };
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(PAL_SPELL_ARDENT_DEFENDER_HEAL))
+                    return false;
+                return true;
+            }
 
             bool Load() override
             {
@@ -866,7 +873,7 @@ class spell_pal_item_t6_trinket : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_PALADIN_ENDURING_LIGHT, SPELL_PALADIN_ENDURING_JUDGEMENT });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
@@ -892,7 +899,7 @@ class spell_pal_item_t6_trinket : public SpellScriptLoader
                     return;
 
                 if (roll_chance_i(chance))
-                    eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true);
+                    eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -982,11 +989,10 @@ class spell_pal_lay_on_hands : public SpellScript
 
     void TriggerForbearance()
     {
-        Unit* caster = GetCaster();
-        if (caster == GetHitUnit())
+        if (Unit* target = GetHitUnit())
         {
-            GetCaster()->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
-            GetCaster()->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
+            GetCaster()->CastSpell(target, SPELL_PALADIN_FORBEARANCE, true);
+            GetCaster()->CastSpell(target, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
         }
     }
 
@@ -1333,7 +1339,7 @@ class spell_pal_t3_6p_bonus : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1364,7 +1370,7 @@ class spell_pal_t3_6p_bonus : public SpellScriptLoader
                         return;
                 }
 
-                caster->CastSpell(target, spellId, true);
+                caster->CastSpell(target, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1411,7 +1417,7 @@ class spell_pal_t8_2p_bonus : public SpellScriptLoader
                 // Add remaining ticks to damage done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_HOLY_MENDING, SPELL_AURA_PERIODIC_HEAL);
 
-                caster->CastCustomSpell(SPELL_PALADIN_HOLY_MENDING, SPELLVALUE_BASE_POINT0, amount, target, true);
+                caster->CastCustomSpell(SPELL_PALADIN_HOLY_MENDING, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
             void Register() override

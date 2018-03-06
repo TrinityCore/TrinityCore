@@ -165,6 +165,8 @@ namespace WorldPackets
                 ObjectGuid LastTitleAuthorGuid;
                 ObjectGuid LastDescriptionAuthorGuid;
                 ObjectGuid LastVoiceChatAuthorGuid;
+                ObjectGuid ListingCreatorGuid;
+                ObjectGuid Unknown735;
                 std::string Title;
                 std::string Description;
                 std::string VoiceChat;

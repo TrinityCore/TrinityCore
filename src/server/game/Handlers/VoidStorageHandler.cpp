@@ -122,7 +122,8 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             if (Bag* bag = _player->GetBagByPos(i))
                 freeBagSlots += bag->GetFreeSlots();
 
-        for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
+        uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + _player->GetInventorySlotCount();
+        for (uint8 i = INVENTORY_SLOT_ITEM_START; i < inventoryEnd; i++)
             if (!_player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 ++freeBagSlots;
     }

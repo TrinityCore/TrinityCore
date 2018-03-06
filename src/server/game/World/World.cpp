@@ -70,6 +70,7 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
+#include "PlayerDump.h"
 #include "PoolMgr.h"
 #include "Realm.h"
 #include "ScenarioMgr.h"
@@ -86,6 +87,7 @@
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include "WardenCheckMgr.h"
+#include "WaypointManager.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WorldSession.h"
@@ -822,9 +824,9 @@ void World::LoadConfigSettings(bool reload)
     }
 
     m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = sConfigMgr->GetIntDefault("DemonHuntersPerRealm", 1);
-    if (int32(m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] > 12)
+    if (int32(m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] > 16)
     {
-        TC_LOG_ERROR("server.loading", "DemonHuntersPerRealm (%i) must be in range 0..12. Set to 1.", m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]);
+        TC_LOG_ERROR("server.loading", "DemonHuntersPerRealm (%i) must be in range 0..16. Set to 1.", m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]);
         m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = 1;
     }
 
@@ -1533,6 +1535,10 @@ void World::SetInitialWorldSettings()
         exit(1);
     }
 
+    ///- Initialize PlayerDump
+    TC_LOG_INFO("server.loading", "Initialize PlayerDump...");
+    PlayerDump::InitializeColumnDefinition();
+
     ///- Initialize pool manager
     sPoolMgr->Initialize();
 
@@ -1569,19 +1575,15 @@ void World::SetInitialWorldSettings()
     //Load weighted graph on taxi nodes path
     sTaxiPathGraph.Initialize();
 
-    std::unordered_map<uint32, std::vector<uint32>> mapData;
+    std::vector<uint32> mapIds;
     for (MapEntry const* mapEntry : sMapStore)
-    {
-        mapData.insert(std::unordered_map<uint32, std::vector<uint32>>::value_type(mapEntry->ID, std::vector<uint32>()));
-        if (mapEntry->ParentMapID != -1)
-            mapData[mapEntry->ParentMapID].push_back(mapEntry->ID);
-    }
+        mapIds.push_back(mapEntry->ID);
 
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-        vmmgr2->InitializeThreadUnsafe(mapData);
+        vmmgr2->InitializeThreadUnsafe(mapIds);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
-    mmmgr->InitializeThreadUnsafe(mapData);
+    mmmgr->InitializeThreadUnsafe(mapIds);
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();

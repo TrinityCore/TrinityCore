@@ -17,11 +17,11 @@
 
 #include "PacketLog.h"
 #include "Config.h"
+#include "IpAddress.h"
 #include "Realm.h"
 #include "Timer.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include <boost/asio/ip/address.hpp>
 
 #pragma pack(push, 1)
 

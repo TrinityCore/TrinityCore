@@ -429,7 +429,7 @@ SpellProcEntry const* SpellMgr::GetSpellProcEntry(uint32 spellId) const
     return NULL;
 }
 
-bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const
+bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo)
 {
     // proc type doesn't match
     if (!(eventInfo.GetTypeMask() & procEntry.ProcFlags))
@@ -2008,7 +2008,7 @@ void SpellMgr::LoadSpellAreas()
     mSpellAreaForAuraMap.clear();
 
     //                                                  0     1         2              3               4                 5          6          7       8         9
-    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
+    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, flags FROM spell_area");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell area requirements. DB table `spell_area` is empty.");
@@ -2032,11 +2032,11 @@ void SpellMgr::LoadSpellAreas()
         spellArea.auraSpell           = fields[6].GetInt32();
         spellArea.raceMask            = fields[7].GetUInt32();
         spellArea.gender              = Gender(fields[8].GetUInt8());
-        spellArea.autocast            = fields[9].GetBool();
+        spellArea.flags               = fields[9].GetUInt8();
 
         if (SpellInfo const* spellInfo = GetSpellInfo(spell))
         {
-            if (spellArea.autocast)
+            if (spellArea.flags & SPELL_AREA_FLAG_AUTOCAST)
                 const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_CANT_CANCEL;
         }
         else
@@ -2112,13 +2112,13 @@ void SpellMgr::LoadSpellAreas()
             }
 
             // not allow autocast chains by auraSpell field (but allow use as alternative if not present)
-            if (spellArea.autocast && spellArea.auraSpell > 0)
+            if (spellArea.flags & SPELL_AREA_FLAG_AUTOCAST && spellArea.auraSpell > 0)
             {
                 bool chain = false;
                 SpellAreaForAuraMapBounds saBound = GetSpellAreaForAuraMapBounds(spellArea.spellId);
                 for (SpellAreaForAuraMap::const_iterator itr = saBound.first; itr != saBound.second; ++itr)
                 {
-                    if (itr->second->autocast && itr->second->auraSpell > 0)
+                    if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && itr->second->auraSpell > 0)
                     {
                         chain = true;
                         break;
@@ -2134,7 +2134,7 @@ void SpellMgr::LoadSpellAreas()
                 SpellAreaMapBounds saBound2 = GetSpellAreaMapBounds(spellArea.auraSpell);
                 for (SpellAreaMap::const_iterator itr2 = saBound2.first; itr2 != saBound2.second; ++itr2)
                 {
-                    if (itr2->second.autocast && itr2->second.auraSpell > 0)
+                    if (itr2->second.flags & SPELL_AREA_FLAG_AUTOCAST && itr2->second.auraSpell > 0)
                     {
                         chain = true;
                         break;
@@ -2203,7 +2203,6 @@ void SpellMgr::LoadSpellInfoStore()
 
     std::unordered_map<uint32, SpellEffectEntryMap> effectsBySpell;
     std::unordered_map<uint32, SpellVisualMap> visualsBySpell;
-    std::unordered_map<uint32, SpellEffectScalingEntry const*> spellEffectScallingByEffectId;
 
     for (SpellEffectEntry const* effect : sSpellEffectStore)
     {
@@ -2242,9 +2241,6 @@ void SpellMgr::LoadSpellInfoStore()
         if (!cooldowns->DifficultyID)   // TODO: implement
             loadData[cooldowns->SpellID].Cooldowns = cooldowns;
 
-    for (SpellEffectScalingEntry const* spellEffectScaling : sSpellEffectScalingStore)
-        spellEffectScallingByEffectId[spellEffectScaling->SpellEffectID] = spellEffectScaling;
-
     for (SpellEquippedItemsEntry const* equippedItems : sSpellEquippedItemsStore)
         loadData[equippedItems->SpellID].EquippedItems = equippedItems;
 
@@ -2255,6 +2251,10 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellLevelsEntry const* levels : sSpellLevelsStore)
         if (!levels->DifficultyID)  // TODO: implement
             loadData[levels->SpellID].Levels = levels;
+
+    for (SpellMiscEntry const* misc : sSpellMiscStore)
+        if (!misc->DifficultyID)
+            loadData[misc->SpellID].Misc = misc;
 
     for (SpellReagentsEntry const* reagents : sSpellReagentsStore)
         loadData[reagents->SpellID].Reagents = reagents;
@@ -2280,8 +2280,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
         {
             loadData[i].Entry = spellEntry;
-            loadData[i].Misc = sSpellMiscStore.LookupEntry(spellEntry->MiscID);
-            mSpellInfoMap[i] = new SpellInfo(loadData[i], effectsBySpell[i], std::move(visualsBySpell[i]), spellEffectScallingByEffectId);
+            mSpellInfoMap[i] = new SpellInfo(loadData[i], effectsBySpell[i], std::move(visualsBySpell[i]));
         }
     }
 

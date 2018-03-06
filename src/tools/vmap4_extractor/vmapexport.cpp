@@ -73,16 +73,16 @@ struct MapLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING_NOT_LOCALIZED, "Directory" },
-            { false, FT_INT, "Flags1" },
-            { false, FT_INT, "Flags2" },
-            { false, FT_FLOAT, "MinimapIconScale" },
-            { false, FT_FLOAT, "CorpsePosX" },
-            { false, FT_FLOAT, "CorpsePosY" },
             { false, FT_STRING, "MapName" },
             { false, FT_STRING, "MapDescription0" },
             { false, FT_STRING, "MapDescription1" },
             { false, FT_STRING, "ShortDescription" },
             { false, FT_STRING, "LongDescription" },
+            { false, FT_INT, "Flags1" },
+            { false, FT_INT, "Flags2" },
+            { false, FT_FLOAT, "MinimapIconScale" },
+            { false, FT_FLOAT, "CorpsePosX" },
+            { false, FT_FLOAT, "CorpsePosY" },
             { false, FT_SHORT, "AreaTableID" },
             { false, FT_SHORT, "LoadingScreenID" },
             { true, FT_SHORT, "CorpseMapID" },
@@ -96,10 +96,9 @@ struct MapLoadInfo
             { false, FT_BYTE, "MaxPlayers" },
             { false, FT_BYTE, "TimeOffset" },
         };
-        static char const* types = "siffssssshhhhhhhbbbbb";
-        static uint8 const arraySizes[21] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2FieldDefault const fieldDefaults[21] = { "", uint32(0), float(0), float(0), "", "", "", "", "", uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint8(0), uint8(0), uint8(0), uint8(0), uint8(0) };
-        static DB2Meta const meta(-1, 21, 0xA37A2830, types, arraySizes, fieldDefaults);
+        static char const* types = "ssssssiffhhhhhhhbbbbb";
+        static uint8 const arraySizes[21] = { 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        static DB2Meta const meta(-1, 21, 0xF568DF12, types, arraySizes, -1);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }

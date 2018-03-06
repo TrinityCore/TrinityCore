@@ -49,6 +49,14 @@ enum BTDataTypes
     DATA_BLOOD_ELF_COUNCIL_VOICE    = 15,
 
     DATA_GO_ILLIDAN_GATE            = 16,
+    DATA_BLACK_TEMPLE_TRIGGER       = 17,
+    DATA_GO_DEN_OF_MORTAL_DOOR      = 18
+};
+
+enum TriggerEmotes
+{
+    EMOTE_HIGH_WARLORD_NAJENTUS_DIED = 0,
+    EMOTE_DEN_OF_MORTAL_DOOR_OPEN    = 1
 };
 
 enum BTCreatureIds
@@ -72,7 +80,8 @@ enum BTCreatureIds
     NPC_BLOOD_ELF_COUNCIL_VOICE     = 23499,
     NPC_AKAMA                       = 23089, // This is the Akama that starts the Illidan encounter.
     NPC_AKAMA_SHADE                 = 23191, // This is the Akama that starts the Shade of Akama encounter.
-    NPC_SUPREMUS_VOLCANO            = 23085
+    NPC_SUPREMUS_VOLCANO            = 23085,
+    NPC_BLACK_TEMPLE_TRIGGER        = 22984
 };
 
 enum BTGameObjectIds
@@ -84,7 +93,7 @@ enum BTGameObjectIds
     GO_TERON_DOOR_1                 = 185480,
     GO_TERON_DOOR_2                 = 186153,
     GO_GURTOGG_DOOR                 = 185892,
-    GO_TEMPLE_DOOR                  = 185479,
+    GO_DEN_OF_MORTAL_DOOR           = 185479,
     GO_MOTHER_SHAHRAZ_DOOR          = 185482,
     GO_COUNCIL_DOOR_1               = 185481,
     GO_COUNCIL_DOOR_2               = 186152,
