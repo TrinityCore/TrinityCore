@@ -19,12 +19,14 @@ DELETE FROM creature WHERE guid IN (303451,303452,303551,303512);
 
 -- Queststarter and Ender Fix
 
-UPDATE `creature_queststarter` SET id = 28377 WHERE `quest`= 12697;
-DELETE FROM creature_queststarter WHERE id = 28658 AND quest = 12697;
-UPDATE `creature_queststarter` SET id = 29110 WHERE `quest`= 12779;
-UPDATE `creature_questender` SET id = 29110 WHERE `quest`= 12779;
-DELETE FROM creature_queststarter WHERE id = 25462 AND quest = 12779;
-DELETE FROM creature_questender WHERE id = 25462 AND quest = 12779;
+DELETE FROM `creature_queststarter` WHERE quest IN (12697, 12779);
+INSERT INTO `creature_queststarter` VALUES
+(28377, 12697),
+(29110, 12779);
+
+DELETE FROM `creature_questender` WHERE quest IN (12779);
+INSERT INTO `creature_questender` VALUES
+(29110, 12779);
 
 -- Gameobject: Phases
 
