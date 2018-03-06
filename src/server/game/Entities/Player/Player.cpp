@@ -348,6 +348,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     _advancedCombatLoggingEnabled = false;
 
     _restMgr = Trinity::make_unique<RestMgr>(this);
+
+    _usePvpItemLevels = false;
 }
 
 Player::~Player()
@@ -23784,6 +23786,8 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (_garrison)
         _garrison->SendRemoteInfo();
+
+    UpdateItemLevelAreaBasedScaling();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -26330,6 +26334,8 @@ void Player::EnablePvpRules(bool dueToCombat /*= false*/)
             aura->SetDuration(-1);
         }
     }
+
+    UpdateItemLevelAreaBasedScaling();
 }
 
 void Player::DisablePvpRules()
@@ -26339,7 +26345,10 @@ void Player::DisablePvpRules()
         return;
 
     if (!GetCombatTimer())
+    {
         RemoveAurasDueToSpell(SPELL_PVP_RULES_ENABLED);
+        UpdateItemLevelAreaBasedScaling();
+    }
     else if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
         aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration());
 }
@@ -28239,4 +28248,21 @@ uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
         SendDirectMessage(randomRoll.Write());
 
     return roll;
+}
+
+void Player::UpdateItemLevelAreaBasedScaling()
+{
+    // @todo Activate pvp item levels during world pvp
+    Map* map = GetMap();
+    bool pvpActivity = map->IsBattlegroundOrArena() || map->GetEntry()->Flags[1] & 0x40 || HasPvpRulesEnabled();
+
+    if (_usePvpItemLevels != pvpActivity)
+    {
+        float healthPct = GetHealthPct();
+        _RemoveAllItemMods();
+        ActivatePvpItemLevels(pvpActivity);
+        _ApplyAllItemMods();
+        SetHealth(CalculatePct(GetMaxHealth(), healthPct));
+    }
+    // @todo other types of power scaling such as timewalking
 }

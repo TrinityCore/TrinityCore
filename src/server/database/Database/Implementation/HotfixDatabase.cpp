@@ -700,6 +700,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // PvpDifficulty.db2
     PrepareStatement(HOTFIX_SEL_PVP_DIFFICULTY, "SELECT ID, BracketID, MinLevel, MaxLevel, MapID FROM pvp_difficulty ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // PvpItem.db2
+    PrepareStatement(HOTFIX_SEL_PVP_ITEM, "SELECT ID, ItemID, ItemLevelBonus FROM pvp_item ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // PvpReward.db2
     PrepareStatement(HOTFIX_SEL_PVP_REWARD, "SELECT ID, HonorLevel, Prestige, RewardPackID FROM pvp_reward ORDER BY ID DESC", CONNECTION_SYNCH);
 
