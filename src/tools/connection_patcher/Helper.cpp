@@ -17,6 +17,7 @@
  */
 
 #include "Helper.hpp"
+#include "Patterns/Common.hpp"
 
 namespace Connection_Patcher
 {
@@ -43,70 +44,6 @@ namespace Connection_Patcher
                 else
                     fs::copy_file(current, destination / current.filename());
             }
-        }
-
-        // adapted from http://stackoverflow.com/questions/21422094/boostasio-download-image-file-from-server
-        void DownloadFile(const std::string& serverName, int port, const std::string& getCommand, std::ostream& out)
-        {
-            using namespace boost::asio;
-            using boost::asio::ip::tcp;
-
-            io_service io_service;
-
-            // Get a list of endpoints corresponding to the server name.
-            tcp::resolver resolver(io_service);
-            tcp::resolver::query query(serverName, std::to_string(port));
-            tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-            tcp::resolver::iterator end;
-
-            // Try each endpoint until we successfully establish a connection.
-            tcp::socket socket(io_service);
-            boost::system::error_code error = boost::asio::error::host_not_found;
-            while (error && endpoint_iterator != end)
-            {
-                socket.close();
-                socket.connect(*endpoint_iterator++, error);
-            }
-
-            boost::asio::streambuf request;
-            std::ostream request_stream(&request);
-
-            request_stream << "GET " << getCommand << " HTTP/1.0\r\n";
-            request_stream << "Host: " << serverName << ':' << port << "\r\n";
-            request_stream << "Accept: */*\r\n";
-            request_stream << "Connection: close\r\n\r\n";
-
-            // Send the request.
-            boost::asio::write(socket, request);
-
-            // Read the response status line.
-            boost::asio::streambuf response;
-            boost::asio::read_until(socket, response, "\r\n");
-
-            // Check that response is OK.
-            std::istream response_stream(&response);
-            std::string http_version;
-            response_stream >> http_version;
-            unsigned int status_code;
-            response_stream >> status_code;
-            std::string status_message;
-            std::getline(response_stream, status_message);
-
-            // Read the response headers, which are terminated by a blank line.
-            boost::asio::read_until(socket, response, "\r\n\r\n");
-
-            // Process the response headers.
-            std::string header;
-            while (std::getline(response_stream, header) && header != "\r")
-            { }
-
-            // Write whatever content we already have to output.
-            if (response.size() > 0)
-                out << &response;
-
-            // Read until EOF, writing data to output as we go.
-            while (boost::asio::read(socket, response, boost::asio::transfer_at_least(1), error))
-                out << &response;
         }
 
         Constants::BinaryTypes GetBinaryType(std::vector<unsigned char> const& data)

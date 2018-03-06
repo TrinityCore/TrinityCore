@@ -28,7 +28,6 @@
 #include "Opcodes.h"
 #include "Pet.h"
 #include "PetPackets.h"
-#include "PetPackets.h"
 #include "Player.h"
 #include "QueryPackets.h"
 #include "Spell.h"

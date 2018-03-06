@@ -281,7 +281,10 @@ public:
         void MovementInform(uint32 type, uint32 point) override
         {
             if (type == POINT_MOTION_TYPE && point == 1)
+            {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetHomePosition(me->GetPosition());
+            }
         }
 
         void EnterCombat(Unit* /*victim*/) override
