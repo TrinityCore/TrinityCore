@@ -373,6 +373,8 @@ enum HotfixDatabaseStatements : uint32
 
     HOTFIX_SEL_PVP_DIFFICULTY,
 
+    HOTFIX_SEL_PVP_ITEM,
+
     HOTFIX_SEL_PVP_REWARD,
 
     HOTFIX_SEL_PVP_TALENT,
