@@ -2175,10 +2175,16 @@ void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
 
 uint32 Item::GetItemLevel(Player const* owner) const
 {
-    return Item::GetItemLevel(GetTemplate(), _bonusData, owner->getLevel(), GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), GetModifier(ITEM_MODIFIER_UPGRADE_ID));
+    uint32 minItemLevel = owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL);
+    uint32 minItemLevelCutoff = owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF);
+    uint32 maxItemLevel = GetTemplate()->GetFlags3() & ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP ? 0 : owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
+    bool pvpBonus = owner->IsUsingPvpItemLevels();
+    return Item::GetItemLevel(GetTemplate(), _bonusData, owner->getLevel(), GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), GetModifier(ITEM_MODIFIER_UPGRADE_ID),
+        minItemLevel, minItemLevelCutoff, maxItemLevel, pvpBonus);
 }
 
-uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel, uint32 upgradeId)
+uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel, uint32 upgradeId,
+    uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus)
 {
     if (!itemTemplate)
         return MIN_ITEM_LEVEL;
@@ -2201,11 +2207,24 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
 
     itemLevel += bonusData.ItemLevelBonus;
 
+    for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
+        itemLevel += bonusData.GemItemLevelBonus[i];
+
+    uint32 itemLevelBeforeUpgrades = itemLevel;
     if (ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(upgradeId))
         itemLevel += upgrade->ItemLevelBonus;
 
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
-        itemLevel += bonusData.GemItemLevelBonus[i];
+    if (pvpBonus)
+        itemLevel += sDB2Manager.GetPvpItemLevelBonus(itemTemplate->GetId());
+
+    if (itemTemplate->GetInventoryType() != INVTYPE_NON_EQUIP)
+    {
+        if (minItemLevel && (!minItemLevelCutoff || itemLevelBeforeUpgrades >= minItemLevelCutoff) && itemLevel < minItemLevel)
+            itemLevel = minItemLevel;
+
+        if (maxItemLevel && itemLevel > maxItemLevel)
+            itemLevel = maxItemLevel;
+    }
 
     return std::min(std::max(itemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }

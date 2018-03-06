@@ -1882,6 +1882,8 @@ struct MountEntry
     uint32 ID;
     uint32 PlayerConditionId;
     int32 UiModelSceneID;
+
+    bool IsSelfMount() const { return (Flags & MOUNT_FLAG_SELF_MOUNT) != 0; }
 };
 
 struct MountCapabilityEntry
@@ -2120,6 +2122,13 @@ struct PVPDifficultyEntry
 
     // helpers
     BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(BracketID); }
+};
+
+struct PVPItemEntry
+{
+    uint32 ID;
+    uint32 ItemID;
+    uint8 ItemLevelBonus;
 };
 
 struct PvpRewardEntry
