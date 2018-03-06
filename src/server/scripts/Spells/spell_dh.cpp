@@ -78,7 +78,8 @@ enum DHSpells
     SPELL_DH_FEL_BARRAGE                        = 211053,
     SPELL_DH_FEL_BARRAGE_TRIGGER                = 211052,
     SPELL_DH_DEMONS_BITE                        = 162243,
-    SPELL_DH_FELBLADE                           = 213241,
+    SPELL_DH_FELBLADE                           = 232893,
+    SPELL_DH_FELBLADE_CHARGE                    = 213241,
     SPELL_DH_SHEAR                              = 203782,
     SPELL_DH_FEL_MASTERY                        = 192939,
     SPELL_DH_DEMON_BLADES                       = 203555,
@@ -2800,6 +2801,28 @@ public:
     }
 };
 
+// Felblade - 232893
+class spell_dh_felblade : public SpellScript
+{
+    PrepareSpellScript(spell_dh_felblade);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FELBLADE_CHARGE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, SPELL_DH_FELBLADE_CHARGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dh_felblade::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // Sigil of Misery fear - 207685
 class spell_dh_sigil_of_misery_fear : public SpellScriptLoader
 {
@@ -2849,277 +2872,187 @@ public:
 
 // Sigil of Misery - 207684
 // AreaTriggerID - 6351
-class at_dh_sigil_of_misery : public AreaTriggerEntityScript
+struct at_dh_sigil_of_misery : AreaTriggerAI
 {
-public:
-    at_dh_sigil_of_misery() : AreaTriggerEntityScript("at_dh_sigil_of_misery") {}
+    at_dh_sigil_of_misery(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_dh_sigil_of_miseryAI : AreaTriggerAI
+    void OnRemove() override
     {
-        at_dh_sigil_of_miseryAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
+        if (!caster || !caster->IsPlayer())
+            return;
 
-        void OnRemove() override
+        if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
         {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
-
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
-            {
-                tempSumm->setFaction(caster->getFaction());
-                tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->CopyPhaseFrom(caster, true);
-                caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_TRIGGER, true);
-                caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_EXPLOSION, true);
-            }
+            tempSumm->setFaction(caster->getFaction());
+            tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
+            tempSumm->CopyPhaseFrom(caster, true);
+            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_TRIGGER, true);
+            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_MISERY_EXPLOSION, true);
         }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_dh_sigil_of_miseryAI(areatrigger);
     }
 };
 
 // Sigil of Flame - 204596
 // AreaTriggerID - 6039
-class at_dh_sigil_of_flame : public AreaTriggerEntityScript
+struct at_dh_sigil_of_flame : AreaTriggerAI
 {
-public:
-    at_dh_sigil_of_flame() : AreaTriggerEntityScript("at_dh_sigil_of_flame") {}
+    at_dh_sigil_of_flame(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_dh_sigil_of_flameAI : AreaTriggerAI
+    void OnRemove() override
     {
-        at_dh_sigil_of_flameAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
+        if (!caster || !caster->IsPlayer())
+            return;
 
-        void OnRemove() override
+        if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
         {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
-
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
-            {
-                tempSumm->setFaction(caster->getFaction());
-                tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->CopyPhaseFrom(caster, true);
-                caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_TRIGGER, true);
-                caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_EXPLOSION, true);
-            }
+            tempSumm->setFaction(caster->getFaction());
+            tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
+            tempSumm->CopyPhaseFrom(caster, true);
+            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_TRIGGER, true);
+            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_FLAME_EXPLOSION, true);
         }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_dh_sigil_of_flameAI(areatrigger);
     }
 };
 
 // Sigil of Chains - 202138
 // AreaTriggerID - 6031
-class at_dh_sigil_of_chains : public AreaTriggerEntityScript
+struct at_dh_sigil_of_chains : AreaTriggerAI
 {
-public:
-    at_dh_sigil_of_chains() : AreaTriggerEntityScript("at_dh_sigil_of_chains") {}
+    at_dh_sigil_of_chains(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_dh_sigil_of_chainsAI : AreaTriggerAI
+    void OnRemove() override
     {
-        at_dh_sigil_of_chainsAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
 
-        void OnRemove() override
+        if (caster->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS);
+        if (!tempSumm)
+            return;
+
+        tempSumm->setFaction(caster->getFaction());
+        tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
+        tempSumm->CopyPhaseFrom(caster, true);
+        caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_CHAINS_EXPLOSION, true);
+
+        GuidUnorderedSet const objects = at->GetInsideUnits();
+        for (ObjectGuid objguid : objects)
         {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
+            Unit* obj = ObjectAccessor::GetUnit(*caster, objguid);
+            if (!obj)
+                continue;
 
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
+            if (!caster->IsValidAttackTarget(obj->ToUnit()))
+                continue;
 
-            Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS);
-            if (!tempSumm)
-                return;
-
-            tempSumm->setFaction(caster->getFaction());
-            tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-            tempSumm->CopyPhaseFrom(caster, true);
-            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_CHAINS_EXPLOSION, true);
-
-            GuidUnorderedSet const objects = at->GetInsideUnits();
-            for (ObjectGuid objguid : objects)
-            {
-                Unit* obj = ObjectAccessor::GetUnit(*caster, objguid);
-                if (!obj)
-                    continue;
-
-                if (obj->GetTypeId() != TYPEID_UNIT && obj->GetTypeId() != TYPEID_PLAYER)
-                    continue;
-
-                if (!caster->IsValidAttackTarget(obj->ToUnit()))
-                    continue;
-
-                caster->CastSpell(obj->ToUnit(), SPELL_DH_SIGIL_OF_CHAINS_SLOW, true);
-                obj->ToUnit()->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_CHAINS_TRIGGER, true);
-            }
+            caster->CastSpell(obj->ToUnit(), SPELL_DH_SIGIL_OF_CHAINS_SLOW, true);
+            obj->ToUnit()->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_CHAINS_TRIGGER, true);
         }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_dh_sigil_of_chainsAI(areatrigger);
     }
 };
 
 // Darkness - 196718
 // AreaTriggerID - 6615
-class at_dh_darkness : public AreaTriggerEntityScript
+struct at_dh_darkness : AreaTriggerAI
 {
-public:
-    at_dh_darkness() : AreaTriggerEntityScript("at_dh_darkness") {}
+    at_dh_darkness(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_dh_darknessAI : AreaTriggerAI
+    void OnUnitEnter(Unit* unit) override
     {
-        at_dh_darknessAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
+        if (!caster || !unit || !caster->IsPlayer())
+            return;
 
-        void OnUnitEnter(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster || !unit)
-                return;
+        if (caster->IsFriendlyTo(unit))
+            caster->CastSpell(unit, SPELL_DH_DARKNESS_BUFF, true);
+    }
 
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            if (caster->IsFriendlyTo(unit))
-                caster->CastSpell(unit, SPELL_DH_DARKNESS_BUFF, true);
-        }
-
-        void OnUnitExit(Unit* unit) override
-        {
-            Unit* caster = at->GetCaster();
-            if (!caster || !unit)
-                return;
-
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            if (Aura* darkness = unit->GetAura(SPELL_DH_DARKNESS_BUFF, caster->GetGUID()))
-                darkness->SetDuration(0);
-        }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    void OnUnitExit(Unit* unit) override
     {
-        return new at_dh_darknessAI(areatrigger);
+        Unit* caster = at->GetCaster();
+        if (!caster || !unit || !caster->IsPlayer())
+            return;
+
+        if (Aura* darkness = unit->GetAura(SPELL_DH_DARKNESS_BUFF, caster->GetGUID()))
+            darkness->SetDuration(0);
     }
 };
 
 // Shattered Souls - 228537
 // AreaTriggerID - 8867 (normal) and 6710 (demon) and 6007 (lesser)
-class at_dh_shattered_souls : public AreaTriggerEntityScript
+struct at_dh_shattered_souls : AreaTriggerAI
 {
-public:
-    at_dh_shattered_souls() : AreaTriggerEntityScript("at_dh_shattered_souls") {}
+    at_dh_shattered_souls(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    struct at_dh_shattered_soulsAI : AreaTriggerAI
+    void OnUnitEnter(Unit* unit)
     {
-        at_dh_shattered_soulsAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
+        if (!caster || !unit || !caster->IsPlayer())
+            return;
 
-        void OnUnitEnter(Unit* unit)
+        if (caster != unit)
+            return;
+
+        Player* casterPlayer = caster->ToPlayer();
+
+        switch (at->GetEntry())
         {
-            Unit* caster = at->GetCaster();
-            if (!caster || !unit)
-                return;
-
-            if (caster == unit)
+            case 8867:
             {
-                switch (at->GetEntry())
+                caster->CastSpell(caster, casterPlayer->GetSpecializationId() == TALENT_SPEC_DEMON_HUNTER_HAVOC ? SPELL_DH_CONSUME_SOUL_25 : SPELL_DH_CONSUME_SOUL_25_VENG, true);
+                break;
+            }
+            case 6007:
+            {
+                caster->CastSpell(caster, casterPlayer->GetSpecializationId() == TALENT_SPEC_DEMON_HUNTER_HAVOC ? SPELL_DH_CONSUME_SOUL_10 : SPELL_DH_CONSUME_SOUL_10_VENG, true);
+                break;
+            }
+            case 6710:
+            {
+                if (casterPlayer->GetSpecializationId() == TALENT_SPEC_DEMON_HUNTER_HAVOC)
                 {
-                    case 8867:
-                        if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DEMON_HUNTER_HAVOC)
-                        {
-                            caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_25, true);
-                        }
-                        else
-                        {
-                            caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_25_VENG, true);
-                        }
-                        break;
-                    case 6710:
-                        if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DEMON_HUNTER_HAVOC)
-                        {
-                            caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_DEMON, true);
-                            if (caster->HasAura(SPELL_DH_DEMONIC_APPETITE))
-                                caster->CastSpell(caster, SPELL_DH_DEMONIC_APPETITE_FURY, true);
-                        }
-                        else
-                        {
-                            caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_DEMON_VENG, true);
-                        }
-                        break;
-                    case 6007:
-                        if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DEMON_HUNTER_HAVOC)
-                        {
-                            caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_10, true);
-                        }
-                        else
-                        {
-                            caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_10_VENG, true);
-                        }
-                        break;
+                    caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_DEMON, true);
+                    if (caster->HasAura(SPELL_DH_DEMONIC_APPETITE))
+                        caster->CastSpell(caster, SPELL_DH_DEMONIC_APPETITE_FURY, true);
                 }
-                at->SetDuration(0);
+                else
+                    caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_DEMON_VENG, true);
+                break;
             }
         }
-    };
 
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_dh_shattered_soulsAI(areatrigger);
+        at->SetDuration(0);
     }
 };
 
 // Sigil of Silence - 202137
 // AreaTriggerID -  6027
-class at_dh_sigil_of_silence : public AreaTriggerEntityScript
+struct at_dh_sigil_of_silence : AreaTriggerAI
 {
-public:
-    int32 timeInterval;
+    at_dh_sigil_of_silence(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-    at_dh_sigil_of_silence() : AreaTriggerEntityScript("at_dh_sigil_of_silence") {}
-
-    struct at_dh_sigil_of_silenceAI : AreaTriggerAI
+    void OnRemove() override
     {
-        at_dh_sigil_of_silenceAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
 
-        void OnRemove() override
+        if (caster->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
         {
-            Unit* caster = at->GetCaster();
-            if (!caster)
-                return;
-
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPositionX(), at->GetPositionY(), at->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
-            {
-                tempSumm->setFaction(caster->getFaction());
-                tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
-                tempSumm->CopyPhaseFrom(caster, true);
-                caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_TRIGGER, true);
-                caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_EXPLOSION, true);
-            }
+            tempSumm->setFaction(caster->getFaction());
+            tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
+            tempSumm->CopyPhaseFrom(caster, true);
+            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_TRIGGER, true);
+            caster->CastSpell(tempSumm, SPELL_DH_SIGIL_OF_SILENCE_EXPLOSION, true);
         }
-    };
-
-    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
-    {
-        return new at_dh_sigil_of_silenceAI(areatrigger);
     }
 };
 
@@ -3180,14 +3113,15 @@ void AddSC_demon_hunter_spell_scripts()
     new spell_dh_vengeful_retreat();
     new spell_dh_vengeful_retreat_fury_refiller();
     new spell_dh_vengeful_retreat_trigger();
+    RegisterSpellScript(spell_dh_felblade);
 
     /// AreaTrigger Scripts
-    new at_dh_darkness();
-    new at_dh_shattered_souls();
-    new at_dh_sigil_of_chains();
-    new at_dh_sigil_of_flame();
-    new at_dh_sigil_of_silence();
-    new at_dh_sigil_of_misery();
+    RegisterAreaTriggerAI(at_dh_darkness);
+    RegisterAreaTriggerAI(at_dh_shattered_souls);
+    RegisterAreaTriggerAI(at_dh_sigil_of_chains);
+    RegisterAreaTriggerAI(at_dh_sigil_of_flame);
+    RegisterAreaTriggerAI(at_dh_sigil_of_silence);
+    RegisterAreaTriggerAI(at_dh_sigil_of_misery);
 
     /// Custom NPC scripts
     new npc_dh_spell_trainer();
