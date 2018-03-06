@@ -21,6 +21,16 @@ char const* GitRevision::GetCMakeCommand()
     return _CMAKE_COMMAND;
 }
 
+char const* GitRevision::GetCMakeVersion()
+{
+    return _CMAKE_VERSION;
+}
+
+char const* GitRevision::GetHostOSVersion()
+{
+    return _CMAKE_HOST_SYSTEM;
+}
+
 char const* GitRevision::GetBuildDirectory()
 {
     return _BUILD_DIRECTORY;
