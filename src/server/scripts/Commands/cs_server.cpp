@@ -43,7 +43,7 @@ EndScriptData */
 
 #include <numeric>
 
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <mysql_version.h>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
