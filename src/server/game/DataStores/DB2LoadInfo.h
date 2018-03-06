@@ -3624,6 +3624,21 @@ struct PvpDifficultyLoadInfo
     }
 };
 
+struct PvpItemLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "ItemID" },
+            { false, FT_BYTE, "ItemLevelBonus" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PVPItemMeta::Instance(), HOTFIX_SEL_PVP_ITEM);
+        return &loadInfo;
+    }
+};
+
 struct PvpRewardLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -3648,15 +3663,15 @@ struct PvpTalentLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING, "Description" },
-            { false, FT_INT, "SpellID" },
-            { false, FT_INT, "OverridesSpellID" },
-            { false, FT_INT, "ExtraSpellID" },
-            { false, FT_INT, "TierID" },
-            { false, FT_INT, "ColumnIndex" },
-            { false, FT_INT, "Flags" },
-            { false, FT_INT, "ClassID" },
-            { false, FT_INT, "SpecID" },
-            { false, FT_INT, "Role" },
+            { true, FT_INT, "SpellID" },
+            { true, FT_INT, "OverridesSpellID" },
+            { true, FT_INT, "ExtraSpellID" },
+            { true, FT_INT, "TierID" },
+            { true, FT_INT, "ColumnIndex" },
+            { true, FT_INT, "Flags" },
+            { true, FT_INT, "ClassID" },
+            { true, FT_INT, "SpecID" },
+            { true, FT_INT, "Role" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpTalentMeta::Instance(), HOTFIX_SEL_PVP_TALENT);
         return &loadInfo;
@@ -3670,9 +3685,9 @@ struct PvpTalentUnlockLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { false, FT_INT, "TierID" },
-            { false, FT_INT, "ColumnIndex" },
-            { false, FT_INT, "HonorLevel" },
+            { true, FT_INT, "TierID" },
+            { true, FT_INT, "ColumnIndex" },
+            { true, FT_INT, "HonorLevel" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpTalentUnlockMeta::Instance(), HOTFIX_SEL_PVP_TALENT_UNLOCK);
         return &loadInfo;

@@ -363,6 +363,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     _insideGarrisonType = GARRISON_TYPE_NONE;
 
     m_shopTimer = 0;
+
+    _usePvpItemLevels = false;
 }
 
 Player::~Player()
@@ -3717,10 +3719,6 @@ void Player::ResetPvpTalents()
             continue;
 
         if (talentInfo->ClassID && talentInfo->ClassID != getClass())
-            continue;
-
-        // skip non-existent talent ranks
-        if (talentInfo->SpellID == 0)
             continue;
 
         RemovePvpTalent(talentInfo);
@@ -7454,7 +7452,7 @@ void Player::DuelComplete(DuelCompleteType type)
     }
 
     duel->opponent->DisablePvpRules();
-    duel->initiator->DisablePvpRules();
+    DisablePvpRules();
 
     sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
 
@@ -24431,6 +24429,8 @@ void Player::SendInitialPacketsAfterAddToMap()
     }
 
     SendGarrisonRemoteInfo();
+
+    UpdateItemLevelAreaBasedScaling();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -26889,8 +26889,16 @@ TalentLearnResult Player::LearnPvpTalent(uint32 talentID, int32* spellOnCooldown
     if (!talentInfo)
         return TALENT_FAILED_UNKNOWN;
 
-    if (talentInfo->SpecID && talentInfo->SpecID != GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
-        return TALENT_FAILED_UNKNOWN;
+    if (talentInfo->SpecID)
+    {
+        if (talentInfo->SpecID != GetInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
+            return TALENT_FAILED_UNKNOWN;
+    }
+    else if (talentInfo->Role >= 0)
+    {
+        if (talentInfo->Role != sChrSpecializationStore.AssertEntry(GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))->Role)
+            return TALENT_FAILED_UNKNOWN;
+    }
 
     // prevent learn talent for different class (cheating)
     if (talentInfo->ClassID && talentInfo->ClassID != getClass())
@@ -26903,7 +26911,7 @@ TalentLearnResult Player::LearnPvpTalent(uint32 talentID, int32* spellOnCooldown
     // Check if player doesn't have any talent in current tier
     for (uint32 c = 0; c < MAX_PVP_TALENT_COLUMNS; ++c)
     {
-        for (PvpTalentEntry const* talent : sDB2Manager.GetPvpTalentsByPosition(talentInfo->TierID, c))
+        for (PvpTalentEntry const* talent : sDB2Manager.GetPvpTalentsByPosition(getClass(), talentInfo->TierID, c))
         {
             if (HasPvpTalent(talent->ID, GetActiveTalentGroup()) && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
                 return TALENT_FAILED_REST_AREA;
@@ -27010,12 +27018,21 @@ void Player::EnablePvpRules(bool dueToCombat /*= false*/)
             aura->SetDuration(-1);
         }
     }
+
+    UpdateItemLevelAreaBasedScaling();
 }
 
 void Player::DisablePvpRules()
 {
+    // Don't disable pvp rules when in pvp zone.
+    if (IsInAreaThatActivatesPvpTalents())
+        return;
+
     if (!GetCombatTimer())
+    {
         RemoveAurasDueToSpell(SPELL_PVP_RULES_ENABLED);
+        UpdateItemLevelAreaBasedScaling();
+    }
     else if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
         aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration());
 }
@@ -27027,10 +27044,7 @@ bool Player::HasPvpRulesEnabled() const
 
 bool Player::IsInAreaThatActivatesPvpTalents() const
 {
-    uint32 zoneID, areaID;
-    GetZoneAndAreaId(zoneID, areaID);
-
-    return IsAreaThatActivatesPvpTalents(areaID);
+    return IsAreaThatActivatesPvpTalents(GetAreaId());
 }
 
 bool Player::IsAreaThatActivatesPvpTalents(uint32 areaID) const
@@ -27040,14 +27054,20 @@ bool Player::IsAreaThatActivatesPvpTalents(uint32 areaID) const
 
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaID))
     {
-        if (area->IsSanctuary())
-            return false;
+        do
+        {
+            if (area->IsSanctuary())
+                return false;
 
-        if (!area->ActivatesPvpTalents())
-            if (area->ParentAreaID)
-                return IsAreaThatActivatesPvpTalents(area->ParentAreaID);
+            if (area->Flags[0] & AREA_FLAG_ARENA)
+                return true;
 
-        return area->ActivatesPvpTalents();
+            if (sBattlefieldMgr->GetBattlefieldToZoneId(area->ID))
+                return true;
+
+            area = sAreaTableStore.LookupEntry(area->ParentAreaID);
+
+        } while (area);
     }
 
     return false;
@@ -29418,4 +29438,21 @@ void Player::UpdateShop(uint32 diff)
     } while (result->NextRow());
 
     CharacterDatabase.CommitTransaction(trans);
+}
+
+void Player::UpdateItemLevelAreaBasedScaling()
+{
+    // @todo Activate pvp item levels during world pvp
+    Map* map = GetMap();
+    bool pvpActivity = map->IsBattlegroundOrArena() || map->GetEntry()->Flags[1] & 0x40 || HasPvpRulesEnabled();
+
+    if (_usePvpItemLevels != pvpActivity)
+    {
+        float healthPct = GetHealthPct();
+        _RemoveAllItemMods();
+        ActivatePvpItemLevels(pvpActivity);
+        _ApplyAllItemMods();
+        SetHealth(CalculatePct(GetMaxHealth(), healthPct));
+    }
+    // @todo other types of power scaling such as timewalking
 }
