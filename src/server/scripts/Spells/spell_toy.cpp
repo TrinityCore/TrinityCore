@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Containers.h"
+#include "Formulas.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -29,10 +30,38 @@
 #include "SpellHistory.h"
 #include "TemporarySummon.h"
 
-enum SpellIds
+// 213712
+class spell_toy_careful_swing : public SpellScript
 {
+    PrepareSpellScript(spell_toy_careful_swing);
+
+    SpellCastResult CheckCast()
+    {
+        if (!GetExplTargetUnit())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (!GetExplTargetUnit()->ToCreature())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (Trinity::XP::GetColorCode(GetCaster()->getLevel(), GetExplTargetUnit()->getLevel()) != XP_GRAY)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (GetExplTargetUnit()->ToCreature()->GetCreatureTemplate()->rank != CREATURE_ELITE_NORMAL)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (!GetCaster()->GetMap()->GetEntry()->IsContinent())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_toy_careful_swing::CheckCast);
+    }
 };
 
 void AddSC_toy_spell_scripts()
 {
+    RegisterSpellScript(spell_toy_careful_swing);
 }

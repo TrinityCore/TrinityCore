@@ -1020,7 +1020,7 @@ public:
             return false;
         }
 
-        if (target->GetPowerIndex(powerType->PowerTypeEnum) == MAX_POWERS)
+        if (target->GetPowerIndex(Powers(powerType->PowerTypeEnum)) == MAX_POWERS)
         {
             handler->SendSysMessage(LANG_INVALID_POWER_NAME);
             handler->SetSentErrorMessage(true);

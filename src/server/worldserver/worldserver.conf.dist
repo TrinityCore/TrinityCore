@@ -802,7 +802,7 @@ CharactersPerRealm = 16
 #
 #    DemonHuntersPerRealm
 #        Description: Limit number of demon hunter characters per account on this realm.
-#        Range:       1-12
+#        Range:       1-16
 #        Default:     1
 
 DemonHuntersPerRealm = 1
@@ -3254,6 +3254,13 @@ Creature.CheckInvalidPosition = 0
 #        Default:     0  - (Do not show)
 
 GameObject.CheckInvalidPosition = 0
+
+#
+#     LegacyBuffEnabled
+#        Description: Enable player damage increase for mobs of lower expansion, prior to Mists of Pandaria
+#        Default:     1  - (Enabled)
+
+LegacyBuffEnabled = 1
 
 #
 ###################################################################################################

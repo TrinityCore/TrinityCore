@@ -1956,6 +1956,8 @@ struct MountEntry
     uint32 ID;
     uint32 PlayerConditionId;
     int32 UiModelSceneID;
+
+    bool IsSelfMount() const { return (Flags & MOUNT_FLAG_SELF_MOUNT) != 0; }
 };
 
 struct MountCapabilityEntry
@@ -2181,6 +2183,13 @@ struct PVPDifficultyEntry
     BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(BracketID); }
 };
 
+struct PVPItemEntry
+{
+    uint32 ID;
+    uint32 ItemID;
+    uint8 ItemLevelBonus;
+};
+
 struct PvpRewardEntry
 {
     uint32 ID;
@@ -2193,23 +2202,23 @@ struct PvpTalentEntry
 {
     uint32 ID;
     LocalizedString* Description;
-    uint32 SpellID;
-    uint32 OverridesSpellID;
-    uint32 ExtraSpellID;
-    uint32 TierID;
-    uint32 ColumnIndex;
-    uint32 Flags;
-    uint32 ClassID;
-    uint32 SpecID;
-    uint32 Role;
+    int32 SpellID;
+    int32 OverridesSpellID;
+    int32 ExtraSpellID;
+    int32 TierID;
+    int32 ColumnIndex;
+    int32 Flags;
+    int32 ClassID;
+    int32 SpecID;
+    int32 Role;
 };
 
 struct PvpTalentUnlockEntry
 {
     uint32 ID;
-    uint32 TierID;
-    uint32 ColumnIndex;
-    uint32 HonorLevel;
+    int32 TierID;
+    int32 ColumnIndex;
+    int32 HonorLevel;
 };
 
 struct QuestFactionRewardEntry

@@ -185,6 +185,7 @@ DB2Storage<PowerDisplayEntry>                   sPowerDisplayStore("PowerDisplay
 DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2", PowerTypeLoadInfo::Instance());
 DB2Storage<PrestigeLevelInfoEntry>              sPrestigeLevelInfoStore("PrestigeLevelInfo.db2", PrestigeLevelInfoLoadInfo::Instance());
 DB2Storage<PVPDifficultyEntry>                  sPVPDifficultyStore("PVPDifficulty.db2", PvpDifficultyLoadInfo::Instance());
+DB2Storage<PVPItemEntry>                        sPVPItemStore("PVPItem.db2", PvpItemLoadInfo::Instance());
 DB2Storage<PvpRewardEntry>                      sPvpRewardStore("PvpReward.db2", PvpRewardLoadInfo::Instance());
 DB2Storage<PvpTalentEntry>                      sPvpTalentStore("PvpTalent.db2", PvpTalentLoadInfo::Instance());
 DB2Storage<PvpTalentUnlockEntry>                sPvpTalentUnlockStore("PvpTalentUnlock.db2", PvpTalentUnlockLoadInfo::Instance());
@@ -314,7 +315,7 @@ typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 
 typedef std::array<std::vector<Trinity::wregex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
 typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
 typedef std::array<PowerTypeEntry const*, MAX_POWERS> PowerTypesContainer;
-typedef std::vector<PvpTalentEntry const*> PvpTalentsByPosition[MAX_PVP_TALENT_TIERS][MAX_PVP_TALENT_COLUMNS];
+typedef std::vector<PvpTalentEntry const*> PvpTalentsByPosition[MAX_CLASSES][MAX_PVP_TALENT_TIERS][MAX_PVP_TALENT_COLUMNS];
 typedef std::unordered_map<uint32, std::pair<std::vector<QuestPackageItemEntry const*>, std::vector<QuestPackageItemEntry const*>>> QuestPackageItemContainer;
 typedef std::unordered_map<uint32, uint32> RulesetItemUpgradeContainer;
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoContainer;
@@ -368,6 +369,7 @@ namespace
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
+    std::unordered_map<uint32, uint8> _pvpItemBonus;
     std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> _pvpRewardPack;
     PvpTalentsByPosition _pvpTalentsByPosition;
     uint32 _pvpTalentUnlock[MAX_PVP_TALENT_TIERS][MAX_PVP_TALENT_COLUMNS];
@@ -618,6 +620,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sPowerTypeStore);
     LOAD_DB2(sPrestigeLevelInfoStore);
     LOAD_DB2(sPVPDifficultyStore);
+    LOAD_DB2(sPVPItemStore);
     LOAD_DB2(sPvpRewardStore);
     LOAD_DB2(sPvpTalentStore);
     LOAD_DB2(sPvpTalentUnlockStore);
@@ -954,19 +957,32 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         ASSERT(entry->BracketID < MAX_BATTLEGROUND_BRACKETS, "PvpDifficulty bracket (%d) exceeded max allowed value (%d)", entry->BracketID, MAX_BATTLEGROUND_BRACKETS);
     }
 
+    for (PVPItemEntry const* pvpItem : sPVPItemStore)
+        _pvpItemBonus[pvpItem->ItemID] = pvpItem->ItemLevelBonus;
+
     for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
         _pvpRewardPack[std::make_pair(pvpReward->Prestige, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
 
     for (PvpTalentEntry const* talentInfo : sPvpTalentStore)
     {
         ASSERT(talentInfo->ClassID < MAX_CLASSES);
-        ASSERT(talentInfo->TierID < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least %u", talentInfo->TierID);
-        ASSERT(talentInfo->ColumnIndex < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least %u", talentInfo->ColumnIndex);
-        _pvpTalentsByPosition[talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
+        ASSERT(talentInfo->TierID < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least %u", talentInfo->TierID + 1);
+        ASSERT(talentInfo->ColumnIndex < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least %u", talentInfo->ColumnIndex + 1);
+        if (!talentInfo->ClassID)
+        {
+            for (uint32 i = 1; i < MAX_CLASSES; ++i)
+                _pvpTalentsByPosition[i][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
+        }
+        else
+            _pvpTalentsByPosition[talentInfo->ClassID][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
     }
 
     for (PvpTalentUnlockEntry const* talentUnlock : sPvpTalentUnlockStore)
+    {
+        ASSERT(talentUnlock->TierID < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least %u", talentUnlock->TierID + 1);
+        ASSERT(talentUnlock->ColumnIndex < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least %u", talentUnlock->ColumnIndex + 1);
         _pvpTalentUnlock[talentUnlock->TierID][talentUnlock->ColumnIndex] = talentUnlock->HonorLevel;
+    }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
     {
@@ -1018,8 +1034,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (TalentEntry const* talentInfo : sTalentStore)
     {
         ASSERT(talentInfo->ClassID < MAX_CLASSES);
-        ASSERT(talentInfo->TierID < MAX_TALENT_TIERS, "MAX_TALENT_TIERS must be at least %u", talentInfo->TierID);
-        ASSERT(talentInfo->ColumnIndex < MAX_TALENT_COLUMNS, "MAX_TALENT_COLUMNS must be at least %u", talentInfo->ColumnIndex);
+        ASSERT(talentInfo->TierID < MAX_TALENT_TIERS, "MAX_TALENT_TIERS must be at least %u", talentInfo->TierID + 1);
+        ASSERT(talentInfo->ColumnIndex < MAX_TALENT_COLUMNS, "MAX_TALENT_COLUMNS must be at least %u", talentInfo->ColumnIndex + 1);
 
         _talentsByPosition[talentInfo->ClassID][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
     }
@@ -1305,9 +1321,9 @@ char const* DB2Manager::GetClassName(uint8 class_, LocaleConstant locale /*= DEF
     return classEntry->Name->Str[DEFAULT_LOCALE];
 }
 
-uint32 DB2Manager::GetPowerIndexByClass(uint32 powerType, uint32 classId) const
+uint32 DB2Manager::GetPowerIndexByClass(Powers power, uint32 classId) const
 {
-    return _powersByClass[classId][powerType];
+    return _powersByClass[classId][power];
 }
 
 char const* DB2Manager::GetChrRaceName(uint8 race, LocaleConstant locale /*= DEFAULT_LOCALE*/)
@@ -1937,9 +1953,9 @@ uint32 DB2Manager::GetRequiredHonorLevelForPvpTalent(PvpTalentEntry const* talen
     return _pvpTalentUnlock[talentInfo->TierID][talentInfo->ColumnIndex];
 }
 
-std::vector<PvpTalentEntry const*> const& DB2Manager::GetPvpTalentsByPosition(uint32 tier, uint32 column) const
+std::vector<PvpTalentEntry const*> const& DB2Manager::GetPvpTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const
 {
-    return _pvpTalentsByPosition[tier][column];
+    return _pvpTalentsByPosition[class_][tier][column];
 }
 
 std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const
@@ -1999,6 +2015,15 @@ PowerTypeEntry const* DB2Manager::GetPowerTypeByName(std::string const& name) co
     }
 
     return nullptr;
+}
+
+uint8 DB2Manager::GetPvpItemLevelBonus(uint32 itemId) const
+{
+    auto itr = _pvpItemBonus.find(itemId);
+    if (itr != _pvpItemBonus.end())
+        return itr->second;
+
+    return 0;
 }
 
 std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsByRewardID(uint32 rewardPackID) const

@@ -1073,9 +1073,9 @@ struct PlayerDynamicFieldSpellModByLabel
 };
 #pragma pack(pop)
 
-uint8 const PLAYER_MAX_HONOR_LEVEL = 50;
-uint8 const PLAYER_LEVEL_MIN_HONOR = 110;
-uint32 const SPELL_PVP_RULES_ENABLED = 134735;
+uint8 constexpr PLAYER_MAX_HONOR_LEVEL = 50;
+uint8 constexpr PLAYER_LEVEL_MIN_HONOR = 110;
+uint32 constexpr SPELL_PVP_RULES_ENABLED = 134735;
 
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
@@ -1860,6 +1860,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateArmor() override;
         void UpdateMaxHealth() override;
         void UpdateMaxPower(Powers power) override;
+        uint32 GetPowerIndex(Powers power) const override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
         void ApplySpellPowerBonus(int32 amount, bool apply);
         void UpdateSpellDamageAndHealingBonus();
@@ -2288,6 +2289,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
         void ShowNeutralPlayerFactionSelectUI();
+
+        void UpdateItemLevelAreaBasedScaling();
+        void ActivatePvpItemLevels(bool activate) { _usePvpItemLevels = activate; }
+        bool IsUsingPvpItemLevels() const { return _usePvpItemLevels; }
 
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
@@ -2854,6 +2859,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<PlayerPetData*> PlayerPetDataStore;
 
         uint32 m_shopTimer;
+
+        bool _usePvpItemLevels;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

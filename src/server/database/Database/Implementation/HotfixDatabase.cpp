@@ -716,11 +716,14 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // PvpDifficulty.db2
     PrepareStatement(HOTFIX_SEL_PVP_DIFFICULTY, "SELECT ID, BracketID, MinLevel, MaxLevel, MapID FROM pvp_difficulty ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // PvpItem.db2
+    PrepareStatement(HOTFIX_SEL_PVP_ITEM, "SELECT ID, ItemID, ItemLevelBonus FROM pvp_item ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // PvpReward.db2
     PrepareStatement(HOTFIX_SEL_PVP_REWARD, "SELECT ID, HonorLevel, Prestige, RewardPackID FROM pvp_reward ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // PvpTalent.db2
-    PrepareStatement(HOTFIX_SEL_PVP_TALENT, "SELECT ID, SpellID, OverridesSpellID, Description, ExtraSpellID, TierID, ColumnIndex, Flags, ClassID, "
+    PrepareStatement(HOTFIX_SEL_PVP_TALENT, "SELECT ID, Description, SpellID, OverridesSpellID, ExtraSpellID, TierID, ColumnIndex, Flags, ClassID, "
         "SpecID, Role FROM pvp_talent ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PVP_TALENT, "SELECT ID, Description_lang FROM pvp_talent_locale WHERE locale = ?", CONNECTION_SYNCH);
 
