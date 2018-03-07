@@ -3664,6 +3664,7 @@ class spell_gen_stand : public SpellScript
 
         target->SetStandState(UNIT_STAND_STATE_STAND);
         target->HandleEmoteCommand(EMOTE_STATE_NONE);
+        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void Register() override
