@@ -144,7 +144,7 @@ struct ArtifactAppearanceEntry
     float ModelAlpha;
     uint32 ShapeshiftDisplayID;
     uint16 ArtifactAppearanceSetID;
-    uint16 Unknown;
+    uint16 UiCameraID;
     uint8 DisplayIndex;
     uint8 AppearanceModID;
     uint8 Flags;
@@ -204,7 +204,7 @@ struct ArtifactPowerRankEntry
     uint32 ID;
     uint32 SpellID;
     float Value;
-    uint16 Unknown;
+    uint16 ItemBonusListID;
     uint8 Rank;
     uint16 ArtifactPowerID;
 };
@@ -407,7 +407,7 @@ struct ChrClassesEntry
     uint8 AttackPowerPerStrength;
     uint8 AttackPowerPerAgility;
     uint8 RangedAttackPowerPerAgility;
-    uint8 Unk1;
+    uint8 PrimaryStatPriority;
     uint32 ID;
 };
 
@@ -507,10 +507,10 @@ struct ConversationLineEntry
     uint32 SpellVisualKitID;
     uint32 Duration;
     uint16 NextLineID;
-    uint16 Unk1;
+    uint16 AnimKitID;
     uint8 Yell;
-    uint8 Unk2;
-    uint8 Unk3;
+    uint8 StartAnimation;
+    uint8 EndAnimation;
 };
 
 struct CreatureDisplayInfoEntry
@@ -1047,7 +1047,7 @@ struct GarrBuildingEntry
     uint16 FollowerRequiredGarrAbilityID;
     uint16 FollowerGarrAbilityEffectID;
     int16 CostMoney;
-    uint8 Unknown;
+    uint8 GarrSiteID;
     uint8 Type;
     uint8 Level;
     uint8 Flags;
@@ -1103,10 +1103,10 @@ struct GarrFollowerEntry
     uint8 HordeGarrClassSpecID;
     uint8 AllianceGarrClassSpecID;
     uint8 Level;
-    uint8 Unknown1;
+    uint8 Gender;
     uint8 Flags;
-    int8 Unknown2;
-    int8 Unknown3;
+    int8 HordeSourceTypeEnum;
+    int8 AllianceSourceTypeEnum;
     uint8 GarrTypeID;
     uint8 MaxDurability;
     uint8 Class;
@@ -1170,7 +1170,7 @@ struct GarrSiteLevelPlotInstEntry
     DBCPosition2D Landmark;
     uint16 GarrSiteLevelID;
     uint8 GarrPlotInstanceID;
-    uint8 Unknown;
+    uint8 UIMarkerSize;
 };
 
 struct GemPropertiesEntry
@@ -1584,8 +1584,8 @@ struct ItemSparseEntry
     LocalizedString* Name4;
     LocalizedString* Description;
     uint32 Flags[MAX_ITEM_PROTO_FLAGS];
-    float Unk1;
-    float Unk2;
+    float PriceRandomValue;
+    float PriceVariance;
     uint32 BuyCount;
     uint32 BuyPrice;
     uint32 SellPrice;
@@ -1798,7 +1798,7 @@ struct MapEntry
     int16 CosmeticParentMapID;
     uint16 WindSettingsID;
     uint8 InstanceType;
-    uint8 unk5;
+    uint8 MapType;
     uint8 ExpansionID;
     uint8 MaxPlayers;
     uint8 TimeOffset;
@@ -1864,7 +1864,7 @@ struct ModifierTreeEntry
     uint32 Asset[2];
     uint32 Parent;
     uint8 Type;
-    uint8 Unk700;
+    uint8 TertiaryAsset;
     uint8 Operator;
     uint8 Amount;
 };
@@ -1992,7 +1992,7 @@ struct PlayerConditionEntry
     uint16 MaxFactionID;
     uint8 MaxReputation;
     uint32 ReputationLogic;
-    uint8 Unknown1;
+    uint8 CurrentPvpFaction;
     uint8 MinPVPRank;
     uint8 MaxPVPRank;
     uint8 PvpMedal;
@@ -2353,7 +2353,7 @@ struct SoundKitEntry
     float PitchVariationMinus;
     float PitchAdjust;
     uint16 BusOverwriteID;
-    uint8 Unk700;
+    uint8 MaxInstances;
 };
 
 struct SpecializationSpellsEntry
@@ -2809,7 +2809,7 @@ struct TaxiNodesEntry
     DBCPosition3D Pos;
     uint32 MountCreatureID[2];
     DBCPosition2D MapOffset;
-    float Unk730;
+    float Facing;
     DBCPosition2D FlightMapOffset;
     uint16 MapID;
     uint16 ConditionID;
