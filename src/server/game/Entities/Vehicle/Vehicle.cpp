@@ -75,6 +75,8 @@ Vehicle::~Vehicle()
 
 void Vehicle::Install()
 {
+    _me->UpdateDisplayPower();
+
     _status = STATUS_INSTALLED;
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnInstall(this);

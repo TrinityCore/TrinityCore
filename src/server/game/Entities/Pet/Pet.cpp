@@ -882,7 +882,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     if (petType == HUNTER_PET) // Hunter pets have focus
         SetPowerType(POWER_FOCUS);
     else if (IsPetGhoul() || IsRisenAlly()) // DK pets have energy
+    {
         SetPowerType(POWER_ENERGY);
+        SetFullPower(POWER_ENERGY);
+    }
     else
         SetPowerType(POWER_MANA);
 
