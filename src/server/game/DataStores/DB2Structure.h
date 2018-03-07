@@ -45,6 +45,63 @@ struct AchievementEntry
     uint32 CriteriaTree;
 };
 
+struct Achievement_CategoryEntry
+{
+    LocalizedString* Name;
+    uint16 ParentID;
+    uint8 UiOrder;
+    uint32 ID;
+};
+
+struct AdventureJournalEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    LocalizedString* Description;
+    LocalizedString* ButtonText;
+    LocalizedString* RewardDescription;
+    LocalizedString* ContinueDescription;
+    uint32 TextureFileDataID;
+    uint32 ItemID;
+    uint16 LfgDungeonID;
+    uint16 QuestID;
+    uint16 BattlemasterListID;
+    uint16 BonusPlayerConditionId[2];
+    uint16 CurrencyType;
+    uint16 WorldMapAreaID;
+    uint8 Type;
+    uint8 Flags;
+    uint8 ButtonActionType;
+    uint8 PriorityMin;
+    uint8 PriorityMax;
+    uint8 BonusValue[2];
+    uint8 CurrencyQuantity;
+    uint32 PlayerConditionID;
+    uint32 ItemQuantity;
+};
+
+struct AlliedRaceEntry
+{
+    uint32 BannerColor;
+    uint32 ID;
+    uint32 RaceID;
+    uint32 CrestTextureID;
+    uint32 ModelBackgroundTextureID;
+    uint32 MaleCreatureDisplayID;
+    uint32 FemaleCreatureDisplayID;
+    uint32 UiUnlockAchievementID;
+};
+
+struct AlliedRaceRacialAbilityEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    LocalizedString* Description;
+    uint8 OrderIndex;
+    uint32 IconFileDataID;
+    uint32 AlliedRaceID;
+};
+
 struct AnimKitEntry
 {
     uint32 ID;
@@ -53,11 +110,143 @@ struct AnimKitEntry
     uint16 LowDefAnimKitID;
 };
 
+struct AnimKitBoneSetEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    uint8 BoneDataID;
+    uint8 ParentAnimKitBoneSetID;
+    uint8 ExtraBoneCount;
+    uint8 AltAnimKitBoneSetID;
+};
+
+struct AnimKitBoneSetAliasEntry
+{
+    uint32 ID;
+    uint8 BoneDataID;
+    uint8 AnimKitBoneSetID;
+};
+
+struct AnimKitConfigEntry
+{
+    uint32 ID;
+    uint32 ConfigFlags;
+};
+
+struct AnimKitConfigBoneSetEntry
+{
+    uint32 ID;
+    uint16 AnimKitPriorityID;
+    uint8 AnimKitBoneSetID;
+    uint16 ParentAnimKitConfigID;
+};
+
+struct AnimKitPriorityEntry
+{
+    uint32 ID;
+    uint8 Priority;
+};
+
+struct AnimKitReplacementEntry
+{
+    uint16 SrcAnimKitID;
+    uint16 DstAnimKitID;
+    uint16 Flags;
+    uint32 ID;
+    uint16 ParentAnimReplacementSetID;
+};
+
+struct AnimKitSegmentEntry
+{
+    uint32 ID;
+    uint32 AnimStartTime;
+    uint32 EndConditionParam;
+    uint32 EndConditionDelay;
+    float Speed;
+    int32 OverrideConfigFlags;
+    uint16 ParentAnimKitID;
+    uint16 AnimID;
+    uint16 AnimKitConfigID;
+    uint16 SegmentFlags;
+    uint16 BlendInTimeMS;
+    uint16 BlendOutTimeMS;
+    uint8 OrderIndex;
+    uint8 StartCondition;
+    uint8 StartConditionParam;
+    uint8 EndCondition;
+    uint8 ForcedVariation;
+    int8 LoopToSegmentIndex;
+    uint32 StartConditionDelay;
+};
+
+struct AnimReplacementEntry
+{
+    uint16 SrcAnimID;
+    uint16 DstAnimID;
+    uint16 Flags;
+    uint32 ID;
+    uint16 ParentAnimReplacementSetID;
+};
+
+struct AnimReplacementSetEntry
+{
+    uint32 ID;
+    uint8 ExecOrder;
+};
+
+struct AnimationDataEntry
+{
+    uint32 ID;
+    uint32 Flags;
+    uint16 Fallback;
+    uint16 BehaviorID;
+    uint8 BehaviorID;
+};
+struct AreaFarClipOverrideEntry
+{
+    int32 AreaID;
+    float MinFarClip;
+    float MinHorizonStart;
+    int32 Flags;
+    uint32 ID;
+};
+
 struct AreaGroupMemberEntry
 {
     uint32 ID;
     uint16 AreaID;
     uint16 AreaGroupID;
+};
+
+struct AreaPOIEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    LocalizedString* Description;
+    uint32 Flags;
+    DBCPosition3D Pos;
+    int32 PoiDataType;
+    int32 PoiData;
+    uint16 ContinentID;
+    uint16 AreaID;
+    uint16 WorldStateID;
+    uint8 Importance;
+    uint8 Icon;
+    uint32 PlayerConditionID;
+    int32 PortLocID; //WorldSafeLocs.ID
+    uint32 UiTextureAtlasMemberID;
+    int32 MapFloor;
+    int32 WMOGroupID;
+};
+
+struct AreaPOIStateEntry
+{
+    uint32 ID;
+    LocalizedString* Description;
+    uint8 WorldStateValue;
+    uint8 IconEnumValue;
+    uint32 UiTextureAtlasMemberID;
+    uint16 AreaPoiID;
 };
 
 struct AreaTableEntry
@@ -113,6 +302,32 @@ struct AreaTriggerEntry
     uint8 ShapeType;
     uint8 Flag;
     uint32 ID;
+};
+
+struct AreaTriggerActionSetEntry
+{
+    uint32 ID;
+    uint16 Flags;
+};
+
+struct AreaTriggerBoxEntry
+{
+    uint32 ID;
+    float Extents[3]; 
+};
+
+struct AreaTriggerCylinderEntry
+{
+    uint32 ID;
+    float Radius;
+    float Height;
+    float ZOffset;
+};
+
+struct AreaTriggerSphereEntry
+{
+    uint32 ID;
+    float MaxRadius;
 };
 
 struct ArmorLocationEntry
@@ -213,6 +428,26 @@ struct ArtifactQuestXPEntry
 {
     uint32 ID;
     uint32 Exp[10];
+};
+
+struct ArtifactTierEntry
+{
+    uint32 ID;
+    uint32 ArtifactTier;
+    uint32 MaxNumTraits;
+    uint32 MaxArtifactKnowledge;
+    uint32 KnowledgePlayerCondition;
+    uint32 MinimumEmpowerKnowledge;
+};
+
+struct ArtifactUnlockEntry
+{
+    uint32 ID;
+    uint16 ItemBonusListID;
+    uint8 PowerRank;
+    uint32 PowerID;
+    uint32 PlayerConditionID;
+    uint8 ArtifactID;
 };
 
 struct AuctionHouseEntry
