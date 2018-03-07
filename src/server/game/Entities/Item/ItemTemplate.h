@@ -714,8 +714,8 @@ struct TC_GAME_API ItemTemplate
     uint32 GetFlags2() const { return ExtendedData->Flags[1]; }
     uint32 GetFlags3() const { return ExtendedData->Flags[2]; }
     uint32 GetFlags4() const { return ExtendedData->Flags[3]; }
-    float GetUnk1() const { return ExtendedData->Unk1; }
-    float GetUnk2() const { return ExtendedData->Unk2; }
+    float GetPriceRandomValue() const { return ExtendedData->PriceRandomValue; }
+    float GetPriceVariance() const { return ExtendedData->PriceVariance; }
     uint32 GetBuyCount() const { return std::max<uint32>(ExtendedData->BuyCount, 1u); }
     uint32 GetBuyPrice() const { return ExtendedData->BuyPrice; }
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
