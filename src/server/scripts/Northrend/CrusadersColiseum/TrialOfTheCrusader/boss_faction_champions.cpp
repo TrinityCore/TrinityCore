@@ -1820,7 +1820,7 @@ class npc_toc_rogue : public CreatureScript
                 events.ScheduleEvent(EVENT_WOUND_POISON, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 47422, 49982, EQUIP_NO_CHANGE);
                 me->SetPowerType(POWER_ENERGY);
-                me->SetMaxPower(POWER_ENERGY, 100);
+                me->SetFullPower(POWER_ENERGY);
             }
 
             void UpdateAI(uint32 diff) override
