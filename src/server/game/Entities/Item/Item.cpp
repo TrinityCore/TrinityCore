@@ -1951,7 +1951,7 @@ uint32 Item::GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemL
     }
 
     standardPrice = false;
-    return uint32(proto->GetUnk2() * typeFactor * baseFactor * qualityFactor * proto->GetUnk1());
+    return uint32(proto->GetPriceVariance() * typeFactor * baseFactor * qualityFactor * proto->GetPriceRandomValue());
 }
 
 uint32 Item::GetSellPrice(Player const* owner) const
