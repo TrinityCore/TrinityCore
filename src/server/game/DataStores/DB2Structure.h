@@ -485,6 +485,47 @@ struct BarberShopStyleEntry
     uint32 ID;
 };
 
+struct BattlePetAbilityEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    LocalizedString* Description;
+    int32 IconFileDataID;
+    uint16 BattlePetVisualID;
+    int8 PetTypeEnum;
+    uint8 Flags;
+    uint32 Cooldown;
+};
+
+struct BattlePetAbilityEffectEntry
+{
+    uint16 BattlePetAbilityTurnID;
+    uint16 BattlePetVisualID;
+    uint16 AuraBattlePetAbilityID;
+    uint16 BattlePetEffectPropertiesID;
+    int16 Param[6];
+    uint8 OrderIndex;
+    uint32 ID;
+};
+
+struct BattlePetAbilityStateEntry
+{
+    uint32 ID;
+    int32 Value;
+    uint8 BattlePetStateID;
+    uint16 BattlePetAbilityID;
+};
+
+struct BattlePetAbilityTurnEntry
+{
+    uint16 BattlePetAbilityID;
+    uint16 BattlePetVisualID;
+    uint8 OrderIndex;
+    uint8 TurnTypeEnum;
+    int8 EventTypeEnum;
+    uint32 ID;
+};
+
 struct BattlePetBreedQualityEntry
 {
     uint32 ID;
@@ -498,6 +539,29 @@ struct BattlePetBreedStateEntry
     int16 Value;
     uint8 State;
     uint8 BreedID;
+};
+
+struct BattlePetDisplayOverrideEntry
+{
+    uint32 ID;
+    uint32 BattlePetSpeciesID;
+    uint32 PlayerConditionID;
+    uint32 CreatureDisplayInfoID;
+    uint8 PriorityCategory;
+};
+
+struct BattlePetEffectPropertiesEntry
+{
+    uint32 ID;
+    char const* ParamLabel[6];
+    uint16 BattlePetVisualID;
+    uint8 ParamTypeNum[6];
+};
+
+struct BattlePetNPCTeamMemberEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
 };
 
 struct BattlePetSpeciesEntry
@@ -523,6 +587,35 @@ struct BattlePetSpeciesStateEntry
     uint16 SpeciesID;
 };
 
+struct BattlePetSpeciesXAbilityEntry
+{
+    uint32 ID;
+    uint16 BattlePetAbilityID;
+    uint8 RequiredLevel;
+    int8 SlotEnum;
+    uint16 BattlePetSpeciesID;
+};
+
+struct BattlePetStateEntry
+{
+    uint32 ID;
+    char const* LuaName;
+    uint16 BattlePetVisualID;
+    uint16 Flags;
+};
+
+struct BattlePetVisualEntry
+{
+    uint32 ID;
+    char const* SceneScriptFunction;
+    uint32 SpellVisualID;
+    uint16 CastMilliSeconds;
+    uint16 ImpactMilliSeconds;
+    uint16 SceneScriptPackageID;
+    uint8 RangeTypeEnum;
+    uint8 Flags;
+};
+
 struct BattlemasterListEntry
 {
     uint32 ID;
@@ -543,6 +636,52 @@ struct BattlemasterListEntry
     uint8 MinPlayers;
     uint8 MaxPlayers;
     uint8 Flags;
+};
+
+struct BeamEffectEntry
+{
+    uint32 ID;
+    int32 BeamID;
+    float SourceMinDistance;
+    float FixedLength;
+    uint32 Flags;
+    uint16 SourceOffset;
+    uint16 DestOffset;
+    uint16 SourceAttachID;
+    uint16 DestAttachID;
+    uint16 SourcePositionerID;
+    uint16 DestPositionerID;
+};
+
+struct BoneWindModifierModelEntry
+{
+    uint32 ID;
+    int32 FileDataID;
+    int32 BoneWindModifierID;
+};
+
+struct BoneWindModifiersEntry
+{
+    uint32 ID;
+    float Multiplier[3];
+    float PhaseMultiplier;
+};
+
+struct BountyEntry
+{
+    uint32 ID;
+    uint32 IconFileDataID;
+    uint16 QuestID;
+    uint16 FactionID;
+    uint32 TurninPlayerConditionID;
+    uint8 BountySetID;
+};
+
+struct BountySetEntry
+{
+    uint32 ID;
+    uint16 LockedQuestID;
+    uint32 VisiblePlayerConditionID;
 };
 
 #define MAX_BROADCAST_TEXT_EMOTES 3
