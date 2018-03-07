@@ -200,7 +200,7 @@ struct AnimationDataEntry
     uint32 Flags;
     uint16 Fallback;
     uint16 BehaviorID;
-    uint8 BehaviorID;
+    uint8 BehaviorTier;
 };
 struct AreaFarClipOverrideEntry
 {
