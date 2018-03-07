@@ -109,6 +109,10 @@ void DB2StorageBase::WriteRecordData(char const* entry, uint32 locale, ByteBuffe
                 buffer << *(uint16*)entry;
                 entry += 2;
                 break;
+            case FT_LONG:
+                buffer << *(uint64*)entry;
+                entry += 8;
+                break;
             case FT_STRING:
             {
                 LocalizedString* locStr = *(LocalizedString**)entry;
