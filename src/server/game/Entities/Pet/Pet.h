@@ -161,9 +161,6 @@ class TC_GAME_API Pet : public Guardian
         uint32 GetSlot() { return m_petSlot; }
         void SetSlot(uint32 newPetSlot) { m_petSlot = newPetSlot; } // use only together with DB update
 
-        bool IsActive() { return m_petActive; }
-        void SetActive(bool active) { m_petActive = active; }
-
     protected:
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
@@ -175,7 +172,6 @@ class TC_GAME_API Pet : public Guardian
 
         uint16 m_petSpecialization;
         uint32 m_petSlot;
-        bool m_petActive = false;
 
     private:
         void SaveToDB(uint32, uint64) override              // override of Creature::SaveToDB     - must not be called

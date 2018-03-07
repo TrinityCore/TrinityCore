@@ -1045,6 +1045,7 @@ void Guardian::UpdateArmor()
                     break;
                 case ENTRY_NIUZAO:
                     pctFromOwnerArmor = 400.f;
+                    break;
                 case ENTRY_XUEN:
                     pctFromOwnerArmor = 100.f;
                 default:
@@ -1198,6 +1199,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
                     break;
                 case ENTRY_IMP:
                     value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 100.f);
+                    break;
                 case ENTRY_VOIDWALKER:
                     value = CalculatePct(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC), 120.f);
                 default:

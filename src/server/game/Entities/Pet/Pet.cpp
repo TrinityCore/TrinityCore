@@ -334,8 +334,6 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
 
     m_loading = false;
 
-    SetActive(true);
-
     return true;
 }
 
@@ -363,6 +361,14 @@ void Pet::SavePetToDB(PetSaveMode mode)
     GetSpellHistory()->SaveToDB<Pet>(trans);
     CharacterDatabase.CommitTransaction(trans);
 
+    PlayerPetData* playerPetData = GetOwner()->GetPlayerPetDataById(m_charmInfo->GetPetNumber());
+
+    // save as new if no data for Pet in PlayerPetDataStore
+    if (mode < PET_SAVE_NEW_PET && !playerPetData)
+    {
+        mode = PET_SAVE_NEW_PET;
+    }
+
     if (mode == PET_SAVE_NEW_PET)
     {
         Optional<uint8> slot = IsHunterPet() ? GetOwner()->GetFirstUnusedActivePetSlot() : GetOwner()->GetFirstUnusedPetSlot();
@@ -370,22 +376,14 @@ void Pet::SavePetToDB(PetSaveMode mode)
         if (slot)
         {
             SetSlot(*slot);
-            SetActive(true);
+            playerPetData = new PlayerPetData();
         }
         else
             mode = PET_SAVE_AS_DELETED;
     }
 
-    if (mode == PET_SAVE_DISMISS)
-    {
+    if (mode == PET_SAVE_DISMISS || mode == PET_SAVE_LOGOUT)
         RemoveAllAuras();
-        SetActive(false);
-    }
-
-    if (mode == PET_SAVE_LOGOUT)
-    {
-        RemoveAllAuras();
-    }
 
     // whole pet is saved to DB
     if (mode >= PET_SAVE_CURRENT_STATE)
@@ -398,9 +396,11 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setUInt32(0, m_charmInfo->GetPetNumber());
         trans->Append(stmt);
 
+        uint32 petId = m_charmInfo->GetPetNumber();
+
         // save pet
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
-        stmt->setUInt32(0, m_charmInfo->GetPetNumber());
+        stmt->setUInt32(0, petId);
         stmt->setUInt32(1, GetEntry());
         stmt->setUInt64(2, ownerLowGUID);
         stmt->setUInt32(3, GetNativeDisplayId());
@@ -410,7 +410,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setInt16(7, m_petSlot);
         stmt->setString(8, m_name);
         stmt->setUInt8(9, HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ? 0 : 1);
-        stmt->setUInt8(10, IsActive() ? 1 : 0);
+        stmt->setUInt8(10, (mode == PET_SAVE_DISMISS) ? 0 : 1);
         stmt->setUInt32(11, curhealth);
         stmt->setUInt32(12, curmana);
 
@@ -424,20 +424,9 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
         CharacterDatabase.CommitTransaction(trans);
 
-        PlayerPetData* playerPetData = (mode < PET_SAVE_NEW_PET) ? GetOwner()->GetPlayerPetDataById(m_charmInfo->GetPetNumber()) : new PlayerPetData();
-
-        // save as new if no data for Pet in PlayerPetDataStore
-        if (mode < PET_SAVE_NEW_PET && !playerPetData)
-        {
-            mode = PET_SAVE_NEW_PET;
-            playerPetData = new PlayerPetData();
-        }
-
-        uint32 petId = m_charmInfo->GetPetNumber();
-
         if (m_petSlot > PET_SLOT_LAST)
         {
-            TC_LOG_ERROR("sql.sql", "Player::LoadPetsFromDB: bad slot %u for pet %u!", m_petSlot, petId);
+            TC_LOG_ERROR("sql.sql", "Pet::SavePetToDB: bad slot %u for pet %u!", m_petSlot, petId);
         }
 
         playerPetData->PetId = petId;
@@ -450,7 +439,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         playerPetData->Slot = m_petSlot;
         playerPetData->Name = m_name;
         playerPetData->Renamed = HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ? 0 : 1;
-        playerPetData->Active = IsActive() ? 1 : 0;
+        playerPetData->Active = (mode == PET_SAVE_DISMISS) ? 0 : 1;
         playerPetData->SavedHealth = curhealth;
         playerPetData->SavedMana = curmana;
         playerPetData->Actionbar = GenerateActionBarData();
