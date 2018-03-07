@@ -454,7 +454,7 @@ class spell_pal_blessing_of_sanctuary : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
             {
-                return GetTarget()->getPowerType() == POWER_MANA;
+                return GetTarget()->GetPowerType() == POWER_MANA;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1518,7 +1518,7 @@ class spell_pal_judgement_of_wisdom_mana : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return eventInfo.GetProcTarget()->getPowerType() == POWER_MANA;
+                return eventInfo.GetProcTarget()->GetPowerType() == POWER_MANA;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

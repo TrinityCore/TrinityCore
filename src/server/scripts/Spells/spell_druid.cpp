@@ -496,7 +496,7 @@ class spell_dru_frenzied_regeneration : public AuraScript
     void PeriodicTick(AuraEffect const* aurEff)
     {
         // Converts up to 10 rage per second into health for $d.  Each point of rage is converted into ${$m2/10}.1% of max health.
-        if (GetTarget()->getPowerType() != POWER_RAGE)
+        if (GetTarget()->GetPowerType() != POWER_RAGE)
             return;
 
         uint32 rage = GetTarget()->GetPower(POWER_RAGE);
@@ -1357,7 +1357,7 @@ class spell_dru_revitalize : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
                 uint32 spellId;
 
-                switch (target->getPowerType())
+                switch (target->GetPowerType())
                 {
                     case POWER_MANA:
                         spellId = SPELL_DRUID_REVITALIZE_ENERGIZE_MANA;
@@ -1803,7 +1803,7 @@ class spell_dru_t3_2p_bonus : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
                 uint32 spellId;
 
-                switch (target->getPowerType())
+                switch (target->GetPowerType())
                 {
                     case POWER_MANA:
                         spellId = SPELL_DRUID_T3_PROC_ENERGIZE_MANA;

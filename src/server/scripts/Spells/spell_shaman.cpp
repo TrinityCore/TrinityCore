@@ -1541,7 +1541,7 @@ class spell_sha_mana_spring_totem : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                     if (Unit* caster = GetCaster())
-                        if (target->getPowerType() == POWER_MANA)
+                        if (target->GetPowerType() == POWER_MANA)
                         {
                             CastSpellExtraArgs args(GetOriginalCaster()->GetGUID());
                             args.AddSpellBP0(GetEffectValue());
@@ -1608,7 +1608,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
                 {
                     if (Unit* unitTarget = GetHitUnit())
                     {
-                        if (unitTarget->getPowerType() == POWER_MANA)
+                        if (unitTarget->GetPowerType() == POWER_MANA)
                         {
                             int32 effValue = GetEffectValue();
                             // Glyph of Mana Tide

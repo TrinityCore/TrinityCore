@@ -1589,7 +1589,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                 break;
 
                             int32 triggeredSpellId = 0;
-                            switch (target->getPowerType())
+                            switch (target->GetPowerType())
                             {
                                 case POWER_MANA:
                                 {
