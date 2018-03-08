@@ -158,10 +158,13 @@ struct boss_xt002 : public BossAI
         {
             case 75:
                 _exposeHeartPercent = 50;
+                break;
             case 50:
                 _exposeHeartPercent = 25;
+                break;
             default:
                 _exposeHeartPercent = 0;
+                break;
         }
     }
 
