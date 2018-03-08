@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
  * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,40 +42,48 @@ Position const EagleSpiritflightPath[] =
 };
 size_t const EagleSpiritflightPathSize = std::extent<decltype(EagleSpiritflightPath)>::value;
 
-class npc_eagle_spirit : public CreatureScript
+struct npc_eagle_spirit : public ScriptedAI
 {
-public:
-    npc_eagle_spirit() : CreatureScript("npc_eagle_spirit") { }
+    npc_eagle_spirit(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_eagle_spirit_AI : public ScriptedAI
+    void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
     {
-        npc_eagle_spirit_AI(Creature* creature) : ScriptedAI(creature) { }
+        if (!apply)
+            return;
 
-        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
-        {
-            if (!apply)
-                return;
+        me->GetMotionMaster()->MoveSmoothPath(uint32(EagleSpiritflightPathSize), EagleSpiritflightPath, EagleSpiritflightPathSize, false, true);
+        me->CastSpell(me, SPELL_SPIRIT_FORM);
+    }
 
-            me->GetMotionMaster()->MoveSmoothPath(uint32(EagleSpiritflightPathSize), EagleSpiritflightPath, EagleSpiritflightPathSize, false, true);
-            me->CastSpell(me, SPELL_SPIRIT_FORM);
-        }
-
-        void MovementInform(uint32 type, uint32 pointId) override
-        {
-            if (type == EFFECT_MOTION_TYPE && pointId == EagleSpiritflightPathSize)
-            {
-                DoCast(SPELL_EJECT_ALL_PASSENGERS);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void MovementInform(uint32 type, uint32 pointId) override
     {
-        return new npc_eagle_spirit_AI(creature);
+        if (type == EFFECT_MOTION_TYPE && pointId == EagleSpiritflightPathSize)
+        {
+            DoCast(SPELL_EJECT_ALL_PASSENGERS);
+        }
+    }
+};
+
+// 71898 Funeral Offering
+class spell_mulgore_funeral_offering : public SpellScript
+{
+    PrepareSpellScript(spell_mulgore_funeral_offering);
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* target = GetHitCreature())
+            if (GetCaster()->IsPlayer())
+                GetCaster()->ToPlayer()->KilledMonsterCredit(target->GetEntry());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mulgore_funeral_offering::HandleHitTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
 void AddSC_mulgore()
 {
-    new npc_eagle_spirit();
+    RegisterCreatureAI(npc_eagle_spirit);
+    RegisterSpellScript(spell_mulgore_funeral_offering);
 }
