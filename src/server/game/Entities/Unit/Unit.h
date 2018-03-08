@@ -1915,7 +1915,7 @@ class TC_GAME_API Unit : public WorldObject
         TaskScheduler& GetScheduler() { return _scheduler; }
 
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
-        void GetFriendlyUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
+        void GetFriendlyUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange, bool exceptSelf = false) const;
         void GetAreatriggerListInRange(std::list<AreaTrigger*>& list, float fMaxSearchRange) const;
         void GetSceneObjectListInRange(std::list<SceneObject*>& list, float fMaxSearchRange) const;
         void GetConversationListInRange(std::list<Conversation*>& list, float fMaxSearchRange) const;

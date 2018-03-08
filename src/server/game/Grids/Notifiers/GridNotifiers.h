@@ -1036,14 +1036,11 @@ namespace Trinity
     class AnyFriendlyUnitInObjectRangeCheck
     {
         public:
-            AnyFriendlyUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool playerOnly = false) : i_obj(obj), i_funit(funit), i_range(range), i_playerOnly(playerOnly) { }
+            AnyFriendlyUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool playerOnly = false, bool exceptSelf = false) : i_obj(obj), i_funit(funit), i_range(range), i_playerOnly(playerOnly), i_exceptSelf(exceptSelf) { }
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) && (!i_playerOnly || u->GetTypeId() == TYPEID_PLAYER))
-                    return true;
-                else
-                    return false;
+                return u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) && (!i_playerOnly || u->IsPlayer()) && (!i_exceptSelf || u != i_funit);
             }
 
         private:
@@ -1051,6 +1048,7 @@ namespace Trinity
             Unit const* i_funit;
             float i_range;
             bool i_playerOnly;
+            bool i_exceptSelf;
     };
 
     class AnyGroupedUnitInObjectRangeCheck
