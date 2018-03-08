@@ -3523,6 +3523,23 @@ class spell_sha_undulation: public SpellScript
     }
 };
 
+// 188443 Chain Lightning
+class spell_sha_chain_lightning: public SpellScript
+{
+    PrepareSpellScript(spell_sha_chain_lightning);
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(EFFECT_1))
+            GetCaster()->ModifyPower(POWER_MAELSTROM, effect->BasePoints);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_chain_lightning::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3589,6 +3606,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_windfury();
     new spell_shaman_windfury_weapon();
     RegisterSpellScript(spell_sha_undulation);
+    RegisterSpellScript(spell_sha_chain_lightning);
 }
 
 void AddSC_npc_totem_scripts()
