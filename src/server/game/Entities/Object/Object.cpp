@@ -2297,8 +2297,16 @@ float WorldObject::SelectBestZForDestination(float x, float y, float z, bool exc
     {
         float const ground = GetFloorZ();
         bool const isInAir = (G3D::fuzzyGt(unit->GetPositionZ(), ground + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(unit->GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE));
-        if (unit->IsFlying() && isInAir)
-            return z;
+        if (isInAir)
+        {
+            // creatures never get MOVEMENTFLAG_FLYING, check it additionally for them
+            if (Creature const* creature = ToCreature())
+                if (creature->CanFly())
+                    return z;
+
+            if (unit->IsFlying())
+                return z;
+        }
     }
 
     float myX, myY, myZ;
