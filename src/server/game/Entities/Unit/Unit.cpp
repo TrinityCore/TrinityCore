@@ -720,7 +720,7 @@ void Unit::DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) co
         // Damage increase with expansion/level difference
         if (IsPlayer() && victim->IsCreature())
         {
-            uint32 expansion = victim->ToCreature()->GetCreatureTemplate()->RequiredExpansion;
+            uint32 expansion = victim->ToCreature()->GetCreatureTemplate()->HealthScalingExpansion;
 
             if (expansion < EXPANSION_MISTS_OF_PANDARIA && getLevel() > GetMaxLevelForExpansion(expansion))
             {
