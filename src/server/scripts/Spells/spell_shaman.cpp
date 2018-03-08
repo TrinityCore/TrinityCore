@@ -172,6 +172,7 @@ enum ShamanSpells
     SPELL_SHAMAN_HOT_HAND                       = 215785,
     SPELL_SHAMAN_WIND_RUSH_TOTEM                = 192077,
     SPELL_SHAMAN_AT_EARTHEN_SHIELD_TOTEM        = 198839,
+    SPELL_SHAMAN_UNDULATION_PROC                = 216251,
 };
 
 enum TotemSpells
@@ -1929,10 +1930,7 @@ enum Resurgence
 class spell_sha_resurgence : public SpellScriptLoader
 {
 public:
-    spell_sha_resurgence() : SpellScriptLoader("spell_sha_resurgence")
-    {
-
-    }
+    spell_sha_resurgence() : SpellScriptLoader("spell_sha_resurgence"){ }
 
     class spell_sha_resurgence_AuraScript : public AuraScript
     {
@@ -1940,16 +1938,15 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return (sSpellMgr->GetSpellInfo(SPELL_WATER_SHIELD)
-                && sSpellMgr->GetSpellInfo(SPELL_RESURGENCE)
-                && sSpellMgr->GetSpellInfo(SPELL_RESURGENCE_PROC));
+            return ValidateSpellInfo({ SPELL_WATER_SHIELD, SPELL_RESURGENCE, SPELL_RESURGENCE_PROC });
         }
 
         // Spell cannot proc if caster doesn't have aura 52127
         bool CheckDummyProc(ProcEventInfo& procInfo)
         {
-            if (Unit *target = procInfo.GetActor())
+            if (Unit* target = procInfo.GetActor())
                 return target->HasAura(SPELL_WATER_SHIELD);
+
             return false;
         }
 
@@ -3505,6 +3502,27 @@ public:
     }
 };
 
+// Undulation
+// 8004 Healing Surge
+// 77472 Healing Wave
+class spell_sha_undulation: public SpellScript
+{
+    PrepareSpellScript(spell_sha_undulation);
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->Variables.IncrementOrProcCounter("spell_sha_undulation", 3))
+            GetCaster()->CastSpell(nullptr, SPELL_SHAMAN_UNDULATION_PROC, true);
+        else
+            GetCaster()->RemoveAurasDueToSpell(SPELL_SHAMAN_UNDULATION_PROC);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_undulation::HandleHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new at_sha_earthquake_totem();
@@ -3570,6 +3588,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_wellspring();
     new spell_sha_windfury();
     new spell_shaman_windfury_weapon();
+    RegisterSpellScript(spell_sha_undulation);
 }
 
 void AddSC_npc_totem_scripts()
