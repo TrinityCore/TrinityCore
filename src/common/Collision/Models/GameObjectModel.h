@@ -26,7 +26,6 @@
 
 #include "Define.h"
 #include <memory>
-#include <set>
 
 namespace VMAP
 {
@@ -35,6 +34,7 @@ namespace VMAP
 }
 
 class GameObject;
+class PhaseShift;
 struct GameObjectDisplayInfoEntry;
 
 class TC_COMMON_API GameObjectModelOwnerBase
@@ -42,7 +42,7 @@ class TC_COMMON_API GameObjectModelOwnerBase
 public:
     virtual bool IsSpawned() const { return false; }
     virtual uint32 GetDisplayId() const { return 0; }
-    virtual bool IsInPhase(std::set<uint32> const& /*phases*/) const { return false; }
+    virtual bool IsInPhase(PhaseShift const& /*phaseShift*/) const { return false; }
     virtual G3D::Vector3 GetPosition() const { return G3D::Vector3::zero(); }
     virtual float GetOrientation() const { return 0.0f; }
     virtual float GetScale() const { return 1.0f; }
@@ -66,7 +66,7 @@ public:
     void enableCollision(bool enable) { _collisionEnabled = enable; }
     bool isCollisionEnabled() const { return _collisionEnabled; }
 
-    bool intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, std::set<uint32> const& phases, VMAP::ModelIgnoreFlags ignoreFlags) const;
+    bool intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const;
 
     static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 

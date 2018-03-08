@@ -266,7 +266,7 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
                     mapID = corpseMapEntry->entrance_map;
                     x = corpseMapEntry->entrance_x;
                     y = corpseMapEntry->entrance_y;
-                    z = entranceMap->GetHeight(GetPlayer()->GetPhases(), x, y, MAX_HEIGHT);
+                    z = entranceMap->GetHeight(GetPlayer()->GetPhaseShift(), x, y, MAX_HEIGHT);
                 }
             }
         }

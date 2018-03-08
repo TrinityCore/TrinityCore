@@ -32,6 +32,7 @@ EndScriptData */
 #include "CreatureAI.h"
 #include "Player.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 
 template<typename E, typename T = char const*>
 struct EnumName
@@ -287,8 +288,7 @@ public:
             return false;
         }
 
-        //creature->CopyPhaseFrom(chr); // creature is not directly added to world, only to db, so this is useless here
-
+        PhasingHandler::InheritPhaseShift(creature, chr);
         creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
@@ -718,18 +718,8 @@ public:
 
         if (CreatureData const* data = sObjectMgr->GetCreatureData(target->GetSpawnId()))
         {
-            handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseid, data->phaseGroup);
-            if (data->phaseGroup)
-            {
-                std::set<uint32> _phases = target->GetPhases();
-
-                if (!_phases.empty())
-                {
-                    handler->PSendSysMessage(LANG_NPCINFO_PHASE_IDS);
-                    for (uint32 phaseId : _phases)
-                        handler->PSendSysMessage("%u", phaseId);
-                }
-            }
+            handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseId, data->phaseGroup);
+            PhasingHandler::PrintToChat(handler, target->GetPhaseShift());
         }
 
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());
@@ -1078,12 +1068,8 @@ public:
             return false;
         }
 
-        creature->ClearPhases();
-
-        for (uint32 id : GetPhasesForGroup(phaseGroupId))
-            creature->SetInPhase(id, false, true); // don't send update here for multiple phases, only send it once after adding all phases
-
-        creature->UpdateObjectVisibility();
+        PhasingHandler::ResetPhaseShift(creature);
+        PhasingHandler::AddPhaseGroup(creature, phaseGroupId, true);
         creature->SetDBPhase(-int(phaseGroupId));
 
         creature->SaveToDB();
@@ -1114,8 +1100,8 @@ public:
             return false;
         }
 
-        creature->ClearPhases();
-        creature->SetInPhase(phaseID, true, true);
+        PhasingHandler::ResetPhaseShift(creature);
+        PhasingHandler::AddPhase(creature, phaseID, true);
         creature->SetDBPhase(phaseID);
 
         creature->SaveToDB();

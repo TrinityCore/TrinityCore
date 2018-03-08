@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "lost_city_of_the_tolvir.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
@@ -289,8 +290,7 @@ public:
             if (Creature* barim = _instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
                 barim->AI()->JustSummoned(me);
 
-            for (uint32 id : GetPhasesForGroup(PHASE_GROUP_ENCOUNTER_1))
-                me->SetInPhase(id, false, true);
+            PhasingHandler::AddPhaseGroup(me, PHASE_GROUP_ENCOUNTER_1, true);
 
             DoCastSelf(SPELL_REPENTANCE_SCRIPT_1, true);
             _events.ScheduleEvent(EVENT_COPY_WEAPON, Seconds(2));
@@ -439,7 +439,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             DoZoneInCombat();
             DoCastSelf(SPELL_BIRTH, true);
-            me->SetInPhase(PHASE_ID_REPENTANCE, true, false);
+            PhasingHandler::AddPhase(me, PHASE_ID_REPENTANCE, true);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -455,8 +455,7 @@ public:
             if (Creature* barim = _instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
                 barim->AI()->JustSummoned(summon);
 
-            for (uint32 id : GetPhasesForGroup(PHASE_GROUP_ENCOUNTER_1))
-                summon->SetInPhase(id, false, true);
+            PhasingHandler::AddPhaseGroup(summon, PHASE_GROUP_ENCOUNTER_1, true);
         }
 
         void JustDied(Unit* /*killer*/) override

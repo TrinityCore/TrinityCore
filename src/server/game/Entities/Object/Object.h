@@ -24,10 +24,10 @@
 #include "UpdateMask.h"
 #include "GridReference.h"
 #include "ObjectDefines.h"
+#include "PhaseShift.h"
 #include "Map.h"
 #include "ModelIgnoreFlags.h"
 
-#include <set>
 #include <string>
 #include <sstream>
 
@@ -47,8 +47,6 @@
 #define MIN_MELEE_REACH             2.0f
 #define NOMINAL_MELEE_RANGE         5.0f
 #define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
-
-#define DEFAULT_PHASE               169
 
 enum TempSummonType
 {
@@ -485,21 +483,16 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
-        virtual bool SetInPhase(uint32 id, bool update, bool apply);
-        void CopyPhaseFrom(WorldObject* obj, bool update = false);
-        void UpdateAreaPhase();
-        void ClearPhases(bool update = false);
-        void RebuildTerrainSwaps();
-        void RebuildWorldMapAreaSwaps();
-        bool HasInPhaseList(uint32 phase);
+        bool IsInPhase(WorldObject const* obj) const
+        {
+            return GetPhaseShift().CanSee(obj->GetPhaseShift());
+        }
+
+        PhaseShift& GetPhaseShift() { return _phaseShift; }
+        PhaseShift const& GetPhaseShift() const { return _phaseShift; }
+        PhaseShift& GetSuppressedPhaseShift() { return _suppressedPhaseShift; }
+        PhaseShift const& GetSuppressedPhaseShift() const { return _suppressedPhaseShift; }
         uint32 GetPhaseMask() const { return m_phaseMask; }
-        bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
-        bool IsInPhase(std::set<uint32> const& phases) const;
-        bool IsInPhase(WorldObject const* obj) const;
-        bool IsInTerrainSwap(uint32 terrainSwap) const { return _terrainSwaps.find(terrainSwap) != _terrainSwaps.end(); }
-        std::set<uint32> const& GetPhases() const { return _phases; }
-        std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
-        std::set<uint32> const& GetWorldMapAreaSwaps() const { return _worldMapAreaSwaps; }
         int32 GetDBPhase() { return _dbPhase; }
 
         // if negative it is used as PhaseGroupId
@@ -699,9 +692,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         //uint32 m_mapId;                                 // object at map with map_id
         uint32 m_InstanceId;                              // in map copy with instance id
         uint32 m_phaseMask;                               // in area phase state
-        std::set<uint32> _phases;
-        std::set<uint32> _terrainSwaps;
-        std::set<uint32> _worldMapAreaSwaps;
+        PhaseShift _phaseShift;
+        PhaseShift _suppressedPhaseShift;                 // contains phases for current area but not applied due to conditions
         int32 _dbPhase;
 
         uint16 m_notifyflags;

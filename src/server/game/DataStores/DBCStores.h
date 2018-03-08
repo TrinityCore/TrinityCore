@@ -81,7 +81,7 @@ TC_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty diffic
 
 uint32 GetDefaultMapLight(uint32 mapId);
 
-TC_GAME_API std::set<uint32> const& GetPhasesForGroup(uint32 group);
+TC_GAME_API std::vector<uint32> const* GetPhasesForGroup(uint32 group);
 
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
@@ -254,7 +254,7 @@ TC_GAME_API extern DBCStorage <UnitPowerBarEntry>            sUnitPowerBarStore;
 TC_GAME_API extern DBCStorage <VehicleEntry>                 sVehicleStore;
 TC_GAME_API extern DBCStorage <VehicleSeatEntry>             sVehicleSeatStore;
 TC_GAME_API extern DBCStorage <WMOAreaTableEntry>            sWMOAreaTableStore;
-//TC_GAME_API extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
+TC_GAME_API extern DBCStorage <WorldMapAreaEntry>            sWorldMapAreaStore;
 TC_GAME_API extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 TC_GAME_API extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 

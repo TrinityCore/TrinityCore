@@ -17,6 +17,7 @@
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "PhasingHandler.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "Cell.h"
@@ -636,7 +637,7 @@ class npc_the_lich_king_controller : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 // must not be in dream phase
-                summon->SetInPhase(173, true, false);
+                PhasingHandler::RemovePhase(summon, 173, true);
                 if (summon->GetEntry() != NPC_SUPPRESSER)
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         summon->AI()->AttackStart(target);
