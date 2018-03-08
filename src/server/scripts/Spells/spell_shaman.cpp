@@ -168,7 +168,10 @@ enum ShamanSpells
     SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM          = 188389,
-    SPELL_WELLSPRING_MISSILE                    = 198117
+    SPELL_WELLSPRING_MISSILE                    = 198117,
+    SPELL_SHAMAN_HOT_HAND                       = 215785,
+    SPELL_SHAMAN_WIND_RUSH_TOTEM                = 192077,
+    SPELL_SHAMAN_AT_EARTHEN_SHIELD_TOTEM        = 198839,
 };
 
 enum TotemSpells
@@ -1306,20 +1309,19 @@ class spell_sha_lava_lash : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleWeaponPercentDamage(SpellEffIndex /*effIndex*/)
             {
-                if (GetCaster()->HasAura(SPELL_SHAMAN_GLYPH_OF_LAVA_LASH))
-                    return;
-
                 GetCaster()->CastCustomSpell(SPELL_SHAMAN_LAVA_LASH_SPREAD_FLAME_SHOCK, SPELLVALUE_MAX_TARGETS, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
+
+                GetCaster()->RemoveAurasDueToSpell(SPELL_SHAMAN_HOT_HAND);
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_lava_lash_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_lava_lash_SpellScript::HandleWeaponPercentDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
 
@@ -2612,13 +2614,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE, SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC, SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE });
         }
 
         void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -2652,13 +2648,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE, SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC, SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE });
         }
 
         void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -2795,568 +2785,193 @@ public:
 
 //NPC ID : 97285
 //NPC NAME : Wind Rush Totem
-class npc_wind_rush_totem : public CreatureScript
+struct npc_wind_rush_totem : public ScriptedAI
 {
-public:
-    npc_wind_rush_totem() : CreatureScript("npc_wind_rush_totem"){}
+    npc_wind_rush_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_wind_rush_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_wind_rush_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-        enum TotemData
+        me->GetScheduler().Schedule(500ms, [this](TaskContext context)
         {
-            SPELL_TO_CAST = SPELL_TOTEM_WIND_RUSH_EFFECT,
-            RANGE = 10,
-            DELAY = 500
-        };
+            std::list<Unit*> unitList;
+            me->GetFriendlyUnitListInRange(unitList, 10.0f, true);
 
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            ApplyBuff();
-        }
+            for (Unit* target : unitList)
+                me->CastSpell(target, SPELL_TOTEM_WIND_RUSH_EFFECT, true);
 
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
-            std::list<Unit*> targets;
-            Trinity::AnyFriendlyUnitInObjectRangeCheck check(me, me, RANGE);
-            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, targets, check);
-            Cell::VisitAllObjects(me, searcher, RANGE);
-            for (auto itr : targets)
-            {
-                me->CastSpell(itr, SPELL_TO_CAST, true);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_wind_rush_totem_AI(creature);
+            context.Repeat();
+        });
     }
 };
 
 //NPC ID : 100099
 //NPC NAME : Voodoo Totem
-class npc_voodoo_totem : public CreatureScript
+struct npc_voodoo_totem : public ScriptedAI
 {
-public:
-    npc_voodoo_totem() : CreatureScript("npc_voodoo_totem") {}
+    npc_voodoo_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_voodoo_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_voodoo_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-        enum TotemData
+        me->GetScheduler().Schedule(1s, [this](TaskContext context)
         {
-            SPELL_TO_CAST = SPELL_TOTEM_VOODOO_EFFECT,
-            RANGE = 8,
-            DELAY = 1000
-        };
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            ApplyBuff();
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
             std::list<Unit*> targets;
-            me->GetAttackableUnitListInRange(targets, RANGE);
-            for (auto itr : targets)
-            {
-                if (me->IsValidAttackTarget(itr))
-                    me->CastSpell(itr, SPELL_TO_CAST, true);
-            }
-        }
-    };
+            me->GetAttackableUnitListInRange(targets, 8.0f);
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_voodoo_totem_AI(creature);
+            for (Unit* target : targets)
+                if (me->IsValidAttackTarget(target))
+                    me->CastSpell(target, SPELL_TOTEM_VOODOO_EFFECT, true);
+
+            context.Repeat();
+        });
     }
 };
 
 //NPC ID : 61245
 //NPC NAME : Lightning Surge Totem
-class npc_lightning_surge_totem : public CreatureScript
+struct npc_lightning_surge_totem : public ScriptedAI
 {
-public:
-    npc_lightning_surge_totem() : CreatureScript("npc_lightning_surge_totem") {}
+    npc_lightning_surge_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_lightning_surge_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_lightning_surge_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-        enum TotemData
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+        me->GetScheduler().Schedule(10s, [this](TaskContext context)
         {
-            SPELL_TO_CAST = SPELL_TOTEM_LIGHTNING_SURGE_EFFECT,
-            RANGE = 10,
-            DELAY = 10000
-        };
-
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            ApplyBuff();
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
-            me->CastSpell(me, SPELL_TO_CAST, false);
-
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_lightning_surge_totem_AI(creature);
+            me->CastSpell(me, SPELL_TOTEM_LIGHTNING_SURGE_EFFECT, true);
+            context.Repeat();
+        });
     }
 };
 
 //NPC ID : 102392
-class npc_resonance_totem : public CreatureScript
+struct npc_resonance_totem : public ScriptedAI
 {
-public:
-    npc_resonance_totem() : CreatureScript("npc_resonance_totem") {}
+    npc_resonance_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_resonance_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_resonance_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-        enum TotemData
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+        me->GetScheduler().Schedule(1s, [this](TaskContext context)
         {
-            SPELL_TO_CAST = SPELL_TOTEM_RESONANCE_EFFECT,
-            RANGE = 10,
-            DELAY = 1000
-        };
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            ApplyBuff();
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
-            me->CastSpell(me, SPELL_TO_CAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_resonance_totem_AI(creature);
+            me->CastSpell(me, SPELL_TOTEM_RESONANCE_EFFECT, true);
+            context.Repeat();
+        });
     }
 };
 
 //NPC ID : 97369
-class npc_liquid_magma_totem : public CreatureScript
+struct npc_liquid_magma_totem : public ScriptedAI
 {
-public:
-    npc_liquid_magma_totem() : CreatureScript("npc_liquid_magma_totem") {}
+    npc_liquid_magma_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_liquid_magma_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_liquid_magma_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-        enum TotemData
+        me->GetScheduler().Schedule(15s, [this](TaskContext context)
         {
-            SPELL_TO_CAST = SPELL_TOTEM_LIQUID_MAGMA_EFFECT,
-            RANGE = 8,
-            DELAY = 15000
-        };
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            ApplyBuff();
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
-            me->CastSpell(me, SPELL_TO_CAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_liquid_magma_totem_AI(creature);
+            me->CastSpell(me, SPELL_TOTEM_LIQUID_MAGMA_EFFECT, true);
+            context.Repeat();
+        });
     }
 };
 
 //NPC ID : 60561
-class npc_earth_grab_totem : public CreatureScript
+struct npc_earth_grab_totem : public ScriptedAI
 {
-public:
-    npc_earth_grab_totem() : CreatureScript("npc_earth_grab_totem") {}
+    npc_earth_grab_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_earth_grab_totem_AI : public ScriptedAI
+    std::vector<ObjectGuid> alreadyRooted;
+
+    void Reset() override
     {
-        npc_earth_grab_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-        std::vector<Unit*> alreadyRooted;
-
-        enum TotemData
+        me->GetScheduler().Schedule(2s, [this](TaskContext context)
         {
-            SPELL_ROOT = SPELL_TOTEM_EARTH_GRAB_ROOT_EFFECT,
-            SPELL_SLOW = SPELL_TOTEM_EARTH_GRAB_SLOW_EFFECT,
-            RANGE = 10,
-            DELAY = 2000
-        };
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            ApplyBuff();
-        }
+            std::list<Unit*> unitList;
+            me->GetAttackableUnitListInRange(unitList, 10.0f);
 
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
-            std::list<Unit*> targets;
-            me->GetAttackableUnitListInRange(targets, RANGE);
-            for (auto itr : targets)
+            for (auto target : unitList)
             {
-                if (me->IsValidAttackTarget(itr))
+                if (std::find(alreadyRooted.begin(), alreadyRooted.end(), target->GetGUID()) == alreadyRooted.end())
                 {
-                    if (std::find(alreadyRooted.begin(), alreadyRooted.end(), itr) == alreadyRooted.end())
-                    {
-                        alreadyRooted.push_back(itr);
-                        //me->Say("Should apply root on " + itr->GetName(), LANG_UNIVERSAL);
-                        if(!itr->HasAura(SPELL_ROOT))
-                            me->CastSpell(itr, SPELL_ROOT, true);
-                    }
-
-                    //me->Say("Should apply slow on " + itr->GetName(), LANG_UNIVERSAL);
-                    me->CastSpell(itr, SPELL_SLOW, true);
+                    alreadyRooted.push_back(target->GetGUID());
+                    if (!target->HasAura(SPELL_TOTEM_EARTH_GRAB_ROOT_EFFECT))
+                        me->CastSpell(target, SPELL_TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
                 }
-            }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_earth_grab_totem_AI(creature);
+                me->CastSpell(target, SPELL_TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
+            }
+
+            context.Repeat();
+        });
     }
 };
 
 //NPC ID : 59764
-class npc_healing_tide_totem : public CreatureScript
+struct npc_healing_tide_totem : public ScriptedAI
 {
-public:
-    npc_healing_tide_totem() : CreatureScript("npc_healing_tide_totem") {}
+    npc_healing_tide_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_healing_tide_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_healing_tide_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-
-        enum TotemData
+        me->GetScheduler().Schedule(1900ms, [this](TaskContext context)
         {
-            SPELL_TO_CAST = SPELL_TOTEM_HEALING_TIDE_EFFECT,
-            RANGE = 40,
-            DELAY = 1900
-        };
-
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            ApplyBuff();
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-            if(!me->GetOwner())
-                return;
-
-            me->GetOwner()->CastSpell(me, SPELL_TO_CAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_healing_tide_totem_AI(creature);
+            me->CastSpell(me, SPELL_TOTEM_HEALING_TIDE_EFFECT, true);
+            context.Repeat();
+        });
     }
 };
 
 //NPC ID : 106321
-class npc_tailwind_totem : public CreatureScript
+struct npc_tailwind_totem : public ScriptedAI
 {
-public:
-    npc_tailwind_totem() : CreatureScript("npc_tailwind_totem") {}
+    npc_tailwind_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_tailwind_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_tailwind_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-        enum TotemData
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+        me->GetScheduler().Schedule(1s, [this](TaskContext context)
         {
-            SPELL_TO_CAST = SPELL_TOTEM_TAIL_WIND_EFFECT,
-            RANGE = 30,
-            DELAY = 1000
-        };
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            ApplyBuff();
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
-            me->CastSpell(me, SPELL_TO_CAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_tailwind_totem_AI(creature);
+            me->CastSpell(me, SPELL_TOTEM_TAIL_WIND_EFFECT, true);
+            context.Repeat();
+        });
     }
 };
 
 //NPC ID : 106319
-class npc_ember_totem : public CreatureScript
+struct npc_ember_totem : public ScriptedAI
 {
-public:
-    npc_ember_totem() : CreatureScript("npc_ember_totem") {}
+    npc_ember_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_ember_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_ember_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-        enum TotemData
+        me->GetScheduler().Schedule(1s, [this](TaskContext context)
         {
-            SPELL_TO_CAST = SPELL_TOTEM_EMBER_EFFECT,
-            RANGE = 10,
-            DELAY = 1000
-        };
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            ApplyBuff();
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
-            me->CastSpell(me, SPELL_TO_CAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_ember_totem_AI(creature);
+            me->CastSpell(me, SPELL_TOTEM_EMBER_EFFECT, true);
+            context.Repeat();
+        });
     }
 };
 
 //NPC ID : 78001
-class npc_cloudburst_totem : public CreatureScript
+struct npc_cloudburst_totem : public ScriptedAI
 {
-public:
-    npc_cloudburst_totem() : CreatureScript("npc_cloudburst_totem") {}
+    npc_cloudburst_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_cloudburst_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_cloudburst_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 m_uiBuffTimer;
-        enum TotemData
-        {
-            SPELL_TO_CAST = SPELL_TOTEM_CLOUDBURST_EFFECT,
-            RANGE = 10,
-            DELAY = 1000
-        };
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            ApplyBuff();
-        }
-
-        void UpdateAI(uint32 /*uiDiff*/) override
-        {
-
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
-            if (me->GetOwner())
-                me->CastSpell(me->GetOwner(), SPELL_TO_CAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_cloudburst_totem_AI(creature);
+        if (me->GetOwner())
+            me->CastSpell(me->GetOwner(), SPELL_TOTEM_CLOUDBURST_EFFECT, true);
     }
 };
 
 //100943
-class npc_earthen_shield_totem : public CreatureScript
+struct npc_earthen_shield_totem : public ScriptedAI
 {
-public:
-    npc_earthen_shield_totem() : CreatureScript("npc_earthen_shield_totem") {}
+    npc_earthen_shield_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_earthen_shield_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_earthen_shield_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        enum TotemData
-        {
-            SPELL_TO_CAST = 198839, //Creates an AT
-        };
-
-
-        void Reset() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            CreateAreaTrigger();
-        }
-
-        void CreateAreaTrigger()
-        {
-            if (!me)
-                return;
-
-            if (!me->GetOwner())
-                return;
-
-            me->CastSpell(me, SPELL_TO_CAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_earthen_shield_totem_AI(creature);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+        me->CastSpell(me, SPELL_SHAMAN_AT_EARTHEN_SHIELD_TOTEM, true);
     }
 };
 
@@ -3503,38 +3118,14 @@ public:
 };
 
 //104818 - Ancestral Protection Totem
-class npc_ancestral_protection_totem : public CreatureScript
+struct npc_ancestral_protection_totem : public ScriptedAI
 {
-public:
-    npc_ancestral_protection_totem() : CreatureScript("npc_ancestral_protection_totem") {}
+    npc_ancestral_protection_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_ancestral_protection_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_ancestral_protection_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        enum TotemData
-        {
-            SPELL_TO_CAST = SPELL_TOTEM_ANCESTRAL_PROTECTION_AT
-        };
-        void Reset() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            ApplyBuff();
-        }
-
-        void ApplyBuff()
-        {
-
-            if (!me)
-                return;
-
-            me->CastSpell(me, SPELL_TO_CAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_ancestral_protection_totem_AI(creature);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+        me->CastSpell(me, SPELL_TOTEM_ANCESTRAL_PROTECTION_AT, true);
     }
 };
 
@@ -3724,105 +3315,70 @@ public:
 };
 
 //105427 Skyfury Totem
-class npc_skyfury_totem : public CreatureScript
+struct npc_skyfury_totem : public ScriptedAI
 {
-public:
-    npc_skyfury_totem() : CreatureScript("npc_skyfury_totem") {}
+    npc_skyfury_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_skyfury_totem_AI : public ScriptedAI
+    uint32 m_uiBuffTimer;
+    int32 m_buffDuration = 15000;
+    enum TotemData
     {
-        npc_skyfury_totem_AI(Creature* creature) : ScriptedAI(creature) {}
+        SPELL_TO_CAST = SPELL_TOTEM_SKYFURY_EFFECT,
+        RANGE = 40,
+        DELAY = 500
+    };
+    void Reset() override
+    {
+        m_uiBuffTimer = DELAY;
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+        ApplyBuff();
+    }
 
-        uint32 m_uiBuffTimer;
-        int32 m_buffDuration = 15000;
-        enum TotemData
-        {
-            SPELL_TO_CAST = SPELL_TOTEM_SKYFURY_EFFECT,
-            RANGE = 40,
-            DELAY = 500
-        };
-        void Reset() override
-        {
-            m_uiBuffTimer = DELAY;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+    void UpdateAI(uint32 uiDiff) override
+    {
+        m_buffDuration -= uiDiff;
+
+        if (m_uiBuffTimer <= uiDiff)
             ApplyBuff();
-        }
+        else
+            m_uiBuffTimer -= uiDiff;
+    }
 
-        void UpdateAI(uint32 uiDiff) override
+    void ApplyBuff()
+    {
+        m_uiBuffTimer = DELAY;
+
+        if (!me)
+            return;
+
+        std::list<Unit*> targets;
+        Trinity::AnyFriendlyUnitInObjectRangeCheck check(me, me, RANGE);
+        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, targets, check);
+        Cell::VisitAllObjects(me, searcher, RANGE);
+        for (auto itr : targets)
         {
-            m_buffDuration -= uiDiff;
+            if(!itr)
+                continue;
 
-            if (m_uiBuffTimer <= uiDiff)
-                ApplyBuff();
-            else
-                m_uiBuffTimer -= uiDiff;
-        }
-
-        void ApplyBuff()
-        {
-            m_uiBuffTimer = DELAY;
-
-            if (!me)
-                return;
-
-            std::list<Unit*> targets;
-            Trinity::AnyFriendlyUnitInObjectRangeCheck check(me, me, RANGE);
-            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, targets, check);
-            Cell::VisitAllObjects(me, searcher, RANGE);
-            for (auto itr : targets)
+            if(!itr->HasAura(SPELL_TOTEM_SKYFURY_EFFECT))
             {
-                if(!itr)
-                    continue;
-
-                if(!itr->HasAura(SPELL_TO_CAST))
-                {
-                    me->CastSpell(itr, SPELL_TO_CAST, true);
-                    if (Aura* aura = itr->GetAura(SPELL_TO_CAST))
-                        aura->SetDuration(m_buffDuration);
-                }
+                me->CastSpell(itr, SPELL_TOTEM_SKYFURY_EFFECT, true);
+                if (Aura* aura = itr->GetAura(SPELL_TOTEM_SKYFURY_EFFECT))
+                    aura->SetDuration(m_buffDuration);
             }
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_skyfury_totem_AI(creature);
     }
 };
 
 //5925
-class npc_grounding_totem : public CreatureScript
+struct npc_grounding_totem : public ScriptedAI
 {
-public:
-    npc_grounding_totem() : CreatureScript("npc_grounding_totem") {}
+    npc_grounding_totem(Creature* creature) : ScriptedAI(creature) {}
 
-    struct npc_grounding_totem_AI : public ScriptedAI
+    void Reset() override
     {
-        npc_grounding_totem_AI(Creature* creature) : ScriptedAI(creature) {}
-
-        enum TotemData
-        {
-            SPELL_TO_CAST = SPELL_TOTEM_GROUDING_TOTEM_EFFECT
-
-        };
-        void Reset() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            ApplyBuff();
-        }
-
-        void ApplyBuff()
-        {
-            if (!me)
-                return;
-
-            me->CastSpell(me, SPELL_TO_CAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_grounding_totem_AI(creature);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+        me->CastSpell(me, SPELL_TOTEM_GROUDING_TOTEM_EFFECT, true);
     }
 };
 
@@ -4018,18 +3574,18 @@ void AddSC_shaman_spell_scripts()
 
 void AddSC_npc_totem_scripts()
 {
-    new npc_ancestral_protection_totem();
-    new npc_cloudburst_totem();
-    new npc_earth_grab_totem();
-    new npc_earthen_shield_totem();
-    new npc_ember_totem();
-    new npc_grounding_totem();
-    new npc_healing_tide_totem();
-    new npc_lightning_surge_totem();
-    new npc_liquid_magma_totem();
-    new npc_resonance_totem();
-    new npc_skyfury_totem();
-    new npc_tailwind_totem();
-    new npc_voodoo_totem();
-    new npc_wind_rush_totem();
+    RegisterCreatureAI(npc_ancestral_protection_totem);
+    RegisterCreatureAI(npc_cloudburst_totem);
+    RegisterCreatureAI(npc_earth_grab_totem);
+    RegisterCreatureAI(npc_earthen_shield_totem);
+    RegisterCreatureAI(npc_ember_totem);
+    RegisterCreatureAI(npc_grounding_totem);
+    RegisterCreatureAI(npc_healing_tide_totem);
+    RegisterCreatureAI(npc_lightning_surge_totem);
+    RegisterCreatureAI(npc_liquid_magma_totem);
+    RegisterCreatureAI(npc_resonance_totem);
+    RegisterCreatureAI(npc_skyfury_totem);
+    RegisterCreatureAI(npc_tailwind_totem);
+    RegisterCreatureAI(npc_voodoo_totem);
+    RegisterCreatureAI(npc_wind_rush_totem);
 }

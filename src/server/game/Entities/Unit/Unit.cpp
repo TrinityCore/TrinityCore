@@ -14622,13 +14622,13 @@ void Unit::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearch
     cell.Visit(p, grid_unit_searcher, *GetMap(), *this, fMaxSearchRange);
 }
 
-void Unit::GetFriendlyUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const
+void Unit::GetFriendlyUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange, bool exceptSelf /*= false*/) const
 {
     CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
     Cell cell(p);
     cell.SetNoCreate();
 
-    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(this, this, fMaxSearchRange);
+    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(this, this, fMaxSearchRange, false, exceptSelf);
     Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(this, list, u_check);
 
     TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
