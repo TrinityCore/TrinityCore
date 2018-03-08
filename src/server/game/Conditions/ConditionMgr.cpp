@@ -1378,18 +1378,44 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
             if (!effect)
                 continue;
 
-            // check if effect is already a part of some shared mask
-            bool found = false;
-            for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+            // additional checks by condition type
+            if (conditionEffMask & (1 << i))
             {
-                if ((1 << i) & *itr)
+                switch (cond->ConditionType)
                 {
-                    found = true;
-                    break;
+                    case CONDITION_OBJECT_ENTRY_GUID:
+                    {
+                        uint32 implicitTargetMask = GetTargetFlagMask(effect->TargetA.GetObjectType()) | GetTargetFlagMask(effect->TargetB.GetObjectType());
+                        if ((implicitTargetMask & TARGET_FLAG_UNIT_MASK) && cond->ConditionValue1 != TYPEID_UNIT && cond->ConditionValue1 != TYPEID_PLAYER)
+                        {
+                            TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
+                                "target requires ConditionValue1 to be either TYPEID_UNIT (%u) or TYPEID_PLAYER (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_UNIT), uint32(TYPEID_PLAYER));
+                            return;
+                        }
+
+                        if ((implicitTargetMask & TARGET_FLAG_GAMEOBJECT_MASK) && cond->ConditionValue1 != TYPEID_GAMEOBJECT)
+                        {
+                            TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
+                                "target requires ConditionValue1 to be TYPEID_GAMEOBJECT (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_GAMEOBJECT));
+                            return;
+                        }
+
+                        if ((implicitTargetMask & TARGET_FLAG_CORPSE_MASK) && cond->ConditionValue1 != TYPEID_CORPSE)
+                        {
+                            TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
+                                "target requires ConditionValue1 to be TYPEID_CORPSE (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_CORPSE));
+                            return;
+                        }
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
-            if (found)
+            // check if effect is already a part of some shared mask
+            auto itr = std::find_if(sharedMasks.begin(), sharedMasks.end(), [i](uint32 mask) { return !!(mask & (1 << i)); });
+            if (itr != sharedMasks.end())
                 continue;
 
             // build new shared mask with found effect
@@ -1408,14 +1434,14 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
             sharedMasks.push_back(sharedMask);
         }
 
-        for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+        for (uint32 effectMask : sharedMasks)
         {
             // some effect indexes should have same data
-            if (uint32 commonMask = *itr & conditionEffMask)
+            if (uint32 commonMask = effectMask & conditionEffMask)
             {
                 uint8 firstEffIndex = 0;
                 for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
-                    if ((1 << firstEffIndex) & *itr)
+                    if ((1 << firstEffIndex) & effectMask)
                         break;
 
                 if (firstEffIndex >= MAX_SPELL_EFFECTS)
@@ -1432,7 +1458,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
                 if (sharedList)
                 {
                     // we have overlapping masks in db
-                    if (conditionEffMask != *itr)
+                    if (conditionEffMask != effectMask)
                     {
                         TC_LOG_ERROR("sql.sql", "%s in `condition` table, has incorrect SourceGroup %u (spell effectMask) set - "
                             "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring (Difficulty %u).",
