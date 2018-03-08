@@ -2444,96 +2444,74 @@ public:
 };
 
 // Spirit of Redemption - 20711
-class spell_pri_spirit_of_redemption : public SpellScriptLoader
+class spell_pri_spirit_of_redemption : public AuraScript
 {
-public:
-    spell_pri_spirit_of_redemption() : SpellScriptLoader("spell_pri_spirit_of_redemption") { }
+    PrepareAuraScript(spell_pri_spirit_of_redemption);
 
-    class spell_pri_spirit_of_redemption_AuraScript : public AuraScript
+    enum eSpells
     {
-        PrepareAuraScript(spell_pri_spirit_of_redemption_AuraScript);
-
-        enum eSpells
-        {
-            SpiritOfRedemptionImmunity = 62371,
-            UntransformHero = 25100,
-            SpiritOfRedemptionForm = 27795,
-            SpiritOfRedemptionShapeshift = 27827
-        };
-
-        void CalculateAmount(AuraEffect const* /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
-        {
-            p_Amount = -1;
-        }
-
-        void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
-        {
-            p_AbsorbAmount = 0; //This is set at 0 unless conditions are met (last line)
-            Unit* l_Caster = GetCaster();
-            if (!l_Caster)
-                return;
-
-            if (p_DmgInfo.GetDamage() < l_Caster->GetHealth())
-                return;
-
-            if (l_Caster->HasAura(eSpells::SpiritOfRedemptionShapeshift))
-                return;
-
-            l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionShapeshift, true);
-            l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionForm, true);
-            l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionImmunity, true);
-            l_Caster->CastSpell(l_Caster, eSpells::UntransformHero, true); ///< Visual
-
-            p_AbsorbAmount = p_DmgInfo.GetDamage();
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_spirit_of_redemption_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_spirit_of_redemption_AuraScript::Absorb, EFFECT_0);
-        }
+        SpiritOfRedemptionImmunity = 62371,
+        UntransformHero = 25100,
+        SpiritOfRedemptionForm = 27795,
+        SpiritOfRedemptionShapeshift = 27827
     };
 
-    AuraScript* GetAuraScript() const override
+    void CalculateAmount(AuraEffect const* /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
     {
-        return new spell_pri_spirit_of_redemption_AuraScript();
+        p_Amount = -1;
+    }
+
+    void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+    {
+        p_AbsorbAmount = 0; //This is set at 0 unless conditions are met (last line)
+        Unit* l_Caster = GetCaster();
+        if (!l_Caster)
+            return;
+
+        if (p_DmgInfo.GetDamage() < l_Caster->GetHealth())
+            return;
+
+        if (l_Caster->HasAura(eSpells::SpiritOfRedemptionShapeshift))
+            return;
+
+        l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionShapeshift, true);
+        l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionForm, true);
+        l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionImmunity, true);
+        l_Caster->CastSpell(l_Caster, eSpells::UntransformHero, true); ///< Visual
+
+        p_AbsorbAmount = p_DmgInfo.GetDamage();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_spirit_of_redemption::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_spirit_of_redemption::Absorb, EFFECT_0);
     }
 };
 
 // Last Update 6.2.3
 // Spirit of Redemption (Shapeshift) - 27827
-class spell_pri_spirit_of_redemption_form : public SpellScriptLoader
+class spell_pri_spirit_of_redemption_form : public AuraScript
 {
-public:
-    spell_pri_spirit_of_redemption_form() : SpellScriptLoader("spell_pri_spirit_of_redemption_form") { }
+    PrepareAuraScript(spell_pri_spirit_of_redemption_form);
 
-    class spell_pri_spirit_of_redemption_form_AuraScript : public AuraScript
+    enum eSpells
     {
-        PrepareAuraScript(spell_pri_spirit_of_redemption_form_AuraScript);
-
-        enum eSpells
-        {
-            SpiritOfRedemptionImmunity = 62371,
-            SpiritOfRedemptionForm = 27795
-        };
-
-        void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-        {
-            Unit* l_Target = GetTarget();
-
-            l_Target->RemoveAura(eSpells::SpiritOfRedemptionForm);
-            l_Target->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
-        }
-
-        void Register() override
-        {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
-        }
+        SpiritOfRedemptionImmunity = 62371,
+        SpiritOfRedemptionForm = 27795
     };
 
-    AuraScript* GetAuraScript() const override
+    void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
     {
-        return new spell_pri_spirit_of_redemption_form_AuraScript();
+        Unit* l_Target = GetTarget();
+
+        l_Target->RemoveAura(eSpells::SpiritOfRedemptionForm);
+        l_Target->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form::AfterRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2923,6 +2901,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_void_tendrils();
     new spell_pri_voidform();
     new spell_priest_angelic_bulwark();
+    RegisterAuraScript(spell_pri_spirit_of_redemption);
+    RegisterAuraScript(spell_pri_spirit_of_redemption_form);
 
     //7.3.2.25549
     RegisterSpellScript(spell_pri_holy_word_chastise);
