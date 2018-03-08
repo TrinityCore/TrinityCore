@@ -707,7 +707,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     // We had a bug where randomEnchantment wasn't stored, check if it require a fix
     if (m_randomEnchantment.Type == ItemRandomEnchantmentType(0) && m_randomEnchantment.Id == 0)
     {
-        SetItemRandomProperties(GenerateItemRandomPropertyId(entry));
+        SetItemRandomProperties(GenerateItemRandomPropertyId(entry), owner);
 
         if (m_randomEnchantment.Id != 0)
             need_save = true;
@@ -914,7 +914,7 @@ uint32 Item::GetSkill()
     return proto->GetSkill();
 }
 
-void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
+void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId, Player const* owner /*= nullptr*/)
 {
     if (!randomPropId.Id)
         return;
@@ -941,7 +941,7 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
                 if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != -int32(randomPropId.Id) || !GetItemSuffixFactor())
                 {
                     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(randomPropId.Id));
-                    UpdateItemSuffixFactor();
+                    UpdateItemSuffixFactor(owner);
                     SetState(ITEM_CHANGED, GetOwner());
                 }
 
