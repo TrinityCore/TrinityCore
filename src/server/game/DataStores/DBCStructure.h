@@ -1601,7 +1601,7 @@ struct PhaseEntry
 {
     uint32    ID;                                           // 0
     char*     Name;                                         // 1
-    uint32    flag;                                         // 2
+    uint32    Flags;                                        // 2
 };
 
 struct PhaseGroupEntry
@@ -2734,5 +2734,5 @@ typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 #define TaxiMaskSize 114
 typedef uint8 TaxiMask[TaxiMaskSize];
 
-typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
+typedef std::unordered_map<uint32, std::vector<uint32>> PhaseGroupContainer;
 #endif

@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
@@ -979,7 +980,7 @@ public:
             return false;
         }
 
-        v->CopyPhaseFrom(handler->GetSession()->GetPlayer());
+        PhasingHandler::InheritPhaseShift(v, handler->GetSession()->GetPlayer());
 
         map->AddToMap(v->ToCreature());
 
@@ -1008,22 +1009,20 @@ public:
         if (!t)
             return false;
 
-        std::set<uint32> terrainswap;
-        std::set<uint32> phaseId;
-        std::set<uint32> worldMapSwap;
+        PhaseShift phaseShift;
 
         if (uint32 ut = (uint32)atoi(t))
-            terrainswap.insert(ut);
+            phaseShift.AddVisibleMapId(ut, nullptr);
 
         if (p)
             if (uint32 up = (uint32)atoi(p))
-                phaseId.insert(up);
+                phaseShift.AddPhase(up, PhaseFlags::None, nullptr, nullptr);
 
         if (m)
             if (uint32 um = (uint32)atoi(m))
-                worldMapSwap.insert(um);
+                phaseShift.AddUiWorldMapAreaIdSwap(um);
 
-        handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, worldMapSwap);
+        PhasingHandler::SendToPlayer(handler->GetSession()->GetPlayer(), phaseShift);
         return true;
     }
 
@@ -1462,15 +1461,8 @@ public:
 
         std::stringstream phases;
 
-        for (uint32 phase : target->GetPhases())
-        {
-            phases << phase << " ";
-        }
+        PhasingHandler::PrintToChat(handler, target->GetPhaseShift());
 
-        if (!phases.str().empty())
-            handler->PSendSysMessage("Target's current phases: %s", phases.str().c_str());
-        else
-            handler->SendSysMessage("Target is not phased");
         return true;
     }
 

@@ -21,6 +21,7 @@
 #include "LFG.h"
 #include "Player.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "GroupMgr.h"
 #include "ScriptMgr.h"
 
@@ -331,7 +332,6 @@ public:
     {
         // Get ALL the variables!
         Player* playerTarget;
-        uint32 phase = 0;
         ObjectGuid guidTarget;
         std::string nameTarget;
         std::string zoneName;
@@ -412,11 +412,12 @@ public:
 
             // Check if iterator is online. If is...
             Player* p = ObjectAccessor::FindPlayer((*itr).guid);
+            std::string phases;
             if (p)
             {
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
-                phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
+                phases = PhasingHandler::FormatPhases(p->GetPhaseShift());
                 LocaleConstant localeConstant = handler->GetSessionDbcLocale();
 
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
@@ -432,12 +433,11 @@ public:
                 // ... else, everything is set to offline or neutral values.
                 zoneName    = "<ERROR>";
                 onlineState = "Offline";
-                phase       = 0;
             }
 
             // Now we can print those informations for every single member of each group!
             handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                zoneName.c_str(), phase, slot.guid.GetCounter(), flags.c_str(),
+                zoneName.c_str(), phases.c_str(), slot.guid.GetCounter(), flags.c_str(),
                 lfg::GetRolesString(slot.roles).c_str());
         }
 

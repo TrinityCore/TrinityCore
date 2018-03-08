@@ -1142,15 +1142,6 @@ public:
         return true;
     }
 
-
-    static bool HandleReloadPhaseDefinitionsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Reloading terrain_phase_info table...");
-        sObjectMgr->LoadTerrainPhaseInfo();
-        handler->SendGlobalGMSysMessage("Terrain phase infos reloaded.");
-        return true;
-    }
-
     static bool HandleReloadRBACCommand(ChatHandler* handler, const char* /*args*/)
     {
         TC_LOG_INFO("misc", "Reloading RBAC tables...");
