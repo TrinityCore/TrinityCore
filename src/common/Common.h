@@ -290,7 +290,7 @@ namespace Ashamane
             {
                 uint32 currentValue = GetValue<uint32>(key, uint32(0));
 
-                if (++currentValue >= maxVal)
+                if ((currentValue += increment) >= maxVal)
                 {
                     Remove(key);
                     return true;
