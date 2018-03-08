@@ -286,6 +286,20 @@ namespace Ashamane
 
             variablesMap const * GetVariables() const { return &variables; }
 
+            bool IncrementOrProcCounter(std::string const& key, uint32 maxVal, uint32 increment = 1)
+            {
+                uint32 currentValue = GetValue<uint32>(key, uint32(0));
+
+                if (++currentValue >= maxVal)
+                {
+                    Remove(key);
+                    return true;
+                }
+
+                Set(key, currentValue);
+                return false;
+            }
+
             // format helpers
             template<typename T, typename... Args> T * Get(std::string const& key, Args&&... args) const { return Get<T>(Trinity::StringFormat(key, std::forward<Args>(args)...)); }
             template<typename T, typename... Args> T * GetOrCreate(std::string const& key, Args&&... args) { static_assert(std::is_fundamental<T>::value, "GetOrCreate() must be used only for fundamental types, use GetAuto() instead"); return GetOrCreate<T>(Trinity::StringFormat(key, std::forward<Args>(args)...)); }
