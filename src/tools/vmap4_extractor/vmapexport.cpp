@@ -603,7 +603,7 @@ int main(int argc, char ** argv)
         {
             map_info& m = map_ids[dbc->getRecord(x).getUInt(0)];
 
-            const char* map_name = dbc->getRecord(x).getString(6);
+            const char* map_name = dbc->getRecord(x).getString(1);
             size_t max_map_name_length = sizeof(m.name);
             if (strlen(map_name) >= max_map_name_length)
             {
@@ -612,12 +612,12 @@ int main(int argc, char ** argv)
             }
 
             strncpy(m.name, map_name, max_map_name_length);
-            map_ids[x].name[max_map_name_length - 1] = '\0';
+            m.name[max_map_name_length - 1] = '\0';
             m.parent_id = int16(dbc->getRecord(x).getUInt(19));
             if (m.parent_id >= 0)
                 maps_that_are_parents.insert(m.parent_id);
 
-            printf("Map - %s\n", map_ids[x].name);
+            printf("Map - %s\n", m.name);
         }
 
         ParsMapFiles();
