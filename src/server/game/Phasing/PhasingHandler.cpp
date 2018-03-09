@@ -288,7 +288,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
 
     for (auto itr = phaseShift.Phases.begin(); itr != phaseShift.Phases.end();)
     {
-        if (!sConditionMgr->IsObjectMeetToConditions(srcInfo, *itr->AreaConditions))
+        if (itr->AreaConditions && !sConditionMgr->IsObjectMeetToConditions(srcInfo, *itr->AreaConditions))
         {
             newSuppressions.AddPhase(itr->Id, itr->Flags, itr->PhaseInfo, itr->AreaConditions, itr->References);
             itr = phaseShift.Phases.erase(itr);
@@ -299,7 +299,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
 
     for (auto itr = suppressedPhaseShift.Phases.begin(); itr != suppressedPhaseShift.Phases.end();)
     {
-        if (sConditionMgr->IsObjectMeetToConditions(srcInfo, *itr->AreaConditions))
+        if (sConditionMgr->IsObjectMeetToConditions(srcInfo, *ASSERT_NOTNULL(itr->AreaConditions)))
         {
             changed = phaseShift.AddPhase(itr->Id, itr->Flags, itr->PhaseInfo, itr->AreaConditions, itr->References) || changed;
             itr = suppressedPhaseShift.Phases.erase(itr);
@@ -446,6 +446,7 @@ void PhasingHandler::FillPartyMemberPhase(WorldPacket* data, PhaseShift const& p
 
 void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId)
 {
+    phaseShift.ClearPhases();
     phaseShift.IsDbPhaseShift = true;
 
     EnumClassFlag<PhaseShiftFlags> flags = PhaseShiftFlags::None;
@@ -473,6 +474,7 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
 
 void PhasingHandler::InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId)
 {
+    phaseShift.VisibleMapIds.clear();
     if (visibleMapId != -1)
         phaseShift.AddVisibleMapId(visibleMapId, sObjectMgr->GetTerrainSwapInfo(visibleMapId));
 }

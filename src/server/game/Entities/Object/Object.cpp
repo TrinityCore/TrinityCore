@@ -1297,7 +1297,7 @@ void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& da
 void WorldObject::AddToWorld()
 {
     Object::AddToWorld();
-    GetBaseMap()->GetZoneAndAreaId(m_zoneId, m_areaId, GetPositionX(), GetPositionY(), GetPositionZ());
+    GetBaseMap()->GetZoneAndAreaId(GetPhaseShift(), m_zoneId, m_areaId, GetPositionX(), GetPositionY(), GetPositionZ());
 }
 
 void WorldObject::RemoveFromWorld()
@@ -2101,7 +2101,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     }
 
     // Set the summon to the summoner's phase
-    PhasingHandler::InheritPhaseShift(summon, summoner);
+    if (summoner)
+        PhasingHandler::InheritPhaseShift(summon, summoner);
 
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
 
@@ -2476,7 +2477,7 @@ float NormalizeZforCollision(WorldObject* obj, float x, float y, float z)
                 return z;
         }
         LiquidData liquid_status;
-        ZLiquidStatus res = obj->GetMap()->GetLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
+        ZLiquidStatus res = obj->GetMap()->GetLiquidStatus(obj->GetPhaseShift(), x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
         if (res && liquid_status.level > helper) // water must be above ground
         {
             if (liquid_status.level > z) // z is underwater
@@ -2503,7 +2504,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     }
 
     destz = NormalizeZforCollision(this, destx, desty, pos.GetPositionZ());
-    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
+    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetPhaseShift().GetTerrainMapId(GetMapId(), pos.m_positionX, pos.m_positionY), pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
 
     // collision occured
     if (col)
