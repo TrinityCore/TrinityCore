@@ -27,6 +27,7 @@
 class GameObject;
 class Unit;
 class SpellInfo;
+class WorldObject;
 
 class TC_GAME_API GameObjectAI
 {
