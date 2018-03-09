@@ -89,8 +89,7 @@ enum Events
     EVENT_DISPOSE_HEART,
     EVENT_ENRAGE,
     EVENT_ENTER_HARD_MODE,
-    EVENT_RESUME_ATTACK,
-    EVENT_SCRAPBOT_HEAL
+    EVENT_RESUME_ATTACK
 };
 
 enum XT002Phases
@@ -111,8 +110,7 @@ enum XT002Data
     DATA_TRANSFERED_HEALTH,
     DATA_HARD_MODE,
     DATA_HEALTH_RECOVERED,
-    DATA_GRAVITY_BOMB_CASUALTY,
-    DATA_SCRAPBOT_HEAL
+    DATA_GRAVITY_BOMB_CASUALTY
 };
 
 enum Yells
@@ -258,7 +256,8 @@ struct boss_xt002 : public BossAI
         events.ScheduleEvent(EVENT_SEARING_LIGHT, 25s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_GRAVITY_BOMB, Is25ManRaid() ? 33s : 15s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, 25s, 0, PHASE_1);
-        events.ScheduleEvent(EVENT_PHASE_CHECK, 1s, 0, PHASE_1);
+        if (!_hardMode)
+            events.ScheduleEvent(EVENT_PHASE_CHECK, 1s, 0, PHASE_1);
     }
 
     void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
@@ -285,9 +284,9 @@ struct boss_xt002 : public BossAI
                 return _healthRecovered ? 1 : 0;
             case DATA_GRAVITY_BOMB_CASUALTY:
                 return _gravityBombCasualty ? 1 : 0;
+            default:
+                return 0;
         }
-
-        return 0;
     }
 
     void SetData(uint32 type, uint32 data) override
@@ -307,6 +306,8 @@ struct boss_xt002 : public BossAI
                 break;
             case DATA_GRAVITY_BOMB_CASUALTY:
                 _gravityBombCasualty = (data > 0) ? true : false;
+                break;
+            default:
                 break;
         }
     }
@@ -443,18 +444,19 @@ struct npc_scrapbot : public ScriptedAI
             xt002->AI()->JustSummoned(me);
 
         _scheduler.
-            Schedule(Seconds(2), [this](TaskContext /*StartMove*/)
+            Schedule(2s, [this](TaskContext /*StartMove*/)
             {
                 if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
                     me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
-            }).Schedule(Seconds(1), [this](TaskContext checkXt002)
+            })
+            .Schedule(1s, [this](TaskContext checkXt002)
             {
                 if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
                 {
                     if (me->IsWithinMeleeRange(xt002))
                     {
                         DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
-                        _scheduler.Schedule(Seconds(1), [this, xt002](TaskContext /*ScrapRepair*/)
+                        _scheduler.Schedule(1s, [this, xt002](TaskContext /*ScrapRepair*/)
                         {
                             if (!xt002)
                                 return;
@@ -500,19 +502,22 @@ struct npc_pummeller : public ScriptedAI
             xt002->AI()->JustSummoned(me);
 
         _scheduler.
-            Schedule(Seconds(1), [this](TaskContext /*StartMove*/)
+            Schedule(1s, [this](TaskContext /*StartMove*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat();
-            }).Schedule(Seconds(17), [this](TaskContext trample)
+            })
+            .Schedule(17s, [this](TaskContext trample)
             {
                 DoCastSelf(SPELL_TRAMPLE);
                 trample.Repeat(11s);
-            }).Schedule(Seconds(19), [this](TaskContext arcingSmash)
+            })
+            .Schedule(19s, [this](TaskContext arcingSmash)
             {
                 DoCastSelf(SPELL_ARCING_SMASH);
                 arcingSmash.Repeat(8s);
-            }).Schedule(Seconds(19), [this](TaskContext upperCut)
+            })
+            .Schedule(19s, [this](TaskContext upperCut)
             {
                 DoCastVictim(SPELL_UPPERCUT);
                 upperCut.Repeat(14s);
@@ -566,7 +571,9 @@ struct npc_boombot : public ScriptedAI
             {
                 if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
                     me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
-            }).Schedule(1s, [this](TaskContext checkXt002)
+
+            })
+            .Schedule(1s, [this](TaskContext checkXt002)
             {
                 if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
                 {
@@ -617,7 +624,7 @@ struct npc_life_spark : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_STATIC_CHARGED);
-        _scheduler.Schedule(Seconds(12), [this](TaskContext spellShock)
+        _scheduler.Schedule(12s, [this](TaskContext spellShock)
         {
             DoCastVictim(SPELL_SHOCK);
             spellShock.Repeat();
@@ -648,7 +655,7 @@ struct npc_xt_void_zone : public PassiveAI
 
     void Reset() override
     {
-        _scheduler.Schedule(Seconds(1), [this](TaskContext consumption)
+        _scheduler.Schedule(1s, [this](TaskContext consumption)
         {
             DoCastSelf(SPELL_CONSUMPTION);
             consumption.Repeat();
