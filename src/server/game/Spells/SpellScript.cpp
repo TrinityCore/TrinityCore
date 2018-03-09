@@ -22,6 +22,7 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "SpellMgr.h"
+#include "Unit.h"
 #include <sstream>
 #include <string>
 
