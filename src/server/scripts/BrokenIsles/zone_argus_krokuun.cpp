@@ -51,7 +51,24 @@ public:
     }
 };
 
+// 251924
+class spell_garothi_obliterator_fiery_mortars : public SpellScript
+{
+    PrepareSpellScript(spell_garothi_obliterator_fiery_mortars);
+
+    void HandleDummy(SpellEffIndex /* effIndex */)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_garothi_obliterator_fiery_mortars::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_zone_argus_krokuun()
 {
     new zone_argus_krokuun();
+    RegisterSpellScript(spell_garothi_obliterator_fiery_mortars);
 }
