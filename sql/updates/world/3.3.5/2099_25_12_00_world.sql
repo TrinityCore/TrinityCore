@@ -19,3 +19,4 @@ UPDATE `creature_template` SET `speed_walk`=1.2, `speed_run`=0.428571, `ScriptNa
 UPDATE `creature_template` SET `speed_walk`=1.2, `speed_run`=0.428571 WHERE `entry`=33887; -- Scrapbot
 UPDATE `creature_template` SET `speed_walk`=1.2, `speed_run`=0.428571 WHERE `entry` IN (33346,33886); -- Boombot
 UPDATE `creature_template` SET `BaseAttackTime`=2000 WHERE `entry` IN (33293,33885); -- X002 (hi ariel, i'm stoling you xD)
+UPDATE `creature_template` SET `mechanic_immune_mask`=617299839 WHERE `entry` IN (33329,33885); -- Heart immunes xD
