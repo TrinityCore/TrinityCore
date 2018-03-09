@@ -217,7 +217,7 @@ class npc_shadopan_hatred : public CreatureScript
             {
                 if (me->GetEntry() == NPC_RESIDUAL_OF_HATRED)
                 {
-                    events.ScheduleEvent(EVENT_CURSE_OF_AGONY, urand(5000, 1000));
+                    events.ScheduleEvent(EVENT_CURSE_OF_AGONY, urand(1000, 5000));
                     events.ScheduleEvent(EVENT_RING_OF_MALICE, urand(12500, 15000));
                     events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(2500, 10000));
                 }
