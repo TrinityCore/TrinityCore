@@ -1078,6 +1078,14 @@ bool Aura::IsDeathPersistent() const
     return GetSpellInfo()->IsDeathPersistent();
 }
 
+bool Aura::IsRemovedOnShapeLost(Unit* target) const
+{
+    return GetCasterGUID() == target->GetGUID()
+        && m_spellInfo->Stances
+        && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_NEED_SHAPESHIFT)
+        && !m_spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT);
+}
+
 bool Aura::CanBeSaved() const
 {
     if (IsPassive())

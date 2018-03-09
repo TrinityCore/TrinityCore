@@ -21,7 +21,7 @@
 
 #include "Define.h"
 
-class Unit;
+class WorldObject;
 
 enum DisableType
 {
