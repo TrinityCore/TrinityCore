@@ -1,3 +1,4 @@
+/*
 -- Junior Apothecary Holland
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10665;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=10665 AND `source_type`=0;
@@ -19,3 +20,4 @@ UPDATE `waypoint_data` SET `action`=0 WHERE `id`=284120;
 UPDATE `waypoint_data` SET `delay`=0 WHERE `id`=284120 AND `point` IN (8,12);
 
 DELETE FROM `waypoint_scripts` WHERE `id` IN (22,1002,1003,1004,1005);
+*/

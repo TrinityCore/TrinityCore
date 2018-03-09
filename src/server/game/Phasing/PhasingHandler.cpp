@@ -183,6 +183,9 @@ void PhasingHandler::ResetPhaseShift(WorldObject* object)
 
 void PhasingHandler::InheritPhaseShift(WorldObject* target, WorldObject const* source)
 {
+    if (!source)
+        return;
+
     target->GetPhaseShift() = source->GetPhaseShift();
     target->GetSuppressedPhaseShift() = source->GetSuppressedPhaseShift();
 }

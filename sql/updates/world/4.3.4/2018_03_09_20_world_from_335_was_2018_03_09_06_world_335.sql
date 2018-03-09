@@ -1,3 +1,4 @@
+/*
 -- Rhapsody Shindigger
 DELETE FROM `creature_text` WHERE `CreatureID`=5634;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -32,3 +33,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (563400,9,15,0,0,0,100,0,3000,3500,0,0,5,33,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rhapsody Shindigger - On Script - Play Emote 33"),
 (563400,9,16,0,0,0,100,0,2000,2000,0,0,17,93,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rhapsody Shindigger - On Script - Set Emote State 93"),
 (563400,9,17,0,0,0,100,0,0,0,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rhapsody Shindigger - On Script - Add Npc Flag Questgiver");
+*/
