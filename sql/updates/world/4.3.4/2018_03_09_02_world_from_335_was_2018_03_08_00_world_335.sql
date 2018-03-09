@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `conditions` WHERE `SourceEntry` IN (28806) AND `SourceTypeOrReferenceId`=13 AND `ConditionValue1`=5;
 UPDATE `conditions` SET `ConditionValue1`=3, `ConditionValue2`=17066  WHERE `SourceEntry` IN (29172) AND `SourceTypeOrReferenceId`=13;
@@ -22,3 +23,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (17253, 0, 6, 0, 52, 0, 100, 0, 7, 17233, 0, 0, 32, 0, 0, 0, 0, 0, 0, 20, 182483, 20, 0, 0, 0, 0, 0, "Defile Uther's Tomb Trigger - On Text 7 Over - reset gob");
 UPDATE smart_scripts SET `target_o`=0.2935 WHERE `entryorguid`=17238 AND `source_type`=0 AND `id`=16;
 UPDATE smart_scripts SET `target_type`=21, `target_param1`=50 WHERE `entryorguid`=1723801 AND `source_type`=9 AND `id`=1;
+*/
