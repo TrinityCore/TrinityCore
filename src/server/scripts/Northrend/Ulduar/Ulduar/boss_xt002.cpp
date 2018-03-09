@@ -587,8 +587,6 @@ struct npc_boombot : public ScriptedAI
             });
     }
 
-
-
     void DamageTaken(Unit* /*who*/, uint32& damage) override
     {
         if (damage >= (me->GetHealth() - me->GetMaxHealth() * 0.5f) && !_boomed)
