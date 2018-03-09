@@ -31,6 +31,7 @@ struct SpellProcEntry;
 class Aura;
 class AuraEffect;
 class AuraScript;
+class DispelInfo;
 class DynObjAura;
 class ChargeDropEvent;
 class DynamicObject;
