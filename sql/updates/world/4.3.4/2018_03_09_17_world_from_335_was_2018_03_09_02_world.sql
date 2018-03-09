@@ -2,9 +2,11 @@
 -- Shadowlord Deathwail
 UPDATE `creature_addon` SET `mount`=20684 WHERE `guid`=77084; -- Fix mount
 
+/*
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=22006; -- Fix inhabit type
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`) VALUES
 (22006,1,1,2,0);
+*/
 
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=22006;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=22006 AND `source_type`=0;
