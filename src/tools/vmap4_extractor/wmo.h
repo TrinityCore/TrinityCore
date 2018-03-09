@@ -42,6 +42,7 @@ enum MopyFlags
 class WMOInstance;
 class WMOManager;
 class MPQFile;
+struct ADTOutputCache;
 
 /* for whatever reason a certain company just can't stick to one coordinate system... */
 static inline Vec3D fixCoords(const Vec3D &v){ return Vec3D(v.z, v.x, v.y); }
@@ -134,7 +135,7 @@ public:
     Vec3D pos2, pos3, rot;
     uint32 indx, id;
 
-    WMOInstance(MPQFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
+    WMOInstance(MPQFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
 
     static void reset();
 };

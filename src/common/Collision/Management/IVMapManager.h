@@ -127,6 +127,7 @@ namespace VMAP
             // get both area + liquid data in a single vmap lookup
             virtual void getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const=0;
 
+            virtual int32 GetDistanceToClosestPrimaryTile(uint32 mapId, int32 x, int32 y) const = 0;
     };
 
 }

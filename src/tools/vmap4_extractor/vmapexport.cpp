@@ -22,6 +22,8 @@
 #include <vector>
 #include <list>
 #include <errno.h>
+#include <unordered_set>
+#include <unordered_map>
 
 #ifdef _WIN32
     #include <Windows.h>
@@ -103,15 +105,15 @@ TCHAR const* LocalesT[LOCALES_COUNT] =
     _T("itIT"),
 };
 
-typedef struct
+struct map_info
 {
     char name[64];
-    unsigned int id;
-}map_id;
+    int32 parent_id;
+};
 
-map_id * map_ids;
+std::map<uint32, map_info> map_ids;
+std::unordered_set<uint32> maps_that_are_parents;
 uint16 *LiqType = 0;
-uint32 map_count;
 char output_path[128]=".";
 char input_path[1024]=".";
 bool preciseVectorData = false;
@@ -120,7 +122,7 @@ bool preciseVectorData = false;
 
 //static const char * szWorkDirMaps = ".\\Maps";
 const char* szWorkDirWmo = "./Buildings";
-const char* szRawVMAPMagic = "VMAP044";
+const char* szRawVMAPMagic = "VMAP045";
 
 bool LoadLocaleMPQFile(int locale)
 {
@@ -389,26 +391,51 @@ bool ExtractSingleWmo(std::string& fname)
 
 void ParsMapFiles()
 {
-    char fn[512];
-    //char id_filename[64];
-    char id[10];
-    for (unsigned int i=0; i<map_count; ++i)
+    std::unordered_map<uint32, WDTFile> wdts;
+    auto getWDT = [&wdts](uint32 mapId) -> WDTFile*
     {
-        sprintf(id,"%03u",map_ids[i].id);
-        sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
-        WDTFile WDT(fn,map_ids[i].name);
-        if (WDT.init(id, map_ids[i].id))
+        auto itr = wdts.find(mapId);
+        if (itr == wdts.end())
         {
-            printf("Processing Map %u\n[", map_ids[i].id);
-            for (int x=0; x<64; ++x)
+            char fn[512];
+            char id[10];
+            char* name = map_ids[mapId].name;
+            sprintf(id, "%04u", itr->first);
+            sprintf(fn, "World\\Maps\\%s\\%s.wdt", name, name);
+            itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(fn, name, maps_that_are_parents.count(mapId) > 0)).first;
+            if (!itr->second.init(id, mapId))
             {
-                for (int y=0; y<64; ++y)
+                wdts.erase(itr);
+                return nullptr;
+            }
+        }
+
+        return &itr->second;
+    };
+
+    for (auto itr = map_ids.begin(); itr != map_ids.end(); ++itr)
+    {
+        if (WDTFile* WDT = getWDT(itr->first))
+        {
+            WDTFile* parentWDT = itr->second.parent_id >= 0 ? getWDT(itr->second.parent_id) : nullptr;
+            printf("Processing Map %u\n[", itr->first);
+            for (int x = 0; x < 64; ++x)
+            {
+                for (int y = 0; y < 64; ++y)
                 {
-                    if (ADTFile *ADT = WDT.GetMap(x,y))
+                    bool success = false;
+                    if (ADTFile* ADT = WDT->GetMap(x, y))
                     {
-                        //sprintf(id_filename,"%02u %02u %03u",x,y,map_ids[i].id);//!!!!!!!!!
-                        ADT->init(map_ids[i].id, x, y);
-                        delete ADT;
+                        success = ADT->init(itr->first, x, y, itr->first);
+                        WDT->FreeADT(ADT);
+                    }
+                    if (!success && parentWDT)
+                    {
+                        if (ADTFile* ADT = parentWDT->GetMap(x, y))
+                        {
+                            ADT->init(itr->first, x, y, itr->second.parent_id);
+                            parentWDT->FreeADT(ADT);
+                        }
                     }
                 }
                 printf("#");
@@ -507,7 +534,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 int main(int argc, char ** argv)
 {
     bool success=true;
-    const char *versionString = "V4.00 2012_02";
+    const char *versionString = "V4.05 2018_03";
 
     // Use command line arguments, when some
     if (!processArgv(argc, argv, versionString))
@@ -564,39 +591,36 @@ int main(int argc, char ** argv)
     //map.dbc
     if (success)
     {
-        DBCFile * dbc = new DBCFile(LocaleMpq, "DBFilesClient\\Map.dbc");
+        DBCFile* dbc = new DBCFile(LocaleMpq, "DBFilesClient\\Map.dbc");
         if (!dbc->open())
         {
             delete dbc;
             printf("FATAL ERROR: Map.dbc not found in data file.\n");
             return 1;
         }
-        map_count=dbc->getRecordCount ();
-        map_ids=new map_id[map_count];
-        for (unsigned int x=0;x<map_count;++x)
-        {
-            map_ids[x].id = dbc->getRecord(x).getUInt(0);
 
-            const char* map_name = dbc->getRecord(x).getString(1);
-            size_t max_map_name_length = sizeof(map_ids[x].name);
+        for (uint32 x = 0; x < dbc->getRecordCount(); ++x)
+        {
+            map_info& m = map_ids[dbc->getRecord(x).getUInt(0)];
+
+            const char* map_name = dbc->getRecord(x).getString(6);
+            size_t max_map_name_length = sizeof(m.name);
             if (strlen(map_name) >= max_map_name_length)
             {
-                delete dbc;
-                delete[] map_ids;
-                printf("FATAL ERROR: Map name too long.\n");
-                return 1;
+                printf("Fatal error: Map name too long!\n");
+                exit(1);
             }
 
-            strncpy(map_ids[x].name, map_name, max_map_name_length);
+            strncpy(m.name, map_name, max_map_name_length);
             map_ids[x].name[max_map_name_length - 1] = '\0';
+            m.parent_id = int16(dbc->getRecord(x).getUInt(19));
+            if (m.parent_id >= 0)
+                maps_that_are_parents.insert(m.parent_id);
+
             printf("Map - %s\n", map_ids[x].name);
         }
 
-        delete dbc;
         ParsMapFiles();
-        delete [] map_ids;
-        //nError = ERROR_SUCCESS;
-        // Extract models, listed in GameObjectDisplayInfo.dbc
         ExtractGameobjectModels();
     }
 

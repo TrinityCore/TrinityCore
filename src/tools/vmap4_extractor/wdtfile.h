@@ -21,17 +21,19 @@
 
 #include "mpqfile.h"
 #include <string>
+#include <memory>
 
 class ADTFile;
 
 class WDTFile
 {
 public:
-    WDTFile(char* file_name, char* file_name1);
+    WDTFile(char* file_name, char* file_name1, bool cache);
     ~WDTFile(void);
 
     bool init(char* map_id, unsigned int mapID);
-    ADTFile* GetMap(int x, int z);
+    ADTFile* GetMap(int x, int y);
+    void FreeADT(ADTFile* adt);
 
     std::string* gWmoInstansName;
     int gnWMO;
@@ -39,6 +41,10 @@ public:
 private:
     MPQFile WDT;
     std::string filename;
+    struct ADTCache
+    {
+        std::unique_ptr<ADTFile> file[64][64];
+    } *adtCache;
 };
 
 #endif

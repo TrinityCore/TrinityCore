@@ -52,11 +52,17 @@ namespace VMAP
         }
     }
 
-    void VMapManager2::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
+    void VMapManager2::InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData)
     {
         // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
-        for (uint32 const& mapId : mapIds)
-            iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId, nullptr));
+        iChildMapData = mapData;
+        for (std::pair<uint32 const, std::vector<uint32>> const& mapId : mapData)
+        {
+            iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId.first, nullptr));
+            for (uint32 childMapId : mapId.second)
+                iParentMapData[childMapId] = mapId.first;
+        }
+
 
         thread_safe_environment = false;
     }
@@ -85,10 +91,16 @@ namespace VMAP
     int VMapManager2::loadMap(const char* basePath, unsigned int mapId, int x, int y)
     {
         int result = VMAP_LOAD_RESULT_IGNORED;
-        if (isMapLoadingEnabled())
         {
             if (_loadMap(mapId, basePath, x, y))
+            {
                 result = VMAP_LOAD_RESULT_OK;
+                auto childMaps = iChildMapData.find(mapId);
+                if (childMaps != iChildMapData.end())
+                    for (uint32 childMapId : childMaps->second)
+                        if (!_loadMap(childMapId, basePath, x, y))
+                            result = VMAP_LOAD_RESULT_ERROR;
+            }
             else
                 result = VMAP_LOAD_RESULT_ERROR;
         }
@@ -134,7 +146,21 @@ namespace VMAP
         return instanceTree->second->LoadMapTile(tileX, tileY, this);
     }
 
-    void VMapManager2::unloadMap(unsigned int mapId)
+    void VMapManager2::_unloadMap(uint32 mapId, int x, int y)
+    {
+        InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
+        if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
+        {
+            instanceTree->second->UnloadMapTile(x, y, this);
+            if (instanceTree->second->numLoadedTiles() == 0)
+            {
+                delete instanceTree->second;
+                instanceTree->second = nullptr;
+            }
+        }
+    }
+
+    void VMapManager2::_unloadMap(uint32 mapId)
     {
         InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
@@ -150,16 +176,22 @@ namespace VMAP
 
     void VMapManager2::unloadMap(unsigned int mapId, int x, int y)
     {
-        InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
-        if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
-        {
-            instanceTree->second->UnloadMapTile(x, y, this);
-            if (instanceTree->second->numLoadedTiles() == 0)
-            {
-                delete instanceTree->second;
-                instanceTree->second = nullptr;
-            }
-        }
+        auto childMaps = iChildMapData.find(mapId);
+        if (childMaps != iChildMapData.end())
+            for (uint32 childMapId : childMaps->second)
+                _unloadMap(childMapId, x, y);
+
+        _unloadMap(mapId, x, y);
+    }
+
+    void VMapManager2::unloadMap(unsigned int mapId)
+    {
+        auto childMaps = iChildMapData.find(mapId);
+        if (childMaps != iChildMapData.end())
+            for (uint32 childMapId : childMaps->second)
+                _unloadMap(childMapId);
+
+        _unloadMap(mapId);
     }
 
     bool VMapManager2::isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags)
@@ -312,6 +344,15 @@ namespace VMAP
         }
     }
 
+    int32 VMapManager2::GetDistanceToClosestPrimaryTile(uint32 mapId, int32 x, int32 y) const
+    {
+        auto instanceTree = GetMapTree(mapId);
+        if (instanceTree != iInstanceMapTrees.end())
+            return instanceTree->second->GetDistanceToClosestPrimaryTile(x, y);
+
+        return std::numeric_limits<int32>::max();
+    }
+
     WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags/* Only used when creating the model */)
     {
         //! Critical section, thread safe access to iLoadedModelFiles
@@ -359,12 +400,21 @@ namespace VMAP
 
     LoadResult VMapManager2::existsMap(const char* basePath, unsigned int mapId, int x, int y)
     {
-        return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y);
+        return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y, this);
     }
 
     void VMapManager2::getInstanceMapTree(InstanceTreeMap &instanceMapTree)
     {
         instanceMapTree = iInstanceMapTrees;
+    }
+
+    int32 VMapManager2::getParentMapId(uint32 mapId) const
+    {
+        auto itr = iParentMapData.find(mapId);
+        if (itr != iParentMapData.end())
+            return int32(itr->second);
+
+        return -1;
     }
 
 } // namespace VMAP

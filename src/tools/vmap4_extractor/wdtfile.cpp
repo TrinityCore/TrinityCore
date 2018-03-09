@@ -33,9 +33,16 @@ char * wdtGetPlainName(char * FileName)
 
 extern HANDLE WorldMpq;
 
-WDTFile::WDTFile(char* file_name, char* file_name1):WDT(WorldMpq, file_name)
+WDTFile::WDTFile(char* file_name, char* file_name1, bool cache):WDT(WorldMpq, file_name)
 {
     filename.append(file_name1,strlen(file_name1));
+    if (cache)
+    {
+        adtCache = new ADTCache();
+        memset(adtCache->file, 0, sizeof(adtCache->file));
+    }
+    else
+        adtCache = nullptr;
 }
 
 bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
@@ -102,7 +109,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                 {
                     int id;
                     WDT.read(&id, 4);
-                    WMOInstance inst(WDT,gWmoInstansName[id].c_str(), mapID, 65, 65, dirfile);
+                    WMOInstance inst(WDT,gWmoInstansName[id].c_str(), mapID, 65, 65, mapID, dirfile, nullptr);
                 }
 
                 delete[] gWmoInstansName;
@@ -120,15 +127,30 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
 WDTFile::~WDTFile(void)
 {
     WDT.close();
+    delete adtCache;
 }
 
-ADTFile* WDTFile::GetMap(int x, int z)
+ADTFile* WDTFile::GetMap(int x, int y)
 {
-    if (!(x>=0 && z >= 0 && x<64 && z<64))
-        return NULL;
+    if (!(x >= 0 && y >= 0 && x < 64 && y < 64))
+        return nullptr;
+
+    if (adtCache && adtCache->file[x][y])
+        return adtCache->file[x][y].get();
 
     char name[512];
 
-    sprintf(name,"World\\Maps\\%s\\%s_%d_%d_obj0.adt", filename.c_str(), filename.c_str(), x, z);
-    return new ADTFile(name);
+    sprintf(name,"World\\Maps\\%s\\%s_%d_%d_obj0.adt", filename.c_str(), filename.c_str(), x, y);
+    ADTFile* adt = new ADTFile(name, adtCache != nullptr);
+    if (adtCache)
+        adtCache->file[x][y].reset(adt);
+    return adt;
+}
+
+void WDTFile::FreeADT(ADTFile* adt)
+{
+    if (adtCache)
+        return;
+
+    delete adt;
 }

@@ -1503,11 +1503,17 @@ void World::SetInitialWorldSettings()
     LoadM2Cameras(m_dataPath);
 
     std::vector<uint32> mapIds;
+    std::unordered_map<uint32, std::vector<uint32>> mapData;
     for (MapEntry const* mapEntry : sMapStore)
+    {
         mapIds.push_back(mapEntry->MapID);
+        mapData.emplace(std::piecewise_construct, std::forward_as_tuple(mapEntry->MapID), std::forward_as_tuple());
+        if (mapEntry->rootPhaseMap != -1)
+            mapData[mapEntry->rootPhaseMap].push_back(mapEntry->MapID);
+    }
 
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-        vmmgr2->InitializeThreadUnsafe(mapIds);
+        vmmgr2->InitializeThreadUnsafe(mapData);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
     mmmgr->InitializeThreadUnsafe(mapIds);

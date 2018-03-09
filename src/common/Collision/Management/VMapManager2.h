@@ -81,12 +81,15 @@ namespace VMAP
             // Tree to check collision
             ModelFileMap iLoadedModelFiles;
             InstanceTreeMap iInstanceMapTrees;
+            std::unordered_map<uint32, std::vector<uint32>> iChildMapData;
+            std::unordered_map<uint32, uint32> iParentMapData;
             bool thread_safe_environment;
             // Mutex for iLoadedModelFiles
             std::mutex LoadedModelFilesLock;
 
             bool _loadMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
-            /* void _unloadMap(uint32 pMapId, uint32 x, uint32 y); */
+            void _unloadMap(uint32 mapId, int x, int y);
+            void _unloadMap(uint32 mapId);
 
             static uint32 GetLiquidFlagsDummy(uint32) { return 0; }
             static bool IsVMAPDisabledForDummy(uint32 /*entry*/, uint8 /*flags*/) { return false; }
@@ -101,8 +104,9 @@ namespace VMAP
             VMapManager2();
             ~VMapManager2(void);
 
-            void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);
+            void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
             int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
+
 
             void unloadMap(unsigned int mapId, int x, int y) override;
             void unloadMap(unsigned int mapId) override;
@@ -120,6 +124,8 @@ namespace VMAP
             bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const override;
             void getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const override;
 
+            int32 GetDistanceToClosestPrimaryTile(uint32 mapId, int32 x, int32 y) const override;
+
             WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags = 0);
             void releaseModelInstance(const std::string& filename);
 
@@ -131,6 +137,8 @@ namespace VMAP
             virtual LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
 
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
+
+            int32 getParentMapId(uint32 mapId) const;
 
             typedef uint32(*GetLiquidFlagsFn)(uint32 liquidType);
             GetLiquidFlagsFn GetLiquidFlagsPtr;
