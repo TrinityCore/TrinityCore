@@ -426,7 +426,7 @@ namespace VMAP
                         {
                             if (referencedVal >= iNTreeValues)
                             {
-                                VMAP_ERROR_LOG("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u) referenced in tile %s", referencedVal, iNTreeValues, tilefile.c_str());
+                                VMAP_ERROR_LOG("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u) referenced in tile %s", referencedVal, iNTreeValues, fileResult.Name.c_str());
                                 continue;
                             }
 
