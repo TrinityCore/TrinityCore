@@ -34,7 +34,7 @@ class AuraScript;
 class DynObjAura;
 class ChargeDropEvent;
 class DynamicObject;
-class ProcInfo;
+class ProcEventInfo;
 class Unit;
 class UnitAura;
 

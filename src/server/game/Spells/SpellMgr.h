@@ -34,8 +34,8 @@
 
 class SpellInfo;
 class Player;
-class Unit;
 class ProcEventInfo;
+class WorldObject;
 struct SkillLineAbilityEntry;
 
 // only used in code

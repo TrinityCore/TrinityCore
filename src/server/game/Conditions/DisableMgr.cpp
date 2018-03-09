@@ -18,6 +18,7 @@
 
 #include "DisableMgr.h"
 #include "AchievementMgr.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"
