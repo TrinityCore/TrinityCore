@@ -400,7 +400,7 @@ void ParsMapFiles()
             char fn[512];
             char id[10];
             char* name = map_ids[mapId].name;
-            sprintf(id, "%04u", itr->first);
+            sprintf(id, "%03u", itr->first);
             sprintf(fn, "World\\Maps\\%s\\%s.wdt", name, name);
             itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(fn, name, maps_that_are_parents.count(mapId) > 0)).first;
             if (!itr->second.init(id, mapId))
