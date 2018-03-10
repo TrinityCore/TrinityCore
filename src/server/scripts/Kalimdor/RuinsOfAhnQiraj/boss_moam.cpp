@@ -149,7 +149,7 @@ class boss_moam : public CreatureScript
                             std::list<Unit*> targetList;
                             {
                                 for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-                                    if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->getPowerType() == POWER_MANA)
+                                    if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->GetPowerType() == POWER_MANA)
                                         targetList.push_back(ref->GetVictim());
                             }
 

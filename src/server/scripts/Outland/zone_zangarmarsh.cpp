@@ -88,7 +88,7 @@ public:
             ClearGossipMenuFor(player);
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
-                me->setPowerType(POWER_MANA);
+                me->SetPowerType(POWER_MANA);
                 me->SetMaxPower(POWER_MANA, 200);             //set a "fake" mana value, we can't depend on database doing it in this case
                 me->SetPower(POWER_MANA, 200);
 

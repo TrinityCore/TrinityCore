@@ -26,6 +26,8 @@ namespace GitRevision
     TC_COMMON_API char const* GetDate();
     TC_COMMON_API char const* GetBranch();
     TC_COMMON_API char const* GetCMakeCommand();
+    TC_COMMON_API char const* GetCMakeVersion();
+    TC_COMMON_API char const* GetHostOSVersion();
     TC_COMMON_API char const* GetBuildDirectory();
     TC_COMMON_API char const* GetSourceDirectory();
     TC_COMMON_API char const* GetMySQLExecutable();
