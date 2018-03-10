@@ -67,7 +67,8 @@ enum MageSpells
     SPELL_MAGE_T10_2P_BONUS_EFFECT               = 70753,
     SPELL_MAGE_T8_4P_BONUS                       = 64869,
     SPELL_MAGE_MISSILE_BARRAGE                   = 44401,
-    SPELL_MAGE_FINGERS_OF_FROST_AURASTATE_AURA   = 44544
+    SPELL_MAGE_FINGERS_OF_FROST_AURASTATE_AURA   = 44544,
+    SPELL_MAGE_PERMAFROST_AURA                   = 68391
 };
 
 enum MageSpellIcons
@@ -656,6 +657,34 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
         }
 };
 
+// -44614 - Frostfire Bolt
+class spell_mage_frostfire_bolt : public AuraScript
+{
+    PrepareAuraScript(spell_mage_frostfire_bolt);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_PERMAFROST_AURA });
+    }
+
+    void ApplyPermafrost(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_MAGE_PERMAFROST_AURA, aurEff);
+    }
+
+    void RemovePermafrost(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_PERMAFROST_AURA);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_mage_frostfire_bolt::ApplyPermafrost, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_frostfire_bolt::ApplyPermafrost, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 54646 - Focus Magic
 class spell_mage_focus_magic : public SpellScriptLoader
 {
@@ -964,6 +993,27 @@ class spell_mage_ice_barrier : public SpellScriptLoader
         {
             return new spell_mage_ice_barrier_AuraScript();
         }
+};
+
+// 45438 - Ice Block
+class spell_mage_ice_block : public SpellScript
+{
+    PrepareSpellScript(spell_mage_ice_block);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->ExcludeTargetAuraSpell });
+    }
+
+    void TriggerHypothermia()
+    {
+        GetCaster()->CastSpell(nullptr, GetSpellInfo()->ExcludeTargetAuraSpell, true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_mage_ice_block::TriggerHypothermia);
+    }
 };
 
 // -11119 - Ignite
@@ -1360,6 +1410,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_empowered_fire();
     new spell_mage_fingers_of_frost();
     new spell_mage_fire_frost_ward();
+    RegisterAuraScript(spell_mage_frostfire_bolt);
     new spell_mage_focus_magic();
     new spell_mage_gen_extra_effects();
     new spell_mage_glyph_of_polymorph();
@@ -1367,6 +1418,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_glyph_of_ice_block();
     new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
+    RegisterSpellScript(spell_mage_ice_block);
     new spell_mage_ignite();
     new spell_mage_living_bomb();
     new spell_mage_magic_absorption();
