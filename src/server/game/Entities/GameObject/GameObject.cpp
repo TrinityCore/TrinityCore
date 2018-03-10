@@ -2189,7 +2189,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_DAMAGED:
         {
 #ifdef ELUNA
-            sEluna->OnDamaged(this, eventInvoker);
+            sEluna->OnDamaged(this, attackerOrHealer);
 #endif
             EventInform(m_goInfo->building.damagedEvent, attackerOrHealer);
             AI()->Damaged(attackerOrHealer, m_goInfo->building.damagedEvent);
@@ -2217,7 +2217,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_DESTROYED:
         {
 #ifdef ELUNA
-            sEluna->OnDestroyed(this, eventInvoker);
+            sEluna->OnDestroyed(this, attackerOrHealer);
 #endif
             EventInform(m_goInfo->building.destroyedEvent, attackerOrHealer);
             AI()->Destroyed(attackerOrHealer, m_goInfo->building.destroyedEvent);
