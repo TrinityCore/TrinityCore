@@ -27,6 +27,7 @@
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
 #include "Metric.h"
+#include "PhasingHandler.h"
 
 ////////////////// PathGenerator //////////////////
 PathGenerator::PathGenerator(const Unit* owner) :
@@ -39,7 +40,7 @@ PathGenerator::PathGenerator(const Unit* owner) :
 
     TC_LOG_DEBUG("maps", "++ PathGenerator::PathGenerator for %u \n", _sourceUnit->GetGUID().GetCounter());
 
-    uint32 mapId = _sourceUnit->GetMapId();
+    uint32 mapId = PhasingHandler::GetTerrainMapId(_sourceUnit->GetPhaseShift(), _sourceUnit->GetMap(), _sourceUnit->GetPositionX(), _sourceUnit->GetPositionY());
     if (DisableMgr::IsPathfindingEnabled(mapId))
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
