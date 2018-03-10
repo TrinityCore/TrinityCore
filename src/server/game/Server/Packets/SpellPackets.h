@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Scripts for spells with SPELLFAMILY_GENERIC which cannot be included in AI script file
- * of creature using it or can't be bound to any player class.
- * Ordered alphabetically using scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_gen_"
- */
-
 #ifndef SpellPackets_h__
 #define SpellPackets_h__
 
