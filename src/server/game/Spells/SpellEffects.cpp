@@ -1022,10 +1022,6 @@ void Spell::EffectApplyAura()
         aurApp = unitTarget->_CreateAuraApplication(_spellAura, 1 << effectInfo->EffectIndex);
     else
         aurApp->UpdateApplyEffectMask(aurApp->GetEffectsToApply() | 1 << effectInfo->EffectIndex);
-
-    // apply effect on target (skip for reapply)
-    if (!aurApp->HasEffect(effectInfo->EffectIndex))
-        unitTarget->_ApplyAuraEffect(_spellAura, effectInfo->EffectIndex);
 }
 
 void Spell::EffectUnlearnSpecialization()
