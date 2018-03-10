@@ -198,7 +198,7 @@ void Map::LoadMapImpl(Map* map, int gx, int gy, bool reload)
     }
 
     // map file name
-    std::string fileName = Trinity::StringFormat("%smaps/%04u_%02u_%02u.map", sWorld->GetDataPath().c_str(), map->GetId(), gx, gy);
+    std::string fileName = Trinity::StringFormat("%smaps/%03u%02u%02u.map", sWorld->GetDataPath().c_str(), map->GetId(), gx, gy);
     TC_LOG_DEBUG("maps", "Loading map %s", fileName.c_str());
     // loading data
     map->GridMaps[gx][gy] = new GridMap();
@@ -2286,7 +2286,7 @@ GridMap* Map::GetGrid(uint32 mapId, float x, float y)
     EnsureGridCreated(GridCoord((MAX_NUMBER_OF_GRIDS - 1) - gx, (MAX_NUMBER_OF_GRIDS - 1) - gy));
 
     GridMap* grid = GridMaps[gx][gy];
-    auto childMapItr = std::find_if(m_childTerrainMaps->begin(), m_childTerrainMaps->end(), [mapId](Map* childTerrainMap) {return childTerrainMap->GetId() == mapId; });
+    auto childMapItr = std::find_if(m_childTerrainMaps->begin(), m_childTerrainMaps->end(), [mapId](Map* childTerrainMap) { return childTerrainMap->GetId() == mapId; });
     if (childMapItr != m_childTerrainMaps->end() && (*childMapItr)->GridMaps[gx][gy]->fileExists())
         grid = (*childMapItr)->GridMaps[gx][gy];
 
