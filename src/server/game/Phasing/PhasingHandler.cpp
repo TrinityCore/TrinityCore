@@ -29,6 +29,8 @@
 
 namespace
 {
+PhaseShift const Empty;
+
 inline PhaseFlags GetPhaseFlags(uint32 phaseId)
 {
     if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
@@ -442,6 +444,11 @@ void PhasingHandler::FillPartyMemberPhase(WorldPacket* data, PhaseShift const& p
     *data << uint32(phaseShift.Phases.size());
     for (auto itr = phaseShift.Phases.begin(); itr != phaseShift.Phases.end(); ++itr)
         *data << uint16(itr->Id);
+}
+
+PhaseShift const& PhasingHandler::GetEmptyPhaseShift()
+{
+    return Empty;
 }
 
 void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId)
