@@ -1002,12 +1002,12 @@ class spell_mage_ice_block : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->ExcludeTargetAuraSpell });
+        return ValidateSpellInfo({ spellInfo->ExcludeCasterAuraSpell });
     }
 
     void TriggerHypothermia()
     {
-        GetCaster()->CastSpell(nullptr, GetSpellInfo()->ExcludeTargetAuraSpell, true);
+        GetCaster()->CastSpell(nullptr, GetSpellInfo()->ExcludeCasterAuraSpell, true);
     }
 
     void Register() override
