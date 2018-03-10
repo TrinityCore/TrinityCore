@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "Position.h"
 
 namespace WorldPackets
 {
