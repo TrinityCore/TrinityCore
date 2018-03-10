@@ -326,7 +326,7 @@ void Player::UpdateMaxPower(Powers power)
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) +  bonusPower;
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    SetMaxPower(power, uint32(value));
+    SetMaxPower(power, uint32(std::lroundf(value)));
 }
 
 void Player::ApplyFeralAPBonus(int32 amount, bool apply)
@@ -1029,8 +1029,12 @@ void Creature::UpdateMaxPower(Powers power)
 {
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
-    float value  = GetTotalAuraModValue(unitMod);
-    SetMaxPower(power, uint32(value));
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
+
+    SetMaxPower(power, uint32(std::lroundf(value)));
 }
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
@@ -1237,6 +1241,8 @@ bool Guardian::UpdateStats(Stats stat)
 
 bool Guardian::UpdateAllStats()
 {
+    UpdateMaxHealth();
+
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         UpdateStats(Stats(i));
 
