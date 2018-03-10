@@ -2380,7 +2380,7 @@ void Spell::TargetInfo::PreprocessTarget(Spell* spell)
         if (missInfo != SPELL_MISS_NONE)
         {
             if (missInfo != SPELL_MISS_MISS)
-                spell->m_caster->ToUnit()->SendSpellMiss(unit, spell->m_spellInfo->Id, missInfo);
+                spell->m_caster->SendSpellMiss(unit, spell->m_spellInfo->Id, missInfo);
             spell->m_damage = 0;
             spell->m_healing = 0;
             _spellHitTarget = nullptr;
