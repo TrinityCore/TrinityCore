@@ -586,6 +586,74 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
         }
 };
 
+enum SummonSpells
+{
+    SPELL_SUMMON_BABY_RIVEN_WIDOWS        = 43275,
+    SPELL_SUMMON_DARKCLAW_BAT             = 43276,
+    SPELL_SUMMON_FANGGORE_WORG            = 43277,
+    SPELL_SUMMON_GJALERBRON_RUNECASTER    = 43278,
+    SPELL_SUMMON_GJALERBRON_SLEEPWATCHER  = 43279,
+    SPELL_SUMMON_GJALERBRON_WARRIOR       = 43280,
+    SPELL_SUMMON_PUTRID_HORROR            = 43281,
+    SPELL_SUMMON_WINTERSKORN_BERSERKER    = 43282,
+    SPELL_SUMMON_WINTERSKORN_WOODSMAN     = 43283,
+    SPELL_SUMMON_WINTERSKORN_TRIBESMAN    = 43284,
+    SPELL_SUMMON_WINTERSKORN_ORACLE       = 43285,
+    SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289,
+    NPC_MIST_WHISPER_SCOUT                = 24211
+};
+
+const uint32 rivenWidowCocoonVictims[11] =
+{
+    SPELL_SUMMON_BABY_RIVEN_WIDOWS,
+    SPELL_SUMMON_DARKCLAW_BAT,
+    SPELL_SUMMON_FANGGORE_WORG,
+    SPELL_SUMMON_GJALERBRON_RUNECASTER,
+    SPELL_SUMMON_GJALERBRON_SLEEPWATCHER,
+    SPELL_SUMMON_GJALERBRON_WARRIOR,
+    SPELL_SUMMON_PUTRID_HORROR,
+    SPELL_SUMMON_WINTERSKORN_BERSERKER,
+    SPELL_SUMMON_WINTERSKORN_WOODSMAN,
+    SPELL_SUMMON_WINTERSKORN_TRIBESMAN,
+    SPELL_SUMMON_WINTERSKORN_ORACLE
+};
+
+class npc_riven_widow_cocoon : public CreatureScript
+{
+public:
+    npc_riven_widow_cocoon() : CreatureScript("npc_riven_widow_cocoon") { }
+
+    struct npc_riven_widow_cocoonAI : public ScriptedAI
+    {
+        npc_riven_widow_cocoonAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override { }
+        void EnterCombat(Unit* /*who*/) override { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
+
+        void JustDied(Unit* killer) override
+        {
+            Player* player = killer->ToPlayer();
+
+            if (!player)
+                return;
+
+            if (roll_chance_i(20))
+            {
+                player->CastSpell(me, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
+                player->KilledMonsterCredit(NPC_MIST_WHISPER_SCOUT);
+            }
+            else
+                player->CastSpell(me, rivenWidowCocoonVictims[urand(0, 10)], true);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_riven_widow_cocoonAI(creature);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes();
@@ -594,4 +662,5 @@ void AddSC_howling_fjord()
     new npc_daegarn();
     new npc_mindless_abomination();
     new spell_mindless_abomination_explosion_fx_master();
+    new npc_riven_widow_cocoon();
  }

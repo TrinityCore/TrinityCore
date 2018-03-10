@@ -20,7 +20,7 @@
 #include "Errors.h"
 #include "Log.h"
 #include "Config.h"
-#include "MMapFactory.h"
+#include "MapDefines.h"
 
 namespace MMAP
 {
@@ -37,19 +37,11 @@ namespace MMAP
         // if we had, tiles in MMapData->mmapLoadedTiles, their actual data is lost!
     }
 
-    void MMapManager::InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData)
+    void MMapManager::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
     {
-        // the caller must pass the list of all mapIds that will be used in the MMapManager lifetime
-        for (auto const& p : mapData)
-        {
-            loadedMMaps.insert(MMapDataSet::value_type(p.first, nullptr));
-            if (!p.second.empty())
-            {
-                phaseMapData[p.first] = p.second;
-                for (uint32 phasedMapId : p.second)
-                    _phaseTiles.insert(PhaseTileMap::value_type(phasedMapId, PhaseTileContainer()));
-            }
-        }
+        // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
+        for (uint32 const& mapId : mapIds)
+            loadedMMaps.insert(MMapDataSet::value_type(mapId, nullptr));
 
         thread_safe_environment = false;
     }
@@ -111,7 +103,7 @@ namespace MMAP
         TC_LOG_DEBUG("maps", "MMAP:loadMapData: Loaded %04i.mmap", mapId);
 
         // store inside our map list
-        MMapData* mmap_data = new MMapData(mesh, mapId);
+        MMapData* mmap_data = new MMapData(mesh);
 
         itr->second = mmap_data;
         return true;
@@ -165,7 +157,7 @@ namespace MMAP
 
         long pos = ftell(file);
         fseek(file, 0, SEEK_END);
-        if (int64(fileHeader.size) > ftell(file) - pos)
+        if (pos < 0 || static_cast<int32>(fileHeader.size) > ftell(file) - pos)
         {
             TC_LOG_ERROR("maps", "MMAP:loadMap: %04u%02i%02i.mmtile has corrupted data size", mapId, x, y);
             fclose(file);
@@ -191,113 +183,18 @@ namespace MMAP
         dtTileRef tileRef = 0;
 
         // memory allocated for data is now managed by detour, and will be deallocated when the tile is removed
-        if (dtStatusSucceed(mmap->navMesh->addTile(data, fileHeader.size, 0, 0, &tileRef)))
+        if (dtStatusSucceed(mmap->navMesh->addTile(data, fileHeader.size, DT_TILE_FREE_DATA, 0, &tileRef)))
         {
             mmap->loadedTileRefs.insert(std::pair<uint32, dtTileRef>(packedGridPos, tileRef));
             ++loadedTiles;
             TC_LOG_DEBUG("maps", "MMAP:loadMap: Loaded mmtile %04i[%02i, %02i] into %04i[%02i, %02i]", mapId, x, y, mapId, header->x, header->y);
-
-            PhaseChildMapContainer::const_iterator phasedMaps = phaseMapData.find(mapId);
-            if (phasedMaps != phaseMapData.end())
-            {
-                mmap->AddBaseTile(packedGridPos, data, fileHeader, fileHeader.size);
-                LoadPhaseTiles(phasedMaps, x, y);
-            }
-
             return true;
         }
-
-        TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %04u%02i%02i.mmtile into navmesh", mapId, x, y);
-        dtFree(data);
-        return false;
-    }
-
-    PhasedTile* MMapManager::LoadTile(uint32 mapId, int32 x, int32 y)
-    {
-        // load this tile :: mmaps/MMMXXYY.mmtile
-        std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", ".").c_str(), mapId, x, y);
-        FILE* file = fopen(fileName.c_str(), "rb");
-        if (!file)
+        else
         {
-            // Not all tiles have phased versions, don't flood this msg
-            //TC_LOG_DEBUG("phase", "MMAP:LoadTile: Could not open mmtile file '%s'", fileName);
-            return NULL;
-        }
-
-        PhasedTile* pTile = new PhasedTile();
-
-        // read header
-        if (fread(&pTile->fileHeader, sizeof(MmapTileHeader), 1, file) != 1 || pTile->fileHeader.mmapMagic != MMAP_MAGIC)
-        {
-            TC_LOG_ERROR("phase", "MMAP:LoadTile: Bad header in mmap %04u%02i%02i.mmtile", mapId, x, y);
-            fclose(file);
-            delete pTile;
-            return nullptr;
-        }
-
-        if (pTile->fileHeader.mmapVersion != MMAP_VERSION)
-        {
-            TC_LOG_ERROR("phase", "MMAP:LoadTile: %04u%02i%02i.mmtile was built with generator v%i, expected v%i",
-                mapId, x, y, pTile->fileHeader.mmapVersion, MMAP_VERSION);
-            fclose(file);
-            delete pTile;
-            return nullptr;
-        }
-
-        pTile->data = (unsigned char*)dtAlloc(pTile->fileHeader.size, DT_ALLOC_PERM);
-        ASSERT(pTile->data);
-
-        size_t result = fread(pTile->data, pTile->fileHeader.size, 1, file);
-        if (!result)
-        {
-            TC_LOG_ERROR("phase", "MMAP:LoadTile: Bad header or data in mmap %04u%02i%02i.mmtile", mapId, x, y);
-            fclose(file);
-            delete pTile;
-            return nullptr;
-        }
-
-        fclose(file);
-
-        return pTile;
-    }
-
-    void MMapManager::LoadPhaseTiles(PhaseChildMapContainer::const_iterator phasedMapData, int32 x, int32 y)
-    {
-        TC_LOG_DEBUG("phase", "MMAP:LoadPhaseTiles: Loading phased mmtiles for map %u, x: %i, y: %i", phasedMapData->first, x, y);
-
-        uint32 packedGridPos = packTileID(x, y);
-
-        for (uint32 phaseMapId : phasedMapData->second)
-        {
-            // only a few tiles have terrain swaps, do not write error for them
-            if (PhasedTile* data = LoadTile(phaseMapId, x, y))
-            {
-                TC_LOG_DEBUG("phase", "MMAP:LoadPhaseTiles: Loaded phased %04u%02i%02i.mmtile for root phase map %u", phaseMapId, x, y, phasedMapData->first);
-                _phaseTiles[phaseMapId][packedGridPos] = data;
-            }
-        }
-    }
-
-    void MMapManager::UnloadPhaseTile(PhaseChildMapContainer::const_iterator phasedMapData, int32 x, int32 y)
-    {
-        TC_LOG_DEBUG("phase", "MMAP:UnloadPhaseTile: Unloading phased mmtile for map %u, x: %i, y: %i", phasedMapData->first, x, y);
-
-        uint32 packedGridPos = packTileID(x, y);
-
-        for (uint32 phaseMapId : phasedMapData->second)
-        {
-            auto phasedTileItr = _phaseTiles.find(phaseMapId);
-            if (phasedTileItr == _phaseTiles.end())
-                continue;
-
-            auto dataItr = phasedTileItr->second.find(packedGridPos);
-            if (dataItr != phasedTileItr->second.end())
-            {
-                TC_LOG_DEBUG("phase", "MMAP:UnloadPhaseTile: Unloaded phased %04u%02i%02i.mmtile for root phase map %u", phaseMapId, x, y, phasedMapData->first);
-                dtFree(dataItr->second->data);
-                delete dataItr->second;
-                phasedTileItr->second.erase(dataItr);
-            }
+            TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %04u%02i%02i.mmtile into navmesh", mapId, x, y);
+            dtFree(data);
+            return false;
         }
     }
 
@@ -326,8 +223,7 @@ namespace MMAP
         dtTileRef tileRef = mmap->loadedTileRefs[packedGridPos];
 
         // unload, and mark as non loaded
-        unsigned char* data = NULL;
-        if (dtStatusFailed(mmap->navMesh->removeTile(tileRef, &data, NULL)))
+        if (dtStatusFailed(mmap->navMesh->removeTile(tileRef, nullptr, nullptr)))
         {
             // this is technically a memory leak
             // if the grid is later reloaded, dtNavMesh::addTile will return error but no extra memory is used
@@ -339,16 +235,7 @@ namespace MMAP
         {
             mmap->loadedTileRefs.erase(packedGridPos);
             --loadedTiles;
-            TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %04i[%02i, %02i] from %04i", mapId, x, y, mapId);
-
-            PhaseChildMapContainer::const_iterator phasedMaps = phaseMapData.find(mapId);
-            if (phasedMaps != phaseMapData.end())
-            {
-                mmap->DeleteBaseTile(packedGridPos);
-                UnloadPhaseTile(phasedMaps, x, y);
-            }
-            else
-                dtFree(data);
+            TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %04i[%02i, %02i] from %03i", mapId, x, y, mapId);
             return true;
         }
 
@@ -371,19 +258,10 @@ namespace MMAP
         {
             uint32 x = (i->first >> 16);
             uint32 y = (i->first & 0x0000FFFF);
-            unsigned char* data = NULL;
-            if (dtStatusFailed(mmap->navMesh->removeTile(i->second, &data, NULL)))
+            if (dtStatusFailed(mmap->navMesh->removeTile(i->second, nullptr, nullptr)))
                 TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload %04u%02i%02i.mmtile from navmesh", mapId, x, y);
             else
             {
-                PhaseChildMapContainer::const_iterator phasedMaps = phaseMapData.find(mapId);
-                if (phasedMaps != phaseMapData.end())
-                {
-                    mmap->DeleteBaseTile(i->first);
-                    UnloadPhaseTile(phasedMaps, x, y);
-                }
-                else
-                    dtFree(data);
                 --loadedTiles;
                 TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %04i[%02i, %02i] from %04i", mapId, x, y, mapId);
             }
@@ -423,20 +301,20 @@ namespace MMAP
         return true;
     }
 
-    dtNavMesh const* MMapManager::GetNavMesh(uint32 mapId, TerrainSet swaps)
+    dtNavMesh const* MMapManager::GetNavMesh(uint32 mapId)
     {
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
         if (itr == loadedMMaps.end())
-            return NULL;
+            return nullptr;
 
-        return itr->second->GetNavMesh(swaps);
+        return itr->second->navMesh;
     }
 
-    dtNavMeshQuery const* MMapManager::GetNavMeshQuery(uint32 mapId, uint32 instanceId, TerrainSet swaps)
+    dtNavMeshQuery const* MMapManager::GetNavMeshQuery(uint32 mapId, uint32 instanceId)
     {
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
         if (itr == loadedMMaps.end())
-            return NULL;
+            return nullptr;
 
         MMapData* mmap = itr->second;
         if (mmap->navMeshQueries.find(instanceId) == mmap->navMeshQueries.end())
@@ -444,11 +322,11 @@ namespace MMAP
             // allocate mesh query
             dtNavMeshQuery* query = dtAllocNavMeshQuery();
             ASSERT(query);
-            if (dtStatusFailed(query->init(mmap->GetNavMesh(swaps), 1024)))
+            if (dtStatusFailed(query->init(mmap->navMesh, 1024)))
             {
                 dtFreeNavMeshQuery(query);
                 TC_LOG_ERROR("maps", "MMAP:GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId %04u instanceId %u", mapId, instanceId);
-                return NULL;
+                return nullptr;
             }
 
             TC_LOG_DEBUG("maps", "MMAP:GetNavMeshQuery: created dtNavMeshQuery for mapId %04u instanceId %u", mapId, instanceId);
@@ -456,154 +334,5 @@ namespace MMAP
         }
 
         return mmap->navMeshQueries[instanceId];
-    }
-
-    MMapData::MMapData(dtNavMesh* mesh, uint32 mapId)
-    {
-        navMesh = mesh;
-        _mapId = mapId;
-    }
-
-    MMapData::~MMapData()
-    {
-        for (NavMeshQuerySet::iterator i = navMeshQueries.begin(); i != navMeshQueries.end(); ++i)
-            dtFreeNavMeshQuery(i->second);
-
-        dtFreeNavMesh(navMesh);
-    }
-
-    void MMapData::RemoveSwap(PhasedTile* ptile, uint32 swap, uint32 packedXY)
-    {
-        uint32 x = (packedXY >> 16);
-        uint32 y = (packedXY & 0x0000FFFF);
-
-        if (loadedPhasedTiles[swap].find(packedXY) == loadedPhasedTiles[swap].end())
-        {
-            TC_LOG_DEBUG("phase", "MMapData::RemoveSwap: mmtile %04u[%02i, %02i] unload skipped, due to not loaded", swap, x, y);
-            return;
-        }
-        dtMeshHeader* header = (dtMeshHeader*)ptile->data;
-
-        // remove old tile
-        if (dtStatusFailed(navMesh->removeTile(loadedTileRefs[packedXY], NULL, NULL)))
-            TC_LOG_ERROR("phase", "MMapData::RemoveSwap: Could not unload phased %04u%02i%02i.mmtile from navmesh", swap, x, y);
-        else
-        {
-            TC_LOG_DEBUG("phase", "MMapData::RemoveSwap: Unloaded phased %04u%02i%02i.mmtile from navmesh", swap, x, y);
-
-            // restore base tile
-            if (dtStatusSucceed(navMesh->addTile(_baseTiles[packedXY]->data, _baseTiles[packedXY]->dataSize, 0, 0, &loadedTileRefs[packedXY])))
-                TC_LOG_DEBUG("phase", "MMapData::RemoveSwap: Loaded base mmtile %04u[%02i, %02i] into %04i[%02i, %02i]", _mapId, x, y, _mapId, header->x, header->y);
-            else
-                TC_LOG_ERROR("phase", "MMapData::RemoveSwap: Could not load base %04u%02i%02i.mmtile to navmesh", _mapId, x, y);
-        }
-
-        loadedPhasedTiles[swap].erase(packedXY);
-
-        if (loadedPhasedTiles[swap].empty())
-        {
-            _activeSwaps.erase(swap);
-            TC_LOG_DEBUG("phase", "MMapData::RemoveSwap: Fully removed swap %u from map %u", swap, _mapId);
-        }
-    }
-
-    void MMapData::AddSwap(PhasedTile* ptile, uint32 swap, uint32 packedXY)
-    {
-        uint32 x = (packedXY >> 16);
-        uint32 y = (packedXY & 0x0000FFFF);
-
-        if (loadedTileRefs.find(packedXY) == loadedTileRefs.end())
-        {
-            TC_LOG_DEBUG("phase", "MMapData::AddSwap: phased mmtile %04u[%02i, %02i] load skipped, due to not loaded base tile on map %u", swap, x, y, _mapId);
-            return;
-        }
-        if (loadedPhasedTiles[swap].find(packedXY) != loadedPhasedTiles[swap].end())
-        {
-            TC_LOG_DEBUG("phase", "MMapData::AddSwap: WARNING! phased mmtile %04u[%02i, %02i] load skipped, due to already loaded on map %u", swap, x, y, _mapId);
-            return;
-        }
-
-        dtMeshHeader* header = (dtMeshHeader*)ptile->data;
-
-        const dtMeshTile* oldTile = navMesh->getTileByRef(loadedTileRefs[packedXY]);
-
-        if (!oldTile)
-        {
-            TC_LOG_DEBUG("phase", "MMapData::AddSwap: phased mmtile %04u[%02i, %02i] load skipped, due to not loaded base tile ref on map %u", swap, x, y, _mapId);
-            return;
-        }
-
-        // header xy is based on the swap map's tile set, wich doesn't have all the same tiles as root map, so copy the xy from the orignal header
-        header->x = oldTile->header->x;
-        header->y = oldTile->header->y;
-
-        // remove old tile
-        if (dtStatusFailed(navMesh->removeTile(loadedTileRefs[packedXY], NULL, NULL)))
-            TC_LOG_ERROR("phase", "MMapData::AddSwap: Could not unload %04u%02i%02i.mmtile from navmesh", _mapId, x, y);
-        else
-        {
-            TC_LOG_DEBUG("phase", "MMapData::AddSwap: Unloaded %04u%02i%02i.mmtile from navmesh", _mapId, x, y);
-
-            _activeSwaps.insert(swap);
-            loadedPhasedTiles[swap].insert(packedXY);
-
-            // add new swapped tile
-            if (dtStatusSucceed(navMesh->addTile(ptile->data, ptile->fileHeader.size, 0, 0, &loadedTileRefs[packedXY])))
-                TC_LOG_DEBUG("phase", "MMapData::AddSwap: Loaded phased mmtile %04u[%02i, %02i] into %04i[%02i, %02i]", swap, x, y, _mapId, header->x, header->y);
-            else
-                TC_LOG_ERROR("phase", "MMapData::AddSwap: Could not load %04u%02i%02i.mmtile to navmesh", swap, x, y);
-        }
-    }
-
-    dtNavMesh* MMapData::GetNavMesh(TerrainSet swaps)
-    {
-        std::set<uint32> activeSwaps = _activeSwaps;    // _activeSwaps is modified inside RemoveSwap
-        for (uint32 swap : activeSwaps)
-        {
-            if (!swaps.count(swap)) // swap not active
-            {
-                if (PhaseTileContainer const* ptc = MMAP::MMapFactory::createOrGetMMapManager()->GetPhaseTileContainer(swap))
-                    for (PhaseTileContainer::const_iterator itr = ptc->begin(); itr != ptc->end(); ++itr)
-                        RemoveSwap(itr->second, swap, itr->first); // remove swap
-            }
-        }
-
-        // for each of the calling unit's terrain swaps
-        for (uint32 swap : swaps)
-        {
-            if (!_activeSwaps.count(swap)) // swap not active
-            {
-                // for each of the terrain swap's xy tiles
-                if (PhaseTileContainer const* ptc = MMAP::MMapFactory::createOrGetMMapManager()->GetPhaseTileContainer(swap))
-                    for (PhaseTileContainer::const_iterator itr = ptc->begin(); itr != ptc->end(); ++itr)
-                        AddSwap(itr->second, swap, itr->first); // add swap
-            }
-        }
-
-        return navMesh;
-    }
-
-    void MMapData::AddBaseTile(uint32 packedGridPos, unsigned char* data, MmapTileHeader const& fileHeader, int32 dataSize)
-    {
-        auto itr = _baseTiles.find(packedGridPos);
-        if (itr == _baseTiles.end())
-        {
-            PhasedTile* pt = new PhasedTile();
-            pt->data = data;
-            pt->fileHeader = fileHeader;
-            pt->dataSize = dataSize;
-            _baseTiles[packedGridPos] = pt;
-        }
-    }
-
-    void MMapData::DeleteBaseTile(uint32 packedGridPos)
-    {
-        auto itr = _baseTiles.find(packedGridPos);
-        if (itr != _baseTiles.end())
-        {
-            dtFree(itr->second->data);
-            delete itr->second;
-            _baseTiles.erase(itr);
-        }
     }
 }

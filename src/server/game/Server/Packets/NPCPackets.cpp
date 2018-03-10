@@ -50,6 +50,7 @@ WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
         _worldPacket << int32(text.QuestID);
         _worldPacket << int32(text.QuestType);
         _worldPacket << int32(text.QuestLevel);
+        _worldPacket << int32(text.QuestMaxScalingLevel);
         _worldPacket << int32(text.QuestFlags[0]);
         _worldPacket << int32(text.QuestFlags[1]);
 

@@ -131,7 +131,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
         bool AIM_Destroy();
-        bool AIM_Initialize(CreatureAI* ai = NULL);
+        bool AIM_Create(CreatureAI* ai = nullptr);
+        void AI_InitializeAndEnable();
+        bool AIM_Initialize(CreatureAI* ai = nullptr);
         void Motion_Initialize();
 
         CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(i_AI); }
@@ -151,6 +153,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void UpdateArmor() override;
         void UpdateMaxHealth() override;
         void UpdateMaxPower(Powers power) override;
+        uint32 GetPowerIndex(Powers power) const override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 

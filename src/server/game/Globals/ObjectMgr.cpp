@@ -2579,47 +2579,6 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
     return 5 * uint32(round(18.0f * qualityMultipliers[quality] * weaponMultipliers[itemSubClass] * levelPenalty));
 };
 
-void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill, ItemTemplate const& itemTemplate)
-{
-    *disenchantID = 0;
-    *(int32*)requiredDisenchantSkill = -1;
-    if ((itemTemplate.GetFlags() & (ITEM_FLAG_CONJURED | ITEM_FLAG_NO_DISENCHANT)) ||
-        itemTemplate.GetBonding() == BIND_QUEST || itemTemplate.GetArea() || itemTemplate.GetMap() ||
-        itemTemplate.GetMaxStackSize() > 1 ||
-        itemTemplate.GetQuality() < ITEM_QUALITY_UNCOMMON || itemTemplate.GetQuality() > ITEM_QUALITY_EPIC ||
-        !(itemTemplate.GetClass() == ITEM_CLASS_ARMOR || itemTemplate.GetClass() == ITEM_CLASS_WEAPON) ||
-        !(Item::GetSpecialPrice(&itemTemplate) || sDB2Manager.HasItemCurrencyCost(itemTemplate.GetId())))
-        return;
-
-    for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
-    {
-        ItemDisenchantLootEntry const* disenchant = sItemDisenchantLootStore.LookupEntry(i);
-        if (!disenchant)
-            continue;
-
-        if (disenchant->ItemClass == itemTemplate.GetClass() &&
-            disenchant->ItemQuality == itemTemplate.GetQuality() &&
-            disenchant->MinItemLevel <= itemTemplate.GetBaseItemLevel() &&
-            disenchant->MaxItemLevel >= itemTemplate.GetBaseItemLevel())
-        {
-            if (i == 60 || i == 61)   // epic item disenchant ilvl range 66-99 (classic)
-            {
-                if (itemTemplate.GetBaseRequiredLevel() > 60 || itemTemplate.GetRequiredSkillRank() > 300)
-                    continue;                                   // skip to epic item disenchant ilvl range 90-199 (TBC)
-            }
-            else if (i == 66 || i == 67)  // epic item disenchant ilvl range 90-199 (TBC)
-            {
-                if (itemTemplate.GetBaseRequiredLevel() <= 60 || (itemTemplate.GetRequiredSkill() && itemTemplate.GetRequiredSkillRank() <= 300))
-                    continue;
-            }
-
-            *disenchantID = i;
-            *requiredDisenchantSkill = disenchant->RequiredDisenchantSkill;
-            return;
-        }
-    }
-}
-
 struct ItemSpecStats
 {
     uint32 ItemType;
@@ -2848,7 +2807,6 @@ void ObjectMgr::LoadItemTemplates()
 
         itemTemplate.MaxDurability = FillMaxDurability(db2Data->Class, db2Data->SubClass, sparse->InventoryType, sparse->Quality, sparse->ItemLevel);
         itemTemplate.ScriptId = 0;
-        FillDisenchantFields(&itemTemplate.DisenchantID, &itemTemplate.RequiredDisenchantSkill, itemTemplate);
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
         itemTemplate.MaxMoneyLoot = 0;
@@ -3417,7 +3375,7 @@ void ObjectMgr::LoadPlayerInfo()
         for (SkillRaceClassInfoEntry const* rcInfo : sSkillRaceClassInfoStore)
             if (rcInfo->Availability == 1)
                 for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
-                    if (rcInfo->RaceMask == -1 || ((1 << (raceIndex - 1)) & rcInfo->RaceMask))
+                    if (rcInfo->RaceMask == -1 || ((UI64LIT(1) << (raceIndex - 1)) & rcInfo->RaceMask))
                         for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
                             if (rcInfo->ClassMask == -1 || ((1 << (classIndex - 1)) & rcInfo->ClassMask))
                                 if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
@@ -3876,35 +3834,35 @@ void ObjectMgr::LoadQuests()
     mExclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0  1          2           3               4         5            6            7                  8                9                   10
-        "ID, QuestType, QuestLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
-        //11          12                     13                     14                15                   16                   17                   18           19           20               21
+        //0  1          2           3                4               5         6            7            8                  9                10                  11
+        "ID, QuestType, QuestLevel, MaxScalingLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
+        //12          13                     14                     15                16                   17                   18                   19           20           21               22
         "RewardMoney, RewardMoneyDifficulty, RewardMoneyMultiplier, RewardBonusMoney, RewardDisplaySpell1, RewardDisplaySpell2, RewardDisplaySpell3, RewardSpell, RewardHonor, RewardKillHonor, StartItem, "
-        //22                         23                          24                        25     26
+        //23                         24                          25                        26     27
         "RewardArtifactXPDifficulty, RewardArtifactXPMultiplier, RewardArtifactCategoryID, Flags, FlagsEx, "
-        //27          28             29         30                 31           32             33         34
+        //28          29             30         31                 32           33             34         35
         "RewardItem1, RewardAmount1, ItemDrop1, ItemDropQuantity1, RewardItem2, RewardAmount2, ItemDrop2, ItemDropQuantity2, "
-        //35          36             37         38                 39           40             41         42
+        //36          37             38         39                 40             41           42         43
         "RewardItem3, RewardAmount3, ItemDrop3, ItemDropQuantity3, RewardItem4, RewardAmount4, ItemDrop4, ItemDropQuantity4, "
-        //43                  44                         45                          46                   47                         48
+        //44                  45                         46                          47                   48                         49
         "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemDisplayID1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemDisplayID2, "
-        //49                  50                         51                          52                   53                         54
+        //50                  51                         52                          53                   54                         55
         "RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemDisplayID3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemDisplayID4, "
-        //55                  56                         57                          58                   59                         60
+        //56                  57                         58                          59                   60                         61
         "RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemDisplayID5, RewardChoiceItemID6, RewardChoiceItemQuantity6, RewardChoiceItemDisplayID6, "
-        //61           62    63    64           65           66                 67                 68                 69             70
+        //62           63    64    65           66           67                 68                 69                 70             71
         "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardArenaPoints, RewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitTurnIn, "
-        //71               72                   73                      74                75                   76                   77                      78
+        //72               73                   74                      75                   76                77                   78                      79
         "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionCapIn1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionCapIn2, "
-        //79               80                   81                      82                   83                84                   85                      86
+        //80               81                   82                      83                   84                85                   86                      87
         "RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionCapIn3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionCapIn4, "
-        //87               88                   89                      90                   91
+        //88               89                   90                      91                   92
         "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionCapIn5, RewardFactionFlags, "
-        //92                93                  94                 95                  96                 97                  98                 99
+        //93                94                  95                 96                 97                  98                  99                 100
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //100                101                 102          103          104             105            106
+        //101                102                 103          104          105             106            107
         "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, QuestRewardID, Expansion, "
-        //107      108             109               110              111                112                113                 114                 115
+        //108      109             110               111              112                113                114                 115                 116
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
         " FROM quest_template");
     if (!result)
@@ -4199,12 +4157,12 @@ void ObjectMgr::LoadQuests()
             }
         }
         // AllowableRaces, can be -1/RACEMASK_ALL_PLAYABLE to allow any race
-        if (qinfo->AllowableRaces != -1)
+        if (qinfo->AllowableRaces != uint64(-1))
         {
-            if (qinfo->AllowableRaces > 0 && !(uint32(qinfo->AllowableRaces) & RACEMASK_ALL_PLAYABLE))
+            if (qinfo->AllowableRaces > 0 && !(qinfo->AllowableRaces & RACEMASK_ALL_PLAYABLE))
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u does not contain any playable races in `AllowableRaces` (%d), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->AllowableRaces);
-                qinfo->AllowableRaces = -1;
+                TC_LOG_ERROR("sql.sql", "Quest %u does not contain any playable races in `AllowableRaces` (" UI64FMTD "), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->AllowableRaces);
+                qinfo->AllowableRaces = uint64(-1);
             }
         }
         // RequiredSkillId, can be 0
@@ -7573,8 +7531,8 @@ void ObjectMgr::LoadQuestPOI()
 
     uint32 count = 0;
 
-    //                                                   0        1        2            3           4                 5           6         7            8       9       10         11              12             13
-    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1 FROM quest_poi order by QuestID, Idx1");
+    //                                                   0        1        2            3           4                 5           6         7            8       9       10         11              12             13               14
+    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
@@ -7628,11 +7586,12 @@ void ObjectMgr::LoadQuestPOI()
         int32 WorldEffectID         = fields[11].GetInt32();
         int32 PlayerConditionID     = fields[12].GetInt32();
         int32 WoDUnk1               = fields[13].GetInt32();
+        bool AlwaysAllowMergingBlobs = fields[14].GetBool();
 
         if (!sObjectMgr->GetQuestTemplate(QuestID))
             TC_LOG_ERROR("sql.sql", "`quest_poi` quest id (%u) Idx1 (%u) does not exist in `quest_template`", QuestID, Idx1);
 
-        QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1);
+        QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1, AlwaysAllowMergingBlobs);
         if (QuestID < int32(POIs.size()) && Idx1 < int32(POIs[QuestID].size()))
         {
             POI.points = POIs[QuestID][Idx1];
@@ -8236,8 +8195,8 @@ int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 rac
     if (!factionEntry)
         return 0;
 
-    uint32 raceMask = (1 << (race - 1));
-    uint32 classMask = (1 << (playerClass-1));
+    uint64 raceMask = UI64LIT(1) << (race - 1);
+    uint32 classMask = 1 << (playerClass - 1);
 
     for (int i = 0; i < 4; i++)
     {
@@ -9645,10 +9604,10 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 void ObjectMgr::LoadRaceAndClassExpansionRequirements()
 {
     uint32 oldMSTime = getMSTime();
-    _raceExpansionRequirementStore.clear();
+    _raceUnlockRequirementStore.clear();
 
-    //                                               0       1
-    QueryResult result = WorldDatabase.Query("SELECT raceID, expansion FROM `race_expansion_requirement`");
+    //                                               0       1          2
+    QueryResult result = WorldDatabase.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
 
     if (result)
     {
@@ -9657,28 +9616,37 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
         {
             Field* fields = result->Fetch();
 
-            uint8 raceID = fields[0].GetInt8();
-            uint8 expansion = fields[1].GetInt8();
+            uint8 raceID = fields[0].GetUInt8();
+            uint8 expansion = fields[1].GetUInt8();
+            uint32 achievementId = fields[2].GetUInt32();
 
             ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
             if (!raceEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Race %u defined in `race_expansion_requirement` does not exists, skipped.", raceID);
+                TC_LOG_ERROR("sql.sql", "Race %u defined in `race_unlock_requirement` does not exists, skipped.", raceID);
                 continue;
             }
 
-            if (expansion >= MAX_EXPANSIONS)
+            if (expansion >= MAX_ACCOUNT_EXPANSIONS)
             {
-                TC_LOG_ERROR("sql.sql", "Race %u defined in `race_expansion_requirement` has incorrect expansion %u, skipped.", raceID, expansion);
+                TC_LOG_ERROR("sql.sql", "Race %u defined in `race_unlock_requirement` has incorrect expansion %u, skipped.", raceID, expansion);
                 continue;
             }
 
-            _raceExpansionRequirementStore[raceID] = expansion;
+            if (achievementId && !sAchievementStore.LookupEntry(achievementId))
+            {
+                TC_LOG_ERROR("sql.sql", "Race %u defined in `race_unlock_requirement` has incorrect achievement %u, skipped.", raceID, achievementId);
+                continue;
+            }
+
+            RaceUnlockRequirement& raceUnlockRequirement = _raceUnlockRequirementStore[raceID];
+            raceUnlockRequirement.Expansion = expansion;
+            raceUnlockRequirement.AchievementId = achievementId;
 
             ++count;
         }
         while (result->NextRow());
-        TC_LOG_INFO("server.loading", ">> Loaded %u race expansion requirements in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " race expansion requirements in %u ms.", _raceUnlockRequirementStore.size(), GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
@@ -9910,7 +9878,7 @@ void ObjectMgr::LoadPlayerChoices()
     uint32 oldMSTime = getMSTime();
     _playerChoices.clear();
 
-    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, Question FROM playerchoice");
+    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, Question, HideWarboardHeader FROM playerchoice");
 
     if (!choices)
     {
@@ -9932,7 +9900,9 @@ void ObjectMgr::LoadPlayerChoices()
 
         PlayerChoice& choice = _playerChoices[choiceId];
         choice.ChoiceId = choiceId;
-        choice.Question = fields[1].GetString();
+        choice.UiTextureKitId = fields[1].GetInt32();
+        choice.Question = fields[2].GetString();
+        choice.HideWarboardHeader = fields[3].GetBool();
 
     } while (choices->NextRow());
 

@@ -43,7 +43,7 @@ class TC_COMMON_API HmacHash
         uint8* GetDigest() { return _digest; }
         uint32 GetLength() const { return DigestLength; }
     private:
-        HMAC_CTX _ctx;
+        HMAC_CTX* _ctx;
         uint8 _digest[DigestLength];
 };
 

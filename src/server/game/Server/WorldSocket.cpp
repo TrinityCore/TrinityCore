@@ -70,9 +70,9 @@ uint8 const WorldSocket::AuthCheckSeed[16] = { 0xC5, 0xC6, 0x98, 0x95, 0x76, 0x3
 uint8 const WorldSocket::SessionKeySeed[16] = { 0x58, 0xCB, 0xCF, 0x40, 0xFE, 0x2E, 0xCE, 0xA6, 0x5A, 0x90, 0xB8, 0x01, 0x68, 0x6C, 0x28, 0x0B };
 uint8 const WorldSocket::ContinuedSessionSeed[16] = { 0x16, 0xAD, 0x0C, 0xD4, 0x46, 0xF9, 0x4F, 0xB2, 0xEF, 0x7D, 0xEA, 0x2A, 0x17, 0x66, 0x4D, 0x2F };
 
-uint32 const ClientTypeSeed_Win[4] = { 0xC34F59FE, 0xFF9A7F5E, 0x8A9DD986, 0x97B24A36 };
-uint32 const ClientTypeSeed_Wn64[4] = { 0x4E625212, 0xFAD6CBD8, 0x5D3FD3C7, 0xF335A567 };
-uint32 const ClientTypeSeed_Mc64[4] = { 0x95EFC66, 0x266170B8, 0x3145F79, 0xD8C1C808 };
+uint8 const ClientTypeSeed_Win[16] = { 0xF8, 0xC0, 0x5A, 0xE3, 0x72, 0xDE, 0xCA, 0x1D, 0x6C, 0x81, 0xDA, 0x7A, 0x8D, 0x1C, 0x5C, 0x39 };
+uint8 const ClientTypeSeed_Wn64[16] = { 0x46, 0xDF, 0x06, 0xD0, 0x14, 0x7B, 0xA6, 0x7B, 0xA4, 0x9A, 0xF5, 0x53, 0x43, 0x5E, 0x09, 0x3F };
+uint8 const ClientTypeSeed_Mc64[16] = { 0xC9, 0xCA, 0x99, 0x7A, 0xB8, 0xED, 0xE1, 0xC6, 0x54, 0x65, 0xCB, 0x29, 0x20, 0x86, 0x9C, 0x4E };
 
 WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
     _type(CONNECTION_TYPE_REALM), _key(0), _OverSpeedPings(0),
@@ -637,10 +637,6 @@ struct AccountInfo
         Game.IsBanned = fields[13].GetUInt64() != 0;
         Game.IsRectuiter = fields[14].GetUInt32() != 0;
 
-        uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
-        if (Game.Expansion > world_expansion)
-            Game.Expansion = world_expansion;
-
         if (BattleNet.Locale >= TOTAL_LOCALES)
             BattleNet.Locale = LOCALE_enUS;
     }
@@ -675,11 +671,11 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     SHA256Hash digestKeyHash;
     digestKeyHash.UpdateData(account.Game.KeyData.data(), account.Game.KeyData.size());
     if (account.Game.OS == "Win")
-        digestKeyHash.UpdateData(reinterpret_cast<uint8 const*>(ClientTypeSeed_Win), 16);
+        digestKeyHash.UpdateData(ClientTypeSeed_Win, 16);
     else if (account.Game.OS == "Wn64")
-        digestKeyHash.UpdateData(reinterpret_cast<uint8 const*>(ClientTypeSeed_Wn64), 16);
+        digestKeyHash.UpdateData(ClientTypeSeed_Wn64, 16);
     else if (account.Game.OS == "Mc64")
-        digestKeyHash.UpdateData(reinterpret_cast<uint8 const*>(ClientTypeSeed_Mc64), 16);
+        digestKeyHash.UpdateData(ClientTypeSeed_Mc64, 16);
 
     digestKeyHash.Finalize();
 

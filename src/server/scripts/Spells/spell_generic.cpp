@@ -1099,7 +1099,6 @@ class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 target->SetFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
                 if (target->GetTypeId() == TYPEID_UNIT)
@@ -2893,10 +2892,8 @@ class spell_gen_replenishment : public SpellScriptLoader
         }
 };
 
-
 enum RunningWildMountIds
 {
-    RUNNING_WILD_MODEL          = 73200,
     SPELL_ALTERED_FORM          = 97709
 };
 
@@ -2911,7 +2908,7 @@ class spell_gen_running_wild : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL))
+                if (!sCreatureDisplayInfoStore.LookupEntry(DISPLAYID_HIDDEN_MOUNT))
                     return false;
                 return true;
             }
@@ -2921,7 +2918,7 @@ class spell_gen_running_wild : public SpellScriptLoader
                 Unit* target = GetTarget();
                 PreventDefaultAction();
 
-                target->Mount(RUNNING_WILD_MODEL, 0, 0);
+                target->Mount(DISPLAYID_HIDDEN_MOUNT, 0, 0);
 
                 // cast speed aura
                 if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))

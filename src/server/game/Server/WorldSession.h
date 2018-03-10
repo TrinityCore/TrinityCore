@@ -666,6 +666,7 @@ namespace WorldPackets
     namespace Talent
     {
         class LearnTalents;
+        class LearnPvpTalents;
         class ConfirmRespecWipe;
     }
 
@@ -937,6 +938,7 @@ class TC_GAME_API WorldSession
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);
+        uint8 GetAccountExpansion() const { return m_accountExpansion; }
         uint8 GetExpansion() const { return m_expansion; }
         std::string const& GetOS() const { return _os; }
 
@@ -1426,6 +1428,7 @@ class TC_GAME_API WorldSession
         void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
         void HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet);
 
+        void HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet);
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
         void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
@@ -1566,7 +1569,7 @@ class TC_GAME_API WorldSession
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(lfg::LfgTeleportResult err);
 
-        void HandleSelfResOpcode(WorldPackets::Spells::SelfRes& packet);
+        void HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes);
         void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& packet);
 
         // Socket gem
@@ -1799,6 +1802,7 @@ class TC_GAME_API WorldSession
         uint32 _accountId;
         std::string _accountName;
         uint32 _battlenetAccountId;
+        uint8 m_accountExpansion;
         uint8 m_expansion;
         std::string _os;
 

@@ -533,6 +533,14 @@ namespace WorldPackets
 
             ObjectGuid ItemGuid;
         };
+
+        class CharacterInventoryOverflowWarning final : public ServerPacket
+        {
+        public:
+            CharacterInventoryOverflowWarning() : ServerPacket(SMSG_CHARACTER_INVENTORY_OVERFLOW_WARNING, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 
