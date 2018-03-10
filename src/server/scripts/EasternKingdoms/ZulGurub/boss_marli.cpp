@@ -174,7 +174,7 @@ class boss_marli : public CreatureScript
                             while (i++ < 3) // max 3 tries to get a random target with power_mana
                             {
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);  // not aggro leader
-                                if (target && target->getPowerType() == POWER_MANA)
+                                if (target && target->GetPowerType() == POWER_MANA)
                                     break;
                             }
                             if (target)
