@@ -673,7 +673,7 @@ namespace WorldPackets
             uint32 ItemID = 0;
             uint32 Unk4 = 0;
             std::vector<uint32> AchievementsRequired;
-            uint32 RaceMask = 0;
+            uint64 RaceMask = 0;
             int32 MinGuildLevel = 0;
             int32 MinGuildRep = 0;
             uint64 Cost = 0;

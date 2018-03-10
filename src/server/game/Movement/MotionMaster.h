@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_MOTIONMASTER_H
-#define TRINITY_MOTIONMASTER_H
+#ifndef MOTIONMASTER_H
+#define MOTIONMASTER_H
 
 #include "Common.h"
 #include "Errors.h"
@@ -32,6 +32,7 @@ class PathGenerator;
 struct Position;
 struct SplineChainLink;
 struct SplineChainResumeInfo;
+struct WaypointPath;
 
 namespace G3D
 {
@@ -44,31 +45,32 @@ namespace Movement
 
 // Creature Entry ID used for waypoints show, visible only for GMs
 #define VISUAL_WAYPOINT 1
+// assume it is 25 yard per 0.6 second
+#define SPEED_CHARGE    42.0f
 
-// values 0 ... MAX_DB_MOTION_TYPE-1 used in DB
 enum MovementGeneratorType : uint8
 {
-    IDLE_MOTION_TYPE      = 0,                              // IdleMovementGenerator.h
-    RANDOM_MOTION_TYPE    = 1,                              // RandomMovementGenerator.h
-    WAYPOINT_MOTION_TYPE  = 2,                              // WaypointMovementGenerator.h
-    MAX_DB_MOTION_TYPE    = 3,                              // *** this and below motion types can't be set in DB.
-    ANIMAL_RANDOM_MOTION_TYPE = MAX_DB_MOTION_TYPE,         // AnimalRandomMovementGenerator.h
-    CONFUSED_MOTION_TYPE  = 4,                              // ConfusedMovementGenerator.h
-    CHASE_MOTION_TYPE     = 5,                              // TargetedMovementGenerator.h
-    HOME_MOTION_TYPE      = 6,                              // HomeMovementGenerator.h
-    FLIGHT_MOTION_TYPE    = 7,                              // WaypointMovementGenerator.h
-    POINT_MOTION_TYPE     = 8,                              // PointMovementGenerator.h
-    FLEEING_MOTION_TYPE   = 9,                              // FleeingMovementGenerator.h
-    DISTRACT_MOTION_TYPE  = 10,                             // IdleMovementGenerator.h
-    ASSISTANCE_MOTION_TYPE= 11,                             // PointMovementGenerator.h (first part of flee for assistance)
-    ASSISTANCE_DISTRACT_MOTION_TYPE = 12,                   // IdleMovementGenerator.h (second part of flee for assistance)
-    TIMED_FLEEING_MOTION_TYPE = 13,                         // FleeingMovementGenerator.h (alt.second part of flee for assistance)
-    FOLLOW_MOTION_TYPE    = 14,
-    ROTATE_MOTION_TYPE    = 15,
-    EFFECT_MOTION_TYPE    = 16,
-    NULL_MOTION_TYPE      = 17,
-    SPLINE_CHAIN_MOTION_TYPE = 18,                          // SplineChainMovementGenerator.h
-    MAX_MOTION_TYPE                                         // limit
+    IDLE_MOTION_TYPE                = 0,                  // IdleMovementGenerator.h
+    RANDOM_MOTION_TYPE              = 1,                  // RandomMovementGenerator.h
+    WAYPOINT_MOTION_TYPE            = 2,                  // WaypointMovementGenerator.h
+    MAX_DB_MOTION_TYPE              = 3,                  // Below motion types can't be set in DB.
+    ANIMAL_RANDOM_MOTION_TYPE       = MAX_DB_MOTION_TYPE, // AnimalRandomMovementGenerator.h
+    CONFUSED_MOTION_TYPE            = 4,                  // ConfusedMovementGenerator.h
+    CHASE_MOTION_TYPE               = 5,                  // TargetedMovementGenerator.h
+    HOME_MOTION_TYPE                = 6,                  // HomeMovementGenerator.h
+    FLIGHT_MOTION_TYPE              = 7,                  // WaypointMovementGenerator.h
+    POINT_MOTION_TYPE               = 8,                  // PointMovementGenerator.h
+    FLEEING_MOTION_TYPE             = 9,                  // FleeingMovementGenerator.h
+    DISTRACT_MOTION_TYPE            = 10,                 // IdleMovementGenerator.h
+    ASSISTANCE_MOTION_TYPE          = 11,                 // PointMovementGenerator.h (first part of flee for assistance)
+    ASSISTANCE_DISTRACT_MOTION_TYPE = 12,                 // IdleMovementGenerator.h (second part of flee for assistance)
+    TIMED_FLEEING_MOTION_TYPE       = 13,                 // FleeingMovementGenerator.h (alt.second part of flee for assistance)
+    FOLLOW_MOTION_TYPE              = 14,
+    ROTATE_MOTION_TYPE              = 15,
+    EFFECT_MOTION_TYPE              = 16,
+    NULL_MOTION_TYPE                = 17,
+    SPLINE_CHAIN_MOTION_TYPE        = 18,                 // SplineChainMovementGenerator.h
+    MAX_MOTION_TYPE                                       // limit
 };
 
 enum MovementSlot
@@ -98,91 +100,41 @@ struct JumpArrivalCastArgs
     ObjectGuid Target;
 };
 
-// assume it is 25 yard per 0.6 second
-#define SPEED_CHARGE    42.0f
-
-class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
+class TC_GAME_API MotionMaster
 {
     private:
-        //typedef std::stack<MovementGenerator *> Impl;
-        typedef MovementGenerator* _Ty;
+        typedef std::vector<MovementGenerator*> ExpireList;
 
-        void pop()
-        {
-            if (empty())
-                return;
-
-            Impl[_top] = NULL;
-            while (!empty() && !top())
-                --_top;
-        }
-        void push(_Ty _Val) { ++_top; Impl[_top] = _Val; }
-
-        bool needInitTop() const
-        {
-            if (empty())
-                return false;
-            return _needInit[_top];
-        }
-        void InitTop();
     public:
-
-        explicit MotionMaster(Unit* unit) : _expList(NULL), _top(-1), _owner(unit), _cleanFlag(MMCF_NONE)
+        explicit MotionMaster(Unit* unit) : _expireList(nullptr), _top(-1), _owner(unit), _cleanFlag(MMCF_NONE)
         {
             for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
             {
-                Impl[i] = NULL;
-                _needInit[i] = true;
+                _slot[i] = nullptr;
+                _initialize[i] = true;
             }
         }
         ~MotionMaster();
 
+        bool empty() const { return (_top < 0); }
+        int size() const { return _top + 1; }
+        MovementGenerator* top() const { ASSERT(!empty()); return _slot[_top]; }
+
         void Initialize();
         void InitDefault();
 
-        bool empty() const { return (_top < 0); }
-        int size() const { return _top + 1; }
-        _Ty top() const
-        {
-            ASSERT(!empty());
-            return Impl[_top];
-        }
-        _Ty GetMotionSlot(int slot) const
-        {
-            ASSERT(slot >= 0);
-            return Impl[slot];
-        }
-
-        void DirectDelete(_Ty curr);
-        void DelayedDelete(_Ty curr);
-
         void UpdateMotion(uint32 diff);
-        void Clear(bool reset = true)
-        {
-            if (_cleanFlag & MMCF_UPDATE)
-            {
-                if (reset)
-                    _cleanFlag |= MMCF_RESET;
-                else
-                    _cleanFlag &= ~MMCF_RESET;
-                DelayedClean();
-            }
-            else
-                DirectClean(reset);
-        }
-        void MovementExpired(bool reset = true)
-        {
-            if (_cleanFlag & MMCF_UPDATE)
-            {
-                if (reset)
-                    _cleanFlag |= MMCF_RESET;
-                else
-                    _cleanFlag &= ~MMCF_RESET;
-                DelayedExpire();
-            }
-            else
-                DirectExpire(reset);
-        }
+
+        void Clear(bool reset = true);
+        void MovementExpired(bool reset = true);
+
+        MovementGeneratorType GetCurrentMovementGeneratorType() const;
+        MovementGeneratorType GetMotionSlotType(int slot) const;
+        MovementGenerator* GetMotionSlot(int slot) const;
+
+        void propagateSpeedChange();
+
+        bool GetDestination(float &x, float &y, float &z);
 
         void MoveIdle();
         void MoveTargetedHome();
@@ -192,7 +144,9 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true)
-            { MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath); }
+        {
+            MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath);
+        }
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true);
 
         /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
@@ -227,29 +181,30 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
         void MoveDistract(uint32 time);
         void MovePath(uint32 path_id, bool repeatable);
+        void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
 
-        MovementGeneratorType GetCurrentMovementGeneratorType() const;
-        MovementGeneratorType GetMotionSlotType(int slot) const;
-
-        void propagateSpeedChange();
-
-        bool GetDestination(float &x, float &y, float &z);
     private:
-        void Mutate(MovementGenerator *m, MovementSlot slot);                  // use Move* functions instead
+        void pop();
+
+        bool NeedInitTop() const;
+        void InitTop();
+
+        void Mutate(MovementGenerator *m, MovementSlot slot);
 
         void DirectClean(bool reset);
         void DelayedClean();
-
         void DirectExpire(bool reset);
         void DelayedExpire();
+        void DirectDelete(MovementGenerator* curr);
+        void DelayedDelete(MovementGenerator* curr);
 
-        typedef std::vector<_Ty> ExpireList;
-        ExpireList* _expList;
-        _Ty Impl[MAX_MOTION_SLOT];
+        ExpireList* _expireList;
+        MovementGenerator* _slot[MAX_MOTION_SLOT];
         int _top;
         Unit* _owner;
-        bool _needInit[MAX_MOTION_SLOT];
+        bool _initialize[MAX_MOTION_SLOT];
         uint8 _cleanFlag;
 };
-#endif
+
+#endif // MOTIONMASTER_H

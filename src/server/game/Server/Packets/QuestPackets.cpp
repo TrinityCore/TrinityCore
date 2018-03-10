@@ -65,6 +65,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.QuestID);
         _worldPacket << int32(Info.QuestType);
         _worldPacket << int32(Info.QuestLevel);
+        _worldPacket << int32(Info.QuestMaxScalingLevel);
         _worldPacket << int32(Info.QuestPackageID);
         _worldPacket << int32(Info.QuestMinLevel);
         _worldPacket << int32(Info.QuestSortID);
@@ -139,7 +140,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.TimeAllowed);
 
         _worldPacket << uint32(Info.Objectives.size());
-        _worldPacket << int32(Info.AllowableRaces);
+        _worldPacket << uint64(Info.AllowableRaces);
         _worldPacket << int32(Info.QuestRewardID);
         _worldPacket << int32(Info.Expansion);
 
@@ -489,6 +490,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestListMessage::Write()
         _worldPacket << uint32(gossip.QuestID);
         _worldPacket << uint32(gossip.QuestType);
         _worldPacket << int32(gossip.QuestLevel);
+        _worldPacket << int32(gossip.QuestMaxScalingLevel);
         _worldPacket << uint32(gossip.QuestFlags);
         _worldPacket << uint32(gossip.QuestFlagsEx);
         _worldPacket.WriteBit(gossip.Repeatable);
@@ -664,8 +666,10 @@ WorldPacket const* WorldPackets::Quest::DisplayPlayerChoice::Write()
     _worldPacket << int32(ChoiceID);
     _worldPacket << uint32(Responses.size());
     _worldPacket << SenderGUID;
+    _worldPacket << int32(UiTextureKitID);
     _worldPacket.WriteBits(Question.length(), 8);
     _worldPacket.WriteBit(CloseChoiceFrame);
+    _worldPacket.WriteBit(HideWarboardHeader);
     _worldPacket.FlushBits();
 
     for (PlayerChoiceResponse const& response : Responses)

@@ -207,6 +207,7 @@ namespace WorldPackets
             uint32 MaxInCombatResCount = 0;
             uint32 CombatResChargeRecovery = 0;
             uint32 NextCombatResChargeTime = 0;
+            bool InProgress = true;
         };
 
         class InstanceEncounterEnd final : public ServerPacket

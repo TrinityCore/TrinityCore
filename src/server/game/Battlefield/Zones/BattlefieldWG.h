@@ -393,6 +393,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
         GuidUnorderedSet m_vehicles[BG_TEAMS_COUNT];
         GuidVector CanonList;
 
+        TeamId m_tenacityTeam;
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
 

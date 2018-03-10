@@ -19,6 +19,7 @@
 #include "ByteBuffer.h"
 #include "DB2DatabaseLoader.h"
 #include "DB2Meta.h"
+#include <boost/filesystem/operations.hpp>
 
 struct DB2FileSystemSource : public DB2FileSource
 {
@@ -47,6 +48,13 @@ struct DB2FileSystemSource : public DB2FileSource
     std::size_t GetPosition() const override
     {
         return ftell(_file);
+    }
+
+    std::size_t GetFileSize() const override
+    {
+        boost::system::error_code error;
+        std::size_t size = boost::filesystem::file_size(_fileName, error);
+        return !error ? size : 0;
     }
 
     char const* GetFileName() const override
@@ -100,6 +108,10 @@ void DB2StorageBase::WriteRecordData(char const* entry, uint32 locale, ByteBuffe
             case FT_SHORT:
                 buffer << *(uint16*)entry;
                 entry += 2;
+                break;
+            case FT_LONG:
+                buffer << *(uint64*)entry;
+                entry += 8;
                 break;
             case FT_STRING:
             {
