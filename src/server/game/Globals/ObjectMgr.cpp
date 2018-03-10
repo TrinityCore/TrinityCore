@@ -6338,7 +6338,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveYard(uint32 team) const
 WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team) const
 {
     // search for zone associated closest graveyard
-    uint32 zoneId = sMapMgr->GetZoneId(PhaseShift(), MapId, x, y, z);
+    uint32 zoneId = sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), MapId, x, y, z);
 
     if (!zoneId)
     {

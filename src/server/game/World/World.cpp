@@ -1512,6 +1512,8 @@ void World::SetInitialWorldSettings()
             mapData[mapEntry->rootPhaseMap].push_back(mapEntry->MapID);
     }
 
+    sMapMgr->InitializeParentMapData(mapData);
+
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
         vmmgr2->InitializeThreadUnsafe(mapData);
 

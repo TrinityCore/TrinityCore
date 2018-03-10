@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "MapManager.h"
 #include "TicketMgr.h"
 #include "Chat.h"
@@ -245,7 +246,7 @@ public:
             player->SaveRecallPosition();
 
         Map const* map = sMapMgr->CreateBaseMap(mapId);
-        float z = std::max(map->GetStaticHeight(PhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+        float z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(mapId, x, y, z, player->GetOrientation());
         return true;
@@ -465,7 +466,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        float z = std::max(map->GetStaticHeight(PhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+        float z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(zoneEntry->mapid, x, y, z, player->GetOrientation());
         return true;
@@ -513,7 +514,7 @@ public:
                 return false;
             }
             Map const* map = sMapMgr->CreateBaseMap(mapId);
-            z = std::max(map->GetStaticHeight(PhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+            z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
         }
 
         // stop flight if need

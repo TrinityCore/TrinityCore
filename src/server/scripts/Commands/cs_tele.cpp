@@ -27,6 +27,7 @@ EndScriptData */
 #include "Language.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 
@@ -202,7 +203,7 @@ public:
 
             SQLTransaction dummy;
             Player::SavePositionInDB(WorldLocation(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation),
-                sMapMgr->GetZoneId(PhaseShift(), tele->mapId, tele->position_x, tele->position_y, tele->position_z), target_guid, dummy);
+                sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), tele->mapId, tele->position_x, tele->position_y, tele->position_z), target_guid, dummy);
         }
 
         return true;
