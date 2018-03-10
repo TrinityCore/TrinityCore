@@ -1310,6 +1310,21 @@ void WorldObject::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
+uint32 WorldObject::GetZoneId() const
+{
+    return GetBaseMap()->GetZoneId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
+}
+
+uint32 WorldObject::GetAreaId() const
+{
+    return GetBaseMap()->GetAreaId(GetPhaseShift(), m_positionX, m_positionY, m_positionZ);
+}
+
+void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
+{
+    GetBaseMap()->GetZoneAndAreaId(GetPhaseShift(), zoneid, areaid, m_positionX, m_positionY, m_positionZ);
+}
+
 InstanceScript* WorldObject::GetInstanceScript() const
 {
     Map* map = GetMap();
