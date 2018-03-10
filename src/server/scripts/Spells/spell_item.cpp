@@ -1101,7 +1101,7 @@ class spell_item_heartpierce : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
 
                 uint32 spellId;
-                switch (caster->getPowerType())
+                switch (caster->GetPowerType())
                 {
                     case POWER_MANA:
                         spellId = Mana;
@@ -3851,7 +3851,7 @@ class spell_item_mad_alchemists_potion : public SpellScript
 
         Unit* target = GetCaster();
 
-        if (target->getPowerType() == POWER_MANA)
+        if (target->GetPowerType() == POWER_MANA)
             availableElixirs.push_back(28509); // Elixir of Major Mageblood (22840)
 
         uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);
@@ -3914,7 +3914,7 @@ class spell_item_crazy_alchemists_potion : public SpellScript
 
         if (!target->IsInCombat())
             availableElixirs.push_back(53753); // Potion of Nightmares (40081)
-        if (target->getPowerType() == POWER_MANA)
+        if (target->GetPowerType() == POWER_MANA)
             availableElixirs.push_back(43186); // Runic Mana Potion(33448)
 
         uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);

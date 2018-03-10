@@ -315,7 +315,12 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+        {
+            AuraCreateInfo createInfo(spellInfo, MAX_EFFECT_MASK, target);
+            createInfo.SetCaster(target);
+
+            Aura::TryRefreshStackOrCreate(createInfo);
+        }
 
         return true;
     }

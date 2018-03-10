@@ -34,8 +34,8 @@
 
 class SpellInfo;
 class Player;
-class Unit;
 class ProcEventInfo;
+class WorldObject;
 struct SkillLineAbilityEntry;
 
 // only used in code
@@ -553,12 +553,11 @@ struct PetDefaultSpellsEntry
 // < 0 for petspelldata id, > 0 for creature_id
 typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
 
-typedef std::vector<uint32> SpellCustomAttribute;
 typedef std::vector<bool> EnchantCustomAttribute;
 
 typedef std::vector<SpellInfo*> SpellInfoMap;
 
-typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
+typedef std::unordered_map<int32, std::vector<int32>> SpellLinkedMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
 
@@ -591,8 +590,8 @@ class TC_GAME_API SpellMgr
         // Spell difficulty
         uint32 GetSpellDifficultyId(uint32 spellId) const;
         void SetSpellDifficultyId(uint32 spellId, uint32 id);
-        uint32 GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const;
-        SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const;
+        uint32 GetSpellIdForDifficulty(uint32 spellId, WorldObject const* caster) const;
+        SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, WorldObject const* caster) const;
 
         // Spell Ranks table
         SpellChainNode const* GetSpellChainNode(uint32 spell_id) const;
@@ -648,7 +647,7 @@ class TC_GAME_API SpellMgr
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const;
         bool IsArenaAllowedEnchancment(uint32 ench_id) const;
 
-        const std::vector<int32> *GetSpellLinked(int32 spell_id) const;
+        std::vector<int32> const* GetSpellLinked(int32 spell_id) const;
 
         PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const;
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const;

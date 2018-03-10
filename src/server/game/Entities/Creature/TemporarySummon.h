@@ -21,6 +21,16 @@
 
 #include "Creature.h"
 
+enum PetEntry : uint32
+{
+    // Death Knight pets
+    PET_GHOUL           = 26125,
+    PET_RISEN_ALLY      = 30230,
+
+    // Shaman pet
+    PET_SPIRIT_WOLF     = 29264
+};
+
 struct SummonPropertiesEntry;
 
 class TC_GAME_API TempSummon : public Creature
@@ -59,10 +69,15 @@ class TC_GAME_API Minion : public TempSummon
         Unit* GetOwner() const { return m_owner; }
         float GetFollowAngle() const override { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
-        bool IsPetGhoul() const { return GetEntry() == 26125; } // Ghoul may be guardian or pet
-        bool IsSpiritWolf() const { return GetEntry() == 29264; } // Spirit wolf from feral spirits
+
+        // Death Knight pets
+        bool IsPetGhoul() const { return GetEntry() == PET_GHOUL; } // Ghoul may be guardian or pet
+        bool IsRisenAlly() const { return GetEntry() == PET_RISEN_ALLY; }
+
+        // Shaman pet
+        bool IsSpiritWolf() const { return GetEntry() == PET_SPIRIT_WOLF; } // Spirit wolf from feral spirits
+
         bool IsGuardianPet() const;
-        bool IsRisenAlly() const { return GetEntry() == 30230; }
     protected:
         Unit* const m_owner;
         float m_followAngle;
