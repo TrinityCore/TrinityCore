@@ -24,6 +24,7 @@
 #include "PathGenerator.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
+#include "PhasingHandler.h"
 #include "FleeingMovementGenerator.h"
 
 #define MIN_QUIET_DISTANCE 28.0f
@@ -115,8 +116,13 @@ void FleeingMovementGenerator<T>::SetTargetLocation(T* owner)
     GetPoint(owner, destination);
 
     // Add LOS check for target point
-    Position currentPosition = owner->GetPosition();
-    if (!VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(owner->GetPhaseShift().GetTerrainMapId(owner->GetMapId(), currentPosition.m_positionX, currentPosition.m_positionY), currentPosition.m_positionX, currentPosition.m_positionY, currentPosition.m_positionZ + 1.0f, destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ() + 1.0f, VMAP::ModelIgnoreFlags::Nothing))
+    Position mypos = owner->GetPosition();
+    bool isInLOS = VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(
+        PhasingHandler::GetTerrainMapId(owner->GetPhaseShift(), owner->GetMap(), mypos.m_positionX, mypos.m_positionY),
+        mypos.m_positionX, mypos.m_positionY, mypos.m_positionZ + 2.0f, destination.m_positionX, destination.m_positionY,
+        destination.m_positionZ + 2.0f, VMAP::ModelIgnoreFlags::Nothing);
+
+    if (!isInLOS)
     {
         _timer.Reset(200);
         return;

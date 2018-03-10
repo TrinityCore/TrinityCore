@@ -2323,7 +2323,7 @@ float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float
 {
     // find raw .map surface under Z coordinates
     float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
-    uint32 terrainMapId = phaseShift.GetTerrainMapId(GetId(), x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(terrainMapId, x, y))
     {
         float gridHeight = gmap->getHeight(x, y);
@@ -2408,7 +2408,7 @@ bool Map::IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z) co
 bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const
 {
     float vmap_z = z;
-    uint32 terrainMapId = phaseShift.GetTerrainMapId(GetId(), x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     if (vmgr->getAreaInfo(terrainMapId, x, y, vmap_z, flags, adtId, rootId, groupId))
     {
@@ -2432,22 +2432,24 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, b
     WMOAreaTableEntry const* wmoEntry = nullptr;
     AreaTableEntry const* atEntry = nullptr;
     bool haveAreaInfo = false;
+    uint32 areaId = 0;
 
     if (GetAreaInfo(phaseShift, x, y, z, mogpFlags, adtId, rootId, groupId))
     {
         haveAreaInfo = true;
         wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
         if (wmoEntry)
+        {
+            areaId = wmoEntry->areaId;
             atEntry = sAreaTableStore.LookupEntry(wmoEntry->areaId);
+
+        }
     }
 
-    uint32 areaId = 0;
 
-    if (atEntry)
-        areaId = atEntry->ID;
-    else
+    if (!areaId)
     {
-        if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(phaseShift.GetTerrainMapId(GetId(), x, y), x, y))
+        if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
             areaId = gmap->getArea(x, y);
 
         // this used while not all *.map files generated (instances)
@@ -2485,7 +2487,7 @@ void Map::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32&
 
 uint8 Map::GetTerrainType(PhaseShift const& phaseShift, float x, float y) const
 {
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(phaseShift.GetTerrainMapId(GetId(), x, y), x, y))
+    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
         return gmap->getTerrainType(x, y);
     else
         return 0;
@@ -2498,7 +2500,7 @@ ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float 
     float liquid_level = INVALID_HEIGHT;
     float ground_level = INVALID_HEIGHT;
     uint32 liquid_type = 0;
-    uint32 terrainMapId = phaseShift.GetTerrainMapId(GetId(), x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     if (vmgr->GetLiquidLevel(terrainMapId, x, y, z, ReqLiquidType, liquid_level, ground_level, liquid_type))
     {
         TC_LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: %f ground: %f type: %u", liquid_level, ground_level, liquid_type);
@@ -2680,7 +2682,7 @@ void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFul
 
 float Map::GetWaterLevel(PhaseShift const& phaseShift, float x, float y) const
 {
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(phaseShift.GetTerrainMapId(GetId(), x, y), x, y))
+    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
         return gmap->getLiquidLevel(x, y);
     else
         return 0;
@@ -2689,7 +2691,7 @@ float Map::GetWaterLevel(PhaseShift const& phaseShift, float x, float y) const
 bool Map::isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
     if ((checks & LINEOFSIGHT_CHECK_VMAP)
-      && !VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(phaseShift.GetTerrainMapId(GetId(), x1, x2), x1, y1, z1, x2, y2, z2, ignoreFlags))
+      && !VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(PhasingHandler::GetTerrainMapId(phaseShift, this, x1, y1), x1, y1, z1, x2, y2, z2, ignoreFlags))
         return false;
     if (sWorld->getBoolConfig(CONFIG_CHECK_GOBJECT_LOS) && (checks & LINEOFSIGHT_CHECK_GOBJECT)
       && !_dynamicTree.isInLineOfSight({x1, y1, z1}, {x2, y2, z2}, phaseShift))

@@ -124,8 +124,6 @@ namespace VMAP
             bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const override;
             void getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const override;
 
-            int32 GetDistanceToClosestPrimaryTile(uint32 mapId, int32 x, int32 y) const override;
-
             WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags = 0);
             void releaseModelInstance(const std::string& filename);
 

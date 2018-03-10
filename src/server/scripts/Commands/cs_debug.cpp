@@ -1016,7 +1016,7 @@ public:
 
         if (p)
             if (uint32 up = (uint32)atoi(p))
-                phaseShift.AddPhase(up, PhaseFlags::None, nullptr, nullptr);
+                phaseShift.AddPhase(up, PhaseFlags::None, nullptr);
 
         if (m)
             if (uint32 um = (uint32)atoi(m))

@@ -26,7 +26,6 @@
 
 class PhasingHandler;
 struct Condition;
-struct PhaseInfoStruct;
 struct TerrainSwapInfo;
 
 #define DEFAULT_PHASE 169
@@ -54,13 +53,12 @@ class TC_GAME_API PhaseShift
 public:
     struct PhaseRef
     {
-        PhaseRef(uint32 id, PhaseFlags flags, PhaseInfoStruct const* phaseInfo, std::vector<Condition*> const* conditions)
-            : Id(id), Flags(flags), References(0), PhaseInfo(phaseInfo), AreaConditions(conditions) { }
+        PhaseRef(uint32 id, PhaseFlags flags, std::vector<Condition*> const* conditions)
+            : Id(id), Flags(flags), References(0), AreaConditions(conditions) { }
 
         uint16 Id;
         EnumClassFlag<PhaseFlags> Flags;
         int32 References;
-        PhaseInfoStruct const* PhaseInfo;
         std::vector<Condition*> const* AreaConditions;
         bool operator<(PhaseRef const& right) const { return Id < right.Id; }
         bool operator==(PhaseRef const& right) const { return Id == right.Id; }
@@ -84,9 +82,9 @@ public:
     typedef std::map<uint32, VisibleMapIdRef> VisibleMapIdContainer;
     typedef std::map<uint32, UiWorldMapAreaIdSwapRef> UiWorldMapAreaIdSwapContainer;
 
-    bool AddPhase(uint32 phaseId, PhaseFlags flags, PhaseInfoStruct const* phase, std::vector<Condition*> const* areaConditions, int32 references = 1);
+    bool AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references = 1);
     EraseResult<PhaseContainer> RemovePhase(uint32 phaseId);
-    bool HasPhase(uint32 phaseId) const { return Phases.find(PhaseRef(phaseId, PhaseFlags::None, nullptr, nullptr)) != Phases.end(); }
+    bool HasPhase(uint32 phaseId) const { return Phases.find(PhaseRef(phaseId, PhaseFlags::None, nullptr)) != Phases.end(); }
     PhaseContainer const& GetPhases() const { return Phases; }
 
     bool AddVisibleMapId(uint32 visibleMapId, TerrainSwapInfo const* visibleMapInfo, int32 references = 1);
@@ -103,7 +101,6 @@ public:
     void ClearPhases();
 
     bool CanSee(PhaseShift const& other) const;
-    uint32 GetTerrainMapId(uint32 realMapId, float x, float y) const;
 
 protected:
     friend class PhasingHandler;

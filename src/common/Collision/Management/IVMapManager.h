@@ -126,8 +126,6 @@ namespace VMAP
             virtual bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float &level, float &floor, uint32 &type) const=0;
             // get both area + liquid data in a single vmap lookup
             virtual void getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const=0;
-
-            virtual int32 GetDistanceToClosestPrimaryTile(uint32 mapId, int32 x, int32 y) const = 0;
     };
 
 }

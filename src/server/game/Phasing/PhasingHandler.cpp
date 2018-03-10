@@ -61,7 +61,7 @@ inline void ForAllControlled(Unit* unit, Func&& func)
 
 void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
 {
-    bool changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), sObjectMgr->GetPhaseInfo(phaseId), nullptr);
+    bool changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
 
     if (Unit* unit = object->ToUnit())
     {
@@ -101,7 +101,7 @@ void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, boo
 
     bool changed = false;
     for (uint32 phaseId : *phasesInGroup)
-        changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), sObjectMgr->GetPhaseInfo(phaseId), nullptr) || changed;
+        changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr) || changed;
 
     if (Unit* unit = object->ToUnit())
     {
@@ -242,9 +242,9 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
 
                 uint32 phaseId = phaseArea.PhaseInfo->Id;
                 if (sConditionMgr->IsObjectMeetToConditions(srcInfo, phaseArea.Conditions))
-                    phaseShift.AddPhase(phaseArea.PhaseInfo->Id, GetPhaseFlags(phaseId), phaseArea.PhaseInfo, &phaseArea.Conditions);
+                    phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), &phaseArea.Conditions);
                 else
-                    suppressedPhaseShift.AddPhase(phaseArea.PhaseInfo->Id, GetPhaseFlags(phaseId), phaseArea.PhaseInfo, &phaseArea.Conditions);
+                    suppressedPhaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), &phaseArea.Conditions);
             }
         }
 
@@ -257,13 +257,13 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
         for (AuraEffect const* aurEff : unit->GetAuraEffectsByType(SPELL_AURA_PHASE))
         {
             uint32 phaseId = uint32(aurEff->GetMiscValueB());
-            changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), sObjectMgr->GetPhaseInfo(phaseId), nullptr) || changed;
+            changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr) || changed;
         }
 
         for (AuraEffect const* aurEff : unit->GetAuraEffectsByType(SPELL_AURA_PHASE_GROUP))
             if (std::vector<uint32> const* phasesInGroup = GetPhasesForGroup(uint32(aurEff->GetMiscValueB())))
                 for (uint32 phaseId : *phasesInGroup)
-                    changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), sObjectMgr->GetPhaseInfo(phaseId), nullptr) || changed;
+                    changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr) || changed;
 
         if (changed)
             unit->OnPhaseChange();
@@ -292,7 +292,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
     {
         if (itr->AreaConditions && !sConditionMgr->IsObjectMeetToConditions(srcInfo, *itr->AreaConditions))
         {
-            newSuppressions.AddPhase(itr->Id, itr->Flags, itr->PhaseInfo, itr->AreaConditions, itr->References);
+            newSuppressions.AddPhase(itr->Id, itr->Flags, itr->AreaConditions, itr->References);
             itr = phaseShift.Phases.erase(itr);
         }
         else
@@ -303,7 +303,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
     {
         if (sConditionMgr->IsObjectMeetToConditions(srcInfo, *ASSERT_NOTNULL(itr->AreaConditions)))
         {
-            changed = phaseShift.AddPhase(itr->Id, itr->Flags, itr->PhaseInfo, itr->AreaConditions, itr->References) || changed;
+            changed = phaseShift.AddPhase(itr->Id, itr->Flags, itr->AreaConditions, itr->References) || changed;
             itr = suppressedPhaseShift.Phases.erase(itr);
         }
         else
@@ -344,8 +344,10 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
         for (AuraEffect const* aurEff : unit->GetAuraEffectsByType(SPELL_AURA_PHASE))
         {
             uint32 phaseId = uint32(aurEff->GetMiscValueB());
-            phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), sObjectMgr->GetPhaseInfo(phaseId), nullptr);
-            newSuppressions.RemovePhase(phaseId);
+            auto eraseResult = newSuppressions.RemovePhase(phaseId);
+            // if condition was met previously there is nothing to erase
+            if (eraseResult.Iterator != newSuppressions.Phases.end() || eraseResult.Erased)
+                phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
         }
 
         for (AuraEffect const* aurEff : unit->GetAuraEffectsByType(SPELL_AURA_PHASE_GROUP))
@@ -354,8 +356,10 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
             {
                 for (uint32 phaseId : *phasesInGroup)
                 {
-                    phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), sObjectMgr->GetPhaseInfo(phaseId), nullptr);
-                    newSuppressions.RemovePhase(phaseId);
+                    auto eraseResult = newSuppressions.RemovePhase(phaseId);
+                    // if condition was met previously there is nothing to erase
+                    if (eraseResult.Iterator != newSuppressions.Phases.end() || eraseResult.Erased)
+                        phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
                 }
             }
         }
@@ -363,7 +367,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
 
     changed = changed || !newSuppressions.Phases.empty() || !newSuppressions.VisibleMapIds.empty();
     for (auto itr = newSuppressions.Phases.begin(); itr != newSuppressions.Phases.end(); ++itr)
-        suppressedPhaseShift.AddPhase(itr->Id, itr->Flags, itr->PhaseInfo, itr->AreaConditions, itr->References);
+        suppressedPhaseShift.AddPhase(itr->Id, itr->Flags, itr->AreaConditions, itr->References);
 
     for (auto itr = newSuppressions.VisibleMapIds.begin(); itr != newSuppressions.VisibleMapIds.end(); ++itr)
         suppressedPhaseShift.AddVisibleMapId(itr->first, itr->second.VisibleMapInfo, itr->second.References);
@@ -453,7 +457,6 @@ PhaseShift const& PhasingHandler::GetEmptyPhaseShift()
 
 void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId)
 {
-    phaseShift.ClearPhases();
     phaseShift.IsDbPhaseShift = true;
 
     EnumClassFlag<PhaseShiftFlags> flags = PhaseShiftFlags::None;
@@ -463,10 +466,10 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
         flags |= PhaseShiftFlags::Inverse;
 
     if (phaseId)
-        phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), sObjectMgr->GetPhaseInfo(phaseId), nullptr);
+        phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
     else if (std::vector<uint32> const* phasesInGroup = GetPhasesForGroup(phaseGroupId))
         for (uint32 phaseInGroup : *phasesInGroup)
-            phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), sObjectMgr->GetPhaseInfo(phaseInGroup), nullptr);
+            phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), nullptr);
 
     if (phaseShift.Phases.empty() || phaseShift.HasPhase(DEFAULT_PHASE))
     {
@@ -491,6 +494,32 @@ bool PhasingHandler::InDbPhaseShift(WorldObject const* object, uint8 phaseUseFla
     PhaseShift phaseShift;
     InitDbPhaseShift(phaseShift, phaseUseFlags, phaseId, phaseGroupId);
     return object->GetPhaseShift().CanSee(phaseShift);
+}
+
+uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, Map const* map, float x, float y)
+{
+    if (phaseShift.VisibleMapIds.empty())
+        return map->GetId();
+
+    if (phaseShift.VisibleMapIds.size() == 1)
+        return phaseShift.VisibleMapIds.begin()->first;
+
+    GridCoord gridCoord = Trinity::ComputeGridCoord(x, y);
+    int32 gx = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.x_coord;
+    int32 gy = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
+
+    int32 gxbegin = std::max(gx - 1, 0);
+    int32 gxend = std::min(gx + 1, MAX_NUMBER_OF_GRIDS);
+    int32 gybegin = std::max(gy - 1, 0);
+    int32 gyend = std::min(gy + 1, MAX_NUMBER_OF_GRIDS);
+
+    for (auto itr = phaseShift.VisibleMapIds.rbegin(); itr != phaseShift.VisibleMapIds.rend(); ++itr)
+        for (int32 gxi = gxbegin; gxi < gxend; ++gxi)
+            for (int32 gyi = gybegin; gyi < gyend; ++gyi)
+                if (map->HasGrid(gxi, gyi))
+                    return itr->first;
+
+    return map->GetId();
 }
 
 void PhasingHandler::SetAlwaysVisible(PhaseShift& phaseShift, bool apply)
