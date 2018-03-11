@@ -26,6 +26,16 @@
 #include "SharedDefines.h"
 #include <memory>
 
+namespace WorldPackets
+{
+    namespace Spells
+    {
+        struct SpellTargetData;
+        struct SpellAmmo;
+        struct SpellCastData;
+    }
+}
+
 class Aura;
 class AuraEffect;
 class Corpse;
@@ -125,7 +135,7 @@ class TC_GAME_API SpellCastTargets
         ~SpellCastTargets();
 
         void Read(ByteBuffer& data, Unit* caster);
-        void Write(ByteBuffer& data);
+        void Write(WorldPackets::Spells::SpellTargetData& data);
 
         uint32 GetTargetMask() const { return m_targetMask; }
         void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
@@ -273,7 +283,6 @@ class TC_GAME_API Spell
         void EffectOpenLock(SpellEffIndex effIndex);
         void EffectSummonChangeItem(SpellEffIndex effIndex);
         void EffectProficiency(SpellEffIndex effIndex);
-        void EffectApplyAreaAura(SpellEffIndex effIndex);
         void EffectSummonType(SpellEffIndex effIndex);
         void EffectLearnSpell(SpellEffIndex effIndex);
         void EffectDispel(SpellEffIndex effIndex);
@@ -450,8 +459,8 @@ class TC_GAME_API Spell
         void setState(uint32 state) { m_spellState = state; }
 
         void DoCreateItem(uint32 i, uint32 itemtype);
-        void WriteSpellGoTargets(WorldPacket* data);
-        void WriteAmmoToPacket(WorldPacket* data);
+        void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data);
+        void UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& data);
 
         bool CheckEffectTarget(Unit const* target, uint32 eff, Position const* losPosition) const;
         bool CanAutoCast(Unit* target);
@@ -490,7 +499,6 @@ class TC_GAME_API Spell
         uint32 m_castItemEntry;
         uint8 m_cast_count;
         uint32 m_glyphIndex;
-        uint32 m_preCastSpell;
         SpellCastTargets m_targets;
 
         void AddComboPointGain(Unit* target, int8 amount)
