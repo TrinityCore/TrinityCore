@@ -1,0 +1,20 @@
+DROP TABLE IF EXISTS `artifact_tier`;
+CREATE TABLE `artifact_tier`(
+    `ID` INT(10) UNSIGNED NOT NULL,
+    `Unk1` INT(10) UNSIGNED NOT NULL,
+    `MinArtifactRank` INT(10) UNSIGNED NOT NULL,
+    `MinKnowledgeRank` INT(10) UNSIGNED NOT NULL,
+    `Unk2` INT(10) UNSIGNED NOT NULL,
+    `Unk3` INT(10) UNSIGNED NOT NULL,
+    PRIMARY KEY (`ID`, `Unk1`)
+);
+
+DROP TABLE IF EXISTS `artifact_unlock`;
+CREATE TABLE `artifact_unlock`(
+    `ID` INT(10) UNSIGNED NOT NULL,
+    `ItemBonusListID` SMALLINT(5) UNSIGNED NOT NULL,
+    `PowerRank` TINYINT(3) UNSIGNED NOT NULL,
+    `PowerID` INT(10) UNSIGNED NOT NULL,
+    `PlayerConditionID` INT(10) UNSIGNED NOT NULL,
+    `ArtifactID` TINYINT(3) UNSIGNED NOT NULL, PRIMARY KEY (`ID`)
+);
